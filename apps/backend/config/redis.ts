@@ -20,11 +20,26 @@ const redisConfig = defineConfig({
       host: env.get("REDIS_HOST"),
       port: env.get("REDIS_PORT"),
       password: env.get("REDIS_PASSWORD"),
-      db: 0,
       keyPrefix: "",
-      retryStrategy(times) {
-        return times > 10 ? null : times * 50;
+      /**
+       * Exponential backoff with full jitter
+       * https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
+       */
+      retryStrategy(retries) {
+        if (retries > 10) return null;
+        const delayMs = 50;
+        const maxDelayMs = 5000;
+        const baseDelay = delayMs * 2 ** (retries - 1);
+        const cappedDelay = Math.min(baseDelay, maxDelayMs);
+        const fullJitter = Math.floor(Math.random() * cappedDelay);
+        return fullJitter;
       },
+    },
+    session: {
+      host: env.get("REDIS_HOST"),
+      port: env.get("REDIS_PORT"),
+      password: env.get("REDIS_PASSWORD"),
+      keyPrefix: "session",
     },
   },
 });

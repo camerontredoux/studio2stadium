@@ -34,7 +34,7 @@ const sessionConfig = defineConfig({
    */
   store: "redis",
   stores: {
-    redis: stores.redis({ connection: "main" }),
+    redis: stores.redis({ connection: "session" }),
   },
 });
 
