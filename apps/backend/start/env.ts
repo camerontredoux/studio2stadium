@@ -9,14 +9,14 @@
 |
 */
 
-import { Env } from '@adonisjs/core/env'
+import { Env } from "@adonisjs/core/env";
 
-export default await Env.create(new URL('../', import.meta.url), {
-  NODE_ENV: Env.schema.enum(['development', 'production', 'test'] as const),
+export default await Env.create(new URL("../", import.meta.url), {
+  NODE_ENV: Env.schema.enum(["development", "production", "test"] as const),
   PORT: Env.schema.number(),
   APP_KEY: Env.schema.string(),
-  HOST: Env.schema.string({ format: 'host' }),
-  LOG_LEVEL: Env.schema.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']),
+  HOST: Env.schema.string({ format: "host" }),
+  LOG_LEVEL: Env.schema.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]),
 
   /*
   |----------------------------------------------------------
@@ -31,6 +31,6 @@ export default await Env.create(new URL('../', import.meta.url), {
   | Variables for configuring session package
   |----------------------------------------------------------
   */
-  SESSION_DRIVER: Env.schema.enum(['memory', 'redis'] as const),
+  SESSION_DRIVER: Env.schema.enum(["memory", "redis"] as const),
   REDIS_URL: Env.schema.string(),
-})
+});

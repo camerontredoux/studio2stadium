@@ -1,3 +1,3 @@
 /// <reference path="../adonisrc.ts" />
 
-export * from './api.js'
+export * from "./api.js";
