@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-kysely"
+  fileName = "types.ts"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DIRECT_URL")
+}
+
+model Users {
+  id        String @unique @default(dbgenerated("gen_random_uuid()"))
+  email     String @unique
+  firstName String
+  lastName  String
+  image     String @default("")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@map("users")
+}
