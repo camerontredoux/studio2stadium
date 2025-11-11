@@ -53,6 +53,7 @@ export default defineConfig({
     () => import("@adonisjs/session/session_provider"),
     () => import("@adonisjs/auth/auth_provider"),
     () => import("@tuyau/core/tuyau_provider"),
+    () => import("@adonisjs/redis/redis_provider"),
   ],
 
   /*

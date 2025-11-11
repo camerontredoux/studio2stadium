@@ -31,6 +31,7 @@ export default await Env.create(new URL("../", import.meta.url), {
   | Variables for configuring session package
   |----------------------------------------------------------
   */
-  SESSION_DRIVER: Env.schema.enum(["memory", "redis"] as const),
-  REDIS_URL: Env.schema.string(),
+  REDIS_HOST: Env.schema.string({ format: "host" }),
+  REDIS_PORT: Env.schema.number(),
+  REDIS_PASSWORD: Env.schema.string(),
 });

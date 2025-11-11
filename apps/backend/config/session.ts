@@ -1,4 +1,3 @@
-import env from "#start/env";
 import app from "@adonisjs/core/services/app";
 import { defineConfig, stores } from "@adonisjs/session";
 
@@ -30,20 +29,12 @@ const sessionConfig = defineConfig({
   },
 
   /**
-   * The store to use. Make sure to validate the environment
-   * variable in order to infer the store name without any
-   * errors.
+   * https://docs.adonisjs.com/guides/basics/session#stores-configuration
+   * "main" connection comes from redis.ts config file
    */
-  store: env.get("SESSION_DRIVER"),
-
-  /**
-   * List of configured stores. Refer documentation to see
-   * list of available stores and their config.
-   */
+  store: "redis",
   stores: {
-    redis: stores.redis({
-      connection: env.get("REDIS_URL"),
-    }),
+    redis: stores.redis({ connection: "main" }),
   },
 });
 
