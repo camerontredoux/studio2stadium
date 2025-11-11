@@ -1,0 +1,15 @@
+name: studio2stadium
+
+services:
+  db:
+    image: postgres:18
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql
+
+volumes:
+  pgdata:

@@ -23,16 +23,14 @@ export default await Env.create(new URL('../', import.meta.url), {
   | Variables for configuring database connection
   |----------------------------------------------------------
   */
-  DB_HOST: Env.schema.string({ format: 'host' }),
-  DB_PORT: Env.schema.number(),
-  DB_USER: Env.schema.string(),
-  DB_PASSWORD: Env.schema.string.optional(),
-  DB_DATABASE: Env.schema.string(),
+  DATABASE_URL: Env.schema.string(),
+  DIRECT_URL: Env.schema.string(),
 
   /*
   |----------------------------------------------------------
   | Variables for configuring session package
   |----------------------------------------------------------
   */
-  SESSION_DRIVER: Env.schema.enum(['cookie', 'memory'] as const),
+  SESSION_DRIVER: Env.schema.enum(['memory', 'redis'] as const),
+  REDIS_URL: Env.schema.string(),
 })

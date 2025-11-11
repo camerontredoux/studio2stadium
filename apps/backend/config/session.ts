@@ -41,7 +41,9 @@ const sessionConfig = defineConfig({
    * list of available stores and their config.
    */
   stores: {
-    cookie: stores.cookie(),
+    redis: stores.redis({
+      connection: env.get('REDIS_URL'),
+    }),
   },
 })
 
