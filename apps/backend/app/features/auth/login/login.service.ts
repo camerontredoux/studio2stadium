@@ -1,30 +1,54 @@
-import { errors } from "@adonisjs/auth";
+import { errors as auth } from "@adonisjs/auth";
 import { RuntimeException } from "@adonisjs/core/exceptions";
 import hash from "@adonisjs/core/services/hash";
 import type { LoginValidator } from "./login.validator.js";
 import { UsersRepository } from "#repositories/users.repository";
 import { inject } from "@adonisjs/core";
+import limiter from "@adonisjs/limiter/services/main";
+import { errors } from "@adonisjs/limiter";
 
 @inject()
 export class LoginService {
   constructor(private repo: UsersRepository) {}
 
-  async execute({ email, password }: LoginValidator) {
+  async execute({ email, password }: LoginValidator, ip: string) {
+    const loginLimiter = limiter.use({
+      requests: 5,
+      duration: "1 min",
+      blockDuration: "5 mins",
+    });
+
+    const key = `login:${ip}:${email}`;
+
+    const [error, user] = await loginLimiter.penalize(key, () => {
+      return this.verify(email, password);
+    });
+
+    if (error) {
+      throw new errors.E_TOO_MANY_REQUESTS(error.response);
+    }
+
+    return user;
+  }
+
+  async verify(email: string, password: string) {
     const user = await this.repo.findByEmail(email);
 
     if (!user) {
       await hash.make(password);
-      throw new errors.E_INVALID_CREDENTIALS("Invalid user credentials.");
+      throw new auth.E_INVALID_CREDENTIALS("Invalid user credentials.");
     }
 
     if (!user.password_hash) {
-      throw new RuntimeException("Cannot verify password. Password is either undefined or null.");
+      throw new RuntimeException("Cannot verify undefined password. Account cannot be accessed.");
     }
 
-    if (await hash.verify(user.password_hash, password)) {
-      return user;
+    const verified = await hash.verify(user.password_hash, password);
+
+    if (!verified) {
+      throw new auth.E_INVALID_CREDENTIALS("Invalid user credentials.");
     }
 
-    throw new errors.E_INVALID_CREDENTIALS("Invalid user credentials.");
+    return user;
   }
 }

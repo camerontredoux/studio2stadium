@@ -8,10 +8,10 @@ Content-Type: application/json
 
 {
     "email": "camtredoux@gmail.com",
-    "password": "password"
+    "password": "Cameron@1"
 }
 ###
-POST http://localhost:3333/signup
+POST http://localhost:3333/auth/register
 Content-Type: application/json
 
 {
@@ -22,6 +22,3 @@ Content-Type: application/json
     "lastName": "Tredoux",
     "image": "asd"
 }
-###
-GET http://localhost:3333/prodigy/events/attendees
-Content-Type: application/json
