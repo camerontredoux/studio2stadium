@@ -3,11 +3,10 @@ import { defineConfig, env } from "prisma/config";
 import "dotenv/config";
 
 export default defineConfig({
-  schema: "prisma/schema.prisma",
+  schema: "database/prisma/schema.prisma",
   migrations: {
-    path: "prisma/migrations",
+    path: "database/migrations",
   },
-  engine: "classic",
   datasource: {
     url: env("DIRECT_URL"),
   },

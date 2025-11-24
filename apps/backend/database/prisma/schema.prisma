@@ -1,0 +1,321 @@
+generator client {
+  provider = "prisma-kysely"
+  fileName = "types.ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/**
+ * **************
+ * AUTHENTICATION
+ * **************
+ */
+
+model Users {
+  id            String  @id @default(dbgenerated("gen_random_uuid()"))
+  email         String  @unique
+  username      String  @unique
+  first_name    String
+  last_name     String
+  image         String
+  password_hash String
+  phone         String?
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  dancer_accounts DancerAccounts?
+  school_accounts SchoolAccounts?
+
+  roles          UsersRoles[]
+  subscriptions  Subscriptions[]
+  favorites      Favorites[]
+  prodigy_events ProdigyEventAttendees[]
+
+  @@map("users")
+}
+
+model Roles {
+  id   Int    @id @default(autoincrement())
+  type String @unique
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  users UsersRoles[]
+
+  @@map("roles")
+}
+
+model UsersRoles {
+  role_id Int
+  user_id String
+
+  assigned_at DateTime @default(now())
+
+  user Users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  role Roles @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@id([role_id, user_id])
+  @@map("users_roles")
+}
+
+model PasswordResetTokens {
+  token_hash String   @unique
+  user_id    String   @unique
+  expires_at DateTime
+
+  created_at DateTime @default(now())
+
+  @@map("password_reset_tokens")
+}
+
+/**
+ * ********
+ * ACCOUNTS
+ * ********
+ */
+
+model DancerAccounts {
+  id             String   @id @default(dbgenerated("gen_random_uuid()"))
+  birthday       DateTime @db.Date
+  biography      String?
+  awards         String?
+  references     String?
+  instagram      String?
+  tiktok         String?
+  youtube        String?
+  location       String?
+  skill_level    String?
+  team_level     String?
+  high_school    String?
+  studio         String?
+  gpa            Float?
+  grad_year      Int?
+  training_hours Int?
+
+  awards_history Awards[]
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  user_id String @unique
+  user    Users  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  account_types DancerAccountsTypes[]
+
+  @@map("dancer_accounts")
+}
+
+model SchoolAccounts {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()"))
+  name               String   @unique
+  location           String
+  division           String?
+  benefits           String?
+  about              String?
+  website            String?
+  time_commitment    String?
+  head_coach         String?
+  assistant_coach    String?
+  tiktok             String?
+  instagram          String?
+  mission_statement  String?
+  what_we_do         String?
+  skill_requirements String?
+  competitions       String[]
+  dance_styles       String[]
+  sports             String[]
+  gpa_requirement    Float?
+  school_size        Int?
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  user_id String @unique
+  user    Users  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("school_accounts")
+}
+
+/**
+ * ************
+ * DANCER TYPES
+ * ************
+ */
+
+model DancerTypes {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  accounts DancerAccountsTypes[]
+
+  @@map("dancer_types")
+}
+
+model DancerAccountsTypes {
+  account_id String
+  type_id    Int
+  account    DancerAccounts @relation(fields: [account_id], references: [id], onDelete: Cascade)
+  type       DancerTypes    @relation(fields: [type_id], references: [id], onDelete: Cascade)
+
+  @@id([account_id, type_id])
+  @@map("dancer_accounts_types")
+}
+
+/**
+ * *******
+ * DANCERS
+ * *******
+ */
+
+model Awards {
+  id      String @id @default(dbgenerated("gen_random_uuid()"))
+  content String
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  dancer_id String
+  dancer    DancerAccounts @relation(fields: [dancer_id], references: [id], onDelete: Cascade)
+
+  @@index([dancer_id])
+  @@map("awards")
+}
+
+/**
+ * *******
+ * PRODIGY
+ * *******
+ */
+
+model ProdigyEvent {
+  id           String  @id @default(dbgenerated("gen_random_uuid()"))
+  name         String
+  location     String
+  schedule     String?
+  description  String?
+  organization String?
+  website      String?
+
+  start_datetime DateTime
+  end_datetime   DateTime
+  timezone       String
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  attendees ProdigyEventAttendees[]
+
+  @@map("prodigy_events")
+}
+
+model ProdigyEventAttendees {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  event_id  String
+  user_id   String
+  user_type UserType
+
+  registered_at DateTime @default(now())
+
+  event ProdigyEvent @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  user  Users        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([event_id, user_id])
+  @@index([event_id])
+  @@index([user_id])
+  @@map("prodigy_event_attendees")
+}
+
+/**
+ * ********
+ * PAYMENTS
+ * ********
+ */
+
+model Subscriptions {
+  id                   String    @id @default(dbgenerated("gen_random_uuid()"))
+  subscription_id      String    @unique
+  customer_id          String
+  price_id             String
+  cancel_at_period_end Boolean   @default(false)
+  current_period_end   DateTime?
+  canceled_at          DateTime?
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  user_id String
+  user    Users  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+/**
+ * ******
+ * GLOBAL
+ * ******
+ */
+
+model Favorites {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  favoritable_type UserType
+  favoritable_id   String
+
+  comment        String?
+  rating         Int?      @db.SmallInt
+  last_contacted DateTime?
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  user_id String
+  user    Users  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, favoritable_type, favoritable_id])
+  @@index([user_id])
+  @@index([favoritable_type, favoritable_id])
+  @@map("favorites")
+}
+
+/**
+ * *****
+ * ENUMS
+ * *****
+ */
+
+enum ProspectStatus {
+  none
+  released
+  in_review
+  accepted
+}
+
+enum UserType {
+  dancer
+  school
+}
+
+enum MediaType {
+  image
+  video
+}
+
+/**
+ * -- Enforce: user_id may appear in dancer_accounts only if
+ * -- it does NOT appear in school_accounts
+ * CREATE UNIQUE INDEX dancer_user_exclusive
+ * ON dancer_accounts (user_id)
+ * WHERE user_id NOT IN (SELECT user_id FROM school_accounts);
+ * -- Enforce: user_id may appear in school_accounts only if
+ * -- it does NOT appear in dancer_accounts
+ * CREATE UNIQUE INDEX school_user_exclusive
+ * ON school_accounts (user_id)
+ * WHERE user_id NOT IN (SELECT user_id FROM dancer_accounts);
+ */

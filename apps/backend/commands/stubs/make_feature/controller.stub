@@ -1,0 +1,16 @@
+{{{
+  exports({
+    to: controller.path
+  })
+}}}
+import { {{ service.name }} } from "./{{ service.path }}";
+import { {{ validator.name }} } from "./{{ validator.path }}";
+import type { HttpContext } from "@adonisjs/core/http";
+import { inject } from "@adonisjs/core";
+
+export default class {{ controller.name }} {
+  @inject()
+  async handle({ request, response }: HttpContext, service: {{ service.name }}) {
+    const _ = await request.validateUsing({{ validator.name }});
+  }
+}

@@ -25,7 +25,11 @@ export default defineConfig({
   | will be scanned automatically from the "./commands" directory.
   |
   */
-  commands: [() => import("@adonisjs/core/commands"), () => import("@tuyau/core/commands")],
+  commands: [
+    () => import("@adonisjs/core/commands"),
+    () => import("@tuyau/core/commands"),
+    () => import("@tuyau/openapi/commands"),
+  ],
 
   /*
   |--------------------------------------------------------------------------
@@ -49,6 +53,7 @@ export default defineConfig({
     () => import("@adonisjs/auth/auth_provider"),
     () => import("@tuyau/core/tuyau_provider"),
     () => import("@adonisjs/redis/redis_provider"),
+    () => import("@tuyau/openapi/openapi_provider"),
   ],
 
   /*
@@ -78,7 +83,7 @@ export default defineConfig({
         timeout: 2000,
       },
       {
-        files: ["tests/functional/**/*.spec(.ts|.js)"],
+        files: ["tests/functional/**/*.spec(.ts|.js)", "app/features/**/*.spec.ts"],
         name: "functional",
         timeout: 30000,
       },

@@ -3,7 +3,7 @@ import { defineConfig } from "@adonisjs/redis";
 import { InferConnections } from "@adonisjs/redis/types";
 
 const redisConfig = defineConfig({
-  connection: "main",
+  connection: "session",
 
   connections: {
     /*
@@ -16,11 +16,16 @@ const redisConfig = defineConfig({
     | redis driver.
     |
     */
-    main: {
+    session: {
       host: env.get("REDIS_HOST"),
       port: env.get("REDIS_PORT"),
       password: env.get("REDIS_PASSWORD"),
-      keyPrefix: "",
+      keyPrefix: "session:",
+    },
+    cache: {
+      host: env.get("REDIS_HOST"),
+      port: env.get("REDIS_PORT"),
+      password: env.get("REDIS_PASSWORD"),
       /**
        * Exponential backoff with full jitter
        * https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
@@ -34,12 +39,6 @@ const redisConfig = defineConfig({
         const fullJitter = Math.floor(Math.random() * cappedDelay);
         return fullJitter;
       },
-    },
-    session: {
-      host: env.get("REDIS_HOST"),
-      port: env.get("REDIS_PORT"),
-      password: env.get("REDIS_PASSWORD"),
-      keyPrefix: "session",
     },
   },
 });

@@ -1,0 +1,12 @@
+{{{
+  exports({
+    to: validator.path
+  })
+}}}
+import vine from "@vinejs/vine";
+import { InferInput } from "@vinejs/vine/types";
+
+export const {{ validator.schema }} = vine.object({});
+
+export const {{ validator.name }} = vine.compile({{ validator.schema }});
+export type {{ validator.name }} = InferInput<typeof {{ validator.schema }}>;

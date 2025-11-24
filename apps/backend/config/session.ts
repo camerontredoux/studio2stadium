@@ -1,3 +1,4 @@
+import env from "#start/env";
 import app from "@adonisjs/core/services/app";
 import { defineConfig, stores } from "@adonisjs/session";
 
@@ -32,7 +33,7 @@ const sessionConfig = defineConfig({
    * https://docs.adonisjs.com/guides/basics/session#stores-configuration
    * "main" connection comes from redis.ts config file
    */
-  store: "redis",
+  store: env.get("SESSION_DRIVER"),
   stores: {
     redis: stores.redis({ connection: "session" }),
   },

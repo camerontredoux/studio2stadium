@@ -1,0 +1,27 @@
+GET http://localhost:3333/user
+###
+POST http://localhost:3333/auth/logout
+Content-Type: application/json
+###
+POST http://localhost:3333/auth/login
+Content-Type: application/json
+
+{
+    "email": "camtredoux@gmail.com",
+    "password": "password"
+}
+###
+POST http://localhost:3333/signup
+Content-Type: application/json
+
+{
+    "email": "camtredoux@gmail.com",
+    "password": "password",
+    "username": "camtredoux",
+    "firstName": "Cameron",
+    "lastName": "Tredoux",
+    "image": "asd"
+}
+###
+GET http://localhost:3333/prodigy/events/attendees
+Content-Type: application/json

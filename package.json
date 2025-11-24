@@ -1,13 +1,12 @@
 {
-  "name": "@s2s",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": "true",
+  "type": "module",
+  "packageManager": "pnpm@10.19.0",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.19.0"
+  }
 }
