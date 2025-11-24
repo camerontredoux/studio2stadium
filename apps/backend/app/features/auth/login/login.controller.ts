@@ -8,7 +8,9 @@ export default class LoginController {
   async handle({ auth, request }: HttpContext, service: LoginService) {
     const body = await request.validateUsing(LoginValidator);
     const user = await service.execute(body);
+
     await auth.use("web").login(user);
+
     return { id: user.id };
   }
 }
