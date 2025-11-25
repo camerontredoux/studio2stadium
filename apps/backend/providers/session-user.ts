@@ -3,8 +3,9 @@ import { db } from "#database/connection";
 import { symbols } from "@adonisjs/auth";
 import { SessionGuardUser, SessionUserProviderContract } from "@adonisjs/auth/types/session";
 import { Selectable } from "kysely";
+import { Omit } from "#shared/omit";
 
-type RealUser = Omit<Selectable<Users>, "password_hash" | "updated_at">;
+export type RealUser = Omit<Selectable<Users>, "password">;
 
 export class SessionUserProvider implements SessionUserProviderContract<RealUser> {
   declare [symbols.PROVIDER_REAL_USER]: RealUser;
@@ -27,13 +28,15 @@ export class SessionUserProvider implements SessionUserProviderContract<RealUser
       .leftJoin("roles", "users_roles.role_id", "roles.id")
       .select(({ fn }) => [
         "users.id",
-        "users.email",
+        "email",
+        "display_email",
         "username",
         "first_name",
         "last_name",
         "image",
         "phone",
         "users.created_at",
+        "users.updated_at",
         fn.agg<string[]>("array_agg", ["roles.type"]).as("roles"),
       ])
       .where("users.id", "=", identifier)

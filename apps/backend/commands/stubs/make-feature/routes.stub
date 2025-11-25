@@ -9,5 +9,4 @@ export default function () {
   router
     .group(() => {})
     .prefix("{{ routes.name }}")
-    .openapi({ tags: ["{{ routes.name }}"] });
 }

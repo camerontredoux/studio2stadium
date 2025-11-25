@@ -143,11 +143,12 @@ export type Subscriptions = {
 export type Users = {
     id: Generated<string>;
     email: string;
+    display_email: string;
     username: string;
     first_name: string;
     last_name: string;
-    image: string;
-    password_hash: string;
+    image: string | null;
+    password: string;
     phone: string | null;
     created_at: Generated<Timestamp>;
     updated_at: Timestamp | null;

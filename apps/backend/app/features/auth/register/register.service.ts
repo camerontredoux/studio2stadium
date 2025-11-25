@@ -1,19 +1,21 @@
 import hash from "@adonisjs/core/services/hash";
 import type { RegisterValidator } from "./register.validator.js";
 import { inject } from "@adonisjs/core";
-import { UsersRepository } from "#repositories/users.repository";
+import { UserRepository } from "#repositories/user.repository";
+import { normalizeEmail } from "#shared/normalize-email";
 
 @inject()
 export class RegisterService {
-  constructor(private repo: UsersRepository) {}
+  constructor(private repo: UserRepository) {}
 
-  async execute({ firstName, lastName, password, ...rest }: RegisterValidator) {
+  async execute({ first_name, last_name, password, username, email }: RegisterValidator) {
     return await this.repo.create({
-      first_name: firstName,
-      last_name: lastName,
-      password_hash: await hash.make(password),
-      image: "",
-      ...rest,
+      email: await normalizeEmail(email),
+      display_email: email,
+      username,
+      first_name,
+      last_name,
+      password: await hash.make(password),
     });
   }
 }

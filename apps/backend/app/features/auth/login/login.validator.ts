@@ -2,7 +2,7 @@ import vine from "@vinejs/vine";
 import { InferInput } from "@vinejs/vine/types";
 
 export const loginSchema = vine.object({
-  email: vine.string().email().normalizeEmail(),
+  email: vine.string().email().normalizeEmail().trim(),
   password: vine.string().minLength(8),
 });
 

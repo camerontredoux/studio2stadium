@@ -2,14 +2,14 @@ import { errors as auth } from "@adonisjs/auth";
 import { RuntimeException } from "@adonisjs/core/exceptions";
 import hash from "@adonisjs/core/services/hash";
 import type { LoginValidator } from "./login.validator.js";
-import { UsersRepository } from "#repositories/users.repository";
+import { UserRepository } from "#repositories/user.repository";
 import { inject } from "@adonisjs/core";
 import limiter from "@adonisjs/limiter/services/main";
 import { errors } from "@adonisjs/limiter";
 
 @inject()
 export class LoginService {
-  constructor(private repo: UsersRepository) {}
+  constructor(private repo: UserRepository) {}
 
   async execute({ email, password }: LoginValidator, ip: string) {
     const loginLimiter = limiter.use({
@@ -39,11 +39,11 @@ export class LoginService {
       throw new auth.E_INVALID_CREDENTIALS("Invalid user credentials.");
     }
 
-    if (!user.password_hash) {
+    if (!user.password) {
       throw new RuntimeException("Cannot verify undefined password. Account cannot be accessed.");
     }
 
-    const verified = await hash.verify(user.password_hash, password);
+    const verified = await hash.verify(user.password, password);
 
     if (!verified) {
       throw new auth.E_INVALID_CREDENTIALS("Invalid user credentials.");

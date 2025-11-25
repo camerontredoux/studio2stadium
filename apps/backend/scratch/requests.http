@@ -8,17 +8,18 @@ Content-Type: application/json
 
 {
     "email": "camtredoux@gmail.com",
-    "password": "Cameron@1"
+    "password": "passwordsd"
 }
 ###
 POST http://localhost:3333/auth/register
 Content-Type: application/json
 
 {
-    "email": "camtredoux@gmail.com",
+    "email": "bob@GMAIL.com",
     "password": "password",
-    "username": "camtredoux",
-    "firstName": "Cameron",
-    "lastName": "Tredoux",
-    "image": "asd"
+    "username": "CAMTREDO",
+    "first_name": "Cameron",
+    "last_name": "Tredoux",
+    "image": "asd",
+    "terms_checked": true
 }

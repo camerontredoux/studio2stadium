@@ -4,6 +4,7 @@ export default configApp(
   {
     rules: {
       "prettier/prettier": ["error", { semi: true, singleQuote: false }],
+      "@unicorn/filename-case": ["error", { case: "kebabCase" }],
     },
   }
 );

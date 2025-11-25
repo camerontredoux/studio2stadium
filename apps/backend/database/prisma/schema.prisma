@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-kysely"
-  fileName = "types.ts"
+  fileName = "../../generated/types.ts"
 }
 
 datasource db {
@@ -15,12 +15,13 @@ datasource db {
 
 model Users {
   id            String  @id @default(dbgenerated("gen_random_uuid()"))
-  email         String  @unique
-  username      String  @unique
+  email         String  @unique @db.Citext
+  display_email String
+  username      String  @unique @db.Citext
   first_name    String
   last_name     String
-  image         String
-  password_hash String
+  image         String?
+  password      String
   phone         String?
 
   created_at DateTime  @default(now())

@@ -1,6 +1,32 @@
 import { test } from "@japa/runner";
 import { db } from "#database/connection";
 import hash from "@adonisjs/core/services/hash";
+import { Users } from "#database/generated/types";
+import { Insertable } from "kysely";
+import { faker } from "@faker-js/faker";
+import { UserRepository } from "#repositories/user.repository";
+import testUtils from "@adonisjs/core/services/test_utils";
+
+const userFixture: Insertable<Users> = {
+  email: faker.internet.email(),
+  display_email: faker.internet.email(),
+  username: faker.internet.username(),
+  first_name: faker.person.firstName(),
+  last_name: faker.person.lastName(),
+  password: await hash.make("password"),
+  image: faker.image.avatarGitHub(),
+};
+
+const userRegisterFixture = {
+  username: faker.internet.username(),
+  first_name: faker.person.firstName(),
+  last_name: faker.person.lastName(),
+  terms_checked: true,
+  password: "password",
+};
+
+const ctx = await testUtils.createHttpContext();
+const userRepo = new UserRepository(ctx);
 
 test.group("Login", (group) => {
   group.each.setup(async () => {
@@ -8,23 +34,15 @@ test.group("Login", (group) => {
   });
 
   test("user can login with valid credentials", async ({ client }) => {
-    const passwordHash = await hash.make("password123");
-    await db
-      .insertInto("users")
-      .values({
-        id: "test-id",
-        email: "test@example.com",
-        username: "testuser",
-        first_name: "John",
-        last_name: "Doe",
-        image: "avatar.jpg",
-        password_hash: passwordHash,
-      })
-      .execute();
+    await userRepo.create({
+      ...userFixture,
+      id: "test-id",
+      email: "test@example.com",
+    });
 
     const response = await client.post("/auth/login").json({
       email: "test@example.com",
-      password: "password123",
+      password: "password",
     });
 
     response.assertStatus(200);
@@ -42,18 +60,10 @@ test.group("Login", (group) => {
   });
 
   test("login fails with invalid password", async ({ client }) => {
-    const passwordHash = await hash.make("correctpassword");
-    await db
-      .insertInto("users")
-      .values({
-        email: "test@example.com",
-        username: "testuser",
-        first_name: "John",
-        last_name: "Doe",
-        image: "avatar.jpg",
-        password_hash: passwordHash,
-      })
-      .execute();
+    await userRepo.create({
+      ...userFixture,
+      email: "test@example.com",
+    });
 
     const response = await client.post("/auth/login").json({
       email: "test@example.com",
@@ -91,24 +101,35 @@ test.group("Login", (group) => {
   });
 
   test("login creates session", async ({ client }) => {
-    const passwordHash = await hash.make("password123");
-    const user = await db
-      .insertInto("users")
-      .values({
-        email: "test1@example.com",
-        username: "testuser",
-        first_name: "John",
-        last_name: "Doe",
-        image: "avatar.jpg",
-        password_hash: passwordHash,
-      })
-      .returningAll()
-      .executeTakeFirstOrThrow();
+    const user = await userRepo.create({
+      ...userFixture,
+      email: "test@example.com",
+    });
 
-    const protectedResponse = await client.get("/user").loginAs(user);
+    const protectedResponse = await client.get("/auth/me").loginAs(user);
 
     protectedResponse.assertStatus(200);
     protectedResponse.assertCookie("adonis-session");
-    protectedResponse.assertBodyContains({ id: user.id });
+    protectedResponse.assertBodyContains({ email: "test@example.com" });
+  });
+  test("login is case-insensitive", async ({ client }) => {
+    const register = await client.post("/auth/register").json({
+      ...userRegisterFixture,
+      email: "TEST.email+email@gMail.com",
+    });
+
+    register.assertStatus(201);
+
+    const upperDomain = await client.post("/auth/login").json({
+      email: "test.email+email@GMAIL.com",
+      password: "password",
+    });
+    upperDomain.assertStatus(200);
+
+    const subaddressWrong = await client.post("/auth/login").json({
+      email: "test+email.email@GMAIL.com",
+      password: "password",
+    });
+    subaddressWrong.assertStatus(400);
   });
 });

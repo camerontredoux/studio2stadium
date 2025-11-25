@@ -7,10 +7,8 @@ export default class RegisterController {
   @inject()
   async handle({ request, response }: HttpContext, service: RegisterService) {
     const body = await request.validateUsing(RegisterValidator);
-    await service.execute(body);
+    const user = await service.execute(body);
 
-    return response.ok({
-      message: "User created successfully.",
-    });
+    return response.created(user);
   }
 }

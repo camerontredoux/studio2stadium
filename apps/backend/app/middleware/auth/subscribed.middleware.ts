@@ -1,7 +1,7 @@
 import type { HttpContext } from "@adonisjs/core/http";
 import type { NextFn } from "@adonisjs/core/types/http";
 import { db } from "#database/connection";
-import ForbiddenException from "#exceptions/forbidden_exception";
+import ForbiddenException from "#exceptions/forbidden.exception";
 
 /**
  * Subscribed middleware is used to protect HTTP requests and deny

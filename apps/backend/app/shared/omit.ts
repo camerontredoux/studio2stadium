@@ -1,0 +1,6 @@
+/**
+ * Construct a type with the properties of T except for those in type K.
+ *
+ * Offers intellisense for K by extending keyof T
+ */
+export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
