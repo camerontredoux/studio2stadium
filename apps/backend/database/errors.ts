@@ -1,4 +1,4 @@
-import DatabaseException from "#exceptions/database.exception";
+import DatabaseException from "#exceptions/database";
 import { HttpContext } from "@adonisjs/core/http";
 import { RuntimeException } from "@poppinss/utils";
 import { DatabaseError } from "pg";
@@ -14,7 +14,7 @@ export function matchPgError(error: unknown, ctx: HttpContext) {
             .pop() || "information";
 
         throw new DatabaseException(`Unique ${field} already exists`, {
-          code: error.code,
+          code: "E_UNIQUE_VIOLATION",
           cause: field,
         });
       case "23503":
@@ -22,7 +22,7 @@ export function matchPgError(error: unknown, ctx: HttpContext) {
         throw new RuntimeException();
       case "23502":
         throw new DatabaseException(`Missing required field: ${error.column}`, {
-          code: error.code,
+          code: "E_NOT_NULL_VIOLATION",
           cause: error.column,
         });
     }

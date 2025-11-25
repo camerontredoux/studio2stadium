@@ -11,6 +11,6 @@ import { inject } from "@adonisjs/core";
 export default class {{ controller.name }} {
   @inject()
   async handle({ request, response }: HttpContext, service: {{ service.name }}) {
-    const _ = await request.validateUsing({{ validator.name }});
+    const data = await request.validateUsing({{ validator.name }});
   }
 }

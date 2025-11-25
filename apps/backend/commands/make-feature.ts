@@ -23,15 +23,15 @@ export default class MakeFeature extends BaseCommand {
   ];
 
   @args.string({
-    description: "The name of the feature (e.g., create_user, update_post)",
+    description: "The name of the feature (e.g., create-user, update-post)",
     argumentName: "feature",
-    parse: (input) => string.snakeCase(input),
+    parse: (input) => string.dashCase(input),
   })
   declare name: string;
 
   @args.string({
     description: "The feature's domain folder (e.g., users, posts)",
-    parse: (input) => string.snakeCase(input),
+    parse: (input) => string.dashCase(input),
   })
   declare domain: string;
 
@@ -47,7 +47,7 @@ export default class MakeFeature extends BaseCommand {
     );
 
     const codemods = await this.createCodemods();
-    const stubsRoot = this.app.commandsPath("stubs/make_feature");
+    const stubsRoot = this.app.commandsPath("stubs/make-feature");
 
     const domainDirectory = join("app/features", this.domain);
     const relativeDirectory = join(domainDirectory, this.name);
@@ -64,11 +64,10 @@ export default class MakeFeature extends BaseCommand {
       codemods.overwriteExisting = true;
     }
 
-    const controllerName = this.pascalCase(this.name).suffix("Controller").toString();
-    const serviceName = this.pascalCase(this.name).suffix("Service").toString();
-    const validatorName = this.pascalCase(this.name).suffix("Validator").toString();
-
-    const schemaName = this.camelCase(this.name).suffix("Schema").toString();
+    const controllerName = this.addSuffix("Controller", "pascalCase");
+    const serviceName = this.addSuffix("Service", "pascalCase");
+    const validatorName = this.addSuffix("Validator", "pascalCase");
+    const schemaName = this.addSuffix("Schema", "camelCase");
 
     const validatorPath = this.makeFilename(".validator.ts");
 
@@ -120,12 +119,17 @@ export default class MakeFeature extends BaseCommand {
     }
   }
 
-  private pascalCase(value: string) {
-    return new StringBuilder(value).pascalCase();
-  }
+  private addSuffix(suffix: string, textCase: "pascalCase" | "camelCase") {
+    const result = new StringBuilder(this.name).suffix(suffix);
 
-  private camelCase(value: string) {
-    return new StringBuilder(value).camelCase();
+    switch (textCase) {
+      case "camelCase": {
+        return result.camelCase().toString();
+      }
+      case "pascalCase": {
+        return result.pascalCase().toString();
+      }
+    }
   }
 
   private makeFilename(path: string) {
