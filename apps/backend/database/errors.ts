@@ -1,4 +1,4 @@
-import DatabaseException from "#exceptions/database";
+import DatabaseException from "#exceptions/database.exception";
 import { HttpContext } from "@adonisjs/core/http";
 import { RuntimeException } from "@poppinss/utils";
 import { DatabaseError } from "pg";
