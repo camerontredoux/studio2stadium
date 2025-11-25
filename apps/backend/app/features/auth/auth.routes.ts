@@ -16,4 +16,5 @@ router
       })
       .use(middleware.auth());
   })
-  .prefix("auth");
+  .prefix("auth")
+  .openapi({ tags: ["authentication"] });
