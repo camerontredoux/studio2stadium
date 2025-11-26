@@ -16,7 +16,7 @@ test.group("Login", (group) => {
   });
 
   test("register fails on duplicate email", async ({ client }) => {
-    const register = await client.post("/auth/register").json({
+    const register = await client.post("/auth/signup").json({
       ...userRegisterFixture,
       email: "TEST.email+email@gMail.com",
     });
@@ -24,7 +24,7 @@ test.group("Login", (group) => {
     register.assertStatus(201);
     register.assertAgainstApiSpec();
 
-    const registerFails = await client.post("/auth/register").json({
+    const registerFails = await client.post("/auth/signup").json({
       ...userRegisterFixture,
       email: "testemail@gmail.com",
     });

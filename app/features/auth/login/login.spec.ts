@@ -113,7 +113,7 @@ test.group("Login", (group) => {
     protectedResponse.assertBodyContains({ email: "test@example.com" });
   });
   test("login is case-insensitive", async ({ client }) => {
-    const register = await client.post("/auth/register").json({
+    const register = await client.post("/auth/signup").json({
       ...userRegisterFixture,
       email: "TEST.email+email@gMail.com",
     });

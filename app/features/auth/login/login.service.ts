@@ -21,7 +21,7 @@ export class LoginService {
     const key = `login:${ip}:${email}`;
 
     const [error, user] = await loginLimiter.penalize(key, () => {
-      return this.verify(email, password);
+      return this.#verify(email, password);
     });
 
     if (error) {
@@ -31,7 +31,7 @@ export class LoginService {
     return user;
   }
 
-  async verify(email: string, password: string) {
+  async #verify(email: string, password: string) {
     const user = await this.repo.findByEmail(email);
 
     if (!user) {

@@ -67,7 +67,6 @@ export default class MakeFeature extends BaseCommand {
     const controllerName = this.addSuffix("Controller", "pascalCase");
     const serviceName = this.addSuffix("Service", "pascalCase");
     const validatorName = this.addSuffix("Validator", "pascalCase");
-    const schemaName = this.addSuffix("Schema", "camelCase");
 
     const validatorPath = this.makeFilename(".validator.ts");
 
@@ -104,7 +103,6 @@ export default class MakeFeature extends BaseCommand {
       await codemods.makeUsingStub(stubsRoot, "validator.stub", {
         validator: {
           name: validatorName,
-          schema: schemaName,
           path: this.app.makePath(directory, validatorPath),
         },
       });
