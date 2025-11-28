@@ -14,12 +14,21 @@ paths:
             schema:
               type: "object"
               properties:
+                date:
+                  type:
+                    - "null"
+                    - "string"
+                    - "number"
+                test:
+                  type: "object"
+                  properties: {}
+                test2:
+                  type: "object"
+                  properties: {}
                 phone:
                   type:
                     - "null"
                     - "string"
-                  examples:
-                    - "asd"
                 email:
                   type: "string"
                 password:
@@ -33,17 +42,15 @@ paths:
                 terms_checked:
                   type: "boolean"
               required:
-                - "phone"
                 - "email"
                 - "password"
                 - "username"
                 - "first_name"
                 - "last_name"
                 - "terms_checked"
-      parameters: []
       responses:
         201:
-          description: "Error response"
+          description: "Successful Response"
           content:
             application/json:
               schema:
@@ -61,8 +68,6 @@ paths:
                     type:
                       - "null"
                       - "string"
-                    examples:
-                      - "asd"
                   id:
                     type: "string"
                   display_email:
@@ -71,18 +76,14 @@ paths:
                     type:
                       - "null"
                       - "string"
-                    examples:
-                      - "asd"
                   created_at:
                     type: "string"
                   updated_at:
                     type:
                       - "null"
                       - "string"
-                    examples:
-                      - "asd"
         422:
-          description: "Error response"
+          description: "Error Response"
           content:
             application/json:
               schema:
@@ -114,13 +115,21 @@ paths:
                   type: "string"
                 password:
                   type: "string"
+                params:
+                  type: "object"
+                  properties:
+                    testParam:
+                      required: true
+                      type:
+                        - "string"
+                        - "number"
               required:
                 - "email"
                 - "password"
-      parameters: []
+                - "params"
       responses:
         200:
-          description: "Successful response"
+          description: "Successful Response"
           content:
             application/json:
               schema:
@@ -129,7 +138,7 @@ paths:
                   id:
                     type: "string"
         422:
-          description: "Error response"
+          description: "Error Response"
           content:
             application/json:
               schema:
@@ -151,17 +160,9 @@ paths:
       summary: "Create user session"
   /auth/logout:
     post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: "object"
-              properties: {}
-              required: []
-      parameters: []
       responses:
         200:
-          description: "Successful response"
+          description: "Successful Response"
           content:
             application/json:
               schema:
@@ -174,7 +175,75 @@ paths:
       tags:
         - "Authentication"
       summary: "Sign out"
-  /auth/{id}:
+  /auth/me/{id}:
+    get:
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+        - name: "test"
+          in: "query"
+          schema:
+            required: true
+            type: "string"
+      responses:
+        200:
+          description: "Successful Response"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  email:
+                    type: "string"
+                  username:
+                    type: "string"
+                  first_name:
+                    type: "string"
+                  last_name:
+                    type: "string"
+                  phone:
+                    type:
+                      - "null"
+                      - "string"
+                  id:
+                    type: "string"
+                  display_email:
+                    type: "string"
+                  image:
+                    type:
+                      - "null"
+                      - "string"
+                  created_at:
+                    type: "string"
+                  updated_at:
+                    type:
+                      - "null"
+                      - "string"
+        422:
+          description: "Error Response"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  errors:
+                    type: "array"
+                    items:
+                      type: "object"
+                      properties:
+                        message:
+                          type: "string"
+                        rule:
+                          type: "string"
+                        field:
+                          type: "string"
+      tags:
+        - "Authentication"
+      summary: "Get authenticated user"
+  /auth/{id}/test/{another}:
     post:
       requestBody:
         content:
@@ -186,18 +255,32 @@ paths:
                   type: "string"
                 password:
                   type: "string"
+                params:
+                  type: "object"
+                  properties:
+                    testParam:
+                      required: true
+                      type:
+                        - "string"
+                        - "number"
               required:
                 - "email"
                 - "password"
+                - "params"
       parameters:
         - name: "id"
           in: "path"
           required: true
           schema:
             type: "string"
+        - name: "another"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
       responses:
         200:
-          description: "Successful response"
+          description: "Successful Response"
           content:
             application/json:
               schema:
@@ -206,7 +289,7 @@ paths:
                   id:
                     type: "string"
         422:
-          description: "Error response"
+          description: "Error Response"
           content:
             application/json:
               schema:
