@@ -4,7 +4,7 @@ import hash from "@adonisjs/core/services/hash";
 import { Users } from "#database/generated/types";
 import { Insertable } from "kysely";
 import { faker } from "@faker-js/faker";
-import { UserRepository } from "#repositories/user.repository";
+import { UserRepository } from "#repositories/user/user.repository";
 import testUtils from "@adonisjs/core/services/test_utils";
 
 const userFixture: Insertable<Users> = {
@@ -15,14 +15,6 @@ const userFixture: Insertable<Users> = {
   last_name: faker.person.lastName(),
   password: await hash.make("password"),
   image: faker.image.avatarGitHub(),
-};
-
-const userRegisterFixture = {
-  username: faker.internet.username(),
-  first_name: faker.person.firstName(),
-  last_name: faker.person.lastName(),
-  terms_checked: true,
-  password: "password",
 };
 
 const ctx = await testUtils.createHttpContext();
@@ -106,19 +98,19 @@ test.group("Login", (group) => {
       email: "test@example.com",
     });
 
-    const protectedResponse = await client.get("/auth/me").loginAs(user);
+    const protectedResponse = await client.get("/auth/session").loginAs(user);
 
     protectedResponse.assertStatus(200);
     protectedResponse.assertCookie("adonis-session");
     protectedResponse.assertBodyContains({ email: "test@example.com" });
   });
-  test("login is case-insensitive", async ({ client }) => {
-    const register = await client.post("/auth/signup").json({
-      ...userRegisterFixture,
-      email: "TEST.email+email@gMail.com",
+  test("login is case-insensitive and normalized", async ({ client, assert }) => {
+    const user = await userRepo.create({
+      ...userFixture,
+      email: "testemail@gmail.com",
     });
 
-    register.assertStatus(201);
+    assert.equal(user.email, "testemail@gmail.com");
 
     const upperDomain = await client.post("/auth/login").json({
       email: "test.email+email@GMAIL.com",

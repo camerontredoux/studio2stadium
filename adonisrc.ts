@@ -29,6 +29,7 @@ export default defineConfig({
     () => import("@adonisjs/core/commands"),
     () => import("@tuyau/core/commands"),
     () => import("@tuyau/openapi/commands"),
+    () => import("@adonisjs/mail/commands"),
   ],
 
   /*
@@ -55,6 +56,7 @@ export default defineConfig({
     () => import("@adonisjs/limiter/limiter_provider"),
     () => import("@tuyau/core/tuyau_provider"),
     () => import("@tuyau/openapi/openapi_provider"),
+    () => import("@adonisjs/mail/mail_provider"),
   ],
 
   /*
@@ -65,7 +67,11 @@ export default defineConfig({
   | List of modules to import before starting the application.
   |
   */
-  preloads: [() => import("#start/routes"), () => import("#start/kernel")],
+  preloads: [
+    () => import("#start/routes"),
+    () => import("#start/kernel"),
+    () => import("#start/events"),
+  ],
 
   /*
   |--------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 import { Users } from "#database/generated/types";
 import { Insertable, Updateable } from "kysely";
-import BaseRepository from "./base.repository.js";
+import BaseRepository from "../base.repository.ts";
 
 export class UserRepository extends BaseRepository {
   /**

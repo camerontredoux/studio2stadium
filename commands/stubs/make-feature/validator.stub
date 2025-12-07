@@ -8,4 +8,4 @@ import { Infer } from "@vinejs/vine/types";
 
 export const {{ validator.name }} = vine.compile(vine.object({}));
 
-export type {{ validator.name }} = Infer<typeof {{ validator.name }}>;
+export type {{ validator.type }} = Infer<typeof {{ validator.name }}>;

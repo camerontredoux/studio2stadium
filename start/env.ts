@@ -42,4 +42,15 @@ export default await Env.create(new URL("../", import.meta.url), {
   |----------------------------------------------------------
   */
   LIMITER_STORE: Env.schema.enum(["redis", "memory"] as const),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring the mail package
+  |----------------------------------------------------------
+  */
+  AWS_ACCESS_KEY_ID: Env.schema.string(),
+  AWS_SECRET_ACCESS_KEY: Env.schema.string(),
+  AWS_REGION: Env.schema.string(),
+  MAIL_FROM_ADDRESS: Env.schema.string({ format: "email" }),
+  MAIL_FROM_NAME: Env.schema.string(),
 });

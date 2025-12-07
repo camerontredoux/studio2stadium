@@ -3,8 +3,8 @@
     to: service.path
   })
 }}}
-import type { {{ validator.name }} } from "./{{ validator.path }}";
+import type { {{ validator.type }} } from "./{{ validator.path }}";
 
 export class {{ service.name }} {
-  async execute({}: {{ validator.name }}) {}
+  async execute({}: {{ validator.type }}) {}
 }

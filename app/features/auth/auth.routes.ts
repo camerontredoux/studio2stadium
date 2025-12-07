@@ -1,31 +1,31 @@
 import { middleware } from "#start/kernel";
 import router from "@adonisjs/core/services/router";
-const LogoutController = () => import("./logout/logout.controller.js");
-const LoginController = () => import("./login/login.controller.js");
-const SignupController = () => import("./signup/signup.controller.js");
+const GetSessionController = () => import("./get-session/get-session.controller.ts");
+const LogoutController = () => import("./logout/logout.controller.ts");
+const LoginController = () => import("./login/login.controller.ts");
+const SignupController = () => import("./signup/signup.controller.ts");
 
 router
   .group(() => {
     router.post("/signup", [SignupController]).openapi({
       summary: "Create user account",
+      description: "Creates a new base user account.",
     });
-    router.post("/login", [LoginController]).openapi({ summary: "Create user session" });
+    router.post("/login", [LoginController]).openapi({
+      summary: "Start user session",
+      description: "Logs in a user and creates a session in Redis.",
+    });
     router.post("/logout", [LogoutController]).openapi({
-      summary: "Sign out",
-      responses: {
-        "400": {
-          $ref: "#/components/responses/BadRequest",
-        },
-      },
+      summary: "End user session",
+      description: "Logs out the current user and deletes their session from Redis.",
     });
     router
-      .get("/me", async ({ auth, response }) => {
-        const user = auth.getUserOrFail();
-        return response.ok(user);
+      .get("/session", [GetSessionController])
+      .openapi({
+        summary: "Get user session",
+        description: "Retrieves the current session's user information.",
       })
-      .use(middleware.auth())
-      .openapi({ summary: "Get authenticated user" });
-    router.post("/:id", [LoginController]);
+      .use(middleware.auth());
   })
   .prefix("auth")
   .openapi({ tags: ["Authentication"] });

@@ -66,32 +66,22 @@ export default class MakeFeature extends BaseCommand {
 
     const controllerName = this.addSuffix("Controller", "pascalCase");
     const serviceName = this.addSuffix("Service", "pascalCase");
-    const validatorName = this.addSuffix("Validator", "pascalCase");
+    const validatorName = this.addSuffix("Validator", "camelCase");
+    const validatorType = this.addSuffix("Validator", "pascalCase");
 
+    const controllerPath = this.makeFilename(".controller.ts");
     const validatorPath = this.makeFilename(".validator.ts");
+    const servicePath = this.makeFilename(".service.ts");
 
     try {
-      // Create controller
       await codemods.makeUsingStub(stubsRoot, "controller.stub", {
         controller: {
           name: controllerName,
-          path: this.app.makePath(directory, this.makeFilename(".controller.ts")),
+          path: this.app.makePath(directory, controllerPath),
         },
         service: {
           name: serviceName,
-          path: this.makeFilename(".service.js"),
-        },
-        validator: {
-          name: validatorName,
-          path: this.makeFilename(".validator.js"),
-        },
-      });
-
-      // Create service
-      await codemods.makeUsingStub(stubsRoot, "service.stub", {
-        service: {
-          name: serviceName,
-          path: this.app.makePath(directory, this.makeFilename(".service.ts")),
+          path: servicePath,
         },
         validator: {
           name: validatorName,
@@ -99,10 +89,22 @@ export default class MakeFeature extends BaseCommand {
         },
       });
 
-      // Create validator
+      await codemods.makeUsingStub(stubsRoot, "service.stub", {
+        service: {
+          name: serviceName,
+          path: this.app.makePath(directory, servicePath),
+        },
+        validator: {
+          name: validatorName,
+          type: validatorType,
+          path: validatorPath,
+        },
+      });
+
       await codemods.makeUsingStub(stubsRoot, "validator.stub", {
         validator: {
           name: validatorName,
+          type: validatorType,
           path: this.app.makePath(directory, validatorPath),
         },
       });

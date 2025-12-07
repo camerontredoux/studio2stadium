@@ -1,4 +1,4 @@
-GET http://localhost:3333/auth/me
+GET http://localhost:3333/auth/me/true?outsideParam=hello
 ###
 POST http://localhost:3333/auth/logout
 Content-Type: application/json

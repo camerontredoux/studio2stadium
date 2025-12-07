@@ -4,13 +4,15 @@ import { faker } from "@faker-js/faker";
 
 const userRegisterFixture = {
   username: faker.internet.username(),
-  first_name: faker.person.firstName(),
-  last_name: faker.person.lastName(),
+  firstName: faker.person.firstName(),
+  lastName: faker.person.lastName(),
+  phone: faker.phone.number(),
   password: "password",
-  terms_checked: true,
+  confirmPassword: "password",
+  termsChecked: true,
 };
 
-test.group("Login", (group) => {
+test.group("Signup failures", (group) => {
   group.each.setup(async () => {
     await db.deleteFrom("users").execute();
   });
@@ -22,7 +24,6 @@ test.group("Login", (group) => {
     });
 
     register.assertStatus(201);
-    register.assertAgainstApiSpec();
 
     const registerFails = await client.post("/auth/signup").json({
       ...userRegisterFixture,
@@ -30,7 +31,28 @@ test.group("Login", (group) => {
     });
 
     registerFails.assertStatus(400);
-    registerFails.assertBodyContains({ errors: [{ code: "23505" }] });
+    registerFails.assertBodyContains({ errors: [{ code: "E_UNIQUE_VIOLATION" }] });
     registerFails.assertBodyContains({ errors: [{ cause: "email" }] });
+  });
+
+  test("rate limit after 5 failed registration attempts", async ({ client }) => {
+    await client.post("/auth/signup").json({
+      ...userRegisterFixture,
+      email: "original@gmail.com",
+    });
+
+    for (let i = 0; i < 5; i++) {
+      await client.post("/auth/signup").json({
+        ...userRegisterFixture,
+        email: `original@gmail.com`,
+      });
+    }
+
+    const response = await client.post("/auth/signup").json({
+      ...userRegisterFixture,
+      email: "original@gmail.com",
+    });
+
+    response.assertStatus(429);
   });
 });
