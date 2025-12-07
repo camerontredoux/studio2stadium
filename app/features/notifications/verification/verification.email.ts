@@ -1,4 +1,5 @@
-import SignupEvent from "#features/auth/signup/signup.event";
+import type SignupEvent from "#features/auth/signup/signup.event";
+import env from "#start/env";
 import { BaseMail } from "@adonisjs/mail";
 
 export default class VerificationEmail extends BaseMail {
@@ -9,6 +10,8 @@ export default class VerificationEmail extends BaseMail {
   }
 
   prepare() {
-    this.message.to(this.event.user.display_email);
+    this.message.to(
+      env.get("NODE_ENV") === "development" ? "camtredoux@gmail.com" : this.event.user.display_email
+    );
   }
 }
