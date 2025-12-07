@@ -6,7 +6,7 @@ import { rateLimit } from "#shared/rate-limit";
 
 export default class LoginController {
   @inject()
-  async handle({ auth, request }: HttpContext, service: LoginService) {
+  async handle({ auth, request, response }: HttpContext, service: LoginService) {
     const payload = await request.validateUsing(loginValidator);
 
     const user = await rateLimit(() => service.execute(payload), {
@@ -18,6 +18,8 @@ export default class LoginController {
 
     await auth.use("web").login(user);
 
-    return { id: user.id };
+    return response.json({
+      id: user.id,
+    });
   }
 }

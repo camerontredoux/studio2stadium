@@ -22,8 +22,6 @@ const mailConfig = defineConfig({
         accessKeyId: env.get("AWS_ACCESS_KEY_ID"),
         secretAccessKey: env.get("AWS_SECRET_ACCESS_KEY"),
       },
-      sendingRate: 10,
-      maxConnections: 5,
     }),
   },
 });
