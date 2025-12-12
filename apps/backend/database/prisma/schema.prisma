@@ -242,10 +242,10 @@ model OutboxEvent {
   payload Json
 
   created_at DateTime  @default(now())
-  handled_at DateTime?
+  published_at DateTime?
 
   @@index([type])
-  @@index([handled_at])
+  @@index([published_at])
   @@map("outbox")
 }
 

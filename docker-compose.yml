@@ -27,7 +27,21 @@ services:
     ports:
       - "27017"
     volumes:
-      - mongodb:/var/lib/mongdodb
+      - mongodb:/var/lib/mongodb
+
+  event-server:
+    build:
+      context: ./apps/event-server
+      dockerfile: Dockerfile
+    container_name: event-server
+    volumes:
+      - ./apps/event-server:/app
+      - ./apps/event-server/cmd/.env:/app/cmd/.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - mongo
 
 volumes:
   cache:
