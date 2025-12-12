@@ -36,8 +36,8 @@ importers:
         specifier: ^0.4.2
         version: 0.4.2(@adonisjs/core@6.19.1(@adonisjs/assembler@7.8.2(typescript@5.9.3))(@vinejs/vine@4.1.0)(argon2@0.44.0)(edge.js@6.3.0))
       '@tuyau/openapi':
-        specifier: file:../tuyau/packages/openapi
-        version: file:../tuyau/packages/openapi(@tuyau/core@0.4.2(@adonisjs/core@6.19.1(@adonisjs/assembler@7.8.2(typescript@5.9.3))(@vinejs/vine@4.1.0)(argon2@0.44.0)(edge.js@6.3.0)))
+        specifier: file:../../../tuyau/packages/openapi
+        version: file:../../../tuyau/packages/openapi(@tuyau/core@0.4.2(@adonisjs/core@6.19.1(@adonisjs/assembler@7.8.2(typescript@5.9.3))(@vinejs/vine@4.1.0)(argon2@0.44.0)(edge.js@6.3.0)))
       '@vinejs/vine':
         specifier: ^4.1.0
         version: 4.1.0
@@ -1318,8 +1318,8 @@ packages:
     peerDependencies:
       '@adonisjs/core': ^6.2.0
 
-  '@tuyau/openapi@file:../tuyau/packages/openapi':
-    resolution: {directory: ../tuyau/packages/openapi, type: directory}
+  '@tuyau/openapi@file:../../../tuyau/packages/openapi':
+    resolution: {directory: ../../../tuyau/packages/openapi, type: directory}
     engines: {node: '>=20.6.0'}
     peerDependencies:
       '@tuyau/core': '>=0.3.2'
@@ -5408,7 +5408,7 @@ snapshots:
       '@tuyau/utils': 0.0.9
       ts-morph: 26.0.0
 
-  '@tuyau/openapi@file:../tuyau/packages/openapi(@tuyau/core@0.4.2(@adonisjs/core@6.19.1(@adonisjs/assembler@7.8.2(typescript@5.9.3))(@vinejs/vine@4.1.0)(argon2@0.44.0)(edge.js@6.3.0)))':
+  '@tuyau/openapi@file:../../../tuyau/packages/openapi(@tuyau/core@0.4.2(@adonisjs/core@6.19.1(@adonisjs/assembler@7.8.2(typescript@5.9.3))(@vinejs/vine@4.1.0)(argon2@0.44.0)(edge.js@6.3.0)))':
     dependencies:
       '@tuyau/core': 0.4.2(@adonisjs/core@6.19.1(@adonisjs/assembler@7.8.2(typescript@5.9.3))(@vinejs/vine@4.1.0)(argon2@0.44.0)(edge.js@6.3.0))
       defu: 6.1.4
