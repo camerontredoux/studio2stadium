@@ -1,4 +1,4 @@
-import { DB } from "#database/generated/types";
+import { type DB } from "#database/generated/types";
 import env from "#start/env";
 import { Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";

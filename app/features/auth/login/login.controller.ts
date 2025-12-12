@@ -1,6 +1,6 @@
 import { HttpContext } from "@adonisjs/core/http";
-import { LoginService } from "./login.service.js";
-import { loginValidator } from "./login.validator.js";
+import { LoginService } from "./login.service.ts";
+import { loginValidator } from "./login.validator.ts";
 import { inject } from "@adonisjs/core";
 import { multiRateLimit } from "#shared/rate-limit";
 
@@ -19,9 +19,9 @@ export default class LoginController {
         },
         {
           key: `login:${request.ip()}:${payload.email}`,
-          requests: 5,
+          requests: 10,
           duration: "1 min",
-          blockDuration: "20 mins",
+          blockDuration: "10 mins",
         },
       ]
     );

@@ -1,7 +1,7 @@
 import type { HttpContext } from "@adonisjs/core/http";
 import { inject } from "@adonisjs/core";
-import { SignupService } from "./signup.service.js";
-import { signupValidator } from "./signup.validator.js";
+import { SignupService } from "./signup.service.ts";
+import { signupValidator } from "./signup.validator.ts";
 import { rateLimit } from "#shared/rate-limit";
 
 export default class SignupController {

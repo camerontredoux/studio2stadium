@@ -1,16 +1,16 @@
 import hash from "@adonisjs/core/services/hash";
 import { inject } from "@adonisjs/core";
-import { UserRepository } from "#repositories/user/user.repository";
 import { normalizeEmail } from "#shared/normalize-email";
 import type { SignupValidator } from "./signup.validator.ts";
 import UserRegistered from "./signup.event.ts";
+import { SignupQueries } from "./signup.queries.ts";
 
 @inject()
 export class SignupService {
-  constructor(private repo: UserRepository) {}
+  constructor(private queries: SignupQueries) {}
 
   async execute({ email, password, firstName, lastName, username, phone }: SignupValidator) {
-    const user = await this.repo.create({
+    const user = await this.queries.createUser({
       email: await normalizeEmail(email),
       display_email: email,
       password: await hash.make(password),
@@ -18,6 +18,7 @@ export class SignupService {
       last_name: lastName,
       username,
       phone,
+      last_logged_in: new Date(),
     });
 
     UserRegistered.dispatch(user);

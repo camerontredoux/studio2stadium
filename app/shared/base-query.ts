@@ -6,7 +6,7 @@ import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
 
 @inject()
-export default abstract class BaseRepository {
+export default abstract class BaseQuery {
   constructor(protected ctx: HttpContext) {}
 
   /**
@@ -18,5 +18,18 @@ export default abstract class BaseRepository {
     } catch (error) {
       throw matchPgError(error, this.ctx);
     }
+  }
+
+  /**
+   * Helper to run multiple operations in a transaction
+   */
+  protected async transaction<T>(fn: (trx: Kysely<DB>) => Promise<T>) {
+    return db.transaction().execute(async (trx) => {
+      try {
+        return await fn(trx);
+      } catch (error) {
+        throw matchPgError(error, this.ctx);
+      }
+    });
   }
 }

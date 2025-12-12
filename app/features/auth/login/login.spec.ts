@@ -1,24 +1,26 @@
 import { test } from "@japa/runner";
 import { db } from "#database/connection";
 import hash from "@adonisjs/core/services/hash";
-import { Users } from "#database/generated/types";
-import { Insertable } from "kysely";
+import { type User } from "#database/generated/types";
+import { type Insertable } from "kysely";
 import { faker } from "@faker-js/faker";
-import { UserRepository } from "#repositories/user/user.repository";
 import testUtils from "@adonisjs/core/services/test_utils";
+import { SignupQueries } from "../signup/signup.queries.ts";
 
-const userFixture: Insertable<Users> = {
-  email: faker.internet.email(),
+const userFixture: Insertable<User> = {
+  id: "test-id",
+  email: "test@example.com",
   display_email: faker.internet.email(),
   username: faker.internet.username(),
   first_name: faker.person.firstName(),
   last_name: faker.person.lastName(),
   password: await hash.make("password"),
   image: faker.image.avatarGitHub(),
+  last_logged_in: new Date(),
 };
 
-const ctx = await testUtils.createHttpContext();
-const userRepo = new UserRepository(ctx);
+const testCtx = await testUtils.createHttpContext();
+const queries = new SignupQueries(testCtx);
 
 test.group("Login", (group) => {
   group.each.setup(async () => {
@@ -26,12 +28,7 @@ test.group("Login", (group) => {
   });
 
   test("user can login with valid credentials", async ({ client }) => {
-    await userRepo.create({
-      ...userFixture,
-      id: "test-id",
-      email: "test@example.com",
-    });
-
+    await queries.createUser(userFixture);
     const response = await client.post("/auth/login").json({
       email: "test@example.com",
       password: "password",
@@ -52,10 +49,7 @@ test.group("Login", (group) => {
   });
 
   test("login fails with invalid password", async ({ client }) => {
-    await userRepo.create({
-      ...userFixture,
-      email: "test@example.com",
-    });
+    await queries.createUser(userFixture);
 
     const response = await client.post("/auth/login").json({
       email: "test@example.com",
@@ -93,11 +87,7 @@ test.group("Login", (group) => {
   });
 
   test("login creates session", async ({ client }) => {
-    const user = await userRepo.create({
-      ...userFixture,
-      email: "test@example.com",
-    });
-
+    const user = await queries.createUser(userFixture);
     const protectedResponse = await client.get("/auth/session").loginAs(user);
 
     protectedResponse.assertStatus(200);
@@ -105,11 +95,7 @@ test.group("Login", (group) => {
     protectedResponse.assertBodyContains({ email: "test@example.com" });
   });
   test("login is case-insensitive and normalized", async ({ client, assert }) => {
-    const user = await userRepo.create({
-      ...userFixture,
-      email: "testemail@gmail.com",
-    });
-
+    const user = await queries.createUser({ ...userFixture, email: "testemail@gmail.com" });
     assert.equal(user.email, "testemail@gmail.com");
 
     const upperDomain = await client.post("/auth/login").json({

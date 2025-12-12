@@ -45,4 +45,5 @@ router.use([
 export const middleware = router.named({
   auth: () => import("#middleware/auth/authenticated.middleware"),
   subscribed: () => import("#middleware/auth/subscribed.middleware"),
+  prodigy: () => import("#middleware/auth/prodigy.middleware"),
 });

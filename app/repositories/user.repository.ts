@@ -1,8 +1,8 @@
-import { Users } from "#database/generated/types";
-import { Insertable, Updateable } from "kysely";
-import BaseRepository from "../base.repository.ts";
+import { type User } from "#database/generated/types";
+import { type Insertable, type Updateable } from "kysely";
+import BaseQuery from "../shared/base-query.ts";
 
-export class UserRepository extends BaseRepository {
+export class UserRepository extends BaseQuery {
   /**
    * Find user by ID
    */
@@ -33,7 +33,7 @@ export class UserRepository extends BaseRepository {
   /**
    * Create a new user
    */
-  async create(data: Insertable<Users>) {
+  async create(data: Insertable<User>) {
     return await this.use((db) =>
       db
         .insertInto("users")
@@ -49,6 +49,7 @@ export class UserRepository extends BaseRepository {
           "phone",
           "created_at",
           "updated_at",
+          "last_logged_in",
         ])
         .executeTakeFirstOrThrow()
     );
@@ -57,7 +58,7 @@ export class UserRepository extends BaseRepository {
   /**
    * Update user
    */
-  async update(id: string, data: Updateable<Users>) {
+  async update(id: string, data: Updateable<User>) {
     return await this.use((db) =>
       db.updateTable("users").set(data).where("id", "=", id).returningAll().executeTakeFirst()
     );
@@ -149,10 +150,10 @@ export class UserRepository extends BaseRepository {
 
     const roles = await this.use((db) =>
       db
-        .selectFrom("users_roles")
-        .innerJoin("roles", "roles.id", "users_roles.role_id")
+        .selectFrom("user_roles")
+        .innerJoin("roles", "roles.id", "user_roles.role_id")
         .select(["roles.id", "roles.type"])
-        .where("users_roles.user_id", "=", id)
+        .where("user_roles.user_id", "=", id)
         .execute()
     );
 

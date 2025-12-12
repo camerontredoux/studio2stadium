@@ -163,77 +163,6 @@
         "description": "Creates a new base user account."
       }
     },
-    "/auth/login": {
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string"
-                  },
-                  "password": {
-                    "type": "string"
-                  }
-                },
-                "required": ["email", "password"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "message": {
-                            "type": "string"
-                          },
-                          "rule": {
-                            "type": "string"
-                          },
-                          "field": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "tags": ["Authentication"],
-        "summary": "Start user session",
-        "description": "Logs in a user and creates a session in Redis."
-      }
-    },
     "/auth/logout": {
       "post": {
         "responses": {
@@ -306,6 +235,9 @@
                           "type": "null"
                         }
                       ]
+                    },
+                    "last_logged_in": {
+                      "type": "string"
                     },
                     "created_at": {
                       "type": "string"

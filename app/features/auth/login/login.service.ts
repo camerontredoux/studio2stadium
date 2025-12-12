@@ -1,16 +1,16 @@
 import { errors as auth } from "@adonisjs/auth";
 import { RuntimeException } from "@adonisjs/core/exceptions";
 import hash from "@adonisjs/core/services/hash";
-import type { LoginValidator } from "./login.validator.js";
-import { UserRepository } from "#repositories/user/user.repository";
+import type { LoginValidator } from "./login.validator.ts";
 import { inject } from "@adonisjs/core";
+import { LoginQueries } from "./login.queries.ts";
 
 @inject()
 export class LoginService {
-  constructor(private repo: UserRepository) {}
+  constructor(private queries: LoginQueries) {}
 
   async execute({ email, password }: LoginValidator) {
-    const user = await this.repo.findByEmail(email);
+    const user = await this.queries.findUserByEmail(email);
 
     if (!user) {
       await hash.make(password);
@@ -26,6 +26,8 @@ export class LoginService {
     if (!verified) {
       throw new auth.E_INVALID_CREDENTIALS("Invalid user credentials.");
     }
+
+    await this.queries.updateLoginTime(user.email);
 
     return user;
   }

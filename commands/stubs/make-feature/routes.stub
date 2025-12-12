@@ -5,9 +5,7 @@
 }}}
 import router from "@adonisjs/core/services/router";
 
-export default function () {
-  router
-    .group(() => {})
-    .prefix("{{ routes.name }}")
-    .openapi({ tags: ["{{ routes.name }}"] });
-}
+router
+  .group(() => {})
+  .prefix("{{ routes.name }}")
+  .openapi({ tags: ["{{ routes.name }}"] });
