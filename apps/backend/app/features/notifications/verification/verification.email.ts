@@ -1,4 +1,4 @@
-import type SignupEvent from "#features/auth/signup/signup.event";
+import type SignupEvent from "#features/users/signup/signup.event";
 import env from "#start/env";
 import { BaseMail } from "@adonisjs/mail";
 

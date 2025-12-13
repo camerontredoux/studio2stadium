@@ -71,7 +71,7 @@ export type Favorite = {
     from_id: string;
     to_id: string;
 };
-export type GlobalEvent = {
+export type GlobalDanceEvent = {
     id: Generated<string>;
     name: string;
     location: string;
@@ -85,10 +85,17 @@ export type GlobalEvent = {
     created_at: Generated<Timestamp>;
     updated_at: Timestamp | null;
 };
-export type GlobalEventAttendee = {
+export type GlobalDanceEventAttendee = {
     registered_at: Generated<Timestamp>;
     event_id: string;
     user_id: string;
+};
+export type HiddenItem = {
+    id: Generated<string>;
+    created_at: Generated<Timestamp>;
+    hidden_by_id: string;
+    video_id: string | null;
+    image_id: string | null;
 };
 export type LibraryVideo = {
     id: Generated<string>;
@@ -99,10 +106,17 @@ export type LibraryVideo = {
     updated_at: Timestamp | null;
 };
 export type Notification = {
+    id: Generated<string>;
+    content: unknown;
     created_at: Generated<Timestamp>;
-    read_at: Timestamp | null;
-    event_id: string;
     user_id: string;
+};
+export type OutboxEvent = {
+    id: Generated<string>;
+    type: string;
+    payload: unknown;
+    created_at: Generated<Timestamp>;
+    published_at: Timestamp | null;
 };
 export type Platform = {
     id: Generated<string>;
@@ -128,7 +142,7 @@ export type PostLike = {
     post_id: string;
     user_id: string;
 };
-export type ProdigyEvent = {
+export type ProdigyDanceEvent = {
     id: Generated<string>;
     name: string;
     location: string;
@@ -142,7 +156,7 @@ export type ProdigyEvent = {
     created_at: Generated<Timestamp>;
     updated_at: Timestamp | null;
 };
-export type ProdigyEventAttendee = {
+export type ProdigyDanceEventAttendee = {
     bib_number: string;
     paid_tier: boolean;
     registered_at: Generated<Timestamp>;
@@ -214,7 +228,7 @@ export type SchoolAccount = {
     updated_at: Timestamp | null;
     user_id: string;
 };
-export type SchoolEvent = {
+export type SchoolDanceEvent = {
     id: Generated<string>;
     title: string;
     description: string | null;
@@ -230,7 +244,6 @@ export type Subscription = {
     id: Generated<string>;
     subscription_id: string;
     customer_id: string | null;
-    price_id: string | null;
     cancel_at_period_end: Generated<boolean>;
     current_period_end: Timestamp | null;
     canceled_at: Timestamp | null;
@@ -238,15 +251,6 @@ export type Subscription = {
     created_at: Generated<Timestamp>;
     updated_at: Timestamp | null;
     user_id: string;
-};
-export type SystemEvent = {
-    id: Generated<string>;
-    type: string;
-    metadata: unknown | null;
-    entity_type: string;
-    entity_id: string;
-    created_at: Generated<Timestamp>;
-    actor_id: string | null;
 };
 export type User = {
     id: Generated<string>;
@@ -262,6 +266,12 @@ export type User = {
     created_at: Generated<Timestamp>;
     updated_at: Timestamp | null;
 };
+export type UserActivity = {
+    id: Generated<string>;
+    event_type: string;
+    user_id: string;
+    created_at: Generated<Timestamp>;
+};
 export type UserRole = {
     role_id: number;
     user_id: string;
@@ -272,24 +282,26 @@ export type DB = {
     dancer_accounts: DancerAccount;
     dancer_platforms: DancerPlatform;
     favorites: Favorite;
-    global_event_attendees: GlobalEventAttendee;
-    global_events: GlobalEvent;
+    global_dance_event_attendees: GlobalDanceEventAttendee;
+    global_dance_events: GlobalDanceEvent;
+    hidden_items: HiddenItem;
     library_videos: LibraryVideo;
-    notification_events: SystemEvent;
     notifications: Notification;
+    outbox: OutboxEvent;
     platforms: Platform;
     post_likes: PostLike;
     posts: Post;
-    prodigy_event_attendees: ProdigyEventAttendee;
-    prodigy_events: ProdigyEvent;
+    prodigy_dance_event_attendees: ProdigyDanceEventAttendee;
+    prodigy_dance_events: ProdigyDanceEvent;
     prodigy_library_videos: ProdigyLibraryVideo;
     profile_images: ProfileImage;
     profile_videos: ProfileVideo;
     references_history: ReferencesHistory;
     roles: Role;
     school_accounts: SchoolAccount;
-    school_events: SchoolEvent;
+    school_dance_events: SchoolDanceEvent;
     subscriptions: Subscription;
+    user_activities: UserActivity;
     user_roles: UserRole;
     users: User;
 };

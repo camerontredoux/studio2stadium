@@ -1,2 +1,1 @@
-import "#features/auth/auth.routes";
-import "#features/prodigy/prodigy.routes";
+import "#features/users/users.routes";

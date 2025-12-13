@@ -241,7 +241,7 @@ model OutboxEvent {
   type    String
   payload Json
 
-  created_at DateTime  @default(now())
+  created_at   DateTime  @default(now())
   published_at DateTime?
 
   @@index([type])

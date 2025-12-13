@@ -1,4 +1,4 @@
-import type SignupEvent from "#features/auth/signup/signup.event";
+import type SignupEvent from "#features/users/signup/signup.event";
 
 export default class VerificationListener {
   async handle(event: SignupEvent) {
