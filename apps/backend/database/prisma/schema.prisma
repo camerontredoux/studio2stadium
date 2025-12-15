@@ -37,7 +37,6 @@ model User {
   images               ProfileImage[]
   videos               ProfileVideo[]
   notifications        Notification[]
-  // outbox_events        OutboxEvent[]
   hidden_items         HiddenItem[]
   user_activities      UserActivity[]
 
@@ -228,12 +227,6 @@ model HiddenItem {
  * *************
  */
 
-// school joins event -> make it last for 1 day -> delete systemevent row using cron
-// actor based event -> on page load, materialize the notification -> allow user to delete that notification
-// dancer submits a common recruiting video to 10 schools
-// type = dancer_crv_submission
-// ephemeral
-// metadata: dancer_id, school ids, submission_id 
 model OutboxEvent {
   id      String @id @default(dbgenerated("gen_random_uuid()"))
   type    String
@@ -264,10 +257,10 @@ model ProcessedEvent {
   event_id   String @id
   event_type String
 
-  created_at DateTime @default(now())
+  processed_at DateTime @default(now())
 
   @@index([event_id])
-  @@index([created_at])
+  @@index([processed_at])
   @@map("processed_events")
 }
 
