@@ -100,7 +100,8 @@ func (s *EventService) ProcessQueueMessage(message *types.Message) (*QueueMessag
 		EventId:   parsedEvent.EventId,
 		EventType: parsedEvent.EventType,
 	}
-	notifications := []*t.Notification{}
+
+	var notifications []*t.Notification
 
 	switch outboxEvent.Type {
 	case "favorite":
@@ -124,7 +125,16 @@ func (s *EventService) ProcessQueueMessage(message *types.Message) (*QueueMessag
 		if err != nil {
 			return nil, err
 		}
-	case "school-joined":
+		dancer, err := s.GetUser(crvSubmissionPayload.DancerId)
+		if err != nil {
+			return nil, err
+		}
+		crvNotifications, err := pr.CrvSubmissionPayloadToNotification(crvSubmissionPayload, dancer)
+		if err != nil {
+			return nil, err
+		}
+		notifications = crvNotifications
+	case "school-joined": // TODO: global event
 		var schoolJoinedPayload t.SchoolJoinedNotificationPayload
 		err := outboxEvent.GetPayload(&schoolJoinedPayload)
 		if err != nil {
@@ -137,7 +147,7 @@ func (s *EventService) ProcessQueueMessage(message *types.Message) (*QueueMessag
 			return nil, err
 		}
 	default:
-		log.Println("Unhandled event type", outboxEvent.Type)
+		log.Println("Unhandled event type:", outboxEvent.Type)
 	}
 
 	log.Printf("Creating notifications and processed event\nNotifications: %s\nProcessedEvent: %s\n", spew.Sdump(notifications), spew.Sdump(processedEvent))
