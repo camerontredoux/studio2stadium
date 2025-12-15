@@ -19,7 +19,6 @@ func main() {
 	}
 
 	pgDSN := os.Getenv("POSTGRES_DSN")
-	mongoConnectionString := os.Getenv("MONGO_CONNECTION_STRING")
 	awsAccessKeyID := os.Getenv("AWS_ACCESS_KEY_ID")
 	awsSecretAccessKey := os.Getenv("AWS_SECRET_KEY")
 	awsRegion := os.Getenv("AWS_REGION")
@@ -38,8 +37,7 @@ func main() {
 	}
 
 	store, err := db.NewStore(&db.StoreConfig{
-		MongoConnectionString: mongoConnectionString,
-		PostgresDSN:           pgDSN,
+		PostgresDSN: pgDSN,
 	})
 	if err != nil {
 		log.Fatalf("Error creating store: %v", err)
@@ -60,22 +58,3 @@ func main() {
 		}
 	}
 }
-
-// loc, err := time.LoadLocation("America/Denver")
-// if err != nil {
-// 	log.Fatalf("Error loading location: %v", err)
-// }
-// cr := cron.New(cron.WithLocation(loc))
-
-// _, err = cr.AddFunc("*/1 * * * *", func() {
-// 	log.Println("Processing dead letter events")
-// 	err := eventService.ProcessDeadLetterEvents()
-// 	if err != nil {
-// 		log.Println("Error processing dead letter events", err)
-// 	}
-// })
-// if err != nil {
-// 	log.Fatalf("Error adding cron job: %v", err)
-// }
-
-// cr.Start()

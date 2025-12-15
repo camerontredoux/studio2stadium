@@ -262,6 +262,17 @@ model Notification {
   @@map("notifications")
 }
 
+model ProcessedEvent {
+  event_id String @id
+  event_type String
+
+  created_at DateTime @default(now())
+
+  @@index([event_id])
+  @@index([created_at])
+  @@map("processed_events")
+}
+
 /**
  * *********
  * PLATFORMS

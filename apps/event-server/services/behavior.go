@@ -1,15 +1,9 @@
 package services
 
 import (
-	"encoding/json"
-	"errors"
-	"log"
-	"time"
+	"gorm.io/gorm"
 
-	"github.com/StudioToStadium/event-server/pkg/db"
 	t "github.com/StudioToStadium/event-server/types"
-	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
-	"github.com/davecgh/go-spew/spew"
 )
 
 type QueueMessage struct {
@@ -17,107 +11,58 @@ type QueueMessage struct {
 	EventId   string `json:"eventId"`
 }
 
-func UpsertProcessedEvent(s *db.Store, eventId string, eventType string) (*t.ProcessedEvent, error) {
-	processedEvent := &t.ProcessedEvent{
-		EventId:     eventId,
-		EventType:   eventType,
-		ProcessedAt: time.Now(),
-	}
-
+func (s *EventService) GetProcessedEvent(eventId string) (*t.ProcessedEvent, error) {
 	res := t.ProcessedEvent{}
-	err := s.Upsert(
-		s.DbCollection("s2s_events", "processed_events"),
-		db.M{"eventId": eventId},
-		processedEvent,
-		&res,
-	)
+	err := s.db.Postgres.GetDB().Where("event_id = ?", eventId).First(&res).Error
 	if err != nil {
 		return nil, err
 	}
 	return &res, nil
 }
 
-func GetProcessedEvent(s *db.Store, eventId string) (*t.ProcessedEvent, error) {
-	res := t.ProcessedEvent{}
-	err := s.FindOne(
-		s.DbCollection("s2s_events", "processed_events"),
-		db.M{"eventId": eventId},
-		&res,
-	)
+func (s *EventService) CreateProcessedEvent(event *t.ProcessedEvent) (*t.ProcessedEvent, error) {
+	res := t.ProcessedEvent{
+		EventId:   event.EventId,
+		EventType: event.EventType,
+	}
+	err := s.db.Postgres.GetDB().Create(&res).Error
+	return &res, err
+}
+
+func (s *EventService) GetOutboxEvent(eventId string) (*t.OutboxEvent, error) {
+	res := t.OutboxEvent{}
+	err := s.db.Postgres.GetDB().Where("id = ?", eventId).First(&res).Error
 	if err != nil {
 		return nil, err
 	}
 	return &res, nil
 }
 
-func (s *EventService) ProcessQueueMessage(message *types.Message) (*QueueMessage, error) {
-	parseMessage := func(message *types.Message) (*QueueMessage, error) {
-		var parsedEvent QueueMessage
-		if message.Body == nil {
-			return nil, errors.New("message body is nil")
-		}
-		err := json.Unmarshal([]byte(*message.Body), &parsedEvent)
-		if err != nil {
-			return nil, err
-		}
-		return &parsedEvent, nil
-	}
-
-	parsedEvent, err := parseMessage(message)
+func (s *EventService) GetUser(userId string) (*t.User, error) {
+	res := t.User{}
+	err := s.db.Postgres.GetDB().Where("id = ?", userId).First(&res).Error
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Processing message %s", parsedEvent.EventId)
+	return &res, nil
+}
 
-	if _, err := GetProcessedEvent(s.db, parsedEvent.EventId); err == nil {
-		log.Printf(
-			"Event data already exists for event id %s - deleting\n",
-			parsedEvent.EventId,
-		)
-		err = s.aws.DeleteMessage(message.ReceiptHandle)
-		if err != nil {
-			log.Println("Error deleting message from SQS", err)
-			return nil, err
+func (s *EventService) CreateNotification(notification *t.Notification) error {
+	return s.db.Postgres.GetDB().Create(&notification).Error
+}
+
+func (s *EventService) CreateManyNotifications(notifications []*t.Notification) error {
+	return s.db.Postgres.GetDB().Create(&notifications).Error
+}
+
+func (s *EventService) CreateNotificationsAndEvent(notifications []*t.Notification, event *t.ProcessedEvent) error {
+	return s.db.Postgres.GetDB().Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&notifications).Error; err != nil {
+			return err
 		}
-		return nil, nil
-	}
-
-	log.Println("Event has not been processed, querying from Postgres with id", parsedEvent.EventId)
-	var outboxEvent t.OutboxEvent
-
-	res := s.db.Postgres.GetDB().Table("outbox").Where("id = ?", parsedEvent.EventId).First(&outboxEvent)
-	if res.Error != nil {
-		return nil, res.Error
-	}
-	spew.Dump(outboxEvent)
-
-	switch outboxEvent.Type {
-	case "favorite":
-		spew.Dump(outboxEvent.Payload)
-	case "crv-submission":
-		spew.Dump(outboxEvent.Payload)
-	case "school-recently-joined":
-		spew.Dump(outboxEvent.Payload)
-	case "blog-post":
-		spew.Dump(outboxEvent.Payload)
-	default:
-		log.Println("Unhandled event type", outboxEvent.Type)
-	}
-
-	log.Println("Storing processed event in processed_events")
-	// after everything succeeds, upsert event data (in a transaction)
-	_, err = UpsertProcessedEvent(s.db, parsedEvent.EventId, parsedEvent.EventType)
-	if err != nil {
-		log.Println("Error upserting event data", err)
-		return nil, err
-	}
-
-	err = s.aws.DeleteMessage(message.ReceiptHandle)
-	if err != nil {
-		log.Println("Error deleting message from SQS", err)
-		return nil, err
-	}
-	log.Println("Deleted message for event", parsedEvent.EventId)
-
-	return parsedEvent, nil
+		if err := tx.Create(&event).Error; err != nil {
+			return err
+		}
+		return nil
+	})
 }
