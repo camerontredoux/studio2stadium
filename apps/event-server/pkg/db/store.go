@@ -10,7 +10,7 @@ import (
 
 type Store struct {
 	mongo    *mongo.Client
-	postgres *Postgres
+	Postgres *Postgres
 }
 
 type StoreConfig struct {
@@ -18,19 +18,21 @@ type StoreConfig struct {
 	PostgresDSN           string
 }
 
-func NewStore(mongoConnectionString string, postgresDSN string) (*Store, error) {
-	log.Println("Creating store with MongoDB connection string:", mongoConnectionString)
-	mongo, err := newMongoClient(mongoConnectionString)
+func NewStore(config *StoreConfig) (*Store, error) {
+	log.Println("Creating store with MongoDB connection string:", config.MongoConnectionString)
+	mongo, err := newMongoClient(config.MongoConnectionString)
 	if err != nil {
 		return nil, err
 	}
-	postgres, err := NewPostgres(postgresDSN)
+
+	log.Println("Creating connection to Postgres with connection string:", config.PostgresDSN)
+	postgres, err := NewPostgres(config.PostgresDSN)
 	if err != nil {
 		return nil, err
 	}
 	return &Store{
 		mongo:    mongo,
-		postgres: postgres,
+		Postgres: postgres,
 	}, nil
 }
 
@@ -38,7 +40,7 @@ func (s Store) Close() error {
 	if err := s.mongo.Disconnect(context.Background()); err != nil {
 		return err
 	}
-	if err := s.postgres.Close(); err != nil {
+	if err := s.Postgres.Close(); err != nil {
 		return err
 	}
 	return nil

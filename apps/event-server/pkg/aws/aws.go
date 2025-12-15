@@ -97,6 +97,7 @@ func (awsClient *AWSClient) DeleteDeadLetterMessage(receiptHandle *string) error
 }
 
 func (awsClient *AWSClient) deleteMessage(queueURL string, receiptHandle *string) error {
+	// delete messages in batch with DeleteMessageBatch
 	_, err := awsClient.sqs.DeleteMessage(context.TODO(), &sqs.DeleteMessageInput{
 		QueueUrl:      aws.String(queueURL),
 		ReceiptHandle: receiptHandle,

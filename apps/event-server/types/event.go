@@ -23,7 +23,7 @@ func (OutboxEvent) TableName() string {
 }
 
 type ProcessedEvent struct {
-	EventId   string    `json:"eventId"   bson:"_id"`
-	EventType string    `json:"eventType" bson:"eventType"`
-	CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
+	EventId     string    `json:"eventId"   bson:"_id"`
+	EventType   string    `json:"eventType" bson:"eventType"`
+	ProcessedAt time.Time `json:"processedAt" bson:"processedAt"`
 }

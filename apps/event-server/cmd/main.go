@@ -3,10 +3,8 @@ package main
 import (
 	"log"
 	"os"
-	"time"
 
 	"github.com/joho/godotenv"
-	"github.com/robfig/cron/v3"
 
 	"github.com/StudioToStadium/event-server/pkg/aws"
 	"github.com/StudioToStadium/event-server/pkg/db"
@@ -39,7 +37,10 @@ func main() {
 		log.Fatalf("Error creating AWS client: %v", err)
 	}
 
-	store, err := db.NewStore(mongoConnectionString, pgDSN)
+	store, err := db.NewStore(&db.StoreConfig{
+		MongoConnectionString: mongoConnectionString,
+		PostgresDSN:           pgDSN,
+	})
 	if err != nil {
 		log.Fatalf("Error creating store: %v", err)
 	}
@@ -51,24 +52,6 @@ func main() {
 	}()
 	eventService := services.NewEventService(aws, store)
 
-	loc, err := time.LoadLocation("America/Denver")
-	if err != nil {
-		log.Fatalf("Error loading location: %v", err)
-	}
-	cr := cron.New(cron.WithLocation(loc))
-
-	_, err = cr.AddFunc("*/1 * * * *", func() {
-		log.Println("Processing dead letter events")
-		err := eventService.ProcessDeadLetterEvents()
-		if err != nil {
-			log.Println("Error processing dead letter events", err)
-		}
-	})
-	if err != nil {
-		log.Fatalf("Error adding cron job: %v", err)
-	}
-
-	cr.Start()
 	for {
 		err := eventService.ProcessEvents()
 		if err != nil {
@@ -77,3 +60,22 @@ func main() {
 		}
 	}
 }
+
+// loc, err := time.LoadLocation("America/Denver")
+// if err != nil {
+// 	log.Fatalf("Error loading location: %v", err)
+// }
+// cr := cron.New(cron.WithLocation(loc))
+
+// _, err = cr.AddFunc("*/1 * * * *", func() {
+// 	log.Println("Processing dead letter events")
+// 	err := eventService.ProcessDeadLetterEvents()
+// 	if err != nil {
+// 		log.Println("Error processing dead letter events", err)
+// 	}
+// })
+// if err != nil {
+// 	log.Fatalf("Error adding cron job: %v", err)
+// }
+
+// cr.Start()
