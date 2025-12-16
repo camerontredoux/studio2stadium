@@ -47,14 +47,6 @@ func (s *EventService) GetUser(userId string) (*t.User, error) {
 	return &res, nil
 }
 
-func (s *EventService) CreateNotification(notification *t.Notification) error {
-	return s.db.Postgres.GetDB().Create(&notification).Error
-}
-
-func (s *EventService) CreateManyNotifications(notifications []*t.Notification) error {
-	return s.db.Postgres.GetDB().Create(&notifications).Error
-}
-
 func (s *EventService) CreateNotificationsAndEvent(notifications []*t.Notification, event *t.ProcessedEvent) error {
 	return s.db.Postgres.GetDB().Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&notifications).Error; err != nil {

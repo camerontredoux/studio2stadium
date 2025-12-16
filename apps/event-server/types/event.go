@@ -26,12 +26,7 @@ type OutboxEvent struct {
 //		return err
 //	}
 func (o *OutboxEvent) GetPayload(out any) error {
-	var payloadStr string
-	err := json.Unmarshal(o.Payload, &payloadStr)
-	if err != nil {
-		return err
-	}
-	err = json.Unmarshal([]byte(payloadStr), out)
+	err := json.Unmarshal(o.Payload, out)
 	if err != nil {
 		return err
 	}
