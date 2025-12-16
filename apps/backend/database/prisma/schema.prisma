@@ -34,11 +34,9 @@ model User {
   subscriptions        Subscription[]
   prodigy_dance_events ProdigyDanceEventAttendee[]
   global_dance_events  GlobalDanceEventAttendee[]
-  post_likes           PostLike[]
   images               ProfileImage[]
   videos               ProfileVideo[]
   notifications        Notification[]
-  // outbox_events        OutboxEvent[]
   hidden_items         HiddenItem[]
   user_activities      UserActivity[]
 
@@ -230,12 +228,6 @@ model HiddenItem {
  * *************
  */
 
-// school joins event -> make it last for 1 day -> delete systemevent row using cron
-// actor based event -> on page load, materialize the notification -> allow user to delete that notification
-// dancer submits a common recruiting video to 10 schools
-// type = dancer_crv_submission
-// ephemeral
-// metadata: dancer_id, school ids, submission_id 
 model OutboxEvent {
   id      String @id @default(dbgenerated("gen_random_uuid()"))
   type    String
@@ -263,13 +255,11 @@ model Notification {
 }
 
 model ProcessedEvent {
-  event_id String @id
+  event_id   String @id
   event_type String
 
-  created_at DateTime @default(now())
+  processed_at DateTime @default(now())
 
-  @@index([event_id])
-  @@index([created_at])
   @@map("processed_events")
 }
 
@@ -522,50 +512,12 @@ model Subscription {
 }
 
 /**
- * ****
- * BLOG
- * ****
- */
-
-model Post {
-  id          String   @id @default(dbgenerated("gen_random_uuid()"))
-  title       String
-  content     String
-  summary     String
-  published   Boolean
-  description String?
-  thumbnail   String
-  slug        String   @unique
-  tags        String[]
-
-  created_at DateTime  @default(now())
-  updated_at DateTime? @updatedAt
-
-  likes PostLike[]
-
-  @@index([created_at])
-  @@map("posts")
-}
-
-model PostLike {
-  created_at DateTime @default(now())
-
-  post_id String
-  user_id String
-  post    Post   @relation(fields: [post_id], references: [id], onDelete: Cascade)
-  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@id([post_id, user_id])
-  @@map("post_likes")
-}
-
-/**
  * ******
  * GLOBAL
  * ******
  */
 
-model LibraryVideo {
+model TapInVideo {
   id         String @id @default(dbgenerated("gen_random_uuid()"))
   category   String
   youtube_id String
@@ -575,7 +527,7 @@ model LibraryVideo {
   updated_at DateTime? @updatedAt
 
   @@index([created_at])
-  @@map("library_videos")
+  @@map("tap_in_videos")
 }
 
 /**
