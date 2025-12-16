@@ -19,7 +19,6 @@ export class SignupQueries extends BaseQuery {
           "phone",
           "created_at",
           "updated_at",
-          "last_logged_in",
         ])
         .executeTakeFirstOrThrow()
     );

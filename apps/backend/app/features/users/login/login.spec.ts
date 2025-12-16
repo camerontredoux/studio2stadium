@@ -16,7 +16,6 @@ const userFixture: Insertable<User> = {
   last_name: faker.person.lastName(),
   password: await hash.make("password"),
   image: faker.image.avatarGitHub(),
-  last_logged_in: new Date(),
 };
 
 const testCtx = await testUtils.createHttpContext();

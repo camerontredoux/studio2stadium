@@ -9,7 +9,8 @@ import { type Selectable } from "kysely";
 import { type Omit } from "#shared/omit";
 import redis from "@adonisjs/redis/services/main";
 
-export type RealUser = Omit<Selectable<User>, "password">;
+type UserWithRoles = Selectable<User> & { roles: string[] };
+export type RealUser = Omit<UserWithRoles, "password" | "created_at">;
 
 export class SessionUserProvider implements SessionUserProviderContract<RealUser> {
   declare [symbols.PROVIDER_REAL_USER]: RealUser;
@@ -26,9 +27,7 @@ export class SessionUserProvider implements SessionUserProviderContract<RealUser
   }
 
   async findById(identifier: string): Promise<SessionGuardUser<RealUser> | null> {
-    const redisCache = redis.connection("cache");
-
-    const cachedUser = await redisCache.get(`user:${identifier}`);
+    const cachedUser = await redis.get(`user:${identifier}`);
     if (cachedUser) {
       const user = JSON.parse(cachedUser);
       return this.createUserForGuard(user);
@@ -47,9 +46,7 @@ export class SessionUserProvider implements SessionUserProviderContract<RealUser
         "last_name",
         "image",
         "phone",
-        "users.created_at",
         "users.updated_at",
-        "users.last_logged_in",
         fn.agg<string[]>("array_agg", ["roles.type"]).as("roles"),
       ])
       .where("users.id", "=", identifier)
@@ -60,7 +57,7 @@ export class SessionUserProvider implements SessionUserProviderContract<RealUser
       return null;
     }
 
-    await redisCache.set(`user:${identifier}`, JSON.stringify(user), "EX", 60 * 60 * 2);
+    await redis.setex(`user:${identifier}`, 60 * 60 * 2, JSON.stringify(user));
     return this.createUserForGuard(user);
   }
 }

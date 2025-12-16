@@ -97,14 +97,6 @@ export type HiddenItem = {
     video_id: string | null;
     image_id: string | null;
 };
-export type LibraryVideo = {
-    id: Generated<string>;
-    category: string;
-    youtube_id: string;
-    title: string;
-    created_at: Generated<Timestamp>;
-    updated_at: Timestamp | null;
-};
 export type Notification = {
     id: Generated<string>;
     content: unknown;
@@ -124,23 +116,10 @@ export type Platform = {
     created_at: Generated<Timestamp>;
     updated_at: Timestamp | null;
 };
-export type Post = {
-    id: Generated<string>;
-    title: string;
-    content: string;
-    summary: string;
-    published: boolean;
-    description: string | null;
-    thumbnail: string;
-    slug: string;
-    tags: string[];
-    created_at: Generated<Timestamp>;
-    updated_at: Timestamp | null;
-};
-export type PostLike = {
-    created_at: Generated<Timestamp>;
-    post_id: string;
-    user_id: string;
+export type ProcessedEvent = {
+    event_id: string;
+    event_type: string;
+    processed_at: Generated<Timestamp>;
 };
 export type ProdigyDanceEvent = {
     id: Generated<string>;
@@ -252,6 +231,14 @@ export type Subscription = {
     updated_at: Timestamp | null;
     user_id: string;
 };
+export type TapInVideo = {
+    id: Generated<string>;
+    category: string;
+    youtube_id: string;
+    title: string;
+    created_at: Generated<Timestamp>;
+    updated_at: Timestamp | null;
+};
 export type User = {
     id: Generated<string>;
     email: string;
@@ -262,7 +249,6 @@ export type User = {
     image: string | null;
     password: string;
     phone: string | null;
-    last_logged_in: Timestamp;
     created_at: Generated<Timestamp>;
     updated_at: Timestamp | null;
 };
@@ -285,12 +271,10 @@ export type DB = {
     global_dance_event_attendees: GlobalDanceEventAttendee;
     global_dance_events: GlobalDanceEvent;
     hidden_items: HiddenItem;
-    library_videos: LibraryVideo;
     notifications: Notification;
     outbox: OutboxEvent;
     platforms: Platform;
-    post_likes: PostLike;
-    posts: Post;
+    processed_events: ProcessedEvent;
     prodigy_dance_event_attendees: ProdigyDanceEventAttendee;
     prodigy_dance_events: ProdigyDanceEvent;
     prodigy_library_videos: ProdigyLibraryVideo;
@@ -301,6 +285,7 @@ export type DB = {
     school_accounts: SchoolAccount;
     school_dance_events: SchoolDanceEvent;
     subscriptions: Subscription;
+    tap_in_videos: TapInVideo;
     user_activities: UserActivity;
     user_roles: UserRole;
     users: User;

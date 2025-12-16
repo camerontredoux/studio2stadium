@@ -3,7 +3,7 @@ import { defineConfig } from "@adonisjs/redis";
 import { type InferConnections } from "@adonisjs/redis/types";
 
 const redisConfig = defineConfig({
-  connection: "session",
+  connection: "cache",
 
   connections: {
     /*
