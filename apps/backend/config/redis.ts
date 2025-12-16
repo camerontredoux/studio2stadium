@@ -24,7 +24,6 @@ const redisConfig = defineConfig({
     cache: {
       host: env.get("REDIS_HOST"),
       port: env.get("REDIS_PORT"),
-      password: env.get("REDIS_PASSWORD"),
       /**
        * Exponential backoff with full jitter
        * https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/

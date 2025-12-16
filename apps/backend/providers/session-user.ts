@@ -7,6 +7,7 @@ import {
 } from "@adonisjs/auth/types/session";
 import { type Selectable } from "kysely";
 import { type Omit } from "#shared/omit";
+import redis from "@adonisjs/redis/services/main";
 
 export type RealUser = Omit<Selectable<User>, "password">;
 
@@ -25,6 +26,14 @@ export class SessionUserProvider implements SessionUserProviderContract<RealUser
   }
 
   async findById(identifier: string): Promise<SessionGuardUser<RealUser> | null> {
+    const redisCache = redis.connection("cache");
+
+    const cachedUser = await redisCache.get(`user:${identifier}`);
+    if (cachedUser) {
+      const user = JSON.parse(cachedUser);
+      return this.createUserForGuard(user);
+    }
+
     const user = await db
       .selectFrom("users")
       .leftJoin("user_roles", "user_roles.user_id", "users.id")
@@ -51,6 +60,7 @@ export class SessionUserProvider implements SessionUserProviderContract<RealUser
       return null;
     }
 
+    await redisCache.set(`user:${identifier}`, JSON.stringify(user), "EX", 60 * 60 * 2);
     return this.createUserForGuard(user);
   }
 }
