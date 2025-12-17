@@ -252,6 +252,15 @@ model Notification {
   @@map("notifications")
 }
 
+model GlobalNotification {
+  id        String @id @default(dbgenerated("gen_random_uuid()"))
+  content   Json
+  created_at DateTime @default(now())
+
+  @@index([created_at])
+  @@map("global_notifications")
+}
+
 model ProcessedEvent {
   event_id   String @id
   event_type String

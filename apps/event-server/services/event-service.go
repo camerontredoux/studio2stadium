@@ -1,14 +1,12 @@
 package services
 
 import (
-	"encoding/json"
-	"errors"
 	"log"
 
-	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
+	sqsT "github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/davecgh/go-spew/spew"
 
-	pr "github.com/StudioToStadium/event-server/presenters"
+	b "github.com/StudioToStadium/event-server/behavior"
 	t "github.com/StudioToStadium/event-server/types"
 
 	"github.com/StudioToStadium/event-server/pkg/aws"
@@ -16,16 +14,15 @@ import (
 )
 
 type EventService struct {
-	aws *aws.AWSClient
-	db  *db.Store
+	aws   *aws.AWSClient
+	store *b.BehaviorStore
 }
 
 func NewEventService(aws *aws.AWSClient, db *db.Store) *EventService {
-	return &EventService{aws: aws, db: db}
+	return &EventService{aws: aws, store: b.NewBehaviorStore(db)}
 }
 
 func (s *EventService) ProcessEvents() error {
-	// payload of event_id, and event_type
 	res, err := s.aws.ReceiveMessage()
 	if err != nil {
 		log.Println("Error receiving message from SQS", err)
@@ -36,47 +33,47 @@ func (s *EventService) ProcessEvents() error {
 		return nil
 	}
 
+	successfullReceiptHandles := []*string{}
 	for _, message := range res.Messages {
 		processedMessage, err := s.ProcessQueueMessage(&message)
 		if err != nil {
-			log.Printf("Error processing message %s, retrying in 1 minute: %v\n", *message.MessageId, err)
+			log.Printf(
+				"Error processing message %s, retrying in 1 minute: %v\n",
+				*message.MessageId,
+				err,
+			)
 			continue
 		}
 
 		if processedMessage != nil {
-			log.Printf("Processed message: %s:%s", processedMessage.EventId, processedMessage.EventType)
-			// TODO: batch delete messages from SQS
-			err = s.aws.DeleteMessage(message.ReceiptHandle)
-			if err != nil {
-				log.Println("Error deleting message from SQS", err)
-				return err
-			}
-			log.Println("Deleted message for event", processedMessage.EventId)
+			log.Printf(
+				"Processed message: %s:%s",
+				processedMessage.EventId,
+				processedMessage.EventType,
+			)
+			successfullReceiptHandles = append(successfullReceiptHandles, message.ReceiptHandle)
 		}
 	}
+
+	if len(successfullReceiptHandles) > 0 {
+		err = s.aws.DeleteMessageBatch(successfullReceiptHandles)
+		if err != nil {
+			log.Println("Error deleting messages from SQS", err)
+			return err
+		}
+	}
+
 	return nil
 }
 
-func (s *EventService) ProcessQueueMessage(message *types.Message) (*QueueMessage, error) {
-	parseMessage := func(message *types.Message) (*QueueMessage, error) {
-		var parsedEvent QueueMessage
-		if message.Body == nil {
-			return nil, errors.New("message body is nil")
-		}
-		err := json.Unmarshal([]byte(*message.Body), &parsedEvent)
-		if err != nil {
-			return nil, err
-		}
-		return &parsedEvent, nil
-	}
-
-	parsedEvent, err := parseMessage(message)
+func (s *EventService) ProcessQueueMessage(message *sqsT.Message) (*t.QueueMessage, error) {
+	parsedEvent, err := aws.ParseMessageBody(message)
 	if err != nil {
 		return nil, err
 	}
 	log.Printf("Processing message %s", parsedEvent.EventId)
 
-	if _, err := s.GetProcessedEvent(parsedEvent.EventId); err == nil {
+	if _, err := s.store.GetProcessedEvent(parsedEvent.EventId); err == nil {
 		log.Printf(
 			"Event data already exists for event id %s - deleting\n",
 			parsedEvent.EventId,
@@ -90,11 +87,10 @@ func (s *EventService) ProcessQueueMessage(message *types.Message) (*QueueMessag
 	}
 
 	log.Println("Event has not been processed, querying from Postgres with id", parsedEvent.EventId)
-	outboxEvent, err := s.GetOutboxEvent(parsedEvent.EventId)
+	outboxEvent, err := s.store.GetOutboxEvent(parsedEvent.EventId)
 	if err != nil {
 		return nil, err
 	}
-	spew.Dump(outboxEvent)
 
 	processedEvent := &t.ProcessedEvent{
 		EventId:   parsedEvent.EventId,
@@ -102,58 +98,57 @@ func (s *EventService) ProcessQueueMessage(message *types.Message) (*QueueMessag
 	}
 
 	var notifications []*t.Notification
+	var globalNotification *t.GlobalNotification
 
 	switch outboxEvent.Type {
 	case "favorite":
-		var fnPayload t.FavoriteNotificationPayload
-		err := outboxEvent.GetPayload(&fnPayload)
+		err := s.HandleFavoriteEvent(outboxEvent, &notifications)
 		if err != nil {
 			return nil, err
 		}
-		favoriter, err := s.GetUser(fnPayload.FavoriterId)
-		if err != nil {
-			return nil, err
-		}
-		notification, err := pr.FavoritePayloadToNotification(fnPayload, favoriter)
-		if err != nil {
-			return nil, err
-		}
-		notifications = append(notifications, notification)
 	case "crv-submission":
-		var crvSubmissionPayload t.CRVSubmissionNotificationPayload
-		err := outboxEvent.GetPayload(&crvSubmissionPayload)
+		err := s.HandleCRVSubmissionEvent(outboxEvent, &notifications)
 		if err != nil {
 			return nil, err
 		}
-		dancer, err := s.GetUser(crvSubmissionPayload.DancerId)
-		if err != nil {
-			return nil, err
-		}
-		crvNotifications, err := pr.CrvSubmissionPayloadToNotification(crvSubmissionPayload, dancer)
-		if err != nil {
-			return nil, err
-		}
-		notifications = crvNotifications
 	case "school-joined": // TODO: global event
-		var schoolJoinedPayload t.SchoolJoinedNotificationPayload
-		err := outboxEvent.GetPayload(&schoolJoinedPayload)
+		err := s.HandleSchoolJoinedEvent(outboxEvent, &globalNotification)
 		if err != nil {
 			return nil, err
 		}
-	case "blog-post": // TODO: remove bc global event
-		var blogPostPayload t.BlogPostNotificationPayload
-		err := outboxEvent.GetPayload(&blogPostPayload)
-		if err != nil {
-			return nil, err
-		}
+	case "coach-attending": // when a coach clicks "attending" button on event (global dance event), send to all dancers following this coach
+	case "crv-viewed": // when a coach views a CRV (common recruiting video), send to submitter
+	case "video-comment": // coach comments on dancer video, send to dancer
+	case "dancer-profile-updated": // alerts all schools following a dancer that a profile was updated
+		// json payload of event to contain what was updated (award, reference, video, etc.)
+	case "school-viewed-profile": // alerts a dancer that a school viewed their profile
+	case "school-added-event": // alerts all dancers following a school that a new event was added
+	case "tap-in-video-uploaded": // TODO: global event, to all dancers (paying)
 	default:
 		log.Println("Unhandled event type:", outboxEvent.Type)
 	}
 
-	log.Printf("Creating notifications and processed event\nNotifications: %s\nProcessedEvent: %s\n", spew.Sdump(notifications), spew.Sdump(processedEvent))
-	err = s.CreateNotificationsAndEvent(notifications, processedEvent)
-	if err != nil {
-		return nil, err
+	if len(notifications) > 0 {
+		log.Printf(
+			"Creating notifications and processed event\nNotifications: %s\nProcessedEvent: %s\n",
+			spew.Sdump(notifications),
+			spew.Sdump(processedEvent),
+		)
+		err = s.store.CreateNotificationsAndEvent(notifications, processedEvent)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if globalNotification != nil {
+		log.Printf(
+			"Creating global notification and processed event\nGlobalNotification: %s\nProcessedEvent: %s\n",
+			spew.Sdump(globalNotification),
+			spew.Sdump(processedEvent),
+		)
+		err = s.store.CreateGlobalNotificationAndEvent(globalNotification, processedEvent)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return parsedEvent, nil
