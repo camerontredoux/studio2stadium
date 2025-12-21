@@ -9,7 +9,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/shadcn/table";
 import { cn } from "@/utils/cn";
 import { getCommonPinningStyles } from "@/utils/data-table";
 

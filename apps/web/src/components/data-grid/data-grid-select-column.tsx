@@ -1,6 +1,6 @@
 "use client";
 
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/shadcn/checkbox";
 import { cn } from "@/utils/cn";
 import type { CellContext, ColumnDef, Table } from "@tanstack/react-table";
 import * as React from "react";

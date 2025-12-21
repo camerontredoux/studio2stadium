@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/shadcn/dropdown-menu";
 import { useAsRef } from "@/hooks/use-as-ref";
 import type { ContextMenuState, UpdateCell } from "@/types/data-grid";
 import { parseCellKey } from "@/utils/data-grid";
