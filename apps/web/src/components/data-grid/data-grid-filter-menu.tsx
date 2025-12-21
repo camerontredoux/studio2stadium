@@ -50,7 +50,7 @@ import {
   getDefaultOperator,
   getOperatorsForVariant,
 } from "@/utils/data-grid-filters";
-import { formatDate } from "@/utils/format-date";
+import { formatDate } from "@/utils/format";
 
 const FILTER_SHORTCUT_KEY = "f";
 const REMOVE_FILTER_SHORTCUTS = ["backspace", "delete"];
