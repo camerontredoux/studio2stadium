@@ -6,7 +6,10 @@ import (
 	t "github.com/StudioToStadium/event-server/types"
 )
 
-func CrvSubmissionPayloadToNotification(payload t.CRVSubmissionNotificationPayload, dancer *t.User) ([]*t.Notification, error) {
+func CrvSubmissionPayloadToNotification(
+	payload t.CRVSubmissionNotificationPayload,
+	dancer *t.User,
+) ([]*t.Notification, error) {
 	var notifications []*t.Notification
 	content := map[string]*t.User{
 		"dancer": dancer,

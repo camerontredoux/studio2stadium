@@ -18,7 +18,6 @@ export class SignupService {
       last_name: lastName,
       username,
       phone,
-      last_logged_in: new Date(),
     });
 
     UserRegistered.dispatch(user);

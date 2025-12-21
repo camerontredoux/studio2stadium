@@ -6,7 +6,10 @@ import (
 	t "github.com/StudioToStadium/event-server/types"
 )
 
-func FavoritePayloadToNotification(payload t.FavoriteNotificationPayload, favoriter *t.User) (*t.Notification, error) {
+func FavoritePayloadToNotification(
+	payload t.FavoriteNotificationPayload,
+	favoriter *t.User,
+) (*t.Notification, error) {
 	content := map[string]*t.User{
 		"favoriter": favoriter,
 	}

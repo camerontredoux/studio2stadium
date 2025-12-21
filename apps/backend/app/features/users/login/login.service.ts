@@ -27,8 +27,6 @@ export class LoginService {
       throw new auth.E_INVALID_CREDENTIALS("Invalid user credentials.");
     }
 
-    await this.queries.updateLoginTime(user.email);
-
     return user;
   }
 }

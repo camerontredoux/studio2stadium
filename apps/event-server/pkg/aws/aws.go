@@ -3,11 +3,13 @@ package aws
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
+	sqsT "github.com/aws/aws-sdk-go-v2/service/sqs/types"
 )
 
 type AWSConfig struct {
@@ -75,10 +77,6 @@ func (awsClient *AWSClient) ReceiveMessage() (*sqs.ReceiveMessageOutput, error) 
 	return awsClient.receiveMessage(awsClient.queueURL)
 }
 
-func (awsClient *AWSClient) ReceiveDeadLetterMessages() (*sqs.ReceiveMessageOutput, error) {
-	return awsClient.receiveMessage(awsClient.deadLetterQueueURL)
-}
-
 func (awsClient *AWSClient) receiveMessage(queueURL string) (*sqs.ReceiveMessageOutput, error) {
 	return awsClient.sqs.ReceiveMessage(context.TODO(), &sqs.ReceiveMessageInput{
 		QueueUrl:            aws.String(queueURL),
@@ -92,15 +90,34 @@ func (awsClient *AWSClient) DeleteMessage(receiptHandle *string) error {
 	return awsClient.deleteMessage(awsClient.queueURL, receiptHandle)
 }
 
-func (awsClient *AWSClient) DeleteDeadLetterMessage(receiptHandle *string) error {
-	return awsClient.deleteMessage(awsClient.deadLetterQueueURL, receiptHandle)
-}
-
 func (awsClient *AWSClient) deleteMessage(queueURL string, receiptHandle *string) error {
 	// delete messages in batch with DeleteMessageBatch
 	_, err := awsClient.sqs.DeleteMessage(context.TODO(), &sqs.DeleteMessageInput{
 		QueueUrl:      aws.String(queueURL),
 		ReceiptHandle: receiptHandle,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (awsClient *AWSClient) DeleteMessageBatch(receiptHandles []*string) error {
+	return awsClient.deleteMessageBatch(awsClient.queueURL, receiptHandles)
+}
+
+func (awsClient *AWSClient) deleteMessageBatch(queueURL string, receiptHandles []*string) error {
+	entries := make([]sqsT.DeleteMessageBatchRequestEntry, len(receiptHandles))
+	for i, receiptHandle := range receiptHandles {
+		entries[i] = sqsT.DeleteMessageBatchRequestEntry{
+			Id:            aws.String(fmt.Sprintf("delete-message-batch-%d", i)),
+			ReceiptHandle: receiptHandle,
+		}
+	}
+
+	_, err := awsClient.sqs.DeleteMessageBatch(context.TODO(), &sqs.DeleteMessageBatchInput{
+		QueueUrl: aws.String(queueURL),
+		Entries:  entries,
 	})
 	if err != nil {
 		return err

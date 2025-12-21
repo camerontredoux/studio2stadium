@@ -6,13 +6,19 @@ import (
 )
 
 type GlobalNotification struct {
-	// TODO: implement
+	Id        string          `json:"id"        gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
+	Content   json.RawMessage `json:"content"   gorm:"type:jsonb;not null"`
+	CreatedAt time.Time       `json:"createdAt" gorm:"column:created_at"`
+}
+
+func (GlobalNotification) TableName() string {
+	return "global_notifications"
 }
 
 type Notification struct {
-	Id        string          `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
-	UserId    string          `json:"userId" gorm:"column:user_id;not null"`
-	Content   json.RawMessage `json:"content" gorm:"type:jsonb;not null"`
+	Id        string          `json:"id"        gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
+	UserId    string          `json:"userId"    gorm:"column:user_id;not null"`
+	Content   json.RawMessage `json:"content"   gorm:"type:jsonb;not null"`
 	CreatedAt time.Time       `json:"createdAt" gorm:"column:created_at"`
 
 	User *User `json:"user" gorm:"foreignKey:Id;references:UserId"`
@@ -39,4 +45,17 @@ type SchoolJoinedNotificationPayload struct {
 // TODO: maybe nuke?
 type BlogPostNotificationPayload struct {
 	PostId string `json:"postId"`
+}
+
+type DancerProfileUpdate string
+
+const (
+	DancerProfileUpdateAward     = "award"
+	DancerProfileUpdateReference = "reference"
+	DancerProfileUpdateAll       = "all"
+)
+
+type DancerProfileUpdatedNotificationPayload struct {
+	DancerId   string              `json:"dancerId"`
+	UpdateType DancerProfileUpdate `json:"updateType"`
 }
