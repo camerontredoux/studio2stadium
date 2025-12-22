@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
 @import "@fontsource/outfit/400.css";
 @import "@fontsource/outfit/500.css";
 @import "@fontsource/outfit/600.css";
@@ -20,7 +19,11 @@
   --secondary: --alpha(var(--color-black) / 4%);
   --secondary-foreground: var(--color-zinc-800);
   --muted: --alpha(var(--color-black) / 4%);
-  --muted-foreground: color-mix(in srgb, var(--color-zinc-500) 90%, var(--color-black));
+  --muted-foreground: color-mix(
+    in srgb,
+    var(--color-zinc-500) 90%,
+    var(--color-black)
+  );
   --accent: --alpha(var(--color-black) / 4%);
   --accent-foreground: var(--color-zinc-800);
   --destructive: var(--color-red-500);
@@ -46,7 +49,7 @@
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
-  --radius: 0.5rem;
+  --radius: 0.625rem;
   --shadow-x: 0;
   --shadow-y: 1px;
   --shadow-blur: 3px;
@@ -66,7 +69,7 @@
     0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
   --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
   --tracking-normal: 0em;
-  --spacing: 0.2rem;
+  --spacing: 0.25rem;
   --info: var(--color-blue-500);
   --info-foreground: var(--color-blue-700);
   --success: var(--color-emerald-500);
@@ -76,7 +79,11 @@
 }
 
 .dark {
-  --background: color-mix(in srgb, var(--color-zinc-950) 98%, var(--color-white));
+  --background: color-mix(
+    in srgb,
+    var(--color-zinc-950) 98%,
+    var(--color-white)
+  );
   --foreground: var(--color-zinc-200);
   --card: color-mix(in srgb, var(--background) 98%, var(--color-white));
   --card-foreground: var(--color-zinc-200);
@@ -87,7 +94,11 @@
   --secondary: --alpha(var(--color-white) / 6%);
   --secondary-foreground: var(--color-zinc-200);
   --muted: --alpha(var(--color-white) / 6%);
-  --muted-foreground: color-mix(in srgb, var(--color-zinc-500) 90%, var(--color-white));
+  --muted-foreground: color-mix(
+    in srgb,
+    var(--color-zinc-500) 90%,
+    var(--color-white)
+  );
   --accent: --alpha(var(--color-white) / 6%);
   --accent-foreground: var(--color-zinc-200);
   --destructive: var(--color-red-500);
@@ -113,7 +124,7 @@
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
-  --radius: 0.5rem;
+  --radius: 0.625rem;
   --shadow-x: 0;
   --shadow-y: 1px;
   --shadow-blur: 3px;
@@ -199,8 +210,8 @@
   --color-info-foreground: var(--info-foreground);
   --color-info: var(--info);
   @keyframes skeleton {
-  to {
-    background-position: -200% 0;
+    to {
+      background-position: -200% 0;
     }
   }
 }
@@ -227,7 +238,7 @@
 }
 
 @utility scrollbar-none {
-    scrollbar-width: none;
+  scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
   }

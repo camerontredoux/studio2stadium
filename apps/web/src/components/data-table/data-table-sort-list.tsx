@@ -9,8 +9,6 @@ import {
 } from "lucide-react";
 import * as React from "react";
 
-import { Badge } from "@/components/shadcn/badge";
-import { Button } from "@/components/shadcn/button";
 import {
   Command,
   CommandEmpty,
@@ -31,13 +29,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/shadcn/select";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Sortable,
   SortableContent,
   SortableItem,
   SortableItemHandle,
   SortableOverlay,
-} from "@/components/shadcn/sortable";
+} from "@/components/ui/sortable";
 import { dataTableConfig } from "@/config/data-table";
 import { cn } from "@/utils/cn";
 

@@ -13,8 +13,6 @@ import { useQueryState } from "nuqs";
 import * as React from "react";
 
 import { DataTableRangeFilter } from "@/components/data-table/data-table-range-filter";
-import { Button } from "@/components/shadcn/button";
-import { Calendar } from "@/components/shadcn/calendar";
 import {
   Command,
   CommandEmpty,
@@ -36,6 +34,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/shadcn/select";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import type { ExtendedColumnFilter, FilterOperator } from "@/types/data-table";
 import { cn } from "@/utils/cn";

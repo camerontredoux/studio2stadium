@@ -1,6 +1,6 @@
 "use client";
 
-import { VisuallyHiddenInput } from "@/components/visually-hidden-input";
+import { VisuallyHiddenInput } from "@/components/ui/visually-hidden-input";
 import { useAsRef } from "@/hooks/use-as-ref";
 import { useIsomorphicLayoutEffect } from "@/hooks/use-isomorphic-layout-effect";
 import { useLazyRef } from "@/hooks/use-lazy-ref";
@@ -240,8 +240,8 @@ function Rating(props: RatingProps) {
     step,
   });
 
-  const store = React.useMemo<Store>(() => {
-    return {
+  const [store] = React.useState<Store>(() => {
+    const store: Store = {
       subscribe: (cb) => {
         listenersRef.current.add(cb);
         return () => listenersRef.current.delete(cb);
@@ -268,7 +268,8 @@ function Rating(props: RatingProps) {
         }
       },
     };
-  }, [listenersRef, stateRef, propsRef]);
+    return store;
+  });
 
   useIsomorphicLayoutEffect(() => {
     if (valueProp !== undefined) {
@@ -353,7 +354,7 @@ function Rating(props: RatingProps) {
 
       setIsTabbingBackOut(false);
     },
-    [rootProps.onBlur],
+    [rootProps],
   );
 
   const onFocus = React.useCallback(
@@ -930,9 +931,4 @@ function RatingItem(props: RatingItemProps) {
   );
 }
 
-export {
-  Rating,
-  RatingItem,
-  //
-  useStore as useRating,
-};
+export { Rating, RatingItem };

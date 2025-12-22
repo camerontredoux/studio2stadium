@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/shadcn/button";
 import {
   Command,
   CommandEmpty,
@@ -14,6 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/shadcn/popover";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
 import type { Table } from "@tanstack/react-table";
 import { Check, Settings2 } from "lucide-react";

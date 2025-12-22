@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/shadcn/button";
 import {
   Dialog,
   DialogClose,
@@ -10,8 +9,9 @@ import {
   DialogTitle,
 } from "@/components/shadcn/dialog";
 import { Input } from "@/components/shadcn/input";
-import { Kbd, KbdGroup } from "@/components/shadcn/kbd";
-import { Separator } from "@/components/shadcn/separator";
+import { Button } from "@/components/ui/button";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { Separator } from "@/components/ui/separator";
 import { useDirection } from "@radix-ui/react-direction";
 import { SearchIcon, XIcon } from "lucide-react";
 import * as React from "react";

@@ -25,11 +25,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/shadcn/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/shadcn/tooltip";
+import { Tooltip, TooltipPopup, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/utils/cn";
 import { getColumnVariant } from "@/utils/data-grid";
 
@@ -132,13 +128,16 @@ export function DataGridColumnHeader<TData, TValue>({
         >
           <div className="flex min-w-0 flex-1 items-center gap-1.5">
             {columnVariant && (
-              <Tooltip delayDuration={100}>
-                <TooltipTrigger asChild>
-                  <columnVariant.icon className="size-3.5 shrink-0 text-muted-foreground" />
-                </TooltipTrigger>
-                <TooltipContent side="top">
+              <Tooltip>
+                <TooltipTrigger
+                  delay={100}
+                  render={
+                    <columnVariant.icon className="size-3.5 shrink-0 text-muted-foreground" />
+                  }
+                />
+                <TooltipPopup side="top" align="center">
                   <p>{columnVariant.label}</p>
-                </TooltipContent>
+                </TooltipPopup>
               </Tooltip>
             )}
             <span className="truncate">{label}</span>

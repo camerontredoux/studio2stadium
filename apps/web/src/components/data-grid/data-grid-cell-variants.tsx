@@ -1,9 +1,6 @@
 "use client";
 
 import { DataGridCellWrapper } from "@/components/data-grid/data-grid-cell-wrapper";
-import { Badge } from "@/components/shadcn/badge";
-import { Button } from "@/components/shadcn/button";
-import { Calendar } from "@/components/shadcn/calendar";
 import { Checkbox } from "@/components/shadcn/checkbox";
 import {
   Command,
@@ -28,6 +25,9 @@ import {
 } from "@/components/shadcn/select";
 import { Skeleton } from "@/components/shadcn/skeleton";
 import { Textarea } from "@/components/shadcn/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { useBadgeOverflow } from "@/hooks/use-badge-overflow";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import type { DataGridCellProps, FileCellData } from "@/types/data-grid";

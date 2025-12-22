@@ -1779,12 +1779,9 @@ export {
   CropperArea,
   CropperImage,
   CropperVideo,
-  //
-  useStore as useCropper,
   type Area as CropperAreaData,
   type ObjectFit as CropperObjectFit,
   type Point as CropperPoint,
-  //
   type CropperProps,
   type Shape as CropperShape,
   type Size as CropperSize,

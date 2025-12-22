@@ -5,14 +5,14 @@ import { CalendarIcon, XCircle } from "lucide-react";
 import * as React from "react";
 import type { DateRange } from "react-day-picker";
 
-import { Button } from "@/components/shadcn/button";
-import { Calendar } from "@/components/shadcn/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/shadcn/popover";
-import { Separator } from "@/components/shadcn/separator";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Separator } from "@/components/ui/separator";
 import { formatDate } from "@/utils/format";
 
 type DateSelection = Date[] | DateRange;

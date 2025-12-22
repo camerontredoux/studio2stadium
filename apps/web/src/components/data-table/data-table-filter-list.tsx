@@ -13,9 +13,6 @@ import { parseAsStringEnum, useQueryState } from "nuqs";
 import * as React from "react";
 
 import { DataTableRangeFilter } from "@/components/data-table/data-table-range-filter";
-import { Badge } from "@/components/shadcn/badge";
-import { Button } from "@/components/shadcn/button";
-import { Calendar } from "@/components/shadcn/calendar";
 import {
   Command,
   CommandEmpty,
@@ -48,13 +45,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/shadcn/select";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Sortable,
   SortableContent,
   SortableItem,
   SortableItemHandle,
   SortableOverlay,
-} from "@/components/shadcn/sortable";
+} from "@/components/ui/sortable";
 import { dataTableConfig } from "@/config/data-table";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import type {

@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/shadcn/button";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/shadcn/dialog";
+import { Button } from "@/components/ui/button";
 import { useAsRef } from "@/hooks/use-as-ref";
 import type { PasteDialogState } from "@/types/data-grid";
 import { cn } from "@/utils/cn";

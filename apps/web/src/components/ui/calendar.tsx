@@ -12,7 +12,7 @@ import {
   type DayButton,
 } from "react-day-picker";
 
-import { Button, buttonVariants } from "@/components/shadcn/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
 
 function Calendar({
@@ -74,7 +74,7 @@ function Calendar({
           defaultClassNames.dropdowns,
         ),
         dropdown_root: cn(
-          "relative has-focus:border-ring border border-input shadow-xs has-focus:ring-ring/50 has-focus:ring-[3px] rounded-md",
+          "relative has-focus:border-ring border border-input shadow-xs transition-shadow has-focus:ring-ring/24 has-focus:ring-[3px] rounded-lg before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)]",
           defaultClassNames.dropdown_root,
         ),
         dropdown: cn(
@@ -85,7 +85,7 @@ function Calendar({
           "select-none font-medium",
           captionLayout === "label"
             ? "text-sm"
-            : "rounded-md pl-2 pr-1 flex items-center gap-1 text-sm h-8 [&>svg]:text-muted-foreground [&>svg]:size-3.5",
+            : "rounded-md pl-2 pr-1 flex items-center gap-1 text-sm h-7 [&>svg]:text-muted-foreground [&>svg]:size-3.5",
           defaultClassNames.caption_label,
         ),
         table: "w-full border-collapse",

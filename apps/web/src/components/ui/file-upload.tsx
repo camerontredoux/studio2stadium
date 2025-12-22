@@ -163,6 +163,7 @@ interface FileUploadContextValue {
   dir: Direction;
   inputRef: React.RefObject<HTMLInputElement | null>;
   urlCache: WeakMap<File, string>;
+  setFiles: (files: FileList) => void;
 }
 
 const FileUploadContext = React.createContext<FileUploadContextValue | null>(
@@ -256,7 +257,7 @@ function FileUpload(props: FileUploadProps) {
     onUpload,
   });
 
-  const store = React.useMemo<Store>(() => {
+  const [store] = React.useState<Store>(() => {
     let state: StoreState = {
       files,
       dragOver: false,
@@ -387,7 +388,7 @@ function FileUpload(props: FileUploadProps) {
       }
     }
 
-    return {
+    const store: Store = {
       getState: () => state,
       dispatch: (action) => {
         state = reducer(state, action);
@@ -400,7 +401,9 @@ function FileUpload(props: FileUploadProps) {
         return () => listeners.delete(listener);
       },
     };
-  }, [listeners, files, invalid, propsRef, urlCache]);
+
+    return store;
+  });
 
   const acceptTypes = React.useMemo(
     () => accept?.split(",").map((t) => t.trim()) ?? null,
@@ -623,6 +626,19 @@ function FileUpload(props: FileUploadProps) {
     [onFilesChange],
   );
 
+  const setFiles = React.useCallback((files: FileList) => {
+    const inputElement = inputRef.current;
+    if (!inputElement) return;
+
+    const dataTransfer = new DataTransfer();
+    for (const file of files) {
+      dataTransfer.items.add(file);
+    }
+
+    inputElement.files = dataTransfer.files;
+    inputElement.dispatchEvent(new Event("change", { bubbles: true }));
+  }, []);
+
   const contextValue = React.useMemo<FileUploadContextValue>(
     () => ({
       dropzoneId,
@@ -633,8 +649,9 @@ function FileUpload(props: FileUploadProps) {
       disabled,
       inputRef,
       urlCache,
+      setFiles,
     }),
-    [dropzoneId, inputId, listId, labelId, dir, disabled, urlCache],
+    [dropzoneId, inputId, listId, labelId, dir, disabled, urlCache, setFiles],
   );
 
   const RootPrimitive = asChild ? Slot : "div";
@@ -789,10 +806,9 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
         dataTransfer.items.add(file);
       }
 
-      inputElement.files = dataTransfer.files;
-      inputElement.dispatchEvent(new Event("change", { bubbles: true }));
+      context.setFiles(dataTransfer.files);
     },
-    [store, context.inputRef, propsRef],
+    [store, propsRef, context],
   );
 
   const onPaste = React.useCallback(
@@ -828,10 +844,9 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
         dataTransfer.items.add(file);
       }
 
-      inputElement.files = dataTransfer.files;
-      inputElement.dispatchEvent(new Event("change", { bubbles: true }));
+      context.setFiles(dataTransfer.files);
     },
-    [store, context.inputRef, propsRef],
+    [store, context, propsRef],
   );
 
   const onKeyDown = React.useCallback(
@@ -1409,8 +1424,5 @@ export {
   FileUploadItemProgress,
   FileUploadList,
   FileUploadTrigger,
-  //
-  useStore as useFileUpload,
-  //
   type FileUploadProps,
 };

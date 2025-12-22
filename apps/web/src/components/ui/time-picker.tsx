@@ -6,7 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/shadcn/popover";
-import { VisuallyHiddenInput } from "@/components/visually-hidden-input";
+import { VisuallyHiddenInput } from "@/components/ui/visually-hidden-input";
 import { useAsRef } from "@/hooks/use-as-ref";
 import { useIsomorphicLayoutEffect } from "@/hooks/use-isomorphic-layout-effect";
 import { useLazyRef } from "@/hooks/use-lazy-ref";
@@ -42,6 +42,7 @@ type Period = (typeof PERIODS)[number];
 
 interface DivProps extends React.ComponentProps<"div"> {
   asChild?: boolean;
+  unstyled?: boolean;
 }
 
 interface ButtonProps extends React.ComponentProps<"button"> {
@@ -363,8 +364,8 @@ function TimePicker(props: TimePickerProps) {
 
   const propsRef = useAsRef({ onValueChange, onOpenChange });
 
-  const store: Store = React.useMemo(() => {
-    return {
+  const [store] = React.useState<Store>(() => {
+    const store: Store = {
       subscribe: (cb) => {
         listenersRef.current.add(cb);
         return () => listenersRef.current.delete(cb);
@@ -394,7 +395,8 @@ function TimePicker(props: TimePickerProps) {
         }
       },
     };
-  }, [listenersRef, stateRef, propsRef]);
+    return store;
+  });
 
   const value = useStore((state) => state.value, store);
 
@@ -572,6 +574,7 @@ function TimePickerInputGroup(props: DivProps) {
     className,
     style,
     ref,
+    unstyled,
     ...inputGroupProps
   } = props;
 
@@ -713,34 +716,43 @@ function TimePickerInputGroup(props: DivProps) {
   return (
     <TimePickerInputGroupContext.Provider value={inputGroupContextValue}>
       <PopoverAnchor asChild>
-        <InputGroupPrimitive
-          role="group"
-          id={inputGroupId}
-          aria-labelledby={labelId}
-          data-slot="time-picker-input-group"
-          data-disabled={disabled ? "" : undefined}
-          data-invalid={invalid ? "" : undefined}
-          {...inputGroupProps}
-          className={cn(
-            "flex h-10 w-full cursor-text items-center gap-0.5 rounded-md border border-input bg-background px-3 py-2 shadow-xs outline-none transition-shadow",
-            "has-[input:focus]:border-ring has-[input:focus]:ring-[3px] has-[input:focus]:ring-ring/50",
-            invalid && "border-destructive ring-destructive/20",
-            disabled && "cursor-not-allowed opacity-50",
-            className,
-          )}
-          style={
-            {
-              "--time-picker-hour-input-width": `${segmentPlaceholder.hour.length}ch`,
-              "--time-picker-minute-input-width": `${segmentPlaceholder.minute.length}ch`,
-              "--time-picker-second-input-width": `${segmentPlaceholder.second.length}ch`,
-              "--time-picker-period-input-width": `${Math.max(segmentPlaceholder.period.length, 2) + 0.5}ch`,
-              ...style,
-            } as React.CSSProperties
+        <span
+          className={
+            cn(
+              !unstyled &&
+                "relative inline-flex w-full rounded-lg border border-input cursor-pointer bg-background bg-clip-padding text-base shadow-xs ring-ring/24 transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] has-focus-visible:has-aria-invalid:border-destructive/64 has-focus-visible:has-aria-invalid:ring-destructive/16 has-aria-invalid:border-destructive/36 has-focus-visible:border-ring has-disabled:cursor-not-allowed has-disabled:opacity-64 has-[:disabled,:focus-visible,[aria-invalid]]:shadow-none has-focus-visible:ring-[3px] sm:text-sm dark:bg-input/32 dark:not-in-data-[slot=group]:bg-clip-border dark:has-aria-invalid:ring-destructive/24 dark:not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/8%)]",
+              className,
+            ) || undefined
           }
-          ref={composedRef}
-          onPointerDown={onPointerDown}
-          onClick={onClick}
-        />
+          data-slot="input-control"
+        >
+          <InputGroupPrimitive
+            role="group"
+            id={inputGroupId}
+            aria-labelledby={labelId}
+            aria-invalid={invalid || undefined}
+            data-slot="time-picker-input-group"
+            data-disabled={disabled ? "" : undefined}
+            data-invalid={invalid ? "" : undefined}
+            {...inputGroupProps}
+            className={cn(
+              "h-8.5 w-full min-w-0 rounded-[inherit] px-[calc(--spacing(3)-1px)] leading-8.5 outline-none placeholder:text-muted-foreground/72 sm:h-7.5 sm:leading-7.5",
+              className,
+            )}
+            style={
+              {
+                "--time-picker-hour-input-width": `${segmentPlaceholder.hour.length}ch`,
+                "--time-picker-minute-input-width": `${segmentPlaceholder.minute.length}ch`,
+                "--time-picker-second-input-width": `${segmentPlaceholder.second.length}ch`,
+                "--time-picker-period-input-width": `${Math.max(segmentPlaceholder.period.length, 2) + 0.5}ch`,
+                ...style,
+              } as React.CSSProperties
+            }
+            ref={composedRef}
+            onPointerDown={onPointerDown}
+            onClick={onClick}
+          />
+        </span>
       </PopoverAnchor>
     </TimePickerInputGroupContext.Provider>
   );
@@ -1459,7 +1471,7 @@ function TimePickerTrigger(props: ButtonProps) {
       ref={composedRef}
       {...triggerProps}
       className={cn(
-        "ml-auto flex items-center text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none [&>svg:not([class*='size-'])]:size-4",
+        "absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none [&>svg:not([class*='size-'])]:size-4",
         className,
       )}
     >
@@ -1626,9 +1638,7 @@ function useTimePickerColumnContext(consumerName: string) {
   return context;
 }
 
-interface TimePickerColumnProps extends DivProps {}
-
-function TimePickerColumn(props: TimePickerColumnProps) {
+function TimePickerColumn(props: DivProps) {
   const { children, className, ref, ...columnProps } = props;
 
   const columnId = React.useId();
@@ -1750,7 +1760,7 @@ function TimePickerColumnItem(props: TimePickerColumnItemProps) {
 
       itemRef.current?.focus();
     },
-    [itemProps.onClick],
+    [itemProps],
   );
 
   const onKeyDown = React.useCallback(
@@ -1823,7 +1833,7 @@ function TimePickerColumnItem(props: TimePickerColumnItemProps) {
         });
       }
     },
-    [itemProps.onKeyDown, columnContext, groupContext, value],
+    [itemProps, columnContext, groupContext, value],
   );
 
   const formattedValue =
@@ -2175,7 +2185,7 @@ function TimePickerClear(props: ButtonProps) {
       if (disabled || readOnly) return;
       store.setState("value", "");
     },
-    [clearProps.onClick, disabled, readOnly, store],
+    [clearProps, disabled, readOnly, store],
   );
 
   const ClearPrimitive = asChild ? Slot : "button";
@@ -2210,8 +2220,5 @@ export {
   TimePickerSecond,
   TimePickerSeparator,
   TimePickerTrigger,
-  //
-  useStore as useTimePicker,
-  //
   type TimePickerProps,
 };

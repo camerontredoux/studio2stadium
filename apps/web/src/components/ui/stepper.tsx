@@ -259,8 +259,8 @@ function Stepper(props: StepperProps) {
     onValidate,
   });
 
-  const store = React.useMemo<Store>(() => {
-    return {
+  const [store] = React.useState<Store>(() => {
+    const store: Store = {
       subscribe: (cb) => {
         listenersRef.current.add(cb);
         return () => listenersRef.current.delete(cb);
@@ -325,7 +325,8 @@ function Stepper(props: StepperProps) {
         }
       },
     };
-  }, [listenersRef, stateRef, propsRef]);
+    return store;
+  });
 
   useIsomorphicLayoutEffect(() => {
     if (value !== undefined) {
@@ -1271,8 +1272,5 @@ export {
   StepperSeparator,
   StepperTitle,
   StepperTrigger,
-  //
-  useStore as useStepper,
-  //
   type StepperProps,
 };

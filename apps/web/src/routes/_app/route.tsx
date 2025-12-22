@@ -1,5 +1,5 @@
+import { Header } from "@/components/header";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
-import Header from "@/components/header";
 
 export const Route = createFileRoute("/_app")({
   component: RouteComponent,
@@ -8,7 +8,9 @@ export const Route = createFileRoute("/_app")({
 function RouteComponent() {
   return (
     <div>
-      <Header />
+      <div className="h-16">
+        <Header />
+      </div>
       <Outlet />
     </div>
   );

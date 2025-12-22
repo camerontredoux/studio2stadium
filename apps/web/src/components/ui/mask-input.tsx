@@ -1,8 +1,7 @@
 "use client";
 
-import { cn } from "@/utils/cn";
+import { Input } from "@/components/ui/input";
 import { useComposedRefs } from "@/utils/compose-refs";
-import { Slot } from "@radix-ui/react-slot";
 import * as React from "react";
 
 const PAST_YEARS_LIMIT = 120;
@@ -839,6 +838,7 @@ interface MaskInputProps extends React.ComponentProps<"input"> {
   asChild?: boolean;
   invalid?: boolean;
   withoutMask?: boolean;
+  unstyled?: boolean;
 }
 
 function MaskInput(props: MaskInputProps) {
@@ -863,7 +863,6 @@ function MaskInput(props: MaskInputProps) {
     min,
     max,
     maxLength,
-    asChild = false,
     disabled = false,
     invalid = false,
     readOnly = false,
@@ -989,7 +988,7 @@ function MaskInput(props: MaskInputProps) {
         onValidate(isValid, unmaskedValue);
       }
     },
-    [onValidate, maskPattern?.validate, validationOpts],
+    [onValidate, maskPattern, validationOpts],
   );
 
   const onValueChange = React.useCallback(
@@ -1462,23 +1461,15 @@ function MaskInput(props: MaskInputProps) {
     ],
   );
 
-  const InputPrimitive = asChild ? Slot : "input";
-
   return (
-    <InputPrimitive
-      aria-invalid={invalid}
+    <Input
+      aria-invalid={invalid || undefined}
       data-disabled={disabled ? "" : undefined}
       data-invalid={invalid ? "" : undefined}
       data-readonly={readOnly ? "" : undefined}
       data-required={required ? "" : undefined}
       data-slot="mask-input"
       {...inputProps}
-      className={cn(
-        "flex h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30",
-        "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-        "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
-        className,
-      )}
       placeholder={placeholderValue}
       ref={composedRef}
       value={displayValue}
@@ -1496,22 +1487,9 @@ function MaskInput(props: MaskInputProps) {
       onChange={onValueChange}
       onCompositionStart={onCompositionStart}
       onCompositionEnd={onCompositionEnd}
+      className={className}
     />
   );
 }
 
-export {
-  applyCurrencyMask,
-  //
-  applyMask,
-  applyPercentageMask,
-  fromUnmaskedIndex,
-  getUnmaskedValue,
-  //
-  MASK_PATTERNS,
-  MaskInput,
-  toUnmaskedIndex,
-  type MaskInputProps,
-  //
-  type MaskPattern,
-};
+export { MASK_PATTERNS, MaskInput, type MaskInputProps, type MaskPattern };

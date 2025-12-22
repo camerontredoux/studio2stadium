@@ -4,8 +4,6 @@ import type { Column } from "@tanstack/react-table";
 import { Check, PlusCircle, XCircle } from "lucide-react";
 import * as React from "react";
 
-import { Badge } from "@/components/shadcn/badge";
-import { Button } from "@/components/shadcn/button";
 import {
   Command,
   CommandEmpty,
@@ -20,7 +18,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/shadcn/popover";
-import { Separator } from "@/components/shadcn/separator";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import type { Option } from "@/types/data-table";
 import { cn } from "@/utils/cn";
 

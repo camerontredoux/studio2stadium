@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/shadcn/button";
+import { Button } from "@/components/ui/button";
 import { useAsRef } from "@/hooks/use-as-ref";
 import { useIsomorphicLayoutEffect } from "@/hooks/use-isomorphic-layout-effect";
 import { useLazyRef } from "@/hooks/use-lazy-ref";
@@ -43,15 +43,12 @@ const OPEN_AUTO_FOCUS = "tour.openAutoFocus";
 const CLOSE_AUTO_FOCUS = "tour.closeAutoFocus";
 const EVENT_OPTIONS = { bubbles: false, cancelable: true };
 
-const SIDE_OPTIONS = ["top", "right", "bottom", "left"] as const;
-const ALIGN_OPTIONS = ["start", "center", "end"] as const;
-
 const DEFAULT_ALIGN_OFFSET = 0;
 const DEFAULT_SIDE_OFFSET = 16;
 const DEFAULT_SPOTLIGHT_PADDING = 4;
 
-type Side = (typeof SIDE_OPTIONS)[number];
-type Align = (typeof ALIGN_OPTIONS)[number];
+type Side = "top" | "right" | "bottom" | "left";
+type Align = "start" | "center" | "end";
 type Direction = "ltr" | "rtl";
 
 interface ScrollOffset {
@@ -608,8 +605,8 @@ function Tour(props: TourProps) {
     scrollOffset,
   });
 
-  const store: Store = React.useMemo(
-    () => ({
+  const [store] = React.useState<Store>(() => {
+    const store: Store = {
       subscribe: (cb) => {
         listenersRef.current.add(cb);
         return () => listenersRef.current.delete(cb);
@@ -708,10 +705,9 @@ function Tour(props: TourProps) {
 
         store.notify();
       },
-    }),
-    [stateRef, listenersRef, stepIdsMapRef, stepIdCounterRef, propsRef],
-  );
-
+    };
+    return store;
+  });
   const open = useStore((state) => state.open, store);
 
   React.useEffect(() => {
@@ -882,7 +878,7 @@ function TourStep(props: TourStepProps) {
 
   const stepRef = React.useRef<StepElement | null>(null);
   const stepIdRef = React.useRef<string>("");
-  const stepOrderRef = React.useRef<number>(-1);
+  const [stepOrder, setStepOrder] = React.useState<number>(-1);
   const isPointerInsideReactTreeRef = React.useRef(false);
   const isFocusInsideReactTreeRef = React.useRef(false);
 
@@ -912,7 +908,7 @@ function TourStep(props: TourStepProps) {
       required,
     });
     stepIdRef.current = id;
-    stepOrderRef.current = index;
+    setStepOrder(index);
 
     return () => {
       store.removeStep(stepIdRef.current);
@@ -937,7 +933,7 @@ function TourStep(props: TourStepProps) {
   const stepData = steps[value];
   const targetElement = stepData ? getTargetElement(stepData.target) : null;
 
-  const isCurrentStep = stepOrderRef.current === value;
+  const isCurrentStep = stepOrder === value;
 
   const middleware = React.useMemo(() => {
     if (!stepData) return [];

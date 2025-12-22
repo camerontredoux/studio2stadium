@@ -32,7 +32,6 @@ function SheetBackdrop({ className, ...props }: SheetPrimitive.Backdrop.Props) {
 }
 
 function SheetViewport({
-  className,
   side,
   inset = false,
   ...props
