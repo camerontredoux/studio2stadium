@@ -1,6 +1,6 @@
+import { db } from "#database/connection";
 import { faker } from "@faker-js/faker";
 import { test } from "@japa/runner";
-import { db } from "../../../database/connection.ts";
 
 const userRegisterFixture = {
   username: faker.internet.username(),

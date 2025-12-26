@@ -1,9 +1,9 @@
+import { db } from "#database/connection";
+import { matchPgError } from "#database/errors";
+import { DB } from "#database/generated/types";
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
 import { Kysely } from "kysely";
-import { db } from "../database/connection.ts";
-import { matchPgError } from "../database/errors.ts";
-import { DB } from "../database/generated/types.ts";
 
 @inject()
 export default abstract class BaseQuery {

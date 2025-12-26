@@ -1,1 +1,1 @@
-import "#modules/users/users.routes";
+import "#modules/users/routes";

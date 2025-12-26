@@ -1,8 +1,8 @@
+import type { SessionUser } from "#auth/redis/provider";
 import { MessageBuilder } from "@adonisjs/core/helpers";
 import type { HttpContext } from "@adonisjs/core/http";
 import app from "@adonisjs/core/services/app";
 import redis from "@adonisjs/redis/services/main";
-import type { SessionUser } from "../auth/redis/provider.ts";
 
 /**
  * Centralized service for all user cache operations.

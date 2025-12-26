@@ -1,6 +1,6 @@
+import { type User } from "#database/generated/types";
+import BaseQuery from "#utils/base-query";
 import { type Insertable } from "kysely";
-import { type User } from "../../../database/generated/types.ts";
-import BaseQuery from "../../../utils/base-query.ts";
 
 export class SignupQueries extends BaseQuery {
   async createUser(data: Insertable<User>) {
