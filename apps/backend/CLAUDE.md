@@ -75,11 +75,41 @@ export class FeatureQueries extends BaseQuery {
 }
 ```
 
-### Authentication
+### Authentication & User Caching
 
-Session-based auth with Redis storage. User data is cached in Redis for 2 hours (`providers/session-user.ts`). The `SessionUserProvider` handles user lookup and caching.
+Session-based auth with a multi-layer caching strategy to minimize database queries.
 
-Named middleware in `start/kernel.ts`:
+**Key Files:**
+- `providers/session-user.ts` - Auth provider with cache lookup logic
+- `app/shared/user-cache.ts` - Centralized cache service
+- `app/middleware/server/user-cache.middleware.ts` - Cookie cache middleware
+
+**Cache Layers (checked in order):**
+1. **Cookie cache** - Encrypted cookie with `{user, version}`, read by middleware
+2. **Session cache** - User data stored in Redis session
+3. **Database** - Full query with roles (cache miss)
+
+**Version-Based Invalidation:**
+
+Redis stores `user:<id>:version` (timestamp) as a global invalidation key. Both cookie and session caches store this version. On each request, the cached version is compared against Redis:
+- Match → use cached user
+- Mismatch → database query, update caches
+
+This pattern enables **cross-session invalidation**: calling `userCacheService.invalidate(userId)` bumps the Redis version, invalidating ALL sessions/devices for that user with a single O(1) operation. This is superior to storing flags in individual sessions, which would require tracking and updating every active session.
+
+**Cache Operations:**
+```typescript
+// After login - initialize all caches
+await userCacheService.initializeCache(ctx, user);
+
+// After role/permission change - invalidate globally
+await userCacheService.invalidate(userId);
+
+// On logout - clear all caches
+await userCacheService.clearAllCaches(ctx, userId);
+```
+
+**Named Middleware** (`start/kernel.ts`):
 - `auth` - Requires authenticated user
 - `subscribed` - Requires active subscription
 - `prodigy` - Requires prodigy platform access

@@ -1,1 +1,1 @@
-import "#features/users/users.routes";
+import "#modules/users/users.routes";

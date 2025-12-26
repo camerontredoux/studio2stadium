@@ -31,15 +31,17 @@
     "#middleware/*": "./app/middleware/*.ts",
     "#validators/*": "./app/validators/*.ts",
     "#repositories/*": "./app/repositories/*.ts",
-    "#providers/*": "./providers/*.ts",
+    "#providers/*": "./app/providers/*.ts",
     "#policies/*": "./app/policies/*.ts",
     "#abilities/*": "./app/abilities/*.ts",
     "#features/*": "./app/features/*.ts",
-    "#database/*": "./database/*.ts",
+    "#modules/*": "./app/modules/*.ts",
+    "#database/*": "./app/database/*.ts",
+    "#utils/*": "./app/utils/*.ts",
     "#start/*": "./start/*.ts",
     "#tests/*": "./tests/*.ts",
     "#config/*": "./config/*.ts",
-    "#shared/*": "./app/shared/*.ts"
+    "#auth/*": "./app/auth/*.ts"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^7.8.2",
@@ -77,6 +79,7 @@
     "@adonisjs/redis": "^10.0.0-next.1",
     "@adonisjs/session": "^v8.0.0-next.0",
     "@aws-sdk/client-ses": "^3.943.0",
+    "@better-auth/utils": "^0.3.0",
     "@tuyau/core": "^0.4.2",
     "@tuyau/openapi": "file:../../../tuyau/packages/openapi",
     "@vinejs/vine": "^4.1.0",
@@ -88,7 +91,7 @@
   },
   "hotHook": {
     "boundaries": [
-      "./app/features/**/*.ts",
+      "./app/moduleas/**/*.ts",
       "./app/middleware/**/*.ts"
     ]
   },

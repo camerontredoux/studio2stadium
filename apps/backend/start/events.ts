@@ -1,1 +1,1 @@
-import "#features/users/signup/signup.event";
+import "#modules/users/signup/event";

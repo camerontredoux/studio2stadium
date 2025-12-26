@@ -1,0 +1,566 @@
+generator client {
+  provider = "prisma-kysely"
+  fileName = "../../generated/types.ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/**
+ * **************
+ * AUTHENTICATION
+ * **************
+ */
+
+model User {
+  id            String  @id @default(dbgenerated("gen_random_uuid()"))
+  email         String  @unique @db.Citext
+  display_email String
+  username      String  @unique @db.Citext
+  first_name    String
+  last_name     String
+  avatar        String?
+  password      String
+  phone         String?
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  dancer_account       DancerAccount?
+  school_account       SchoolAccount?
+  roles                UserRole[]
+  subscriptions        Subscription[]
+  prodigy_dance_events ProdigyDanceEventAttendee[]
+  global_dance_events  GlobalDanceEventAttendee[]
+  images               ProfileImage[]
+  videos               ProfileVideo[]
+  notifications        Notification[]
+  hidden_items         HiddenItem[]
+  user_activities      UserActivity[]
+
+  favorites_from Favorite[] @relation("favorites_from")
+  favorites_to   Favorite[] @relation("favorites_to")
+
+  @@index([created_at])
+  @@map("users")
+}
+
+model UserActivity {
+  id         String @id @default(dbgenerated("gen_random_uuid()"))
+  event_type String
+
+  user_id String
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+
+  @@index([user_id, created_at])
+  @@index([created_at, event_type])
+  @@map("user_activities")
+}
+
+model Role {
+  id   Int    @id @default(autoincrement())
+  type String @unique
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  users UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  role_id Int
+  user_id String
+
+  assigned_at DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@id([role_id, user_id])
+  @@map("user_roles")
+}
+
+/**
+ * ********
+ * ACCOUNTS
+ * ********
+ */
+
+model DancerAccount {
+  id             String   @id @default(dbgenerated("gen_random_uuid()"))
+  birthday       DateTime @db.Date
+  biography      String?
+  awards         String?
+  references     String?
+  instagram      String?
+  tiktok         String?
+  youtube        String?
+  location       String?
+  skill_level    String?
+  team_level     String?
+  high_school    String?
+  studio         String?
+  gpa            Float?
+  grad_year      Int?
+  training_hours Int?
+
+  awards_history     AwardsHistory[]
+  references_history ReferencesHistory[]
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  user_id String @unique
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  platforms DancerPlatform[]
+
+  @@index([grad_year])
+  @@index([location])
+  @@map("dancer_accounts")
+}
+
+model SchoolAccount {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()"))
+  name               String   @unique
+  location           String
+  division           String?
+  benefits           String?
+  about              String?
+  website            String?
+  time_commitment    String?
+  head_coach         String?
+  assistant_coach    String?
+  tiktok             String?
+  instagram          String?
+  mission_statement  String?
+  what_we_do         String?
+  skill_requirements String?
+  competitions       String[]
+  dance_styles       String[]
+  sports             String[]
+  gpa_requirement    Float?
+  school_size        Int?
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  user_id String @unique
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  events SchoolDanceEvent[]
+
+  @@index([gpa_requirement])
+  @@index([school_size])
+  @@map("school_accounts")
+}
+
+/**
+ * *******
+ * PROFILE
+ * *******
+ */
+
+model ProfileVideo {
+  id       String @id @default(dbgenerated("gen_random_uuid()"))
+  video_id String
+  title    String
+  caption  String
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  user_id String
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  hidden_by HiddenItem[]
+
+  @@index([user_id, created_at])
+  @@map("profile_videos")
+}
+
+model ProfileImage {
+  id      String  @id @default(dbgenerated("gen_random_uuid()"))
+  url     String
+  caption String?
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  user_id String
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  hidden_by HiddenItem[]
+
+  @@index([user_id, created_at])
+  @@map("profile_images")
+}
+
+model HiddenItem {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  created_at DateTime @default(now())
+
+  hidden_by_id String
+  hidden_by    User   @relation(fields: [hidden_by_id], references: [id], onDelete: Cascade)
+
+  video_id String?
+  video    ProfileVideo? @relation(fields: [video_id], references: [id], onDelete: Cascade)
+
+  image_id String?
+  image    ProfileImage? @relation(fields: [image_id], references: [id], onDelete: Cascade)
+
+  @@unique([hidden_by_id, video_id])
+  @@unique([hidden_by_id, image_id])
+  @@map("hidden_items")
+}
+
+/**
+ * *************
+ * NOTIFICATIONS
+ * *************
+ */
+
+model OutboxEvent {
+  id      String @id @default(dbgenerated("gen_random_uuid()"))
+  type    String
+  payload Json
+
+  created_at   DateTime  @default(now())
+  published_at DateTime?
+
+  @@index([type])
+  @@index([published_at])
+  @@map("outbox")
+}
+
+model Notification {
+  id      String @id @default(dbgenerated("gen_random_uuid()"))
+  content Json
+
+  created_at DateTime @default(now())
+
+  user_id String
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, created_at])
+  @@map("notifications")
+}
+
+model GlobalNotification {
+  id         String   @id @default(dbgenerated("gen_random_uuid()"))
+  content    Json
+  created_at DateTime @default(now())
+
+  @@index([created_at])
+  @@map("global_notifications")
+}
+
+model ProcessedEvent {
+  event_id   String @id
+  event_type String
+
+  processed_at DateTime @default(now())
+
+  @@map("processed_events")
+}
+
+/**
+ * *********
+ * PLATFORMS
+ * *********
+ */
+
+model Platform {
+  id   String       @id @default(dbgenerated("gen_random_uuid()"))
+  name PlatformName @unique
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  dancers   DancerPlatform[]
+  favorites Favorite[]
+
+  @@map("platforms")
+}
+
+model DancerPlatform {
+  joined_at DateTime @default(now())
+
+  account_id  String
+  platform_id String
+  account     DancerAccount @relation(fields: [account_id], references: [id], onDelete: Cascade)
+  platform    Platform      @relation(fields: [platform_id], references: [id], onDelete: Cascade)
+
+  @@id([account_id, platform_id])
+  @@index([platform_id])
+  @@map("dancer_platforms")
+}
+
+model Favorite {
+  id                String    @id @default(dbgenerated("gen_random_uuid()"))
+  comment           String?
+  rating            Int?      @db.SmallInt
+  last_contacted    DateTime?
+  last_notification DateTime?
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  platform_id String
+  platform    Platform @relation(fields: [platform_id], references: [id], onDelete: Cascade)
+
+  from_id String
+  from    User   @relation("favorites_from", fields: [from_id], references: [id], onDelete: Cascade)
+  to_id   String
+  to      User   @relation("favorites_to", fields: [to_id], references: [id], onDelete: Cascade)
+
+  @@unique([from_id, to_id, platform_id])
+  @@map("favorites")
+}
+
+/**
+ * *******
+ * DANCERS
+ * *******
+ */
+
+model AwardsHistory {
+  id      String @id @default(dbgenerated("gen_random_uuid()"))
+  content String
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  dancer_id String
+  dancer    DancerAccount @relation(fields: [dancer_id], references: [id], onDelete: Cascade)
+
+  @@index([dancer_id])
+  @@map("awards_history")
+}
+
+model ReferencesHistory {
+  id  String @id @default(dbgenerated("gen_random_uuid()"))
+  url String
+
+  created_at DateTime  @default(now())
+  deleted_at DateTime? @updatedAt
+
+  dancer_id String
+  dancer    DancerAccount @relation(fields: [dancer_id], references: [id], onDelete: Cascade)
+
+  @@index([dancer_id])
+  @@map("references_history")
+}
+
+/**
+ * ******
+ * EVENTS
+ * ******
+ */
+
+model SchoolDanceEvent {
+  id          String  @id @default(dbgenerated("gen_random_uuid()"))
+  title       String
+  description String?
+  website     String?
+
+  start_datetime DateTime
+  end_datetime   DateTime
+  timezone       String
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  host_id String
+  host    SchoolAccount @relation(fields: [host_id], references: [id], onDelete: Cascade)
+
+  @@index([host_id])
+  @@index([start_datetime])
+  @@map("school_dance_events")
+}
+
+model GlobalDanceEvent {
+  id           String @id @default(dbgenerated("gen_random_uuid()"))
+  name         String
+  location     String
+  description  String
+  website      String
+  organization String
+  thumbnail    String
+
+  start_datetime DateTime
+  end_datetime   DateTime
+  timezone       String
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  attendees GlobalDanceEventAttendee[]
+
+  @@index([start_datetime])
+  @@map("global_dance_events")
+}
+
+model GlobalDanceEventAttendee {
+  registered_at DateTime @default(now())
+
+  event_id String
+  event    GlobalDanceEvent @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  user_id  String
+  user     User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([event_id, user_id])
+  @@index([user_id])
+  @@map("global_dance_event_attendees")
+}
+
+/**
+ * *******
+ * PRODIGY
+ * *******
+ */
+
+/**
+ * Tables are kept separate despite duplication for the following reasons:
+ * 1. Future proofing for different business logic
+ * - DRY means "don't repeat business logic", it doesn't mean "don't repeat code"
+ * 2. Prodigy is white-labeled and we legally can't leak data, so:
+ * - Deleting all Prodigy events is as simple as dropping this table
+ * - Accidentally uploading a Prodigy event as a Global event is impossible
+ */
+
+model ProdigyDanceEvent {
+  id           String  @id @default(dbgenerated("gen_random_uuid()"))
+  name         String
+  location     String
+  schedule     String?
+  description  String?
+  organization String?
+  website      String?
+
+  start_datetime DateTime
+  end_datetime   DateTime
+  timezone       String
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  attendees ProdigyDanceEventAttendee[]
+  videos    ProdigyLibraryVideo[]
+
+  @@index([start_datetime])
+  @@map("prodigy_dance_events")
+}
+
+model ProdigyDanceEventAttendee {
+  bib_number String
+  paid_tier  Boolean
+
+  registered_at DateTime @default(now())
+
+  event_id String
+  event    ProdigyDanceEvent @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  user_id  String
+  user     User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([event_id, user_id])
+  @@index([user_id])
+  @@map("prodigy_dance_event_attendees")
+}
+
+model ProdigyLibraryVideo {
+  id          String @id @default(dbgenerated("gen_random_uuid()"))
+  instructor  String
+  youtube_id  String
+  title       String
+  description String
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  event_id String
+  event    ProdigyDanceEvent @relation(fields: [event_id], references: [id], onDelete: Cascade)
+
+  @@index([instructor, event_id])
+  @@index([created_at])
+  @@map("prodigy_library_videos")
+}
+
+/**
+ * ********
+ * PAYMENTS
+ * ********
+ */
+
+model Subscription {
+  id                   String             @id @default(dbgenerated("gen_random_uuid()"))
+  subscription_id      String             @unique
+  customer_id          String?
+  cancel_at_period_end Boolean            @default(false)
+  current_period_end   DateTime?
+  canceled_at          DateTime?
+  source               SubscriptionSource
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  user_id String @unique
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([current_period_end])
+  @@index([source])
+  @@map("subscriptions")
+}
+
+/**
+ * ******
+ * GLOBAL
+ * ******
+ */
+
+model TapInVideo {
+  id         String @id @default(dbgenerated("gen_random_uuid()"))
+  category   String
+  youtube_id String
+  title      String
+
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+
+  @@index([created_at])
+  @@map("tap_in_videos")
+}
+
+/**
+ * *****
+ * ENUMS
+ * *****
+ */
+
+enum ProspectStatus {
+  none
+  released
+  in_review
+  accepted
+}
+
+enum MediaType {
+  image
+  video
+}
+
+enum SubscriptionSource {
+  stripe
+  revenuecat
+}
+
+enum PlatformName {
+  core
+  prodigy
+}

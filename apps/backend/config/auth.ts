@@ -1,17 +1,27 @@
 import { defineConfig } from "@adonisjs/auth";
 import { sessionGuard } from "@adonisjs/auth/session";
-import type { InferAuthenticators, InferAuthEvents, Authenticators } from "@adonisjs/auth/types";
+import type { Authenticators, InferAuthEvents } from "@adonisjs/auth/types";
 import { configProvider } from "@adonisjs/core";
 
 const authConfig = defineConfig({
-  default: "web",
+  default: "cookie",
   guards: {
-    web: sessionGuard({
+    cookie: sessionGuard({
       useRememberMeTokens: false,
       provider: configProvider.create(async () => {
-        const { SessionUserProvider } = await import("#providers/session-user");
+        const { SessionUserProvider } = await import("../app/auth/redis/provider.ts");
         return new SessionUserProvider();
       }),
+    }),
+    redis: sessionGuard({
+      useRememberMeTokens: false,
+      provider: {
+        resolver: async () => {
+          const { SessionUserProvider } = await import("../app/auth/redis/provider.ts");
+          return new SessionUserProvider();
+        },
+        type: "provider",
+      },
     }),
   },
 });

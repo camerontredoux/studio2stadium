@@ -49,7 +49,7 @@ export default class MakeFeature extends BaseCommand {
     const codemods = await this.createCodemods();
     const stubsRoot = this.app.commandsPath("stubs/make-feature");
 
-    const domainDirectory = join("app/features", this.domain);
+    const domainDirectory = join("app/modules", this.domain);
     const relativeDirectory = join(domainDirectory, this.name);
     const directory = this.app.makePath(relativeDirectory);
 

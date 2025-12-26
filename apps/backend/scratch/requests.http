@@ -23,3 +23,6 @@ Content-Type: application/json
     "lastName": "Tredoux",
     "termsChecked": true
 }
+###
+POST http://localhost:3333/auth/invalidate-session
+Content-Type: application/json

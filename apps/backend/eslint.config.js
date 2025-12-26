@@ -1,6 +1,6 @@
 import { configApp } from "@adonisjs/eslint-config";
 export default configApp(
-  { ignores: ["database/generated/*", ".adonisjs/*"] },
+  { ignores: ["app/database/generated/*", ".adonisjs/*"] },
   {
     rules: {
       "prettier/prettier": ["error", { semi: true, singleQuote: false }],
