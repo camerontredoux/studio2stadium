@@ -1,18 +1,12 @@
-import { sessionCache } from "#utils/cookie-cache";
-import { UserQueries } from "#utils/user-queries";
+import type { SessionUser } from "#auth/redis/provider";
 import { symbols } from "@adonisjs/auth";
-import {
-  type SessionGuardUser,
-  type SessionUserProviderContract,
-} from "@adonisjs/auth/types/session";
-import { HttpContext } from "@adonisjs/core/http";
+import { MessageBuilder } from "@poppinss/utils";
+import type { CookieGuardUser, CookieUserProviderContract } from "./types.ts";
 
-export type SessionUser = NonNullable<Awaited<ReturnType<typeof UserQueries.findWithRoles>>>;
-
-export class SessionUserProvider implements SessionUserProviderContract<SessionUser> {
+export class CookieUserProvider implements CookieUserProviderContract<SessionUser> {
   declare [symbols.PROVIDER_REAL_USER]: SessionUser;
 
-  async createUserForGuard(user: SessionUser): Promise<SessionGuardUser<SessionUser>> {
+  async createUserForGuard(user: SessionUser): Promise<CookieGuardUser<SessionUser>> {
     return {
       getId() {
         return user.id;
@@ -23,33 +17,16 @@ export class SessionUserProvider implements SessionUserProviderContract<SessionU
     };
   }
 
-  async findById(identifier: string): Promise<SessionGuardUser<SessionUser> | null> {
-    const ctx = HttpContext.getOrFail();
+  async findByCookie(
+    cookie: string,
+    cookieCacheName: string
+  ): Promise<CookieGuardUser<SessionUser> | null> {
+    const messageBuilder = new MessageBuilder();
 
-    if (ctx.cachedUser && ctx.cachedUser.id === identifier) {
-      ctx.logger.debug("[CACHE]: Hit - Cookie cache");
-      ctx.usedCachedUser = true;
-      return this.createUserForGuard(ctx.cachedUser);
-    }
-
-    const sessionData = sessionCache.getUserFromSession(ctx);
-    if (sessionData && sessionData.user.id === identifier) {
-      const isValid = await sessionCache.validateVersion(identifier, sessionData.version);
-      if (isValid) {
-        ctx.logger.debug("[CACHE]: Hit - Session store");
-        return this.createUserForGuard(sessionData.user);
-      }
-    }
-
-    ctx.logger.debug("[CACHE]: Miss - Performing database query for user");
-    const user = await UserQueries.findWithRoles(identifier);
+    const user = messageBuilder.verify<SessionUser>(cookie, cookieCacheName);
     if (!user) {
       return null;
     }
-
-    const version = await sessionCache.bumpVersion(identifier);
-    ctx.logger.debug("[CACHE]: Update - Session store");
-    sessionCache.setUserInSession(ctx, user, version);
 
     return this.createUserForGuard(user);
   }

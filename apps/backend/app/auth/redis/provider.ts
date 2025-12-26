@@ -1,16 +1,76 @@
-import { sessionCache } from "#utils/cookie-cache";
 import { symbols } from "@adonisjs/auth";
 import {
   type SessionGuardUser,
   type SessionUserProviderContract,
 } from "@adonisjs/auth/types/session";
-import { HttpContext } from "@adonisjs/core/http";
+import type { HttpContext } from "@adonisjs/core/http";
+import redis from "@adonisjs/redis/services/main";
 import { AuthQueries } from "../queries.ts";
 
 export type SessionUser = NonNullable<Awaited<ReturnType<AuthQueries["findUserWithRoles"]>>>;
 
 export class SessionUserProvider implements SessionUserProviderContract<SessionUser> {
   declare [symbols.PROVIDER_REAL_USER]: SessionUser;
+
+  #ctx: HttpContext;
+
+  #queries: AuthQueries;
+
+  #versionKey(userId: string): string {
+    return `user:${userId}:version`;
+  }
+
+  #getUserFromSession() {
+    const user = this.#ctx.session.get("user") as SessionUser | undefined;
+    const version = this.#ctx.session.get("version") as number | undefined;
+    if (!user || !version) return null;
+    return { user, version };
+  }
+
+  async #validateVersion(userId: string, cachedVersion: number): Promise<boolean> {
+    const currentVersion = await this.#getVersion(userId);
+    if (currentVersion === null) {
+      await this.#setVersion(userId, cachedVersion);
+      return true;
+    }
+    return currentVersion === cachedVersion;
+  }
+
+  async #getVersion(userId: string): Promise<number | null> {
+    const version = await redis.get(this.#versionKey(userId));
+    if (!version) return null;
+    return Number.parseInt(version, 10);
+  }
+
+  /**
+   * Set or update the cache version for a user.
+   */
+  async #setVersion(userId: string, version: number): Promise<void> {
+    await redis.set(this.#versionKey(userId), version);
+  }
+
+  /**
+   * Bump the cache version to invalidate existing cookie caches.
+   * Returns the new version.
+   */
+  async #bumpVersion(userId: string): Promise<number> {
+    const newVersion = Date.now();
+    await this.#setVersion(userId, newVersion);
+    return newVersion;
+  }
+
+  /**
+   * Store user and version in the session.
+   */
+  #setUserInSession(user: SessionUser, version: number) {
+    this.#ctx.session.put("user", user);
+    this.#ctx.session.put("version", version);
+  }
+
+  constructor(ctx: HttpContext) {
+    this.#ctx = ctx;
+    this.#queries = new AuthQueries(ctx);
+  }
 
   async createUserForGuard(user: SessionUser): Promise<SessionGuardUser<SessionUser>> {
     return {
@@ -24,33 +84,24 @@ export class SessionUserProvider implements SessionUserProviderContract<SessionU
   }
 
   async findById(identifier: string): Promise<SessionGuardUser<SessionUser> | null> {
-    const ctx = HttpContext.getOrFail();
-    const queries = new AuthQueries(ctx);
-
-    if (ctx.cachedUser && ctx.cachedUser.id === identifier) {
-      ctx.logger.debug("[CACHE]: Hit - Cookie cache");
-      ctx.usedCachedUser = true;
-      return this.createUserForGuard(ctx.cachedUser);
-    }
-
-    const sessionData = sessionCache.getUserFromSession(ctx);
+    const sessionData = this.#getUserFromSession();
     if (sessionData && sessionData.user.id === identifier) {
-      const isValid = await sessionCache.validateVersion(identifier, sessionData.version);
+      const isValid = await this.#validateVersion(identifier, sessionData.version);
       if (isValid) {
-        ctx.logger.debug("[CACHE]: Hit - Session store");
+        this.#ctx.logger.debug("[CACHE]: Hit - Session store");
         return this.createUserForGuard(sessionData.user);
       }
     }
 
-    ctx.logger.debug("[CACHE]: Miss - Performing database query for user");
-    const user = await queries.findUserWithRoles(identifier);
+    this.#ctx.logger.debug("[CACHE]: Miss - Performing database query for user");
+    const user = await this.#queries.findUserWithRoles(identifier);
     if (!user) {
       return null;
     }
 
-    const version = await sessionCache.bumpVersion(identifier);
-    ctx.logger.debug("[CACHE]: Update - Session store");
-    sessionCache.setUserInSession(ctx, user, version);
+    this.#ctx.logger.debug("[CACHE]: Update - Session store");
+    const version = await this.#bumpVersion(identifier);
+    this.#setUserInSession(user, version);
 
     return this.createUserForGuard(user);
   }
