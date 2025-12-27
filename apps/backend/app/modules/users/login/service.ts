@@ -1,4 +1,4 @@
-import { AuthQueries } from "#auth/queries";
+import { findUserByEmail, findUserWithRoles } from "#auth/queries";
 import type { SessionUser } from "#auth/redis/provider";
 import { errors as auth } from "@adonisjs/auth";
 import { inject } from "@adonisjs/core";
@@ -8,10 +8,8 @@ import type { LoginValidator } from "./validator.ts";
 
 @inject()
 export class LoginService {
-  constructor(private queries: AuthQueries) {}
-
   async execute({ email, password }: LoginValidator): Promise<SessionUser> {
-    const user = await this.queries.findUserByEmail(email);
+    const user = await findUserByEmail(email);
 
     if (!user) {
       await hash.make(password);
@@ -28,7 +26,7 @@ export class LoginService {
       throw new auth.E_INVALID_CREDENTIALS("Invalid user credentials.");
     }
 
-    const userWithRoles = await this.queries.findUserWithRoles(user.id);
+    const userWithRoles = await findUserWithRoles(user.id);
     if (!userWithRoles) {
       throw new RuntimeException("User not found after successful authentication.");
     }

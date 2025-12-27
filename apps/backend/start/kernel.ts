@@ -35,7 +35,6 @@ server.use([
 router.use([
   () => import("@adonisjs/core/bodyparser_middleware"),
   () => import("@adonisjs/session/session_middleware"),
-  () => import("#middleware/server/user-cache"),
   () => import("@adonisjs/auth/initialize_auth_middleware"),
 ]);
 
@@ -44,7 +43,7 @@ router.use([
  * the routes or the routes group.
  */
 export const middleware = router.named({
-  auth: () => import("#middleware/named/authenticated"),
-  subscribed: () => import("#middleware/named/subscribed"),
-  prodigy: () => import("#middleware/named/prodigy"),
+  auth: () => import("#middleware/routes/authenticated"),
+  subscribed: () => import("#middleware/routes/subscribed"),
+  prodigy: () => import("#middleware/routes/prodigy"),
 });

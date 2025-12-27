@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <form action="http://localhost:3333/auth/login" method="post">
+      <input type="email" name="email" placeholder="Email" />
+      <input type="password" name="password" placeholder="Password" />
+      <button type="submit">Login</button>
+    </form>
+    <form action="http://localhost:3333/auth/logout" method="post">
+      <button type="submit">Logout</button>
+    </form>
+    <form action="http://localhost:3333/auth/refresh-session" method="post">
+      <button type="submit">Refresh Session</button>
+    </form>
+    <form action="http://localhost:3333/auth/signup" method="post">
+      <input type="email" name="email" placeholder="Email" />
+      <input type="password" name="password" placeholder="Password" />
+      <input type="password" name="confirmPassword" placeholder="Confirm Password" />
+      <input type="text" name="username" placeholder="Username" />
+      <input type="text" name="firstName" placeholder="First Name" />
+      <input type="text" name="lastName" placeholder="Last Name" />
+      <input type="checkbox" name="termsChecked" placeholder="Terms Checked" />
+      <button type="submit">Signup</button>
+    </form>
+    <form action="http://localhost:3333/auth/session" method="get">
+      <button type="submit">Get Session</button>
+    </form>
+  </body>
+</html>

@@ -1,27 +1,22 @@
+import { redisSessionGuard } from "#auth/redis/config";
+import env from "#start/env";
 import { defineConfig } from "@adonisjs/auth";
-import { sessionGuard } from "@adonisjs/auth/session";
 import type { Authenticators, InferAuthEvents } from "@adonisjs/auth/types";
 import { configProvider } from "@adonisjs/core";
 
 const authConfig = defineConfig({
-  default: "cookie",
+  default: "redis",
   guards: {
-    cookie: sessionGuard({
-      useRememberMeTokens: false,
-      provider: configProvider.create(async () => {
-        const { SessionUserProvider } = await import("../app/auth/redis/provider.ts");
-        return new SessionUserProvider();
-      }),
-    }),
-    redis: sessionGuard({
-      useRememberMeTokens: false,
-      provider: {
-        resolver: async () => {
-          const { SessionUserProvider } = await import("../app/auth/redis/provider.ts");
-          return new SessionUserProvider();
-        },
-        type: "provider",
+    redis: redisSessionGuard({
+      options: {
+        cookieCacheName: env.get("COOKIE_CACHE_NAME"),
+        cookieCacheTtl: env.get("COOKIE_CACHE_TTL"),
+        sessionAge: env.get("SESSION_AGE"),
       },
+      provider: configProvider.create(async () => {
+        const { RedisUserProvider } = await import("#auth/redis/provider");
+        return new RedisUserProvider();
+      }),
     }),
   },
 });

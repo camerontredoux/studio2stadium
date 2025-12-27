@@ -1,7 +1,10 @@
+###
 GET http://localhost:3333/auth/session
+
 ###
 POST http://localhost:3333/auth/logout
 Content-Type: application/json
+
 ###
 POST http://localhost:3333/auth/login
 Content-Type: application/json
@@ -10,6 +13,7 @@ Content-Type: application/json
     "email": "test@test.com",
     "password": "password"
 }
+
 ###
 POST http://localhost:3333/auth/signup
 Content-Type: application/json
@@ -23,6 +27,7 @@ Content-Type: application/json
     "lastName": "Tredoux",
     "termsChecked": true
 }
+
 ###
-POST http://localhost:3333/auth/invalidate-session
+POST http://localhost:3333/auth/refresh-session
 Content-Type: application/json

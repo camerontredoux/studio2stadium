@@ -1,8 +1,8 @@
 import type { HttpContext } from "@adonisjs/core/http";
 
 export default class GetSessionController {
-  async handle({ auth }: HttpContext) {
+  async handle({ response, auth }: HttpContext) {
     const user = auth.getUserOrFail();
-    return user;
+    return response.ok(user);
   }
 }

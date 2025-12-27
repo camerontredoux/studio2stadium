@@ -87,8 +87,16 @@ test.group("Login", (group) => {
 
   test("login creates session", async ({ client }) => {
     const user = await queries.createUser(userFixture);
-    const userWithRoles = { ...user, roles: [] };
-    const protectedResponse = await client.get("/auth/session").loginAs(userWithRoles);
+    const sessionUser = {
+      id: user.id,
+      email: user.email,
+      displayEmail: user.display_email,
+      username: user.username,
+      avatar: user.avatar,
+      createdAt: user.created_at,
+      roles: [],
+    };
+    const protectedResponse = await client.get("/auth/session").loginAs(sessionUser);
 
     protectedResponse.assertStatus(200);
     protectedResponse.assertCookie("adonis-session");

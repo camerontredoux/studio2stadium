@@ -1,4 +1,3 @@
-// import { sessionCache } from "#utils/cookie-cache";
 import { multiRateLimit } from "#utils/rate-limit";
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
@@ -29,7 +28,6 @@ export default class LoginController {
     );
 
     await auth.use("redis").login(user);
-    // await sessionCache.initializeCache(ctx, user);
 
     return response.json({
       id: user.id,

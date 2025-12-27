@@ -1,6 +1,6 @@
 import { middleware } from "#start/kernel";
 import router from "@adonisjs/core/services/router";
-const InvalidateSessionController = () => import("./invalidate-session/controller.ts");
+const RefreshSessionController = () => import("./refresh-session/controller.ts");
 const GetSessionController = () => import("./get-session/controller.ts");
 const LogoutController = () => import("./logout/controller.ts");
 const LoginController = () => import("./login/controller.ts");
@@ -24,10 +24,10 @@ router
       })
       .use(middleware.auth());
     router
-      .post("/invalidate-session", [InvalidateSessionController])
+      .post("/refresh-session", [RefreshSessionController])
       .openapi({
-        summary: "Invalidate user session",
-        description: "Invalidates the current user's session and deletes their session from Redis.",
+        summary: "Refresh user session",
+        description: "Refreshes the current user's session by bumping the Redis version.",
       })
       .use(middleware.auth());
     router
@@ -38,5 +38,5 @@ router
       })
       .use(middleware.auth());
   })
-  .prefix("account")
+  .prefix("auth")
   .openapi({ tags: ["Authentication"] });
