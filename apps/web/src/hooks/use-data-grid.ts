@@ -1832,7 +1832,7 @@ function useDataGrid<TData>({
   );
 
   const onCellMouseEnter = React.useCallback(
-    (rowIndex: number, columnId: string, _event: React.MouseEvent) => {
+    (rowIndex: number, columnId: string) => {
       const currentState = store.getState();
       if (
         currentState.selectionState.isSelecting &&
@@ -2212,7 +2212,7 @@ function useDataGrid<TData>({
       colSizes[`--col-${header.column.id}-size`] = header.column.getSize();
     }
     return colSizes;
-  }, [table.getState().columnSizingInfo, table.getState().columnSizing]);
+  }, [table]);
 
   const rowVirtualizer = useVirtualizer({
     count: table.getRowModel().rows.length,

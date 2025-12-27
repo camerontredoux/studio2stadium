@@ -1,17 +1,21 @@
-import { Header } from "@/components/header";
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import AppLayout from "@/components/layouts/app-layout";
+import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
+
+const isAuthenticated = false;
 
 export const Route = createFileRoute("/_app")({
+  beforeLoad: async ({ location }) => {
+    if (!isAuthenticated) {
+      throw redirect({ to: "/login", search: { redirect: location.href } });
+    }
+  },
   component: RouteComponent,
 });
 
 function RouteComponent() {
   return (
-    <div>
-      <div className="h-16">
-        <Header />
-      </div>
+    <AppLayout>
       <Outlet />
-    </div>
+    </AppLayout>
   );
 }
