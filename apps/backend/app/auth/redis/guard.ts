@@ -104,18 +104,16 @@ export class RedisSessionGuard<
 
   async #bumpVersion(userId: string): Promise<number> {
     const version = Date.now();
-    redis.setex(this.#versionKey(userId), this.#options.sessionAge, version);
+    await redis.setex(this.#versionKey(userId), this.#options.sessionAge, version);
     return version;
   }
 
-  #refreshVersionTtl(userId: string) {
-    redis.expire(this.#versionKey(userId), this.#options.sessionAge);
+  async #refreshVersionTtl(userId: string) {
+    await redis.expire(this.#versionKey(userId), this.#options.sessionAge);
   }
 
   async #validateVersion(userId: string, cachedVersion: number): Promise<boolean> {
     const currentVersion = await this.#getVersion(userId);
-    this.#ctx.logger.debug("[RedisGuard]: [" + currentVersion + "] Current version");
-    this.#ctx.logger.debug("[RedisGuard]: [" + cachedVersion + "] Cached version");
     return currentVersion === cachedVersion;
   }
 
@@ -189,25 +187,32 @@ export class RedisSessionGuard<
   }
 
   /**
+   * Authenticate via the session cache.
+   */
+  async #authenticateViaCache(userId: string) {
+    const session = this.#getUserFromSession();
+    if (!session) return false;
+
+    const user = await this.#userProvider.createUserForGuard(session.user);
+    if (user.getId() !== userId) return false;
+
+    const validVersion = await this.#validateVersion(userId, session.version);
+    if (!validVersion) return false;
+
+    this.#refreshVersionTtl(userId);
+    this.#authenticationSucceeded(user.getOriginal());
+    return true;
+  }
+
+  /**
    * Authenticate via the user ID stored in session.
    * First checks the session cache, then falls back to provider.
    */
   async #authenticateViaId(
     userId: string
   ): Promise<UserProvider[typeof symbols.PROVIDER_REAL_USER]> {
-    const session = this.#getUserFromSession();
-
-    if (session) {
-      const user = await this.#userProvider.createUserForGuard(session.user);
-      if (user.getId() === userId) {
-        const isValid = await this.#validateVersion(userId, session.version);
-        this.#ctx.logger.debug("[RedisGuard]: Version is " + (isValid ? "valid" : "invalid"));
-        if (isValid) {
-          this.#refreshVersionTtl(userId);
-          this.#authenticationSucceeded(user.getOriginal());
-          return this.user!;
-        }
-      }
+    if (await this.#authenticateViaCache(userId)) {
+      return this.user!;
     }
 
     const providerUser = await this.#userProvider.findById(userId);
@@ -236,12 +241,9 @@ export class RedisSessionGuard<
 
     if (this.#ctx.request.method() === "GET") {
       const user = await this.#authenticateViaCookie();
-      if (user) {
-        return user;
-      }
+      if (user) return user;
     }
 
-    // Check if there's a user ID in the session
     const authUserId = this.#ctx.session.get(this.sessionKeyName) as string | undefined;
     if (authUserId) {
       return this.#authenticateViaId(authUserId);
@@ -350,10 +352,9 @@ export class RedisSessionGuard<
   async refresh() {
     this.#ctx.logger.debug("[RedisGuard]: Invalidating session");
 
-    const user = this.getUserOrFail();
-    const providerUser = await this.#userProvider.createUserForGuard(user);
+    const user = await this.#userProvider.createUserForGuard(this.getUserOrFail());
 
-    await this.#bumpVersion(providerUser.getId());
+    await this.#bumpVersion(user.getId());
     this.#clearCookieCache();
 
     this.isRefreshed = true;
