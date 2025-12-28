@@ -57,4 +57,12 @@ export default await Env.create(new URL("../", import.meta.url), {
   AWS_REGION: Env.schema.string(),
   MAIL_FROM_ADDRESS: Env.schema.string({ format: "email" }),
   MAIL_FROM_NAME: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring the drive package
+  |----------------------------------------------------------
+  */
+  DRIVE_DISK: Env.schema.enum(["s3"] as const),
+  S3_BUCKET: Env.schema.string(),
 });

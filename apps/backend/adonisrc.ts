@@ -59,6 +59,7 @@ export default defineConfig({
     () => import("@tuyau/openapi/openapi_provider"),
     () => import("@adonisjs/mail/mail_provider"),
     () => import("@adonisjs/cache/cache_provider"),
+    () => import("@adonisjs/drive/drive_provider"),
   ],
 
   /*
