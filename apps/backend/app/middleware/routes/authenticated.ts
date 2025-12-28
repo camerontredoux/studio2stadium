@@ -12,7 +12,7 @@ export default class AuthenticatedMiddleware {
     await next();
 
     const guard = ctx.auth.use("redis");
-    if (guard.isAuthenticated && !guard.isRefreshed && !guard.authenticationViaCookie) {
+    if (guard.isAuthenticated && !guard.isRefreshed && !guard.authenticatedViaCookie) {
       guard.setCookieCache(guard.getUserOrFail());
     }
   }

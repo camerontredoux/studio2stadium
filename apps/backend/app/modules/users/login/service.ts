@@ -1,5 +1,5 @@
+import type { SessionUser } from "#auth/provider";
 import { findUserByEmail, findUserWithRoles } from "#auth/queries";
-import type { SessionUser } from "#auth/redis/provider";
 import { errors as auth } from "@adonisjs/auth";
 import { inject } from "@adonisjs/core";
 import { RuntimeException } from "@adonisjs/core/exceptions";

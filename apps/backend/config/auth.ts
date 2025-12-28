@@ -1,4 +1,4 @@
-import { redisSessionGuard } from "#auth/redis/config";
+import { redisSessionGuard } from "#auth/config";
 import env from "#start/env";
 import { defineConfig } from "@adonisjs/auth";
 import type { Authenticators, InferAuthEvents } from "@adonisjs/auth/types";
@@ -14,7 +14,7 @@ const authConfig = defineConfig({
         sessionAge: env.get("SESSION_AGE"),
       },
       provider: configProvider.create(async () => {
-        const { RedisUserProvider } = await import("#auth/redis/provider");
+        const { RedisUserProvider } = await import("#auth/provider");
         return new RedisUserProvider();
       }),
     }),

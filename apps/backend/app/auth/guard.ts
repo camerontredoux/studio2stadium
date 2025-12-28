@@ -51,7 +51,7 @@ export class RedisSessionGuard<
   /**
    * Whether authentication was via the cookie cache.
    */
-  authenticationViaCookie: boolean = false;
+  authenticatedViaCookie: boolean = false;
 
   /**
    * Whether the current request has been authenticated
@@ -144,7 +144,7 @@ export class RedisSessionGuard<
 
   #authenticationFailed() {
     this.#ctx.logger.debug(
-      `[${this.authenticationViaCookie ? "CookieGuard" : "RedisGuard"}]: Authentication failed`
+      `[${this.authenticatedViaCookie ? "CookieGuard" : "RedisGuard"}]: Authentication failed`
     );
 
     this.isAuthenticated = false;
@@ -158,7 +158,7 @@ export class RedisSessionGuard<
 
   #authenticationSucceeded(user: UserProvider[typeof symbols.PROVIDER_REAL_USER]) {
     this.#ctx.logger.debug(
-      `[${this.authenticationViaCookie ? "CookieGuard" : "RedisGuard"}]: Authentication succeeded`
+      `[${this.authenticatedViaCookie ? "CookieGuard" : "RedisGuard"}]: Authentication succeeded`
     );
 
     this.isAuthenticated = true;
@@ -179,7 +179,7 @@ export class RedisSessionGuard<
         return this.user;
       }
 
-      this.authenticationViaCookie = true;
+      this.authenticatedViaCookie = true;
       this.#authenticationSucceeded(payload.user);
     }
 
@@ -199,7 +199,7 @@ export class RedisSessionGuard<
     const validVersion = await this.#validateVersion(userId, session.version);
     if (!validVersion) return false;
 
-    this.#refreshVersionTtl(userId);
+    await this.#refreshVersionTtl(userId);
     this.#authenticationSucceeded(user.getOriginal());
     return true;
   }
