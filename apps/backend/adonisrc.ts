@@ -30,6 +30,7 @@ export default defineConfig({
     () => import("@tuyau/core/commands"),
     () => import("@tuyau/openapi/commands"),
     () => import("@adonisjs/mail/commands"),
+    () => import("@adonisjs/cache/commands"),
   ],
 
   /*
@@ -57,6 +58,7 @@ export default defineConfig({
     () => import("@tuyau/core/tuyau_provider"),
     () => import("@tuyau/openapi/openapi_provider"),
     () => import("@adonisjs/mail/mail_provider"),
+    () => import("@adonisjs/cache/cache_provider"),
   ],
 
   /*
