@@ -35,3 +35,8 @@ Content-Type: application/json
 ###
 POST http://localhost:3333/auth/test
 Content-Type: application/json
+
+###
+GET http://localhost:3333/health
+Content-Type: application/json
+X-Health-Secret: hd0XF5UjZw6n9gbwmy3mleNGAqnYT77VLmSimeDflcw=
