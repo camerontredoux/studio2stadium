@@ -119,18 +119,7 @@ export class RedisSessionGuard<
     return version;
   }
 
-  #setSessionCookie() {
-    this.#ctx.logger.debug("[RedisGuard]: Setting new session cookie");
-
-    this.#ctx.response.cookie(
-      this.#options.sessionCookieName,
-      this.#sessionId,
-      this.#options.cookieOptions(this.#options.sessionAge)
-    );
-  }
-
   async #refreshSession() {
-    this.#setSessionCookie();
     await this.#connection.expire(this.#sessionId, this.#options.sessionAge);
   }
 
@@ -365,8 +354,18 @@ export class RedisSessionGuard<
     return this.user;
   }
 
+  setSessionCookie() {
+    this.#ctx.logger.debug("[AuthGuard]: Setting new session cookie");
+
+    this.#ctx.response.cookie(
+      this.#options.sessionCookieName,
+      this.#sessionId,
+      this.#options.cookieOptions(this.#options.sessionAge)
+    );
+  }
+
   setCacheCookie() {
-    this.#ctx.logger.debug("[RedisGuard]: Setting new cache cookie");
+    this.#ctx.logger.debug("[AuthGuard]: Setting new cache cookie");
 
     /**
      * Need expiresAt to force the client to refresh the cache cookie
@@ -389,6 +388,10 @@ export class RedisSessionGuard<
    * their data for subsequent requests.
    */
   async login(user: User) {
+    if (this.#sessionId) {
+      this.#ctx.logger.debug("[LoginGuard] Deleting existing session");
+      await this.#connection.del(this.#sessionId);
+    }
     const providerUser = await this.#userProvider.createUserForGuard(user);
 
     this.user = user;
@@ -400,7 +403,7 @@ export class RedisSessionGuard<
     const session = { version, user: providerUser.getOriginal() };
     await this.#commitSession(session, true);
 
-    this.#setSessionCookie();
+    this.setSessionCookie();
     this.setCacheCookie();
   }
 

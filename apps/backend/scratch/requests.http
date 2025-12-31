@@ -34,7 +34,7 @@ POST http://localhost:3333/auth/refresh-session
 Content-Type: application/json
 
 ###
-GET http://localhost:3333/auth/test
+POST http://localhost:3333/auth/test
 Content-Type: application/json
 
 ###

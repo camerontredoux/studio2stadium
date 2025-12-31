@@ -40,7 +40,9 @@ router
         description: "Retrieves the current session's user information.",
       })
       .use(middleware.auth());
-    router.get("/test", async () => ({ message: "Hello, world!" }));
+    router
+      .post("/test", async () => ({ message: "Hello, world!" }))
+      .use(middleware.auth());
   })
   .prefix("auth")
   .openapi({ tags: ["Authentication"] });
