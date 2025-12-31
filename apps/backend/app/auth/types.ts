@@ -1,4 +1,5 @@
 import type { symbols } from "@adonisjs/auth";
+import type { CookieOptions } from "@adonisjs/core/types/http";
 
 /**
  * Guard user is an adapter between the user provider and the guard.
@@ -32,15 +33,23 @@ export interface RedisUserProviderContract<RealUser> {
 
 export type RedisGuardOptions = {
   /**
-   * Time to live in seconds for the cached cookie
+   * Session age in seconds
    */
-  cookieCacheTtl: number;
+  sessionAge: number;
+  /**
+   * Name of the session cookie
+   */
+  sessionCookieName: string;
+  /**
+   * Age in seconds for the cached cookie
+   */
+  cacheCookieAge: number;
   /**
    * Name of the cookie cache
    */
-  cookieCacheName: string;
+  cacheCookieName: string;
   /**
-   * Session age in seconds - used for Redis version key TTL
+   * Cookie options
    */
-  sessionAge: number;
+  cookieOptions: (maxAge: number) => Partial<CookieOptions>;
 };

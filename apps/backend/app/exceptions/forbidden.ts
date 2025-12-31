@@ -6,6 +6,8 @@ export default class ForbiddenException extends Exception {
   static code = "E_FORBIDDEN";
 
   async handle(error: this, ctx: HttpContext) {
-    ctx.response.status(error.status).send({ errors: [{ message: error.message }] });
+    ctx.response
+      .status(error.status)
+      .send({ errors: [{ message: error.message }] });
   }
 }

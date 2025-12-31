@@ -24,7 +24,10 @@ export default class SubscribedMiddleware {
       throw new ForbiddenException("Subscription has been cancelled.");
     }
 
-    if (subscription.current_period_end && subscription.current_period_end <= new Date()) {
+    if (
+      subscription.current_period_end &&
+      subscription.current_period_end <= new Date()
+    ) {
       throw new ForbiddenException("Subscription is expired.");
     }
 

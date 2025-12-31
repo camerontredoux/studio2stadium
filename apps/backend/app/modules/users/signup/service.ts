@@ -9,7 +9,14 @@ import type { SignupValidator } from "./validator.ts";
 export class SignupService {
   constructor(private queries: SignupQueries) {}
 
-  async execute({ email, password, firstName, lastName, username, phone }: SignupValidator) {
+  async execute({
+    email,
+    password,
+    firstName,
+    lastName,
+    username,
+    phone,
+  }: SignupValidator) {
     const user = await this.queries.createUser({
       email: await normalizeEmail(email),
       display_email: email,

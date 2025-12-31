@@ -24,7 +24,9 @@ export default class ProdigyMiddleware {
       .executeTakeFirst();
 
     if (!isProdigy) {
-      throw new ForbiddenException("This endpoint is only accessible to Prodigy accounts.");
+      throw new ForbiddenException(
+        "This endpoint is only accessible to Prodigy accounts."
+      );
     }
     return next();
   }

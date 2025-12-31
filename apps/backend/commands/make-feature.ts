@@ -6,7 +6,8 @@ import { join } from "node:path";
 
 export default class MakeFeature extends BaseCommand {
   static commandName = "make:feature";
-  static description = "Create a new feature with controller, service, and validator";
+  static description =
+    "Create a new feature with controller, service, and validator";
 
   static options: CommandOptions = {
     startApp: false,

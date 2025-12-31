@@ -11,7 +11,9 @@ export default class VerificationEmail extends BaseMail {
 
   prepare() {
     this.message.to(
-      env.get("NODE_ENV") === "development" ? "camtredoux@gmail.com" : this.event.user.display_email
+      env.get("NODE_ENV") === "development"
+        ? "camtredoux@gmail.com"
+        : this.event.user.display_email
     );
   }
 }

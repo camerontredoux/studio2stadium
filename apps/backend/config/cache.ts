@@ -10,7 +10,8 @@ const cacheConfig = defineConfig({
         drivers.redis({
           connectionName: "cache",
         })
-      ),
+      )
+      .useBus(drivers.redisBus({ connectionName: "cache" })),
   },
 });
 

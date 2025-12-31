@@ -27,7 +27,9 @@ export async function findUserWithRoles(id: string) {
       "users.username as username",
       "users.avatar as avatar",
       "users.created_at as createdAt",
-      sql<string[]>`array_remove(array_agg(${sql.ref("roles.type")}), NULL)`.as("roles"),
+      sql<string[]>`array_remove(array_agg(${sql.ref("roles.type")}), NULL)`.as(
+        "roles"
+      ),
     ])
     .where("users.id", "=", id)
     .groupBy("users.id")

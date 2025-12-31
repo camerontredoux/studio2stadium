@@ -16,7 +16,15 @@ export default await Env.create(new URL("../", import.meta.url), {
   PORT: Env.schema.number(),
   APP_KEY: Env.schema.string(),
   HOST: Env.schema.string({ format: "host" }),
-  LOG_LEVEL: Env.schema.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]),
+  LOG_LEVEL: Env.schema.enum([
+    "fatal",
+    "error",
+    "warn",
+    "info",
+    "debug",
+    "trace",
+    "silent",
+  ]),
 
   HEALTH_SECRET: Env.schema.string(),
 
@@ -35,10 +43,13 @@ export default await Env.create(new URL("../", import.meta.url), {
   */
   REDIS_HOST: Env.schema.string({ format: "host" }),
   REDIS_PORT: Env.schema.number(),
-  SESSION_DRIVER: Env.schema.enum(["redis", "memory"] as const),
-  SESSION_AGE: Env.schema.number(), // in seconds (604800 = 7 days)
-  COOKIE_CACHE_NAME: Env.schema.string(),
-  COOKIE_CACHE_TTL: Env.schema.number(),
+
+  SESSION_COOKIE_NAME: Env.schema.string(),
+  SESSION_AGE: Env.schema.number(),
+  CACHE_COOKIE_NAME: Env.schema.string(),
+  CACHE_COOKIE_AGE: Env.schema.number(),
+
+  SESSION_DRIVER: Env.schema.enum(["cookie", "redis", "memory"] as const),
 
   /*
   |----------------------------------------------------------

@@ -5,8 +5,10 @@ export default class DatabaseException extends Exception {
   static status = 400;
 
   async handle(error: this, ctx: HttpContext) {
-    ctx.response
-      .status(error.status)
-      .send({ errors: [{ message: error.message, code: error.code, cause: error.cause }] });
+    ctx.response.status(error.status).send({
+      errors: [
+        { message: error.message, code: error.code, cause: error.cause },
+      ],
+    });
   }
 }

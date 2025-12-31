@@ -40,6 +40,7 @@ This is an AdonisJS 6 backend using Kysely as the query builder with Prisma for 
 ### Module-Based Structure
 
 Features live in `app/modules/{domain}/{feature-name}/` with co-located files:
+
 - `controller.ts` - HTTP handler, validates input, calls service
 - `service.ts` - Business logic, orchestrates queries
 - `queries.ts` - Database queries extending `BaseQuery`
@@ -61,6 +62,7 @@ After schema changes: `pnpm db:migrate` then `pnpm db:generate` to update types.
 ### Query Pattern
 
 All query classes extend `BaseQuery` which provides:
+
 - `use(fn)` - Wraps queries with automatic PostgreSQL error handling
 - `transaction(fn)` - Transaction support with error handling
 - Auto-injection of `HttpContext` for error reporting
@@ -80,16 +82,19 @@ export class FeatureQueries extends BaseQuery {
 Session-based auth with Redis sessions and a multi-layer caching strategy.
 
 **Cache Layers (checked in order):**
-1. **Cookie cache** - Short-lived encrypted cookie for fast GET requests
-2. **Session cache** - User data stored in Redis session with version
-3. **Database** - Full query with roles (cache miss)
 
-**Version-Based Invalidation:**
-Redis stores `session:version:{userId}` as a global invalidation key. Both cookie and session caches store this version. On each request, the cached version is compared against Redis - mismatch triggers a database query and cache update.
+1. **Cookie cache** - Short-lived signed cookie for GET requests (stateless, no Redis hit)
+2. **Redis session** - User data with version, validated against Redis
+3. **Database** - Full query (on version mismatch or cache miss)
 
-This enables **cross-session invalidation**: calling `guard.refresh()` bumps the Redis version, invalidating ALL sessions/devices for that user with a single O(1) operation.
+**Cookie Cache Design:**
+The cookie cache is intentionally stateless, modeled after [BetterAuth's cookie cache](https://www.better-auth.com/docs/concepts/session-management#cookie-cache). During its TTL (5 min), it never hits Redis — this is by design for performance. It does NOT participate in version-based invalidation. This is an accepted tradeoff: GET requests may use slightly stale user data until the cookie expires. State-changing requests (POST/PUT/DELETE) always validate against Redis.
+
+**Version-Based Invalidation (Redis session only):**
+Redis stores `version:{userId}` as an invalidation key. The Redis session stores this version; on mismatch, the session is refreshed from the database. Calling `guard.refresh()` bumps the version, invalidating Redis sessions across all devices.
 
 **Named Middleware** (`start/kernel.ts`):
+
 - `auth` - Requires authenticated user
 - `subscribed` - Requires active subscription
 - `prodigy` - Requires prodigy platform access
@@ -97,6 +102,7 @@ This enables **cross-session invalidation**: calling `guard.refresh()` bumps the
 ### Path Aliases
 
 Use import aliases defined in `package.json`:
+
 - `#modules/*` - `app/modules/*.ts`
 - `#database/*` - `app/database/*.ts`
 - `#utils/*` - `app/utils/*.ts`

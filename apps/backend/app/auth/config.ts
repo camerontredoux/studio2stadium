@@ -8,18 +8,26 @@ import type { RedisGuardOptions, RedisUserProviderContract } from "./types.ts";
  * Configures the Redis session guard for authentication.
  * The provider is resolved once (singleton) and the guard is created per-request.
  */
-export function redisSessionGuard<UserProvider extends RedisUserProviderContract<unknown>>(
+export function redisSessionGuard<
+  User,
+  UserProvider extends RedisUserProviderContract<User> =
+    RedisUserProviderContract<User>,
+>(
   config: {
     provider: UserProvider | ConfigProvider<UserProvider>;
   } & {
     options: RedisGuardOptions;
   }
-): GuardConfigProvider<(ctx: HttpContext) => RedisSessionGuard<UserProvider>> {
+): GuardConfigProvider<
+  (ctx: HttpContext) => RedisSessionGuard<User, UserProvider>
+> {
   return {
-    async resolver(name, app) {
+    async resolver(_name, app) {
       const provider =
-        "resolver" in config.provider ? await config.provider.resolver(app) : config.provider;
-      return (ctx) => new RedisSessionGuard(name, ctx, provider, config.options);
+        "resolver" in config.provider
+          ? await config.provider.resolver(app)
+          : config.provider;
+      return (ctx) => new RedisSessionGuard(ctx, provider, config.options);
     },
   };
 }

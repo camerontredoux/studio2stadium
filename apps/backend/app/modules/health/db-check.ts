@@ -22,7 +22,9 @@ export class DbConnectionCountCheck extends BaseCheck {
   /**
    * Method to compute the memory consumption
    */
-  #computeFn: (client: Kysely<any>) => Promise<number | null> = async (client) => {
+  #computeFn: (client: Kysely<any>) => Promise<number | null> = async (
+    client
+  ) => {
     const response = await client
       .selectFrom("pg_stat_activity")
       .select(({ fn }) => fn.countAll().as("connections"))
@@ -159,9 +161,10 @@ export class DbConnectionCountCheck extends BaseCheck {
         .mergeMetaData(this.#getConnectionMetadata())
         .mergeMetaData(this.#getConnectionsCountMetadata(connectionsCount));
     } catch (error) {
-      return Result.failed(error.message || "Connection failed", error).mergeMetaData(
-        this.#getConnectionMetadata()
-      );
+      return Result.failed(
+        error.message || "Connection failed",
+        error
+      ).mergeMetaData(this.#getConnectionMetadata());
     }
   }
 }

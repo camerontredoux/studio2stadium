@@ -7,13 +7,19 @@ import type { NextFn } from "@adonisjs/core/types/http";
  */
 export default class AuthenticatedMiddleware {
   async handle(ctx: HttpContext, next: NextFn) {
+    ctx.response.header("cache-control", "private, no-store");
+
     await ctx.auth.authenticateUsing();
 
     await next();
 
     const guard = ctx.auth.use("redis");
-    if (guard.isAuthenticated && !guard.isRefreshed && !guard.authenticatedViaCookie) {
-      guard.setCookieCache(guard.getUserOrFail());
+    if (
+      guard.isAuthenticated &&
+      !guard.isRefreshed &&
+      !guard.authenticatedViaCookie
+    ) {
+      guard.setCacheCookie();
     }
   }
 }

@@ -21,8 +21,12 @@ export function setup() {
   );
 
   const cookies = res.cookies;
-  const sessionCookie = cookies["auth_session"] ? cookies["auth_session"][0].value : null;
-  const cacheCookie = cookies["auth_cache"] ? cookies["auth_cache"][0].value : null;
+  const sessionCookie = cookies["auth_session"]
+    ? cookies["auth_session"][0].value
+    : null;
+  const cacheCookie = cookies["auth_cache"]
+    ? cookies["auth_cache"][0].value
+    : null;
 
   console.log(`Logged in, session ${sessionCookie}, cache ${cacheCookie}`);
 
@@ -38,7 +42,11 @@ export default function (data) {
   const jar = http.cookieJar();
 
   jar.set("http://localhost:3333", "auth_session", data.sessionCookie);
-  jar.set("http://localhost:3333", "auth_cache", cacheCookie || data.cacheCookie);
+  jar.set(
+    "http://localhost:3333",
+    "auth_cache",
+    cacheCookie || data.cacheCookie
+  );
 
   let res = http.get("http://localhost:3333/auth/session");
   console.log(res.status, res.status_text);

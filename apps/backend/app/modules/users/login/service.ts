@@ -17,7 +17,9 @@ export class LoginService {
     }
 
     if (!user.password) {
-      throw new RuntimeException("Cannot verify undefined password. Account cannot be accessed.");
+      throw new RuntimeException(
+        "Cannot verify undefined password. Account cannot be accessed."
+      );
     }
 
     const verified = await hash.verify(user.password, password);
@@ -28,7 +30,9 @@ export class LoginService {
 
     const userWithRoles = await findUserWithRoles(user.id);
     if (!userWithRoles) {
-      throw new RuntimeException("User not found after successful authentication.");
+      throw new RuntimeException(
+        "User not found after successful authentication."
+      );
     }
 
     return userWithRoles;

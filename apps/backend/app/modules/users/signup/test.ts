@@ -31,11 +31,15 @@ test.group("Signup failures", (group) => {
     });
 
     registerFails.assertStatus(400);
-    registerFails.assertBodyContains({ errors: [{ code: "E_UNIQUE_VIOLATION" }] });
+    registerFails.assertBodyContains({
+      errors: [{ code: "E_UNIQUE_VIOLATION" }],
+    });
     registerFails.assertBodyContains({ errors: [{ cause: "email" }] });
   });
 
-  test("rate limit after 5 failed registration attempts", async ({ client }) => {
+  test("rate limit after 5 failed registration attempts", async ({
+    client,
+  }) => {
     await client.post("/auth/signup").json({
       ...userRegisterFixture,
       email: "original@gmail.com",

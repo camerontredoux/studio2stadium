@@ -44,7 +44,9 @@ test.group("Login", (group) => {
     });
 
     response.assertStatus(400);
-    response.assertBodyContains({ errors: [{ message: "Invalid user credentials." }] });
+    response.assertBodyContains({
+      errors: [{ message: "Invalid user credentials." }],
+    });
   });
 
   test("login fails with invalid password", async ({ client }) => {
@@ -56,7 +58,9 @@ test.group("Login", (group) => {
     });
 
     response.assertStatus(400);
-    response.assertBodyContains({ errors: [{ message: "Invalid user credentials." }] });
+    response.assertBodyContains({
+      errors: [{ message: "Invalid user credentials." }],
+    });
   });
 
   test("login fails with missing email", async ({ client }) => {
@@ -96,14 +100,22 @@ test.group("Login", (group) => {
       createdAt: user.created_at,
       roles: [],
     };
-    const protectedResponse = await client.get("/auth/session").loginAs(sessionUser);
+    const protectedResponse = await client
+      .get("/auth/session")
+      .loginAs(sessionUser);
 
     protectedResponse.assertStatus(200);
     protectedResponse.assertCookie("adonis-session");
     protectedResponse.assertBodyContains({ email: "test@example.com" });
   });
-  test("login is case-insensitive and normalized", async ({ client, assert }) => {
-    const user = await queries.createUser({ ...userFixture, email: "testemail@gmail.com" });
+  test("login is case-insensitive and normalized", async ({
+    client,
+    assert,
+  }) => {
+    const user = await queries.createUser({
+      ...userFixture,
+      email: "testemail@gmail.com",
+    });
     assert.equal(user.email, "testemail@gmail.com");
 
     const upperDomain = await client.post("/auth/login").json({
