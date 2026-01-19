@@ -16,7 +16,7 @@ import { Route as AccountRouteRouteImport } from './routes/_account/route'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
-import { Route as AppTapInRouteImport } from './routes/_app/tap-in'
+import { Route as AppLibraryRouteImport } from './routes/_app/library'
 import { Route as AppExploreRouteImport } from './routes/_app/explore'
 import { Route as AuthResetIndexRouteImport } from './routes/_auth/reset/index'
 import { Route as AppEventsIndexRouteImport } from './routes/_app/events/index'
@@ -24,9 +24,9 @@ import { Route as AdminDashboardIndexRouteImport } from './routes/_admin/dashboa
 import { Route as AuthResetTokenIdRouteImport } from './routes/_auth/reset/$tokenId'
 import { Route as AppRecruitingSubmitRouteImport } from './routes/_app/recruiting/submit'
 import { Route as AppRecruitingSubmissionsRouteImport } from './routes/_app/recruiting/submissions'
-import { Route as AppOnboardSubscriptionRouteImport } from './routes/_app/onboard/subscription'
-import { Route as AppOnboardSchoolRouteImport } from './routes/_app/onboard/school'
-import { Route as AppOnboardDancerRouteImport } from './routes/_app/onboard/dancer'
+import { Route as AppOnboardingSubscriptionRouteImport } from './routes/_app/onboarding/subscription'
+import { Route as AppOnboardingSchoolRouteImport } from './routes/_app/onboarding/school'
+import { Route as AppOnboardingDancerRouteImport } from './routes/_app/onboarding/dancer'
 import { Route as AppEventsEventIdRouteImport } from './routes/_app/events/$eventId'
 import { Route as AdminDashboardMetricsRouteImport } from './routes/_admin/dashboard/metrics'
 import { Route as AccountAccountProfileRouteImport } from './routes/_account/account/profile'
@@ -67,9 +67,9 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const AppTapInRoute = AppTapInRouteImport.update({
-  id: '/tap-in',
-  path: '/tap-in',
+const AppLibraryRoute = AppLibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppExploreRoute = AppExploreRouteImport.update({
@@ -108,19 +108,20 @@ const AppRecruitingSubmissionsRoute =
     path: '/recruiting/submissions',
     getParentRoute: () => AppRouteRoute,
   } as any)
-const AppOnboardSubscriptionRoute = AppOnboardSubscriptionRouteImport.update({
-  id: '/onboard/subscription',
-  path: '/onboard/subscription',
+const AppOnboardingSubscriptionRoute =
+  AppOnboardingSubscriptionRouteImport.update({
+    id: '/onboarding/subscription',
+    path: '/onboarding/subscription',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
+const AppOnboardingSchoolRoute = AppOnboardingSchoolRouteImport.update({
+  id: '/onboarding/school',
+  path: '/onboarding/school',
   getParentRoute: () => AppRouteRoute,
 } as any)
-const AppOnboardSchoolRoute = AppOnboardSchoolRouteImport.update({
-  id: '/onboard/school',
-  path: '/onboard/school',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppOnboardDancerRoute = AppOnboardDancerRouteImport.update({
-  id: '/onboard/dancer',
-  path: '/onboard/dancer',
+const AppOnboardingDancerRoute = AppOnboardingDancerRouteImport.update({
+  id: '/onboarding/dancer',
+  path: '/onboarding/dancer',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppEventsEventIdRoute = AppEventsEventIdRouteImport.update({
@@ -170,7 +171,7 @@ const AdminDashboardAssetsUploadRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/explore': typeof AppExploreRoute
-  '/tap-in': typeof AppTapInRoute
+  '/library': typeof AppLibraryRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/account/general': typeof AccountAccountGeneralRoute
@@ -178,9 +179,9 @@ export interface FileRoutesByFullPath {
   '/account/profile': typeof AccountAccountProfileRoute
   '/dashboard/metrics': typeof AdminDashboardMetricsRoute
   '/events/$eventId': typeof AppEventsEventIdRoute
-  '/onboard/dancer': typeof AppOnboardDancerRoute
-  '/onboard/school': typeof AppOnboardSchoolRoute
-  '/onboard/subscription': typeof AppOnboardSubscriptionRoute
+  '/onboarding/dancer': typeof AppOnboardingDancerRoute
+  '/onboarding/school': typeof AppOnboardingSchoolRoute
+  '/onboarding/subscription': typeof AppOnboardingSubscriptionRoute
   '/recruiting/submissions': typeof AppRecruitingSubmissionsRoute
   '/recruiting/submit': typeof AppRecruitingSubmitRoute
   '/reset/$tokenId': typeof AuthResetTokenIdRoute
@@ -194,7 +195,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/explore': typeof AppExploreRoute
-  '/tap-in': typeof AppTapInRoute
+  '/library': typeof AppLibraryRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/account/general': typeof AccountAccountGeneralRoute
@@ -202,9 +203,9 @@ export interface FileRoutesByTo {
   '/account/profile': typeof AccountAccountProfileRoute
   '/dashboard/metrics': typeof AdminDashboardMetricsRoute
   '/events/$eventId': typeof AppEventsEventIdRoute
-  '/onboard/dancer': typeof AppOnboardDancerRoute
-  '/onboard/school': typeof AppOnboardSchoolRoute
-  '/onboard/subscription': typeof AppOnboardSubscriptionRoute
+  '/onboarding/dancer': typeof AppOnboardingDancerRoute
+  '/onboarding/school': typeof AppOnboardingSchoolRoute
+  '/onboarding/subscription': typeof AppOnboardingSubscriptionRoute
   '/recruiting/submissions': typeof AppRecruitingSubmissionsRoute
   '/recruiting/submit': typeof AppRecruitingSubmitRoute
   '/reset/$tokenId': typeof AuthResetTokenIdRoute
@@ -222,7 +223,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteRouteWithChildren
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_app/explore': typeof AppExploreRoute
-  '/_app/tap-in': typeof AppTapInRoute
+  '/_app/library': typeof AppLibraryRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/signup': typeof AuthSignupRoute
   '/_app/': typeof AppIndexRoute
@@ -231,9 +232,9 @@ export interface FileRoutesById {
   '/_account/account/profile': typeof AccountAccountProfileRoute
   '/_admin/dashboard/metrics': typeof AdminDashboardMetricsRoute
   '/_app/events/$eventId': typeof AppEventsEventIdRoute
-  '/_app/onboard/dancer': typeof AppOnboardDancerRoute
-  '/_app/onboard/school': typeof AppOnboardSchoolRoute
-  '/_app/onboard/subscription': typeof AppOnboardSubscriptionRoute
+  '/_app/onboarding/dancer': typeof AppOnboardingDancerRoute
+  '/_app/onboarding/school': typeof AppOnboardingSchoolRoute
+  '/_app/onboarding/subscription': typeof AppOnboardingSubscriptionRoute
   '/_app/recruiting/submissions': typeof AppRecruitingSubmissionsRoute
   '/_app/recruiting/submit': typeof AppRecruitingSubmitRoute
   '/_auth/reset/$tokenId': typeof AuthResetTokenIdRoute
@@ -249,7 +250,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/explore'
-    | '/tap-in'
+    | '/library'
     | '/login'
     | '/signup'
     | '/account/general'
@@ -257,9 +258,9 @@ export interface FileRouteTypes {
     | '/account/profile'
     | '/dashboard/metrics'
     | '/events/$eventId'
-    | '/onboard/dancer'
-    | '/onboard/school'
-    | '/onboard/subscription'
+    | '/onboarding/dancer'
+    | '/onboarding/school'
+    | '/onboarding/subscription'
     | '/recruiting/submissions'
     | '/recruiting/submit'
     | '/reset/$tokenId'
@@ -273,7 +274,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/explore'
-    | '/tap-in'
+    | '/library'
     | '/login'
     | '/signup'
     | '/account/general'
@@ -281,9 +282,9 @@ export interface FileRouteTypes {
     | '/account/profile'
     | '/dashboard/metrics'
     | '/events/$eventId'
-    | '/onboard/dancer'
-    | '/onboard/school'
-    | '/onboard/subscription'
+    | '/onboarding/dancer'
+    | '/onboarding/school'
+    | '/onboarding/subscription'
     | '/recruiting/submissions'
     | '/recruiting/submit'
     | '/reset/$tokenId'
@@ -300,7 +301,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/_auth'
     | '/_app/explore'
-    | '/_app/tap-in'
+    | '/_app/library'
     | '/_auth/login'
     | '/_auth/signup'
     | '/_app/'
@@ -309,9 +310,9 @@ export interface FileRouteTypes {
     | '/_account/account/profile'
     | '/_admin/dashboard/metrics'
     | '/_app/events/$eventId'
-    | '/_app/onboard/dancer'
-    | '/_app/onboard/school'
-    | '/_app/onboard/subscription'
+    | '/_app/onboarding/dancer'
+    | '/_app/onboarding/school'
+    | '/_app/onboarding/subscription'
     | '/_app/recruiting/submissions'
     | '/_app/recruiting/submit'
     | '/_auth/reset/$tokenId'
@@ -381,11 +382,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/_app/tap-in': {
-      id: '/_app/tap-in'
-      path: '/tap-in'
-      fullPath: '/tap-in'
-      preLoaderRoute: typeof AppTapInRouteImport
+    '/_app/library': {
+      id: '/_app/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof AppLibraryRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/explore': {
@@ -437,25 +438,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRecruitingSubmissionsRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/_app/onboard/subscription': {
-      id: '/_app/onboard/subscription'
-      path: '/onboard/subscription'
-      fullPath: '/onboard/subscription'
-      preLoaderRoute: typeof AppOnboardSubscriptionRouteImport
+    '/_app/onboarding/subscription': {
+      id: '/_app/onboarding/subscription'
+      path: '/onboarding/subscription'
+      fullPath: '/onboarding/subscription'
+      preLoaderRoute: typeof AppOnboardingSubscriptionRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/_app/onboard/school': {
-      id: '/_app/onboard/school'
-      path: '/onboard/school'
-      fullPath: '/onboard/school'
-      preLoaderRoute: typeof AppOnboardSchoolRouteImport
+    '/_app/onboarding/school': {
+      id: '/_app/onboarding/school'
+      path: '/onboarding/school'
+      fullPath: '/onboarding/school'
+      preLoaderRoute: typeof AppOnboardingSchoolRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/_app/onboard/dancer': {
-      id: '/_app/onboard/dancer'
-      path: '/onboard/dancer'
-      fullPath: '/onboard/dancer'
-      preLoaderRoute: typeof AppOnboardDancerRouteImport
+    '/_app/onboarding/dancer': {
+      id: '/_app/onboarding/dancer'
+      path: '/onboarding/dancer'
+      fullPath: '/onboarding/dancer'
+      preLoaderRoute: typeof AppOnboardingDancerRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/events/$eventId': {
@@ -551,12 +552,12 @@ const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
 
 interface AppRouteRouteChildren {
   AppExploreRoute: typeof AppExploreRoute
-  AppTapInRoute: typeof AppTapInRoute
+  AppLibraryRoute: typeof AppLibraryRoute
   AppIndexRoute: typeof AppIndexRoute
   AppEventsEventIdRoute: typeof AppEventsEventIdRoute
-  AppOnboardDancerRoute: typeof AppOnboardDancerRoute
-  AppOnboardSchoolRoute: typeof AppOnboardSchoolRoute
-  AppOnboardSubscriptionRoute: typeof AppOnboardSubscriptionRoute
+  AppOnboardingDancerRoute: typeof AppOnboardingDancerRoute
+  AppOnboardingSchoolRoute: typeof AppOnboardingSchoolRoute
+  AppOnboardingSubscriptionRoute: typeof AppOnboardingSubscriptionRoute
   AppRecruitingSubmissionsRoute: typeof AppRecruitingSubmissionsRoute
   AppRecruitingSubmitRoute: typeof AppRecruitingSubmitRoute
   AppEventsIndexRoute: typeof AppEventsIndexRoute
@@ -566,12 +567,12 @@ interface AppRouteRouteChildren {
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppExploreRoute: AppExploreRoute,
-  AppTapInRoute: AppTapInRoute,
+  AppLibraryRoute: AppLibraryRoute,
   AppIndexRoute: AppIndexRoute,
   AppEventsEventIdRoute: AppEventsEventIdRoute,
-  AppOnboardDancerRoute: AppOnboardDancerRoute,
-  AppOnboardSchoolRoute: AppOnboardSchoolRoute,
-  AppOnboardSubscriptionRoute: AppOnboardSubscriptionRoute,
+  AppOnboardingDancerRoute: AppOnboardingDancerRoute,
+  AppOnboardingSchoolRoute: AppOnboardingSchoolRoute,
+  AppOnboardingSubscriptionRoute: AppOnboardingSubscriptionRoute,
   AppRecruitingSubmissionsRoute: AppRecruitingSubmissionsRoute,
   AppRecruitingSubmitRoute: AppRecruitingSubmitRoute,
   AppEventsIndexRoute: AppEventsIndexRoute,

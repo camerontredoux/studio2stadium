@@ -81,7 +81,6 @@ export default function AlertParticle() {
         </Form>
       </DialogPopup>
 
-      {/* Confirmation dialog */}
       <AlertDialog onOpenChange={setConfirmOpen} open={confirmOpen}>
         <AlertDialogPopup>
           <AlertDialogHeader>

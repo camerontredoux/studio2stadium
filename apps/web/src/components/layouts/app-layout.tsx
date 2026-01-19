@@ -1,4 +1,4 @@
-import { Header } from "../header";
+import { Header } from "../shared/header";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (

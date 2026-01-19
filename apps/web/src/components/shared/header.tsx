@@ -106,7 +106,7 @@ export function Header() {
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link to="/onboard/dancer">Docs</Link>
+            <Link to="/onboarding/dancer">Docs</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem className="hidden md:block">
@@ -115,7 +115,7 @@ export function Header() {
             <ul className="grid w-[300px] gap-4">
               <li>
                 <NavigationMenuLink asChild>
-                  <Link to="/onboard/dancer">
+                  <Link to="/onboarding/dancer">
                     <div className="font-medium">Components</div>
                     <div className="text-muted-foreground">
                       Browse all components in the library.
@@ -123,7 +123,7 @@ export function Header() {
                   </Link>
                 </NavigationMenuLink>
                 <NavigationMenuLink asChild>
-                  <Link to="/onboard/dancer">
+                  <Link to="/onboarding/dancer">
                     <div className="font-medium">Documentation</div>
                     <div className="text-muted-foreground">
                       Learn how to use the library.
@@ -131,7 +131,7 @@ export function Header() {
                   </Link>
                 </NavigationMenuLink>
                 <NavigationMenuLink asChild>
-                  <Link to="/onboard/dancer">
+                  <Link to="/onboarding/dancer">
                     <div className="font-medium">Blog</div>
                     <div className="text-muted-foreground">
                       Read our latest blog posts.
@@ -148,13 +148,13 @@ export function Header() {
             <ul className="grid w-[200px] gap-4">
               <li>
                 <NavigationMenuLink asChild>
-                  <Link to="/onboard/dancer">Components</Link>
+                  <Link to="/onboarding/dancer">Components</Link>
                 </NavigationMenuLink>
                 <NavigationMenuLink asChild>
-                  <Link to="/onboard/dancer">Documentation</Link>
+                  <Link to="/onboarding/dancer">Documentation</Link>
                 </NavigationMenuLink>
                 <NavigationMenuLink asChild>
-                  <Link to="/onboard/dancer">Blocks</Link>
+                  <Link to="/onboarding/dancer">Blocks</Link>
                 </NavigationMenuLink>
               </li>
             </ul>
@@ -167,7 +167,7 @@ export function Header() {
               <li>
                 <NavigationMenuLink asChild>
                   <Link
-                    to="/onboard/dancer"
+                    to="/onboarding/dancer"
                     className="flex-row items-center gap-2"
                   >
                     <CircleHelpIcon />
@@ -176,7 +176,7 @@ export function Header() {
                 </NavigationMenuLink>
                 <NavigationMenuLink asChild>
                   <Link
-                    to="/onboard/dancer"
+                    to="/onboarding/dancer"
                     className="flex-row items-center gap-2"
                   >
                     <CircleIcon />
@@ -185,7 +185,7 @@ export function Header() {
                 </NavigationMenuLink>
                 <NavigationMenuLink asChild>
                   <Link
-                    to="/onboard/dancer"
+                    to="/onboarding/dancer"
                     className="flex-row items-center gap-2"
                   >
                     <CircleCheckIcon />
