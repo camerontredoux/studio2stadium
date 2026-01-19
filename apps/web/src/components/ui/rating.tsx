@@ -1,5 +1,3 @@
-"use client";
-
 import { VisuallyHiddenInput } from "@/components/ui/visually-hidden-input";
 import { useAsRef } from "@/hooks/use-as-ref";
 import { useIsomorphicLayoutEffect } from "@/hooks/use-isomorphic-layout-effect";

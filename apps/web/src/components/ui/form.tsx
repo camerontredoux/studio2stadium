@@ -1,5 +1,3 @@
-"use client";
-
 import { Form as FormPrimitive } from "@base-ui/react/form";
 
 import { cn } from "@/components/utils/cn";

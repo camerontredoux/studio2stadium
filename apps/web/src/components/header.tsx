@@ -1,5 +1,3 @@
-"use client";
-
 import { CircleCheckIcon, CircleHelpIcon, CircleIcon } from "lucide-react";
 import * as React from "react";
 

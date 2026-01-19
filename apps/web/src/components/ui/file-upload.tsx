@@ -1,5 +1,3 @@
-"use client";
-
 import { useAsRef } from "@/hooks/use-as-ref";
 import { useLazyRef } from "@/hooks/use-lazy-ref";
 import { cn } from "@/components/utils/cn";

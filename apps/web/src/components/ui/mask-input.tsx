@@ -1,5 +1,3 @@
-"use client";
-
 import { Input } from "@/components/ui/input";
 import { useComposedRefs } from "@/components/utils/compose-refs";
 import * as React from "react";
