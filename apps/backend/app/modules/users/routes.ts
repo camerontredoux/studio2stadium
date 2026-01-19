@@ -2,8 +2,8 @@ import { middleware } from "#start/kernel";
 import router from "@adonisjs/core/services/router";
 const RefreshSessionController = () =>
   import("./refresh-session/controller.ts");
-const GetSessionController = () => import("./get-session/controller.ts");
-const LogoutController = () => import("./logout/controller.ts");
+const GetSessionController = () => import("./get-session.ts");
+const LogoutController = () => import("./logout.ts");
 const LoginController = () => import("./login/controller.ts");
 const SignupController = () => import("./signup/controller.ts");
 
@@ -26,7 +26,7 @@ router
       })
       .use(middleware.auth());
     router
-      .post("/refresh-session", [RefreshSessionController])
+      .post("/refresh", [RefreshSessionController])
       .openapi({
         summary: "Refresh user session",
         description:
@@ -39,9 +39,6 @@ router
         summary: "Get user session",
         description: "Retrieves the current session's user information.",
       })
-      .use(middleware.auth());
-    router
-      .post("/test", async () => ({ message: "Hello, world!" }))
       .use(middleware.auth());
   })
   .prefix("auth")

@@ -1,14 +1,18 @@
 import { BaseEvent } from "@adonisjs/core/events";
 import emitter from "@adonisjs/core/services/emitter";
 import { type SignupQueries } from "./queries.ts";
-
-const VerificationListener = () =>
-  import("#modules/notifications/verification/listener");
-
-export default class SignupEvent extends BaseEvent {
+export class SignupEvent extends BaseEvent {
   constructor(public user: Awaited<ReturnType<SignupQueries["createUser"]>>) {
     super();
   }
 }
 
-emitter.listen(SignupEvent, [VerificationListener, VerificationListener]);
+class VerificationListener {
+  async handle(event: SignupEvent) {
+    console.log(event.user.displayEmail);
+    // await mail.send(new VerifyEmailNotification(user));
+    // create the system event here
+  }
+}
+
+emitter.listen(SignupEvent, [VerificationListener]);

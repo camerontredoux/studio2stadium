@@ -1,0 +1,501 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Studio 2 Stadium API",
+    "version": "1.0.0",
+    "description": "Endpoint documentation for the backend. TanStack Query hooks are generated using the openapi specification at `/openapi`"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3333"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "isHealthy": {
+                      "type": "boolean"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "finishedAt": {
+                      "type": "string"
+                    },
+                    "debugInfo": {
+                      "type": "object",
+                      "properties": {
+                        "pid": {
+                          "type": "number"
+                        },
+                        "ppid": {
+                          "type": "number"
+                        },
+                        "uptime": {
+                          "type": "number"
+                        },
+                        "version": {
+                          "type": "string"
+                        },
+                        "platform": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "checks": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          },
+                          "finishedAt": {
+                            "type": "string"
+                          },
+                          "isCached": {
+                            "type": "boolean"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "properties": {}
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "isHealthy": {
+                      "type": "boolean"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "finishedAt": {
+                      "type": "string"
+                    },
+                    "debugInfo": {
+                      "type": "object",
+                      "properties": {
+                        "pid": {
+                          "type": "number"
+                        },
+                        "ppid": {
+                          "type": "number"
+                        },
+                        "uptime": {
+                          "type": "number"
+                        },
+                        "version": {
+                          "type": "string"
+                        },
+                        "platform": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "checks": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          },
+                          "finishedAt": {
+                            "type": "string"
+                          },
+                          "isCached": {
+                            "type": "boolean"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "properties": {}
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/signup": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "phone": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "confirmPassword": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "termsChecked": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "confirmPassword",
+                  "username",
+                  "firstName",
+                  "lastName",
+                  "termsChecked"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string"
+                    },
+                    "username": {
+                      "type": "string"
+                    },
+                    "firstName": {
+                      "type": "string"
+                    },
+                    "lastName": {
+                      "type": "string"
+                    },
+                    "phone": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "avatar": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "displayEmail": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "message": {
+                            "type": "string"
+                          },
+                          "rule": {
+                            "type": "string"
+                          },
+                          "field": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Create user account",
+        "description": "Creates a new base user account."
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "message": {
+                            "type": "string"
+                          },
+                          "rule": {
+                            "type": "string"
+                          },
+                          "field": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Start user session",
+        "description": "Logs in a user and creates a session in Redis."
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "End user session",
+        "description": "Logs out the current user and deletes their session from Redis."
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Refresh user session",
+        "description": "Refreshes the current user's session by bumping the Redis version."
+      }
+    },
+    "/auth/session": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string"
+                    },
+                    "username": {
+                      "type": "string"
+                    },
+                    "roles": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "avatar": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "displayEmail": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Get user session",
+        "description": "Retrieves the current session's user information."
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Authentication and user creation endpoints"
+    }
+  ]
+}

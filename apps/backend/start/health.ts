@@ -1,5 +1,5 @@
 import { db } from "#database/connection";
-import { DbConnectionCountCheck } from "#modules/health/db-check";
+import { DbConnectionCountCheck } from "#modules/health/service";
 import {
   DiskSpaceCheck,
   HealthChecks,

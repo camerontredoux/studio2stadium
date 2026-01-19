@@ -1,7 +1,7 @@
 import { normalizeEmail } from "#utils/normalize-email";
 import { inject } from "@adonisjs/core";
 import hash from "@adonisjs/core/services/hash";
-import UserRegistered from "./event.ts";
+import { SignupEvent } from "./event.ts";
 import { SignupQueries } from "./queries.ts";
 import type { SignupValidator } from "./validator.ts";
 
@@ -27,7 +27,7 @@ export class SignupService {
       phone,
     });
 
-    UserRegistered.dispatch(user);
+    SignupEvent.dispatch(user);
 
     return user;
   }

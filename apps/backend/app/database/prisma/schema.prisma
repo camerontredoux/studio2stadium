@@ -33,14 +33,15 @@ model User {
   subscriptions        Subscription[]
   prodigy_dance_events ProdigyDanceEventAttendee[]
   global_dance_events  GlobalDanceEventAttendee[]
+  school_dance_events  SchoolDanceEventAttendee[]
   images               ProfileImage[]
   videos               ProfileVideo[]
   notifications        Notification[]
   hidden_items         HiddenItem[]
   user_activities      UserActivity[]
 
-  favorites_from Favorite[] @relation("favorites_from")
-  favorites_to   Favorite[] @relation("favorites_to")
+  followers Favorite[] @relation("followers")
+  following Favorite[] @relation("following")
 
   @@index([created_at])
   @@map("users")
@@ -315,12 +316,12 @@ model Favorite {
   platform_id String
   platform    Platform @relation(fields: [platform_id], references: [id], onDelete: Cascade)
 
-  from_id String
-  from    User   @relation("favorites_from", fields: [from_id], references: [id], onDelete: Cascade)
-  to_id   String
-  to      User   @relation("favorites_to", fields: [to_id], references: [id], onDelete: Cascade)
+  from_user_id String
+  from_user    User   @relation("followers", fields: [from_user_id], references: [id], onDelete: Cascade)
+  to_user_id   String
+  to_user      User   @relation("following", fields: [to_user_id], references: [id], onDelete: Cascade)
 
-  @@unique([from_id, to_id, platform_id])
+  @@unique([from_user_id, to_user_id, platform_id])
   @@map("favorites")
 }
 
@@ -380,9 +381,24 @@ model SchoolDanceEvent {
   host_id String
   host    SchoolAccount @relation(fields: [host_id], references: [id], onDelete: Cascade)
 
+  attendees SchoolDanceEventAttendee[]
+
   @@index([host_id])
   @@index([start_datetime])
   @@map("school_dance_events")
+}
+
+model SchoolDanceEventAttendee {
+  registered_at DateTime @default(now())
+
+  event_id String
+  event    SchoolDanceEvent @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  user_id  String
+  user     User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([event_id, user_id])
+  @@index([user_id])
+  @@map("school_dance_event_attendees")
 }
 
 model GlobalDanceEvent {
