@@ -11,7 +11,7 @@ import {
   AutocompleteList,
   AutocompleteSeparator,
 } from "@/components/ui/autocomplete";
-import { cn } from "@/utils/cn";
+import { cn } from "@/components/utils/cn";
 import { Dialog as CommandDialogPrimitive } from "@base-ui/react/dialog";
 import { SearchIcon } from "lucide-react";
 import * as React from "react";

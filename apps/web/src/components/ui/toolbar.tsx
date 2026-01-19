@@ -2,7 +2,7 @@
 
 import { Toolbar as ToolbarPrimitive } from "@base-ui/react/toolbar";
 
-import { cn } from "@/utils/cn";
+import { cn } from "@/components/utils/cn";
 
 function Toolbar({ className, ...props }: ToolbarPrimitive.Root.Props) {
   return (

@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@/utils/cn";
-import { useComposedRefs } from "@/utils/compose-refs";
+import { cn } from "@/components/utils/cn";
+import { useComposedRefs } from "@/components/utils/compose-refs";
 import {
   type Announcements,
   closestCenter,
@@ -532,8 +532,8 @@ interface SortableOverlayProps extends Omit<
 > {
   container?: Element | DocumentFragment | null;
   children?:
-    | ((params: { value: UniqueIdentifier }) => React.ReactNode)
-    | React.ReactNode;
+  | ((params: { value: UniqueIdentifier }) => React.ReactNode)
+  | React.ReactNode;
 }
 
 function SortableOverlay(props: SortableOverlayProps) {

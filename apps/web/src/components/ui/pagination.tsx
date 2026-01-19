@@ -8,7 +8,7 @@ import {
 import type * as React from "react";
 
 import { type Button, buttonVariants } from "@/components/ui/button";
-import { cn } from "@/utils/cn";
+import { cn } from "@/components/utils/cn";
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
@@ -55,12 +55,12 @@ function PaginationLink({
     className: render
       ? className
       : cn(
-          buttonVariants({
-            size,
-            variant: isActive ? "outline" : "ghost",
-          }),
-          className,
-        ),
+        buttonVariants({
+          size,
+          variant: isActive ? "outline" : "ghost",
+        }),
+        className,
+      ),
     "data-active": isActive,
     "data-slot": "pagination-link",
   };

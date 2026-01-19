@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useAsRef } from "@/hooks/use-as-ref";
 import { useIsomorphicLayoutEffect } from "@/hooks/use-isomorphic-layout-effect";
 import { useLazyRef } from "@/hooks/use-lazy-ref";
-import { cn } from "@/utils/cn";
-import { useComposedRefs } from "@/utils/compose-refs";
+import { cn } from "@/components/utils/cn";
+import { useComposedRefs } from "@/components/utils/compose-refs";
 import {
   autoUpdate,
   flip,
@@ -945,11 +945,11 @@ function TourStep(props: TourStepProps) {
       typeof stepData.collisionPadding === "number"
         ? stepData.collisionPadding
         : {
-            top: stepData.collisionPadding?.top ?? 0,
-            right: stepData.collisionPadding?.right ?? 0,
-            bottom: stepData.collisionPadding?.bottom ?? 0,
-            left: stepData.collisionPadding?.left ?? 0,
-          };
+          top: stepData.collisionPadding?.top ?? 0,
+          right: stepData.collisionPadding?.right ?? 0,
+          bottom: stepData.collisionPadding?.bottom ?? 0,
+          left: stepData.collisionPadding?.left ?? 0,
+        };
 
     const boundary = Array.isArray(stepData.collisionBoundary)
       ? stepData.collisionBoundary
@@ -970,19 +970,19 @@ function TourStep(props: TourStepProps) {
         alignmentAxis: crossAxisOffset,
       }),
       stepData.avoidCollisions &&
-        shift({
-          mainAxis: true,
-          crossAxis: false,
-          limiter: stepData.sticky === "partial" ? limitShift() : undefined,
-          ...detectOverflowOptions,
-        }),
+      shift({
+        mainAxis: true,
+        crossAxis: false,
+        limiter: stepData.sticky === "partial" ? limitShift() : undefined,
+        ...detectOverflowOptions,
+      }),
       stepData.avoidCollisions && flip({ ...detectOverflowOptions }),
       arrow && onArrow({ element: arrow, padding: stepData.arrowPadding }),
       stepData.hideWhenDetached &&
-        hide({
-          strategy: "referenceHidden",
-          ...detectOverflowOptions,
-        }),
+      hide({
+        strategy: "referenceHidden",
+        ...detectOverflowOptions,
+      }),
     ].filter(Boolean) as Middleware[];
   }, [stepData, resolvedSideOffset, resolvedAlignOffset, arrow]);
 

@@ -42,20 +42,21 @@ function RouteComponent() {
       <AlertParticle />
       <Particle />
       <div className="flex my-2 items-center gap-2">
-        <TimePicker className="w-full" openOnFocus>
-          <TimePickerInputGroup>
-            <TimePickerInput segment="hour" />
-            <TimePickerSeparator />
-            <TimePickerInput segment="minute" />
-            <TimePickerInput segment="period" />
-            <TimePickerTrigger />
-          </TimePickerInputGroup>
-          <TimePickerContent>
-            <TimePickerHour />
-            <TimePickerMinute />
-            <TimePickerPeriod />
-          </TimePickerContent>
-        </TimePicker>
+        <TimePicker minuteStep={15} />
+        <TimePicker.Root className="w-full" openOnFocus>
+          <TimePicker.InputGroup>
+            <TimePicker.Input segment="hour" />
+            <TimePicker.Separator />
+            <TimePicker.Input segment="minute" />
+            <TimePicker.Input segment="period" />
+            <TimePicker.Trigger />
+          </TimePicker.InputGroup>
+          <TimePicker.Content>
+            <TimePicker.Hour />
+            <TimePicker.Minute />
+            <TimePicker.Period />
+          </TimePicker.Content>
+        </TimePicker.Root>
         <Input />
         <MaskInput
           id={`test-date1`}
@@ -183,14 +184,6 @@ import {
 } from "@/components/ui/table";
 import {
   TimePicker,
-  TimePickerContent,
-  TimePickerHour,
-  TimePickerInput,
-  TimePickerInputGroup,
-  TimePickerMinute,
-  TimePickerPeriod,
-  TimePickerSeparator,
-  TimePickerTrigger,
 } from "@/components/ui/time-picker";
 import {
   Tooltip,
@@ -198,7 +191,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import AlertParticle from "@/features/explore/AlertDialog";
-import { cn } from "@/utils/cn";
+import { cn } from "@/components/utils/cn";
 import React from "react";
 
 type Flight = {

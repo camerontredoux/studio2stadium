@@ -2,7 +2,7 @@
 
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
 
-import { cn } from "@/utils/cn";
+import { cn } from "@/components/utils/cn";
 
 const AlertDialog = AlertDialogPrimitive.Root;
 

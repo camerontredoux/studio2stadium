@@ -1,7 +1,7 @@
 import AppLayout from "@/components/layouts/app-layout";
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 
-const isAuthenticated = false;
+const isAuthenticated = true;
 
 export const Route = createFileRoute("/_app")({
   beforeLoad: async ({ location }) => {

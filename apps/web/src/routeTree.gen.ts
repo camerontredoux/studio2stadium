@@ -168,11 +168,11 @@ const AdminDashboardAssetsUploadRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof AppIndexRoute
   '/explore': typeof AppExploreRoute
   '/tap-in': typeof AppTapInRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
-  '/': typeof AppIndexRoute
   '/account/general': typeof AccountAccountGeneralRoute
   '/account/media': typeof AccountAccountMediaRoute
   '/account/profile': typeof AccountAccountProfileRoute
@@ -184,19 +184,19 @@ export interface FileRoutesByFullPath {
   '/recruiting/submissions': typeof AppRecruitingSubmissionsRoute
   '/recruiting/submit': typeof AppRecruitingSubmitRoute
   '/reset/$tokenId': typeof AuthResetTokenIdRoute
-  '/dashboard': typeof AdminDashboardIndexRoute
-  '/events': typeof AppEventsIndexRoute
-  '/reset': typeof AuthResetIndexRoute
+  '/dashboard/': typeof AdminDashboardIndexRoute
+  '/events/': typeof AppEventsIndexRoute
+  '/reset/': typeof AuthResetIndexRoute
   '/dashboard/assets/upload': typeof AdminDashboardAssetsUploadRoute
   '/dancer/$username': typeof AppprofilesDancerUsernameRoute
   '/school/$username': typeof AppprofilesSchoolUsernameRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof AppIndexRoute
   '/explore': typeof AppExploreRoute
   '/tap-in': typeof AppTapInRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
-  '/': typeof AppIndexRoute
   '/account/general': typeof AccountAccountGeneralRoute
   '/account/media': typeof AccountAccountMediaRoute
   '/account/profile': typeof AccountAccountProfileRoute
@@ -247,11 +247,11 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/explore'
     | '/tap-in'
     | '/login'
     | '/signup'
-    | '/'
     | '/account/general'
     | '/account/media'
     | '/account/profile'
@@ -263,19 +263,19 @@ export interface FileRouteTypes {
     | '/recruiting/submissions'
     | '/recruiting/submit'
     | '/reset/$tokenId'
-    | '/dashboard'
-    | '/events'
-    | '/reset'
+    | '/dashboard/'
+    | '/events/'
+    | '/reset/'
     | '/dashboard/assets/upload'
     | '/dancer/$username'
     | '/school/$username'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/explore'
     | '/tap-in'
     | '/login'
     | '/signup'
-    | '/'
     | '/account/general'
     | '/account/media'
     | '/account/profile'
@@ -335,28 +335,28 @@ declare module '@tanstack/react-router' {
     '/_auth': {
       id: '/_auth'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AuthRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app': {
       id: '/_app'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AppRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_admin': {
       id: '/_admin'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AdminRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_account': {
       id: '/_account'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AccountRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -398,21 +398,21 @@ declare module '@tanstack/react-router' {
     '/_auth/reset/': {
       id: '/_auth/reset/'
       path: '/reset'
-      fullPath: '/reset'
+      fullPath: '/reset/'
       preLoaderRoute: typeof AuthResetIndexRouteImport
       parentRoute: typeof AuthRouteRoute
     }
     '/_app/events/': {
       id: '/_app/events/'
       path: '/events'
-      fullPath: '/events'
+      fullPath: '/events/'
       preLoaderRoute: typeof AppEventsIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_admin/dashboard/': {
       id: '/_admin/dashboard/'
       path: '/dashboard'
-      fullPath: '/dashboard'
+      fullPath: '/dashboard/'
       preLoaderRoute: typeof AdminDashboardIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }

@@ -2,7 +2,7 @@
 
 import { useAsRef } from "@/hooks/use-as-ref";
 import { useLazyRef } from "@/hooks/use-lazy-ref";
-import { cn } from "@/utils/cn";
+import { cn } from "@/components/utils/cn";
 import { useDirection } from "@radix-ui/react-direction";
 import { Slot } from "@radix-ui/react-slot";
 import {
@@ -1049,9 +1049,8 @@ function FileUploadItem(props: FileUploadItemProps) {
         id={id}
         aria-setsize={fileCount}
         aria-posinset={fileIndex}
-        aria-describedby={`${nameId} ${sizeId} ${statusId} ${
-          fileState.error ? messageId : ""
-        }`}
+        aria-describedby={`${nameId} ${sizeId} ${statusId} ${fileState.error ? messageId : ""
+          }`}
         aria-labelledby={nameId}
         data-slot="file-upload-item"
         dir={context.dir}
