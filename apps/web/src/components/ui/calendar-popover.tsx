@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 
-import { useDisclosure } from "@/hooks/use-disclosure";
+import { useDisclosure } from "@/components/hooks/use-disclosure";
 
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -10,8 +10,6 @@ import { cn } from "@/components/utils/cn";
 import type { ButtonHTMLAttributes } from "react";
 import { Calendar } from "@/components/ui/calendar";
 
-// ================================== //
-
 type TProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "onSelect" | "value"> & {
   onSelect: (value: Date | undefined) => void;
   value?: Date | undefined;
@@ -19,7 +17,7 @@ type TProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "onSelect" | "value"
   labelVariant?: "P" | "PP" | "PPP";
 };
 
-function SingleDayPicker({ id, onSelect, className, placeholder, labelVariant = "PPP", value }: TProps) {
+function CalendarPopover({ id, onSelect, className, placeholder, labelVariant = "PPP", value }: TProps) {
   const { isOpen, onClose, onToggle } = useDisclosure();
 
   const handleSelect = (date: Date | undefined) => {
@@ -48,6 +46,4 @@ function SingleDayPicker({ id, onSelect, className, placeholder, labelVariant = 
   );
 }
 
-// ================================== //
-
-export { SingleDayPicker };
+export { CalendarPopover as SingleDayPicker };

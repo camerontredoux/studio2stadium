@@ -9,9 +9,7 @@ import {
 
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/components/utils/cn";
-
-const toastManager = Toast.createToastManager();
-const anchoredToastManager = Toast.createToastManager();
+import { anchoredToastManager, toastManager } from "./toast-manager";
 
 const TOAST_ICONS = {
   error: CircleAlertIcon,
@@ -259,9 +257,7 @@ function AnchoredToasts() {
 }
 
 export {
-  anchoredToastManager,
   AnchoredToastProvider,
-  toastManager,
   ToastProvider,
   type ToastPosition,
 };

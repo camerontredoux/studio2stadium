@@ -1,8 +1,8 @@
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { VisuallyHiddenInput } from "@/components/ui/visually-hidden-input";
-import { useAsRef } from "@/hooks/use-as-ref";
-import { useIsomorphicLayoutEffect } from "@/hooks/use-isomorphic-layout-effect";
-import { useLazyRef } from "@/hooks/use-lazy-ref";
+import { useAsRef } from "@/components/hooks/use-as-ref";
+import { useIsomorphicLayoutEffect } from "@/components/hooks/use-isomorphic-layout-effect";
+import { useLazyRef } from "@/components/hooks/use-lazy-ref";
 import { cn } from "@/components/utils/cn";
 import { useComposedRefs } from "@/components/utils/compose-refs";
 import { Slot } from "@radix-ui/react-slot";

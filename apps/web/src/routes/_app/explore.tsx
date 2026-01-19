@@ -190,7 +190,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import AlertParticle from "@/features/explore/AlertDialog";
+import AlertParticle from "@/features/explore/components/alert-dialog";
 import { cn } from "@/components/utils/cn";
 import React from "react";
 

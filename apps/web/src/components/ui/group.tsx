@@ -91,5 +91,6 @@ export {
   Group,
   GroupSeparator,
   GroupText,
+  // eslint-disable-next-line react-refresh/only-export-components
   groupVariants,
 };

@@ -1,5 +1,5 @@
-import { useAsRef } from "@/hooks/use-as-ref";
-import { useLazyRef } from "@/hooks/use-lazy-ref";
+import { useAsRef } from "@/components/hooks/use-as-ref";
+import { useLazyRef } from "@/components/hooks/use-lazy-ref";
 import { cn } from "@/components/utils/cn";
 import { useDirection } from "@radix-ui/react-direction";
 import { Slot } from "@radix-ui/react-slot";
