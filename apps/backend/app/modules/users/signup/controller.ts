@@ -14,6 +14,8 @@ export default class SignupController {
       requests: 5,
       duration: "1 min",
       blockDuration: "5 mins",
+      inMemoryBlockDuration: "5 mins",
+      inMemoryBlockOnConsumed: 6,
     });
 
     return response.created(user);

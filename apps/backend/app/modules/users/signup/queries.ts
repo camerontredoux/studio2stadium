@@ -11,14 +11,14 @@ export class SignupQueries extends BaseQuery {
         .returning([
           "id",
           "email",
-          "display_email",
+          "display_email as displayEmail",
           "username",
-          "first_name",
-          "last_name",
+          "first_name as firstName",
+          "last_name as lastName",
           "avatar",
           "phone",
-          "created_at",
-          "updated_at",
+          "created_at as createdAt",
+          "updated_at as updatedAt",
         ])
         .executeTakeFirstOrThrow()
     );
