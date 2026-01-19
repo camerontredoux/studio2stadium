@@ -17,6 +17,7 @@ pnpm preview      # Preview production build
 This is a React 19 SPA built with Vite, using TanStack Router for file-based routing and TanStack Query for data fetching.
 
 ### Tech Stack
+
 - **React 19** with React Compiler (babel-plugin-react-compiler)
 - **TanStack Router** - File-based routing with auto code-splitting
 - **TanStack Query** - Server state management
@@ -24,6 +25,7 @@ This is a React 19 SPA built with Vite, using TanStack Router for file-based rou
 - **nuqs** - URL query state management via TanStack Router adapter
 
 ### Project Structure
+
 ```
 src/
 ├── routes/           # TanStack file-based routes (auto-generates routeTree.gen.ts)
@@ -45,16 +47,20 @@ src/
 ```
 
 ### Routing Patterns
+
 - Underscore prefix (`_app`, `_auth`) indicates layout routes
 - Routes export `Route` using `createFileRoute()` or `createRootRouteWithContext()`
 - Router context provides `QueryClient` for data fetching
 - Route tree is auto-generated in `routeTree.gen.ts` - do not edit manually
 
 ### Path Aliases
+
 `@/*` maps to `./src/*` (configured in tsconfig and vite.config.ts)
 
 ### Adding shadcn Components
+
 Uses shadcn CLI with DiceUI registry support. Config in `components.json`:
+
 - Style: new-york
 - Icons: lucide-react
 - CSS variables for theming in `src/index.css`

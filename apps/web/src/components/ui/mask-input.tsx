@@ -1,7 +1,5 @@
-"use client";
-
 import { Input } from "@/components/ui/input";
-import { useComposedRefs } from "@/utils/compose-refs";
+import { useComposedRefs } from "@/components/utils/compose-refs";
 import * as React from "react";
 
 const PAST_YEARS_LIMIT = 120;
@@ -238,7 +236,7 @@ const MASK_PATTERNS: Record<MaskPatternKey, MaskPattern> = {
 
       const maxDays =
         month === 2 &&
-        ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0)
+          ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0)
           ? 29
           : (daysInMonthCache[month - 1] ?? 31);
 
@@ -1136,10 +1134,10 @@ function MaskInput(props: MaskInputProps) {
         const currentValue = event.target.value;
         const unmaskedValue = maskPattern
           ? getUnmaskedValue({
-              value: currentValue,
-              transform: maskPattern.transform,
-              ...transformOpts,
-            })
+            value: currentValue,
+            transform: maskPattern.transform,
+            ...transformOpts,
+          })
           : currentValue;
         onInputValidate(unmaskedValue);
       }

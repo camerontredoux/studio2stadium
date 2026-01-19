@@ -1,5 +1,3 @@
-"use client";
-
 import { Toast } from "@base-ui/react/toast";
 import {
   CircleAlertIcon,
@@ -10,10 +8,8 @@ import {
 } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/utils/cn";
-
-const toastManager = Toast.createToastManager();
-const anchoredToastManager = Toast.createToastManager();
+import { cn } from "@/components/utils/cn";
+import { anchoredToastManager, toastManager } from "./toast-manager";
 
 const TOAST_ICONS = {
   error: CircleAlertIcon,
@@ -261,9 +257,7 @@ function AnchoredToasts() {
 }
 
 export {
-  anchoredToastManager,
   AnchoredToastProvider,
-  toastManager,
   ToastProvider,
   type ToastPosition,
 };

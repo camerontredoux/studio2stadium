@@ -1,17 +1,10 @@
-"use client";
-
-import {
-  Popover,
-  PopoverAnchor,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/shadcn/popover";
+import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { VisuallyHiddenInput } from "@/components/ui/visually-hidden-input";
-import { useAsRef } from "@/hooks/use-as-ref";
-import { useIsomorphicLayoutEffect } from "@/hooks/use-isomorphic-layout-effect";
-import { useLazyRef } from "@/hooks/use-lazy-ref";
-import { cn } from "@/utils/cn";
-import { useComposedRefs } from "@/utils/compose-refs";
+import { useAsRef } from "@/components/hooks/use-as-ref";
+import { useIsomorphicLayoutEffect } from "@/components/hooks/use-isomorphic-layout-effect";
+import { useLazyRef } from "@/components/hooks/use-lazy-ref";
+import { cn } from "@/components/utils/cn";
+import { useComposedRefs } from "@/components/utils/compose-refs";
 import { Slot } from "@radix-ui/react-slot";
 import { Clock } from "lucide-react";
 import * as React from "react";
@@ -240,11 +233,11 @@ function useStore<T>(
 type SegmentPlaceholder =
   | string
   | {
-      hour?: string;
-      minute?: string;
-      second?: string;
-      period?: string;
-    };
+    hour?: string;
+    minute?: string;
+    second?: string;
+    period?: string;
+  };
 
 interface TimePickerContextValue {
   id: string;
@@ -311,7 +304,7 @@ interface TimePickerProps extends DivProps {
   showSeconds?: boolean;
 }
 
-function TimePicker(props: TimePickerProps) {
+function TimePickerRoot(props: TimePickerProps) {
   const {
     value: valueProp,
     defaultValue,
@@ -720,7 +713,7 @@ function TimePickerInputGroup(props: DivProps) {
           className={
             cn(
               !unstyled &&
-                "relative inline-flex w-full rounded-lg border border-input cursor-pointer bg-background bg-clip-padding text-base shadow-xs ring-ring/24 transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] has-focus-visible:has-aria-invalid:border-destructive/64 has-focus-visible:has-aria-invalid:ring-destructive/16 has-aria-invalid:border-destructive/36 has-focus-visible:border-ring has-disabled:cursor-not-allowed has-disabled:opacity-64 has-[:disabled,:focus-visible,[aria-invalid]]:shadow-none has-focus-visible:ring-[3px] sm:text-sm dark:bg-input/32 dark:not-in-data-[slot=group]:bg-clip-border dark:has-aria-invalid:ring-destructive/24 dark:not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/8%)]",
+              "relative inline-flex w-full rounded-lg border border-input cursor-pointer bg-background bg-clip-padding text-base shadow-xs ring-ring/24 transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] has-focus-visible:has-aria-invalid:border-destructive/64 has-focus-visible:has-aria-invalid:ring-destructive/16 has-aria-invalid:border-destructive/36 has-focus-visible:border-ring has-disabled:cursor-not-allowed has-disabled:opacity-64 has-[:disabled,:focus-visible,[aria-invalid]]:shadow-none has-focus-visible:ring-[3px] sm:text-sm dark:bg-input/32 dark:not-in-data-[slot=group]:bg-clip-border dark:has-aria-invalid:ring-destructive/24 dark:not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/8%)]",
               className,
             ) || undefined
           }
@@ -1498,7 +1491,7 @@ function useTimePickerGroupContext(consumerName: string) {
 }
 
 interface TimePickerContentProps
-  extends DivProps, React.ComponentProps<typeof PopoverContent> {}
+  extends DivProps, React.ComponentProps<typeof PopoverContent> { }
 
 function TimePickerContent(props: TimePickerContentProps) {
   const {
@@ -2207,18 +2200,76 @@ function TimePickerClear(props: ButtonProps) {
   );
 }
 
-export {
-  TimePicker,
-  TimePickerClear,
-  TimePickerContent,
-  TimePickerHour,
-  TimePickerInput,
-  TimePickerInputGroup,
-  TimePickerLabel,
-  TimePickerMinute,
-  TimePickerPeriod,
-  TimePickerSecond,
-  TimePickerSeparator,
-  TimePickerTrigger,
-  type TimePickerProps,
-};
+function Popover({
+  ...props
+}: React.ComponentProps<typeof PopoverPrimitive.Root>) {
+  return <PopoverPrimitive.Root data-slot="popover" {...props} />;
+}
+
+function PopoverTrigger({
+  ...props
+}: React.ComponentProps<typeof PopoverPrimitive.Trigger>) {
+  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />;
+}
+
+function PopoverContent({
+  className,
+  align = "center",
+  sideOffset = 4,
+  ...props
+}: React.ComponentProps<typeof PopoverPrimitive.Content>) {
+  return (
+    <PopoverPrimitive.Portal>
+      <PopoverPrimitive.Content
+        data-slot="popover-content"
+        align={align}
+        sideOffset={sideOffset}
+        className={cn(
+          "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-72 origin-(--radix-popover-content-transform-origin) rounded-md border p-4 shadow-md outline-hidden",
+          className,
+        )}
+        {...props}
+      />
+    </PopoverPrimitive.Portal>
+  );
+}
+
+function PopoverAnchor({
+  ...props
+}: React.ComponentProps<typeof PopoverPrimitive.Anchor>) {
+  return <PopoverPrimitive.Anchor data-slot="popover-anchor" {...props} />;
+}
+
+function TimePicker(props: TimePickerProps) {
+  return (
+    <TimePicker.Root className="w-full" openOnFocus {...props}>
+      <TimePicker.InputGroup>
+        <TimePicker.Input segment="hour" />
+        <TimePicker.Separator />
+        <TimePicker.Input segment="minute" />
+        <TimePicker.Input segment="period" />
+        <TimePicker.Trigger />
+      </TimePicker.InputGroup>
+      <TimePicker.Content>
+        <TimePicker.Hour />
+        <TimePicker.Minute />
+        <TimePicker.Period />
+      </TimePicker.Content>
+    </TimePicker.Root>
+  );
+}
+
+TimePicker.Root = TimePickerRoot;
+TimePicker.Clear = TimePickerClear;
+TimePicker.Content = TimePickerContent;
+TimePicker.Hour = TimePickerHour;
+TimePicker.Input = TimePickerInput;
+TimePicker.InputGroup = TimePickerInputGroup;
+TimePicker.Label = TimePickerLabel;
+TimePicker.Minute = TimePickerMinute;
+TimePicker.Period = TimePickerPeriod;
+TimePicker.Second = TimePickerSecond;
+TimePicker.Separator = TimePickerSeparator;
+TimePicker.Trigger = TimePickerTrigger;
+
+export { TimePicker };

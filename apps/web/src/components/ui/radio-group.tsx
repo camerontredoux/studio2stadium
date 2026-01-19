@@ -1,9 +1,7 @@
-"use client";
-
 import { Radio as RadioPrimitive } from "@base-ui/react/radio";
 import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group";
 
-import { cn } from "@/utils/cn";
+import { cn } from "@/components/utils/cn";
 
 function RadioGroup({ className, ...props }: RadioGroupPrimitive.Props) {
   return (

@@ -1,8 +1,6 @@
-"use client";
-
 import { Form as FormPrimitive } from "@base-ui/react/form";
 
-import { cn } from "@/utils/cn";
+import { cn } from "@/components/utils/cn";
 
 function Form({ className, ...props }: FormPrimitive.Props) {
   return (

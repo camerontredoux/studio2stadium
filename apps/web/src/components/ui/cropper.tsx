@@ -1,10 +1,8 @@
-"use client";
-
-import { useAsRef } from "@/hooks/use-as-ref";
-import { useIsomorphicLayoutEffect } from "@/hooks/use-isomorphic-layout-effect";
-import { useLazyRef } from "@/hooks/use-lazy-ref";
-import { cn } from "@/utils/cn";
-import { useComposedRefs } from "@/utils/compose-refs";
+import { useAsRef } from "@/components/hooks/use-as-ref";
+import { useIsomorphicLayoutEffect } from "@/components/hooks/use-isomorphic-layout-effect";
+import { useLazyRef } from "@/components/hooks/use-lazy-ref";
+import { cn } from "@/components/utils/cn";
+import { useComposedRefs } from "@/components/utils/compose-refs";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
@@ -175,13 +173,13 @@ function getCropSize(
   const result: Size =
     fittingWidth > fittingHeight * aspect
       ? {
-          width: fittingHeight * aspect,
-          height: fittingHeight,
-        }
+        width: fittingHeight * aspect,
+        height: fittingHeight,
+      }
       : {
-          width: fittingWidth,
-          height: fittingWidth / aspect,
-        };
+        width: fittingWidth,
+        height: fittingWidth / aspect,
+      };
 
   lruSet(cropSizeCache, cacheKey, result, MAX_CACHE_SIZE);
   return result;
@@ -252,13 +250,13 @@ function getCroppedArea(
       100,
       (((mediaBBoxSize.width - cropSize.width / zoom) / 2 - crop.x / zoom) /
         mediaBBoxSize.width) *
-        100,
+      100,
     ),
     y: onAreaLimit(
       100,
       (((mediaBBoxSize.height - cropSize.height / zoom) / 2 - crop.y / zoom) /
         mediaBBoxSize.height) *
-        100,
+      100,
     ),
     width: onAreaLimit(
       100,
@@ -287,13 +285,13 @@ function getCroppedArea(
 
   const sizePixels: Size = isImageWiderThanHigh
     ? {
-        width: Math.round(heightInPixels * aspect),
-        height: heightInPixels,
-      }
+      width: Math.round(heightInPixels * aspect),
+      height: heightInPixels,
+    }
     : {
-        width: widthInPixels,
-        height: Math.round(widthInPixels / aspect),
-      };
+      width: widthInPixels,
+      height: Math.round(widthInPixels / aspect),
+    };
 
   const croppedAreaPixels: Area = {
     ...sizePixels,
@@ -631,12 +629,12 @@ function Cropper(props: CropperProps) {
           if (currentState.cropSize && currentState.mediaSize) {
             const newPosition = !allowOverflow
               ? onPositionClamp(
-                  currentState.crop,
-                  currentState.mediaSize,
-                  currentState.cropSize,
-                  currentState.zoom,
-                  currentState.rotation,
-                )
+                currentState.crop,
+                currentState.mediaSize,
+                currentState.cropSize,
+                currentState.zoom,
+                currentState.rotation,
+              )
               : currentState.crop;
 
             if (
@@ -846,12 +844,12 @@ function CropperImpl(props: CropperImplProps) {
 
           const newPosition = !context.allowOverflow
             ? onPositionClamp(
-                requestedPosition,
-                mediaSize,
-                cropSize,
-                clampedZoom,
-                rotation,
-              )
+              requestedPosition,
+              mediaSize,
+              cropSize,
+              clampedZoom,
+              rotation,
+            )
             : requestedPosition;
 
           store.setState("crop", newPosition);
@@ -910,12 +908,12 @@ function CropperImpl(props: CropperImplProps) {
 
         const newPosition = !context.allowOverflow
           ? onPositionClamp(
-              requestedPosition,
-              mediaSize,
-              cropSize,
-              zoom,
-              rotation,
-            )
+            requestedPosition,
+            mediaSize,
+            cropSize,
+            zoom,
+            rotation,
+          )
           : requestedPosition;
 
         const currentCrop = store.getState().crop;
@@ -1344,13 +1342,13 @@ function useMediaComputation<T extends HTMLImageElement | HTMLVideoElement>({
         contain: () =>
           containerAspect > mediaAspect
             ? {
-                width: contentRect.height * mediaAspect,
-                height: contentRect.height,
-              }
+              width: contentRect.height * mediaAspect,
+              height: contentRect.height,
+            }
             : {
-                width: contentRect.width,
-                height: contentRect.width / mediaAspect,
-              },
+              width: contentRect.width,
+              height: contentRect.width / mediaAspect,
+            },
         "horizontal-cover": () => ({
           width: contentRect.width,
           height: contentRect.width / mediaAspect,
@@ -1362,13 +1360,13 @@ function useMediaComputation<T extends HTMLImageElement | HTMLVideoElement>({
         cover: () =>
           containerAspect < mediaAspect
             ? {
-                width: contentRect.width,
-                height: contentRect.width / mediaAspect,
-              }
+              width: contentRect.width,
+              height: contentRect.width / mediaAspect,
+            }
             : {
-                width: contentRect.height * mediaAspect,
-                height: contentRect.height,
-              },
+              width: contentRect.height * mediaAspect,
+              height: contentRect.height,
+            },
       } as const;
 
       const callback = objectFitCallbacks[context.objectFit];
@@ -1376,13 +1374,13 @@ function useMediaComputation<T extends HTMLImageElement | HTMLVideoElement>({
         ? callback()
         : containerAspect > mediaAspect
           ? {
-              width: contentRect.height * mediaAspect,
-              height: contentRect.height,
-            }
+            width: contentRect.height * mediaAspect,
+            height: contentRect.height,
+          }
           : {
-              width: contentRect.width,
-              height: contentRect.width / mediaAspect,
-            };
+            width: contentRect.width,
+            height: contentRect.width / mediaAspect,
+          };
     } else {
       renderedMediaSize = {
         width: media.offsetWidth,
@@ -1445,8 +1443,8 @@ function useMediaComputation<T extends HTMLImageElement | HTMLVideoElement>({
 
 interface CropperImageProps
   extends
-    React.ComponentProps<"img">,
-    VariantProps<typeof cropperMediaVariants> {
+  React.ComponentProps<"img">,
+  VariantProps<typeof cropperMediaVariants> {
   asChild?: boolean;
   snapPixels?: boolean;
 }
@@ -1578,8 +1576,8 @@ function CropperImage(props: CropperImageProps) {
 
 interface CropperVideoProps
   extends
-    React.ComponentProps<"video">,
-    VariantProps<typeof cropperMediaVariants> {
+  React.ComponentProps<"video">,
+  VariantProps<typeof cropperMediaVariants> {
   asChild?: boolean;
   snapPixels?: boolean;
 }

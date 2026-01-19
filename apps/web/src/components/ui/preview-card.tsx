@@ -1,8 +1,6 @@
-"use client";
-
 import { PreviewCard as PreviewCardPrimitive } from "@base-ui/react/preview-card";
 
-import { cn } from "@/utils/cn";
+import { cn } from "@/components/utils/cn";
 
 const PreviewCard = PreviewCardPrimitive.Root;
 

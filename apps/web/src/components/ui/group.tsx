@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
 
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/utils/cn";
+import { cn } from "@/components/utils/cn";
 
 const groupVariants = cva(
   "flex w-fit *:focus-visible:z-10 has-[>[data-slot=group]]:gap-2 *:has-focus-visible:z-10",
@@ -91,5 +91,6 @@ export {
   Group,
   GroupSeparator,
   GroupText,
+  // eslint-disable-next-line react-refresh/only-export-components
   groupVariants,
 };
