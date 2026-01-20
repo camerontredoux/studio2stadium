@@ -25,7 +25,7 @@ import { Field } from "@/components/ui/field";
 import { Form } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 
-export default function AlertParticle() {
+export function AlertParticle() {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [value, setValue] = React.useState("");

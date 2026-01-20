@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { useIsMobile } from "@/components/hooks/use-mobile";
 import { Link } from "@tanstack/react-router";
+import { auth } from "@/features/auth";
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -52,13 +53,15 @@ const components: { title: string; href: string; description: string }[] = [
 ];
 
 export function Header() {
+  const { session } = auth.api.useSession();
+
   const isMobile = useIsMobile();
 
   return (
-    <NavigationMenu viewport={isMobile}>
-      <NavigationMenuList className="flex-wrap">
+    <NavigationMenu className="z-10" viewport={isMobile}>
+      <NavigationMenuList className="flex-wrap z-10">
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Home</NavigationMenuTrigger>
+          <NavigationMenuTrigger>{session.user.name}</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid gap-2 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
               <li className="row-span-3">
