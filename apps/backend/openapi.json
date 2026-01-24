@@ -26,7 +26,12 @@
                       "type": "boolean"
                     },
                     "status": {
-                      "type": "string"
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "warning",
+                        "error"
+                      ]
                     },
                     "finishedAt": {
                       "type": "string"
@@ -57,7 +62,12 @@
                         "type": "object",
                         "properties": {
                           "status": {
-                            "type": "string"
+                            "type": "string",
+                            "enum": [
+                              "ok",
+                              "warning",
+                              "error"
+                            ]
                           },
                           "finishedAt": {
                             "type": "string"
@@ -84,69 +94,11 @@
             }
           },
           "503": {
-            "description": "Unknown Response",
+            "description": "Service Unavailable",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "isHealthy": {
-                      "type": "boolean"
-                    },
-                    "status": {
-                      "type": "string"
-                    },
-                    "finishedAt": {
-                      "type": "string"
-                    },
-                    "debugInfo": {
-                      "type": "object",
-                      "properties": {
-                        "pid": {
-                          "type": "number"
-                        },
-                        "ppid": {
-                          "type": "number"
-                        },
-                        "uptime": {
-                          "type": "number"
-                        },
-                        "version": {
-                          "type": "string"
-                        },
-                        "platform": {
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "checks": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "status": {
-                            "type": "string"
-                          },
-                          "finishedAt": {
-                            "type": "string"
-                          },
-                          "isCached": {
-                            "type": "boolean"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "message": {
-                            "type": "string"
-                          },
-                          "meta": {
-                            "type": "object",
-                            "properties": {}
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/ApiError"
                 }
               }
             }
@@ -178,6 +130,13 @@
                   "password": {
                     "type": "string"
                   },
+                  "accountType": {
+                    "type": "string",
+                    "enum": [
+                      "dancer",
+                      "school"
+                    ]
+                  },
                   "confirmPassword": {
                     "type": "string"
                   },
@@ -197,6 +156,7 @@
                 "required": [
                   "email",
                   "password",
+                  "accountType",
                   "confirmPassword",
                   "username",
                   "firstName",
@@ -276,26 +236,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "message": {
-                            "type": "string"
-                          },
-                          "rule": {
-                            "type": "string"
-                          },
-                          "field": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/ApiError"
                 }
               }
             }
@@ -332,17 +273,13 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "OK",
+          "204": {
+            "description": "No Content",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    }
-                  }
+                  "properties": {}
                 }
               }
             }
@@ -352,26 +289,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "message": {
-                            "type": "string"
-                          },
-                          "rule": {
-                            "type": "string"
-                          },
-                          "field": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/ApiError"
                 }
               }
             }
@@ -453,10 +371,21 @@
                     "username": {
                       "type": "string"
                     },
-                    "roles": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "dancer",
+                        "school"
+                      ]
+                    },
+                    "platforms": {
                       "type": "array",
                       "items": {
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                          "core",
+                          "prodigy"
+                        ]
                       }
                     },
                     "id": {
@@ -475,8 +404,22 @@
                     "displayEmail": {
                       "type": "string"
                     },
-                    "createdAt": {
-                      "type": "string"
+                    "subscribed": {
+                      "type": "boolean"
+                    },
+                    "admin": {
+                      "oneOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "core",
+                            "prodigy"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   }
                 }
@@ -489,6 +432,78 @@
         ],
         "summary": "Get user session",
         "description": "Retrieves the current session's user information."
+      }
+    },
+    "/auth/test": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Authentication"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiError": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Human-readable error message suitable for display"
+          },
+          "code": {
+            "type": "string",
+            "description": "Machine-readable error code for programmatic handling",
+            "example": "E_BAD_REQUEST"
+          },
+          "status": {
+            "type": "integer",
+            "description": "HTTP status code returned by the server",
+            "example": 429
+          },
+          "meta": {
+            "type": "object",
+            "description": "Additional context specific to the error type",
+            "properties": {
+              "retryAfter": {
+                "type": "integer",
+                "description": "Seconds until the request can be retried",
+                "example": 60
+              },
+              "field": {
+                "type": "string",
+                "description": "Validation error field name",
+                "example": "email"
+              },
+              "rule": {
+                "type": "string",
+                "description": "Validation error rule",
+                "example": "required"
+              }
+            }
+          }
+        },
+        "required": [
+          "message",
+          "code",
+          "status"
+        ]
       }
     }
   },

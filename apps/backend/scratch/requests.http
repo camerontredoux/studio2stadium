@@ -11,8 +11,8 @@ POST http://localhost:3333/auth/login
 Content-Type: application/json
 
 {
-    "email": "test@test.com",
-    "password": "password"
+    "email": "camtredoux+bobby@GMAIL.com",
+    "password": "Cam"
 }
 
 ###
@@ -20,12 +20,14 @@ POST http://localhost:3333/auth/signup
 Content-Type: application/json
 
 {
-    "email": "test@test.com",
-    "password": "password",
-    "confirmPassword": "password",
-    "username": "camtredoux",
-    "firstName": "Cameron",
-    "lastName": "Tredoux",
+    "email": "   CAMTREDOUX.dev1+bobby@gmail.com   ",
+    "password": "Cameron@13",
+    "accountType": "dancer",
+    "phone": "123456789012",
+    "confirmPassword": "Cameron@13",
+    "username": "  camtredoux1  ",
+    "firstName": "  Cameron  ",
+    "lastName": "  Tredoux",
     "termsChecked": true
 }
 

@@ -1,6 +1,6 @@
 import type { SessionUser } from "#auth/provider";
-import { findUserByEmail, findUserWithRoles } from "#auth/queries";
-import { errors as auth } from "@adonisjs/auth";
+import { findUserByEmail, getUserSession } from "#auth/queries";
+import { errors } from "@adonisjs/auth";
 import { inject } from "@adonisjs/core";
 import { RuntimeException } from "@adonisjs/core/exceptions";
 import hash from "@adonisjs/core/services/hash";
@@ -13,7 +13,7 @@ export class LoginService {
 
     if (!user) {
       await hash.make(password);
-      throw new auth.E_INVALID_CREDENTIALS("Invalid user credentials.");
+      throw new errors.E_INVALID_CREDENTIALS("Invalid user credentials");
     }
 
     if (!user.password) {
@@ -25,16 +25,16 @@ export class LoginService {
     const verified = await hash.verify(user.password, password);
 
     if (!verified) {
-      throw new auth.E_INVALID_CREDENTIALS("Invalid user credentials.");
+      throw new errors.E_INVALID_CREDENTIALS("Invalid user credentials");
     }
 
-    const userWithRoles = await findUserWithRoles(user.id);
-    if (!userWithRoles) {
+    const session = await getUserSession(user.id);
+    if (!session) {
       throw new RuntimeException(
         "User not found after successful authentication."
       );
     }
 
-    return userWithRoles;
+    return session;
   }
 }

@@ -1,5 +1,9 @@
-import app from "@adonisjs/core/services/app";
+import { Exception } from "@adonisjs/core/exceptions";
 import { type HttpContext, ExceptionHandler } from "@adonisjs/core/http";
+import app from "@adonisjs/core/services/app";
+import { errors } from "@adonisjs/limiter";
+import { ValidationError } from "@vinejs/vine";
+import { type SimpleError } from "@vinejs/vine/types";
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -13,7 +17,44 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * response to the client
    */
   async handle(error: unknown, ctx: HttpContext) {
-    return super.handle(error, ctx);
+    if (error instanceof errors.ThrottleException) {
+      return ctx.response.status(error.status).send({
+        errors: [
+          {
+            message: error.message,
+            code: error.code,
+            status: error.status,
+            meta: {
+              retryAfter: error.response.availableIn,
+            },
+          },
+        ],
+      });
+    }
+    if (error instanceof ValidationError) {
+      return ctx.response.status(error.status).send({
+        errors: error.messages.map((message: SimpleError) => ({
+          message: message.message,
+          code: error.code,
+          status: error.status,
+          meta: {
+            field: message.field,
+            rule: message.rule,
+          },
+        })),
+      });
+    }
+    if (error instanceof Exception) {
+      return ctx.response.status(error.status).send({
+        errors: [
+          {
+            message: error.message,
+            code: error.code,
+            status: error.status,
+          },
+        ],
+      });
+    }
   }
 
   /**

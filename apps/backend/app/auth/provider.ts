@@ -1,9 +1,9 @@
-import { findUserWithRoles } from "#auth/queries";
+import { getUserSession } from "#auth/queries";
 import { symbols } from "@adonisjs/auth";
 import type { RedisGuardUser, RedisUserProviderContract } from "./types.ts";
 
 export type SessionUser = NonNullable<
-  Awaited<ReturnType<typeof findUserWithRoles>>
+  Awaited<ReturnType<typeof getUserSession>>
 >;
 
 /**
@@ -29,7 +29,7 @@ export class RedisUserProvider implements RedisUserProviderContract<SessionUser>
   async findById(
     identifier: string
   ): Promise<RedisGuardUser<SessionUser> | null> {
-    const user = await findUserWithRoles(identifier);
+    const user = await getUserSession(identifier);
 
     if (!user) {
       return null;

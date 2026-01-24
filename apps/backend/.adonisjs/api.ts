@@ -31,6 +31,10 @@ type AuthSessionGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/users/get-session.ts').default['handle'], false>
 }
+type AuthTestPost = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/users/testing.ts').default['handle'], false>
+}
 export interface ApiDefinition {
   'health': {
     '$url': {
@@ -64,6 +68,11 @@ export interface ApiDefinition {
       };
       '$get': AuthSessionGetHead;
       '$head': AuthSessionGetHead;
+    };
+    'test': {
+      '$url': {
+      };
+      '$post': AuthTestPost;
     };
   };
 }

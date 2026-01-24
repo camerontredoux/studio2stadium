@@ -1,4 +1,5 @@
-import { errors, type symbols } from "@adonisjs/auth";
+import { E_UNAUTHORIZED_ACCESS } from "#exceptions/unauthorized";
+import { type symbols } from "@adonisjs/auth";
 import type { AuthClientResponse, GuardContract } from "@adonisjs/auth/types";
 import { MessageBuilder } from "@adonisjs/core/helpers";
 import type { HttpContext } from "@adonisjs/core/http";
@@ -157,9 +158,9 @@ export class RedisSessionGuard<
   }
 
   #authenticationFailed() {
-    const guardName = this.authenticatedViaCookie
-      ? "CookieGuard"
-      : "RedisGuard";
+    const guardName = this.authenticationAttempted
+      ? "RedisGuard"
+      : "CookieGuard";
     this.#ctx.logger.debug(`[${guardName}]: Authentication failed`, {
       sessionId: this.#sessionId,
     });
@@ -171,9 +172,7 @@ export class RedisSessionGuard<
     this.#clearSessionCookie();
     this.#clearCacheCookie();
 
-    return new errors.E_UNAUTHORIZED_ACCESS("Invalid or expired user session", {
-      guardDriverName: this.driverName,
-    });
+    return new E_UNAUTHORIZED_ACCESS("Invalid or expired user session");
   }
 
   async #authenticationSucceeded(user: User) {
@@ -213,7 +212,7 @@ export class RedisSessionGuard<
 
   /**
    * Parses the session data from the Redis session
-   * @throws {errors.E_UNAUTHORIZED_ACCESS} if the session data is corrupted
+   * @throws {UnauthorizedException} if the session data is corrupted
    */
   #parseSessionData(
     content: string,
@@ -226,16 +225,14 @@ export class RedisSessionGuard<
         content,
         sessionId,
       });
-      throw new errors.E_UNAUTHORIZED_ACCESS("Session data corrupted", {
-        guardDriverName: this.driverName,
-      });
+      throw new E_UNAUTHORIZED_ACCESS("Session data corrupted");
     }
   }
 
   /**
    * Gets the user from the session and parses their session data.
    *
-   * @throws {errors.E_UNAUTHORIZED_ACCESS} if the session is invalid or expired
+   * @throws {UnauthorizedException} if the session is invalid or expired
    */
   async #getUserFromSession(): Promise<SessionData<User> | null> {
     const content = await this.#connection.get(this.#sessionId);
@@ -332,7 +329,7 @@ export class RedisSessionGuard<
       await this.authenticate();
       return true;
     } catch (error) {
-      if (error instanceof errors.E_UNAUTHORIZED_ACCESS) {
+      if (error instanceof E_UNAUTHORIZED_ACCESS) {
         return false;
       }
       throw error;
@@ -344,12 +341,7 @@ export class RedisSessionGuard<
    */
   getUserOrFail(): UserProvider[typeof symbols.PROVIDER_REAL_USER] {
     if (!this.user) {
-      throw new errors.E_UNAUTHORIZED_ACCESS(
-        "Invalid or expired user session",
-        {
-          guardDriverName: this.driverName,
-        }
-      );
+      throw new E_UNAUTHORIZED_ACCESS("Invalid or expired user session");
     }
     return this.user;
   }
@@ -413,8 +405,10 @@ export class RedisSessionGuard<
   async logout() {
     this.#ctx.logger.debug("[RedisGuard]: Deleting session");
 
-    await this.#connection.del(this.#sessionId);
-    this.#clearSessionCookie();
+    if (this.#sessionId) {
+      await this.#connection.del(this.#sessionId);
+      this.#clearSessionCookie();
+    }
     this.#clearCacheCookie();
 
     this.user = undefined;

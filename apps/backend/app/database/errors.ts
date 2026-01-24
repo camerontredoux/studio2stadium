@@ -19,7 +19,7 @@ export function matchPgError(error: unknown, ctx: HttpContext) {
         });
       case "23503":
         ctx.logger.error({ err: error }, "Foreign key violation");
-        throw new RuntimeException();
+        throw new RuntimeException("Foreign key violation");
       case "23502":
         throw new DatabaseException(`Missing required field: ${error.column}`, {
           code: "E_NOT_NULL_VIOLATION",

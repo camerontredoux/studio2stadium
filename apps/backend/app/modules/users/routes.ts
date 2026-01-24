@@ -1,5 +1,6 @@
 import { middleware } from "#start/kernel";
 import router from "@adonisjs/core/services/router";
+const TestController = () => import("./testing.ts");
 const RefreshSessionController = () =>
   import("./refresh-session/controller.ts");
 const GetSessionController = () => import("./get-session.ts");
@@ -17,14 +18,11 @@ router
       summary: "Start user session",
       description: "Logs in a user and creates a session in Redis.",
     });
-    router
-      .post("/logout", [LogoutController])
-      .openapi({
-        summary: "End user session",
-        description:
-          "Logs out the current user and deletes their session from Redis.",
-      })
-      .use(middleware.auth());
+    router.post("/logout", [LogoutController]).openapi({
+      summary: "End user session",
+      description:
+        "Logs out the current user and deletes their session from Redis.",
+    });
     router
       .post("/refresh", [RefreshSessionController])
       .openapi({
@@ -40,6 +38,7 @@ router
         description: "Retrieves the current session's user information.",
       })
       .use(middleware.auth());
+    router.post("/test", [TestController]).use(middleware.auth());
   })
   .prefix("auth")
   .openapi({ tags: ["Authentication"] });

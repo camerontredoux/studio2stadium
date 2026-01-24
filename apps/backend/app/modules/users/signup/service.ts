@@ -16,6 +16,7 @@ export class SignupService {
     lastName,
     username,
     phone,
+    accountType,
   }: SignupValidator) {
     const user = await this.queries.createUser({
       email: await normalizeEmail(email),
@@ -23,6 +24,7 @@ export class SignupService {
       password: await hash.make(password),
       first_name: firstName,
       last_name: lastName,
+      account_type: accountType,
       username,
       phone,
     });

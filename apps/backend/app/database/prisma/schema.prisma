@@ -14,31 +14,32 @@ datasource db {
  */
 
 model User {
-  id            String  @id @default(dbgenerated("gen_random_uuid()"))
-  email         String  @unique @db.Citext
+  id            String        @id @default(dbgenerated("gen_random_uuid()"))
+  username      String        @unique @db.Citext
+  email         String        @unique @db.Citext
+  admin_access  PlatformName?
+  account_type  AccountType
   display_email String
-  username      String  @unique @db.Citext
   first_name    String
   last_name     String
-  avatar        String?
   password      String
+  avatar        String?
   phone         String?
 
   created_at DateTime  @default(now())
   updated_at DateTime? @updatedAt
 
-  dancer_account       DancerAccount?
-  school_account       SchoolAccount?
-  roles                UserRole[]
-  subscriptions        Subscription[]
+  dancer_account  DancerAccount?
+  school_account  SchoolAccount?
+  subscriptions   Subscription?
+  notifications   Notification[]
+  hidden_items    HiddenItem[]
+  user_activities UserActivity[]
+  media           ProfileMedia[]
+
   prodigy_dance_events ProdigyDanceEventAttendee[]
   global_dance_events  GlobalDanceEventAttendee[]
   school_dance_events  SchoolDanceEventAttendee[]
-  images               ProfileImage[]
-  videos               ProfileVideo[]
-  notifications        Notification[]
-  hidden_items         HiddenItem[]
-  user_activities      UserActivity[]
 
   followers Favorite[] @relation("followers")
   following Favorite[] @relation("following")
@@ -48,8 +49,9 @@ model User {
 }
 
 model UserActivity {
-  id         String @id @default(dbgenerated("gen_random_uuid()"))
-  event_type String
+  id            String        @id @default(dbgenerated("gen_random_uuid()"))
+  event_type    String
+  platform_name PlatformName?
 
   user_id String
   user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
@@ -61,31 +63,6 @@ model UserActivity {
   @@map("user_activities")
 }
 
-model Role {
-  id   Int    @id @default(autoincrement())
-  type String @unique
-
-  created_at DateTime  @default(now())
-  updated_at DateTime? @updatedAt
-
-  users UserRole[]
-
-  @@map("roles")
-}
-
-model UserRole {
-  role_id Int
-  user_id String
-
-  assigned_at DateTime @default(now())
-
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  role Role @relation(fields: [role_id], references: [id], onDelete: Cascade)
-
-  @@id([role_id, user_id])
-  @@map("user_roles")
-}
-
 /**
  * ********
  * ACCOUNTS
@@ -94,10 +71,10 @@ model UserRole {
 
 model DancerAccount {
   id             String   @id @default(dbgenerated("gen_random_uuid()"))
+  user_id        String   @unique
   birthday       DateTime @db.Date
   biography      String?
   awards         String?
-  references     String?
   instagram      String?
   tiktok         String?
   youtube        String?
@@ -110,14 +87,13 @@ model DancerAccount {
   grad_year      Int?
   training_hours Int?
 
-  awards_history     AwardsHistory[]
-  references_history ReferencesHistory[]
+  achievements DancerAchievements[]
+  references   DancerReferences[]
 
   created_at DateTime  @default(now())
   updated_at DateTime? @updatedAt
 
-  user_id String @unique
-  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   platforms DancerPlatform[]
 
@@ -128,6 +104,7 @@ model DancerAccount {
 
 model SchoolAccount {
   id                 String   @id @default(dbgenerated("gen_random_uuid()"))
+  user_id            String   @unique
   name               String   @unique
   location           String
   division           String?
@@ -151,8 +128,7 @@ model SchoolAccount {
   created_at DateTime  @default(now())
   updated_at DateTime? @updatedAt
 
-  user_id String @unique
-  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   events SchoolDanceEvent[]
 
@@ -167,39 +143,21 @@ model SchoolAccount {
  * *******
  */
 
-model ProfileVideo {
-  id       String @id @default(dbgenerated("gen_random_uuid()"))
-  video_id String
-  title    String
-  caption  String
+model ProfileMedia {
+  id       String  @id @default(dbgenerated("gen_random_uuid()"))
+  user_id  String
+  media_id String  @unique
+  caption  String?
 
   created_at DateTime  @default(now())
   updated_at DateTime? @updatedAt
 
-  user_id String
-  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   hidden_by HiddenItem[]
 
   @@index([user_id, created_at])
-  @@map("profile_videos")
-}
-
-model ProfileImage {
-  id      String  @id @default(dbgenerated("gen_random_uuid()"))
-  url     String
-  caption String?
-
-  created_at DateTime  @default(now())
-  updated_at DateTime? @updatedAt
-
-  user_id String
-  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  hidden_by HiddenItem[]
-
-  @@index([user_id, created_at])
-  @@map("profile_images")
+  @@map("user_profile_media")
 }
 
 model HiddenItem {
@@ -210,15 +168,11 @@ model HiddenItem {
   hidden_by_id String
   hidden_by    User   @relation(fields: [hidden_by_id], references: [id], onDelete: Cascade)
 
-  video_id String?
-  video    ProfileVideo? @relation(fields: [video_id], references: [id], onDelete: Cascade)
+  media_id String?
+  media    ProfileMedia? @relation(fields: [media_id], references: [id], onDelete: Cascade)
 
-  image_id String?
-  image    ProfileImage? @relation(fields: [image_id], references: [id], onDelete: Cascade)
-
-  @@unique([hidden_by_id, video_id])
-  @@unique([hidden_by_id, image_id])
-  @@map("hidden_items")
+  @@unique([hidden_by_id, media_id])
+  @@map("user_hidden_items")
 }
 
 /**
@@ -237,17 +191,17 @@ model OutboxEvent {
 
   @@index([type])
   @@index([published_at])
-  @@map("outbox")
+  @@map("event_outbox")
 }
 
 model Notification {
   id      String @id @default(dbgenerated("gen_random_uuid()"))
+  user_id String
   content Json
 
   created_at DateTime @default(now())
 
-  user_id String
-  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id, created_at])
   @@map("notifications")
@@ -278,8 +232,7 @@ model ProcessedEvent {
  */
 
 model Platform {
-  id   String       @id @default(dbgenerated("gen_random_uuid()"))
-  name PlatformName @unique
+  name PlatformName @id
 
   created_at DateTime  @default(now())
   updated_at DateTime? @updatedAt
@@ -291,38 +244,37 @@ model Platform {
 }
 
 model DancerPlatform {
+  account_id    String
+  platform_name PlatformName
+  account       DancerAccount @relation(fields: [account_id], references: [id], onDelete: Cascade)
+  platform      Platform      @relation(fields: [platform_name], references: [name], onDelete: Cascade)
+
   joined_at DateTime @default(now())
 
-  account_id  String
-  platform_id String
-  account     DancerAccount @relation(fields: [account_id], references: [id], onDelete: Cascade)
-  platform    Platform      @relation(fields: [platform_id], references: [id], onDelete: Cascade)
-
-  @@id([account_id, platform_id])
-  @@index([platform_id])
+  @@id([account_id, platform_name])
+  @@index([platform_name])
   @@map("dancer_platforms")
 }
 
 model Favorite {
-  id                String    @id @default(dbgenerated("gen_random_uuid()"))
+  id                String       @id @default(dbgenerated("gen_random_uuid()"))
+  from_user_id      String
+  to_user_id        String
+  platform_name     PlatformName
   comment           String?
-  rating            Int?      @db.SmallInt
+  rating            Int?         @db.SmallInt
   last_contacted    DateTime?
   last_notification DateTime?
 
   created_at DateTime  @default(now())
   updated_at DateTime? @updatedAt
 
-  platform_id String
-  platform    Platform @relation(fields: [platform_id], references: [id], onDelete: Cascade)
+  platform  Platform @relation(fields: [platform_name], references: [name], onDelete: Cascade)
+  from_user User     @relation("followers", fields: [from_user_id], references: [id], onDelete: Cascade)
+  to_user   User     @relation("following", fields: [to_user_id], references: [id], onDelete: Cascade)
 
-  from_user_id String
-  from_user    User   @relation("followers", fields: [from_user_id], references: [id], onDelete: Cascade)
-  to_user_id   String
-  to_user      User   @relation("following", fields: [to_user_id], references: [id], onDelete: Cascade)
-
-  @@unique([from_user_id, to_user_id, platform_id])
-  @@map("favorites")
+  @@unique([from_user_id, to_user_id, platform_name])
+  @@map("user_favorites")
 }
 
 /**
@@ -331,32 +283,32 @@ model Favorite {
  * *******
  */
 
-model AwardsHistory {
-  id      String @id @default(dbgenerated("gen_random_uuid()"))
-  content String
+model DancerAchievements {
+  id        String @id @default(dbgenerated("gen_random_uuid()"))
+  dancer_id String
+  content   String
 
   created_at DateTime  @default(now())
   updated_at DateTime? @updatedAt
 
-  dancer_id String
-  dancer    DancerAccount @relation(fields: [dancer_id], references: [id], onDelete: Cascade)
+  dancer DancerAccount @relation(fields: [dancer_id], references: [id], onDelete: Cascade)
 
   @@index([dancer_id])
-  @@map("awards_history")
+  @@map("dancer_achievements")
 }
 
-model ReferencesHistory {
-  id  String @id @default(dbgenerated("gen_random_uuid()"))
-  url String
+model DancerReferences {
+  id        String @id @default(dbgenerated("gen_random_uuid()"))
+  dancer_id String
+  url       String
 
   created_at DateTime  @default(now())
   deleted_at DateTime? @updatedAt
 
-  dancer_id String
-  dancer    DancerAccount @relation(fields: [dancer_id], references: [id], onDelete: Cascade)
+  dancer DancerAccount @relation(fields: [dancer_id], references: [id], onDelete: Cascade)
 
   @@index([dancer_id])
-  @@map("references_history")
+  @@map("dancer_references")
 }
 
 /**
@@ -367,6 +319,7 @@ model ReferencesHistory {
 
 model SchoolDanceEvent {
   id          String  @id @default(dbgenerated("gen_random_uuid()"))
+  school_id   String
   title       String
   description String?
   website     String?
@@ -378,23 +331,22 @@ model SchoolDanceEvent {
   created_at DateTime  @default(now())
   updated_at DateTime? @updatedAt
 
-  host_id String
-  host    SchoolAccount @relation(fields: [host_id], references: [id], onDelete: Cascade)
+  host SchoolAccount @relation(fields: [school_id], references: [id], onDelete: Cascade)
 
   attendees SchoolDanceEventAttendee[]
 
-  @@index([host_id])
+  @@index([school_id])
   @@index([start_datetime])
   @@map("school_dance_events")
 }
 
 model SchoolDanceEventAttendee {
-  registered_at DateTime @default(now())
-
   event_id String
   event    SchoolDanceEvent @relation(fields: [event_id], references: [id], onDelete: Cascade)
   user_id  String
   user     User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  registered_at DateTime @default(now())
 
   @@id([event_id, user_id])
   @@index([user_id])
@@ -424,12 +376,12 @@ model GlobalDanceEvent {
 }
 
 model GlobalDanceEventAttendee {
-  registered_at DateTime @default(now())
-
   event_id String
   event    GlobalDanceEvent @relation(fields: [event_id], references: [id], onDelete: Cascade)
   user_id  String
   user     User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  registered_at DateTime @default(now())
 
   @@id([event_id, user_id])
   @@index([user_id])
@@ -516,22 +468,22 @@ model ProdigyLibraryVideo {
 
 model Subscription {
   id                   String             @id @default(dbgenerated("gen_random_uuid()"))
+  source               SubscriptionSource
+  user_id              String             @unique
   subscription_id      String             @unique
   customer_id          String?
   cancel_at_period_end Boolean            @default(false)
   current_period_end   DateTime?
   canceled_at          DateTime?
-  source               SubscriptionSource
 
   created_at DateTime  @default(now())
   updated_at DateTime? @updatedAt
 
-  user_id String @unique
-  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([current_period_end])
   @@index([source])
-  @@map("subscriptions")
+  @@map("user_subscriptions")
 }
 
 /**
@@ -540,7 +492,7 @@ model Subscription {
  * ******
  */
 
-model TapInVideo {
+model VideoLibrary {
   id         String @id @default(dbgenerated("gen_random_uuid()"))
   category   String
   youtube_id String
@@ -550,7 +502,7 @@ model TapInVideo {
   updated_at DateTime? @updatedAt
 
   @@index([created_at])
-  @@map("tap_in_videos")
+  @@map("video_library")
 }
 
 /**
@@ -579,4 +531,9 @@ enum SubscriptionSource {
 enum PlatformName {
   core
   prodigy
+}
+
+enum AccountType {
+  dancer
+  school
 }
