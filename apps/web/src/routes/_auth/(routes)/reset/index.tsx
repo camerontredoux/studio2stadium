@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_app/(routes)/events")({
+export const Route = createFileRoute("/_auth/(routes)/reset/")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  return <div>Hello "/_app/(routes)/events"!</div>;
+  return <div>Hello "/_auth/reset/"!</div>;
 }

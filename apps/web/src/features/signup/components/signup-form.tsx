@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import {
   InputGroup,
@@ -23,12 +24,12 @@ import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from "lucide-react";
 import { useReducer, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useLogin } from "../api/mutations";
+import { useSignup } from "../api/mutations";
 import { schemas } from "../schemas";
 import "./login-form.css";
 
-export function LoginForm() {
-  const { mutate, isPending } = useLogin();
+export function SignupForm() {
+  const { mutate, isPending } = useSignup();
 
   const [retryAfter, startCountdown] = useCountdown();
   const [password, togglePassword] = useReducer((state) => !state, false);
@@ -37,16 +38,23 @@ export function LoginForm() {
   const toastIdRef = useRef<string | null>(null);
 
   const { control, handleSubmit, setError } = useForm<
-    z.infer<typeof schemas.login>
+    z.infer<typeof schemas.signup>
   >({
-    resolver: zodResolver(schemas.login),
+    resolver: zodResolver(schemas.signup),
     defaultValues: {
       email: "",
+      accountType: "dancer",
+      firstName: "",
+      lastName: "",
+      username: "",
+      phone: "",
       password: "",
+      confirmPassword: "",
+      termsChecked: false,
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof schemas.login>) => {
+  const onSubmit = async (data: z.infer<typeof schemas.signup>) => {
     if (!submitRef.current || isPending) return;
 
     if (toastIdRef.current) {
@@ -63,7 +71,7 @@ export function LoginForm() {
               startCountdown(retryAfter);
             },
             onValidation(field, message) {
-              setError(field as keyof z.infer<typeof schemas.login>, {
+              setError(field as keyof z.infer<typeof schemas.signup>, {
                 message,
               });
             },
@@ -92,7 +100,7 @@ export function LoginForm() {
         <CardTitle className="p-2">
           <MainLogo className="h-5 dark:invert" />
         </CardTitle>
-        <CardDescription>Sign in to your account to continue</CardDescription>
+        <CardDescription>Create an account to continue</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -100,6 +108,50 @@ export function LoginForm() {
           className="flex w-full flex-col gap-5"
           onSubmit={(e) => handleSubmit(onSubmit)(e)}
         >
+          <div className="animate-fade-in-up flex items-center gap-2 animate-delay-1">
+            <Controller
+              control={control}
+              name="firstName"
+              render={({ field, fieldState }) => (
+                <Field name={field.name} invalid={fieldState.invalid}>
+                  <FieldLabel>First Name</FieldLabel>
+                  <InputGroup>
+                    <InputGroupAddon align="inline-start">
+                      <MailIcon />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      placeholder="Enter your first name"
+                      type="text"
+                      {...field}
+                    />
+                  </InputGroup>
+                  <FieldError error={fieldState.error} />
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="lastName"
+              render={({ field, fieldState }) => (
+                <Field name={field.name} invalid={fieldState.invalid}>
+                  <FieldLabel>Last Name</FieldLabel>
+                  <InputGroup>
+                    <InputGroupAddon align="inline-start">
+                      <MailIcon />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      placeholder="Enter your last name"
+                      type="text"
+                      {...field}
+                    />
+                  </InputGroup>
+                  <FieldError error={fieldState.error} />
+                </Field>
+              )}
+            />
+          </div>
+
           <div className="animate-fade-in-up animate-delay-1">
             <Controller
               control={control}
@@ -115,6 +167,29 @@ export function LoginForm() {
                       autoComplete="email"
                       placeholder="Enter your email"
                       type="email"
+                      {...field}
+                    />
+                  </InputGroup>
+                  <FieldError error={fieldState.error} />
+                </Field>
+              )}
+            />
+          </div>
+
+          <div className="animate-fade-in-up animate-delay-1">
+            <Controller
+              control={control}
+              name="username"
+              render={({ field, fieldState }) => (
+                <Field name={field.name} invalid={fieldState.invalid}>
+                  <FieldLabel>Username</FieldLabel>
+                  <InputGroup>
+                    <InputGroupAddon align="inline-start">
+                      <MailIcon />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      placeholder="Enter your username"
+                      type="text"
                       {...field}
                     />
                   </InputGroup>
@@ -158,14 +233,55 @@ export function LoginForm() {
             />
           </div>
 
-          <div className="animate-fade-in-up animate-delay-3 flex items-center justify-end">
-            <Button
-              type="button"
-              variant="link"
-              className="p-0 text-sm text-muted-foreground"
-            >
-              Forgot password?
-            </Button>
+          <div className="animate-fade-in-up animate-delay-2">
+            <Controller
+              control={control}
+              name="confirmPassword"
+              render={({ field, fieldState }) => (
+                <Field name={field.name} invalid={fieldState.invalid}>
+                  <FieldLabel>Confirm Password</FieldLabel>
+                  <InputGroup>
+                    <InputGroupAddon align="inline-start">
+                      <LockIcon />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      type={password ? "text" : "password"}
+                      autoComplete="off"
+                      placeholder="Confirm your password"
+                      {...field}
+                    />
+                    <InputGroupAddon align="inline-end">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        onClick={togglePassword}
+                      >
+                        {password ? <EyeOffIcon /> : <EyeIcon />}
+                      </Button>
+                    </InputGroupAddon>
+                  </InputGroup>
+                  <FieldError error={fieldState.error} />
+                </Field>
+              )}
+            />
+          </div>
+
+          <div className="animate-fade-in-up animate-delay-2">
+            <Controller
+              control={control}
+              name="termsChecked"
+              render={({ field, fieldState }) => (
+                <Field name={field.name} invalid={fieldState.invalid}>
+                  <FieldLabel>Terms and Conditions</FieldLabel>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                  <FieldError error={fieldState.error} />
+                </Field>
+              )}
+            />
           </div>
 
           <div className="animate-fade-in-up animate-delay-4">
@@ -176,24 +292,24 @@ export function LoginForm() {
               type="submit"
             >
               {isPending ? (
-                <Spinner label="Signing in..." />
+                <Spinner label="Signing up..." />
               ) : retryAfter ? (
                 `Retry in ${retryAfter} seconds`
               ) : (
-                "Sign in"
+                "Sign up"
               )}
             </Button>
           </div>
 
           <p className="animate-fade-in-up animate-delay-5 text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
+            Already have an account?{" "}
             <Button
               type="button"
               variant="link"
               className="p-0 text-sm font-medium text-brand"
-              render={<Link to="/signup" />}
+              render={<Link to="/login" />}
             >
-              Sign up
+              Login
             </Button>
           </p>
         </form>
