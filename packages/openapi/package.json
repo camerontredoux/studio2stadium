@@ -1,0 +1,88 @@
+{
+  "name": "@tuyau/openapi",
+  "type": "module",
+  "version": "1.0.2",
+  "description": "",
+  "author": "",
+  "license": "MIT",
+  "keywords": [],
+  "exports": {
+    ".": "./build/index.js",
+    "./types": "./build/src/types.js",
+    "./commands": "./build/commands/main.js",
+    "./openapi_provider": "./build/providers/openapi_provider.js",
+    "./build_hook": "./build/src/hooks/build_hook.js"
+  },
+  "files": [
+    "build"
+  ],
+  "engines": {
+    "node": ">=20.6.0"
+  },
+  "scripts": {
+    "clean": "del-cli build",
+    "copy:templates": "copyfiles --up 1 \"stubs/**/*.stub\" build",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "quick:test": "node --import=./tsnode.esm.js --enable-source-maps bin/test.ts",
+    "index:commands": "adonis-kit index build/commands",
+    "prebuild": "pnpm clean",
+    "build": "tsup && pnpm copy:templates && pnpm index:commands",
+    "prepublishOnly": "pnpm build"
+  },
+  "peerDependencies": {
+    "@tuyau/core": ">=0.3.2"
+  },
+  "dependencies": {
+    "defu": "^6.1.4",
+    "json-to-pretty-yaml": "^1.2.2",
+    "openapi3-ts": "^4.5.0"
+  },
+  "devDependencies": {
+    "@adonisjs/assembler": "^7.8.2",
+    "@adonisjs/core": "^6.19.0",
+    "@adonisjs/tsconfig": "^1.4.1",
+    "@swc/core": "^1.15.10",
+    "@tuyau/client": "^0.2.10",
+    "@tuyau/core": "^0.4.2",
+    "@tuyau/utils": "^0.0.9",
+    "@types/json-to-pretty-yaml": "^1.2.1",
+    "@types/node": "^25.0.10",
+    "copyfiles": "^2.4.1",
+    "del-cli": "^7.0.0",
+    "eslint": "^9.39.2",
+    "prettier": "^3.8.1",
+    "ts-morph": "^25.0.1",
+    "tsup": "^8.5.1"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
+  "c8": {
+    "reporter": [
+      "text",
+      "html"
+    ],
+    "exclude": [
+      "tests/**"
+    ]
+  },
+  "tsup": {
+    "entry": [
+      "./index.ts",
+      "./src/types.ts",
+      "./commands/generate.ts",
+      "./src/hooks/build_hook.ts",
+      "./providers/openapi_provider.ts"
+    ],
+    "outDir": "./build",
+    "clean": false,
+    "format": "esm",
+    "dts": true,
+    "target": "esnext",
+    "platform": "node",
+    "noExternal": [],
+    "skipNodeModulesBundle": true
+  }
+}
