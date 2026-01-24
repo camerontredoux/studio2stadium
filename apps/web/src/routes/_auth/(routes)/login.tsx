@@ -1,14 +1,12 @@
-import { auth } from "@/features/auth";
+import { LoginPage } from "@/features/auth/components/login-page";
+import { schemas } from "@/features/auth/schemas";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth/(routes)/login")({
-  validateSearch: auth.schemas.search,
+  validateSearch: schemas.search,
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { redirect } = Route.useSearch()
-  const navigate = Route.useNavigate();
-
-  return <div>Hello "/_auth/login"! {redirect} <button onClick={() => navigate({ to: redirect ?? "/" })}>Go to explore</button></div>;
+  return <LoginPage />;
 }

@@ -1,19 +1,48 @@
-import { mockApi } from "@/lib/mock-api";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import type { paths } from "@/lib/api/types";
+import { queryOptions } from "@tanstack/react-query";
+import { useRouteContext } from "@tanstack/react-router";
+import createFetchClient from "openapi-fetch";
+import { SessionNetworkError } from "./errors";
+
+const client = createFetchClient<paths>({
+  baseUrl: "http://localhost:3333",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  credentials: "include",
+});
 
 export const queries = {
-  all: () => ["auth"],
-  session: () =>
-    queryOptions({
+  all: () => ["session"] as const,
+  session: () => {
+    return queryOptions({
       queryKey: queries.all(),
-      queryFn: () => mockApi.logged({ user: { id: "1", name: "John Doe" } }),
+      queryFn: async () => {
+        try {
+          const { data, error, response } = await client.GET("/auth/session");
+
+          // Essential - causes redirect on _app/route.tsx
+          if (error || response?.status >= 500) {
+            return null;
+          }
+
+          return data;
+        } catch {
+          throw new SessionNetworkError();
+        }
+      },
       staleTime: Infinity,
       gcTime: Infinity,
-    }),
+    });
+  },
 };
 
 export const useSession = () => {
-  const { data, ...rest } = useSuspenseQuery(queries.session());
+  const { session } = useRouteContext({ strict: false });
 
-  return { session: data, ...rest };
+  if (!session) {
+    throw new Error("useSession must be used within an authenticated route");
+  }
+
+  return { session };
 };

@@ -1,4 +1,4 @@
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, type QueryKey } from "@tanstack/react-query";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -9,6 +9,21 @@ export const queryClient = new QueryClient({
     },
     mutations: {
       retry: false,
+      onSettled: (_data, _error, _variables, _context, mutation) => {
+        if (mutation.meta?.invalidateQuery) {
+          queryClient.invalidateQueries({
+            queryKey: mutation.meta.invalidateQuery,
+          });
+        }
+      },
     },
   },
 });
+
+declare module "@tanstack/react-query" {
+  interface Register {
+    mutationMeta: {
+      invalidateQuery?: QueryKey;
+    };
+  }
+}

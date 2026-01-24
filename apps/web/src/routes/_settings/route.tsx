@@ -1,3 +1,4 @@
+import { ToastProvider } from "@/components/ui/toast";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_settings")({
@@ -6,9 +7,9 @@ export const Route = createFileRoute("/_settings")({
 
 function RouteComponent() {
   return (
-    <div>
+    <ToastProvider>
       Settings Layout
       <Outlet />
-    </div>
+    </ToastProvider>
   );
 }

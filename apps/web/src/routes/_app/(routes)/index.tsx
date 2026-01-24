@@ -1,30 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_app/(routes)/")({
-  component: RouteComponent,
-});
-
-function RouteComponent() {
-  return (
-    <div>
-      <Button variant="link" size="xs" render={<Link to="/u/$username" params={{ username: "test" }} />}>Click me</Button>
-      <Button variant="link" size="xs" render={<Link to="/onboarding/dancer" />}>Click me</Button>
-      <Button variant="outline" render={<Link to="/explore" />}>Explore</Button>
-      <Button variant="link">Test</Button>
-      <Button variant="secondary">Test</Button>
-      <Button variant="default">Test</Button>
-      <Button variant="destructive">Test</Button>
-      <Button variant="destructive-outline">Test</Button>
-      <Button variant="outline">Test</Button>
-      <Button variant="ghost">Test</Button>
-      <Button size="sm" variant="outline">
-        Test
-      </Button>
-      <Particle />
-    </div>
-  );
-}
-
 import {
   AlertDialog,
   AlertDialogClose,
@@ -36,6 +11,57 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { useLogout } from "@/features/auth/api/mutations";
+import { useSession } from "@/features/auth/api/queries";
+
+export const Route = createFileRoute("/_app/(routes)/")({
+  component: RouteComponent,
+});
+
+function RouteComponent() {
+  const { session } = useSession();
+
+  const logout = useLogout();
+
+  return (
+    <div>
+      <pre>
+        {JSON.stringify(session, (_, v) => (v instanceof Set ? [...v] : v), 2)}
+      </pre>
+      <Button
+        variant="link"
+        size="xs"
+        render={<Link to="/u/$username" params={{ username: "test" }} />}
+      >
+        Click me
+      </Button>
+      <Button
+        variant="link"
+        size="xs"
+        render={<Link to="/onboarding/dancer" />}
+      >
+        Click me
+      </Button>
+      <Button variant="outline" render={<Link to="/explore" />}>
+        Explore
+      </Button>
+      <Button variant="link">Test</Button>
+      <Button variant="secondary">Test</Button>
+      <Button variant="default">Test</Button>
+      <Button variant="destructive">Test</Button>
+      <Button variant="outline">Test</Button>
+      <Button variant="ghost">Test</Button>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => logout.mutate(undefined)}
+      >
+        Logout
+      </Button>
+      <Particle />
+    </div>
+  );
+}
 
 function Particle() {
   return (

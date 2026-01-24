@@ -3,10 +3,10 @@ import { queryOptions } from "@tanstack/react-query";
 
 export const queries = {
   all: () => ["dancer"],
-  dancers: (username: string) => [...queries.all(), username],
-  dancer: (username: string) =>
+  details: (username: string) => [...queries.all(), username],
+  detail: (username: string) =>
     queryOptions({
-      queryKey: queries.dancers(username),
+      queryKey: queries.details(username),
       queryFn: () => mockApi.success({ username }),
     }),
 };

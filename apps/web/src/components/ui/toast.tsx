@@ -124,7 +124,7 @@ function Toasts({ position = "bottom-right" }: { position: ToastPosition }) {
               toast={toast}
             >
               <Toast.Content className="pointer-events-auto flex items-center justify-between gap-1.5 overflow-hidden px-3.5 py-3 text-sm transition-opacity duration-250 data-behind:pointer-events-none data-behind:opacity-0 data-expanded:opacity-100">
-                <div className="flex gap-2">
+                <div className="flex gap-2 w-full">
                   {Icon && (
                     <div
                       className="[&>svg]:h-lh [&>svg]:w-4 [&_svg]:pointer-events-none [&_svg]:shrink-0"
@@ -134,7 +134,7 @@ function Toasts({ position = "bottom-right" }: { position: ToastPosition }) {
                     </div>
                   )}
 
-                  <div className="flex flex-col gap-0.5">
+                  <div className="flex flex-col gap-0.5 w-full">
                     <Toast.Title
                       className="font-medium"
                       data-slot="toast-title"
@@ -143,6 +143,16 @@ function Toasts({ position = "bottom-right" }: { position: ToastPosition }) {
                       className="text-muted-foreground"
                       data-slot="toast-description"
                     />
+                    {toast.data && (
+                      <div
+                        className="text-xs mt-2 p-3 py-2 bg-gray-100 text-gray-900 font-medium rounded-md select-text"
+                        data-swipe-ignore
+                      >
+                        <pre className="whitespace-pre-wrap">
+                          {JSON.stringify(toast.data, null, 2)}
+                        </pre>
+                      </div>
+                    )}
                   </div>
                 </div>
                 {toast.actionProps && (
@@ -194,7 +204,7 @@ function AnchoredToasts() {
 
           return (
             <Toast.Positioner
-              className="z-50 max-w-[min(--spacing(64),var(--available-width))]"
+              className="z-50 w-[min(--spacing(64),var(--available-width))]"
               data-slot="toast-positioner"
               key={toast.id}
               sideOffset={positionerProps.sideOffset ?? 4}
@@ -204,12 +214,15 @@ function AnchoredToasts() {
                 className={cn(
                   "relative text-balance border bg-popover bg-clip-padding text-popover-foreground text-xs transition-[scale,opacity] before:pointer-events-none before:absolute before:inset-0 before:shadow-[0_1px_--theme(--color-black/4%)] data-ending-style:scale-98 data-starting-style:scale-98 data-ending-style:opacity-0 data-starting-style:opacity-0 dark:bg-clip-border dark:before:shadow-[0_-1px_--theme(--color-white/8%)]",
                   tooltipStyle
-                    ? "rounded-md shadow-black/5 shadow-md before:rounded-[calc(var(--radius-md)-1px)]"
-                    : "rounded-lg shadow-lg before:rounded-[calc(var(--radius-lg)-1px)]",
+                    ? "rounded-md drop-shadow-black/5 drop-shadow-md before:rounded-[calc(var(--radius-md)-1px)]"
+                    : "rounded-lg drop-shadow-lg before:rounded-[calc(var(--radius-lg)-1px)]",
                 )}
                 data-slot="toast-popup"
                 toast={toast}
               >
+                <Toast.Arrow className="flex rotate-180 -bottom-2">
+                  <ArrowSvg />
+                </Toast.Arrow>
                 {tooltipStyle ? (
                   <Toast.Content className="pointer-events-auto px-2 py-1">
                     <Toast.Title data-slot="toast-title" />
@@ -256,8 +269,19 @@ function AnchoredToasts() {
   );
 }
 
-export {
-  AnchoredToastProvider,
-  ToastProvider,
-  type ToastPosition,
-};
+function ArrowSvg(props: React.ComponentProps<"svg">) {
+  return (
+    <svg width="20" height="10" viewBox="0 0 20 10" fill="none" {...props}>
+      <path
+        d="M9.66437 2.60207L4.80758 6.97318C4.07308 7.63423 3.11989 8 2.13172 8H0V10H20V8H18.5349C17.5468 8 16.5936 7.63423 15.8591 6.97318L11.0023 2.60207C10.622 2.2598 10.0447 2.25979 9.66437 2.60207Z"
+        className="fill-popover"
+      />
+      <path
+        d="M8.99542 1.85876C9.75604 1.17425 10.9106 1.17422 11.6713 1.85878L16.5281 6.22989C17.0789 6.72568 17.7938 7.00001 18.5349 7.00001L15.89 7L11.0023 2.60207C10.622 2.2598 10.0447 2.2598 9.66436 2.60207L4.77734 7L2.13171 7.00001C2.87284 7.00001 3.58774 6.72568 4.13861 6.22989L8.99542 1.85876Z"
+        className="fill-border"
+      />
+    </svg>
+  );
+}
+
+export { AnchoredToastProvider, ToastProvider, type ToastPosition };
