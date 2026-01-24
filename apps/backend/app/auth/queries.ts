@@ -13,8 +13,6 @@ export async function findUserByEmail(email: string) {
     .executeTakeFirst();
 }
 
-type PName = (typeof PlatformName)[keyof typeof PlatformName];
-
 /**
  * Get user session by ID for caching after login
  */
@@ -46,7 +44,7 @@ export async function getUserSession(id: string) {
         .$castTo<boolean>()
         .as("subscribed"),
       fn
-        .agg<PName[]>("json_agg", ["dancer_platforms.platform_name"])
+        .agg<PlatformName[]>("json_agg", ["dancer_platforms.platform_name"])
         .filterWhere("dancer_platforms.platform_name", "is not", null)
         .as("platforms"),
     ])

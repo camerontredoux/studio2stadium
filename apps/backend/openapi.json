@@ -54,7 +54,13 @@
                         "platform": {
                           "type": "string"
                         }
-                      }
+                      },
+                      "required": [
+                        "pid",
+                        "uptime",
+                        "version",
+                        "platform"
+                      ]
                     },
                     "checks": {
                       "type": "array",
@@ -85,10 +91,24 @@
                             "type": "object",
                             "properties": {}
                           }
-                        }
+                        },
+                        "required": [
+                          "status",
+                          "finishedAt",
+                          "isCached",
+                          "name",
+                          "message"
+                        ]
                       }
                     }
-                  }
+                  },
+                  "required": [
+                    "isHealthy",
+                    "status",
+                    "finishedAt",
+                    "debugInfo",
+                    "checks"
+                  ]
                 }
               }
             }
@@ -98,7 +118,95 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiError"
+                  "type": "object",
+                  "properties": {
+                    "isHealthy": {
+                      "type": "boolean"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "warning",
+                        "error"
+                      ]
+                    },
+                    "finishedAt": {
+                      "type": "string"
+                    },
+                    "debugInfo": {
+                      "type": "object",
+                      "properties": {
+                        "pid": {
+                          "type": "number"
+                        },
+                        "ppid": {
+                          "type": "number"
+                        },
+                        "uptime": {
+                          "type": "number"
+                        },
+                        "version": {
+                          "type": "string"
+                        },
+                        "platform": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "pid",
+                        "uptime",
+                        "version",
+                        "platform"
+                      ]
+                    },
+                    "checks": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "ok",
+                              "warning",
+                              "error"
+                            ]
+                          },
+                          "finishedAt": {
+                            "type": "string"
+                          },
+                          "isCached": {
+                            "type": "boolean"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "properties": {}
+                          }
+                        },
+                        "required": [
+                          "status",
+                          "finishedAt",
+                          "isCached",
+                          "name",
+                          "message"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "isHealthy",
+                    "status",
+                    "finishedAt",
+                    "debugInfo",
+                    "checks"
+                  ]
                 }
               }
             }
@@ -226,7 +334,19 @@
                         }
                       ]
                     }
-                  }
+                  },
+                  "required": [
+                    "email",
+                    "username",
+                    "firstName",
+                    "lastName",
+                    "phone",
+                    "id",
+                    "avatar",
+                    "displayEmail",
+                    "createdAt",
+                    "updatedAt"
+                  ]
                 }
               }
             }
@@ -236,7 +356,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiError"
+                  "$ref": "#/components/schemas/ApiErrorResponse"
                 }
               }
             }
@@ -289,7 +409,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiError"
+                  "$ref": "#/components/schemas/ApiErrorResponse"
                 }
               }
             }
@@ -315,7 +435,10 @@
                     "message": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -341,7 +464,10 @@
                     "message": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -421,7 +547,18 @@
                         }
                       ]
                     }
-                  }
+                  },
+                  "required": [
+                    "email",
+                    "username",
+                    "type",
+                    "platforms",
+                    "id",
+                    "avatar",
+                    "displayEmail",
+                    "subscribed",
+                    "admin"
+                  ]
                 }
               }
             }
@@ -447,7 +584,10 @@
                     "message": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -503,6 +643,20 @@
           "message",
           "code",
           "status"
+        ]
+      },
+      "ApiErrorResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "required": [
+          "errors"
         ]
       }
     }

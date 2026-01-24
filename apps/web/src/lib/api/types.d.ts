@@ -27,24 +27,24 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            isHealthy?: boolean;
+                            isHealthy: boolean;
                             /** @enum {string} */
-                            status?: "ok" | "warning" | "error";
-                            finishedAt?: string;
-                            debugInfo?: {
-                                pid?: number;
+                            status: "ok" | "warning" | "error";
+                            finishedAt: string;
+                            debugInfo: {
+                                pid: number;
                                 ppid?: number;
-                                uptime?: number;
-                                version?: string;
-                                platform?: string;
+                                uptime: number;
+                                version: string;
+                                platform: string;
                             };
-                            checks?: {
+                            checks: {
                                 /** @enum {string} */
-                                status?: "ok" | "warning" | "error";
-                                finishedAt?: string;
-                                isCached?: boolean;
-                                name?: string;
-                                message?: string;
+                                status: "ok" | "warning" | "error";
+                                finishedAt: string;
+                                isCached: boolean;
+                                name: string;
+                                message: string;
                                 meta?: Record<string, never>;
                             }[];
                         };
@@ -57,24 +57,24 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            isHealthy?: boolean;
+                            isHealthy: boolean;
                             /** @enum {string} */
-                            status?: "ok" | "warning" | "error";
-                            finishedAt?: string;
-                            debugInfo?: {
-                                pid?: number;
+                            status: "ok" | "warning" | "error";
+                            finishedAt: string;
+                            debugInfo: {
+                                pid: number;
                                 ppid?: number;
-                                uptime?: number;
-                                version?: string;
-                                platform?: string;
+                                uptime: number;
+                                version: string;
+                                platform: string;
                             };
-                            checks?: {
+                            checks: {
                                 /** @enum {string} */
-                                status?: "ok" | "warning" | "error";
-                                finishedAt?: string;
-                                isCached?: boolean;
-                                name?: string;
-                                message?: string;
+                                status: "ok" | "warning" | "error";
+                                finishedAt: string;
+                                isCached: boolean;
+                                name: string;
+                                message: string;
                                 meta?: Record<string, never>;
                             }[];
                         };
@@ -134,16 +134,16 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            email?: string;
-                            username?: string;
-                            firstName?: string;
-                            lastName?: string;
-                            phone?: string | null;
-                            id?: string;
-                            avatar?: string | null;
-                            displayEmail?: string;
-                            createdAt?: string;
-                            updatedAt?: string | null;
+                            email: string;
+                            username: string;
+                            firstName: string;
+                            lastName: string;
+                            phone: string | null;
+                            id: string;
+                            avatar: string | null;
+                            displayEmail: string;
+                            createdAt: string;
+                            updatedAt: string | null;
                         };
                     };
                 };
@@ -248,7 +248,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            message?: string;
+                            message: string;
                         };
                     };
                 };
@@ -289,7 +289,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            message?: string;
+                            message: string;
                         };
                     };
                 };
@@ -328,16 +328,16 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            email?: string;
-                            username?: string;
+                            email: string;
+                            username: string;
                             /** @enum {string} */
-                            type?: "dancer" | "school";
-                            platforms?: ("core" | "prodigy")[];
-                            id?: string;
-                            avatar?: string | null;
-                            displayEmail?: string;
-                            subscribed?: boolean;
-                            admin?: ("core" | "prodigy") | null;
+                            type: "dancer" | "school";
+                            platforms: ("core" | "prodigy")[];
+                            id: string;
+                            avatar: string | null;
+                            displayEmail: string;
+                            subscribed: boolean;
+                            admin: ("core" | "prodigy") | null;
                         };
                     };
                 };
@@ -376,7 +376,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            message?: string;
+                            message: string;
                         };
                     };
                 };
