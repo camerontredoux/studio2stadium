@@ -147,7 +147,7 @@ export class OpenApiGenerator {
     return {
       type: "object",
       properties,
-      ...(required.length && mode === "request" && { required }),
+      ...(required.length && { required }),
     };
   }
 
@@ -206,7 +206,7 @@ export class OpenApiGenerator {
       return {
         type: "object",
         properties,
-        ...(required.length && mode === "request" && { required }),
+        ...(required.length && { required }),
       };
     }
 
@@ -453,10 +453,9 @@ export class OpenApiGenerator {
           };
           continue;
         }
-        const { required, ...rest } = schema as SchemaObject;
         responses[status] = {
           description: this.#statusToResponseDescription(status),
-          content: { "application/json": { schema: rest } },
+          content: { "application/json": { schema: schema } },
         };
       }
     } else {
