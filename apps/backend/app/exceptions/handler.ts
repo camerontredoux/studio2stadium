@@ -19,40 +19,28 @@ export default class HttpExceptionHandler extends ExceptionHandler {
   async handle(error: unknown, ctx: HttpContext) {
     if (error instanceof errors.ThrottleException) {
       return ctx.response.status(error.status).send({
-        errors: [
-          {
-            message: error.message,
-            code: error.code,
-            status: error.status,
-            meta: {
-              retryAfter: error.response.availableIn,
-            },
-          },
-        ],
+        message: error.message,
+        code: error.code,
+        status: error.status,
+        retryAfter: error.response.availableIn,
       });
     }
     if (error instanceof ValidationError) {
       return ctx.response.status(error.status).send({
+        message: error.message,
+        code: error.code,
+        status: error.status,
         errors: error.messages.map((message: SimpleError) => ({
-          message: message.message,
-          code: error.code,
-          status: error.status,
-          meta: {
-            field: message.field,
-            rule: message.rule,
-          },
+          field: message.field,
+          rule: message.rule,
         })),
       });
     }
     if (error instanceof Exception) {
       return ctx.response.status(error.status).send({
-        errors: [
-          {
-            message: error.message,
-            code: error.code,
-            status: error.status,
-          },
-        ],
+        message: error.message,
+        code: error.code,
+        status: error.status,
       });
     }
   }
