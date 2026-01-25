@@ -151,7 +151,7 @@ importers:
         specifier: ~5.9
         version: 5.9.3
 
-  apps/web:
+  apps/frontend:
     dependencies:
       '@base-ui/react':
         specifier: ^1.1.0

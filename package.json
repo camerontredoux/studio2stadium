@@ -7,7 +7,7 @@
     "lint": "pnpm -r lint",
     "check": "pnpm -r check",
     "backend": "pnpm --filter backend",
-    "frontend": "pnpm --filter web"
+    "frontend": "pnpm --filter frontend"
   },
   "devDependencies": {
     "typescript": "^5.8.3"
