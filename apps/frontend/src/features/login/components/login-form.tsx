@@ -1,6 +1,7 @@
 import { useCountdown } from "@/components/hooks/use-countdown";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Frame, FrameFooter, FramePanel } from "@/components/ui/frame";
 import {
   InputGroup,
   InputGroupAddon,
@@ -8,6 +9,7 @@ import {
 } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
 import { anchoredToastManager } from "@/components/ui/toast-manager";
+import { Toggle } from "@/components/ui/toggle";
 import { handleApiError } from "@/lib/api/errors";
 import "@/styles/staggered.css";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -77,70 +79,74 @@ export function LoginForm() {
 
   return (
     <form
-      className="flex w-full flex-col gap-3 sm:gap-5"
+      className="flex w-full flex-col gap-3"
       onSubmit={(e) => handleSubmit(onSubmit)(e)}
     >
-      <div className="animate-fade-in-up animate-delay-1">
-        <Controller
-          control={control}
-          name="email"
-          render={({ field, fieldState }) => (
-            <Field name={field.name} invalid={fieldState.invalid}>
-              <FieldLabel>Email</FieldLabel>
-              <InputGroup>
-                <InputGroupAddon align="inline-start">
-                  <MailIcon />
-                </InputGroupAddon>
-                <InputGroupInput autoComplete="email" type="email" {...field} />
-              </InputGroup>
-              <FieldError error={fieldState.error} />
-            </Field>
-          )}
-        />
-      </div>
+      <Frame>
+        <FramePanel className="flex w-full flex-col gap-3 sm:gap-5">
+          <div className="animate-fade-in-up animate-delay-1">
+            <Controller
+              control={control}
+              name="email"
+              render={({ field, fieldState }) => (
+                <Field name={field.name} invalid={fieldState.invalid}>
+                  <FieldLabel>Email</FieldLabel>
+                  <InputGroup>
+                    <InputGroupAddon align="inline-start">
+                      <MailIcon className="size-3.5" />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      autoComplete="email"
+                      type="email"
+                      {...field}
+                    />
+                  </InputGroup>
+                  <FieldError error={fieldState.error} />
+                </Field>
+              )}
+            />
+          </div>
 
-      <div className="animate-fade-in-up animate-delay-2">
-        <Controller
-          control={control}
-          name="password"
-          render={({ field, fieldState }) => (
-            <Field name={field.name} invalid={fieldState.invalid}>
-              <FieldLabel>Password</FieldLabel>
-              <InputGroup>
-                <InputGroupAddon align="inline-start">
-                  <LockIcon />
-                </InputGroupAddon>
-                <InputGroupInput
-                  type={password ? "text" : "password"}
-                  autoComplete="off"
-                  {...field}
-                />
-                <InputGroupAddon align="inline-end">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    onClick={togglePassword}
-                  >
-                    {password ? <EyeOffIcon /> : <EyeIcon />}
-                  </Button>
-                </InputGroupAddon>
-              </InputGroup>
-              <FieldError error={fieldState.error} />
-            </Field>
-          )}
-        />
-      </div>
-
-      <div className="animate-fade-in-up animate-delay-3 flex items-center justify-end">
-        <Button
-          type="button"
-          variant="link"
-          className="p-0 text-sm text-muted-foreground"
-        >
-          Forgot password?
-        </Button>
-      </div>
+          <div className="animate-fade-in-up animate-delay-2">
+            <Controller
+              control={control}
+              name="password"
+              render={({ field, fieldState }) => (
+                <Field name={field.name} invalid={fieldState.invalid}>
+                  <FieldLabel>Password</FieldLabel>
+                  <InputGroup>
+                    <InputGroupAddon align="inline-start">
+                      <LockIcon className="size-3.5" />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      type={password ? "text" : "password"}
+                      autoComplete="off"
+                      {...field}
+                    />
+                    <InputGroupAddon align="inline-end">
+                      <Toggle tabIndex={-1} size="xs" onClick={togglePassword}>
+                        {password ? <EyeOffIcon /> : <EyeIcon />}
+                      </Toggle>
+                    </InputGroupAddon>
+                  </InputGroup>
+                  <FieldError error={fieldState.error} />
+                </Field>
+              )}
+            />
+          </div>
+        </FramePanel>
+        <FrameFooter>
+          <div className="animate-fade-in-up animate-delay-3 flex items-center justify-end">
+            <Button
+              type="button"
+              variant="link"
+              className="p-0 text-sm text-muted-foreground"
+            >
+              Forgot password?
+            </Button>
+          </div>
+        </FrameFooter>
+      </Frame>
 
       <div className="animate-fade-in-up animate-delay-4">
         <Button

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/popover";
 import { Radio, RadioGroup } from "@/components/ui/radio-group";
 import type { AccountType } from "@/lib/access";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { CheckIcon, InfoIcon, XIcon } from "lucide-react";
 import { useReducer, useState } from "react";
 
@@ -23,7 +23,6 @@ export function ChooseType() {
   return (
     <RadioGroup value={accountType} onValueChange={setAccountType}>
       {accountType === "dancer" && <DancerInputGroup />}
-
       {accountType !== "dancer" && (
         <RadioItem
           value="dancer"
@@ -31,9 +30,7 @@ export function ChooseType() {
           description="Create a dancer account"
         />
       )}
-
       {accountType === "school" && <SchoolInputGroup />}
-
       {accountType !== "school" && (
         <RadioItem
           value="school"
@@ -42,7 +39,7 @@ export function ChooseType() {
         />
       )}
 
-      <p className="text-center text-sm text-muted-foreground mt-2">
+      <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
         <Button
           type="button"
@@ -81,6 +78,17 @@ function RadioItem({
 
 function DancerInputGroup() {
   const [taken, toggleTaken] = useReducer((state) => !state, false);
+  const [username, setUsername] = useState("");
+
+  const navigate = useNavigate();
+
+  const onSubmit = () => {
+    navigate({
+      to: "/signup/$type",
+      params: { type: "dancer" },
+      search: { username },
+    });
+  };
 
   return (
     <InputGroup>
@@ -90,6 +98,8 @@ function DancerInputGroup() {
         placeholder="Enter username"
         size="sm"
         autoFocus
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
       />
       <InputGroupAddon align="block-start" className="border-b">
         <Label className="font-medium">Dancer</Label>
@@ -122,8 +132,9 @@ function DancerInputGroup() {
         <Button
           variant="default"
           size="sm"
+          disabled={!username}
           className="ml-auto"
-          onClick={toggleTaken}
+          onClick={onSubmit}
         >
           Next
         </Button>

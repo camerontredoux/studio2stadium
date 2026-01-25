@@ -26,7 +26,7 @@ function FramePanel({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "relative rounded-xl border bg-background bg-clip-padding p-5 shadow-xs before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-xl)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] dark:bg-clip-border dark:before:shadow-[0_-1px_--theme(--color-white/8%)]",
+        "relative rounded-xl border bg-background bg-clip-padding p-3 sm:p-4 shadow-xs before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-xl)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] dark:bg-clip-border dark:before:shadow-[0_-1px_--theme(--color-white/8%)]",
         className,
       )}
       data-slot="frame-panel"
@@ -71,7 +71,7 @@ function FrameDescription({
 function FrameFooter({ className, ...props }: React.ComponentProps<"footer">) {
   return (
     <footer
-      className={cn("flex flex-col gap-1 px-5 py-4", className)}
+      className={cn("flex flex-col gap-1 pt-2", className)}
       data-slot="frame-panel-footer"
       {...props}
     />

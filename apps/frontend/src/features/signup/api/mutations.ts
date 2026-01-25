@@ -17,10 +17,6 @@ export const useSignup = () => {
         });
         return;
       }
-      navigate({
-        to: "/signup",
-        replace: true,
-      });
     },
   });
 };

@@ -14,6 +14,8 @@ import { AnchoredToastProvider } from "../ui/toast";
 const descriptions: Record<string, string> = {
   "/login": "Sign in to your account to continue",
   "/signup": "Choose your account type",
+  "/signup/dancer": "Finish creating your dancer account",
+  "/signup/school": "Finish creating your school account",
   "/forgot-password": "Reset your password",
 };
 
