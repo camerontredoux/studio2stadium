@@ -26,28 +26,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            isHealthy: boolean;
-                            /** @enum {string} */
-                            status: "ok" | "warning" | "error";
-                            finishedAt: string;
-                            debugInfo: {
-                                pid: number;
-                                ppid?: number;
-                                uptime: number;
-                                version: string;
-                                platform: string;
-                            };
-                            checks: {
-                                /** @enum {string} */
-                                status: "ok" | "warning" | "error";
-                                finishedAt: string;
-                                isCached: boolean;
-                                name: string;
-                                message: string;
-                                meta?: Record<string, never>;
-                            }[];
-                        };
+                        "application/json": components["schemas"]["HealthResponse"];
                     };
                 };
                 /** @description Service Unavailable */
@@ -56,28 +35,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            isHealthy: boolean;
-                            /** @enum {string} */
-                            status: "ok" | "warning" | "error";
-                            finishedAt: string;
-                            debugInfo: {
-                                pid: number;
-                                ppid?: number;
-                                uptime: number;
-                                version: string;
-                                platform: string;
-                            };
-                            checks: {
-                                /** @enum {string} */
-                                status: "ok" | "warning" | "error";
-                                finishedAt: string;
-                                isCached: boolean;
-                                name: string;
-                                message: string;
-                                meta?: Record<string, never>;
-                            }[];
-                        };
+                        "application/json": components["schemas"]["HealthResponse"];
                     };
                 };
             };
@@ -112,18 +70,7 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": {
-                        phone?: string | null;
-                        email: string;
-                        password: string;
-                        /** @enum {string} */
-                        accountType: "dancer" | "school";
-                        confirmPassword: string;
-                        username: string;
-                        firstName: string;
-                        lastName: string;
-                        termsChecked: boolean;
-                    };
+                    "application/json": components["schemas"]["AuthSignupRequest"];
                 };
             };
             responses: {
@@ -133,18 +80,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            email: string;
-                            username: string;
-                            firstName: string;
-                            lastName: string;
-                            phone: string | null;
-                            id: string;
-                            avatar: string | null;
-                            displayEmail: string;
-                            createdAt: string;
-                            updatedAt: string | null;
-                        };
+                        "application/json": components["schemas"]["AuthSignupResponse"];
                     };
                 };
                 /** @description Unprocessable Entity */
@@ -153,7 +89,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ApiErrorResponse"];
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -186,10 +122,7 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": {
-                        email: string;
-                        password: string;
-                    };
+                    "application/json": components["schemas"]["AuthLoginRequest"];
                 };
             };
             responses: {
@@ -198,9 +131,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "application/json": Record<string, never>;
-                    };
+                    content?: never;
                 };
                 /** @description Unprocessable Entity */
                 422: {
@@ -208,7 +139,16 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ApiErrorResponse"];
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -247,9 +187,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            message: string;
-                        };
+                        "application/json": components["schemas"]["AuthLogoutResponse"];
                     };
                 };
             };
@@ -288,9 +226,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            message: string;
-                        };
+                        "application/json": components["schemas"]["AuthRefreshResponse"];
                     };
                 };
             };
@@ -327,18 +263,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            email: string;
-                            username: string;
-                            /** @enum {string} */
-                            type: "dancer" | "school";
-                            platforms: ("core" | "prodigy")[];
-                            id: string;
-                            avatar: string | null;
-                            displayEmail: string;
-                            subscribed: boolean;
-                            admin: ("core" | "prodigy") | null;
-                        };
+                        "application/json": components["schemas"]["AuthSessionResponse"];
                     };
                 };
             };
@@ -375,9 +300,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            message: string;
-                        };
+                        "application/json": components["schemas"]["AuthTestResponse"];
                     };
                 };
             };
@@ -392,7 +315,7 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        ApiError: {
+        Error: {
             /** @description Human-readable error message suitable for display */
             message: string;
             /**
@@ -405,27 +328,98 @@ export interface components {
              * @example 429
              */
             status: number;
+            /**
+             * @description Seconds until the request can be retried
+             * @example 60
+             */
+            retryAfter?: number;
             /** @description Additional context specific to the error type */
-            meta?: {
-                /**
-                 * @description Seconds until the request can be retried
-                 * @example 60
-                 */
-                retryAfter?: number;
-                /**
-                 * @description Validation error field name
-                 * @example email
-                 */
-                field?: string;
-                /**
-                 * @description Validation error rule
-                 * @example required
-                 */
-                rule?: string;
-            };
+            errors?: components["schemas"]["ValidationError"][];
         };
-        ApiErrorResponse: {
-            errors: components["schemas"]["ApiError"][];
+        ValidationError: {
+            /**
+             * @description Validation error field name
+             * @example email
+             */
+            field: string;
+            /**
+             * @description Validation error rule
+             * @example required
+             */
+            rule: string;
+        };
+        /** @enum {string} */
+        AccountType: "dancer" | "school";
+        /** @enum {string} */
+        PlatformName: "core" | "prodigy";
+        HealthResponse: {
+            isHealthy: boolean;
+            /** @enum {string} */
+            status: "ok" | "warning" | "error";
+            finishedAt: string;
+            debugInfo: {
+                pid: number;
+                ppid?: number;
+                uptime: number;
+                version: string;
+                platform: string;
+            };
+            checks: {
+                /** @enum {string} */
+                status: "ok" | "warning" | "error";
+                finishedAt: string;
+                isCached: boolean;
+                name: string;
+                message: string;
+                meta?: Record<string, never>;
+            }[];
+        };
+        AuthSignupRequest: {
+            phone?: string | null;
+            email: string;
+            password: string;
+            accountType: components["schemas"]["AccountType"];
+            confirmPassword: string;
+            username: string;
+            firstName: string;
+            lastName: string;
+            termsChecked: boolean;
+        };
+        AuthSignupResponse: {
+            email: string;
+            username: string;
+            firstName: string;
+            lastName: string;
+            phone: string | null;
+            id: string;
+            avatar: string | null;
+            displayEmail: string;
+            createdAt: string;
+            updatedAt: string | null;
+        };
+        AuthLoginRequest: {
+            email: string;
+            password: string;
+        };
+        AuthLogoutResponse: {
+            message: string;
+        };
+        AuthRefreshResponse: {
+            message: string;
+        };
+        AuthSessionResponse: {
+            email: string;
+            username: string;
+            type: components["schemas"]["AccountType"];
+            platforms: components["schemas"]["PlatformName"][];
+            id: string;
+            avatar: string | null;
+            displayEmail: string;
+            subscribed: boolean;
+            admin: components["schemas"]["PlatformName"] | null;
+        };
+        AuthTestResponse: {
+            message: string;
         };
     };
     responses: never;

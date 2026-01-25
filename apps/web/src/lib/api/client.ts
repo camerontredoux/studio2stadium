@@ -1,6 +1,8 @@
 import createFetchClient from "openapi-fetch";
 import createQueryClient from "openapi-react-query";
-import type { paths } from "./types";
+import type { components, paths } from "./types";
+
+export type ApiSchemas = components["schemas"];
 
 export const createClient = () => {
   const client = createFetchClient<paths, "application/json">({

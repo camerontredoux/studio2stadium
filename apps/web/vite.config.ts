@@ -22,6 +22,9 @@ export default defineConfig({
     ],
   },
   server: {
+    fs: {
+      allow: [path.resolve(__dirname, "../..")],
+    },
     warmup: {
       clientFiles: [
         "./src/main.tsx",

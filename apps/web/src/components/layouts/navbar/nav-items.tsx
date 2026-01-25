@@ -10,7 +10,11 @@ export function DancerNavItems() {
 
   const { mutate, isPending } = useLogout();
 
-  const test = $api.useMutation("post", "/auth/test");
+  const test = $api.useMutation("post", "/auth/test", {
+    onError: (e) => {
+      console.log(e);
+    },
+  });
 
   return (
     <div className="flex items-center gap-2">
@@ -48,7 +52,7 @@ export function DancerNavItems() {
         size="sm"
         onClick={() => test.mutate(undefined)}
       >
-        {isPending ? (
+        {test.isPending ? (
           <>
             <Spinner />
             Logging out...

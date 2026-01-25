@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
 import { anchoredToastManager } from "@/components/ui/toast-manager";
-import { handleApiErrors } from "@/lib/api/errors";
+import { handleApiError } from "@/lib/api/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "@tanstack/react-router";
 import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from "lucide-react";
@@ -27,6 +27,8 @@ import { useLogin } from "../api/mutations";
 import { schemas } from "../schemas";
 import "./login-form.css";
 
+type LoginSchema = z.infer<typeof schemas.login>;
+
 export function LoginForm() {
   const { mutate, isPending } = useLogin();
 
@@ -36,9 +38,7 @@ export function LoginForm() {
   const submitRef = useRef<HTMLButtonElement>(null);
   const toastIdRef = useRef<string | null>(null);
 
-  const { control, handleSubmit, setError } = useForm<
-    z.infer<typeof schemas.login>
-  >({
+  const { control, handleSubmit, setError } = useForm<LoginSchema>({
     resolver: zodResolver(schemas.login),
     defaultValues: {
       email: "",
@@ -46,7 +46,7 @@ export function LoginForm() {
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof schemas.login>) => {
+  const onSubmit = async (data: LoginSchema) => {
     if (!submitRef.current || isPending) return;
 
     if (toastIdRef.current) {
@@ -57,31 +57,28 @@ export function LoginForm() {
     mutate(
       { body: data },
       {
-        onError: ({ errors }) => {
-          handleApiErrors(errors, {
-            onRateLimit(retryAfter) {
-              startCountdown(retryAfter);
-            },
-            onValidation(field, message) {
-              setError(field as keyof z.infer<typeof schemas.login>, {
-                message,
-              });
-            },
-            onError(message) {
-              setError("root", { message });
-              toastIdRef.current = anchoredToastManager.add({
-                title: "Error",
-                description: message,
-                type: "error",
-                timeout: 3000,
-                positionerProps: {
-                  anchor: submitRef.current,
-                  sideOffset: 8,
-                },
-              });
-            },
-          });
-        },
+        onError: handleApiError({
+          onRateLimit(retryAfter) {
+            startCountdown(retryAfter);
+          },
+          onValidation(field, message) {
+            setError(field as keyof LoginSchema, {
+              message,
+            });
+          },
+          onError(message) {
+            toastIdRef.current = anchoredToastManager.add({
+              title: "Error",
+              description: message,
+              type: "error",
+              timeout: 3000,
+              positionerProps: {
+                anchor: submitRef.current,
+                sideOffset: 8,
+              },
+            });
+          },
+        }),
       },
     );
   };

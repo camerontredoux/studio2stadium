@@ -1,22 +1,17 @@
 // import type { Session } from "@/features/auth/api/client";
 import { redirect } from "@tanstack/react-router";
-import type { paths } from "./api/types";
+import type { ApiSchemas } from "./api/client";
 
-type JsonResponse<T> = T extends { content: { "application/json": infer R } }
-  ? R
-  : never;
+export type Session = ApiSchemas["AuthSessionResponse"]
 
-type Session = JsonResponse<paths["/auth/session"]["get"]["responses"]["200"]>;
-
-export type Platform = NonNullable<Session["platforms"]>[number];
-export type AccountType = NonNullable<Session["type"]>;
+export type Platform = ApiSchemas["PlatformName"];
+export type AccountType = ApiSchemas["AccountType"];
 
 export type Domain = `${Platform}:${AccountType}`;
 
 type PermissionAction = "view";
 type PermissionConfig = Record<Domain, ReadonlyArray<PermissionAction>>;
 
-// Creates union types like "core:dancer:view" | "prodigy:dancer:view" | ...
 type InferPermissions<T extends PermissionConfig> = {
   [K in keyof T]: T[K] extends readonly (infer U)[]
     ? `${U & string}:${K & string}`

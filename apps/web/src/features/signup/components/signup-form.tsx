@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
 import { anchoredToastManager } from "@/components/ui/toast-manager";
-import { handleApiErrors } from "@/lib/api/errors";
+import { handleApiError } from "@/lib/api/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "@tanstack/react-router";
 import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from "lucide-react";
@@ -66,7 +66,7 @@ export function SignupForm() {
       { body: data },
       {
         onError: ({ errors }) => {
-          handleApiErrors(errors, {
+          handleApiError(errors, {
             onRateLimit(retryAfter) {
               startCountdown(retryAfter);
             },

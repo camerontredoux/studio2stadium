@@ -1,30 +1,27 @@
-import type { components } from "./types";
+import type { ApiSchemas } from "./client";
 
-export type ApiSchemas = components["schemas"];
+export type ApiError = ApiSchemas["Error"];
 
-export type ApiError = ApiSchemas["ApiError"];
-
-export function handleApiErrors(
-  errors: ApiError[],
+export const  handleApiError = (
   handlers: {
     onRateLimit?: (retryAfter: number) => void;
     onValidation?: (field: string, message: string) => void;
     onError?: (message: string) => void;
   },
-) {
-  for (const e of errors ?? []) {
-    if (e.meta?.retryAfter && handlers.onRateLimit) {
-      handlers.onRateLimit(e.meta.retryAfter);
+) => (error: ApiError) => {
+    if (error.retryAfter && handlers.onRateLimit) {
+      handlers.onRateLimit(error.retryAfter);
       return;
     }
 
-    if (e.meta?.field && handlers.onValidation) {
-      handlers.onValidation(e.meta.field, e.message);
-      continue;
+    if (error.errors && handlers.onValidation) {
+      for (const e of error.errors) {
+        handlers.onValidation(e.field, e.rule);
+      }
+      return;
     }
 
     if (handlers.onError) {
-      handlers.onError(e.message);
+      handlers.onError(error.message);
     }
   }
-}

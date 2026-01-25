@@ -15,11 +15,10 @@ export const useLogin = () => {
       });
       navigate({ to: redirect ?? "/", replace: true });
     },
-    onError: (error) => {
+    onError: () => {
       navigate({
         to: "/login",
         replace: true,
-        search: error.errors ? {} : { reason: "network_error" },
       });
     },
   });
