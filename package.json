@@ -1,0 +1,19 @@
+{
+  "name": "studio2stadium",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "check": "pnpm -r check",
+    "backend": "pnpm --filter backend",
+    "frontend": "pnpm --filter web"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "packageManager": "pnpm@10.12.1",
+  "engines": {
+    "node": ">=22"
+  }
+}

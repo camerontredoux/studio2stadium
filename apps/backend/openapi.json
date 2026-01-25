@@ -20,95 +20,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "isHealthy": {
-                      "type": "boolean"
-                    },
-                    "status": {
-                      "type": "string",
-                      "enum": [
-                        "ok",
-                        "warning",
-                        "error"
-                      ]
-                    },
-                    "finishedAt": {
-                      "type": "string"
-                    },
-                    "debugInfo": {
-                      "type": "object",
-                      "properties": {
-                        "pid": {
-                          "type": "number"
-                        },
-                        "ppid": {
-                          "type": "number"
-                        },
-                        "uptime": {
-                          "type": "number"
-                        },
-                        "version": {
-                          "type": "string"
-                        },
-                        "platform": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "pid",
-                        "uptime",
-                        "version",
-                        "platform"
-                      ]
-                    },
-                    "checks": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "status": {
-                            "type": "string",
-                            "enum": [
-                              "ok",
-                              "warning",
-                              "error"
-                            ]
-                          },
-                          "finishedAt": {
-                            "type": "string"
-                          },
-                          "isCached": {
-                            "type": "boolean"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "message": {
-                            "type": "string"
-                          },
-                          "meta": {
-                            "type": "object",
-                            "properties": {}
-                          }
-                        },
-                        "required": [
-                          "status",
-                          "finishedAt",
-                          "isCached",
-                          "name",
-                          "message"
-                        ]
-                      }
-                    }
-                  },
-                  "required": [
-                    "isHealthy",
-                    "status",
-                    "finishedAt",
-                    "debugInfo",
-                    "checks"
-                  ]
+                  "$ref": "#/components/schemas/HealthResponse"
                 }
               }
             }
@@ -118,95 +30,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "isHealthy": {
-                      "type": "boolean"
-                    },
-                    "status": {
-                      "type": "string",
-                      "enum": [
-                        "ok",
-                        "warning",
-                        "error"
-                      ]
-                    },
-                    "finishedAt": {
-                      "type": "string"
-                    },
-                    "debugInfo": {
-                      "type": "object",
-                      "properties": {
-                        "pid": {
-                          "type": "number"
-                        },
-                        "ppid": {
-                          "type": "number"
-                        },
-                        "uptime": {
-                          "type": "number"
-                        },
-                        "version": {
-                          "type": "string"
-                        },
-                        "platform": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "pid",
-                        "uptime",
-                        "version",
-                        "platform"
-                      ]
-                    },
-                    "checks": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "status": {
-                            "type": "string",
-                            "enum": [
-                              "ok",
-                              "warning",
-                              "error"
-                            ]
-                          },
-                          "finishedAt": {
-                            "type": "string"
-                          },
-                          "isCached": {
-                            "type": "boolean"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "message": {
-                            "type": "string"
-                          },
-                          "meta": {
-                            "type": "object",
-                            "properties": {}
-                          }
-                        },
-                        "required": [
-                          "status",
-                          "finishedAt",
-                          "isCached",
-                          "name",
-                          "message"
-                        ]
-                      }
-                    }
-                  },
-                  "required": [
-                    "isHealthy",
-                    "status",
-                    "finishedAt",
-                    "debugInfo",
-                    "checks"
-                  ]
+                  "$ref": "#/components/schemas/HealthResponse"
                 }
               }
             }
@@ -220,57 +44,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "phone": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "email": {
-                    "type": "string"
-                  },
-                  "password": {
-                    "type": "string"
-                  },
-                  "accountType": {
-                    "type": "string",
-                    "enum": [
-                      "dancer",
-                      "school"
-                    ]
-                  },
-                  "confirmPassword": {
-                    "type": "string"
-                  },
-                  "username": {
-                    "type": "string"
-                  },
-                  "firstName": {
-                    "type": "string"
-                  },
-                  "lastName": {
-                    "type": "string"
-                  },
-                  "termsChecked": {
-                    "type": "boolean"
-                  }
-                },
-                "required": [
-                  "email",
-                  "password",
-                  "accountType",
-                  "confirmPassword",
-                  "username",
-                  "firstName",
-                  "lastName",
-                  "termsChecked"
-                ]
+                "$ref": "#/components/schemas/AuthSignupRequest"
               }
             }
           }
@@ -281,72 +55,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "email": {
-                      "type": "string"
-                    },
-                    "username": {
-                      "type": "string"
-                    },
-                    "firstName": {
-                      "type": "string"
-                    },
-                    "lastName": {
-                      "type": "string"
-                    },
-                    "phone": {
-                      "oneOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "id": {
-                      "type": "string"
-                    },
-                    "avatar": {
-                      "oneOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "displayEmail": {
-                      "type": "string"
-                    },
-                    "createdAt": {
-                      "type": "string"
-                    },
-                    "updatedAt": {
-                      "oneOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    }
-                  },
-                  "required": [
-                    "email",
-                    "username",
-                    "firstName",
-                    "lastName",
-                    "phone",
-                    "id",
-                    "avatar",
-                    "displayEmail",
-                    "createdAt",
-                    "updatedAt"
-                  ]
+                  "$ref": "#/components/schemas/AuthSignupResponse"
                 }
               }
             }
@@ -356,7 +65,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponse"
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -375,41 +84,31 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string"
-                  },
-                  "password": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "email",
-                  "password"
-                ]
+                "$ref": "#/components/schemas/AuthLoginRequest"
               }
             }
           }
         },
         "responses": {
           "204": {
-            "description": "No Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            }
+            "description": "No Content"
           },
           "422": {
             "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponse"
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -430,15 +129,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ]
+                  "$ref": "#/components/schemas/AuthLogoutResponse"
                 }
               }
             }
@@ -459,15 +150,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ]
+                  "$ref": "#/components/schemas/AuthRefreshResponse"
                 }
               }
             }
@@ -489,76 +172,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "email": {
-                      "type": "string"
-                    },
-                    "username": {
-                      "type": "string"
-                    },
-                    "type": {
-                      "type": "string",
-                      "enum": [
-                        "dancer",
-                        "school"
-                      ]
-                    },
-                    "platforms": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "enum": [
-                          "core",
-                          "prodigy"
-                        ]
-                      }
-                    },
-                    "id": {
-                      "type": "string"
-                    },
-                    "avatar": {
-                      "oneOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "displayEmail": {
-                      "type": "string"
-                    },
-                    "subscribed": {
-                      "type": "boolean"
-                    },
-                    "admin": {
-                      "oneOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "core",
-                            "prodigy"
-                          ]
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    }
-                  },
-                  "required": [
-                    "email",
-                    "username",
-                    "type",
-                    "platforms",
-                    "id",
-                    "avatar",
-                    "displayEmail",
-                    "subscribed",
-                    "admin"
-                  ]
+                  "$ref": "#/components/schemas/AuthSessionResponse"
                 }
               }
             }
@@ -579,15 +193,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ]
+                  "$ref": "#/components/schemas/AuthTestResponse"
                 }
               }
             }
@@ -601,7 +207,7 @@
   },
   "components": {
     "schemas": {
-      "ApiError": {
+      "Error": {
         "properties": {
           "message": {
             "type": "string",
@@ -617,25 +223,16 @@
             "description": "HTTP status code returned by the server",
             "example": 429
           },
-          "meta": {
-            "type": "object",
+          "retryAfter": {
+            "type": "integer",
+            "description": "Seconds until the request can be retried",
+            "example": 60
+          },
+          "errors": {
+            "type": "array",
             "description": "Additional context specific to the error type",
-            "properties": {
-              "retryAfter": {
-                "type": "integer",
-                "description": "Seconds until the request can be retried",
-                "example": 60
-              },
-              "field": {
-                "type": "string",
-                "description": "Validation error field name",
-                "example": "email"
-              },
-              "rule": {
-                "type": "string",
-                "description": "Validation error rule",
-                "example": "required"
-              }
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
             }
           }
         },
@@ -645,18 +242,352 @@
           "status"
         ]
       },
-      "ApiErrorResponse": {
+      "ValidationError": {
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "Validation error field name",
+            "example": "email"
+          },
+          "rule": {
+            "type": "string",
+            "description": "Validation error rule",
+            "example": "required"
+          }
+        },
+        "required": [
+          "field",
+          "rule"
+        ]
+      },
+      "AccountType": {
+        "type": "string",
+        "enum": [
+          "dancer",
+          "school"
+        ]
+      },
+      "PlatformName": {
+        "type": "string",
+        "enum": [
+          "core",
+          "prodigy"
+        ]
+      },
+      "HealthResponse": {
         "type": "object",
         "properties": {
-          "errors": {
+          "isHealthy": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "warning",
+              "error"
+            ]
+          },
+          "finishedAt": {
+            "type": "string"
+          },
+          "debugInfo": {
+            "type": "object",
+            "properties": {
+              "pid": {
+                "type": "number"
+              },
+              "ppid": {
+                "type": "number"
+              },
+              "uptime": {
+                "type": "number"
+              },
+              "version": {
+                "type": "string"
+              },
+              "platform": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "pid",
+              "uptime",
+              "version",
+              "platform"
+            ]
+          },
+          "checks": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ApiError"
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "ok",
+                    "warning",
+                    "error"
+                  ]
+                },
+                "finishedAt": {
+                  "type": "string"
+                },
+                "isCached": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {}
+                }
+              },
+              "required": [
+                "status",
+                "finishedAt",
+                "isCached",
+                "name",
+                "message"
+              ]
             }
           }
         },
         "required": [
-          "errors"
+          "isHealthy",
+          "status",
+          "finishedAt",
+          "debugInfo",
+          "checks"
+        ]
+      },
+      "AuthSignupRequest": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "accountType": {
+            "$ref": "#/components/schemas/AccountType"
+          },
+          "confirmPassword": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "termsChecked": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "accountType",
+          "confirmPassword",
+          "username",
+          "firstName",
+          "lastName",
+          "termsChecked"
+        ]
+      },
+      "AuthSignupResponse": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "avatar": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "displayEmail": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "email",
+          "username",
+          "firstName",
+          "lastName",
+          "phone",
+          "id",
+          "avatar",
+          "displayEmail",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "AuthLoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "AuthLogoutResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "AuthRefreshResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "AuthSessionResponse": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/AccountType"
+          },
+          "platforms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlatformName"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "avatar": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "displayEmail": {
+            "type": "string"
+          },
+          "subscribed": {
+            "type": "boolean"
+          },
+          "admin": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PlatformName"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "email",
+          "username",
+          "type",
+          "platforms",
+          "id",
+          "avatar",
+          "displayEmail",
+          "subscribed",
+          "admin"
+        ]
+      },
+      "AuthTestResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
         ]
       }
     }

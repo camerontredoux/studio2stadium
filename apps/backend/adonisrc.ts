@@ -28,7 +28,7 @@ export default defineConfig({
   commands: [
     () => import("@adonisjs/core/commands"),
     () => import("@tuyau/core/commands"),
-    () => import("@tuyau/openapi/commands"),
+    () => import("@stos/openapi/commands"),
     () => import("@adonisjs/mail/commands"),
     () => import("@adonisjs/cache/commands"),
   ],
@@ -55,7 +55,7 @@ export default defineConfig({
     () => import("@adonisjs/redis/redis_provider"),
     () => import("@adonisjs/limiter/limiter_provider"),
     () => import("@tuyau/core/tuyau_provider"),
-    () => import("@tuyau/openapi/openapi_provider"),
+    () => import("@stos/openapi/openapi_provider"),
     () => import("@adonisjs/mail/mail_provider"),
     () => import("@adonisjs/cache/cache_provider"),
     () => import("@adonisjs/drive/drive_provider"),

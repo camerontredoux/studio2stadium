@@ -17,6 +17,18 @@ router
     router.post("/login", [LoginController]).openapi({
       summary: "Start user session",
       description: "Logs in a user and creates a session in Redis.",
+      responses: {
+        "429": {
+          description: "Too Many Requests",
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/Error",
+              },
+            },
+          },
+        },
+      },
     });
     router.post("/logout", [LogoutController]).openapi({
       summary: "End user session",

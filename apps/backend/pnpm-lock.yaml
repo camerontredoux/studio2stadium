@@ -47,9 +47,6 @@ importers:
       '@tuyau/core':
         specifier: ^0.4.2
         version: 0.4.2(@adonisjs/core@6.19.1(@adonisjs/assembler@7.8.2(typescript@5.9.3))(@vinejs/vine@4.1.0)(argon2@0.44.0))
-      '@tuyau/openapi':
-        specifier: file:../../packages/openapi
-        version: file:../../packages/openapi(@tuyau/core@0.4.2(@adonisjs/core@6.19.1(@adonisjs/assembler@7.8.2(typescript@5.9.3))(@vinejs/vine@4.1.0)(argon2@0.44.0)))
       '@vinejs/vine':
         specifier: ^4.1.0
         version: 4.1.0
@@ -1832,12 +1829,6 @@ packages:
     peerDependencies:
       '@adonisjs/core': ^6.2.0
 
-  '@tuyau/openapi@file:../../packages/openapi':
-    resolution: {directory: ../../packages/openapi, type: directory}
-    engines: {node: '>=20.6.0'}
-    peerDependencies:
-      '@tuyau/core': '>=0.3.2'
-
   '@tuyau/utils@0.0.9':
     resolution: {integrity: sha512-Uirv4CH7d7US5atdKda3mPmg2K0PsYQx2Gab7Xe/PSGdlq/fp4Ia1IWYKRL2Lfx36QAzEuHqrk4WmDxmw1sTVw==}
 
@@ -2965,10 +2956,6 @@ packages:
   json-stable-stringify-without-jsonify@1.0.1:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
 
-  json-to-pretty-yaml@1.2.2:
-    resolution: {integrity: sha512-rvm6hunfCcqegwYaG5T4yKJWxc9FXFgBVrcTZ4XfSVRwa5HA/Xs+vB/Eo9treYYHCeNM0nrSUr82V/M31Urc7A==}
-    engines: {node: '>= 0.2.0'}
-
   jsonfile@6.2.0:
     resolution: {integrity: sha512-FGuPw30AdOIUTRMC2OMRtQV+jkVj2cfPqSeWXv1NEAJ1qZ5zb1X6z1mFhbfOB/iy3ssJCD+3KuZ8r8C3uVFlAg==}
 
@@ -3217,9 +3204,6 @@ packages:
     hasBin: true
     peerDependencies:
       typescript: ^5.x
-
-  openapi3-ts@4.5.0:
-    resolution: {integrity: sha512-jaL+HgTq2Gj5jRcfdutgRGLosCy/hT8sQf6VOy+P+g36cZOjI1iukdPnijC+4CmeRzg/jEllJUboEic2FhxhtQ==}
 
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
@@ -3547,12 +3531,6 @@ packages:
 
   remeda@2.21.3:
     resolution: {integrity: sha512-XXrZdLA10oEOQhLLzEJEiFFSKi21REGAkHdImIb4rt/XXy8ORGXh5HCcpUOsElfPNDb+X6TA/+wkh+p2KffYmg==}
-
-  remedial@1.0.8:
-    resolution: {integrity: sha512-/62tYiOe6DzS5BqVsNpH/nkGlX45C/Sp6V+NtiN6JQNS1Viay7cWkazmRkrQrdFj2eshDe96SIQNIoMxqhzBOg==}
-
-  remove-trailing-spaces@1.0.9:
-    resolution: {integrity: sha512-xzG7w5IRijvIkHIjDk65URsJJ7k4J95wmcArY5PRcmjldIOl7oTvG8+X2Ag690R7SfwiOcHrWZKVc1Pp5WIOzA==}
 
   require-from-string@2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
@@ -3964,11 +3942,6 @@ packages:
 
   yaml-ast-parser@0.0.43:
     resolution: {integrity: sha512-2PTINUwsRqSd+s8XxKaJWQlUuEMHJQyEuh2edBbW8KNJz0SJPwUSD2zRWqezFEdN7IzAgeuYHFUCF7o8zRdZ0A==}
-
-  yaml@2.8.2:
-    resolution: {integrity: sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==}
-    engines: {node: '>= 14.6'}
-    hasBin: true
 
   yargs-parser@21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
@@ -6820,13 +6793,6 @@ snapshots:
       '@tuyau/utils': 0.0.9
       ts-morph: 26.0.0
 
-  '@tuyau/openapi@file:../../packages/openapi(@tuyau/core@0.4.2(@adonisjs/core@6.19.1(@adonisjs/assembler@7.8.2(typescript@5.9.3))(@vinejs/vine@4.1.0)(argon2@0.44.0)))':
-    dependencies:
-      '@tuyau/core': 0.4.2(@adonisjs/core@6.19.1(@adonisjs/assembler@7.8.2(typescript@5.9.3))(@vinejs/vine@4.1.0)(argon2@0.44.0))
-      defu: 6.1.4
-      json-to-pretty-yaml: 1.2.2
-      openapi3-ts: 4.5.0
-
   '@tuyau/utils@0.0.9': {}
 
   '@types/bytes@3.1.5': {}
@@ -7930,11 +7896,6 @@ snapshots:
 
   json-stable-stringify-without-jsonify@1.0.1: {}
 
-  json-to-pretty-yaml@1.2.2:
-    dependencies:
-      remedial: 1.0.8
-      remove-trailing-spaces: 1.0.9
-
   jsonfile@6.2.0:
     dependencies:
       universalify: 2.0.1
@@ -8139,10 +8100,6 @@ snapshots:
       supports-color: 10.2.2
       typescript: 5.9.3
       yargs-parser: 21.1.1
-
-  openapi3-ts@4.5.0:
-    dependencies:
-      yaml: 2.8.2
 
   optionator@0.9.4:
     dependencies:
@@ -8470,10 +8427,6 @@ snapshots:
   remeda@2.21.3:
     dependencies:
       type-fest: 4.41.0
-
-  remedial@1.0.8: {}
-
-  remove-trailing-spaces@1.0.9: {}
 
   require-from-string@2.0.2: {}
 
@@ -8838,8 +8791,6 @@ snapshots:
   xtend@4.0.2: {}
 
   yaml-ast-parser@0.0.43: {}
-
-  yaml@2.8.2: {}
 
   yargs-parser@21.1.1: {}
 
