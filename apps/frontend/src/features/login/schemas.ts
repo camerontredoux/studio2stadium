@@ -8,6 +8,6 @@ export const schemas = {
 
   login: z.object({
     email: z.email(),
-    password: z.string().min(2, "Minimum 8 characters"),
+    password: z.string().min(8, "Minimum 8 characters"),
   }),
-};
+} as const;

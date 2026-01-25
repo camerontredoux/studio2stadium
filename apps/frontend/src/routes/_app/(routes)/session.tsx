@@ -1,4 +1,4 @@
-import { useSession } from "@/features/auth/api/queries";
+import { useSession } from "@/features/login/api/queries";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/session")({

@@ -11,33 +11,6 @@
     }
   ],
   "paths": {
-    "/health": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HealthResponse"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Service Unavailable",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HealthResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/auth/signup": {
       "post": {
         "requestBody": {
@@ -142,27 +115,6 @@
         "description": "Logs out the current user and deletes their session from Redis."
       }
     },
-    "/auth/refresh": {
-      "post": {
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthRefreshResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Authentication"
-        ],
-        "summary": "Refresh user session",
-        "description": "Refreshes the current user's session by bumping the Redis version."
-      }
-    },
     "/auth/session": {
       "get": {
         "parameters": [],
@@ -185,23 +137,31 @@
         "description": "Retrieves the current session's user information."
       }
     },
-    "/auth/test": {
-      "post": {
+    "/health": {
+      "get": {
+        "parameters": [],
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthTestResponse"
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
                 }
               }
             }
           }
-        },
-        "tags": [
-          "Authentication"
-        ]
+        }
       }
     }
   },
@@ -249,15 +209,23 @@
             "description": "Validation error field name",
             "example": "email"
           },
-          "rule": {
+          "message": {
             "type": "string",
-            "description": "Validation error rule",
-            "example": "required"
+            "description": "Validation error message",
+            "example": "Email is required"
           }
         },
         "required": [
           "field",
-          "rule"
+          "message"
+        ]
+      },
+      "Role": {
+        "type": "string",
+        "enum": [
+          "user",
+          "admin",
+          "prodigy_admin"
         ]
       },
       "AccountType": {
@@ -274,6 +242,176 @@
           "prodigy"
         ]
       },
+      "AuthSignupRequest": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "accountType": {
+            "$ref": "#/components/schemas/AccountType"
+          },
+          "username": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "termsChecked": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "accountType",
+          "username",
+          "firstName",
+          "lastName",
+          "termsChecked"
+        ]
+      },
+      "AuthSignupResponse": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "avatar": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "displayEmail": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "username",
+          "id",
+          "role",
+          "avatar",
+          "displayEmail",
+          "firstName",
+          "lastName"
+        ]
+      },
+      "AuthLoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "AuthLogoutResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "AuthSessionResponse": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/AccountType"
+          },
+          "platforms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlatformName"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "avatar": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "displayEmail": {
+            "type": "string"
+          },
+          "subscribed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "email",
+          "username",
+          "type",
+          "platforms",
+          "id",
+          "role",
+          "avatar",
+          "displayEmail",
+          "subscribed"
+        ]
+      },
       "HealthResponse": {
         "type": "object",
         "properties": {
@@ -283,9 +421,9 @@
           "status": {
             "type": "string",
             "enum": [
+              "error",
               "ok",
-              "warning",
-              "error"
+              "warning"
             ]
           },
           "finishedAt": {
@@ -322,12 +460,22 @@
             "items": {
               "type": "object",
               "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "message": {
+                  "type": "string"
+                },
                 "status": {
                   "type": "string",
                   "enum": [
+                    "error",
                     "ok",
-                    "warning",
-                    "error"
+                    "warning"
                   ]
                 },
                 "finishedAt": {
@@ -335,24 +483,14 @@
                 },
                 "isCached": {
                   "type": "boolean"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                },
-                "meta": {
-                  "type": "object",
-                  "properties": {}
                 }
               },
               "required": [
+                "name",
+                "message",
                 "status",
                 "finishedAt",
-                "isCached",
-                "name",
-                "message"
+                "isCached"
               ]
             }
           }
@@ -363,231 +501,6 @@
           "finishedAt",
           "debugInfo",
           "checks"
-        ]
-      },
-      "AuthSignupRequest": {
-        "type": "object",
-        "properties": {
-          "phone": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          },
-          "accountType": {
-            "$ref": "#/components/schemas/AccountType"
-          },
-          "confirmPassword": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "termsChecked": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "email",
-          "password",
-          "accountType",
-          "confirmPassword",
-          "username",
-          "firstName",
-          "lastName",
-          "termsChecked"
-        ]
-      },
-      "AuthSignupResponse": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "phone": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "id": {
-            "type": "string"
-          },
-          "avatar": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "displayEmail": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "email",
-          "username",
-          "firstName",
-          "lastName",
-          "phone",
-          "id",
-          "avatar",
-          "displayEmail",
-          "createdAt",
-          "updatedAt"
-        ]
-      },
-      "AuthLoginRequest": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "email",
-          "password"
-        ]
-      },
-      "AuthLogoutResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "message"
-        ]
-      },
-      "AuthRefreshResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "message"
-        ]
-      },
-      "AuthSessionResponse": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          },
-          "type": {
-            "$ref": "#/components/schemas/AccountType"
-          },
-          "platforms": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PlatformName"
-            }
-          },
-          "id": {
-            "type": "string"
-          },
-          "avatar": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "displayEmail": {
-            "type": "string"
-          },
-          "subscribed": {
-            "type": "boolean"
-          },
-          "admin": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/PlatformName"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "email",
-          "username",
-          "type",
-          "platforms",
-          "id",
-          "avatar",
-          "displayEmail",
-          "subscribed",
-          "admin"
-        ]
-      },
-      "AuthTestResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "message"
         ]
       }
     }

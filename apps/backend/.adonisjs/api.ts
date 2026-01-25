@@ -7,41 +7,27 @@
 import type { MakeTuyauRequest, MakeTuyauResponse } from '@tuyau/utils/types'
 import type { InferInput } from '@vinejs/vine/types'
 
-type HealthGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/health/controller.ts').default['handle'], false>
-}
 type AuthSignupPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/signup/validator.ts')['signupValidator']>>
-  response: MakeTuyauResponse<import('../app/modules/users/signup/controller.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/auth/signup/validator.ts')['signupValidator']>>
+  response: MakeTuyauResponse<import('../app/modules/auth/signup/index.ts').default['handle'], true>
 }
 type AuthLoginPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/login/validator.ts')['loginValidator']>>
-  response: MakeTuyauResponse<import('../app/modules/users/login/controller.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/auth/login/validator.ts')['loginValidator']>>
+  response: MakeTuyauResponse<import('../app/modules/auth/login/index.ts').default['handle'], true>
 }
 type AuthLogoutPost = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/users/logout.ts').default['handle'], false>
-}
-type AuthRefreshPost = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/users/refresh-session/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/auth/logout/index.ts').default['handle'], false>
 }
 type AuthSessionGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/users/get-session.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/auth/get-session/index.ts').default['handle'], false>
 }
-type AuthTestPost = {
+type HealthGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/users/testing.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/health/index.ts').default['handle'], false>
 }
 export interface ApiDefinition {
-  'health': {
-    '$url': {
-    };
-    '$get': HealthGetHead;
-    '$head': HealthGetHead;
-  };
   'auth': {
     'signup': {
       '$url': {
@@ -58,22 +44,18 @@ export interface ApiDefinition {
       };
       '$post': AuthLogoutPost;
     };
-    'refresh': {
-      '$url': {
-      };
-      '$post': AuthRefreshPost;
-    };
     'session': {
       '$url': {
       };
       '$get': AuthSessionGetHead;
       '$head': AuthSessionGetHead;
     };
-    'test': {
-      '$url': {
-      };
-      '$post': AuthTestPost;
+  };
+  'health': {
+    '$url': {
     };
+    '$get': HealthGetHead;
+    '$head': HealthGetHead;
   };
 }
 const routes = [

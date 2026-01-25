@@ -14,10 +14,10 @@ datasource db {
  */
 
 model User {
-  id            String        @id @default(dbgenerated("gen_random_uuid()"))
-  username      String        @unique @db.Citext
-  email         String        @unique @db.Citext
-  admin_access  PlatformName?
+  id            String      @id @default(dbgenerated("gen_random_uuid()"))
+  username      String      @unique @db.Citext
+  email         String      @unique @db.Citext
+  role          Role
   account_type  AccountType
   display_email String
   first_name    String
@@ -531,6 +531,12 @@ enum SubscriptionSource {
 enum PlatformName {
   core
   prodigy
+}
+
+enum Role {
+  admin
+  prodigy_admin
+  user
 }
 
 enum AccountType {

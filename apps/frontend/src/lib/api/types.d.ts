@@ -4,50 +4,6 @@
  */
 
 export interface paths {
-    "/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["HealthResponse"];
-                    };
-                };
-                /** @description Service Unavailable */
-                503: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["HealthResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/auth/signup": {
         parameters: {
             query?: never;
@@ -198,45 +154,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/auth/refresh": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Refresh user session
-         * @description Refreshes the current user's session by bumping the Redis version.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AuthRefreshResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/auth/session": {
         parameters: {
             query?: never;
@@ -276,16 +193,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/auth/test": {
+    "/health": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
-        post: {
+        get: {
             parameters: {
                 query?: never;
                 header?: never;
@@ -300,11 +215,22 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["AuthTestResponse"];
+                        "application/json": components["schemas"]["HealthResponse"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["HealthResponse"];
                     };
                 };
             };
         };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -349,13 +275,53 @@ export interface components {
             message: string;
         };
         /** @enum {string} */
+        Role: "admin" | "user" | "prodigy_admin";
+        /** @enum {string} */
         AccountType: "dancer" | "school";
         /** @enum {string} */
-        PlatformName: "core" | "prodigy";
+        PlatformName: "prodigy" | "core";
+        AuthSignupRequest: {
+            phone?: string | null;
+            email: string;
+            password: string;
+            accountType: components["schemas"]["AccountType"];
+            username: string;
+            firstName: string;
+            lastName: string;
+            termsChecked: boolean;
+        };
+        AuthSignupResponse: {
+            email: string;
+            username: string;
+            id: string;
+            role: components["schemas"]["Role"];
+            avatar: string | null;
+            displayEmail: string;
+            firstName: string;
+            lastName: string;
+        };
+        AuthLoginRequest: {
+            email: string;
+            password: string;
+        };
+        AuthLogoutResponse: {
+            message: string;
+        };
+        AuthSessionResponse: {
+            email: string;
+            username: string;
+            type: components["schemas"]["AccountType"];
+            platforms: components["schemas"]["PlatformName"][];
+            id: string;
+            role: components["schemas"]["Role"];
+            avatar: string | null;
+            displayEmail: string;
+            subscribed: boolean;
+        };
         HealthResponse: {
             isHealthy: boolean;
             /** @enum {string} */
-            status: "ok" | "warning" | "error";
+            status: "error" | "ok" | "warning";
             finishedAt: string;
             debugInfo: {
                 pid: number;
@@ -365,61 +331,14 @@ export interface components {
                 platform: string;
             };
             checks: {
+                name: string;
+                meta?: Record<string, never>;
+                message: string;
                 /** @enum {string} */
-                status: "ok" | "warning" | "error";
+                status: "error" | "ok" | "warning";
                 finishedAt: string;
                 isCached: boolean;
-                name: string;
-                message: string;
-                meta?: Record<string, never>;
             }[];
-        };
-        AuthSignupRequest: {
-            phone?: string | null;
-            email: string;
-            password: string;
-            accountType: components["schemas"]["AccountType"];
-            confirmPassword: string;
-            username: string;
-            firstName: string;
-            lastName: string;
-            termsChecked: boolean;
-        };
-        AuthSignupResponse: {
-            email: string;
-            username: string;
-            firstName: string;
-            lastName: string;
-            phone: string | null;
-            id: string;
-            avatar: string | null;
-            displayEmail: string;
-            createdAt: string;
-            updatedAt: string | null;
-        };
-        AuthLoginRequest: {
-            email: string;
-            password: string;
-        };
-        AuthLogoutResponse: {
-            message: string;
-        };
-        AuthRefreshResponse: {
-            message: string;
-        };
-        AuthSessionResponse: {
-            email: string;
-            username: string;
-            type: components["schemas"]["AccountType"];
-            platforms: components["schemas"]["PlatformName"][];
-            id: string;
-            avatar: string | null;
-            displayEmail: string;
-            subscribed: boolean;
-            admin: components["schemas"]["PlatformName"] | null;
-        };
-        AuthTestResponse: {
-            message: string;
         };
     };
     responses: never;

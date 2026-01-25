@@ -1,4 +1,4 @@
-const HealthChecksController = () => import("#modules/health/controller");
+const HealthChecksController = () => import("#modules/health/index");
 import env from "#start/env";
 import router from "@adonisjs/core/services/router";
 

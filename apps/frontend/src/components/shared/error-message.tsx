@@ -2,7 +2,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useSearch } from "@tanstack/react-router";
 import { CircleAlertIcon } from "lucide-react";
 
-export function SignupErrorMessage() {
+export function ErrorMessage() {
   const { reason } = useSearch({ strict: false });
 
   if (reason === "network_error") {
@@ -11,20 +11,7 @@ export function SignupErrorMessage() {
         <CircleAlertIcon />
         <AlertTitle>Network Error</AlertTitle>
         <AlertDescription>
-          We were unable to connect to the server. Please check your internet
-          connection and try again.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
-  if (reason === "server_error") {
-    return (
-      <Alert variant="error">
-        <CircleAlertIcon />
-        <AlertTitle>Server Error</AlertTitle>
-        <AlertDescription>
-          We were unable to connect to the server. Please try again.
+          We were unable to connect to the server.
         </AlertDescription>
       </Alert>
     );

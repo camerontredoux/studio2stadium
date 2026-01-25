@@ -1,8 +1,9 @@
 import { db } from "#database/connection";
-import {
-  type AccountType,
-  type PlatformName,
-  type User,
+import type {
+  AccountType,
+  PlatformName,
+  Role,
+  User,
 } from "#database/generated/types";
 import hash from "@adonisjs/core/services/hash";
 import testUtils from "@adonisjs/core/services/test_utils";
@@ -15,6 +16,7 @@ const userFixture: Insertable<User> = {
   id: "test-id",
   email: "test@example.com",
   account_type: "dancer",
+  role: "user" as Role,
   display_email: faker.internet.email(),
   username: faker.internet.username(),
   first_name: faker.person.firstName(),
@@ -102,9 +104,8 @@ test.group("Login", (group) => {
       displayEmail: user.displayEmail,
       username: user.username,
       avatar: user.avatar,
-      createdAt: user.createdAt,
       type: "dancer" as AccountType,
-      admin: null,
+      role: "user" as Role,
       subscribed: false,
       platforms: ["core" as PlatformName],
     };

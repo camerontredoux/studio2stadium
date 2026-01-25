@@ -26,6 +26,12 @@ export const PlatformName = {
     prodigy: "prodigy"
 } as const;
 export type PlatformName = (typeof PlatformName)[keyof typeof PlatformName];
+export const Role = {
+    admin: "admin",
+    prodigy_admin: "prodigy_admin",
+    user: "user"
+} as const;
+export type Role = (typeof Role)[keyof typeof Role];
 export const AccountType = {
     dancer: "dancer",
     school: "school"
@@ -232,7 +238,7 @@ export type User = {
     id: Generated<string>;
     username: string;
     email: string;
-    admin_access: PlatformName | null;
+    role: Role;
     account_type: AccountType;
     display_email: string;
     first_name: string;

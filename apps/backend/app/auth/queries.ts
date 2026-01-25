@@ -33,7 +33,7 @@ export async function getUserSession(id: string) {
       "users.username as username",
       "users.avatar as avatar",
       "users.account_type as type",
-      "users.admin_access as admin",
+      "users.role as role",
       eb
         .exists(
           selectFrom("user_subscriptions")

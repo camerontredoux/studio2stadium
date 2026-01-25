@@ -1,12 +1,10 @@
 import { middleware } from "#start/kernel";
+import { tooManyRequests } from "#utils/responses";
 import router from "@adonisjs/core/services/router";
-const TestController = () => import("./testing.ts");
-const RefreshSessionController = () =>
-  import("./refresh-session/controller.ts");
-const GetSessionController = () => import("./get-session.ts");
-const LogoutController = () => import("./logout.ts");
-const LoginController = () => import("./login/controller.ts");
-const SignupController = () => import("./signup/controller.ts");
+const GetSessionController = () => import("./get-session/index.ts");
+const LogoutController = () => import("./logout/index.ts");
+const LoginController = () => import("./login/index.ts");
+const SignupController = () => import("./signup/index.ts");
 
 router
   .group(() => {
@@ -18,16 +16,7 @@ router
       summary: "Start user session",
       description: "Logs in a user and creates a session in Redis.",
       responses: {
-        "429": {
-          description: "Too Many Requests",
-          content: {
-            "application/json": {
-              schema: {
-                $ref: "#/components/schemas/Error",
-              },
-            },
-          },
-        },
+        ...tooManyRequests,
       },
     });
     router.post("/logout", [LogoutController]).openapi({
@@ -36,21 +25,12 @@ router
         "Logs out the current user and deletes their session from Redis.",
     });
     router
-      .post("/refresh", [RefreshSessionController])
-      .openapi({
-        summary: "Refresh user session",
-        description:
-          "Refreshes the current user's session by bumping the Redis version.",
-      })
-      .use(middleware.auth());
-    router
       .get("/session", [GetSessionController])
       .openapi({
         summary: "Get user session",
         description: "Retrieves the current session's user information.",
       })
       .use(middleware.auth());
-    router.post("/test", [TestController]).use(middleware.auth());
   })
   .prefix("auth")
   .openapi({ tags: ["Authentication"] });

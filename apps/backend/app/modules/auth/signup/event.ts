@@ -9,7 +9,7 @@ export class SignupEvent extends BaseEvent {
 
 class VerificationListener {
   async handle(event: SignupEvent) {
-    console.log(event.user.displayEmail);
+    console.log(event.user.email);
     // await mail.send(new VerifyEmailNotification(user));
     // create the system event here
   }

@@ -1,20 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { useLogout } from "@/features/auth/api/mutations";
-import { useSession } from "@/features/auth/api/queries";
-import { $api } from "@/lib/api/client";
+import { useLogout } from "@/features/login/api/mutations";
+import { useSession } from "@/features/login/api/queries";
 import { Link } from "@tanstack/react-router";
 
 export function DancerNavItems() {
   const { session } = useSession();
 
   const { mutate, isPending } = useLogout();
-
-  const test = $api.useMutation("post", "/auth/test", {
-    onError: (e) => {
-      console.log(e);
-    },
-  });
 
   return (
     <div className="flex items-center gap-2">
@@ -44,21 +37,6 @@ export function DancerNavItems() {
           </>
         ) : (
           "Logout"
-        )}
-      </Button>
-      <Button
-        disabled={test.isPending}
-        variant="outline"
-        size="sm"
-        onClick={() => test.mutate(undefined)}
-      >
-        {test.isPending ? (
-          <>
-            <Spinner />
-            Logging out...
-          </>
-        ) : (
-          "401"
         )}
       </Button>
     </div>

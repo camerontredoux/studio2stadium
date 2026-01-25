@@ -2,8 +2,9 @@
 import { redirect } from "@tanstack/react-router";
 import type { ApiSchemas } from "./api/client";
 
-export type Session = ApiSchemas["AuthSessionResponse"]
+export type Session = ApiSchemas["AuthSessionResponse"];
 
+export type Role = ApiSchemas["Role"];
 export type Platform = ApiSchemas["PlatformName"];
 export type AccountType = ApiSchemas["AccountType"];
 
@@ -41,7 +42,8 @@ type Policies = Policy[];
 export const createAccess = (session: Session) => {
   const _permissions = new Set<Permission>();
 
-  if (!session.platforms) throw new Error("Unauthorized");
+  if (session.type === "dancer" && !session.platforms)
+    throw new Error("Unauthorized");
 
   const platforms = session.platforms;
 
@@ -49,7 +51,7 @@ export const createAccess = (session: Session) => {
     _permissions.add(`view:${platform}:${session.type}` as Permission);
   }
   // Type-safe helper to create policies
-  const policy = (predicate: Policy) => session.admin === "core" || predicate();
+  const policy = (predicate: Policy) => session.role === "admin" || predicate();
 
   /**
    * @returns Boolean value indicating if the user has the permission

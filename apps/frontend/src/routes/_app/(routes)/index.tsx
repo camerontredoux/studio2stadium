@@ -11,8 +11,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { useLogout } from "@/features/auth/api/mutations";
-import { useSession } from "@/features/auth/api/queries";
+import { useLogout } from "@/features/login/api/mutations";
+import { useSession } from "@/features/login/api/queries";
 
 export const Route = createFileRoute("/_app/(routes)/")({
   component: RouteComponent,

@@ -1,1 +1,1 @@
-import "#modules/users/signup/event";
+import "#modules/auth/signup/event";

@@ -16,9 +16,7 @@ export class SignupQueries extends BaseQuery {
           "first_name as firstName",
           "last_name as lastName",
           "avatar",
-          "phone",
-          "created_at as createdAt",
-          "updated_at as updatedAt",
+          "role",
         ])
         .executeTakeFirstOrThrow()
     );

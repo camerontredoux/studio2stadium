@@ -4,20 +4,23 @@ import { cn } from "@/components/utils/cn";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { FieldError as FieldErrorType } from "react-hook-form";
 
-const fieldVariants = cva("data-[invalid=true]:text-destructive gap-2 group/field flex w-full", {
-  variants: {
-    orientation: {
-      vertical: "flex-col [&>*]:w-full [&>.sr-only]:w-auto",
-      horizontal:
-        "flex-row items-center [&>[data-slot=field-label]]:flex-auto has-[>[data-slot=field-content]]:items-start has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px",
-      responsive:
-        "flex-col [&>*]:w-full [&>.sr-only]:w-auto @sm/field-group:flex-row @sm/field-group:items-center @sm/field-group:[&>*]:w-auto @sm/field-group:[&>[data-slot=field-label]]:flex-auto @sm/field-group:has-[>[data-slot=field-content]]:items-start @sm/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px",
+const fieldVariants = cva(
+  "data-[invalid=true]:text-destructive gap-2 group/field flex w-full",
+  {
+    variants: {
+      orientation: {
+        vertical: "flex-col [&>*]:w-full [&>.sr-only]:w-auto",
+        horizontal:
+          "flex-row items-center [&>[data-slot=field-label]]:flex-auto has-[>[data-slot=field-content]]:items-start has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px",
+        responsive:
+          "flex-col [&>*]:w-full [&>.sr-only]:w-auto @sm/field-group:flex-row @sm/field-group:items-center @sm/field-group:[&>*]:w-auto @sm/field-group:[&>[data-slot=field-label]]:flex-auto @sm/field-group:has-[>[data-slot=field-content]]:items-start @sm/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px",
+      },
+    },
+    defaultVariants: {
+      orientation: "vertical",
     },
   },
-  defaultVariants: {
-    orientation: "vertical",
-  },
-});
+);
 
 function Field({
   className,
@@ -52,7 +55,7 @@ function FieldLabel({ className, ...props }: FieldPrimitive.Label.Props) {
   return (
     <FieldPrimitive.Label
       className={cn(
-        "inline-flex items-center gap-2 font-medium text-base/4.5 sm:text-sm/4",
+        "inline-flex items-center gap-2 font-medium text-sm/4",
         className,
       )}
       data-slot="field-label"
@@ -61,7 +64,10 @@ function FieldLabel({ className, ...props }: FieldPrimitive.Label.Props) {
   );
 }
 
-function FieldDescription({ className, ...props }: FieldPrimitive.Description.Props) {
+function FieldDescription({
+  className,
+  ...props
+}: FieldPrimitive.Description.Props) {
   return (
     <FieldPrimitive.Description
       className={cn("text-muted-foreground text-xs", className)}
@@ -91,4 +97,12 @@ function FieldError({
 const FieldControl = FieldPrimitive.Control;
 const FieldValidity = FieldPrimitive.Validity;
 
-export { Field, FieldControl, FieldDescription, FieldError, FieldLabel, FieldValidity, FieldGroup };
+export {
+  Field,
+  FieldControl,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldValidity,
+};

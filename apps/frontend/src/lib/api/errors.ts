@@ -9,6 +9,10 @@ export const handleApiError =
     onError?: (message: string) => void;
   }) =>
   (error: ApiError) => {
+    if (error instanceof TypeError) {
+      return;
+    }
+
     if (error.retryAfter && handlers.onRateLimit) {
       handlers.onRateLimit(error.retryAfter);
       return;

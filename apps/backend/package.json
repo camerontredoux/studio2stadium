@@ -19,7 +19,7 @@
     "db:studio": "prisma studio",
     "make:feature": "node ace make:feature",
     "make:docs": "node ace tuyau:generate",
-    "make:spec": "node ace tuyau:generate:openapi"
+    "make:spec": "node ace generate:openapi"
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
@@ -66,8 +66,8 @@
     "openapi-typescript": "^7.10.1",
     "pino-pretty": "^13.0.0",
     "prettier": "^3.7.4",
-    "prisma": "^7.2.0",
-    "prisma-kysely": "^2.2.1",
+    "prisma": "^7.3.0",
+    "prisma-kysely": "^3.0.0",
     "ts-node-maintained": "^10.9.5",
     "tsx": "^4.21.0",
     "typescript": "~5.9"
@@ -87,7 +87,7 @@
     "@stos/openapi": "workspace:*",
     "@tuyau/core": "^0.4.2",
     "@vinejs/vine": "^4.1.0",
-    "argon2": "^0.44.0",
+    "argon2": "^0.43.0",
     "kysely": "^0.28.8",
     "luxon": "^3.7.2",
     "pg": "^8.16.3",
