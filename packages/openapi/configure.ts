@@ -12,13 +12,13 @@
 |
 */
 
-import type ConfigureCommand from '@adonisjs/core/commands/configure'
+import type ConfigureCommand from "@adonisjs/core/commands/configure";
 
 export async function configure(command: ConfigureCommand) {
-  const codemods = await command.createCodemods()
+  const codemods = await command.createCodemods();
 
   await codemods.updateRcFile((rcFile) => {
-    rcFile.addCommand('@tuyau/openapi/commands')
-    rcFile.addProvider('@tuyau/openapi/openapi_provider')
-  })
+    rcFile.addCommand("@stos/openapi/commands");
+    rcFile.addProvider("@stos/openapi/openapi_provider");
+  });
 }

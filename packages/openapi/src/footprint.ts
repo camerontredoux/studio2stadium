@@ -21,19 +21,117 @@ const project = (tsConfigFilePath: string) => {
   return result
 }
 
+/**
+ * Built-in/utility types that should NOT be preserved as named references.
+ * These are either TypeScript built-ins or framework utility types that
+ * should be expanded inline rather than referenced.
+ */
+const BUILTIN_TYPES = new Set([
+  // TypeScript built-ins
+  'Array',
+  'Promise',
+  'Record',
+  'Partial',
+  'Pick',
+  'Omit',
+  'Required',
+  'Readonly',
+  'Exclude',
+  'Extract',
+  'NonNullable',
+  'ReturnType',
+  'Parameters',
+  'InstanceType',
+  'Map',
+  'Set',
+  'WeakMap',
+  'WeakSet',
+  'Date',
+  'RegExp',
+  // Tuyau utility types
+  'MakeTuyauRequest',
+  'MakeTuyauResponse',
+  'MakeNonSerializedTuyauResponse',
+  'Serialize',
+  'SerializeObject',
+  'SerializeTuple',
+  'Simplify',
+  'Prettify',
+  'MakeOptional',
+  'ConvertReturnTypeToRecordStatusResponse',
+  // VineJS types
+  'InferInput',
+  'InferOutput',
+  // Kysely types
+  'Generated',
+  'ColumnType',
+  'Insertable',
+  'Selectable',
+  'Updateable',
+])
+
+/**
+ * Information about a collected type alias
+ */
+export interface CollectedAlias {
+  name: string
+  expandedType: string
+}
+
 export function typeFootprint(
   fileName: string,
   typeName: string,
   opts: { overrides?: Record<string, string>; tsConfigFilePath: string },
-) {
+): string {
   const p = project(opts.tsConfigFilePath)
   const s = p.addSourceFileAtPath(fileName)
   const a = s.getInterfaceOrThrow(typeName)
   const t = a.getType()
 
-  const text = footprintOfType({ type: t, node: a, overrides: opts?.overrides })
+  // Collect type aliases during traversal
+  const collectedAliases = new Map<string, CollectedAlias>()
 
-  return `interface ${typeName} ` + text
+  const text = footprintOfType({
+    type: t,
+    node: a,
+    overrides: opts?.overrides,
+    collectedAliases,
+  })
+
+  // Generate type definitions for collected aliases
+  const aliasDefinitions = Array.from(collectedAliases.values())
+    .map(({ name, expandedType }) => `type ${name} = ${expandedType};`)
+    .join('\n')
+
+  const prefix = aliasDefinitions ? aliasDefinitions + '\n\n' : ''
+
+  return prefix + `interface ${typeName} ` + text
+}
+
+/**
+ * Returns the collected aliases from the last typeFootprint call.
+ * Useful for the generator to know which types to add to components/schemas.
+ */
+export function getCollectedAliases(
+  fileName: string,
+  typeName: string,
+  opts: { overrides?: Record<string, string>; tsConfigFilePath: string },
+): CollectedAlias[] {
+  const p = project(opts.tsConfigFilePath)
+  const s = p.addSourceFileAtPath(fileName)
+  const a = s.getInterfaceOrThrow(typeName)
+  const t = a.getType()
+
+  const collectedAliases = new Map<string, CollectedAlias>()
+
+  footprintOfType({
+    type: t,
+    node: a,
+    overrides: opts?.overrides,
+    collectedAliases,
+  })
+
+  return Array.from(collectedAliases.values())
 }
 
 function isPrimitive(type: Type) {
@@ -79,27 +177,67 @@ type FormatFlags =
   | false // <- to be able to pass down conditional flags
   | 'remove-undefined-from-intersections'
 
+/**
+ * Check if a type is an endpoint wrapper type (has request/response properties)
+ */
+function isEndpointWrapperType(type: Type): boolean {
+  if (!type.isObject()) return false
+  const propNames = type.getProperties().map(p => p.getName())
+  return propNames.includes('request') && propNames.includes('response')
+}
+
+/**
+ * Check if a type alias should be preserved as a named reference
+ */
+function shouldPreserveAlias(aliasName: string, type: Type): boolean {
+  // Don't preserve built-in types
+  if (BUILTIN_TYPES.has(aliasName)) {
+    return false
+  }
+
+  // Preserve endpoint wrapper types - they'll be processed specially to extract response schemas
+  if (isEndpointWrapperType(type)) {
+    return true
+  }
+
+  // Only preserve union types of string literals (enums)
+  if (type.isUnion()) {
+    const unionTypes = type.getUnionTypes()
+    // Preserve if it's a union of string literals (like enum-style types)
+    if (unionTypes.every((t) => t.isStringLiteral() || t.isNumberLiteral() || t.isNull() || t.isUndefined())) {
+      return true
+    }
+  }
+
+  return false
+}
+
 function footprintOfType(params: {
   type: Type
   node: Node
   overrides?: Record<string, string>
+  collectedAliases?: Map<string, CollectedAlias>
   flags?: FormatFlags[]
   callStackLevel?: number
+  /** When true, we're expanding an alias - don't check for alias again */
+  expandingAlias?: boolean
 }): string {
-  const { type, node, overrides, flags = [], callStackLevel = 0 } = params
+  const { type, node, overrides, collectedAliases, flags = [], callStackLevel = 0, expandingAlias = false } = params
 
   if (callStackLevel > 20) {
     // too deep?
     return "'...'"
   }
 
-  const next = (nextType: Type, nextFlags: FormatFlags[] = []) => {
+  const next = (nextType: Type, nextFlags: FormatFlags[] = [], forceExpand = false) => {
     return footprintOfType({
       node,
       overrides,
+      collectedAliases,
       type: nextType,
       flags: nextFlags,
       callStackLevel: callStackLevel + 1,
+      expandingAlias: forceExpand,
     })
   }
 
@@ -109,11 +247,29 @@ function footprintOfType(params: {
     return type.getText(node, TypeFormatFlags.UseSingleQuotesForStringLiteralType)
   }
 
-  const symbol = type.getAliasSymbol()
-  if (overrides && symbol) {
-    const result = overrides[symbol.getName()]
-    if (result) {
-      return result
+  // Check for type alias - but only if we're not already expanding one
+  const aliasSymbol = type.getAliasSymbol()
+  if (aliasSymbol && !expandingAlias) {
+    const aliasName = aliasSymbol.getName()
+
+    // Check overrides first
+    if (overrides) {
+      const result = overrides[aliasName]
+      if (result) {
+        return result
+      }
+    }
+
+    // Check if this alias should be preserved
+    if (collectedAliases && shouldPreserveAlias(aliasName, type)) {
+      // If we haven't collected this alias yet, expand it now
+      if (!collectedAliases.has(aliasName)) {
+        // Generate the expanded type (force expansion to avoid infinite recursion)
+        const expandedType = next(type, [], true)
+        collectedAliases.set(aliasName, { name: aliasName, expandedType })
+      }
+      // Return just the alias name as a reference
+      return aliasName
     }
   }
 
@@ -167,7 +323,7 @@ function footprintOfType(params: {
       return '{}'
     }
     const sigsText = signatures(sigs, 'declaration', next)
-    const propsText = properties(props, node, next)
+    const propsText = properties(props, node, next, collectedAliases)
     const numIndexText = numIndex && `[index: number]: ${next(numIndex)};`
     const stringIndexText = stringIndex && `[index: string]: ${next(stringIndex)};`
     return [
@@ -210,14 +366,16 @@ function properties(
   props: Symbol[],
   node: Node,
   next: (type: Type, flags: FormatFlags[]) => string,
+  collectedAliases?: Map<string, CollectedAlias>,
 ) {
-  return props.map((value) => property(value, node, next)).join('\n')
+  return props.map((value) => property(value, node, next, collectedAliases)).join('\n')
 }
 
 function property(
   prop: Symbol,
   node: Node,
   next: (type: Type, flags: FormatFlags[]) => string,
+  collectedAliases?: Map<string, CollectedAlias>,
 ): string {
   const type = prop.getTypeAtLocation(node)
   const sigs = type.getCallSignatures()
@@ -227,6 +385,79 @@ function property(
   }
 
   const isOptional = prop.hasFlags(SymbolFlags.Optional)
+
+  // Check if the property type is an alias that should be preserved
+  const aliasSymbol = type.getAliasSymbol()
+  if (aliasSymbol && collectedAliases) {
+    const aliasName = aliasSymbol.getName()
+    if (shouldPreserveAlias(aliasName, type)) {
+      if (!collectedAliases.has(aliasName)) {
+        // Generate expanded type
+        const expandedType = footprintOfType({
+          type,
+          node,
+          collectedAliases,
+          expandingAlias: true,
+        })
+        collectedAliases.set(aliasName, { name: aliasName, expandedType })
+      }
+      // Return reference to alias
+      return [
+        `'${prop.getName()}'`,
+        isOptional ? '?' : '',
+        ': ',
+        aliasName,
+        ';',
+      ].join('')
+    }
+  }
+
+  // Check if this is a nullable alias (e.g., PlatformName | null) by comparing expanded types
+  if (type.isUnion() && collectedAliases) {
+    const unionTypes = type.getUnionTypes()
+    const nonNullableTypes = unionTypes.filter((t) => !t.isNull() && !t.isUndefined())
+    const isNullable = unionTypes.some((t) => t.isNull())
+    const isUndefinable = unionTypes.some((t) => t.isUndefined())
+
+    // Get the expanded form of the non-nullable part (e.g., "'core' | 'prodigy'" for PlatformName)
+    // Normalize by extracting just the literal values
+    const normalize = (s: string) => s.replace(/['"]/g, '').trim()
+    const nonNullableLiterals = nonNullableTypes
+      .filter((t) => t.isStringLiteral())
+      .map((t) => normalize(t.getText(node)))
+      .sort()
+
+    // Only proceed if all non-nullable types are string literals
+    if (nonNullableLiterals.length === nonNullableTypes.length && nonNullableLiterals.length > 0) {
+      // Check if this matches any known alias's expanded type
+      for (const [aliasName, alias] of collectedAliases) {
+        // Extract literals from the alias's expanded type
+        const aliasLiterals = alias.expandedType
+          .split('|')
+          .map((s) => normalize(s))
+          .filter((s) => s.length > 0)
+          .sort()
+
+        if (
+          nonNullableLiterals.length === aliasLiterals.length &&
+          nonNullableLiterals.every((v, i) => v === aliasLiterals[i])
+        ) {
+          // Found a match! Use the alias reference
+          const parts = [aliasName]
+          if (isNullable) parts.push('null')
+          if (isUndefinable) parts.push('undefined')
+          return [
+            `'${prop.getName()}'`,
+            isOptional ? '?' : '',
+            ': ',
+            parts.join(' | '),
+            ';',
+          ].join('')
+        }
+      }
+    }
+  }
+
   return [
     `'${prop.getName()}'`,
     isOptional ? '?' : '',

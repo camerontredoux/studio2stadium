@@ -11,7 +11,7 @@ import {
 import type tsMorph from "ts-morph";
 import { Node } from "ts-morph";
 
-import { typeFootprint } from "./footprint.js";
+import { getCollectedAliases, typeFootprint } from "./footprint.js";
 import type { MetaStore } from "./meta_store.js";
 
 const $methods = [
@@ -26,6 +26,11 @@ const $methods = [
 type Methods = (typeof $methods)[number];
 
 export class OpenApiGenerator {
+  /** Set of type alias names that should be emitted as $refs */
+  #aliasNames = new Set<string>();
+  /** Map of alias name to its schema object */
+  #aliasSchemas = new Map<string, SchemaObject>();
+
   constructor(
     private config: TuyauConfig,
     private metaStore: MetaStore,
@@ -71,6 +76,15 @@ export class OpenApiGenerator {
     type: tsMorph.Type<tsMorph.ts.Type>,
     mode: "request" | "response"
   ): SchemaObject {
+    // Check if this type is a known alias that should be a $ref
+    const aliasSymbol = type.getAliasSymbol();
+    if (aliasSymbol) {
+      const aliasName = aliasSymbol.getName();
+      if (this.#aliasNames.has(aliasName)) {
+        return { $ref: `#/components/schemas/${aliasName}` };
+      }
+    }
+
     if (type.isArray()) {
       const elementType = type.getArrayElementTypeOrThrow();
       return {
@@ -86,7 +100,48 @@ export class OpenApiGenerator {
       );
       const isNullable = unionTypes.some((t) => t.isNull());
 
+      // Check if single non-nullable type is a known alias (e.g., AccountType | null)
+      if (nonNullableTypes.length === 1) {
+        const singleType = nonNullableTypes[0];
+        const singleAliasSymbol = singleType.getAliasSymbol();
+        if (
+          singleAliasSymbol &&
+          this.#aliasNames.has(singleAliasSymbol.getName())
+        ) {
+          const schema = {
+            $ref: `#/components/schemas/${singleAliasSymbol.getName()}`,
+          };
+          if (isNullable) {
+            return { oneOf: [schema, { type: "null" }] };
+          }
+          return schema;
+        }
+      }
+
+      // Check if non-nullable string literals match a known alias (e.g., expanded PlatformName | null)
       if (nonNullableTypes.every((t) => t.isStringLiteral())) {
+        const literalValues = nonNullableTypes
+          .map((t) => t.getLiteralValue() as string)
+          .sort();
+
+        // Check against known alias schemas
+        for (const [aliasName, schema] of this.#aliasSchemas) {
+          if (schema.enum && schema.type === "string") {
+            const aliasValues = [...schema.enum].sort();
+            if (
+              literalValues.length === aliasValues.length &&
+              literalValues.every((v, i) => v === aliasValues[i])
+            ) {
+              const refSchema = { $ref: `#/components/schemas/${aliasName}` };
+              if (isNullable) {
+                return { oneOf: [refSchema, { type: "null" }] };
+              }
+              return refSchema;
+            }
+          }
+        }
+
+        // No alias match, inline the enum
         const enumValues = nonNullableTypes.map(
           (t) => t.getLiteralValue() as string
         );
@@ -365,6 +420,13 @@ export class OpenApiGenerator {
   ) {
     const request = this.#getSchemaObjectFor("request", options.methodType);
 
+    // Check if the methodType has an endpoint wrapper alias for named schemas
+    const aliasSymbol = options.methodType.getAliasSymbol();
+    const endpointAliasName =
+      aliasSymbol && this.#isEndpointWrapperType(options.methodType)
+        ? aliasSymbol.getName()
+        : null;
+
     const methods: Methods[] = ["$post", "$put", "$patch"];
     const spec: {
       parameters?: ParameterObject[];
@@ -372,7 +434,34 @@ export class OpenApiGenerator {
     } = {};
 
     if (methods.includes(options.method)) {
-      spec.requestBody = this.#schemaObjectToRequestBody(request);
+      // If we have an endpoint alias and the request has properties, create a named schema
+      if (
+        endpointAliasName &&
+        request.properties &&
+        Object.keys(request.properties).length > 0
+      ) {
+        const baseName = endpointAliasName.replace(
+          /(Get|Head|Post|Put|Patch|Delete)+$/,
+          ""
+        );
+        const requestSchemaName = `${baseName}Request`;
+
+        // Register the schema if not already registered
+        if (!this.#aliasSchemas.has(requestSchemaName)) {
+          this.#aliasSchemas.set(requestSchemaName, request);
+        }
+
+        spec.requestBody = {
+          content: {
+            "application/json": {
+              schema: { $ref: `#/components/schemas/${requestSchemaName}` },
+            },
+          },
+        };
+      } else {
+        spec.requestBody = this.#schemaObjectToRequestBody(request);
+      }
+
       if (openApiParameters.length) {
         spec.parameters = openApiParameters;
       }
@@ -382,6 +471,15 @@ export class OpenApiGenerator {
     const queryParameters = this.#schemaObjectToQueryParameters(request);
     spec.parameters = [...openApiParameters, ...queryParameters];
     return spec;
+  }
+
+  /**
+   * Check if a type is an endpoint wrapper type (has request/response properties)
+   */
+  #isEndpointWrapperType(type: tsMorph.Type<tsMorph.ts.Type>): boolean {
+    if (!type.isObject()) return false;
+    const propNames = type.getProperties().map((p) => p.getName());
+    return propNames.includes("request") && propNames.includes("response");
   }
 
   /**
@@ -435,9 +533,19 @@ export class OpenApiGenerator {
    *   }
    * }
    * ```
+   *
+   * If the methodType has an endpoint wrapper alias (like `AuthSignupPost`),
+   * it will create named response schemas and use $ref instead.
    */
   #generateResponses(methodType: tsMorph.Type<tsMorph.ts.Type>) {
     const response = this.#getSchemaObjectFor("response", methodType);
+
+    // Check if the methodType has an endpoint wrapper alias
+    const aliasSymbol = methodType.getAliasSymbol();
+    const endpointAliasName =
+      aliasSymbol && this.#isEndpointWrapperType(methodType)
+        ? aliasSymbol.getName()
+        : null;
 
     const responses: Record<string, ResponseObject> = {};
     if (response.properties) {
@@ -447,16 +555,46 @@ export class OpenApiGenerator {
             description: this.#statusToResponseDescription(status),
             content: {
               "application/json": {
-                schema: { $ref: "#/components/schemas/ApiErrorResponse" },
+                schema: { $ref: "#/components/schemas/Error" },
               },
             },
           };
           continue;
         }
-        responses[status] = {
-          description: this.#statusToResponseDescription(status),
-          content: { "application/json": { schema: schema } },
-        };
+
+        // 204 No Content should not have a response body
+        if (status === "204") {
+          responses[status] = {
+            description: this.#statusToResponseDescription(status),
+          };
+          continue;
+        }
+
+        // If we have an endpoint alias, create a named response schema and use $ref
+        if (endpointAliasName) {
+          const baseName = endpointAliasName.replace(
+            /(Get|Head|Post|Put|Patch|Delete)+$/,
+            ""
+          );
+          const responseSchemaName = `${baseName}Response`;
+          // Register the schema if not already registered (and if it's not a reference)
+          if (!this.#aliasSchemas.has(responseSchemaName) && !("$ref" in schema)) {
+            this.#aliasSchemas.set(responseSchemaName, schema);
+          }
+          responses[status] = {
+            description: this.#statusToResponseDescription(status),
+            content: {
+              "application/json": {
+                schema: { $ref: `#/components/schemas/${responseSchemaName}` },
+              },
+            },
+          };
+        } else {
+          responses[status] = {
+            description: this.#statusToResponseDescription(status),
+            content: { "application/json": { schema: schema } },
+          };
+        }
       }
     } else {
       responses["200"] = {
@@ -590,6 +728,60 @@ export class OpenApiGenerator {
   }
 
   /**
+   * Generate OpenAPI schema for a type alias
+   */
+  #generateAliasSchema(aliasType: tsMorph.TypeAliasDeclaration): SchemaObject {
+    const type = aliasType.getType();
+
+    // For union of string literals (enum-like types)
+    if (type.isUnion()) {
+      const unionTypes = type.getUnionTypes();
+      const nonNullableTypes = unionTypes.filter(
+        (t) => !t.isNull() && !t.isUndefined()
+      );
+      const isNullable = unionTypes.some((t) => t.isNull());
+
+      if (nonNullableTypes.every((t) => t.isStringLiteral())) {
+        const enumValues = nonNullableTypes.map(
+          (t) => t.getLiteralValue() as string
+        );
+        const schema: SchemaObject = { type: "string", enum: enumValues };
+
+        if (isNullable) {
+          return { oneOf: [schema, { type: "null" }] };
+        }
+        return schema;
+      }
+
+      if (nonNullableTypes.every((t) => t.isNumberLiteral())) {
+        const enumValues = nonNullableTypes.map(
+          (t) => t.getLiteralValue() as number
+        );
+        const schema: SchemaObject = { type: "number", enum: enumValues };
+
+        if (isNullable) {
+          return { oneOf: [schema, { type: "null" }] };
+        }
+        return schema;
+      }
+    }
+
+    // For object types, generate the full schema
+    if (type.isObject() && !type.isArray()) {
+      const properties = this.#getTypesProperties(type, "response");
+      const required = this.#getRequiredProperties(type);
+      return {
+        type: "object",
+        properties,
+        ...(required.length && { required }),
+      };
+    }
+
+    // Fallback to generic schema conversion
+    return this.#typeToSchemaObject(type, "response");
+  }
+
+  /**
    * Generate the openapi documentation from the typescript api definition
    */
   async generate() {
@@ -600,6 +792,21 @@ export class OpenApiGenerator {
       tsConfigFilePath: this.tsConfigFilePath,
     });
 
+    // First, collect type aliases that will be preserved
+    const collectedAliases = getCollectedAliases(
+      ".adonisjs/api.ts",
+      "ApiDefinition",
+      {
+        tsConfigFilePath: this.tsConfigFilePath,
+      }
+    );
+
+    // Store alias names for $ref generation
+    for (const alias of collectedAliases) {
+      this.#aliasNames.add(alias.name);
+    }
+
+    // Generate the footprint with preserved type aliases
     const footprint = typeFootprint(".adonisjs/api.ts", "ApiDefinition", {
       tsConfigFilePath: this.tsConfigFilePath,
     });
@@ -612,6 +819,19 @@ export class OpenApiGenerator {
       }
     );
 
+    // Generate schemas for each type alias (skip endpoint wrapper types)
+    for (const aliasName of this.#aliasNames) {
+      const aliasDecl = footprintFile.getTypeAlias(aliasName);
+      if (aliasDecl) {
+        const aliasType = aliasDecl.getType();
+        // Skip endpoint wrapper types - their response schemas are extracted separately
+        if (this.#isEndpointWrapperType(aliasType)) {
+          continue;
+        }
+        this.#aliasSchemas.set(aliasName, this.#generateAliasSchema(aliasDecl));
+      }
+    }
+
     const definition = footprintFile.getInterfaceOrThrow("ApiDefinition");
 
     const openApiDoc: OpenAPIObject = defu(this.config.openapi?.documentation, {
@@ -622,9 +842,16 @@ export class OpenApiGenerator {
       },
       servers: [{ url: "http://localhost:3333" }],
       paths: {},
+      components: { schemas: {} },
     });
 
     this.#generateApiDoc({ definition, openApiDoc });
+
+    // Add collected type alias schemas to components/schemas
+    openApiDoc.components = openApiDoc.components || { schemas: {} };
+    for (const [name, schema] of this.#aliasSchemas) {
+      openApiDoc.components.schemas![name] = schema;
+    }
 
     return JSON.stringify(openApiDoc, null, 2);
   }
