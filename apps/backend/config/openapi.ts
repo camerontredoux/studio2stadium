@@ -57,13 +57,13 @@ const openapiConfig = defineConfig({
                 description: "Validation error field name",
                 example: "email",
               },
-              rule: {
+              message: {
                 type: "string",
-                description: "Validation error rule",
-                example: "required",
+                description: "Validation error message",
+                example: "Email is required",
               },
             },
-            required: ["field", "rule"],
+            required: ["field", "message"],
           },
         },
       },

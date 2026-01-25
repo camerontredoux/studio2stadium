@@ -1,6 +1,6 @@
 import { Exception } from "@adonisjs/core/exceptions";
 
-export default class DatabaseException extends Exception {
+export const E_DATABASE_ERROR = class extends Exception {
   static status = 400;
   static code = "E_DATABASE_ERROR";
-}
+};

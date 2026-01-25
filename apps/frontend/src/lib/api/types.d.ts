@@ -343,10 +343,10 @@ export interface components {
              */
             field: string;
             /**
-             * @description Validation error rule
-             * @example required
+             * @description Validation error message
+             * @example Email is required
              */
-            rule: string;
+            message: string;
         };
         /** @enum {string} */
         AccountType: "dancer" | "school";

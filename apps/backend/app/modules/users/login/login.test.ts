@@ -1,15 +1,20 @@
+import { db } from "#database/connection";
+import {
+  type AccountType,
+  type PlatformName,
+  type User,
+} from "#database/generated/types";
 import hash from "@adonisjs/core/services/hash";
 import testUtils from "@adonisjs/core/services/test_utils";
 import { faker } from "@faker-js/faker";
 import { test } from "@japa/runner";
 import { type Insertable } from "kysely";
-import { db } from "../../../database/connection.ts";
-import { type User } from "../../../database/generated/types.ts";
 import { SignupQueries } from "../signup/queries.ts";
 
 const userFixture: Insertable<User> = {
   id: "test-id",
   email: "test@example.com",
+  account_type: "dancer",
   display_email: faker.internet.email(),
   username: faker.internet.username(),
   first_name: faker.person.firstName(),
@@ -94,11 +99,14 @@ test.group("Login", (group) => {
     const sessionUser = {
       id: user.id,
       email: user.email,
-      displayEmail: user.display_email,
+      displayEmail: user.displayEmail,
       username: user.username,
       avatar: user.avatar,
-      createdAt: user.created_at,
-      roles: [],
+      createdAt: user.createdAt,
+      type: "dancer" as AccountType,
+      admin: null,
+      subscribed: false,
+      platforms: ["core" as PlatformName],
     };
     const protectedResponse = await client
       .get("/auth/session")

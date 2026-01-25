@@ -1,4 +1,4 @@
-import DatabaseException from "#exceptions/database";
+import { E_DATABASE_ERROR } from "#exceptions/database";
 import { type HttpContext } from "@adonisjs/core/http";
 import { RuntimeException } from "@poppinss/utils";
 import { DatabaseError } from "pg";
@@ -13,7 +13,7 @@ export function matchPgError(error: unknown, ctx: HttpContext) {
             .split("_")
             .pop() || "information";
 
-        throw new DatabaseException(`Unique ${field} already exists`, {
+        throw new E_DATABASE_ERROR(`Unique ${field} already exists`, {
           code: "E_UNIQUE_VIOLATION",
           cause: field,
         });
@@ -21,7 +21,7 @@ export function matchPgError(error: unknown, ctx: HttpContext) {
         ctx.logger.error({ err: error }, "Foreign key violation");
         throw new RuntimeException("Foreign key violation");
       case "23502":
-        throw new DatabaseException(`Missing required field: ${error.column}`, {
+        throw new E_DATABASE_ERROR(`Missing required field: ${error.column}`, {
           code: "E_NOT_NULL_VIOLATION",
           cause: error.column,
         });

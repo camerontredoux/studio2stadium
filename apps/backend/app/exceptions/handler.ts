@@ -32,7 +32,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
         status: error.status,
         errors: error.messages.map((message: SimpleError) => ({
           field: message.field,
-          rule: message.rule,
+          message: message.message,
         })),
       });
     }

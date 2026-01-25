@@ -1,7 +1,7 @@
 import { AppLayout } from "@/components/layouts/app-layout";
 import { Spinner } from "@/components/ui/spinner";
-import { SessionNetworkError } from "@/features/auth/api/errors";
-import { queries } from "@/features/auth/api/queries";
+import { SessionNetworkError } from "@/features/login/api/errors";
+import { queries } from "@/features/login/api/queries";
 import { createAccess } from "@/lib/access";
 import {
   createFileRoute,
