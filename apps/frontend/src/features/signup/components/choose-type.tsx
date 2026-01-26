@@ -90,7 +90,7 @@ function DancerInputGroup() {
   const [debounced, setDebouncedUsername] = useState("");
   const [typing, setTyping] = useState(false);
 
-  const { data, isFetching } = useQuery(queries.available(debounced));
+  const { data, isFetching, error } = useQuery(queries.available(debounced));
 
   const debouncedUsername = debounce(
     (username: string) => {
@@ -147,23 +147,29 @@ function DancerInputGroup() {
         </Popover>
       </InputGroupAddon>
       <InputGroupAddon align="block-end" className="border-t">
-        <InputGroupText className="text-xs">
-          {checking ? (
-            <Spinner />
-          ) : data ? (
-            data.available ? (
-              <div className="flex items-center gap-2 text-green-600">
-                Available
-                <CheckIcon className="size-3" />
-              </div>
+        {checking ? (
+          <Spinner />
+        ) : (
+          <InputGroupText className="text-xs">
+            {data ? (
+              data.available ? (
+                <div className="flex items-center gap-2 text-green-600">
+                  Available
+                  <CheckIcon className="size-3" />
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-red-600">
+                  Taken
+                  <XIcon className="size-3" />
+                </div>
+              )
+            ) : error ? (
+              <span className="text-destructive">{error.message}</span>
             ) : (
-              <div className="flex items-center gap-2 text-red-600">
-                Taken
-                <XIcon className="size-3" />
-              </div>
-            )
-          ) : null}
-        </InputGroupText>
+              "Minimum 4 characters"
+            )}
+          </InputGroupText>
+        )}
         <div className="ml-auto">
           <Button
             variant="default"

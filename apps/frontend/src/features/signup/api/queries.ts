@@ -10,7 +10,7 @@ export const queries = {
       {
         params: { query: { username } },
       },
-      { enabled: !!username, staleTime: 0, gcTime: 0 },
+      { enabled: username.length > 4, staleTime: 0, gcTime: 0 },
     );
   },
 };

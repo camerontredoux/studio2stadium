@@ -178,7 +178,7 @@ export function SignupForm() {
           name="termsChecked"
           render={({ field, fieldState }) => (
             <Field name={field.name} invalid={fieldState.invalid}>
-              <FramePanel className="hover:bg-accent/50 has-data-checked:border-primary/48 has-data-checked:bg-accent/50 p-0!">
+              <FramePanel className="hover:bg-muted/10 has-data-checked:border-primary/48 has-data-checked:bg-muted/50 p-0!">
                 <FieldLabel className="flex items-start gap-2 p-3">
                   <Checkbox
                     checked={field.value}
