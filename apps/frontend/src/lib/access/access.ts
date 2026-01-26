@@ -1,14 +1,6 @@
 import { redirect } from "@tanstack/react-router";
-import type { ApiSchemas } from "./api/client";
-import type { Session } from "./session";
-
-export type { Session };
-
-export type Role = ApiSchemas["Role"];
-export type Platform = ApiSchemas["PlatformName"];
-export type AccountType = ApiSchemas["AccountType"];
-
-export type Domain = `${Platform}:${AccountType}`;
+import type { Session } from "../session";
+import type { AccountType, Domain, Platform } from "./types";
 
 type PermissionAction = "view";
 type PermissionConfig = Record<Domain, ReadonlyArray<PermissionAction>>;
