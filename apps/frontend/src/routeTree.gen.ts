@@ -19,21 +19,21 @@ import { Route as AuthroutesLoginRouteImport } from './routes/_auth/(routes)/log
 import { Route as ApproutesUnauthorizedRouteImport } from './routes/_app/(routes)/unauthorized'
 import { Route as ApproutesSessionRouteImport } from './routes/_app/(routes)/session'
 import { Route as ApproutesResourcesRouteImport } from './routes/_app/(routes)/resources'
+import { Route as ApproutesRecruitingRouteImport } from './routes/_app/(routes)/recruiting'
 import { Route as ApproutesExploreRouteImport } from './routes/_app/(routes)/explore'
+import { Route as ApproutesUsernameRouteImport } from './routes/_app/(routes)/$username'
 import { Route as AdminroutesDashboardRouteImport } from './routes/_admin/(routes)/dashboard'
 import { Route as SettingsroutesSettingsIndexRouteImport } from './routes/_settings/(routes)/settings/index'
 import { Route as OnboardingroutesOnboardingIndexRouteImport } from './routes/_onboarding/(routes)/onboarding/index'
 import { Route as AuthroutesSignupIndexRouteImport } from './routes/_auth/(routes)/signup/index'
 import { Route as AuthroutesResetIndexRouteImport } from './routes/_auth/(routes)/reset/index'
 import { Route as ApproutesEventsIndexRouteImport } from './routes/_app/(routes)/events/index'
-import { Route as ApproutesUsernameIndexRouteImport } from './routes/_app/(routes)/$username/index'
 import { Route as SettingsroutesSettingsProfileRouteImport } from './routes/_settings/(routes)/settings/profile'
 import { Route as SettingsroutesSettingsMediaRouteImport } from './routes/_settings/(routes)/settings/media'
 import { Route as SettingsroutesSettingsGeneralRouteImport } from './routes/_settings/(routes)/settings/general'
 import { Route as AuthroutesSignupTypeRouteImport } from './routes/_auth/(routes)/signup/$type'
 import { Route as AuthroutesResetTokenIdRouteImport } from './routes/_auth/(routes)/reset/$tokenId'
 import { Route as ApproutesEventsEventIdRouteImport } from './routes/_app/(routes)/events/$eventId'
-import { Route as ApproutesUsernameRecruitingRouteImport } from './routes/_app/(routes)/$username/recruiting'
 import { Route as AdminroutesDashboardMetricsRouteImport } from './routes/_admin/(routes)/dashboard/metrics'
 import { Route as AdminroutesDashboardAssetsRouteImport } from './routes/_admin/(routes)/dashboard/assets'
 import { Route as ApproutesSchoolUsernameIndexRouteImport } from './routes/_app/(routes)/school/$username/index'
@@ -84,9 +84,19 @@ const ApproutesResourcesRoute = ApproutesResourcesRouteImport.update({
   path: '/resources',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const ApproutesRecruitingRoute = ApproutesRecruitingRouteImport.update({
+  id: '/(routes)/recruiting',
+  path: '/recruiting',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const ApproutesExploreRoute = ApproutesExploreRouteImport.update({
   id: '/(routes)/explore',
   path: '/explore',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const ApproutesUsernameRoute = ApproutesUsernameRouteImport.update({
+  id: '/(routes)/$username',
+  path: '/$username',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AdminroutesDashboardRoute = AdminroutesDashboardRouteImport.update({
@@ -119,11 +129,6 @@ const AuthroutesResetIndexRoute = AuthroutesResetIndexRouteImport.update({
 const ApproutesEventsIndexRoute = ApproutesEventsIndexRouteImport.update({
   id: '/(routes)/events/',
   path: '/events/',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const ApproutesUsernameIndexRoute = ApproutesUsernameIndexRouteImport.update({
-  id: '/(routes)/$username/',
-  path: '/$username/',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const SettingsroutesSettingsProfileRoute =
@@ -159,12 +164,6 @@ const ApproutesEventsEventIdRoute = ApproutesEventsEventIdRouteImport.update({
   path: '/events/$eventId',
   getParentRoute: () => AppRouteRoute,
 } as any)
-const ApproutesUsernameRecruitingRoute =
-  ApproutesUsernameRecruitingRouteImport.update({
-    id: '/(routes)/$username/recruiting',
-    path: '/$username/recruiting',
-    getParentRoute: () => AppRouteRoute,
-  } as any)
 const AdminroutesDashboardMetricsRoute =
   AdminroutesDashboardMetricsRouteImport.update({
     id: '/metrics',
@@ -193,21 +192,21 @@ const ApproutesSchoolUsernameRecruitingRoute =
 export interface FileRoutesByFullPath {
   '/': typeof ApproutesIndexRoute
   '/dashboard': typeof AdminroutesDashboardRouteWithChildren
+  '/$username': typeof ApproutesUsernameRoute
   '/explore': typeof ApproutesExploreRoute
+  '/recruiting': typeof ApproutesRecruitingRoute
   '/resources': typeof ApproutesResourcesRoute
   '/session': typeof ApproutesSessionRoute
   '/unauthorized': typeof ApproutesUnauthorizedRoute
   '/login': typeof AuthroutesLoginRoute
   '/dashboard/assets': typeof AdminroutesDashboardAssetsRoute
   '/dashboard/metrics': typeof AdminroutesDashboardMetricsRoute
-  '/$username/recruiting': typeof ApproutesUsernameRecruitingRoute
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
   '/reset/$tokenId': typeof AuthroutesResetTokenIdRoute
   '/signup/$type': typeof AuthroutesSignupTypeRoute
   '/settings/general': typeof SettingsroutesSettingsGeneralRoute
   '/settings/media': typeof SettingsroutesSettingsMediaRoute
   '/settings/profile': typeof SettingsroutesSettingsProfileRoute
-  '/$username/': typeof ApproutesUsernameIndexRoute
   '/events/': typeof ApproutesEventsIndexRoute
   '/reset/': typeof AuthroutesResetIndexRoute
   '/signup/': typeof AuthroutesSignupIndexRoute
@@ -219,21 +218,21 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof ApproutesIndexRoute
   '/dashboard': typeof AdminroutesDashboardRouteWithChildren
+  '/$username': typeof ApproutesUsernameRoute
   '/explore': typeof ApproutesExploreRoute
+  '/recruiting': typeof ApproutesRecruitingRoute
   '/resources': typeof ApproutesResourcesRoute
   '/session': typeof ApproutesSessionRoute
   '/unauthorized': typeof ApproutesUnauthorizedRoute
   '/login': typeof AuthroutesLoginRoute
   '/dashboard/assets': typeof AdminroutesDashboardAssetsRoute
   '/dashboard/metrics': typeof AdminroutesDashboardMetricsRoute
-  '/$username/recruiting': typeof ApproutesUsernameRecruitingRoute
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
   '/reset/$tokenId': typeof AuthroutesResetTokenIdRoute
   '/signup/$type': typeof AuthroutesSignupTypeRoute
   '/settings/general': typeof SettingsroutesSettingsGeneralRoute
   '/settings/media': typeof SettingsroutesSettingsMediaRoute
   '/settings/profile': typeof SettingsroutesSettingsProfileRoute
-  '/$username': typeof ApproutesUsernameIndexRoute
   '/events': typeof ApproutesEventsIndexRoute
   '/reset': typeof AuthroutesResetIndexRoute
   '/signup': typeof AuthroutesSignupIndexRoute
@@ -250,7 +249,9 @@ export interface FileRoutesById {
   '/_onboarding': typeof OnboardingRouteRouteWithChildren
   '/_settings': typeof SettingsRouteRouteWithChildren
   '/_admin/(routes)/dashboard': typeof AdminroutesDashboardRouteWithChildren
+  '/_app/(routes)/$username': typeof ApproutesUsernameRoute
   '/_app/(routes)/explore': typeof ApproutesExploreRoute
+  '/_app/(routes)/recruiting': typeof ApproutesRecruitingRoute
   '/_app/(routes)/resources': typeof ApproutesResourcesRoute
   '/_app/(routes)/session': typeof ApproutesSessionRoute
   '/_app/(routes)/unauthorized': typeof ApproutesUnauthorizedRoute
@@ -258,14 +259,12 @@ export interface FileRoutesById {
   '/_app/(routes)/': typeof ApproutesIndexRoute
   '/_admin/(routes)/dashboard/assets': typeof AdminroutesDashboardAssetsRoute
   '/_admin/(routes)/dashboard/metrics': typeof AdminroutesDashboardMetricsRoute
-  '/_app/(routes)/$username/recruiting': typeof ApproutesUsernameRecruitingRoute
   '/_app/(routes)/events/$eventId': typeof ApproutesEventsEventIdRoute
   '/_auth/(routes)/reset/$tokenId': typeof AuthroutesResetTokenIdRoute
   '/_auth/(routes)/signup/$type': typeof AuthroutesSignupTypeRoute
   '/_settings/(routes)/settings/general': typeof SettingsroutesSettingsGeneralRoute
   '/_settings/(routes)/settings/media': typeof SettingsroutesSettingsMediaRoute
   '/_settings/(routes)/settings/profile': typeof SettingsroutesSettingsProfileRoute
-  '/_app/(routes)/$username/': typeof ApproutesUsernameIndexRoute
   '/_app/(routes)/events/': typeof ApproutesEventsIndexRoute
   '/_auth/(routes)/reset/': typeof AuthroutesResetIndexRoute
   '/_auth/(routes)/signup/': typeof AuthroutesSignupIndexRoute
@@ -279,21 +278,21 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/$username'
     | '/explore'
+    | '/recruiting'
     | '/resources'
     | '/session'
     | '/unauthorized'
     | '/login'
     | '/dashboard/assets'
     | '/dashboard/metrics'
-    | '/$username/recruiting'
     | '/events/$eventId'
     | '/reset/$tokenId'
     | '/signup/$type'
     | '/settings/general'
     | '/settings/media'
     | '/settings/profile'
-    | '/$username/'
     | '/events/'
     | '/reset/'
     | '/signup/'
@@ -305,21 +304,21 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
+    | '/$username'
     | '/explore'
+    | '/recruiting'
     | '/resources'
     | '/session'
     | '/unauthorized'
     | '/login'
     | '/dashboard/assets'
     | '/dashboard/metrics'
-    | '/$username/recruiting'
     | '/events/$eventId'
     | '/reset/$tokenId'
     | '/signup/$type'
     | '/settings/general'
     | '/settings/media'
     | '/settings/profile'
-    | '/$username'
     | '/events'
     | '/reset'
     | '/signup'
@@ -335,7 +334,9 @@ export interface FileRouteTypes {
     | '/_onboarding'
     | '/_settings'
     | '/_admin/(routes)/dashboard'
+    | '/_app/(routes)/$username'
     | '/_app/(routes)/explore'
+    | '/_app/(routes)/recruiting'
     | '/_app/(routes)/resources'
     | '/_app/(routes)/session'
     | '/_app/(routes)/unauthorized'
@@ -343,14 +344,12 @@ export interface FileRouteTypes {
     | '/_app/(routes)/'
     | '/_admin/(routes)/dashboard/assets'
     | '/_admin/(routes)/dashboard/metrics'
-    | '/_app/(routes)/$username/recruiting'
     | '/_app/(routes)/events/$eventId'
     | '/_auth/(routes)/reset/$tokenId'
     | '/_auth/(routes)/signup/$type'
     | '/_settings/(routes)/settings/general'
     | '/_settings/(routes)/settings/media'
     | '/_settings/(routes)/settings/profile'
-    | '/_app/(routes)/$username/'
     | '/_app/(routes)/events/'
     | '/_auth/(routes)/reset/'
     | '/_auth/(routes)/signup/'
@@ -440,11 +439,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApproutesResourcesRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/(routes)/recruiting': {
+      id: '/_app/(routes)/recruiting'
+      path: '/recruiting'
+      fullPath: '/recruiting'
+      preLoaderRoute: typeof ApproutesRecruitingRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/(routes)/explore': {
       id: '/_app/(routes)/explore'
       path: '/explore'
       fullPath: '/explore'
       preLoaderRoute: typeof ApproutesExploreRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/(routes)/$username': {
+      id: '/_app/(routes)/$username'
+      path: '/$username'
+      fullPath: '/$username'
+      preLoaderRoute: typeof ApproutesUsernameRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_admin/(routes)/dashboard': {
@@ -489,13 +502,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApproutesEventsIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/_app/(routes)/$username/': {
-      id: '/_app/(routes)/$username/'
-      path: '/$username'
-      fullPath: '/$username/'
-      preLoaderRoute: typeof ApproutesUsernameIndexRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
     '/_settings/(routes)/settings/profile': {
       id: '/_settings/(routes)/settings/profile'
       path: '/settings/profile'
@@ -536,13 +542,6 @@ declare module '@tanstack/react-router' {
       path: '/events/$eventId'
       fullPath: '/events/$eventId'
       preLoaderRoute: typeof ApproutesEventsEventIdRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/_app/(routes)/$username/recruiting': {
-      id: '/_app/(routes)/$username/recruiting'
-      path: '/$username/recruiting'
-      fullPath: '/$username/recruiting'
-      preLoaderRoute: typeof ApproutesUsernameRecruitingRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_admin/(routes)/dashboard/metrics': {
@@ -602,28 +601,28 @@ const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
 )
 
 interface AppRouteRouteChildren {
+  ApproutesUsernameRoute: typeof ApproutesUsernameRoute
   ApproutesExploreRoute: typeof ApproutesExploreRoute
+  ApproutesRecruitingRoute: typeof ApproutesRecruitingRoute
   ApproutesResourcesRoute: typeof ApproutesResourcesRoute
   ApproutesSessionRoute: typeof ApproutesSessionRoute
   ApproutesUnauthorizedRoute: typeof ApproutesUnauthorizedRoute
   ApproutesIndexRoute: typeof ApproutesIndexRoute
-  ApproutesUsernameRecruitingRoute: typeof ApproutesUsernameRecruitingRoute
   ApproutesEventsEventIdRoute: typeof ApproutesEventsEventIdRoute
-  ApproutesUsernameIndexRoute: typeof ApproutesUsernameIndexRoute
   ApproutesEventsIndexRoute: typeof ApproutesEventsIndexRoute
   ApproutesSchoolUsernameRecruitingRoute: typeof ApproutesSchoolUsernameRecruitingRoute
   ApproutesSchoolUsernameIndexRoute: typeof ApproutesSchoolUsernameIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
+  ApproutesUsernameRoute: ApproutesUsernameRoute,
   ApproutesExploreRoute: ApproutesExploreRoute,
+  ApproutesRecruitingRoute: ApproutesRecruitingRoute,
   ApproutesResourcesRoute: ApproutesResourcesRoute,
   ApproutesSessionRoute: ApproutesSessionRoute,
   ApproutesUnauthorizedRoute: ApproutesUnauthorizedRoute,
   ApproutesIndexRoute: ApproutesIndexRoute,
-  ApproutesUsernameRecruitingRoute: ApproutesUsernameRecruitingRoute,
   ApproutesEventsEventIdRoute: ApproutesEventsEventIdRoute,
-  ApproutesUsernameIndexRoute: ApproutesUsernameIndexRoute,
   ApproutesEventsIndexRoute: ApproutesEventsIndexRoute,
   ApproutesSchoolUsernameRecruitingRoute:
     ApproutesSchoolUsernameRecruitingRoute,
