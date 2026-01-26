@@ -18,7 +18,6 @@ import { schemas } from "@/features/onboarding/schemas";
 import { handleApiError } from "@/lib/api/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute } from "@tanstack/react-router";
-import { format } from "date-fns";
 import { PhoneIcon } from "lucide-react";
 import { useRef } from "react";
 import { Controller, useForm, type FieldErrors } from "react-hook-form";
@@ -45,10 +44,13 @@ function RouteComponent() {
   });
 
   const onSubmit = (data: OnboardSchema) => {
-    const birthday = format(
-      new Date(data.birthday.year, data.birthday.month - 1, data.birthday.day),
-      "yyyy-MM-dd",
-    );
+    const birthday = [
+      data.birthday.year,
+      data.birthday.month,
+      data.birthday.day,
+    ]
+      .map((n) => String(n).padStart(2, "0"))
+      .join("-");
 
     mutate(
       {

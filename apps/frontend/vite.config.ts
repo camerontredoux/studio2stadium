@@ -71,12 +71,12 @@ export default defineConfig({
           if (id.includes("node_modules/@tanstack/react-query")) {
             return "vendor-query";
           }
-          if (id.includes("node_modules/@base-ui/react")) {
-            return "vendor-ui";
-          }
-          if (id.includes("node_modules/zod")) {
-            return "vendor-zod";
-          }
+          // if (id.includes("node_modules/@base-ui/react")) {
+          //   return "vendor-ui";
+          // }
+          // if (id.includes("node_modules/zod")) {
+          //   return "vendor-zod";
+          // }
           if (id.includes("node_modules/react-hook-form")) {
             return "vendor-form";
           }
