@@ -9,58 +9,47 @@ pnpm dev          # Start development server (Vite)
 pnpm build        # Type-check and build for production
 pnpm lint         # Run ESLint
 pnpm check        # Format with Prettier and fix ESLint issues
-pnpm preview      # Preview production build
+pnpm test         # Run Vitest tests
+pnpm types        # Regenerate API types from OpenAPI spec (requires backend running)
 ```
 
 ## Architecture
 
-This is a React 19 SPA built with Vite, using TanStack Router for file-based routing and TanStack Query for data fetching.
+React 19 SPA using TanStack Router (file-based) and TanStack Query for data fetching.
 
-### Tech Stack
+### Key Patterns
 
-- **React 19** with React Compiler (babel-plugin-react-compiler)
-- **TanStack Router** - File-based routing with auto code-splitting
-- **TanStack Query** - Server state management
-- **Tailwind CSS v4** with shadcn/ui components (new-york style)
-- **nuqs** - URL query state management via TanStack Router adapter
+**API Layer** (`src/lib/api/`):
+- Uses `openapi-fetch` + `openapi-react-query` for type-safe API calls
+- Types auto-generated from backend OpenAPI spec into `types.d.ts`
+- Global client in `client.ts` exports `$api` for TanStack Query integration
+- 401 responses auto-redirect to `/login`
 
-### Project Structure
+**Authentication Flow**:
+- Session fetched via `queries.session()` in `src/features/login/api/queries.ts`
+- `_app/route.tsx` guards authenticated routes with `beforeLoad`
+- Unauthenticated users redirect to `/login`, incomplete onboarding to `/onboarding`
+- `useSession()` hook provides session in authenticated routes
 
-```
-src/
-├── routes/           # TanStack file-based routes (auto-generates routeTree.gen.ts)
-│   ├── __root.tsx    # Root layout with devtools
-│   ├── _app/         # Main app layout (authenticated)
-│   ├── _auth/        # Auth pages (login, signup, reset)
-│   ├── _admin/       # Admin dashboard
-│   ├── _account/     # Account settings
-│   └── _vault/       # Vault section
-├── components/
-│   ├── ui/           # shadcn/ui primitives
-│   ├── data-table/   # TanStack Table implementation
-│   └── data-grid/    # Virtual data grid
-├── hooks/            # Custom React hooks (use-data-table, use-data-grid)
-├── utils/            # Utilities including cn() for class merging
-├── types/            # TypeScript type definitions
-├── config/           # Configuration files
-└── features/         # Feature-specific modules
-```
+**Access Control** (`src/lib/access.ts`):
+- `createAccess(session)` returns policy helpers: `can()`, `is()`, `any()`, `all()`, `guard()`, `self()`
+- Use `access.guard()` in route `beforeLoad` to enforce permissions
+- Admins bypass all policy checks
 
-### Routing Patterns
+**Feature Modules** (`src/features/`):
+- Each feature has `api/`, `components/`, `schemas.ts`
+- Features cannot import from other features (enforced by eslint-plugin-boundaries)
+- Import shared code from `components/`, `lib/`, `hooks/`, `utils/`
 
-- Underscore prefix (`_app`, `_auth`) indicates layout routes
-- Routes export `Route` using `createFileRoute()` or `createRootRouteWithContext()`
-- Router context provides `QueryClient` for data fetching
-- Route tree is auto-generated in `routeTree.gen.ts` - do not edit manually
+### Routing
 
-### Path Aliases
+- Underscore prefix (`_app`, `_auth`) = layout routes
+- Parentheses `(routes)` = pathless grouping
+- Route tree auto-generated in `routeTree.gen.ts` - never edit manually
+- Router context provides `queryClient` and `session` (in `_app`)
 
-`@/*` maps to `./src/*` (configured in tsconfig and vite.config.ts)
+### Code Style
 
-### Adding shadcn Components
-
-Uses shadcn CLI with DiceUI registry support. Config in `components.json`:
-
-- Style: new-york
-- Icons: lucide-react
-- CSS variables for theming in `src/index.css`
+- Use `import { z } from 'zod'` (not default import)
+- `@/*` alias maps to `./src/*`
+- shadcn/ui components in `components/ui/` (new-york style, DiceUI registry available)

@@ -1,7 +1,7 @@
 import { $api } from "@/lib/api/client";
+import { queries } from "@/lib/session";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { queries } from "./queries";
 
 export const useLogin = () => {
   const queryClient = useQueryClient();
@@ -33,21 +33,5 @@ export const useLogin = () => {
         replace: true,
       });
     },
-  });
-};
-
-export const useLogout = () => {
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-
-  return $api.useMutation("post", "/auth/logout", {
-    onMutate: () => {
-      queryClient.clear();
-      navigate({
-        to: "/login",
-        replace: true,
-      });
-    },
-    retry: 3,
   });
 };

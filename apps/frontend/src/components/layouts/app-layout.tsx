@@ -1,4 +1,4 @@
-import { useSession } from "@/features/login/api/queries";
+import { useSession } from "@/lib/session";
 import { type ReactNode } from "react";
 import { ToastProvider } from "../ui/toast";
 import { DancerNavItems, SchoolNavItems } from "./navbar/nav-items";

@@ -1,7 +1,6 @@
 import { AuthLayout } from "@/components/layouts/auth-layout";
 import { Spinner } from "@/components/ui/spinner";
-import { SessionNetworkError } from "@/features/login/api/errors";
-import { queries } from "@/features/login/api/queries";
+import { queries, SessionNetworkError } from "@/lib/session";
 import {
   createFileRoute,
   Outlet,

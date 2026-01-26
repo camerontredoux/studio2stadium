@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { useLogout } from "@/features/login/api/mutations";
-import { useSession } from "@/features/login/api/queries";
+import { useLogout, useSession } from "@/lib/session";
 import { Link } from "@tanstack/react-router";
 
 export function DancerNavItems() {

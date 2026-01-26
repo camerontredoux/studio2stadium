@@ -1,8 +1,8 @@
-// import type { Session } from "@/features/auth/api/client";
 import { redirect } from "@tanstack/react-router";
 import type { ApiSchemas } from "./api/client";
+import type { Session } from "./session";
 
-export type Session = ApiSchemas["AuthSessionResponse"];
+export type { Session };
 
 export type Role = ApiSchemas["Role"];
 export type Platform = ApiSchemas["PlatformName"];

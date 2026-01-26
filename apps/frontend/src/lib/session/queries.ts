@@ -1,6 +1,5 @@
 import type { paths } from "@/lib/api/types";
 import { queryOptions } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
 import createFetchClient from "openapi-fetch";
 import { SessionNetworkError } from "./errors";
 
@@ -35,14 +34,4 @@ export const queries = {
       gcTime: Infinity,
     });
   },
-};
-
-export const useSession = () => {
-  const { session } = useRouteContext({ strict: false });
-
-  if (!session) {
-    throw new Error("useSession must be used within an authenticated route");
-  }
-
-  return { session };
 };
