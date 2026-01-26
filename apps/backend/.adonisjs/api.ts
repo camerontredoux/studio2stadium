@@ -23,6 +23,10 @@ type AuthSessionGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/auth/get-session/index.ts').default['handle'], false>
 }
+type AuthUsernameavailableGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/auth/get-username-available/validator.ts')['getUsernameAvailableValidator']>>
+  response: MakeTuyauResponse<import('../app/modules/auth/get-username-available/index.ts').default['handle'], true>
+}
 type HealthGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/health/index.ts').default['handle'], false>
@@ -49,6 +53,12 @@ export interface ApiDefinition {
       };
       '$get': AuthSessionGetHead;
       '$head': AuthSessionGetHead;
+    };
+    'username-available': {
+      '$url': {
+      };
+      '$get': AuthUsernameavailableGetHead;
+      '$head': AuthUsernameavailableGetHead;
     };
   };
   'health': {

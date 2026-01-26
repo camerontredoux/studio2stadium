@@ -10,15 +10,8 @@ export class SignupService {
   constructor(private queries: SignupQueries) {}
 
   async execute(input: SignupValidator) {
-    const {
-      email,
-      password,
-      firstName,
-      lastName,
-      username,
-      phone,
-      accountType,
-    } = input;
+    const { email, password, firstName, lastName, username, phone, type } =
+      input;
 
     const user = await this.queries.createUser({
       email: await normalizeEmail(email),
@@ -26,7 +19,7 @@ export class SignupService {
       password: await hash.make(password),
       first_name: firstName,
       last_name: lastName,
-      account_type: accountType,
+      account_type: type,
       username,
       phone,
       role: "user",

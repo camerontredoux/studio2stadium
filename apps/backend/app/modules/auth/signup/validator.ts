@@ -38,7 +38,7 @@ export const signupValidator = vine.create(
   vine.object({
     email: vine.string().trim().email(),
     password: vine.string().minLength(8),
-    accountType: vine.enum(AccountType),
+    type: vine.enum(AccountType),
     username: vine
       .string()
       .trim()
