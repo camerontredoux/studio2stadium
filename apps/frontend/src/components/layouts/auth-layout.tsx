@@ -13,16 +13,11 @@ import { AnchoredToastProvider } from "../ui/toast";
 
 const descriptions: Record<string, string> = {
   "/login": "Sign in to your account to continue",
-  "/signup": "Choose your account type",
-  "/signup/dancer": "Finish creating your dancer account",
-  "/signup/school": "Finish creating your school account",
-  "/forgot-password": "Reset your password",
 };
 
 export function AuthLayout({ children }: { children: React.ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const description =
-    descriptions[pathname] || "Sign in to your account to continue";
+  const description = descriptions[pathname];
 
   return (
     <AnchoredToastProvider>
@@ -36,7 +31,9 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
                 <CardTitle className="p-2">
                   <MainLogo className="h-5 dark:invert" />
                 </CardTitle>
-                <CardDescription>{description}</CardDescription>
+                {description && (
+                  <CardDescription>{description}</CardDescription>
+                )}
               </CardHeader>
 
               <CardContent>{children}</CardContent>

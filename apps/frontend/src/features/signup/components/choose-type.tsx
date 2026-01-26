@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Frame, FramePanel } from "@/components/ui/frame";
 import {
   InputGroup,
   InputGroupAddon,
@@ -12,33 +13,39 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Radio, RadioGroup } from "@/components/ui/radio-group";
+import { Spinner } from "@/components/ui/spinner";
 import type { AccountType } from "@/lib/access";
+import { debounce } from "@tanstack/pacer";
+import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { CheckIcon, InfoIcon, XIcon } from "lucide-react";
-import { useReducer, useState } from "react";
+import { useState } from "react";
+import { queries } from "../api/queries";
+import { MAX_USERNAME_LENGTH } from "../schemas";
 
 export function ChooseType() {
   const [accountType, setAccountType] = useState<AccountType>("dancer");
 
   return (
     <RadioGroup value={accountType} onValueChange={setAccountType}>
-      {accountType === "dancer" && <DancerInputGroup />}
-      {accountType !== "dancer" && (
-        <RadioItem
-          value="dancer"
-          title="Dancer"
-          description="Create a dancer account"
-        />
-      )}
-      {accountType === "school" && <SchoolInputGroup />}
-      {accountType !== "school" && (
-        <RadioItem
-          value="school"
-          title="School"
-          description="Create a school account"
-        />
-      )}
-
+      <Frame className="gap-2">
+        {accountType === "dancer" && <DancerInputGroup />}
+        {accountType !== "dancer" && (
+          <RadioItem
+            value="dancer"
+            title="Dancer"
+            description="Create a dancer account"
+          />
+        )}
+        {accountType === "school" && <SchoolInputGroup />}
+        {accountType !== "school" && (
+          <RadioItem
+            value="school"
+            title="School"
+            description="Create a school account"
+          />
+        )}
+      </Frame>
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
         <Button
@@ -64,21 +71,36 @@ function RadioItem({
   description: string;
 }) {
   return (
-    <Label className="flex items-start gap-2 rounded-lg border p-3 hover:bg-accent/50 has-data-checked:border-primary/48 has-data-checked:bg-accent/50">
-      <Radio value={value} />
-      <div className="flex flex-col gap-1">
-        <p>{title}</p>
-        <p className="text-muted-foreground font-light text-xs">
-          {description}
-        </p>
-      </div>
-    </Label>
+    <FramePanel className="p-0!">
+      <Label className="flex items-start gap-2 hover:bg-accent/50 p-3">
+        <Radio value={value} />
+        <div className="flex flex-col gap-1">
+          <p>{title}</p>
+          <p className="text-muted-foreground font-light text-xs">
+            {description}
+          </p>
+        </div>
+      </Label>
+    </FramePanel>
   );
 }
 
 function DancerInputGroup() {
-  const [taken, toggleTaken] = useReducer((state) => !state, false);
   const [username, setUsername] = useState("");
+  const [debounced, setDebouncedUsername] = useState("");
+  const [typing, setTyping] = useState(false);
+
+  const { data, isFetching } = useQuery(queries.available(debounced));
+
+  const debouncedUsername = debounce(
+    (username: string) => {
+      setDebouncedUsername(username);
+      setTyping(false);
+    },
+    {
+      wait: 500,
+    },
+  );
 
   const navigate = useNavigate();
 
@@ -90,18 +112,27 @@ function DancerInputGroup() {
     });
   };
 
+  const checking = typing || isFetching;
+
   return (
-    <InputGroup>
+    <InputGroup className="rounded-xl">
       <InputGroupInput
+        maxLength={MAX_USERNAME_LENGTH}
         autoComplete="off"
+        spellCheck="false"
         autoCapitalize="off"
         placeholder="Enter username"
         size="sm"
         autoFocus
         value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        onChange={(e) => {
+          const value = e.target.value;
+          setTyping(true);
+          setUsername(value);
+          debouncedUsername(value);
+        }}
       />
-      <InputGroupAddon align="block-start" className="border-b">
+      <InputGroupAddon align="block-start">
         <Label className="font-medium">Dancer</Label>
         <Popover>
           <PopoverTrigger
@@ -115,29 +146,35 @@ function DancerInputGroup() {
           </PopoverContent>
         </Popover>
       </InputGroupAddon>
-      <InputGroupAddon align="block-end">
+      <InputGroupAddon align="block-end" className="border-t">
         <InputGroupText className="text-xs">
-          {taken ? (
-            <div className="flex items-center gap-2 text-red-600">
-              <XIcon className="size-3" />
-              Taken
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-green-600">
-              <CheckIcon className="size-3" />
-              Available
-            </div>
-          )}
+          {checking ? (
+            <Spinner />
+          ) : data ? (
+            data.available ? (
+              <div className="flex items-center gap-2 text-green-600">
+                Available
+                <CheckIcon className="size-3" />
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-red-600">
+                Taken
+                <XIcon className="size-3" />
+              </div>
+            )
+          ) : null}
         </InputGroupText>
-        <Button
-          variant="default"
-          size="sm"
-          disabled={!username}
-          className="ml-auto"
-          onClick={onSubmit}
-        >
-          Next
-        </Button>
+        <div className="ml-auto">
+          <Button
+            variant="default"
+            size="sm"
+            disabled={!username || !data?.available || checking}
+            className="-m-1"
+            onClick={onSubmit}
+          >
+            Next
+          </Button>
+        </div>
       </InputGroupAddon>
     </InputGroup>
   );
@@ -145,7 +182,7 @@ function DancerInputGroup() {
 
 function SchoolInputGroup() {
   return (
-    <InputGroup>
+    <InputGroup className="rounded-xl">
       <InputGroupInput
         size="sm"
         autoComplete="off"
@@ -153,7 +190,7 @@ function SchoolInputGroup() {
         placeholder="Enter school name"
         autoFocus
       />
-      <InputGroupAddon align="block-start" className="border-b">
+      <InputGroupAddon align="block-start">
         <Label className="font-medium">School</Label>
         <Popover>
           <PopoverTrigger
@@ -163,14 +200,16 @@ function SchoolInputGroup() {
             <InfoIcon />
           </PopoverTrigger>
           <PopoverContent side="top" tooltipStyle>
-            <p>Schools will be verified by the admin</p>
+            <p>Schools will be verified by our team</p>
           </PopoverContent>
         </Popover>
       </InputGroupAddon>
-      <InputGroupAddon align="block-end">
-        <Button variant="default" size="sm" className="ml-auto">
-          Next
-        </Button>
+      <InputGroupAddon align="block-end" className="border-t">
+        <div className="ml-auto">
+          <Button variant="default" size="sm" className="-m-1">
+            Next
+          </Button>
+        </div>
       </InputGroupAddon>
     </InputGroup>
   );

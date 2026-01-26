@@ -1,8 +1,9 @@
 import { useCountdown } from "@/components/hooks/use-countdown";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Frame, FrameFooter, FramePanel } from "@/components/ui/frame";
+import { Frame, FramePanel } from "@/components/ui/frame";
 import { Input } from "@/components/ui/input";
 import {
   InputGroup,
@@ -15,17 +16,18 @@ import { Toggle } from "@/components/ui/toggle";
 import { handleApiError } from "@/lib/api/errors";
 import "@/styles/staggered.css";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useSearch } from "@tanstack/react-router";
+import { Link, useParams, useSearch } from "@tanstack/react-router";
 import { EyeIcon, EyeOffIcon, LockIcon } from "lucide-react";
 import { useReducer, useRef } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { useSignup } from "../api/mutations";
-import { schemas } from "../schemas";
+import { MAX_NAME_LENGTH, MAX_PASSWORD_LENGTH, schemas } from "../schemas";
 
 type SignupSchema = z.infer<typeof schemas.signup>;
 
 export function SignupForm() {
+  const { type } = useParams({ from: "/_auth/(routes)/signup/$type" });
   const { username } = useSearch({ from: "/_auth/(routes)/signup/$type" });
 
   const { mutate, isPending } = useSignup();
@@ -36,11 +38,11 @@ export function SignupForm() {
   const submitRef = useRef<HTMLButtonElement>(null);
   const toastIdRef = useRef<string | null>(null);
 
-  const { control, handleSubmit, setError, watch } = useForm<SignupSchema>({
+  const { control, handleSubmit, setError } = useForm<SignupSchema>({
     resolver: zodResolver(schemas.signup),
     defaultValues: {
       email: "",
-      accountType: "dancer",
+      type,
       firstName: "",
       lastName: "",
       username,
@@ -49,6 +51,8 @@ export function SignupForm() {
       termsChecked: false,
     },
   });
+
+  const termsChecked = useWatch({ control, name: "termsChecked" });
 
   const onSubmit = async (data: SignupSchema) => {
     if (!submitRef.current || isPending) return;
@@ -92,8 +96,19 @@ export function SignupForm() {
       className="flex w-full flex-col gap-3"
       onSubmit={(e) => handleSubmit(onSubmit)(e)}
     >
-      <Frame>
-        <FramePanel className="flex w-full flex-col gap-3">
+      <Frame className="gap-2">
+        <FramePanel className="flex flex-col gap-3">
+          <div className="flex bg-accent/30 hover:bg-accent/50 transition-colors items-center justify-between rounded-lg border border-border px-3 py-2">
+            <span className="text-xs text-muted-foreground">Signing up as</span>
+            <Badge
+              variant="brand"
+              size="sm"
+              className="rounded-full"
+              render={<Link to="/signup" />}
+            >
+              @{username}
+            </Badge>
+          </div>
           <div className="flex items-center gap-2">
             <Controller
               control={control}
@@ -101,8 +116,7 @@ export function SignupForm() {
               render={({ field, fieldState }) => (
                 <Field name={field.name} invalid={fieldState.invalid}>
                   <FieldLabel>First Name</FieldLabel>
-                  <Input type="text" {...field} />
-                  <FieldError error={fieldState.error} />
+                  <Input maxLength={MAX_NAME_LENGTH} type="text" {...field} />
                 </Field>
               )}
             />
@@ -113,8 +127,7 @@ export function SignupForm() {
               render={({ field, fieldState }) => (
                 <Field name={field.name} invalid={fieldState.invalid}>
                   <FieldLabel>Last Name</FieldLabel>
-                  <Input type="text" {...field} />
-                  <FieldError error={fieldState.error} />
+                  <Input maxLength={MAX_NAME_LENGTH} type="text" {...field} />
                 </Field>
               )}
             />
@@ -143,6 +156,7 @@ export function SignupForm() {
                     <LockIcon className="size-3.5" />
                   </InputGroupAddon>
                   <InputGroupInput
+                    maxLength={MAX_PASSWORD_LENGTH}
                     type={password ? "text" : "password"}
                     autoComplete="off"
                     {...field}
@@ -158,13 +172,14 @@ export function SignupForm() {
             )}
           />
         </FramePanel>
-        <FrameFooter className={watch("password") ? "block" : "hidden"}>
-          <Controller
-            control={control}
-            name="termsChecked"
-            render={({ field, fieldState }) => (
-              <Field name={field.name} invalid={fieldState.invalid}>
-                <FieldLabel className="flex items-start gap-2 rounded-xl border select-none p-3 hover:bg-accent/50 has-data-checked:border-primary/48 has-data-checked:bg-accent/50 shadow-xs transition-colors before:pointer-events-none before:absolute before:inset-0 not-has-focus:before:shadow-[0_1px_--theme(--color-black/4%)] before:rounded-[calc(var(--radius-lg)-1px)]">
+
+        <Controller
+          control={control}
+          name="termsChecked"
+          render={({ field, fieldState }) => (
+            <Field name={field.name} invalid={fieldState.invalid}>
+              <FramePanel className="hover:bg-accent/50 has-data-checked:border-primary/48 has-data-checked:bg-accent/50 p-0!">
+                <FieldLabel className="flex items-start gap-2 p-3">
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
@@ -183,16 +198,16 @@ export function SignupForm() {
                     </p>
                   </div>
                 </FieldLabel>
-                <FieldError error={fieldState.error} />
-              </Field>
-            )}
-          />
-        </FrameFooter>
+              </FramePanel>
+              <FieldError error={fieldState.error} />
+            </Field>
+          )}
+        />
       </Frame>
 
       <Button
         ref={submitRef}
-        disabled={isPending || !!retryAfter || !watch("termsChecked")}
+        disabled={isPending || !!retryAfter || !termsChecked}
         className="w-full"
         type="submit"
       >

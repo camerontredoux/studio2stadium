@@ -193,6 +193,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/username-available": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get username availability
+         * @description Checks if a username is available.
+         */
+        get: {
+            parameters: {
+                query: {
+                    username: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthUsernameavailableResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -284,7 +334,7 @@ export interface components {
             phone?: string | null;
             email: string;
             password: string;
-            accountType: components["schemas"]["AccountType"];
+            type: components["schemas"]["AccountType"];
             username: string;
             firstName: string;
             lastName: string;
@@ -309,14 +359,17 @@ export interface components {
         };
         AuthSessionResponse: {
             email: string;
-            username: string;
             type: components["schemas"]["AccountType"];
+            username: string;
             platforms: components["schemas"]["PlatformName"][];
             id: string;
             role: components["schemas"]["Role"];
             avatar: string | null;
             displayEmail: string;
             subscribed: boolean;
+        };
+        AuthUsernameavailableResponse: {
+            available: boolean;
         };
         HealthResponse: {
             isHealthy: boolean;

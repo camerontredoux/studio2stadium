@@ -4,9 +4,5 @@ import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth/(routes)/login")({
   validateSearch: schemas.search,
-  component: RouteComponent,
+  component: LoginForm,
 });
-
-function RouteComponent() {
-  return <LoginForm />;
-}

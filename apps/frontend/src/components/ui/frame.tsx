@@ -38,7 +38,7 @@ function FramePanel({ className, ...props }: React.ComponentProps<"div">) {
 function FrameHeader({ className, ...props }: React.ComponentProps<"header">) {
   return (
     <header
-      className={cn("flex flex-col px-5 py-4", className)}
+      className={cn("flex flex-col px-5 py-2", className)}
       data-slot="frame-panel-header"
       {...props}
     />
@@ -71,7 +71,7 @@ function FrameDescription({
 function FrameFooter({ className, ...props }: React.ComponentProps<"footer">) {
   return (
     <footer
-      className={cn("flex flex-col gap-1 pt-2", className)}
+      className={cn("flex flex-col gap-1 px-5 py-2", className)}
       data-slot="frame-panel-footer"
       {...props}
     />

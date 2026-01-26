@@ -15,7 +15,16 @@ export const useLogin = () => {
       });
       navigate({ to: redirect ?? "/", replace: true });
     },
-    onError: () => {
+    onError: (error) => {
+      if (error instanceof TypeError) {
+        navigate({
+          to: "/login",
+          replace: true,
+          search: { reason: "network_error" },
+        });
+        return;
+      }
+
       navigate({
         to: "/login",
         replace: true,
