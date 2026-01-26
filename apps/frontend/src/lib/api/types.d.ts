@@ -243,6 +243,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dancer/onboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Onboard a dancer
+         * @description Populate personal information to finish dancer signup
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancerOnboardRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -309,8 +359,17 @@ export interface components {
              * @example 60
              */
             retryAfter?: number;
-            /** @description Additional context specific to the error type */
+            /** @description Additional context specific to the validation error */
             errors?: components["schemas"]["ValidationError"][];
+            /**
+             * @description Additional context specific to the error type
+             * @example {
+             *       "userId": "123"
+             *     }
+             */
+            meta?: {
+                [key: string]: unknown;
+            };
         };
         ValidationError: {
             /**
@@ -370,6 +429,12 @@ export interface components {
         };
         AuthUsernameavailableResponse: {
             available: boolean;
+        };
+        DancerOnboardRequest: {
+            phoneNumber?: string | null;
+            birthday: string | number;
+            location: string;
+            platform: components["schemas"]["PlatformName"];
         };
         HealthResponse: {
             isHealthy: boolean;

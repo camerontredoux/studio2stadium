@@ -14,7 +14,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { anchoredToastManager } from "@/components/ui/toast-manager";
 import { Toggle } from "@/components/ui/toggle";
 import { handleApiError } from "@/lib/api/errors";
-import "@/styles/staggered.css";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useParams, useSearch } from "@tanstack/react-router";
 import { EyeIcon, EyeOffIcon, LockIcon } from "lucide-react";
@@ -74,11 +73,11 @@ export function SignupForm() {
               message,
             });
           },
-          onError(message) {
-            setError("root", { message });
+          onError(error) {
+            setError("root", { message: error.message });
             toastIdRef.current = anchoredToastManager.add({
               title: "Error",
-              description: message,
+              description: error.message,
               type: "error",
               timeout: 3000,
               positionerProps: {
@@ -91,6 +90,7 @@ export function SignupForm() {
       },
     );
   };
+
   return (
     <form
       className="flex w-full flex-col gap-3"
@@ -178,7 +178,7 @@ export function SignupForm() {
           name="termsChecked"
           render={({ field, fieldState }) => (
             <Field name={field.name} invalid={fieldState.invalid}>
-              <FramePanel className="hover:bg-muted/10 has-data-checked:border-primary/48 has-data-checked:bg-muted/50 p-0!">
+              <FramePanel className="select-none hover:bg-muted/10 has-data-checked:border-primary/48 has-data-checked:bg-muted/50 p-0!">
                 <FieldLabel className="flex items-start gap-2 p-3">
                   <Checkbox
                     checked={field.value}
@@ -226,7 +226,7 @@ export function SignupForm() {
           type="button"
           variant="link"
           className="p-0 text-sm font-medium text-brand"
-          render={<Link to="/login" />}
+          render={<Link to="/login" replace={true} />}
         >
           Login
         </Button>

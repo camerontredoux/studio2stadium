@@ -25,6 +25,17 @@ export function matchPgError(error: unknown, ctx: HttpContext) {
           code: "E_NOT_NULL_VIOLATION",
           cause: error.column,
         });
+      case "42601":
+        ctx.logger.error({ err: error }, "Database syntax error");
+        throw new E_DATABASE_ERROR("Database syntax error", {
+          code: "E_PARSE_ERROR",
+          cause: error.detail,
+        });
+      default:
+        throw new E_DATABASE_ERROR(`Database error: ${error.code}`, {
+          code: "E_DATABASE_ERROR",
+          cause: error.code,
+        });
     }
   }
   throw error;

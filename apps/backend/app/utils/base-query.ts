@@ -24,12 +24,11 @@ export default abstract class BaseQuery {
    * Helper to run multiple operations in a transaction
    */
   protected async transaction<T>(fn: (trx: Kysely<DB>) => Promise<T>) {
-    return db.transaction().execute(async (trx) => {
-      try {
-        return await fn(trx);
-      } catch (error) {
-        throw matchPgError(error, this.ctx);
-      }
-    });
+    return db
+      .transaction()
+      .execute(fn)
+      .catch((e) => {
+        throw matchPgError(e, this.ctx);
+      });
   }
 }

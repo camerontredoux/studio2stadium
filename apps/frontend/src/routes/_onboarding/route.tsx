@@ -1,8 +1,7 @@
-import { AppLayout } from "@/components/layouts/app-layout";
+import { AuthLayout } from "@/components/layouts/auth-layout";
 import { Spinner } from "@/components/ui/spinner";
 import { SessionNetworkError } from "@/features/login/api/errors";
 import { queries } from "@/features/login/api/queries";
-import { createAccess } from "@/lib/access";
 import {
   createFileRoute,
   Outlet,
@@ -10,7 +9,7 @@ import {
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_app")({
+export const Route = createFileRoute("/_onboarding")({
   beforeLoad: async ({ context, location }) => {
     try {
       const session = await context.queryClient.ensureQueryData(
@@ -24,14 +23,14 @@ export const Route = createFileRoute("/_app")({
         });
       }
 
-      if (!session.platforms) {
+      if (session.platforms) {
         throw redirect({
-          to: "/onboarding",
+          to: "/",
           replace: true,
         });
       }
 
-      return { session, access: createAccess(session) };
+      return { session };
     } catch (error) {
       if (error instanceof SessionNetworkError) {
         throw redirect({
@@ -65,8 +64,8 @@ function ErrorComponent({ error }: ErrorComponentProps) {
 
 function RouteComponent() {
   return (
-    <AppLayout>
+    <AuthLayout>
       <Outlet />
-    </AppLayout>
+    </AuthLayout>
   );
 }

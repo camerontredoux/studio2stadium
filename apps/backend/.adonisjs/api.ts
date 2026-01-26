@@ -27,6 +27,10 @@ type AuthUsernameavailableGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/auth/get-username-available/validator.ts')['getUsernameAvailableValidator']>>
   response: MakeTuyauResponse<import('../app/modules/auth/get-username-available/index.ts').default['handle'], true>
 }
+type DancerOnboardPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/onboard/validator.ts')['onboardValidator']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/onboard/index.ts').default['handle'], true>
+}
 type HealthGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/health/index.ts').default['handle'], false>
@@ -59,6 +63,13 @@ export interface ApiDefinition {
       };
       '$get': AuthUsernameavailableGetHead;
       '$head': AuthUsernameavailableGetHead;
+    };
+  };
+  'dancer': {
+    'onboard': {
+      '$url': {
+      };
+      '$post': DancerOnboardPost;
     };
   };
   'health': {

@@ -6,7 +6,7 @@ export const handleApiError =
   (handlers: {
     onRateLimit?: (retryAfter: number) => void;
     onValidation?: (field: string, message: string) => void;
-    onError?: (message: string) => void;
+    onError?: (error: ApiError) => void;
   }) =>
   (error: ApiError) => {
     if (error instanceof TypeError) {
@@ -26,6 +26,6 @@ export const handleApiError =
     }
 
     if (handlers.onError) {
-      handlers.onError(error.message);
+      handlers.onError(error);
     }
   };

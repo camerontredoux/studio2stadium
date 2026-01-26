@@ -1,9 +1,21 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useSearch } from "@tanstack/react-router";
-import { CircleAlertIcon } from "lucide-react";
+import { CircleAlertIcon, CircleCheckIcon } from "lucide-react";
 
-export function ErrorMessage() {
+export function RedirectMessage() {
   const { reason } = useSearch({ strict: false });
+
+  if (reason === "new_account") {
+    return (
+      <Alert variant="success">
+        <CircleCheckIcon />
+        <AlertTitle>Account Created</AlertTitle>
+        <AlertDescription>
+          Your account has been created. Please sign in to continue.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   if (reason === "network_error") {
     return (

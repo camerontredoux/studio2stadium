@@ -11,7 +11,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { anchoredToastManager } from "@/components/ui/toast-manager";
 import { Toggle } from "@/components/ui/toggle";
 import { handleApiError } from "@/lib/api/errors";
-import "@/styles/staggered.css";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "@tanstack/react-router";
 import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from "lucide-react";
@@ -60,10 +59,10 @@ export function LoginForm() {
               message,
             });
           },
-          onError(message) {
+          onError(error) {
             toastIdRef.current = anchoredToastManager.add({
               title: "Error",
-              description: message,
+              description: error.message,
               type: "error",
               timeout: 3000,
               positionerProps: {
@@ -84,94 +83,86 @@ export function LoginForm() {
     >
       <Frame>
         <FramePanel className="flex w-full flex-col gap-3 sm:gap-5">
-          <div className="animate-fade-in-up animate-delay-1">
-            <Controller
-              control={control}
-              name="email"
-              render={({ field, fieldState }) => (
-                <Field name={field.name} invalid={fieldState.invalid}>
-                  <FieldLabel>Email</FieldLabel>
-                  <InputGroup>
-                    <InputGroupAddon align="inline-start">
-                      <MailIcon className="size-3.5" />
-                    </InputGroupAddon>
-                    <InputGroupInput
-                      autoComplete="email"
-                      type="email"
-                      {...field}
-                    />
-                  </InputGroup>
-                  <FieldError error={fieldState.error} />
-                </Field>
-              )}
-            />
-          </div>
+          <Controller
+            control={control}
+            name="email"
+            render={({ field, fieldState }) => (
+              <Field name={field.name} invalid={fieldState.invalid}>
+                <FieldLabel>Email</FieldLabel>
+                <InputGroup>
+                  <InputGroupAddon align="inline-start">
+                    <MailIcon className="size-3.5" />
+                  </InputGroupAddon>
+                  <InputGroupInput
+                    autoComplete="email"
+                    type="email"
+                    {...field}
+                  />
+                </InputGroup>
+                <FieldError error={fieldState.error} />
+              </Field>
+            )}
+          />
 
-          <div className="animate-fade-in-up animate-delay-2">
-            <Controller
-              control={control}
-              name="password"
-              render={({ field, fieldState }) => (
-                <Field name={field.name} invalid={fieldState.invalid}>
-                  <FieldLabel>Password</FieldLabel>
-                  <InputGroup>
-                    <InputGroupAddon align="inline-start">
-                      <LockIcon className="size-3.5" />
-                    </InputGroupAddon>
-                    <InputGroupInput
-                      type={password ? "text" : "password"}
-                      autoComplete="off"
-                      {...field}
-                    />
-                    <InputGroupAddon align="inline-end">
-                      <Toggle tabIndex={-1} size="xs" onClick={togglePassword}>
-                        {password ? <EyeOffIcon /> : <EyeIcon />}
-                      </Toggle>
-                    </InputGroupAddon>
-                  </InputGroup>
-                  <FieldError error={fieldState.error} />
-                </Field>
-              )}
-            />
-          </div>
+          <Controller
+            control={control}
+            name="password"
+            render={({ field, fieldState }) => (
+              <Field name={field.name} invalid={fieldState.invalid}>
+                <FieldLabel>Password</FieldLabel>
+                <InputGroup>
+                  <InputGroupAddon align="inline-start">
+                    <LockIcon className="size-3.5" />
+                  </InputGroupAddon>
+                  <InputGroupInput
+                    type={password ? "text" : "password"}
+                    autoComplete="off"
+                    {...field}
+                  />
+                  <InputGroupAddon align="inline-end">
+                    <Toggle tabIndex={-1} size="xs" onClick={togglePassword}>
+                      {password ? <EyeOffIcon /> : <EyeIcon />}
+                    </Toggle>
+                  </InputGroupAddon>
+                </InputGroup>
+                <FieldError error={fieldState.error} />
+              </Field>
+            )}
+          />
         </FramePanel>
         <FrameFooter>
-          <div className="animate-fade-in-up animate-delay-3 flex items-center justify-end">
-            <Button
-              type="button"
-              variant="link"
-              className="p-0 text-sm text-muted-foreground"
-            >
-              Forgot password?
-            </Button>
-          </div>
+          <Button
+            type="button"
+            variant="link"
+            className="p-0 ml-auto text-sm text-muted-foreground"
+          >
+            Forgot password?
+          </Button>
         </FrameFooter>
       </Frame>
 
-      <div className="animate-fade-in-up animate-delay-4">
-        <Button
-          ref={submitRef}
-          disabled={isPending || !!retryAfter}
-          className="w-full"
-          type="submit"
-        >
-          {isPending ? (
-            <Spinner label="Signing in..." />
-          ) : retryAfter ? (
-            `Retry in ${retryAfter} seconds`
-          ) : (
-            "Sign in"
-          )}
-        </Button>
-      </div>
+      <Button
+        ref={submitRef}
+        disabled={isPending || !!retryAfter}
+        className="w-full"
+        type="submit"
+      >
+        {isPending ? (
+          <Spinner label="Signing in..." />
+        ) : retryAfter ? (
+          `Retry in ${retryAfter} seconds`
+        ) : (
+          "Sign in"
+        )}
+      </Button>
 
-      <p className="animate-fade-in-up animate-delay-5 text-center text-sm text-muted-foreground">
+      <p className="text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
         <Button
           type="button"
           variant="link"
           className="p-0 text-sm font-medium text-brand"
-          render={<Link to="/signup" />}
+          render={<Link to="/signup" replace={true} />}
         >
           Sign up
         </Button>

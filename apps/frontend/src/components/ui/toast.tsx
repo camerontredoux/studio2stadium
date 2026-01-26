@@ -204,7 +204,7 @@ function AnchoredToasts() {
 
           return (
             <Toast.Positioner
-              className="z-50 w-[min(--spacing(64),var(--available-width))]"
+              className="z-50 max-w-[min(--spacing(128),var(--available-width))]"
               data-slot="toast-positioner"
               key={toast.id}
               sideOffset={positionerProps.sideOffset ?? 4}
@@ -248,6 +248,16 @@ function AnchoredToasts() {
                           className="text-muted-foreground"
                           data-slot="toast-description"
                         />
+                        {toast.data && (
+                          <div
+                            className="text-xs mt-2 p-3 py-2 bg-gray-100 text-gray-900 font-medium rounded-md select-text"
+                            data-swipe-ignore
+                          >
+                            <pre className="whitespace-pre-wrap">
+                              {JSON.stringify(toast.data, null, 2)}
+                            </pre>
+                          </div>
+                        )}
                       </div>
                     </div>
                     {toast.actionProps && (

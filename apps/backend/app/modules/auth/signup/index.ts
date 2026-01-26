@@ -11,11 +11,11 @@ export default class SignupController {
 
     const user = await rateLimit(() => service.execute(payload), {
       key: `signup:${request.ip()}:${payload.email}`,
-      requests: 5,
+      requests: 10,
       duration: "1 min",
-      blockDuration: "5 mins",
-      inMemoryBlockDuration: "5 mins",
-      inMemoryBlockOnConsumed: 6,
+      blockDuration: "1 min",
+      inMemoryBlockDuration: "1 min",
+      inMemoryBlockOnConsumed: 11,
     });
 
     return response.created(user);

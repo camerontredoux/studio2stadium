@@ -4,6 +4,7 @@ import app from "@adonisjs/core/services/app";
 import { errors } from "@adonisjs/limiter";
 import { ValidationError } from "@vinejs/vine";
 import { type SimpleError } from "@vinejs/vine/types";
+import { E_BAD_REQUEST } from "./bad-request.ts";
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -17,6 +18,14 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * response to the client
    */
   async handle(error: unknown, ctx: HttpContext) {
+    if (error instanceof E_BAD_REQUEST) {
+      return ctx.response.status(error.status).send({
+        message: error.message,
+        code: error.code,
+        status: error.status,
+        meta: error.meta,
+      });
+    }
     if (error instanceof errors.ThrottleException) {
       return ctx.response.status(error.status).send({
         message: error.message,

@@ -10,10 +10,13 @@ export const useLogin = () => {
 
   return $api.useMutation("post", "/auth/login", {
     onSuccess: async () => {
-      await queryClient.refetchQueries({
-        queryKey: queries.all(),
+      queryClient.clear();
+
+      const session = await queryClient.fetchQuery(queries.session());
+      navigate({
+        to: session?.platforms ? "/onboarding" : (redirect ?? "/"),
+        replace: true,
       });
-      navigate({ to: redirect ?? "/", replace: true });
     },
     onError: (error) => {
       if (error instanceof TypeError) {
@@ -39,7 +42,7 @@ export const useLogout = () => {
 
   return $api.useMutation("post", "/auth/logout", {
     onMutate: () => {
-      queryClient.removeQueries({ queryKey: queries.all() });
+      queryClient.clear();
       navigate({
         to: "/login",
         replace: true,

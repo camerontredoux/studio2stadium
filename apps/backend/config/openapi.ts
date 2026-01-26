@@ -42,10 +42,17 @@ const openapiConfig = defineConfig({
               },
               errors: {
                 type: "array",
-                description: "Additional context specific to the error type",
+                description:
+                  "Additional context specific to the validation error",
                 items: {
                   $ref: "#/components/schemas/ValidationError",
                 },
+              },
+              meta: {
+                type: "object",
+                description: "Additional context specific to the error type",
+                example: { userId: "123" },
+                additionalProperties: true,
               },
             },
             required: ["message", "code", "status"],

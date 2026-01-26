@@ -6,7 +6,11 @@ export const useSignup = () => {
 
   return $api.useMutation("post", "/auth/signup", {
     onSuccess: async () => {
-      navigate({ to: "/signup/onboarding", replace: true });
+      navigate({
+        to: "/login",
+        replace: true,
+        search: { redirect: "/onboarding", reason: "new_account" },
+      });
     },
     onError: (error) => {
       if (error instanceof TypeError) {

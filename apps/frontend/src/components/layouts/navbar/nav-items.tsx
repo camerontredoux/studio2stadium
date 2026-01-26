@@ -12,14 +12,11 @@ export function DancerNavItems() {
   return (
     <div className="flex items-center gap-2">
       <Link to="/">For You</Link>
-      <Link to="/u/$username" params={{ username: session.username }}>
+      <Link to="/$username" params={{ username: session.username }}>
         Profile
       </Link>
       <Link to="/explore">Explore</Link>
-      <Link
-        to="/u/$username/recruiting"
-        params={{ username: session.username }}
-      >
+      <Link to="/$username/recruiting" params={{ username: session.username }}>
         Recruiting
       </Link>
       <Link to="/events">Events</Link>

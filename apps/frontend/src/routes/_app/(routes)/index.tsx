@@ -31,15 +31,11 @@ function RouteComponent() {
       <Button
         variant="link"
         size="xs"
-        render={<Link to="/u/$username" params={{ username: "test" }} />}
+        render={<Link to="/$username" params={{ username: "test" }} />}
       >
         Click me
       </Button>
-      <Button
-        variant="link"
-        size="xs"
-        render={<Link to="/onboarding/dancer" />}
-      >
+      <Button variant="link" size="xs" render={<Link to="/onboarding" />}>
         Click me
       </Button>
       <Button variant="outline" render={<Link to="/explore" />}>
