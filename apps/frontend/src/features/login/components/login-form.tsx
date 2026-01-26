@@ -1,3 +1,4 @@
+import { useAnchoredErrorToast } from "@/components/hooks/use-anchored-error-toast";
 import { useCountdown } from "@/components/hooks/use-countdown";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -8,7 +9,6 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
-import { anchoredToastManager } from "@/components/ui/toast-manager";
 import { Toggle } from "@/components/ui/toggle";
 import { handleApiError } from "@/lib/api/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,7 +29,7 @@ export function LoginForm() {
   const [password, togglePassword] = useReducer((state) => !state, false);
 
   const submitRef = useRef<HTMLButtonElement>(null);
-  const toastIdRef = useRef<string | null>(null);
+  const errorToast = useAnchoredErrorToast(submitRef);
 
   const { control, handleSubmit, setError } = useForm<LoginSchema>({
     resolver: zodResolver(schemas.login),
@@ -41,11 +41,6 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginSchema) => {
     if (!submitRef.current || isPending) return;
-
-    if (toastIdRef.current) {
-      anchoredToastManager.close(toastIdRef.current);
-      toastIdRef.current = null;
-    }
 
     mutate(
       { body: data },
@@ -60,16 +55,7 @@ export function LoginForm() {
             });
           },
           onError(error) {
-            toastIdRef.current = anchoredToastManager.add({
-              title: "Error",
-              description: error.message,
-              type: "error",
-              timeout: 3000,
-              positionerProps: {
-                anchor: submitRef.current,
-                sideOffset: 8,
-              },
-            });
+            errorToast.show(error.message);
           },
         }),
       },
