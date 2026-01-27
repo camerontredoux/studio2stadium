@@ -15,7 +15,7 @@ export function SideNavbar() {
   const session = useSession();
 
   return (
-    <aside className="w-fit xl:w-72 shrink-0 mobile:fixed mobile:bg-white mobile:pb-[env(safe-area-inset-bottom)] mobile:left-0 mobile:right-0 mobile:bottom-0 mobile:w-full mobile:border-t">
+    <aside className="w-fit xl:w-72 mobile:z-50 shrink-0 mobile:fixed mobile:bg-white mobile:pb-[env(safe-area-inset-bottom)] mobile:left-0 mobile:right-0 mobile:bottom-0 mobile:w-full mobile:border-t">
       <nav className="sticky top-12 p-2 py-0 xl:p-4">
         <div className="flex bg-white mobile:flex-row mobile:justify-between desktop:flex-col xl:border desktop:border-r desktop:h-[calc(100vh-3rem)] desktop:xl:h-auto xl:rounded-xl desktop:pl-0 desktop:xl:pl-2 mobile:px-0 p-2 space-y-1">
           <NavLink to="/" label="For You">
