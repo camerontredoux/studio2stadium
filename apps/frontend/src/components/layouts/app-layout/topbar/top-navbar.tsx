@@ -14,13 +14,13 @@ export function TopNavbar() {
         <div className="shrink-0">
           <MainLogo className="h-4" />
         </div>
-        <div className="flex items-center sm:justify-center max-w-md gap-2 mx-4 sm:mx-8 flex-1">
+        <div className="flex items-center justify-center sm:max-w-md gap-2 mx-4 sm:mx-8 flex-1">
           <Search />
         </div>
         <div className="flex items-center gap-2">
           <Menu>
             <MenuTrigger>
-              <Avatar>
+              <Avatar className="mobile:size-9">
                 <AvatarImage src={session.avatar ?? undefined} />
                 <AvatarFallback>
                   {session.username.slice(0, 2).toUpperCase()}

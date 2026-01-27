@@ -20,20 +20,15 @@ export function RecommendedSchool({ school: _ }: { school?: School }) {
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <div className="flex flex-col gap-1">
-          <Button
-            variant="link"
-            className="p-0 text-sm font-semibold"
-            render={
-              <Link
-                to="/school/$username"
-                params={{
-                  username: "usc-kaufman",
-                }}
-              />
-            }
+          <Link
+            className="text-sm font-semibold hover:underline underline-offset-4"
+            to="/school/$username"
+            params={{
+              username: "usc-kaufman",
+            }}
           >
             USC Kaufman
-          </Button>
+          </Link>
           <p className="text-xs text-muted-foreground">Los Angeles, CA</p>
         </div>
         <Button className="ml-auto" size="xs">

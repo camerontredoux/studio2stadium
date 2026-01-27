@@ -18,7 +18,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         <TopNavbar />
         <div className="pt-12 max-w-2xl lg:max-w-5xl xl:max-w-7xl mx-auto flex">
           <SideNavbar />
-          <main className="flex-1 min-w-0 pl-0 p-2 md:pl-0 md:p-2 xl:py-4">
+          <main className="flex-1 min-w-0 desktop:pl-0 p-2 mobile:pb-16 md:pl-0 md:p-2 xl:py-4">
             {children}
           </main>
           {(pathname === "/" || pathname === "/logout") && <SideInfo />}

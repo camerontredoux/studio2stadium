@@ -3,6 +3,8 @@
 @import "./styles/fonts.css";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant mobile (@media (pointer: coarse));
+@custom-variant desktop (@media (pointer: fine));
 
 :root {
   --brand: oklch(0.7332 0.0605 71.75);
@@ -242,8 +244,17 @@
   }
 }
 
-html {
-  scrollbar-gutter: stable both-edges;
+@media (pointer: fine) {
+  html {
+    scrollbar-gutter: stable both-edges;
+  }
+}
+
+@media (pointer: coarse) {
+  body:has(input:focus) aside > nav,
+  body:has(textarea:focus) aside > nav {
+    display: none;
+  }
 }
 
 @utility scrollbar-none {

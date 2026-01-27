@@ -19,7 +19,12 @@ import {
   CommandShortcut,
 } from "@/components/ui/command";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
-import { ArrowDownIcon, ArrowUpIcon, CornerDownLeftIcon } from "lucide-react";
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  CornerDownLeftIcon,
+  SearchIcon,
+} from "lucide-react";
 import { Fragment, useEffect, useState } from "react";
 
 export interface Item {
@@ -75,12 +80,12 @@ export function Search() {
 
   return (
     <CommandDialog onOpenChange={setOpen} open={open}>
-      <CommandDialogTrigger render={<Button variant="outline" />}>
-        <span className="hidden sm:block">Open Command Palette</span>
-        <KbdGroup>
-          <Kbd>⌘</Kbd>
-          <Kbd>J</Kbd>
-        </KbdGroup>
+      <CommandDialogTrigger
+        className="w-full justify-between"
+        render={<Button variant="outline" />}
+      >
+        <span className="font-normal">Search</span>
+        <SearchIcon className="size-3.5" />
       </CommandDialogTrigger>
       <CommandDialogPopup>
         <Command items={groupedItems}>
