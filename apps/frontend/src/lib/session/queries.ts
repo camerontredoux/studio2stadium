@@ -1,7 +1,6 @@
 import type { paths } from "@/lib/api/types";
 import { queryOptions } from "@tanstack/react-query";
 import createFetchClient from "openapi-fetch";
-import { SessionNetworkError } from "./errors";
 
 const client = createFetchClient<paths>({
   baseUrl: "http://localhost:3333",
@@ -27,7 +26,8 @@ export const queries = {
 
           return data;
         } catch {
-          throw new SessionNetworkError();
+          return null;
+          // throw new SessionNetworkError();
         }
       },
       staleTime: Infinity,
