@@ -17,7 +17,6 @@ import { Route as AdminRouteRouteImport } from './routes/_admin/route'
 import { Route as ApproutesIndexRouteImport } from './routes/_app/(routes)/index'
 import { Route as AuthroutesLoginRouteImport } from './routes/_auth/(routes)/login'
 import { Route as ApproutesUnauthorizedRouteImport } from './routes/_app/(routes)/unauthorized'
-import { Route as ApproutesSessionRouteImport } from './routes/_app/(routes)/session'
 import { Route as ApproutesResourcesRouteImport } from './routes/_app/(routes)/resources'
 import { Route as ApproutesRecruitingRouteImport } from './routes/_app/(routes)/recruiting'
 import { Route as ApproutesExploreRouteImport } from './routes/_app/(routes)/explore'
@@ -72,11 +71,6 @@ const AuthroutesLoginRoute = AuthroutesLoginRouteImport.update({
 const ApproutesUnauthorizedRoute = ApproutesUnauthorizedRouteImport.update({
   id: '/(routes)/unauthorized',
   path: '/unauthorized',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const ApproutesSessionRoute = ApproutesSessionRouteImport.update({
-  id: '/(routes)/session',
-  path: '/session',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const ApproutesResourcesRoute = ApproutesResourcesRouteImport.update({
@@ -196,7 +190,6 @@ export interface FileRoutesByFullPath {
   '/explore': typeof ApproutesExploreRoute
   '/recruiting': typeof ApproutesRecruitingRoute
   '/resources': typeof ApproutesResourcesRoute
-  '/session': typeof ApproutesSessionRoute
   '/unauthorized': typeof ApproutesUnauthorizedRoute
   '/login': typeof AuthroutesLoginRoute
   '/dashboard/assets': typeof AdminroutesDashboardAssetsRoute
@@ -222,7 +215,6 @@ export interface FileRoutesByTo {
   '/explore': typeof ApproutesExploreRoute
   '/recruiting': typeof ApproutesRecruitingRoute
   '/resources': typeof ApproutesResourcesRoute
-  '/session': typeof ApproutesSessionRoute
   '/unauthorized': typeof ApproutesUnauthorizedRoute
   '/login': typeof AuthroutesLoginRoute
   '/dashboard/assets': typeof AdminroutesDashboardAssetsRoute
@@ -253,7 +245,6 @@ export interface FileRoutesById {
   '/_app/(routes)/explore': typeof ApproutesExploreRoute
   '/_app/(routes)/recruiting': typeof ApproutesRecruitingRoute
   '/_app/(routes)/resources': typeof ApproutesResourcesRoute
-  '/_app/(routes)/session': typeof ApproutesSessionRoute
   '/_app/(routes)/unauthorized': typeof ApproutesUnauthorizedRoute
   '/_auth/(routes)/login': typeof AuthroutesLoginRoute
   '/_app/(routes)/': typeof ApproutesIndexRoute
@@ -282,7 +273,6 @@ export interface FileRouteTypes {
     | '/explore'
     | '/recruiting'
     | '/resources'
-    | '/session'
     | '/unauthorized'
     | '/login'
     | '/dashboard/assets'
@@ -308,7 +298,6 @@ export interface FileRouteTypes {
     | '/explore'
     | '/recruiting'
     | '/resources'
-    | '/session'
     | '/unauthorized'
     | '/login'
     | '/dashboard/assets'
@@ -338,7 +327,6 @@ export interface FileRouteTypes {
     | '/_app/(routes)/explore'
     | '/_app/(routes)/recruiting'
     | '/_app/(routes)/resources'
-    | '/_app/(routes)/session'
     | '/_app/(routes)/unauthorized'
     | '/_auth/(routes)/login'
     | '/_app/(routes)/'
@@ -423,13 +411,6 @@ declare module '@tanstack/react-router' {
       path: '/unauthorized'
       fullPath: '/unauthorized'
       preLoaderRoute: typeof ApproutesUnauthorizedRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/_app/(routes)/session': {
-      id: '/_app/(routes)/session'
-      path: '/session'
-      fullPath: '/session'
-      preLoaderRoute: typeof ApproutesSessionRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/(routes)/resources': {
@@ -605,7 +586,6 @@ interface AppRouteRouteChildren {
   ApproutesExploreRoute: typeof ApproutesExploreRoute
   ApproutesRecruitingRoute: typeof ApproutesRecruitingRoute
   ApproutesResourcesRoute: typeof ApproutesResourcesRoute
-  ApproutesSessionRoute: typeof ApproutesSessionRoute
   ApproutesUnauthorizedRoute: typeof ApproutesUnauthorizedRoute
   ApproutesIndexRoute: typeof ApproutesIndexRoute
   ApproutesEventsEventIdRoute: typeof ApproutesEventsEventIdRoute
@@ -619,7 +599,6 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   ApproutesExploreRoute: ApproutesExploreRoute,
   ApproutesRecruitingRoute: ApproutesRecruitingRoute,
   ApproutesResourcesRoute: ApproutesResourcesRoute,
-  ApproutesSessionRoute: ApproutesSessionRoute,
   ApproutesUnauthorizedRoute: ApproutesUnauthorizedRoute,
   ApproutesIndexRoute: ApproutesIndexRoute,
   ApproutesEventsEventIdRoute: ApproutesEventsEventIdRoute,

@@ -18,15 +18,27 @@ export const Route = createFileRoute("/_app/(routes)/")({
 });
 
 function RouteComponent() {
-  const { session } = useSession();
-
+  const session = useSession();
   const logout = useLogout();
 
   return (
-    <div>
-      <pre>
-        {JSON.stringify(session, (_, v) => (v instanceof Set ? [...v] : v), 2)}
-      </pre>
+    <div className="space-y-2">
+      <div>
+        <h1 className="text-2xl font-bold">
+          Welcome back, {session.username}!
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Here's your latest personalized content from programs you follow.
+        </p>
+      </div>
+
+      <div className="rounded-xl border p-4 aspect-video max-h-96"></div>
+      <div className="rounded-xl border p-4 aspect-video max-h-96"></div>
+      <div className="rounded-xl border p-4 aspect-video max-h-96"></div>
+      <div className="rounded-xl border p-4 aspect-video max-h-96"></div>
+      <div className="rounded-xl border p-4 aspect-video max-h-96"></div>
+      <div className="rounded-xl border p-4 aspect-video max-h-96"></div>
+
       <Button
         variant="link"
         size="xs"

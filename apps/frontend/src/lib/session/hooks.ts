@@ -7,5 +7,5 @@ export const useSession = () => {
     throw new Error("useSession must be used within an authenticated route");
   }
 
-  return { session };
+  return session;
 };

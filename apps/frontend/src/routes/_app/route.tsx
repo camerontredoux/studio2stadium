@@ -1,4 +1,4 @@
-import { AppLayout } from "@/components/layouts/app-layout";
+import { AppLayout } from "@/components/layouts/app-layout/app-layout";
 import { Spinner } from "@/components/ui/spinner";
 import { createAccess } from "@/lib/access/access";
 import { queries, SessionNetworkError } from "@/lib/session";
