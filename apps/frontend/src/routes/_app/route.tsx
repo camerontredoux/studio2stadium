@@ -16,19 +16,19 @@ export const Route = createFileRoute("/_app")({
         queries.session(),
       );
 
-      if (!session) {
-        throw redirect({
-          to: "/login",
-          search: { redirect: location.href, reason: "access_denied" },
-        });
-      }
+      // if (!session) {
+      //   throw redirect({
+      //     to: "/login",
+      //     search: { redirect: location.href, reason: "access_denied" },
+      //   });
+      // }
 
-      if (!session.platforms) {
-        throw redirect({
-          to: "/onboarding",
-          replace: true,
-        });
-      }
+      // if (!session.platforms) {
+      //   throw redirect({
+      //     to: "/onboarding",
+      //     replace: true,
+      //   });
+      // }
 
       return { session, access: createAccess(session) };
     } catch (error) {
