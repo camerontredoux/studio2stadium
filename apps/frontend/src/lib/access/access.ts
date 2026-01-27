@@ -31,20 +31,19 @@ export type Policy = () => boolean;
 
 type Policies = Policy[];
 
-export const createAccess = (session: Session | null) => {
+export const createAccess = (session: Session) => {
   const _permissions = new Set<Permission>();
 
-  // if (session?.type === "dancer" && !session?.platforms)
-  //   throw new Error("Unauthorized: Dancer has no platforms");
+  if (session.type === "dancer" && !session.platforms)
+    throw new Error("Unauthorized: Dancer has no platforms");
 
-  const platforms = session?.platforms || [];
+  const platforms = session.platforms;
 
   for (const platform of platforms) {
-    _permissions.add(`view:${platform}:${session?.type}` as Permission);
+    _permissions.add(`view:${platform}:${session.type}` as Permission);
   }
   // Type-safe helper to create policies
-  const policy = (predicate: Policy) =>
-    session?.role === "admin" || predicate();
+  const policy = (predicate: Policy) => session.role === "admin" || predicate();
 
   /**
    * @returns Boolean value indicating if the user has the permission
@@ -57,7 +56,7 @@ export const createAccess = (session: Session | null) => {
    * @returns Boolean value indicating if the user is on the given platform and type
    */
   const is = (platform: Platform, type: AccountType) => () =>
-    policy(() => platforms.includes(platform) && session?.type === type);
+    policy(() => platforms.includes(platform) && session.type === type);
 
   /**
    * @returns Boolean value indicating if any of the policies are met
@@ -88,7 +87,7 @@ export const createAccess = (session: Session | null) => {
    * @returns Boolean value indicating if the user is viewing their own profile
    */
   const self = (username: string) => () =>
-    policy(() => session?.username === username);
+    policy(() => session.username === username);
 
   return {
     can,
