@@ -6,7 +6,7 @@ export function Feed() {
 
   return (
     <div className="gap-2 flex flex-col">
-      <div className="mb-1 mobile:hidden">
+      <div className="mb-1 hidden lg:block">
         <h1 className="text-xl sm:text-2xl font-bold">
           Welcome back, {session.username}!
         </h1>

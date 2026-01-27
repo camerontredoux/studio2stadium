@@ -21,7 +21,7 @@ export function RecommendedSchool({ school: _ }: { school?: School }) {
         </Avatar>
         <div className="flex flex-col gap-1">
           <Link
-            className="text-sm font-semibold hover:underline underline-offset-4"
+            className="text-sm font-semibold hover:text-brand underline underline-offset-4"
             to="/school/$username"
             params={{
               username: "usc-kaufman",
