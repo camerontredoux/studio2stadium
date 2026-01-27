@@ -11,15 +11,11 @@ import { UpcomingEvent } from "../upcoming-event";
 
 export function EventsSection() {
   return (
-    <Frame className="border p-0 pt-1">
+    <Frame className="border p-0 pt-0.5">
       <FrameHeader>
         <FrameTitle className="flex items-center gap-2">
-          Upcoming Events{" "}
-          <Button
-            className="ml-auto"
-            size="xs"
-            render={<Link to="/events" />}
-          >
+          Upcoming Events
+          <Button className="ml-auto" size="xs" render={<Link to="/events" />}>
             View All
           </Button>
         </FrameTitle>

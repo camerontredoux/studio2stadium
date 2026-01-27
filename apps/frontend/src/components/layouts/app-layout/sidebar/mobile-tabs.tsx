@@ -27,7 +27,7 @@ export function MobileTabs({ children }: MobileTabsProps) {
           {children}
         </TabsPanel>
         <TabsPanel className="mobile:pb-16 overflow-y-auto" value="discover">
-          <div className="columns-1 sm:columns-2 gap-2 space-y-2">
+          <div className="gap-2 space-y-2">
             <div className="break-inside-avoid">
               <EventsSection />
             </div>

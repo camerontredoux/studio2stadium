@@ -1,4 +1,5 @@
 import { useSession } from "@/lib/session";
+import { FeedItem } from "./feed-item";
 import { ProgramSpotlight } from "./program-spotlight";
 
 export function Feed() {
@@ -17,12 +18,9 @@ export function Feed() {
 
       <ProgramSpotlight />
 
-      <div className="rounded-xl border p-4 aspect-video max-h-96"></div>
-      <div className="rounded-xl border p-4 aspect-video max-h-96"></div>
-      <div className="rounded-xl border p-4 aspect-video max-h-96"></div>
-      <div className="rounded-xl border p-4 aspect-video max-h-96"></div>
-      <div className="rounded-xl border p-4 aspect-video max-h-96"></div>
-      <div className="rounded-xl border p-4 aspect-video max-h-96"></div>
+      {Array.from({ length: 10 }).map((_, idx) => (
+        <FeedItem key={idx} />
+      ))}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@/components/ui/menu";
 import { useSession } from "@/lib/session";
 import { Link } from "@tanstack/react-router";
+import { LogOutIcon } from "lucide-react";
 import { Search } from "./search";
 
 export function TopNavbar() {
@@ -30,7 +31,7 @@ export function TopNavbar() {
             <MenuPopup align="end">
               <MenuItem disabled>@{session.username}</MenuItem>
               <MenuItem closeOnClick render={<Link to="/logout" />}>
-                Logout
+                <LogOutIcon /> Logout
               </MenuItem>
             </MenuPopup>
           </Menu>

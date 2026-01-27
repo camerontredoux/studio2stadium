@@ -31,7 +31,7 @@ export function RecommendedSchool({ school: _ }: { school?: School }) {
           </Link>
           <p className="text-xs text-muted-foreground">Los Angeles, CA</p>
         </div>
-        <Button className="ml-auto" size="xs">
+        <Button className="ml-auto" size="xs" variant="outline">
           Follow
         </Button>
       </div>
