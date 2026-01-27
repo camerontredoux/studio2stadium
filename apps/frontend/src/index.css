@@ -17,7 +17,7 @@
   --popover-foreground: var(--color-zinc-800);
   --primary: var(--color-zinc-800);
   --primary-foreground: var(--color-zinc-50);
-  --secondary: --alpha(var(--color-black) / 4%);
+  --secondary: --alpha(var(--color-black) / 8%);
   --secondary-foreground: var(--color-zinc-800);
   --muted: --alpha(var(--color-black) / 4%);
   --muted-foreground: color-mix(
@@ -240,6 +240,10 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+html {
+  scrollbar-gutter: stable both-edges;
 }
 
 @utility scrollbar-none {

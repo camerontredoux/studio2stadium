@@ -18,7 +18,7 @@ const NavLinkComponent = forwardRef<
 
     <Button
       className="flex xl:hidden"
-      size="icon"
+      size="sidebar"
       variant={active ? "default" : "ghost"}
       render={<a ref={ref} {...props} />}
     >

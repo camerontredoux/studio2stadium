@@ -8,5 +8,11 @@ export const Route = createFileRoute("/_app/(routes)/explore")({
 });
 
 function RouteComponent() {
-  return <div>Hello "/_app/explore"!</div>;
+  return (
+    <div className="space-y-2">
+      <div className="rounded-xl border p-4 aspect-video"></div>
+      <div className="rounded-xl border p-4 aspect-video"></div>
+      <div className="rounded-xl border p-4 aspect-video"></div>
+    </div>
+  );
 }

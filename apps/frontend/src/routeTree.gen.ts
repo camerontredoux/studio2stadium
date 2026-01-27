@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SettingsRouteRouteImport } from './routes/_settings/route'
 import { Route as OnboardingRouteRouteImport } from './routes/_onboarding/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
@@ -19,29 +18,26 @@ import { Route as AuthroutesLoginRouteImport } from './routes/_auth/(routes)/log
 import { Route as ApproutesUnauthorizedRouteImport } from './routes/_app/(routes)/unauthorized'
 import { Route as ApproutesResourcesRouteImport } from './routes/_app/(routes)/resources'
 import { Route as ApproutesRecruitingRouteImport } from './routes/_app/(routes)/recruiting'
+import { Route as ApproutesLogoutRouteImport } from './routes/_app/(routes)/logout'
 import { Route as ApproutesExploreRouteImport } from './routes/_app/(routes)/explore'
 import { Route as ApproutesUsernameRouteImport } from './routes/_app/(routes)/$username'
 import { Route as AdminroutesDashboardRouteImport } from './routes/_admin/(routes)/dashboard'
-import { Route as SettingsroutesSettingsIndexRouteImport } from './routes/_settings/(routes)/settings/index'
 import { Route as OnboardingroutesOnboardingIndexRouteImport } from './routes/_onboarding/(routes)/onboarding/index'
 import { Route as AuthroutesSignupIndexRouteImport } from './routes/_auth/(routes)/signup/index'
 import { Route as AuthroutesResetIndexRouteImport } from './routes/_auth/(routes)/reset/index'
+import { Route as ApproutesSettingsIndexRouteImport } from './routes/_app/(routes)/settings/index'
 import { Route as ApproutesEventsIndexRouteImport } from './routes/_app/(routes)/events/index'
-import { Route as SettingsroutesSettingsProfileRouteImport } from './routes/_settings/(routes)/settings/profile'
-import { Route as SettingsroutesSettingsMediaRouteImport } from './routes/_settings/(routes)/settings/media'
-import { Route as SettingsroutesSettingsGeneralRouteImport } from './routes/_settings/(routes)/settings/general'
 import { Route as AuthroutesSignupTypeRouteImport } from './routes/_auth/(routes)/signup/$type'
 import { Route as AuthroutesResetTokenIdRouteImport } from './routes/_auth/(routes)/reset/$tokenId'
+import { Route as ApproutesSettingsProfileRouteImport } from './routes/_app/(routes)/settings/profile'
+import { Route as ApproutesSettingsMediaRouteImport } from './routes/_app/(routes)/settings/media'
+import { Route as ApproutesSettingsGeneralRouteImport } from './routes/_app/(routes)/settings/general'
 import { Route as ApproutesEventsEventIdRouteImport } from './routes/_app/(routes)/events/$eventId'
 import { Route as AdminroutesDashboardMetricsRouteImport } from './routes/_admin/(routes)/dashboard/metrics'
 import { Route as AdminroutesDashboardAssetsRouteImport } from './routes/_admin/(routes)/dashboard/assets'
 import { Route as ApproutesSchoolUsernameIndexRouteImport } from './routes/_app/(routes)/school/$username/index'
 import { Route as ApproutesSchoolUsernameRecruitingRouteImport } from './routes/_app/(routes)/school/$username/recruiting'
 
-const SettingsRouteRoute = SettingsRouteRouteImport.update({
-  id: '/_settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const OnboardingRouteRoute = OnboardingRouteRouteImport.update({
   id: '/_onboarding',
   getParentRoute: () => rootRouteImport,
@@ -83,6 +79,11 @@ const ApproutesRecruitingRoute = ApproutesRecruitingRouteImport.update({
   path: '/recruiting',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const ApproutesLogoutRoute = ApproutesLogoutRouteImport.update({
+  id: '/(routes)/logout',
+  path: '/logout',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const ApproutesExploreRoute = ApproutesExploreRouteImport.update({
   id: '/(routes)/explore',
   path: '/explore',
@@ -98,12 +99,6 @@ const AdminroutesDashboardRoute = AdminroutesDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AdminRouteRoute,
 } as any)
-const SettingsroutesSettingsIndexRoute =
-  SettingsroutesSettingsIndexRouteImport.update({
-    id: '/(routes)/settings/',
-    path: '/settings/',
-    getParentRoute: () => SettingsRouteRoute,
-  } as any)
 const OnboardingroutesOnboardingIndexRoute =
   OnboardingroutesOnboardingIndexRouteImport.update({
     id: '/(routes)/onboarding/',
@@ -120,29 +115,16 @@ const AuthroutesResetIndexRoute = AuthroutesResetIndexRouteImport.update({
   path: '/reset/',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const ApproutesSettingsIndexRoute = ApproutesSettingsIndexRouteImport.update({
+  id: '/(routes)/settings/',
+  path: '/settings/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const ApproutesEventsIndexRoute = ApproutesEventsIndexRouteImport.update({
   id: '/(routes)/events/',
   path: '/events/',
   getParentRoute: () => AppRouteRoute,
 } as any)
-const SettingsroutesSettingsProfileRoute =
-  SettingsroutesSettingsProfileRouteImport.update({
-    id: '/(routes)/settings/profile',
-    path: '/settings/profile',
-    getParentRoute: () => SettingsRouteRoute,
-  } as any)
-const SettingsroutesSettingsMediaRoute =
-  SettingsroutesSettingsMediaRouteImport.update({
-    id: '/(routes)/settings/media',
-    path: '/settings/media',
-    getParentRoute: () => SettingsRouteRoute,
-  } as any)
-const SettingsroutesSettingsGeneralRoute =
-  SettingsroutesSettingsGeneralRouteImport.update({
-    id: '/(routes)/settings/general',
-    path: '/settings/general',
-    getParentRoute: () => SettingsRouteRoute,
-  } as any)
 const AuthroutesSignupTypeRoute = AuthroutesSignupTypeRouteImport.update({
   id: '/(routes)/signup/$type',
   path: '/signup/$type',
@@ -153,6 +135,23 @@ const AuthroutesResetTokenIdRoute = AuthroutesResetTokenIdRouteImport.update({
   path: '/reset/$tokenId',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const ApproutesSettingsProfileRoute =
+  ApproutesSettingsProfileRouteImport.update({
+    id: '/(routes)/settings/profile',
+    path: '/settings/profile',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
+const ApproutesSettingsMediaRoute = ApproutesSettingsMediaRouteImport.update({
+  id: '/(routes)/settings/media',
+  path: '/settings/media',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const ApproutesSettingsGeneralRoute =
+  ApproutesSettingsGeneralRouteImport.update({
+    id: '/(routes)/settings/general',
+    path: '/settings/general',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
 const ApproutesEventsEventIdRoute = ApproutesEventsEventIdRouteImport.update({
   id: '/(routes)/events/$eventId',
   path: '/events/$eventId',
@@ -188,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AdminroutesDashboardRouteWithChildren
   '/$username': typeof ApproutesUsernameRoute
   '/explore': typeof ApproutesExploreRoute
+  '/logout': typeof ApproutesLogoutRoute
   '/recruiting': typeof ApproutesRecruitingRoute
   '/resources': typeof ApproutesResourcesRoute
   '/unauthorized': typeof ApproutesUnauthorizedRoute
@@ -195,16 +195,16 @@ export interface FileRoutesByFullPath {
   '/dashboard/assets': typeof AdminroutesDashboardAssetsRoute
   '/dashboard/metrics': typeof AdminroutesDashboardMetricsRoute
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
+  '/settings/general': typeof ApproutesSettingsGeneralRoute
+  '/settings/media': typeof ApproutesSettingsMediaRoute
+  '/settings/profile': typeof ApproutesSettingsProfileRoute
   '/reset/$tokenId': typeof AuthroutesResetTokenIdRoute
   '/signup/$type': typeof AuthroutesSignupTypeRoute
-  '/settings/general': typeof SettingsroutesSettingsGeneralRoute
-  '/settings/media': typeof SettingsroutesSettingsMediaRoute
-  '/settings/profile': typeof SettingsroutesSettingsProfileRoute
   '/events/': typeof ApproutesEventsIndexRoute
+  '/settings/': typeof ApproutesSettingsIndexRoute
   '/reset/': typeof AuthroutesResetIndexRoute
   '/signup/': typeof AuthroutesSignupIndexRoute
   '/onboarding/': typeof OnboardingroutesOnboardingIndexRoute
-  '/settings/': typeof SettingsroutesSettingsIndexRoute
   '/school/$username/recruiting': typeof ApproutesSchoolUsernameRecruitingRoute
   '/school/$username/': typeof ApproutesSchoolUsernameIndexRoute
 }
@@ -213,6 +213,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AdminroutesDashboardRouteWithChildren
   '/$username': typeof ApproutesUsernameRoute
   '/explore': typeof ApproutesExploreRoute
+  '/logout': typeof ApproutesLogoutRoute
   '/recruiting': typeof ApproutesRecruitingRoute
   '/resources': typeof ApproutesResourcesRoute
   '/unauthorized': typeof ApproutesUnauthorizedRoute
@@ -220,16 +221,16 @@ export interface FileRoutesByTo {
   '/dashboard/assets': typeof AdminroutesDashboardAssetsRoute
   '/dashboard/metrics': typeof AdminroutesDashboardMetricsRoute
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
+  '/settings/general': typeof ApproutesSettingsGeneralRoute
+  '/settings/media': typeof ApproutesSettingsMediaRoute
+  '/settings/profile': typeof ApproutesSettingsProfileRoute
   '/reset/$tokenId': typeof AuthroutesResetTokenIdRoute
   '/signup/$type': typeof AuthroutesSignupTypeRoute
-  '/settings/general': typeof SettingsroutesSettingsGeneralRoute
-  '/settings/media': typeof SettingsroutesSettingsMediaRoute
-  '/settings/profile': typeof SettingsroutesSettingsProfileRoute
   '/events': typeof ApproutesEventsIndexRoute
+  '/settings': typeof ApproutesSettingsIndexRoute
   '/reset': typeof AuthroutesResetIndexRoute
   '/signup': typeof AuthroutesSignupIndexRoute
   '/onboarding': typeof OnboardingroutesOnboardingIndexRoute
-  '/settings': typeof SettingsroutesSettingsIndexRoute
   '/school/$username/recruiting': typeof ApproutesSchoolUsernameRecruitingRoute
   '/school/$username': typeof ApproutesSchoolUsernameIndexRoute
 }
@@ -239,10 +240,10 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteRouteWithChildren
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_onboarding': typeof OnboardingRouteRouteWithChildren
-  '/_settings': typeof SettingsRouteRouteWithChildren
   '/_admin/(routes)/dashboard': typeof AdminroutesDashboardRouteWithChildren
   '/_app/(routes)/$username': typeof ApproutesUsernameRoute
   '/_app/(routes)/explore': typeof ApproutesExploreRoute
+  '/_app/(routes)/logout': typeof ApproutesLogoutRoute
   '/_app/(routes)/recruiting': typeof ApproutesRecruitingRoute
   '/_app/(routes)/resources': typeof ApproutesResourcesRoute
   '/_app/(routes)/unauthorized': typeof ApproutesUnauthorizedRoute
@@ -251,16 +252,16 @@ export interface FileRoutesById {
   '/_admin/(routes)/dashboard/assets': typeof AdminroutesDashboardAssetsRoute
   '/_admin/(routes)/dashboard/metrics': typeof AdminroutesDashboardMetricsRoute
   '/_app/(routes)/events/$eventId': typeof ApproutesEventsEventIdRoute
+  '/_app/(routes)/settings/general': typeof ApproutesSettingsGeneralRoute
+  '/_app/(routes)/settings/media': typeof ApproutesSettingsMediaRoute
+  '/_app/(routes)/settings/profile': typeof ApproutesSettingsProfileRoute
   '/_auth/(routes)/reset/$tokenId': typeof AuthroutesResetTokenIdRoute
   '/_auth/(routes)/signup/$type': typeof AuthroutesSignupTypeRoute
-  '/_settings/(routes)/settings/general': typeof SettingsroutesSettingsGeneralRoute
-  '/_settings/(routes)/settings/media': typeof SettingsroutesSettingsMediaRoute
-  '/_settings/(routes)/settings/profile': typeof SettingsroutesSettingsProfileRoute
   '/_app/(routes)/events/': typeof ApproutesEventsIndexRoute
+  '/_app/(routes)/settings/': typeof ApproutesSettingsIndexRoute
   '/_auth/(routes)/reset/': typeof AuthroutesResetIndexRoute
   '/_auth/(routes)/signup/': typeof AuthroutesSignupIndexRoute
   '/_onboarding/(routes)/onboarding/': typeof OnboardingroutesOnboardingIndexRoute
-  '/_settings/(routes)/settings/': typeof SettingsroutesSettingsIndexRoute
   '/_app/(routes)/school/$username/recruiting': typeof ApproutesSchoolUsernameRecruitingRoute
   '/_app/(routes)/school/$username/': typeof ApproutesSchoolUsernameIndexRoute
 }
@@ -271,6 +272,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/$username'
     | '/explore'
+    | '/logout'
     | '/recruiting'
     | '/resources'
     | '/unauthorized'
@@ -278,16 +280,16 @@ export interface FileRouteTypes {
     | '/dashboard/assets'
     | '/dashboard/metrics'
     | '/events/$eventId'
-    | '/reset/$tokenId'
-    | '/signup/$type'
     | '/settings/general'
     | '/settings/media'
     | '/settings/profile'
+    | '/reset/$tokenId'
+    | '/signup/$type'
     | '/events/'
+    | '/settings/'
     | '/reset/'
     | '/signup/'
     | '/onboarding/'
-    | '/settings/'
     | '/school/$username/recruiting'
     | '/school/$username/'
   fileRoutesByTo: FileRoutesByTo
@@ -296,6 +298,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/$username'
     | '/explore'
+    | '/logout'
     | '/recruiting'
     | '/resources'
     | '/unauthorized'
@@ -303,16 +306,16 @@ export interface FileRouteTypes {
     | '/dashboard/assets'
     | '/dashboard/metrics'
     | '/events/$eventId'
-    | '/reset/$tokenId'
-    | '/signup/$type'
     | '/settings/general'
     | '/settings/media'
     | '/settings/profile'
+    | '/reset/$tokenId'
+    | '/signup/$type'
     | '/events'
+    | '/settings'
     | '/reset'
     | '/signup'
     | '/onboarding'
-    | '/settings'
     | '/school/$username/recruiting'
     | '/school/$username'
   id:
@@ -321,10 +324,10 @@ export interface FileRouteTypes {
     | '/_app'
     | '/_auth'
     | '/_onboarding'
-    | '/_settings'
     | '/_admin/(routes)/dashboard'
     | '/_app/(routes)/$username'
     | '/_app/(routes)/explore'
+    | '/_app/(routes)/logout'
     | '/_app/(routes)/recruiting'
     | '/_app/(routes)/resources'
     | '/_app/(routes)/unauthorized'
@@ -333,16 +336,16 @@ export interface FileRouteTypes {
     | '/_admin/(routes)/dashboard/assets'
     | '/_admin/(routes)/dashboard/metrics'
     | '/_app/(routes)/events/$eventId'
+    | '/_app/(routes)/settings/general'
+    | '/_app/(routes)/settings/media'
+    | '/_app/(routes)/settings/profile'
     | '/_auth/(routes)/reset/$tokenId'
     | '/_auth/(routes)/signup/$type'
-    | '/_settings/(routes)/settings/general'
-    | '/_settings/(routes)/settings/media'
-    | '/_settings/(routes)/settings/profile'
     | '/_app/(routes)/events/'
+    | '/_app/(routes)/settings/'
     | '/_auth/(routes)/reset/'
     | '/_auth/(routes)/signup/'
     | '/_onboarding/(routes)/onboarding/'
-    | '/_settings/(routes)/settings/'
     | '/_app/(routes)/school/$username/recruiting'
     | '/_app/(routes)/school/$username/'
   fileRoutesById: FileRoutesById
@@ -352,18 +355,10 @@ export interface RootRouteChildren {
   AppRouteRoute: typeof AppRouteRouteWithChildren
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   OnboardingRouteRoute: typeof OnboardingRouteRouteWithChildren
-  SettingsRouteRoute: typeof SettingsRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_settings': {
-      id: '/_settings'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof SettingsRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_onboarding': {
       id: '/_onboarding'
       path: ''
@@ -427,6 +422,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApproutesRecruitingRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/(routes)/logout': {
+      id: '/_app/(routes)/logout'
+      path: '/logout'
+      fullPath: '/logout'
+      preLoaderRoute: typeof ApproutesLogoutRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/(routes)/explore': {
       id: '/_app/(routes)/explore'
       path: '/explore'
@@ -447,13 +449,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard'
       preLoaderRoute: typeof AdminroutesDashboardRouteImport
       parentRoute: typeof AdminRouteRoute
-    }
-    '/_settings/(routes)/settings/': {
-      id: '/_settings/(routes)/settings/'
-      path: '/settings'
-      fullPath: '/settings/'
-      preLoaderRoute: typeof SettingsroutesSettingsIndexRouteImport
-      parentRoute: typeof SettingsRouteRoute
     }
     '/_onboarding/(routes)/onboarding/': {
       id: '/_onboarding/(routes)/onboarding/'
@@ -476,33 +471,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthroutesResetIndexRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_app/(routes)/settings/': {
+      id: '/_app/(routes)/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof ApproutesSettingsIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/(routes)/events/': {
       id: '/_app/(routes)/events/'
       path: '/events'
       fullPath: '/events/'
       preLoaderRoute: typeof ApproutesEventsIndexRouteImport
       parentRoute: typeof AppRouteRoute
-    }
-    '/_settings/(routes)/settings/profile': {
-      id: '/_settings/(routes)/settings/profile'
-      path: '/settings/profile'
-      fullPath: '/settings/profile'
-      preLoaderRoute: typeof SettingsroutesSettingsProfileRouteImport
-      parentRoute: typeof SettingsRouteRoute
-    }
-    '/_settings/(routes)/settings/media': {
-      id: '/_settings/(routes)/settings/media'
-      path: '/settings/media'
-      fullPath: '/settings/media'
-      preLoaderRoute: typeof SettingsroutesSettingsMediaRouteImport
-      parentRoute: typeof SettingsRouteRoute
-    }
-    '/_settings/(routes)/settings/general': {
-      id: '/_settings/(routes)/settings/general'
-      path: '/settings/general'
-      fullPath: '/settings/general'
-      preLoaderRoute: typeof SettingsroutesSettingsGeneralRouteImport
-      parentRoute: typeof SettingsRouteRoute
     }
     '/_auth/(routes)/signup/$type': {
       id: '/_auth/(routes)/signup/$type'
@@ -517,6 +498,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/reset/$tokenId'
       preLoaderRoute: typeof AuthroutesResetTokenIdRouteImport
       parentRoute: typeof AuthRouteRoute
+    }
+    '/_app/(routes)/settings/profile': {
+      id: '/_app/(routes)/settings/profile'
+      path: '/settings/profile'
+      fullPath: '/settings/profile'
+      preLoaderRoute: typeof ApproutesSettingsProfileRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/(routes)/settings/media': {
+      id: '/_app/(routes)/settings/media'
+      path: '/settings/media'
+      fullPath: '/settings/media'
+      preLoaderRoute: typeof ApproutesSettingsMediaRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/(routes)/settings/general': {
+      id: '/_app/(routes)/settings/general'
+      path: '/settings/general'
+      fullPath: '/settings/general'
+      preLoaderRoute: typeof ApproutesSettingsGeneralRouteImport
+      parentRoute: typeof AppRouteRoute
     }
     '/_app/(routes)/events/$eventId': {
       id: '/_app/(routes)/events/$eventId'
@@ -584,12 +586,17 @@ const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
 interface AppRouteRouteChildren {
   ApproutesUsernameRoute: typeof ApproutesUsernameRoute
   ApproutesExploreRoute: typeof ApproutesExploreRoute
+  ApproutesLogoutRoute: typeof ApproutesLogoutRoute
   ApproutesRecruitingRoute: typeof ApproutesRecruitingRoute
   ApproutesResourcesRoute: typeof ApproutesResourcesRoute
   ApproutesUnauthorizedRoute: typeof ApproutesUnauthorizedRoute
   ApproutesIndexRoute: typeof ApproutesIndexRoute
   ApproutesEventsEventIdRoute: typeof ApproutesEventsEventIdRoute
+  ApproutesSettingsGeneralRoute: typeof ApproutesSettingsGeneralRoute
+  ApproutesSettingsMediaRoute: typeof ApproutesSettingsMediaRoute
+  ApproutesSettingsProfileRoute: typeof ApproutesSettingsProfileRoute
   ApproutesEventsIndexRoute: typeof ApproutesEventsIndexRoute
+  ApproutesSettingsIndexRoute: typeof ApproutesSettingsIndexRoute
   ApproutesSchoolUsernameRecruitingRoute: typeof ApproutesSchoolUsernameRecruitingRoute
   ApproutesSchoolUsernameIndexRoute: typeof ApproutesSchoolUsernameIndexRoute
 }
@@ -597,12 +604,17 @@ interface AppRouteRouteChildren {
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   ApproutesUsernameRoute: ApproutesUsernameRoute,
   ApproutesExploreRoute: ApproutesExploreRoute,
+  ApproutesLogoutRoute: ApproutesLogoutRoute,
   ApproutesRecruitingRoute: ApproutesRecruitingRoute,
   ApproutesResourcesRoute: ApproutesResourcesRoute,
   ApproutesUnauthorizedRoute: ApproutesUnauthorizedRoute,
   ApproutesIndexRoute: ApproutesIndexRoute,
   ApproutesEventsEventIdRoute: ApproutesEventsEventIdRoute,
+  ApproutesSettingsGeneralRoute: ApproutesSettingsGeneralRoute,
+  ApproutesSettingsMediaRoute: ApproutesSettingsMediaRoute,
+  ApproutesSettingsProfileRoute: ApproutesSettingsProfileRoute,
   ApproutesEventsIndexRoute: ApproutesEventsIndexRoute,
+  ApproutesSettingsIndexRoute: ApproutesSettingsIndexRoute,
   ApproutesSchoolUsernameRecruitingRoute:
     ApproutesSchoolUsernameRecruitingRoute,
   ApproutesSchoolUsernameIndexRoute: ApproutesSchoolUsernameIndexRoute,
@@ -644,30 +656,11 @@ const OnboardingRouteRouteWithChildren = OnboardingRouteRoute._addFileChildren(
   OnboardingRouteRouteChildren,
 )
 
-interface SettingsRouteRouteChildren {
-  SettingsroutesSettingsGeneralRoute: typeof SettingsroutesSettingsGeneralRoute
-  SettingsroutesSettingsMediaRoute: typeof SettingsroutesSettingsMediaRoute
-  SettingsroutesSettingsProfileRoute: typeof SettingsroutesSettingsProfileRoute
-  SettingsroutesSettingsIndexRoute: typeof SettingsroutesSettingsIndexRoute
-}
-
-const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
-  SettingsroutesSettingsGeneralRoute: SettingsroutesSettingsGeneralRoute,
-  SettingsroutesSettingsMediaRoute: SettingsroutesSettingsMediaRoute,
-  SettingsroutesSettingsProfileRoute: SettingsroutesSettingsProfileRoute,
-  SettingsroutesSettingsIndexRoute: SettingsroutesSettingsIndexRoute,
-}
-
-const SettingsRouteRouteWithChildren = SettingsRouteRoute._addFileChildren(
-  SettingsRouteRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   AdminRouteRoute: AdminRouteRouteWithChildren,
   AppRouteRoute: AppRouteRouteWithChildren,
   AuthRouteRoute: AuthRouteRouteWithChildren,
   OnboardingRouteRoute: OnboardingRouteRouteWithChildren,
-  SettingsRouteRoute: SettingsRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

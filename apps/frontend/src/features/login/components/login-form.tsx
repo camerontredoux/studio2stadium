@@ -134,11 +134,11 @@ export function LoginForm() {
         type="submit"
       >
         {isPending ? (
-          <Spinner label="Signing in..." />
+          <Spinner label="Logging in..." />
         ) : retryAfter ? (
           `Retry in ${retryAfter} seconds`
         ) : (
-          "Sign in"
+          "Login"
         )}
       </Button>
 

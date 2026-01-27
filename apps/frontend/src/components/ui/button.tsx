@@ -15,6 +15,7 @@ const buttonVariants = cva(
     variants: {
       size: {
         default: "h-9 px-[calc(--spacing(3)-1px)] sm:h-8",
+        sidebar: "size-8",
         icon: "size-9 sm:size-8",
         "icon-lg": "size-10 sm:size-9",
         "icon-sm": "size-8 sm:size-7",
@@ -51,9 +52,8 @@ interface ButtonProps extends useRender.ComponentProps<"button"> {
 }
 
 function Button({ className, variant, size, render, ...props }: ButtonProps) {
-  const typeValue: React.ButtonHTMLAttributes<HTMLButtonElement>["type"] = render
-    ? undefined
-    : "button";
+  const typeValue: React.ButtonHTMLAttributes<HTMLButtonElement>["type"] =
+    render ? undefined : "button";
 
   const defaultProps = {
     className: cn(buttonVariants({ className, size, variant })),

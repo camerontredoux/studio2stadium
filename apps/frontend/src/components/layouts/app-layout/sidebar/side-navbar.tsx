@@ -1,16 +1,17 @@
 import { Separator } from "@/components/ui/separator";
 import { useSession } from "@/lib/session";
 import {
-  BookIcon,
+  BookHeadphonesIcon,
   CompassIcon,
   HomeIcon,
   SettingsIcon,
   SparklesIcon,
-  UserIcon,
+  UserCircle2Icon,
+  VideoIcon,
 } from "lucide-react";
 import { NavLink } from "./nav-link";
 
-export function SideNav() {
+export function SideNavbar() {
   const session = useSession();
 
   return (
@@ -26,8 +27,11 @@ export function SideNav() {
           <NavLink to="/events" label="Events">
             <SparklesIcon className="size-4" />
           </NavLink>
+          <NavLink to="/recruiting" label="Recruiting">
+            <VideoIcon className="size-4" />
+          </NavLink>
           <NavLink to="/resources" label="Resources">
-            <BookIcon className="size-4" />
+            <BookHeadphonesIcon className="size-4" />
           </NavLink>
           <NavLink
             to="/$username"
@@ -35,12 +39,34 @@ export function SideNav() {
             preload="render"
             label="Profile"
           >
-            <UserIcon className="size-4" />
+            <UserCircle2Icon className="size-4" />
           </NavLink>
-          <Separator className="my-2" />
+
+          <Separator className="my-2 hidden xl:block" />
+
           <NavLink to="/settings" label="Settings">
             <SettingsIcon className="size-4" />
           </NavLink>
+
+          <Separator className="mt-1 hidden xl:block" />
+
+          <div className="hidden xl:block p-2 text-sm">
+            <p className="mb-2">Your Activity</p>
+            <div className="flex flex-col gap-0.5">
+              <div className="flex items-center gap-2">
+                <p className="text-muted-foreground text-xs">Videos</p>
+                <p className="ml-auto">10</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <p className="text-muted-foreground text-xs">Followers</p>
+                <p className="ml-auto">10</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <p className="text-muted-foreground text-xs">Following</p>
+                <p className="ml-auto">10</p>
+              </div>
+            </div>
+          </div>
         </div>
       </nav>
     </aside>
