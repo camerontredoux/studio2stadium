@@ -82,10 +82,10 @@ export function Search() {
     <CommandDialog onOpenChange={setOpen} open={open}>
       <CommandDialogTrigger
         className="w-full justify-between"
-        render={<Button variant="outline" />}
+        render={<Button variant="outline" className="w-9 sm:w-full" />}
       >
-        <span className="font-normal">Search</span>
-        <SearchIcon className="size-3.5" />
+        <span className="font-normal sm:not-sr-only sr-only">Search</span>
+        <SearchIcon className="size-4 text-muted-foreground" />
       </CommandDialogTrigger>
       <CommandDialogPopup>
         <Command items={groupedItems}>
