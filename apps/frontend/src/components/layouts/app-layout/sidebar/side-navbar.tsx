@@ -35,7 +35,7 @@ export function SideNavbar() {
           </NavLink>
           <NavLink
             to="/$username"
-            params={{ username: session.username }}
+            params={{ username: session?.username ?? "" }}
             preload="render"
             label="Profile"
           >

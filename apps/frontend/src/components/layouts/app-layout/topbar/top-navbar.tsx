@@ -21,14 +21,14 @@ export function TopNavbar() {
           <Menu>
             <MenuTrigger>
               <Avatar className="mobile:size-9">
-                <AvatarImage src={session.avatar ?? undefined} />
+                <AvatarImage src={session?.avatar ?? undefined} />
                 <AvatarFallback>
-                  {session.username.slice(0, 2).toUpperCase()}
+                  {session?.username.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
             </MenuTrigger>
             <MenuPopup align="end">
-              <MenuItem disabled>@{session.username}</MenuItem>
+              <MenuItem disabled>@{session?.username}</MenuItem>
               <MenuItem closeOnClick render={<Link to="/logout" />}>
                 Logout
               </MenuItem>
