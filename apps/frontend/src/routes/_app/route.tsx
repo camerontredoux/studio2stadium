@@ -48,9 +48,9 @@ export const Route = createFileRoute("/_app")({
 
 function PendingComponent() {
   return (
-    <div className="max-w-7xl mx-auto h-screen flex items-center justify-center">
+    <AppLayout>
       <Spinner />
-    </div>
+    </AppLayout>
   );
 }
 

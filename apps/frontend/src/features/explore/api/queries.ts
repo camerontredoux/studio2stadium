@@ -6,6 +6,6 @@ export const queries = {
   explore: () =>
     queryOptions({
       queryKey: queries.all(),
-      queryFn: () => mockApi.success({ test: 123 }),
+      queryFn: () => mockApi.success({ test: 123 }, 5000),
     }),
 };

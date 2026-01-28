@@ -82,9 +82,9 @@ export function Search() {
     <CommandDialog onOpenChange={setOpen} open={open}>
       <CommandDialogTrigger
         className="w-full justify-between"
-        render={<Button variant="outline" className="w-9 sm:w-full" />}
+        render={<Button variant="outline" />}
       >
-        <span className="font-normal sm:not-sr-only sr-only">Search</span>
+        <span className="font-normal mr-2 text-sm">Search</span>
         <SearchIcon className="size-4 text-muted-foreground" />
       </CommandDialogTrigger>
       <CommandDialogPopup>

@@ -29,7 +29,7 @@ export function ProgramSpotlight() {
           />
           <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
           <div className="absolute bottom-2 left-2 flex items-center gap-2 p-1">
-            <div className="rounded-lg overflow-clip h-12 w-12 shadow-lg shrink-0">
+            <div className="rounded-lg overflow-clip size-12 shadow-lg shrink-0">
               <img
                 src="https://images.unsplash.com/photo-1724436781032-c1645c5783ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xsZWdlJTIwY2FtcHVzJTIwYnVpbGRpbmd8ZW58MXx8fHwxNzYwNTQ4OTIwfDA&ixlib=rb-4.1.0&q=80&w=1080"
                 alt="Program Image"
