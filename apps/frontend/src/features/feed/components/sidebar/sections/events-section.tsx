@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/frame";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "@tanstack/react-router";
-import { UpcomingEvent } from "../upcoming-event";
+import { UpcomingEvent } from "./upcoming-event";
 
 export function EventsSection() {
   return (

@@ -1,8 +1,8 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { type ReactNode } from "react";
-import { EventsSection } from "./sections/events-section";
-import { ProgramsSection } from "./sections/programs-section";
-import { StatsSection } from "./sections/stats-section";
+import { EventsSection } from "./sidebar/sections/events-section";
+import { ProgramsSection } from "./sidebar/sections/programs-section";
+import { StatsSection } from "./sidebar/sections/stats-section";
 
 interface MobileTabsProps {
   children: ReactNode;

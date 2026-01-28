@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/frame";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "@tanstack/react-router";
-import { RecommendedSchool } from "../recommended-school";
+import { RecommendedSchool } from "./recommended-school";
 
 export function ProgramsSection() {
   return (
