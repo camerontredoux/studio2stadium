@@ -11,7 +11,7 @@ import { RecommendedSchool } from "./recommended-school";
 
 export function ProgramsSection() {
   return (
-    <Frame className="border p-0 pt-0.5">
+    <Frame compact>
       <FrameHeader>
         <FrameTitle className="flex items-center gap-2">
           Suggested Programs
@@ -20,7 +20,7 @@ export function ProgramsSection() {
           </Button>
         </FrameTitle>
       </FrameHeader>
-      <FramePanel className="p-0! border-0 border-t">
+      <FramePanel>
         <RecommendedSchool />
         <Separator />
         <RecommendedSchool />

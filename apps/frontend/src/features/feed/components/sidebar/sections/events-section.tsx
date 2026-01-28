@@ -11,7 +11,7 @@ import { UpcomingEvent } from "./upcoming-event";
 
 export function EventsSection() {
   return (
-    <Frame className="border p-0 pt-0.5">
+    <Frame compact>
       <FrameHeader>
         <FrameTitle className="flex items-center gap-2">
           Upcoming Events
@@ -20,7 +20,7 @@ export function EventsSection() {
           </Button>
         </FrameTitle>
       </FrameHeader>
-      <FramePanel className="p-0! border-0 border-t overflow-clip">
+      <FramePanel>
         <Link
           to="/events/$eventId"
           params={{

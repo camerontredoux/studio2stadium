@@ -5,7 +5,7 @@ import { MapPin, SparklesIcon, StarIcon, Users2Icon } from "lucide-react";
 export function ProgramSpotlight() {
   return (
     <div className="rounded-xl border overflow-clip">
-      <div className="relative overflow-clip p-4 bg-linear-to-br from-muted via-brand/5 to-white ">
+      <div className="relative overflow-clip p-4 bg-linear-to-br from-muted via-brand/5 to-background ">
         <div className="absolute -left-2 opacity-3 flex items-center text-secondary-foreground gap-2 -top-1 -z-10">
           <SparklesIcon className="size-24 rotate-6" />
           <SparklesIcon className="size-16 rotate-186" />
@@ -20,7 +20,7 @@ export function ProgramSpotlight() {
           Based on your profile and preferences
         </p>
       </div>
-      <div className="bg-linear-to-tl from-sky-50/30 via-white to-white border-t p-2 sm:p-4 grid grid-cols-1 gap-2 sm:gap-4 sm:grid-cols-2">
+      <div className="bg-linear-to-tl not-dark:from-sky-50/30 via-background to-background border-t p-2 sm:p-4 grid grid-cols-1 gap-2 sm:gap-4 sm:grid-cols-2">
         <div className="relative aspect-video rounded-xl overflow-clip">
           <img
             src="https://images.unsplash.com/photo-1724436781032-c1645c5783ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xsZWdlJTIwY2FtcHVzJTIwYnVpbGRpbmd8ZW58MXx8fHwxNzYwNTQ4OTIwfDA&ixlib=rb-4.1.0&q=80&w=1080"

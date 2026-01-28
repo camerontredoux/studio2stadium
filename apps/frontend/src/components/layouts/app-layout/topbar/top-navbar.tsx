@@ -1,19 +1,37 @@
 import { MainLogo } from "@/components/shared/main-logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@/components/ui/menu";
+import {
+  Menu,
+  MenuCheckboxItem,
+  MenuGroup,
+  MenuItem,
+  MenuPopup,
+  MenuSeparator,
+  MenuTrigger,
+} from "@/components/ui/menu";
 import { useSession } from "@/lib/session";
 import { Link } from "@tanstack/react-router";
-import { LogOutIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Search } from "./search";
 
 export function TopNavbar() {
   const session = useSession();
 
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem("darkMode");
+    return saved ? JSON.parse(saved) : false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("darkMode", JSON.stringify(darkMode));
+    document.body.classList.toggle("dark", darkMode);
+  }, [darkMode]);
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-12 border-b bg-white lg:bg-white/50 lg:backdrop-blur-xs border-border">
+    <header className="fixed top-0 left-0 right-0 z-50 h-12 border-b bg-background lg:bg-background/50 lg:backdrop-blur-xs border-border">
       <div className="relative max-w-7xl mx-auto h-full px-2 lg:px-4 flex items-center justify-between">
         <div className="absolute left-1/2 -translate-x-1/2 sm:static sm:translate-x-0 shrink-0">
-          <MainLogo className="h-4" />
+          <MainLogo className="h-4 dark:invert" />
         </div>
         <div className="flex items-center justify-center sm:max-w-md gap-2 sm:mx-8 sm:flex-1">
           <Search />
@@ -29,10 +47,22 @@ export function TopNavbar() {
               </Avatar>
             </MenuTrigger>
             <MenuPopup align="end">
-              <MenuItem disabled>@{session.username}</MenuItem>
-              <MenuItem closeOnClick render={<Link to="/logout" />}>
-                <LogOutIcon /> Logout
-              </MenuItem>
+              <MenuGroup>
+                <MenuItem disabled>@{session.username}</MenuItem>
+                <MenuCheckboxItem
+                  variant="switch"
+                  checked={darkMode}
+                  onCheckedChange={() => setDarkMode(() => !darkMode)}
+                >
+                  Dark Mode
+                </MenuCheckboxItem>
+              </MenuGroup>
+              <MenuSeparator />
+              <MenuGroup>
+                <MenuItem closeOnClick render={<Link to="/logout" />}>
+                  Logout
+                </MenuItem>
+              </MenuGroup>
             </MenuPopup>
           </Menu>
         </div>

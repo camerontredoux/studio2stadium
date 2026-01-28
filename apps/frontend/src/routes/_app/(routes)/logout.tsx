@@ -26,7 +26,7 @@ function RouteComponent() {
         <AlertAction className="mobile:hidden">
           <Button
             disabled={isPending}
-            variant="destructive-outline"
+            variant="destructive"
             onClick={() => mutate({})}
           >
             {isPending ? <Spinner label="Logging out..." /> : "Logout"}

@@ -12,10 +12,6 @@ function SheetTrigger(props: SheetPrimitive.Trigger.Props) {
   return <SheetPrimitive.Trigger data-slot="sheet-trigger" {...props} />;
 }
 
-function SheetClose(props: SheetPrimitive.Close.Props) {
-  return <SheetPrimitive.Close data-slot="sheet-close" {...props} />;
-}
-
 function SheetBackdrop({ className, ...props }: SheetPrimitive.Backdrop.Props) {
   return (
     <SheetPrimitive.Backdrop
@@ -31,11 +27,11 @@ function SheetBackdrop({ className, ...props }: SheetPrimitive.Backdrop.Props) {
 
 function SheetViewport({
   side,
-  inset = false,
+  variant = "default",
   ...props
 }: SheetPrimitive.Viewport.Props & {
   side?: "right" | "left" | "top" | "bottom";
-  inset?: boolean;
+  variant?: "default" | "inset";
 }) {
   return (
     <SheetPrimitive.Viewport
@@ -45,7 +41,7 @@ function SheetViewport({
         side === "top" && "grid grid-rows-[auto_1fr] pb-12",
         side === "left" && "flex justify-start",
         side === "right" && "flex justify-end",
-        inset && "sm:p-4",
+        variant === "inset" && "p-2 sm:p-4",
       )}
       data-slot="sheet-viewport"
       {...props}
@@ -58,30 +54,30 @@ function SheetPopup({
   children,
   showCloseButton = true,
   side = "right",
-  inset = false,
+  variant = "default",
   ...props
 }: SheetPrimitive.Popup.Props & {
   showCloseButton?: boolean;
   side?: "right" | "left" | "top" | "bottom";
-  inset?: boolean;
+  variant?: "default" | "inset";
 }) {
   return (
     <SheetPortal>
       <SheetBackdrop />
-      <SheetViewport inset={inset} side={side}>
+      <SheetViewport side={side} variant={variant}>
         <SheetPrimitive.Popup
           className={cn(
-            "relative flex max-h-full min-h-0 w-full min-w-0 flex-col bg-popover bg-clip-padding text-popover-foreground shadow-lg transition-[opacity,translate] duration-200 ease-in-out will-change-transform before:pointer-events-none before:absolute before:inset-0 before:shadow-[0_1px_--theme(--color-black/4%)] data-ending-style:opacity-0 data-starting-style:opacity-0 max-sm:before:hidden dark:bg-clip-border dark:before:shadow-[0_-1px_--theme(--color-white/8%)]",
+            "relative flex max-h-full min-h-0 w-full min-w-0 flex-col bg-sheet not-dark:bg-clip-padding text-popover-foreground shadow-lg/5 transition-[opacity,translate] duration-200 ease-in-out will-change-transform before:pointer-events-none before:absolute before:inset-0 before:shadow-[0_1px_--theme(--color-black/6%)] data-ending-style:opacity-0 data-starting-style:opacity-0 max-sm:before:hidden dark:before:shadow-[0_-1px_--theme(--color-white/6%)]",
             side === "bottom" &&
-            "row-start-2 border-t data-ending-style:translate-y-8 data-starting-style:translate-y-8",
+              "row-start-2 border-t data-ending-style:translate-y-8 data-starting-style:translate-y-8",
             side === "top" &&
-            "data-ending-style:-translate-y-8 data-starting-style:-translate-y-8 border-b",
+              "data-ending-style:-translate-y-8 data-starting-style:-translate-y-8 border-b",
             side === "left" &&
-            "data-ending-style:-translate-x-8 data-starting-style:-translate-x-8 w-[calc(100%-(--spacing(12)))] max-w-md border-e",
+              "data-ending-style:-translate-x-8 data-starting-style:-translate-x-8 w-[calc(100%-(--spacing(12)))] max-w-md border-e",
             side === "right" &&
-            "col-start-2 w-[calc(100%-(--spacing(12)))] max-w-md border-s data-ending-style:translate-x-8 data-starting-style:translate-x-8",
-            inset &&
-            "before:hidden sm:rounded-2xl sm:border sm:before:rounded-[calc(var(--radius-2xl)-1px)] sm:**:data-[slot=sheet-footer]:rounded-b-[calc(var(--radius-2xl)-1px)]",
+              "col-start-2 mobile:w-full desktop:w-[calc(100%-(--spacing(12)))] max-w-md border-s data-ending-style:translate-x-8 data-starting-style:translate-x-8",
+            variant === "inset" &&
+              "before:hidden p-1 rounded-2xl border before:rounded-[calc(var(--radius-2xl)-1px)] **:data-[slot=sheet-footer]:rounded-b-[calc(var(--radius-2xl)-1px)]",
             className,
           )}
           data-slot="sheet-popup"
@@ -127,9 +123,9 @@ function SheetFooter({
     <div
       className={cn(
         "flex flex-col-reverse gap-2 px-6 sm:flex-row sm:justify-end",
-        variant === "default" && "border-t bg-muted/50 py-4",
+        variant === "default" && "border-t bg-muted/72 py-4",
         variant === "bare" &&
-        "in-[[data-slot=sheet-popup]:has([data-slot=sheet-panel])]:pt-3 pt-4 pb-6",
+          "in-[[data-slot=sheet-popup]:has([data-slot=sheet-panel])]:pt-3 pt-4 pb-6",
         className,
       )}
       data-slot="sheet-footer"
@@ -141,7 +137,10 @@ function SheetFooter({
 function SheetTitle({ className, ...props }: SheetPrimitive.Title.Props) {
   return (
     <SheetPrimitive.Title
-      className={cn("font-heading text-xl leading-none", className)}
+      className={cn(
+        "font-heading font-semibold text-xl leading-none",
+        className,
+      )}
       data-slot="sheet-title"
       {...props}
     />
@@ -161,16 +160,19 @@ function SheetDescription({
   );
 }
 
-function SheetPanel({
+function SheetContent({
   className,
   scrollFade = true,
   ...props
 }: React.ComponentProps<"div"> & { scrollFade?: boolean }) {
   return (
-    <ScrollArea scrollFade={scrollFade}>
+    <ScrollArea
+      className="relative bg-clip-padding shadow-xs/5  rounded-xl py-4 border bg-background before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-xl)-1px)] before:shadow-[0_1px_--theme(--color-black/6%)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]"
+      scrollFade={scrollFade}
+    >
       <div
         className={cn(
-          "px-6 in-[[data-slot=sheet-popup]:has([data-slot=sheet-header])]:pt-1 in-[[data-slot=sheet-popup]:not(:has([data-slot=sheet-header]))]:pt-6 in-[[data-slot=sheet-popup]:not(:has([data-slot=sheet-footer]))]:pb-6! in-[[data-slot=sheet-popup]:not(:has([data-slot=sheet-footer].border-t))]:pb-1 pb-6",
+          "p-6 in-[[data-slot=sheet-popup]:has([data-slot=sheet-header])]:pt-1 in-[[data-slot=sheet-popup]:has([data-slot=sheet-footer]:not(.border-t))]:pb-1",
           className,
         )}
         data-slot="sheet-panel"
@@ -182,16 +184,11 @@ function SheetPanel({
 
 export {
   Sheet,
-  SheetBackdrop,
-  SheetClose,
-  SheetPopup as SheetContent,
+  SheetContent,
   SheetDescription,
   SheetFooter,
   SheetHeader,
-  SheetBackdrop as SheetOverlay,
-  SheetPanel,
   SheetPopup,
-  SheetPortal,
   SheetTitle,
   SheetTrigger,
 };
