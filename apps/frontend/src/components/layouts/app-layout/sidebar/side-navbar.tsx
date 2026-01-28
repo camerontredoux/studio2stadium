@@ -21,7 +21,7 @@ export function SideNavbar() {
           <NavLink to="/" label="For You">
             <HomeIcon className="size-4" />
           </NavLink>
-          <NavLink to="/explore" label="Explore">
+          <NavLink to="/explore" preload="render" label="Explore">
             <CompassIcon className="size-4" />
           </NavLink>
           <NavLink to="/events" label="Events">
