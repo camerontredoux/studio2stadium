@@ -89,7 +89,7 @@ const MOCK_SCHOOLS: School[] = [
 export function Page() {
   return (
     <SidebarLayout sidebar={<FilterSidebar />}>
-      <div className="flex flex-col gap-2 lg:gap-4">
+      <div className="flex flex-col gap-2 lg:gap-4 max-lg:pb-14">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold">Explore Schools</h1>

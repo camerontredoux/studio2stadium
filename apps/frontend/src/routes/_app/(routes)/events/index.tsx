@@ -1,20 +1,12 @@
-import { Button } from "@/components/ui/button";
+import { queries } from "@/features/events/api/queries";
+import { Page } from "@/features/events/components/page";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/events/")({
-  component: RouteComponent,
+  validateSearch: (search: Record<string, unknown>) =>
+    search as Partial<Record<string, string[] | string>>,
+  loader: ({ context: { queryClient } }) => {
+    queryClient.ensureQueryData(queries.filters());
+  },
+  component: Page,
 });
-
-function RouteComponent() {
-  const navigate = Route.useNavigate();
-
-  return (
-    <div>
-      <Button
-        onClick={() => navigate({ search: { states: ["CA", "NY", "TX"] } })}
-      >
-        Some
-      </Button>
-    </div>
-  );
-}

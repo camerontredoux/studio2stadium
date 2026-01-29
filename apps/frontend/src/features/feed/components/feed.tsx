@@ -6,7 +6,7 @@ export function Feed() {
   const session = useSession();
 
   return (
-    <div className="gap-2 lg:gap-4 flex flex-col">
+    <div className="gap-2 lg:gap-4 flex flex-col max-lg:pb-14">
       <div className="mb-1 hidden lg:block">
         <h1 className="text-xl sm:text-2xl font-bold">
           Welcome back, {session.username}!
