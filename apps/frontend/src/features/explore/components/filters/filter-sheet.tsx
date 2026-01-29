@@ -10,10 +10,17 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useNavigate } from "@tanstack/react-router";
 import { Settings2Icon } from "lucide-react";
 import { Filters } from "./filters";
 
 export function FilterSheet() {
+  const navigate = useNavigate({ from: "/explore" });
+
+  const clearFilters = () => {
+    navigate({ to: "/explore" });
+  };
+
   return (
     <Sheet>
       <SheetTrigger render={<Button variant="outline" size="sm" />}>
@@ -30,8 +37,10 @@ export function FilterSheet() {
           <Filters />
         </SheetContent>
         <SheetFooter>
-          <SheetClose render={<Button variant="ghost" />}>Cancel</SheetClose>
-          <Button>Apply Filters</Button>
+          <SheetClose render={<Button variant="ghost" />}>Finish</SheetClose>
+          <Button variant="destructive" onClick={clearFilters}>
+            Clear Filters
+          </Button>
         </SheetFooter>
       </SheetPopup>
     </Sheet>

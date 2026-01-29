@@ -1,7 +1,7 @@
-export type Filter<T> = {
+export type Filter = {
   label: string;
   id: string;
   type: "input" | "select" | "toggle" | "multi-select" | "range";
-  paramKey: T;
+  paramKey: string;
   options?: { label: string; value: string }[];
 };

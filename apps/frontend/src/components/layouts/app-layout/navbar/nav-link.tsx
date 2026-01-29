@@ -37,7 +37,7 @@ const NavLinkComponent = forwardRef<
         render={<a ref={ref} {...props} />}
       >
         {active ? (
-          <ActiveIcon className="size-5 sm:size-4.5" />
+          <ActiveIcon className="size-5 sm:size-4.5 text-black dark:text-white" />
         ) : (
           <InactiveIcon className="size-5 sm:size-4.5" />
         )}
@@ -53,7 +53,7 @@ const NavLinkComponent = forwardRef<
               render={<a ref={ref} {...props} />}
             >
               {active ? (
-                <ActiveIcon className="size-5 sm:size-4.5" />
+                <ActiveIcon className="size-5 sm:size-4.5 text-black dark:text-white" />
               ) : (
                 <InactiveIcon className="size-5 sm:size-4.5" />
               )}

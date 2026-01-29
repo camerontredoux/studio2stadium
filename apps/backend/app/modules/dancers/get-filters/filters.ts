@@ -1,5 +1,17 @@
 import { type Filter } from "#shared/types/filters";
 
+type ParamKey =
+  | "name"
+  | "commonRecruitingApplication"
+  | "division"
+  | "gpaRange"
+  | "location"
+  | "sports"
+  | "styles"
+  | "hasUpcomingEvents"
+  | "teamSelection"
+  | "teamType";
+
 export const filters: Filter[] = [
   {
     label: "School Name",
@@ -8,16 +20,23 @@ export const filters: Filter[] = [
     paramKey: "name",
   },
   {
-    label: "Common Recruiting",
+    label: "Common Recruiting Application",
     id: "common-recruiting-application",
     type: "toggle",
-    paramKey: "commonRecruiting",
+    paramKey: "commonRecruitingApplication",
   },
   {
-    label: "Upcoming Events",
-    id: "upcoming-events",
-    type: "toggle",
-    paramKey: "upcomingEvents",
+    label: "Division",
+    id: "division",
+    type: "multi-select",
+    paramKey: "division",
+    options: [
+      { label: "Division IA", value: "division-ia" },
+      { label: "Division I", value: "division-i" },
+      { label: "Division II", value: "division-ii" },
+      { label: "Division III", value: "division-iii" },
+      { label: "NAIA", value: "naia" },
+    ],
   },
   {
     label: "GPA Range",
@@ -94,19 +113,6 @@ export const filters: Filter[] = [
     ],
   },
   {
-    label: "Division",
-    id: "division",
-    type: "multi-select",
-    paramKey: "division",
-    options: [
-      { label: "Division IA", value: "division-ia" },
-      { label: "Division I", value: "division-i" },
-      { label: "Division II", value: "division-ii" },
-      { label: "Division III", value: "division-iii" },
-      { label: "NAIA", value: "naia" },
-    ],
-  },
-  {
     label: "Sports",
     id: "sports",
     type: "multi-select",
@@ -144,9 +150,27 @@ export const filters: Filter[] = [
       { value: "game-day", label: "Game Day" },
       { value: "kick", label: "Kick" },
       { value: "military", label: "Military" },
-      { value: "lyrical-contemporary", label: "Lyrical/Contemporary" },
+      { value: "lyrical-comtemporary", label: "Lyrical/Comtemporary" },
       { value: "team-performance", label: "Team Performance" },
       { value: "non-competitive", label: "Non-Competitive" },
     ],
+  },
+  {
+    label: "Upcoming Events",
+    id: "upcoming-events",
+    type: "toggle",
+    paramKey: "hasUpcomingEvents",
+  },
+  {
+    label: "Team Selection",
+    id: "team-selection",
+    type: "input",
+    paramKey: "teamSelection",
+  },
+  {
+    label: "Team Type",
+    id: "team-type",
+    type: "input",
+    paramKey: "teamType",
   },
 ];

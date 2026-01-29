@@ -27,21 +27,21 @@ type DancersPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/create-dancer/validator.ts')['createDancerValidator']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/create-dancer/index.ts').default['handle'], true>
 }
+type DancersFiltersGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-filters/index.ts').default['handle'], false>
+}
 type HealthGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/health/index.ts').default['handle'], false>
 }
 type SchoolsFiltersGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/schools/get-filters/index.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-filters/index.ts').default['handle'], false>
 }
 type UsersCheckavailabilityGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/check-availability/validator.ts')['checkAvailabilityValidator']>>
   response: MakeTuyauResponse<import('../app/modules/users/check-availability/index.ts').default['handle'], true>
-}
-type UsersFiltersGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/schools/get-filters/index.ts').default['handle'], false>
 }
 export interface ApiDefinition {
   'auth': {
@@ -71,6 +71,12 @@ export interface ApiDefinition {
     '$url': {
     };
     '$post': DancersPost;
+    'filters': {
+      '$url': {
+      };
+      '$get': DancersFiltersGetHead;
+      '$head': DancersFiltersGetHead;
+    };
   };
   'health': {
     '$url': {
@@ -92,12 +98,6 @@ export interface ApiDefinition {
       };
       '$get': UsersCheckavailabilityGetHead;
       '$head': UsersCheckavailabilityGetHead;
-    };
-    'filters': {
-      '$url': {
-      };
-      '$get': UsersFiltersGetHead;
-      '$head': UsersFiltersGetHead;
     };
   };
 }

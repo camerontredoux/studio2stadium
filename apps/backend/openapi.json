@@ -170,6 +170,28 @@
         "description": "Populate account with personal information to finish dancer signup"
       }
     },
+    "/dancers/filters": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersFiltersResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Get dancer filters",
+        "description": "Returns the filters to use when searching for dancers"
+      }
+    },
     "/health": {
       "get": {
         "parameters": [],
@@ -259,28 +281,6 @@
         "summary": "Check username availability",
         "description": "Checks if a username is available for registration."
       }
-    },
-    "/users/filters": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UsersFiltersResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Users"
-        ],
-        "summary": "Get explore filters",
-        "description": "Returns the filters to use when searching for users (requires type)"
-      }
     }
   },
   "components": {
@@ -366,6 +366,21 @@
         "enum": [
           "prodigy",
           "core"
+        ]
+      },
+      "ParamKey": {
+        "type": "string",
+        "enum": [
+          "name",
+          "location",
+          "commonRecruitingApplication",
+          "division",
+          "gpaRange",
+          "sports",
+          "styles",
+          "hasUpcomingEvents",
+          "teamSelection",
+          "teamType"
         ]
       },
       "AuthSignupRequest": {
@@ -570,6 +585,57 @@
           "platform"
         ]
       },
+      "DancersFiltersResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "input",
+                "select",
+                "toggle",
+                "multi-select",
+                "range"
+              ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "label",
+                  "value"
+                ]
+              }
+            },
+            "label": {
+              "type": "string"
+            },
+            "paramKey": {
+              "$ref": "#/components/schemas/ParamKey"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "label",
+            "paramKey"
+          ]
+        }
+      },
       "HealthResponse": {
         "type": "object",
         "properties": {
@@ -664,72 +730,51 @@
       "SchoolsFiltersResponse": {
         "type": "array",
         "items": {
-          "oneOf": [
-            {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string"
-                },
-                "id": {
-                  "type": "string"
-                },
-                "label": {
-                  "type": "string"
-                },
-                "paramKey": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "type",
-                "id",
-                "label",
-                "paramKey"
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "input",
+                "select",
+                "toggle",
+                "multi-select",
+                "range"
               ]
             },
-            {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string"
-                },
-                "id": {
-                  "type": "string"
-                },
-                "options": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "label": {
-                        "type": "string"
-                      },
-                      "value": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "label",
-                      "value"
-                    ]
+            "id": {
+              "type": "string"
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
                   }
                 },
-                "label": {
-                  "type": "string"
-                },
-                "paramKey": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "type",
-                "id",
-                "options",
-                "label",
-                "paramKey"
-              ]
+                "required": [
+                  "label",
+                  "value"
+                ]
+              }
+            },
+            "label": {
+              "type": "string"
+            },
+            "paramKey": {
+              "$ref": "#/components/schemas/ParamKey"
             }
+          },
+          "required": [
+            "type",
+            "id",
+            "label",
+            "paramKey"
           ]
         }
       },
@@ -743,78 +788,6 @@
         "required": [
           "available"
         ]
-      },
-      "UsersFiltersResponse": {
-        "type": "array",
-        "items": {
-          "oneOf": [
-            {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string"
-                },
-                "id": {
-                  "type": "string"
-                },
-                "label": {
-                  "type": "string"
-                },
-                "paramKey": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "type",
-                "id",
-                "label",
-                "paramKey"
-              ]
-            },
-            {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string"
-                },
-                "id": {
-                  "type": "string"
-                },
-                "options": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "label": {
-                        "type": "string"
-                      },
-                      "value": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "label",
-                      "value"
-                    ]
-                  }
-                },
-                "label": {
-                  "type": "string"
-                },
-                "paramKey": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "type",
-                "id",
-                "options",
-                "label",
-                "paramKey"
-              ]
-            }
-          ]
-        }
       }
     }
   },

@@ -11,7 +11,7 @@ function Frame({
     <div
       className={cn(
         "relative flex flex-col rounded-2xl bg-muted/72",
-        compact ? "p-0 pt-0.5 border" : "p-1",
+        compact ? "p-0 border" : "p-1",
         "*:[[data-slot=frame-panel]+[data-slot=frame-panel]]:mt-1",
         className,
       )}

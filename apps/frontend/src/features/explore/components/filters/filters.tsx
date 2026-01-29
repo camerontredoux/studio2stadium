@@ -3,21 +3,26 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Suspense } from "react";
 import { FilterList } from "./filter-list";
 
 export function Filters() {
   return (
-    <Accordion multiple defaultValue={["school-name"]}>
-      <Suspense
-        fallback={
-          <AccordionItem className="px-5">
-            <AccordionTrigger>Loading...</AccordionTrigger>
-          </AccordionItem>
-        }
-      >
-        <FilterList />
-      </Suspense>
-    </Accordion>
+    <Suspense
+      fallback={
+        <Accordion multiple defaultValue={["school-name"]}>
+          {Array.from({ length: 10 }).map((_, index) => (
+            <AccordionItem key={index} className="px-5">
+              <AccordionTrigger>
+                <Skeleton className="h-4 w-full" />
+              </AccordionTrigger>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      }
+    >
+      <FilterList />
+    </Suspense>
   );
 }

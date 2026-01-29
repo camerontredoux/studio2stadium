@@ -26,16 +26,15 @@ export function MultiSelectFilter({
   const filters = useSearch({ from: "/_app/(routes)/explore" });
   const navigate = useNavigate({ from: "/explore" });
 
-  const selectedValues = filters[paramKey as keyof typeof filters]?.split(",");
+  const selectedValues = Array.isArray(filters[paramKey])
+    ? filters[paramKey]
+    : filters[paramKey]?.split(",");
 
   const selected = options?.filter((option) =>
     selectedValues?.includes(option.value),
   );
-  console.log(selected);
 
   const handleSelect = (values: Option[]) => {
-    console.log(values);
-
     navigate({
       search: (prev) => {
         return {
@@ -64,6 +63,7 @@ export function MultiSelectFilter({
                 </ComboboxChip>
               ))}
               <ComboboxInput
+                multiple
                 aria-label="Select filter option"
                 placeholder={value.length > 0 ? undefined : "Select a value..."}
               />

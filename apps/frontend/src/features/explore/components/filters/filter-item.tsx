@@ -3,42 +3,33 @@ import {
   AccordionPanel,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import type { ApiSchemas } from "@/lib/api/client";
-import { MultiSelectFilter } from "./items/multi-select";
+import { MultiSelectFilter } from "./items/multi-select-filter";
+import { RangeFilter } from "./items/range-filter";
+import { SelectFilter } from "./items/select-filter";
+import { SwitchFilter } from "./items/switch-filter";
 
-type Filter = ApiSchemas["UsersFiltersResponse"][number];
+type Filter = ApiSchemas["DancersFiltersResponse"][number];
 
-export function FilterItem({ filter }: { filter: Filter }) {
+export function FilterItem({
+  filter,
+  hasFilter,
+}: {
+  filter: Filter;
+  hasFilter: boolean;
+}) {
   const item = (type: Filter["type"]) => {
     switch (type) {
       case "select":
         return (
-          <Select items={filter.options}>
-            <SelectTrigger>
-              <SelectValue placeholder={filter.label} />
-            </SelectTrigger>
-            <SelectContent>
-              {filter.options?.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <SelectFilter options={filter.options} paramKey={filter.paramKey} />
         );
       case "input":
         return <Input placeholder={filter.label} />;
       case "toggle":
-        return <Checkbox />;
+        return <SwitchFilter paramKey={filter.paramKey} />;
       case "multi-select":
         return (
           <MultiSelectFilter
@@ -46,12 +37,18 @@ export function FilterItem({ filter }: { filter: Filter }) {
             options={filter.options}
           />
         );
+      case "range":
+        return <RangeFilter paramKey={filter.paramKey} />;
     }
   };
 
   return (
-    <AccordionItem value={filter.id} className="px-5">
-      <AccordionTrigger>{filter.label}</AccordionTrigger>
+    <AccordionItem value={filter.id} className="relative px-5">
+      <AccordionTrigger>
+        <div className="flex justify-between w-full items-center gap-2">
+          {filter.label} {hasFilter ? <Badge>Active</Badge> : null}
+        </div>
+      </AccordionTrigger>
       <AccordionPanel>{item(filter.type)}</AccordionPanel>
     </AccordionItem>
   );

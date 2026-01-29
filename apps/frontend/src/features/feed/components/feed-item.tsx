@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { CircleCheckIcon, HeartIcon, MessageCircleIcon } from "lucide-react";
+import { HeartIcon, MessageCircleIcon, VerifiedIcon } from "lucide-react";
 
 export function FeedItem() {
   return (
@@ -22,7 +22,7 @@ export function FeedItem() {
           <div className="flex flex-col">
             <h3 className="font-semibold text-sm sm:text-base flex items-center gap-1">
               University of Washington{" "}
-              <CircleCheckIcon className="size-4 text-blue-500" />
+              <VerifiedIcon className="size-4 text-brand" />
             </h3>
             <p className="text-xs sm:text-sm flex items-center gap-1 text-muted-foreground">
               posted a video <span>•</span>{" "}

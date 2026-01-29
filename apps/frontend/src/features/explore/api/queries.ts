@@ -1,4 +1,3 @@
-import type { AccountType } from "@/lib/access";
 import { $api } from "@/lib/api/client";
 import { mockApi } from "@/lib/mock-api";
 import { queryOptions } from "@tanstack/react-query";
@@ -10,11 +9,7 @@ export const queries = {
       queryKey: queries.all(),
       queryFn: () => mockApi.success({ test: 123 }, 5000),
     }),
-  filters: (type: AccountType) => {
-    return $api.queryOptions("get", "/users/filters", {
-      params: { query: { type } },
-    });
-  },
+  filters: () => $api.queryOptions("get", "/schools/filters"),
   // search: (type: AccountType, filters: Record<string, string>) => {
   //   if (type === "dancer") {
   //     return $api.queryOptions("get", "/dancers/search", {
