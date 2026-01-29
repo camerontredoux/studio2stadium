@@ -40,26 +40,28 @@ export function SchoolCard({ school }: SchoolCardProps) {
         <AvatarImage src={school.avatar} />
         <AvatarFallback>{school.initials}</AvatarFallback>
       </Avatar>
-      <div className="flex flex-col gap-2 min-w-0 flex-1">
-        <div>
-          <h3 className="font-semibold text-sm sm:text-base flex items-center gap-1">
-            <span className="truncate">{school.name}</span>
-            {school.verified && (
-              <VerifiedIcon className="size-4 text-brand shrink-0" />
-            )}
-          </h3>
-          <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
-            <MapPinIcon className="size-3 shrink-0" /> {school.location}
-          </p>
+      <div className="flex flex-col gap-2 min-w-0 flex-1 sm:flex-row sm:items-center sm:gap-4">
+        <div className="flex flex-col gap-2 min-w-0 sm:flex-1">
+          <div>
+            <h3 className="font-semibold text-sm sm:text-base flex items-center gap-1">
+              <span className="truncate">{school.name}</span>
+              {school.verified && (
+                <VerifiedIcon className="size-4 text-brand shrink-0" />
+              )}
+            </h3>
+            <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+              <MapPinIcon className="size-3 shrink-0" /> {school.location}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {school.styles.slice(0, 3).map((style) => (
+              <Badge key={style} variant="secondary" className="rounded-full">
+                {style}
+              </Badge>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-wrap gap-1.5">
-          {school.styles.slice(0, 3).map((style) => (
-            <Badge key={style} variant="secondary" className="rounded-full">
-              {style}
-            </Badge>
-          ))}
-        </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 sm:flex-col sm:shrink-0">
           <Button variant="outline" size="sm" className="gap-2">
             <UserPlusIcon /> Follow
           </Button>
