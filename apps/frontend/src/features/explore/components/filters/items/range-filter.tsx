@@ -17,8 +17,8 @@ const min = 0;
 const max = 5;
 
 export function RangeFilter({ paramKey }: RangeFilterProps) {
-  const filters = useSearch({ from: "/_app/(routes)/explore" });
-  const navigate = useNavigate({ from: "/explore" });
+  const filters = useSearch({ from: "/_app/(routes)/explore/" });
+  const navigate = useNavigate({ from: "/explore/" });
 
   const raw = [filters[paramKey]].flat()[0]?.split(",").map(Number) ?? [
     min,

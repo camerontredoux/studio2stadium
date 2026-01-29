@@ -5,7 +5,7 @@ import { queries } from "../../api/queries";
 import { FilterItem } from "./filter-item";
 
 export function FilterList() {
-  const filters = useSearch({ from: "/_app/(routes)/explore" });
+  const filters = useSearch({ from: "/_app/(routes)/explore/" });
 
   const { data } = useSuspenseQuery(queries.filters());
 

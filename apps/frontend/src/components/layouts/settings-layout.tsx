@@ -19,7 +19,7 @@ import type { ReactNode } from "react";
 
 const navItems = [
   { icon: Home, label: "Home", href: "/feed" },
-  { icon: Search, label: "Explore", href: "/explore" },
+  { icon: Search, label: "Explore", href: "/explore/" },
   { icon: Calendar, label: "Events", href: "/events" },
   { icon: User, label: "Profile", href: "/profile" },
   { icon: Settings, label: "Settings", href: "/settings" },

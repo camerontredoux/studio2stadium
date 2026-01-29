@@ -23,7 +23,7 @@ export function RecommendedSchool({ school: _ }: { school?: School }) {
         <div className="flex flex-col gap-1">
           <Link
             className="text-sm font-semibold hover:text-brand underline underline-offset-4"
-            to="/school/$username"
+            to="/explore/$username"
             params={{
               username: "usc-kaufman",
             }}

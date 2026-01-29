@@ -21,7 +21,7 @@ import { Filters } from "./filters/filters";
 
 export function FilterSidebar() {
   const navigate = useNavigate();
-  const filters = useSearch({ from: "/_app/(routes)/explore" });
+  const filters = useSearch({ from: "/_app/(routes)/explore/" });
 
   const filtering = Object.keys(filters).length > 0;
 

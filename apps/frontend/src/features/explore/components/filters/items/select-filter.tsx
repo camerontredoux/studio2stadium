@@ -13,8 +13,8 @@ interface SelectFilterProps {
 }
 
 export function SelectFilter({ options, paramKey }: SelectFilterProps) {
-  const filters = useSearch({ from: "/_app/(routes)/explore" });
-  const navigate = useNavigate({ from: "/explore" });
+  const filters = useSearch({ from: "/_app/(routes)/explore/" });
+  const navigate = useNavigate({ from: "/explore/" });
 
   const selectedValue = Array.isArray(filters[paramKey])
     ? filters[paramKey][0]

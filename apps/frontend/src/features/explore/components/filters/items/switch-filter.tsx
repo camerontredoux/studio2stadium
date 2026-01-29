@@ -6,8 +6,8 @@ interface SwitchFilterProps {
 }
 
 export function SwitchFilter({ paramKey }: SwitchFilterProps) {
-  const search = useSearch({ from: "/_app/(routes)/explore" });
-  const navigate = useNavigate({ from: "/explore" });
+  const search = useSearch({ from: "/_app/(routes)/explore/" });
+  const navigate = useNavigate({ from: "/explore/" });
 
   const checked = search[paramKey] === "true";
 

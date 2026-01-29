@@ -26,7 +26,10 @@ interface SchoolCardProps {
 export function SchoolCard({ school }: SchoolCardProps) {
   return (
     <div className="relative rounded-xl border overflow-clip p-3 sm:p-4 flex gap-3 bg-linear-to-br from-brand/10 via-brand/5 to-background hover:from-brand/16 hover:via-brand/8 transition-colors">
-      <div className="absolute inset-0 -z-10 text-brand opacity-[0.12] dark:opacity-[0.06] pointer-events-none" aria-hidden>
+      <div
+        className="absolute inset-0 -z-10 text-brand opacity-[0.12] dark:opacity-[0.06] pointer-events-none"
+        aria-hidden
+      >
         <GraduationCapIcon className="absolute -top-2 -left-1 size-12 rotate-15" />
         <GraduationCapIcon className="absolute top-1 left-[30%] size-8 -rotate-20" />
         <GraduationCapIcon className="absolute -top-3 right-[40%] size-10 rotate-40" />
@@ -69,7 +72,7 @@ export function SchoolCard({ school }: SchoolCardProps) {
             size="sm"
             render={
               <Link
-                to="/school/$username"
+                to="/explore/$username"
                 params={{ username: school.username }}
               />
             }

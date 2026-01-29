@@ -25,7 +25,7 @@ import { Settings2Icon } from "lucide-react";
 import { Filters } from "./filters";
 
 export function FilterSheet() {
-  const navigate = useNavigate({ from: "/explore" });
+  const navigate = useNavigate({ from: "/explore/" });
 
   const clearFilters = () => {
     navigate({ to: "/explore" });

@@ -23,8 +23,8 @@ export function MultiSelectFilter({
   paramKey,
   options,
 }: MultiSelectFilterProps) {
-  const filters = useSearch({ from: "/_app/(routes)/explore" });
-  const navigate = useNavigate({ from: "/explore" });
+  const filters = useSearch({ from: "/_app/(routes)/explore/" });
+  const navigate = useNavigate({ from: "/explore/" });
 
   const selectedValues = Array.isArray(filters[paramKey])
     ? filters[paramKey]

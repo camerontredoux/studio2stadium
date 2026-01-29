@@ -7,8 +7,8 @@ import { SearchIcon } from "lucide-react";
 import { useState } from "react";
 
 export function InputFilter({ paramKey }: { paramKey: string }) {
-  const filters = useSearch({ from: "/_app/(routes)/explore" });
-  const navigate = useNavigate({ from: "/explore" });
+  const filters = useSearch({ from: "/_app/(routes)/explore/" });
+  const navigate = useNavigate({ from: "/explore/" });
 
   const filter = filters[paramKey];
 
