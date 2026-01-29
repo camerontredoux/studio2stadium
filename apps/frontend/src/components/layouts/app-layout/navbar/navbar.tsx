@@ -67,7 +67,7 @@ export function Navbar() {
             inactiveIcon={HiOutlineUserCircle}
           />
 
-          <Separator className="my-2 hidden xl:block" />
+          <Separator className="mt-2 mb-1 hidden xl:block" />
 
           <NavLink
             className="mobile:hidden"

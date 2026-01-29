@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
+import { MapPinIcon } from "lucide-react";
 
 interface School {
   title: string;
@@ -29,7 +30,9 @@ export function RecommendedSchool({ school: _ }: { school?: School }) {
           >
             USC Kaufman
           </Link>
-          <p className="text-xs text-muted-foreground">Los Angeles, CA</p>
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            <MapPinIcon className="size-3" /> Los Angeles, CA
+          </p>
         </div>
         <Button className="ml-auto" size="xs" variant="outline">
           Follow
