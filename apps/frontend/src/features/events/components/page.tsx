@@ -114,16 +114,16 @@ export function Page() {
   return (
     <div className="flex flex-col gap-2 lg:gap-4 max-lg:pb-14">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="max-sm:pl-1">
           <h1 className="text-xl sm:text-2xl font-bold">Events</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Upcoming showcases, workshops, auditions & more
+            Upcoming showcases, auditions & more
           </p>
         </div>
         <FilterSheet />
       </div>
 
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-muted-foreground max-sm:pl-1">
         {MOCK_EVENTS.length} upcoming events
       </p>
 

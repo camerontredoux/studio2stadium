@@ -91,7 +91,7 @@ export function Page() {
     <SidebarLayout sidebar={<FilterSidebar />}>
       <div className="flex flex-col gap-2 lg:gap-4 max-lg:pb-14">
         <div className="flex items-center justify-between">
-          <div>
+          <div className="max-sm:pl-1">
             <h1 className="text-xl sm:text-2xl font-bold">Explore Schools</h1>
             <p className="text-xs sm:text-sm text-muted-foreground">
               Find your perfect dance program
@@ -102,7 +102,7 @@ export function Page() {
           </div>
         </div>
 
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground max-sm:pl-1">
           Showing {MOCK_SCHOOLS.length} schools
         </p>
 
