@@ -42,7 +42,8 @@
     "#start/*": "./start/*.js",
     "#tests/*": "./tests/*.js",
     "#config/*": "./config/*.js",
-    "#auth/*": "./app/auth/*.js"
+    "#auth/*": "./app/auth/*.js",
+    "#shared/*": "./app/shared/*.js"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^7.8.2",

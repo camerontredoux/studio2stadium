@@ -1,8 +1,8 @@
 import BaseQuery from "#utils/base-query";
-import { type OnboardValidator } from "./validator.ts";
+import { type CreateDancerValidator } from "./validator.ts";
 
-export class OnboardQueries extends BaseQuery {
-  async createDancer(userId: string, data: OnboardValidator) {
+export class CreateDancerQueries extends BaseQuery {
+  async createDancer(userId: string, data: CreateDancerValidator) {
     return await this.transaction(async (db) => {
       if (data.phoneNumber) {
         await db

@@ -2,7 +2,7 @@ import { PlatformName } from "#database/generated/types";
 import vine from "@vinejs/vine";
 import { type Infer } from "@vinejs/vine/types";
 
-export const onboardValidator = vine.create(
+export const createDancerValidator = vine.create(
   vine.object({
     platform: vine.enum(PlatformName),
     birthday: vine.date(),
@@ -11,4 +11,4 @@ export const onboardValidator = vine.create(
   })
 );
 
-export type OnboardValidator = Infer<typeof onboardValidator>;
+export type CreateDancerValidator = Infer<typeof createDancerValidator>;

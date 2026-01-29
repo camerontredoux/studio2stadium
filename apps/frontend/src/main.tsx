@@ -10,6 +10,8 @@ import { queryClient } from "./lib/query-client";
 import { routeTree } from "@/routeTree.gen";
 import { createRouter } from "@tanstack/react-router";
 
+import qs from "qs";
+
 const router = createRouter({
   routeTree,
   defaultPreload: "intent",
@@ -19,6 +21,14 @@ const router = createRouter({
   context: {
     queryClient,
   },
+  stringifySearch: (search) =>
+    qs.stringify(search, {
+      arrayFormat: "comma",
+      addQueryPrefix: true,
+      // encodeValuesOnly: true,
+      encode: false,
+    }),
+  parseSearch: (searchStr) => qs.parse(searchStr, { ignoreQueryPrefix: true }),
 });
 
 declare module "@tanstack/react-router" {

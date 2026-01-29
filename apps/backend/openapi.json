@@ -137,6 +137,39 @@
         "description": "Retrieves the current session's user information."
       }
     },
+    "/dancers": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DancersRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Create a dancer",
+        "description": "Populate account with personal information to finish dancer signup"
+      }
+    },
     "/health": {
       "get": {
         "parameters": [],
@@ -162,6 +195,91 @@
             }
           }
         }
+      }
+    },
+    "/schools/filters": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsFiltersResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Get school filters",
+        "description": "Returns the filters to use when searching for schools"
+      }
+    },
+    "/users/check-availability": {
+      "get": {
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsersCheckavailabilityResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "summary": "Check username availability",
+        "description": "Checks if a username is available for registration."
+      }
+    },
+    "/users/filters": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsersFiltersResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get explore filters",
+        "description": "Returns the filters to use when searching for users (requires type)"
       }
     }
   },
@@ -190,10 +308,18 @@
           },
           "errors": {
             "type": "array",
-            "description": "Additional context specific to the error type",
+            "description": "Additional context specific to the validation error",
             "items": {
               "$ref": "#/components/schemas/ValidationError"
             }
+          },
+          "meta": {
+            "type": "object",
+            "description": "Additional context specific to the error type",
+            "example": {
+              "userId": "123"
+            },
+            "additionalProperties": true
           }
         },
         "required": [
@@ -223,8 +349,8 @@
       "Role": {
         "type": "string",
         "enum": [
-          "user",
           "admin",
+          "user",
           "prodigy_admin"
         ]
       },
@@ -238,8 +364,8 @@
       "PlatformName": {
         "type": "string",
         "enum": [
-          "core",
-          "prodigy"
+          "prodigy",
+          "core"
         ]
       },
       "AuthSignupRequest": {
@@ -261,7 +387,7 @@
           "password": {
             "type": "string"
           },
-          "accountType": {
+          "type": {
             "$ref": "#/components/schemas/AccountType"
           },
           "username": {
@@ -280,7 +406,7 @@
         "required": [
           "email",
           "password",
-          "accountType",
+          "type",
           "username",
           "firstName",
           "lastName",
@@ -365,11 +491,11 @@
           "email": {
             "type": "string"
           },
-          "username": {
-            "type": "string"
-          },
           "type": {
             "$ref": "#/components/schemas/AccountType"
+          },
+          "username": {
+            "type": "string"
           },
           "platforms": {
             "type": "array",
@@ -402,14 +528,46 @@
         },
         "required": [
           "email",
-          "username",
           "type",
+          "username",
           "platforms",
           "id",
           "role",
           "avatar",
           "displayEmail",
           "subscribed"
+        ]
+      },
+      "DancersRequest": {
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "birthday": {
+            "type": [
+              "string",
+              "number"
+            ]
+          },
+          "location": {
+            "type": "string"
+          },
+          "platform": {
+            "$ref": "#/components/schemas/PlatformName"
+          }
+        },
+        "required": [
+          "birthday",
+          "location",
+          "platform"
         ]
       },
       "HealthResponse": {
@@ -502,6 +660,161 @@
           "debugInfo",
           "checks"
         ]
+      },
+      "SchoolsFiltersResponse": {
+        "type": "array",
+        "items": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "paramKey": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "id",
+                "label",
+                "paramKey"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "value"
+                    ]
+                  }
+                },
+                "label": {
+                  "type": "string"
+                },
+                "paramKey": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "id",
+                "options",
+                "label",
+                "paramKey"
+              ]
+            }
+          ]
+        }
+      },
+      "UsersCheckavailabilityResponse": {
+        "type": "object",
+        "properties": {
+          "available": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "available"
+        ]
+      },
+      "UsersFiltersResponse": {
+        "type": "array",
+        "items": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "paramKey": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "id",
+                "label",
+                "paramKey"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "value"
+                    ]
+                  }
+                },
+                "label": {
+                  "type": "string"
+                },
+                "paramKey": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "id",
+                "options",
+                "label",
+                "paramKey"
+              ]
+            }
+          ]
+        }
       }
     }
   },

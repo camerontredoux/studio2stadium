@@ -14,7 +14,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Search } from "./search";
 
-export function TopNavbar() {
+export function Topbar() {
   const session = useSession();
 
   const [darkMode, setDarkMode] = useState(() => {

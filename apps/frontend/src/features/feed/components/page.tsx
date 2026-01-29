@@ -1,11 +1,11 @@
-import { Sidebar } from "@/features/feed/components/sidebar/sidebar";
+import { SidebarLayout } from "@/components/layouts/sidebar-layout";
+import { FeedSidebar } from "@/features/feed/components/sidebar/sidebar";
 import { Feed } from "./feed";
 
 export function Page() {
   return (
-    <div className="flex gap-2 lg:gap-4">
+    <SidebarLayout sidebar={<FeedSidebar />}>
       <Feed />
-      <Sidebar />
-    </div>
+    </SidebarLayout>
   );
 }

@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_auth")({
     const session = context.queryClient.getQueryData(["session"]);
 
     if (session) {
-      throw redirect({ to: "/", replace: true });
+      throw redirect({ to: "/feed", replace: true });
     }
   },
   component: RouteComponent,

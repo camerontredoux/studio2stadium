@@ -1,16 +1,18 @@
-const GetUsernameAvailableController = () => import("./onboard/index.ts");
 import { middleware } from "#start/kernel";
 import router from "@adonisjs/core/services/router";
+
+const CreateDancerController = () => import("./create-dancer/index.ts");
 
 router
   .group(() => {
     router
-      .post("/onboard", [GetUsernameAvailableController])
+      .post("/", [CreateDancerController])
       .openapi({
-        summary: "Onboard a dancer",
-        description: "Populate personal information to finish dancer signup",
+        summary: "Create a dancer",
+        description:
+          "Populate account with personal information to finish dancer signup",
       })
       .use(middleware.auth());
   })
-  .prefix("dancer")
-  .openapi({ tags: ["Dancer"] });
+  .prefix("dancers")
+  .openapi({ tags: ["Dancers"] });

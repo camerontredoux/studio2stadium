@@ -23,17 +23,25 @@ type AuthSessionGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/auth/get-session/index.ts').default['handle'], false>
 }
-type AuthUsernameavailableGetHead = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/auth/get-username-available/validator.ts')['getUsernameAvailableValidator']>>
-  response: MakeTuyauResponse<import('../app/modules/auth/get-username-available/index.ts').default['handle'], true>
-}
-type DancerOnboardPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/onboard/validator.ts')['onboardValidator']>>
-  response: MakeTuyauResponse<import('../app/modules/dancers/onboard/index.ts').default['handle'], true>
+type DancersPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/create-dancer/validator.ts')['createDancerValidator']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/create-dancer/index.ts').default['handle'], true>
 }
 type HealthGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/health/index.ts').default['handle'], false>
+}
+type SchoolsFiltersGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/schools/get-filters/index.ts').default['handle'], false>
+}
+type UsersCheckavailabilityGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/check-availability/validator.ts')['checkAvailabilityValidator']>>
+  response: MakeTuyauResponse<import('../app/modules/users/check-availability/index.ts').default['handle'], true>
+}
+type UsersFiltersGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/schools/get-filters/index.ts').default['handle'], false>
 }
 export interface ApiDefinition {
   'auth': {
@@ -58,25 +66,39 @@ export interface ApiDefinition {
       '$get': AuthSessionGetHead;
       '$head': AuthSessionGetHead;
     };
-    'username-available': {
-      '$url': {
-      };
-      '$get': AuthUsernameavailableGetHead;
-      '$head': AuthUsernameavailableGetHead;
-    };
   };
-  'dancer': {
-    'onboard': {
-      '$url': {
-      };
-      '$post': DancerOnboardPost;
+  'dancers': {
+    '$url': {
     };
+    '$post': DancersPost;
   };
   'health': {
     '$url': {
     };
     '$get': HealthGetHead;
     '$head': HealthGetHead;
+  };
+  'schools': {
+    'filters': {
+      '$url': {
+      };
+      '$get': SchoolsFiltersGetHead;
+      '$head': SchoolsFiltersGetHead;
+    };
+  };
+  'users': {
+    'check-availability': {
+      '$url': {
+      };
+      '$get': UsersCheckavailabilityGetHead;
+      '$head': UsersCheckavailabilityGetHead;
+    };
+    'filters': {
+      '$url': {
+      };
+      '$get': UsersFiltersGetHead;
+      '$head': UsersFiltersGetHead;
+    };
   };
 }
 const routes = [

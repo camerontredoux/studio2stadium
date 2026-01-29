@@ -20,15 +20,15 @@ import { HiOutlineSparkles, HiSparkles } from "react-icons/hi2";
 
 import { NavLink } from "./nav-link";
 
-export function Sidebar() {
+export function Navbar() {
   const session = useSession();
 
   return (
     <aside className="w-fit xl:w-72 mobile:z-50 shrink-0 mobile:fixed mobile:bg-background mobile:left-0 mobile:right-0 mobile:bottom-0 mobile:w-full mobile:border-t">
-      <nav className="sticky top-12 pl-2 mobile:px-4 py-0 xl:pr-0 xl:p-4">
+      <nav className="sticky top-12 pl-2 mobile:px-2 py-0 xl:pr-0 xl:p-4">
         <div className="flex bg-background mobile:flex-row mobile:justify-between desktop:flex-col xl:border desktop:border-r desktop:h-[calc(100vh-3rem)] desktop:xl:h-auto xl:rounded-xl desktop:pl-0 desktop:xl:pl-2 mobile:px-0 p-2 gap-1">
           <NavLink
-            to="/"
+            to="/feed"
             label="For You"
             activeIcon={HiHome}
             inactiveIcon={HiOutlineHome}

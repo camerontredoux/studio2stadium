@@ -1,8 +1,10 @@
-import type { ReactNode } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
   SidebarHeader,
   SidebarInset,
   SidebarMenu,
@@ -10,15 +12,13 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
-  SidebarGroup,
 } from "@/components/ui/sidebar";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, Search, Calendar, User, Settings } from "lucide-react";
+import { Calendar, Home, Search, Settings, User } from "lucide-react";
+import type { ReactNode } from "react";
 
 const navItems = [
-  { icon: Home, label: "Home", href: "/" },
+  { icon: Home, label: "Home", href: "/feed" },
   { icon: Search, label: "Explore", href: "/explore" },
   { icon: Calendar, label: "Events", href: "/events" },
   { icon: User, label: "Profile", href: "/profile" },
@@ -30,14 +30,14 @@ interface SettingsLayoutProps {
 }
 
 export default function SettingsLayout({ children }: SettingsLayoutProps) {
-  const currentPath = useLocation({ select: (location) => location.pathname })
+  const currentPath = useLocation({ select: (location) => location.pathname });
 
   return (
     <SidebarProvider>
       {/* Left Navigation */}
       <Sidebar variant="floating" side="left" collapsible="icon">
         <SidebarHeader className="p-4">
-          <Link to="/" className="font-bold text-lg">
+          <Link to="/feed" className="font-bold text-lg">
             Studio2Stadium
           </Link>
         </SidebarHeader>
@@ -88,7 +88,9 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
               <div className="p-4 space-y-6">
                 {/* Recommendations Section */}
                 <section>
-                  <h3 className="font-semibold text-sm mb-3">Recommendations</h3>
+                  <h3 className="font-semibold text-sm mb-3">
+                    Recommendations
+                  </h3>
                   <div className="space-y-3">
                     <div className="rounded-lg border p-3 text-sm text-muted-foreground">
                       Recommendation placeholder
@@ -103,7 +105,9 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
 
                 {/* Upcoming Events Section */}
                 <section>
-                  <h3 className="font-semibold text-sm mb-3">Upcoming Events</h3>
+                  <h3 className="font-semibold text-sm mb-3">
+                    Upcoming Events
+                  </h3>
                   <div className="space-y-3">
                     <div className="rounded-lg border p-3 text-sm text-muted-foreground">
                       Event placeholder
