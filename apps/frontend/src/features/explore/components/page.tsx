@@ -1,4 +1,6 @@
 import { SidebarLayout } from "@/components/layouts/sidebar-layout";
+import { Badge } from "@/components/ui/badge";
+import { GraduationCapIcon } from "lucide-react";
 import { FilterSidebar } from "./filter-sidebar";
 import { FilterSheet } from "./filters/filter-sheet";
 import { type School, SchoolCard } from "./school-card";
@@ -90,21 +92,25 @@ export function Page() {
   return (
     <SidebarLayout sidebar={<FilterSidebar />}>
       <div className="flex flex-col gap-2 lg:gap-4 max-lg:pb-14">
-        <div className="flex items-center justify-between">
-          <div className="max-sm:pl-1">
-            <h1 className="text-xl sm:text-2xl font-bold">Explore Schools</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Find your perfect dance program
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col gap-0.5 max-sm:pl-1">
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+                Explore Schools
+              </h1>
+              <Badge variant="brand" className="gap-1">
+                <GraduationCapIcon className="size-3" />
+                {MOCK_SCHOOLS.length} programs
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Discover top dance programs and find your perfect fit
             </p>
           </div>
           <div className="lg:hidden">
             <FilterSheet />
           </div>
         </div>
-
-        <p className="text-sm text-muted-foreground max-sm:pl-1">
-          Showing {MOCK_SCHOOLS.length} schools
-        </p>
 
         <div className="space-y-2 lg:space-y-3">
           {MOCK_SCHOOLS.map((school) => (

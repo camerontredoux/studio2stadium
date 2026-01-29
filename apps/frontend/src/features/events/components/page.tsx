@@ -1,5 +1,6 @@
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, SparklesIcon } from "lucide-react";
 import { type Event, EventCard } from "./event-card";
 import { FilterSheet } from "./filters/filter-sheet";
 
@@ -113,19 +114,23 @@ export function Page() {
 
   return (
     <div className="flex flex-col gap-2 lg:gap-4 max-lg:pb-14">
-      <div className="flex items-center justify-between">
-        <div className="max-sm:pl-1">
-          <h1 className="text-xl sm:text-2xl font-bold">Events</h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Upcoming showcases, auditions & more
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col gap-0.5 max-sm:pl-1">
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+              Events
+            </h1>
+            <Badge variant="brand" className="gap-1">
+              <SparklesIcon className="size-3" />
+              {MOCK_EVENTS.length} upcoming
+            </Badge>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Showcases, auditions, workshops & more
           </p>
         </div>
         <FilterSheet />
       </div>
-
-      <p className="text-sm text-muted-foreground max-sm:pl-1">
-        {MOCK_EVENTS.length} upcoming events
-      </p>
 
       <div className="flex flex-col gap-4 lg:gap-6">
         {grouped.map((group) => (
