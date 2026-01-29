@@ -10,47 +10,42 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetPopup,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { useNavigate } from "@tanstack/react-router";
-import { Settings2Icon } from "lucide-react";
-import { Filters } from "./filters";
+  Frame,
+  FrameHeader,
+  FramePanel,
+  FrameTitle,
+} from "@/components/ui/frame";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import { Filters } from "./filters/filters";
 
-export function FilterSheet() {
-  const navigate = useNavigate({ from: "/explore" });
+export function FilterSidebar() {
+  const navigate = useNavigate();
+  const filters = useSearch({ from: "/_app/(routes)/explore" });
+
+  const filtering = Object.keys(filters).length > 0;
 
   const clearFilters = () => {
     navigate({ to: "/explore" });
   };
 
   return (
-    <Sheet>
-      <SheetTrigger render={<Button variant="outline" size="sm" />}>
-        <Settings2Icon /> Filters
-      </SheetTrigger>
-      <SheetPopup variant="inset">
-        <SheetHeader>
-          <SheetTitle>Filters</SheetTitle>
-          <SheetDescription>
-            Comprehensive filters to help you find the perfect match
-          </SheetDescription>
-        </SheetHeader>
-        <SheetContent>
-          <Filters />
-        </SheetContent>
-        <SheetFooter>
-          <SheetClose render={<Button variant="ghost" />}>Finish</SheetClose>
+    <Frame compact>
+      <FrameHeader>
+        <FrameTitle className="flex items-center gap-2">
+          Filters
           <AlertDialog>
-            <AlertDialogTrigger render={<Button variant="destructive" />}>
-              Clear Filters
+            <AlertDialogTrigger
+              render={
+                <Button
+                  disabled={!filtering}
+                  size="xs"
+                  className="ml-auto"
+                  variant="destructive-outline"
+                />
+              }
+            >
+              Clear
             </AlertDialogTrigger>
             <AlertDialogPopup>
               <AlertDialogHeader>
@@ -73,8 +68,13 @@ export function FilterSheet() {
               </AlertDialogFooter>
             </AlertDialogPopup>
           </AlertDialog>
-        </SheetFooter>
-      </SheetPopup>
-    </Sheet>
+        </FrameTitle>
+      </FrameHeader>
+      <FramePanel className="flex flex-col">
+        <ScrollArea scrollFade className="h-[calc(100vh-8rem)] max-h-fit">
+          <Filters />
+        </ScrollArea>
+      </FramePanel>
+    </Frame>
   );
 }

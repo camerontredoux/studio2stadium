@@ -4,8 +4,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import type { ApiSchemas } from "@/lib/api/client";
+import { InputFilter } from "./items/input-filter";
 import { MultiSelectFilter } from "./items/multi-select-filter";
 import { RangeFilter } from "./items/range-filter";
 import { SelectFilter } from "./items/select-filter";
@@ -27,7 +27,7 @@ export function FilterItem({
           <SelectFilter options={filter.options} paramKey={filter.paramKey} />
         );
       case "input":
-        return <Input placeholder={filter.label} />;
+        return <InputFilter paramKey={filter.paramKey} />;
       case "toggle":
         return <SwitchFilter paramKey={filter.paramKey} />;
       case "multi-select":

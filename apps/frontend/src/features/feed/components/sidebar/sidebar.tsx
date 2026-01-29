@@ -1,13 +1,13 @@
-import { SidebarWrapper } from "@/components/shared/sidebar-wrapper";
+import { Fragment } from "react/jsx-runtime";
 import { EventsSection } from "./sections/events-section";
 import { ProgramsSection } from "./sections/programs-section";
 
 export function FeedSidebar() {
   return (
-    <SidebarWrapper>
+    <Fragment>
       <EventsSection />
       <ProgramsSection />
       {/* <StatsSection /> */}
-    </SidebarWrapper>
+    </Fragment>
   );
 }

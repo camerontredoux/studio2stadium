@@ -10,7 +10,7 @@ export function FilterList() {
   const { data } = useSuspenseQuery(queries.filters());
 
   const filtered = data
-    .filter((filter) => filters[filter.paramKey as keyof typeof filters])
+    .filter((filter) => filters[filter.paramKey])
     .map((filter) => filter.id);
 
   return (
