@@ -9,7 +9,7 @@ export function ResourcesLayout({ children }: { children: React.ReactNode }) {
     <Tabs className="mobile:pb-14" defaultValue={pathname}>
       <TabsList
         variant="underline"
-        className="**:data-[slot=tab-indicator]:bg-brand sticky top-12 z-50 bg-background w-full"
+        className="**:data-[slot=tab-indicator]:bg-brand sticky top-12 -mt-2 lg:-mt-4 z-50 bg-background w-full"
       >
         <TabsTab
           value="/resources/library"

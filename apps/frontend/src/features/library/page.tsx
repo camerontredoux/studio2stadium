@@ -14,7 +14,7 @@ export function LibraryPage() {
             key={group.type}
             className="relative flex flex-col gap-2 lg:gap-3"
           >
-            <div className="sticky z-10 top-25 py-2">
+            <div className="sticky z-10 top-26 py-2">
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1.5 rounded-full border border-brand/20 bg-background/90 backdrop-blur-sm px-2.5 py-1">
                   <TagIcon className="size-3.5 text-brand" />
