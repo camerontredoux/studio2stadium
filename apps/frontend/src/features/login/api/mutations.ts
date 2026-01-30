@@ -14,7 +14,7 @@ export const useLogin = () => {
 
       const session = await queryClient.fetchQuery(queries.session());
       navigate({
-        to: session?.platforms ? "/onboarding" : (redirect ?? "/feed"),
+        to: !session?.platforms ? "/onboarding" : (redirect ?? "/feed"),
         replace: true,
       });
     },

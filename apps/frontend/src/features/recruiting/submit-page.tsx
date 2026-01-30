@@ -21,7 +21,8 @@ import {
   MOCK_ALL_SCHOOLS,
   type SelectableSchool,
 } from "./components/mock-data";
-import { extractYouTubeId, VideoEditor } from "./components/video-editor";
+import { extractYouTubeId } from "./components/utils/extract-youtube-id";
+import { VideoEditor } from "./components/video-editor";
 
 type Step = "video" | "schools" | "confirm";
 

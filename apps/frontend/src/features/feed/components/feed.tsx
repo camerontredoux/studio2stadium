@@ -8,7 +8,7 @@ export function Feed() {
   return (
     <div className="gap-2 lg:gap-4 flex flex-col max-lg:pb-14">
       <div className="mb-1 hidden lg:block">
-        <h1 className="text-xl sm:text-2xl font-bold">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight leading-none">
           Welcome back, {session.username}!
         </h1>
         <p className="text-xs sm:text-sm text-muted-foreground">

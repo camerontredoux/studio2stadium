@@ -3,7 +3,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { ArrowLeftIcon, CheckIcon, SaveIcon } from "lucide-react";
 import { useState } from "react";
 import { MOCK_VIDEO_URL } from "./components/mock-data";
-import { extractYouTubeId, VideoEditor } from "./components/video-editor";
+import { extractYouTubeId } from "./components/utils/extract-youtube-id";
+import { VideoEditor } from "./components/video-editor";
 
 export function EditPage() {
   const navigate = useNavigate();

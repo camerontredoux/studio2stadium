@@ -52,6 +52,7 @@ export default defineConfig({
     analyzer({ summary: true, enabled: process.env.ANALYZE !== undefined }),
   ],
   resolve: {
+    dedupe: ["react", "react-dom"],
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },

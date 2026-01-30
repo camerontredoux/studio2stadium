@@ -90,7 +90,7 @@ const MOCK_SCHOOLS: School[] = [
 export function ExplorePage() {
   return (
     <SidebarLayout sidebar={<FilterSidebar />}>
-      <div className="flex flex-col gap-2 lg:gap-4 max-lg:pb-14">
+      <div className="flex pt-1 sm:pt-0 flex-col gap-2 lg:gap-4 max-lg:pb-14">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
           <div className="flex flex-col gap-0.5 max-sm:pl-1">
             <div className="flex items-end gap-2">

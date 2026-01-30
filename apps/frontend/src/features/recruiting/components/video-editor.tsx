@@ -16,13 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { LinkIcon, VideoIcon } from "lucide-react";
 import type { ReactNode } from "react";
-
-function extractYouTubeId(url: string) {
-  const match = url.match(
-    /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?#]+)/,
-  );
-  return match?.[1];
-}
+import { extractYouTubeId } from "./utils/extract-youtube-id";
 
 interface VideoEditorProps {
   videoUrl: string;
@@ -64,7 +58,7 @@ export function VideoEditor({
                 }}
                 unstyled
                 placeholder="https://www.youtube.com/watch?v=..."
-                className="text-sm flex-1"
+                className="sm:text-sm flex-1"
               />
             </div>
             {videoId ? (
@@ -98,5 +92,3 @@ export function VideoEditor({
     </Frame>
   );
 }
-
-export { extractYouTubeId };

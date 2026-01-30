@@ -1,5 +1,4 @@
 import { Separator } from "@/components/ui/separator";
-import { useSession } from "@/lib/session";
 
 import {
   HiBookOpen,
@@ -18,6 +17,7 @@ import {
 
 import { HiOutlineSparkles, HiSparkles } from "react-icons/hi2";
 
+import { useSession } from "@/lib/session";
 import { NavLink } from "./nav-link";
 
 export function Navbar() {

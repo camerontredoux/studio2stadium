@@ -1,6 +1,11 @@
 import { useRouteContext } from "@tanstack/react-router";
+import type { Session } from "../types";
 
-export const useSession = () => {
+/**
+ * Hook to get the guaranteed user session.
+ * @returns Guaranteed user session or throws an error if the session is not found.
+ */
+export function useSession(): Session {
   const { session } = useRouteContext({ strict: false });
 
   if (!session) {
@@ -8,4 +13,4 @@ export const useSession = () => {
   }
 
   return session;
-};
+}

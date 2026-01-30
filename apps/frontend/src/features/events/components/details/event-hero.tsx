@@ -5,7 +5,6 @@ import {
   CalendarIcon,
   ExternalLinkIcon,
   TicketIcon,
-  TicketsIcon,
   UsersIcon,
 } from "lucide-react";
 import type { EventDetail } from "../mock-data";
@@ -50,7 +49,7 @@ export function EventHero({ event }: EventHeroProps) {
               <span>{event.attendees} attending</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <TicketsIcon className="size-3.5 shrink-0 text-brand" />
+              <TicketIcon className="size-3.5 shrink-0 text-brand" />
               <span>{event.price}</span>
             </div>
           </div>
@@ -67,9 +66,7 @@ export function EventHero({ event }: EventHeroProps) {
       </FramePanel>
 
       <FrameFooter className="gap-2 px-4 sm:px-5 py-3">
-        <Button className="gap-1.5">
-          <TicketIcon /> Attend Event
-        </Button>
+        <Button className="gap-1.5">Attend Event</Button>
         <Button variant="outline" className="gap-1.5">
           <ExternalLinkIcon /> Website
         </Button>

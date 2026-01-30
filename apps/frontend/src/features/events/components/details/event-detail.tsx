@@ -43,7 +43,7 @@ export function EventDetail({ eventId }: EventDetailProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3 lg:gap-4 max-lg:pb-14">
+    <div className="flex flex-col gap-3 lg:gap-4 pt-1 lg:pt-0 max-lg:pb-14">
       <Link
         to="/events"
         className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"

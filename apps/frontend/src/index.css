@@ -213,6 +213,7 @@
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
   --animate-skeleton: skeleton 2s -1s infinite linear;
+  --animate-loading-bar: loading-bar 1.4s ease-in-out infinite alternate;
   --color-warning-foreground: var(--warning-foreground);
   --color-warning: var(--warning);
   --color-success-foreground: var(--success-foreground);
@@ -222,6 +223,14 @@
   @keyframes skeleton {
     to {
       background-position: -200% 0;
+    }
+  }
+  @keyframes loading-bar {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(150%);
     }
   }
 }

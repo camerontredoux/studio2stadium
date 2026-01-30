@@ -1,31 +1,26 @@
 import { MainLogo } from "@/components/shared/main-logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   Menu,
   MenuGroup,
+  MenuGroupLabel,
   MenuItem,
   MenuPopup,
+  MenuRadioGroup,
+  MenuRadioItem,
   MenuSeparator,
   MenuTrigger,
 } from "@/components/ui/menu";
 import { useSession } from "@/lib/session";
 import { Link } from "@tanstack/react-router";
-import { MoonIcon, SunIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useTernaryDarkMode, type TernaryDarkMode } from "usehooks-ts";
 
 export function Topbar() {
   const session = useSession();
 
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem("darkMode");
-    return saved ? JSON.parse(saved) : false;
+  const { ternaryDarkMode, setTernaryDarkMode } = useTernaryDarkMode({
+    localStorageKey: "theme",
   });
-
-  useEffect(() => {
-    localStorage.setItem("darkMode", JSON.stringify(darkMode));
-    document.body.classList.toggle("dark", darkMode);
-  }, [darkMode]);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-12 border-b bg-background lg:bg-background/50 lg:backdrop-blur-xs border-border">
@@ -33,15 +28,7 @@ export function Topbar() {
         <div className="absolute left-1/2 -translate-x-1/2 sm:static sm:translate-x-0 shrink-0">
           <MainLogo className="h-4 dark:invert" />
         </div>
-        <div className="flex justify-between sm:justify-end w-full items-center gap-2">
-          <Button
-            variant="ghost"
-            className="rounded-full max-sm:size-8!"
-            size="icon"
-            onClick={() => setDarkMode(() => !darkMode)}
-          >
-            {darkMode ? <MoonIcon /> : <SunIcon />}
-          </Button>
+        <div className="flex justify-end w-full items-center gap-2">
           <Menu>
             <MenuTrigger>
               <Avatar className="mobile:size-9">
@@ -54,6 +41,20 @@ export function Topbar() {
             <MenuPopup align="end">
               <MenuGroup>
                 <MenuItem disabled>@{session.username}</MenuItem>
+              </MenuGroup>
+              <MenuSeparator />
+              <MenuGroup>
+                <MenuGroupLabel>Theme</MenuGroupLabel>
+                <MenuRadioGroup
+                  onValueChange={(value) =>
+                    setTernaryDarkMode(value as TernaryDarkMode)
+                  }
+                  defaultValue={ternaryDarkMode}
+                >
+                  <MenuRadioItem value="light">Light</MenuRadioItem>
+                  <MenuRadioItem value="dark">Dark</MenuRadioItem>
+                  <MenuRadioItem value="system">System</MenuRadioItem>
+                </MenuRadioGroup>
               </MenuGroup>
               <MenuSeparator />
               <MenuGroup>
