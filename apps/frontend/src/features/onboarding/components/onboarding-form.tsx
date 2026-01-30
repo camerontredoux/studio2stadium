@@ -11,15 +11,20 @@ import { handleApiError } from "@/lib/api/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PhoneIcon } from "lucide-react";
 import { useRef } from "react";
-import { Controller, FormProvider, useForm, type FieldErrors } from "react-hook-form";
+import {
+  Controller,
+  FormProvider,
+  useForm,
+  type FieldErrors,
+} from "react-hook-form";
 import { z } from "zod";
-import { useOnboardDancer } from "../api/mutations";
+import { useCreateDancer } from "../api/mutations";
 import { schemas } from "../schemas";
 
 type OnboardSchema = z.infer<typeof schemas.onboard>;
 
 export function OnboardingForm() {
-  const { mutate, isPending } = useOnboardDancer();
+  const { mutate, isPending } = useCreateDancer();
 
   const submitRef = useRef<HTMLButtonElement>(null);
   const errorToast = useAnchoredErrorToast(submitRef);
@@ -110,22 +115,25 @@ export function OnboardingForm() {
               render={({ field, fieldState }) => (
                 <Field name={field.name} invalid={fieldState.invalid}>
                   <FieldLabel>Location</FieldLabel>
-                  <LocationSelect value={field.value} onChange={field.onChange} />
+                  <LocationSelect
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
                   <FieldError error={fieldState.error} />
                 </Field>
               )}
             />
-        </FramePanel>
-      </Frame>
+          </FramePanel>
+        </Frame>
 
-      <Button
-        disabled={isPending}
-        ref={submitRef}
-        type="submit"
-        className="w-full"
-      >
-        {isPending ? <Spinner label="Onboarding..." /> : "Continue"}
-      </Button>
+        <Button
+          disabled={isPending}
+          ref={submitRef}
+          type="submit"
+          className="w-full"
+        >
+          {isPending ? <Spinner label="Onboarding..." /> : "Continue"}
+        </Button>
       </form>
     </FormProvider>
   );

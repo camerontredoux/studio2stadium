@@ -193,57 +193,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/auth/username-available": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get username availability
-         * @description Checks if a username is available.
-         */
-        get: {
-            parameters: {
-                query: {
-                    username: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AuthUsernameavailableResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dancer/onboard": {
+    "/dancers": {
         parameters: {
             query?: never;
             header?: never;
@@ -253,8 +203,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Onboard a dancer
-         * @description Populate personal information to finish dancer signup
+         * Create a dancer
+         * @description Populate account with personal information to finish dancer signup
          */
         post: {
             parameters: {
@@ -265,7 +215,7 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["DancerOnboardRequest"];
+                    "application/json": components["schemas"]["DancersRequest"];
                 };
             };
             responses: {
@@ -287,6 +237,45 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/filters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dancer filters
+         * @description Returns the filters to use when searching for dancers
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersFiltersResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -325,6 +314,95 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["HealthResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools/filters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get school filters
+         * @description Returns the filters to use when searching for schools
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsFiltersResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/check-availability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Check username availability
+         * @description Checks if a username is available for registration.
+         */
+        get: {
+            parameters: {
+                query: {
+                    username: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UsersCheckavailabilityResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -427,15 +505,23 @@ export interface components {
             displayEmail: string;
             subscribed: boolean;
         };
-        AuthUsernameavailableResponse: {
-            available: boolean;
-        };
-        DancerOnboardRequest: {
+        DancersRequest: {
             phoneNumber?: string | null;
             birthday: string | number;
             location: string;
             platform: components["schemas"]["PlatformName"];
         };
+        DancersFiltersResponse: {
+            /** @enum {string} */
+            type: "input" | "select" | "toggle" | "multi-select" | "range";
+            id: string;
+            options?: {
+                label: string;
+                value: string;
+            }[];
+            label: string;
+            paramKey: string;
+        }[];
         HealthResponse: {
             isHealthy: boolean;
             /** @enum {string} */
@@ -457,6 +543,20 @@ export interface components {
                 finishedAt: string;
                 isCached: boolean;
             }[];
+        };
+        SchoolsFiltersResponse: {
+            /** @enum {string} */
+            type: "input" | "select" | "toggle" | "multi-select" | "range";
+            id: string;
+            options?: {
+                label: string;
+                value: string;
+            }[];
+            label: string;
+            paramKey: string;
+        }[];
+        UsersCheckavailabilityResponse: {
+            available: boolean;
         };
     };
     responses: never;

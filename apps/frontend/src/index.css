@@ -16,6 +16,7 @@
   --card: var(--color-white);
   --card-foreground: var(--color-zinc-800);
   --popover: var(--color-white);
+  --sheet: #f8f8f8;
   --popover-foreground: var(--color-zinc-800);
   --primary: var(--color-zinc-800);
   --primary-foreground: var(--color-zinc-50);
@@ -82,6 +83,7 @@
 }
 
 .dark {
+  --sheet: #1a1a1a;
   --background: color-mix(
     in srgb,
     var(--color-zinc-950) 98%,
@@ -155,6 +157,7 @@
 }
 
 @theme inline {
+  --color-sheet: var(--sheet);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
   --color-brand-border: var(--brand-border);

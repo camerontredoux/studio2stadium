@@ -1,13 +1,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { CircleCheckIcon, HeartIcon, MessageCircleIcon } from "lucide-react";
+import { HeartIcon, MessageCircleIcon, VerifiedIcon } from "lucide-react";
 
 export function FeedItem() {
   return (
     <div className="sm:rounded-xl sm:border overflow-clip">
       <div className="relative aspect-video">
+        <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent" />
         <img
-          src="https://placehold.co/600x400"
+          src="https://images.unsplash.com/photo-1724436781032-c1645c5783ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xsZWdlJTIwY2FtcHVzJTIwYnVpbGRpbmd8ZW58MXx8fHwxNzYwNTQ4OTIwfDA&ixlib=rb-4.1.0&q=80&w=1080"
           alt="Feed Item"
           className="w-full h-full object-cover"
         />
@@ -21,7 +22,7 @@ export function FeedItem() {
           <div className="flex flex-col">
             <h3 className="font-semibold text-sm sm:text-base flex items-center gap-1">
               University of Washington{" "}
-              <CircleCheckIcon className="size-4 text-blue-500" />
+              <VerifiedIcon className="size-4 text-brand" />
             </h3>
             <p className="text-xs sm:text-sm flex items-center gap-1 text-muted-foreground">
               posted a video <span>•</span>{" "}

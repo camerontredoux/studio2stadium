@@ -1,9 +1,7 @@
 import { middleware } from "#start/kernel";
-import { throttle } from "#start/limiter";
 import { tooManyRequests } from "#utils/responses";
 import router from "@adonisjs/core/services/router";
-const GetUsernameAvailableController = () =>
-  import("./get-username-available/index.ts");
+
 const GetSessionController = () => import("./get-session/index.ts");
 const LogoutController = () => import("./logout/index.ts");
 const LoginController = () => import("./login/index.ts");
@@ -34,13 +32,6 @@ router
         description: "Retrieves the current session's user information.",
       })
       .use(middleware.auth());
-    router
-      .get("/username-available", [GetUsernameAvailableController])
-      .openapi({
-        summary: "Get username availability",
-        description: "Checks if a username is available.",
-      })
-      .use([throttle("username-available", "memory")]);
   })
   .prefix("auth")
   .openapi({ tags: ["Authentication"] });

@@ -1,3 +1,4 @@
+import app from "@adonisjs/core/services/app";
 import { defineConfig } from "@adonisjs/cors";
 
 /**
@@ -8,7 +9,7 @@ import { defineConfig } from "@adonisjs/cors";
  */
 const corsConfig = defineConfig({
   enabled: true,
-  origin: true,
+  origin: app.inProduction ? true : "*",
   methods: ["GET", "HEAD", "POST", "PUT", "DELETE"],
   headers: true,
   exposeHeaders: ["Retry-After"],

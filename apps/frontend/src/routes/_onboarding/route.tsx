@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_onboarding")({
 
       if (session.platforms) {
         throw redirect({
-          to: "/",
+          to: "/feed",
           replace: true,
         });
       }
