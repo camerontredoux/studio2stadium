@@ -1,7 +1,7 @@
 import { AppLayout } from "@/components/layouts/app-layout/app-layout";
 import { Spinner } from "@/components/ui/spinner";
 import { createAccess } from "@/lib/access/access";
-import { queries, SessionNetworkError } from "@/lib/session";
+import { SessionNetworkError } from "@/lib/session";
 import {
   createFileRoute,
   Outlet,
@@ -10,11 +10,11 @@ import {
 } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app")({
-  beforeLoad: async ({ context, location }) => {
+  beforeLoad: async ({ location }) => {
     try {
-      const session = await context.queryClient.ensureQueryData(
-        queries.session(),
-      );
+      // const session = await context.queryClient.ensureQueryData(
+      //   queries.session(),
+      // );
 
       const mockSession = {
         id: "1",
@@ -28,12 +28,12 @@ export const Route = createFileRoute("/_app")({
         subscribed: false,
       };
 
-      if (!session) {
-        // throw redirect({
-        //   to: "/login",
-        //   search: { redirect: location.href, reason: "access_denied" },
-        // });
-      }
+      // if (!session) {
+      // throw redirect({
+      //   to: "/login",
+      //   search: { redirect: location.href, reason: "access_denied" },
+      // });
+      // }
 
       // if (!session.platforms) {
       //   throw redirect({
