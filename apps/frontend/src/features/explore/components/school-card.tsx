@@ -65,11 +65,11 @@ export function SchoolCard({ school }: SchoolCardProps) {
           </div>
         </div>
         <div className="flex gap-2 sm:flex-col sm:shrink-0">
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button variant="outline" size="xs" className="gap-2">
             <UserPlusIcon /> Follow
           </Button>
           <Button
-            size="sm"
+            size="xs"
             render={
               <Link
                 to="/explore/$username"

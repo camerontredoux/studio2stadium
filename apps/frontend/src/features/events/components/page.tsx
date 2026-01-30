@@ -114,7 +114,7 @@ export function Page() {
 
   return (
     <div className="flex flex-col gap-2 lg:gap-4 max-lg:pb-14">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
         <div className="flex flex-col gap-0.5 max-sm:pl-1">
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
@@ -129,10 +129,12 @@ export function Page() {
             Showcases, auditions, workshops & more
           </p>
         </div>
-        <FilterSheet />
+        <div>
+          <FilterSheet />
+        </div>
       </div>
 
-      <div className="flex flex-col gap-4 lg:gap-6">
+      <div className="flex flex-col gap-2 lg:gap-4">
         {grouped.map((group) => (
           <section key={group.month} className="flex flex-col gap-2 lg:gap-3">
             <div className="sticky top-12 z-10 py-2">
