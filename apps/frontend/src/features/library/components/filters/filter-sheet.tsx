@@ -20,14 +20,19 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Settings2Icon } from "lucide-react";
+import { Filters } from "./filters";
 
-export function FilterSheet() {
-  const navigate = useNavigate({ from: "/resources" });
+export function ResourcesFilterSheet() {
+  const navigate = useNavigate({ from: "/resources/library" });
+  const filtering = useSearch({
+    from: "/_app/(routes)/resources/library",
+    select: (search) => Object.keys(search).length > 0,
+  });
 
   const clearFilters = () => {
-    navigate({ to: "/resources" });
+    navigate({ to: "/resources/library" });
   };
 
   return (
@@ -45,14 +50,14 @@ export function FilterSheet() {
           </SheetDescription>
         </SheetHeader>
         <SheetContent>
-          <div className="px-5 py-4 text-sm text-muted-foreground">
-            Filters coming soon
-          </div>
+          <Filters />
         </SheetContent>
         <SheetFooter>
           <SheetClose render={<Button variant="ghost" />}>Finish</SheetClose>
           <AlertDialog>
-            <AlertDialogTrigger render={<Button variant="destructive" />}>
+            <AlertDialogTrigger
+              render={<Button disabled={!filtering} variant="destructive" />}
+            >
               Clear Filters
             </AlertDialogTrigger>
             <AlertDialogPopup>

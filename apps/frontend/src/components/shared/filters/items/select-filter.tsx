@@ -5,20 +5,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import type { FilterValue, OnFilterChange } from "../filter-item";
 
 interface SelectFilterProps {
   options: { value: string; label: string }[] | undefined;
-  paramKey: string;
+  value: FilterValue;
+  onFilterChange: OnFilterChange;
 }
 
-export function SelectFilter({ options, paramKey }: SelectFilterProps) {
-  const filters = useSearch({ from: "/_app/(routes)/events/" });
-  const navigate = useNavigate({ from: "/events/" });
-
-  const selectedValue = Array.isArray(filters[paramKey])
-    ? filters[paramKey][0]
-    : filters[paramKey];
+export function SelectFilter({
+  options,
+  value,
+  onFilterChange,
+}: SelectFilterProps) {
+  const selectedValue = Array.isArray(value) ? value[0] : value;
 
   const selectedOption = options?.find(
     (option) => option.value === selectedValue,
@@ -26,11 +26,7 @@ export function SelectFilter({ options, paramKey }: SelectFilterProps) {
 
   const handleSelect = (value: string | null) => {
     const newValue = value === selectedOption?.value ? undefined : value;
-    navigate({
-      search: (prev) => {
-        return { ...prev, [paramKey]: newValue ?? undefined };
-      },
-    });
+    onFilterChange(newValue ?? undefined);
   };
 
   return (

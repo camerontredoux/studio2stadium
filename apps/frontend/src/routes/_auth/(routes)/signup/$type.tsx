@@ -1,5 +1,5 @@
+import { accountTypeSchema, schemas } from "@/features/signup/api/schemas";
 import { SignupForm } from "@/features/signup/components/signup-form";
-import { accountTypeSchema, schemas } from "@/features/signup/schemas";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth/(routes)/signup/$type")({

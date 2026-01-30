@@ -22,12 +22,19 @@ function Frame({
   );
 }
 
-function FramePanel({ className, ...props }: React.ComponentProps<"div">) {
+function FramePanel({
+  className,
+  side,
+  ...props
+}: React.ComponentProps<"div"> & { side?: "top" | "bottom" }) {
   return (
     <div
       className={cn(
-        "relative overflow-clip rounded-xl bg-background bg-clip-padding shadow-xs/5 before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-xl)-1px)] before:shadow-[0_1px_--theme(--color-black/6%)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]",
-        "in-data-compact:p-0 in-data-compact:border-0 in-data-compact:border-t",
+        "relative overflow-clip rounded-2xl bg-background bg-clip-padding shadow-xs/5 before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-xl)-1px)] before:shadow-[0_1px_--theme(--color-black/6%)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]",
+        "in-data-compact:p-0 in-data-compact:border-0",
+        side === "top"
+          ? "in-data-compact:border-b"
+          : "in-data-compact:border-t",
         "not-in-data-compact:p-3 not-in-data-compact:sm:p-5 not-in-data-compact:border",
         className,
       )}

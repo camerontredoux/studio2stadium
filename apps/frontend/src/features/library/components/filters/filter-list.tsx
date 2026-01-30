@@ -1,8 +1,8 @@
-import { Accordion } from "@/components/ui/accordion";
 import {
   FilterItem,
   type FilterValue,
 } from "@/components/shared/filters/filter-item";
+import { Accordion } from "@/components/ui/accordion";
 import type { ApiSchemas } from "@/lib/api/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
@@ -13,10 +13,10 @@ type Filter = ApiSchemas["DancersFiltersResponse"][number];
 
 function ConnectedFilterItem({ filter }: { filter: Filter }) {
   const value = useSearch({
-    from: "/_app/(routes)/explore/",
+    from: "/_app/(routes)/resources/library",
     select: (search) => search[filter.paramKey],
   });
-  const navigate = useNavigate({ from: "/explore/" });
+  const navigate = useNavigate({ from: "/resources/library" });
 
   const onFilterChange = useCallback(
     (value: FilterValue, options?: { replace?: boolean }) => {
@@ -29,11 +29,7 @@ function ConnectedFilterItem({ filter }: { filter: Filter }) {
   );
 
   return (
-    <FilterItem
-      filter={filter}
-      value={value}
-      onFilterChange={onFilterChange}
-    />
+    <FilterItem filter={filter} value={value} onFilterChange={onFilterChange} />
   );
 }
 

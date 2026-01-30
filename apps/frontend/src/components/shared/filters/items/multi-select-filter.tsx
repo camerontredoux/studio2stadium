@@ -9,40 +9,30 @@ import {
   ComboboxPopup,
   ComboboxValue,
 } from "@/components/ui/combobox";
-import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Fragment } from "react";
+import type { FilterValue, OnFilterChange } from "../filter-item";
 
 type Option = { value: string; label: string };
 
 interface MultiSelectFilterProps {
-  paramKey: string;
   options: Option[] | undefined;
+  value: FilterValue;
+  onFilterChange: OnFilterChange;
 }
 
 export function MultiSelectFilter({
-  paramKey,
   options,
+  value,
+  onFilterChange,
 }: MultiSelectFilterProps) {
-  const filters = useSearch({ from: "/_app/(routes)/events/" });
-  const navigate = useNavigate({ from: "/events/" });
-
-  const selectedValues = Array.isArray(filters[paramKey])
-    ? filters[paramKey]
-    : filters[paramKey]?.split(",");
+  const selectedValues = Array.isArray(value) ? value : value?.split(",");
 
   const selected = options?.filter((option) =>
     selectedValues?.includes(option.value),
   );
 
   const handleSelect = (values: Option[]) => {
-    navigate({
-      search: (prev) => {
-        return {
-          ...prev,
-          [paramKey]: values.map((v) => v.value),
-        };
-      },
-    });
+    onFilterChange(values.map((v) => v.value));
   };
 
   return (

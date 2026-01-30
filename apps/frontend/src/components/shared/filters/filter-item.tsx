@@ -11,34 +11,50 @@ import { RangeFilter } from "./items/range-filter";
 import { SelectFilter } from "./items/select-filter";
 import { SwitchFilter } from "./items/switch-filter";
 
+export type FilterValue = string | string[] | undefined;
+
+export type OnFilterChange = (
+  value: FilterValue,
+  options?: { replace?: boolean },
+) => void;
+
 type Filter = ApiSchemas["DancersFiltersResponse"][number];
 
 export function FilterItem({
   filter,
-  hasFilter,
+  value,
+  onFilterChange,
 }: {
   filter: Filter;
-  hasFilter: boolean;
+  value: FilterValue;
+  onFilterChange: OnFilterChange;
 }) {
+  const filtered = Array.isArray(value) ? value.length > 0 : Boolean(value);
+
   const item = (type: Filter["type"]) => {
     switch (type) {
       case "select":
         return (
-          <SelectFilter options={filter.options} paramKey={filter.paramKey} />
+          <SelectFilter
+            options={filter.options}
+            value={value}
+            onFilterChange={onFilterChange}
+          />
         );
       case "input":
-        return <InputFilter paramKey={filter.paramKey} />;
+        return <InputFilter value={value} onFilterChange={onFilterChange} />;
       case "toggle":
-        return <SwitchFilter paramKey={filter.paramKey} />;
+        return <SwitchFilter value={value} onFilterChange={onFilterChange} />;
       case "multi-select":
         return (
           <MultiSelectFilter
-            paramKey={filter.paramKey}
             options={filter.options}
+            value={value}
+            onFilterChange={onFilterChange}
           />
         );
       case "range":
-        return <RangeFilter paramKey={filter.paramKey} />;
+        return <RangeFilter value={value} onFilterChange={onFilterChange} />;
     }
   };
 
@@ -46,7 +62,7 @@ export function FilterItem({
     <AccordionItem value={filter.id} className="relative px-5">
       <AccordionTrigger>
         <div className="flex justify-between w-full items-center gap-2">
-          {filter.label} {hasFilter ? <Badge>Active</Badge> : null}
+          {filter.label} {filtered ? <Badge>Active</Badge> : null}
         </div>
       </AccordionTrigger>
       <AccordionPanel>{item(filter.type)}</AccordionPanel>

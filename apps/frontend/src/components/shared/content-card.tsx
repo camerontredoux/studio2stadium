@@ -1,7 +1,20 @@
-import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Frame, FrameFooter, FramePanel } from "@/components/ui/frame";
-import { SparklesIcon } from "lucide-react";
+import type { ReactNode } from "react";
+
+const SPARKLE_CLASSES = [
+  "absolute -top-1 -left-2 size-13 rotate-20",
+  "absolute top-2 left-[55%] size-7 -rotate-48",
+  "absolute -top-2 right-[8%] size-10 rotate-5",
+  "absolute top-[42%] left-[18%] size-6 -rotate-30",
+  "absolute top-[55%] right-[30%] size-9 rotate-70",
+  "absolute -bottom-2 left-[40%] size-11 -rotate-10",
+  "absolute bottom-3 -right-2 size-8 rotate-42",
+  "absolute -bottom-1 left-[5%] size-12 -rotate-58",
+] as const;
+
+const SPARKLE_PATH =
+  "M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z";
 
 interface ContentCardProps {
   image: string;
@@ -21,9 +34,9 @@ export function ContentCard({
   children,
 }: ContentCardProps) {
   return (
-    <Frame compact className="group h-full">
-      <FramePanel className="border-none! rounded-2xl">
-        <div className="relative">
+    <Frame compact className="group [content-visibility:auto] [contain-intrinsic-block-size:auto_250px]">
+      <FramePanel side="top">
+        <div className="relative border-b">
           <img
             src={image}
             alt={imageAlt}
@@ -37,19 +50,28 @@ export function ContentCard({
           )}
         </div>
 
-        <div className="rounded-b-2xl relative p-3 sm:p-4 flex flex-col gap-2.5 flex-1 bg-linear-to-br from-brand/10 via-brand/5 to-background group-hover:from-brand/16 group-hover:via-brand/8 transition-colors border-b">
+        <div className="relative p-3 sm:p-4 flex flex-col gap-2.5 flex-1 bg-linear-to-br from-brand/10 via-brand/5 to-background group-hover:from-brand/16 group-hover:via-brand/8 transition-colors">
           <div
             className="absolute inset-0 overflow-hidden text-brand opacity-[0.12] dark:opacity-[0.06] pointer-events-none"
             aria-hidden
           >
-            <SparklesIcon className="absolute -top-1 -left-2 size-13 rotate-20" />
-            <SparklesIcon className="absolute top-2 left-[55%] size-7 -rotate-48" />
-            <SparklesIcon className="absolute -top-2 right-[8%] size-10 rotate-5" />
-            <SparklesIcon className="absolute top-[42%] left-[18%] size-6 -rotate-30" />
-            <SparklesIcon className="absolute top-[55%] right-[30%] size-9 rotate-70" />
-            <SparklesIcon className="absolute -bottom-2 left-[40%] size-11 -rotate-10" />
-            <SparklesIcon className="absolute bottom-3 -right-2 size-8 rotate-42" />
-            <SparklesIcon className="absolute -bottom-1 left-[5%] size-12 -rotate-58" />
+            {SPARKLE_CLASSES.map((cn, i) => (
+              <svg
+                key={i}
+                className={cn}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d={SPARKLE_PATH} />
+                <path d="M20 2v4" />
+                <path d="M22 4h-4" />
+                <circle cx="4" cy="20" r="2" />
+              </svg>
+            ))}
           </div>
           <div className="flex flex-col gap-1.5 flex-1">
             <h3 className="font-semibold text-sm sm:text-base leading-snug line-clamp-2 sm:min-h-11 group-hover:text-brand transition-colors">

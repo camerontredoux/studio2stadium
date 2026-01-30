@@ -1,14 +1,7 @@
 import { ContentCard } from "@/components/shared/content-card";
 import { Button } from "@/components/ui/button";
-import { BookOpenIcon, CalendarIcon } from "lucide-react";
-
-export interface Blog {
-  id: string;
-  title: string;
-  description: string;
-  image: string;
-  date: string;
-}
+import { CalendarIcon } from "lucide-react";
+import type { Blog } from "./mock-data";
 
 interface BlogCardProps {
   blog: Blog;
@@ -20,11 +13,7 @@ export function BlogCard({ blog }: BlogCardProps) {
       image={blog.image}
       imageAlt={blog.title}
       title={blog.title}
-      footer={
-        <Button size="xs" className="gap-1.5">
-          <BookOpenIcon /> Read More
-        </Button>
-      }
+      footer={<Button size="xs">Read More</Button>}
     >
       <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
         <CalendarIcon className="size-3.5 shrink-0" />

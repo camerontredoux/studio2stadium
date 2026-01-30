@@ -24,7 +24,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Settings2Icon } from "lucide-react";
 import { Filters } from "./filters";
 
-export function FilterSheet() {
+export function EventsFilterSheet() {
   const navigate = useNavigate({ from: "/events/" });
 
   const clearFilters = () => {
@@ -33,14 +33,16 @@ export function FilterSheet() {
 
   return (
     <Sheet>
-      <SheetTrigger render={<Button variant="outline" size="sm" />}>
+      <SheetTrigger
+        render={<Button variant="outline" size="sm" className="w-fit" />}
+      >
         <Settings2Icon /> Filters
       </SheetTrigger>
       <SheetPopup variant="inset">
         <SheetHeader>
           <SheetTitle>Filters</SheetTitle>
           <SheetDescription>
-            Filter events by location, style, and more
+            Filter events by location, type, and more
           </SheetDescription>
         </SheetHeader>
         <SheetContent>
