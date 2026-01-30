@@ -1,5 +1,5 @@
 import { queries } from "@/features/events/api/queries";
-import { Page } from "@/features/events/components/page";
+import { Page } from "@/features/events/page";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/events/")({

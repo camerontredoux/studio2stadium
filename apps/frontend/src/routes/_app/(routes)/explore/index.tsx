@@ -1,5 +1,5 @@
 import { queries } from "@/features/explore/api/queries";
-import { Page } from "@/features/explore/components/page";
+import { ExplorePage } from "@/features/explore/page";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/explore/")({
@@ -9,5 +9,5 @@ export const Route = createFileRoute("/_app/(routes)/explore/")({
     queryClient.ensureQueryData(queries.explore());
     queryClient.ensureQueryData(queries.filters());
   },
-  component: Page,
+  component: ExplorePage,
 });

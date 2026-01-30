@@ -4,7 +4,7 @@ import { HeartIcon, MessageCircleIcon, VerifiedIcon } from "lucide-react";
 
 export function FeedItem() {
   return (
-    <div className="sm:rounded-xl sm:border overflow-clip">
+    <div className="sm:rounded-xl sm:border overflow-clip [content-visibility:auto] [contain-intrinsic-block-size:auto_450px]">
       <div className="relative aspect-video">
         <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent" />
         <img

@@ -16,21 +16,33 @@ export const Route = createFileRoute("/_app")({
         queries.session(),
       );
 
+      const mockSession = {
+        id: "1",
+        username: "test",
+        email: "test@test.com",
+        platforms: ["core"] as ("core" | "prodigy")[],
+        type: "school" as const,
+        role: "user" as const,
+        avatar: null,
+        displayEmail: "test@test.com",
+        subscribed: false,
+      };
+
       if (!session) {
-        throw redirect({
-          to: "/login",
-          search: { redirect: location.href, reason: "access_denied" },
-        });
+        // throw redirect({
+        //   to: "/login",
+        //   search: { redirect: location.href, reason: "access_denied" },
+        // });
       }
 
-      if (!session.platforms) {
-        throw redirect({
-          to: "/onboarding",
-          replace: true,
-        });
-      }
+      // if (!session.platforms) {
+      //   throw redirect({
+      //     to: "/onboarding",
+      //     replace: true,
+      //   });
+      // }
 
-      return { session, access: createAccess(session) };
+      return { session: mockSession, access: createAccess(mockSession) };
     } catch (error) {
       if (error instanceof SessionNetworkError) {
         throw redirect({

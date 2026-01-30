@@ -18,7 +18,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { CheckIcon, InfoIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 import { queries } from "../api/queries";
-import { MAX_USERNAME_LENGTH } from "../schemas";
+import { MAX_USERNAME_LENGTH } from "../api/schemas";
 
 export function DancerInputGroup() {
   const [username, setUsername] = useState("");

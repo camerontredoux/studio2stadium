@@ -171,7 +171,7 @@ function SheetContent({
 }: React.ComponentProps<"div"> & { scrollFade?: boolean }) {
   return (
     <ScrollArea
-      className="relative bg-clip-padding shadow-xs/5 rounded-xl [&:has(~[data-slot=sheet-footer])]:rounded-b-none [&:has(~[data-slot=sheet-footer])]:border-b-0 border bg-background before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-xl)-1px)] before:shadow-[0_1px_--theme(--color-black/6%)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]"
+      className="relative bg-clip-padding shadow-xs/5 rounded-xl [&:has(~[data-slot=sheet-footer])]:rounded-b-none [&:has(~[data-slot=sheet-footer])]:border-b-0 border bg-background before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-xl)-1px)] [&:has(~[data-slot=sheet-footer])]:before:rounded-b-none before:shadow-[0_1px_--theme(--color-black/6%)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]"
       scrollFade={scrollFade}
     >
       <div

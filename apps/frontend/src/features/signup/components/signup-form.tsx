@@ -21,7 +21,7 @@ import { useReducer, useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { useSignup } from "../api/mutations";
-import { MAX_NAME_LENGTH, MAX_PASSWORD_LENGTH, schemas } from "../schemas";
+import { MAX_NAME_LENGTH, MAX_PASSWORD_LENGTH, schemas } from "../api/schemas";
 
 type SignupSchema = z.infer<typeof schemas.signup>;
 

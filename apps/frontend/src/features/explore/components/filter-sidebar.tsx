@@ -21,9 +21,10 @@ import { Filters } from "./filters/filters";
 
 export function FilterSidebar() {
   const navigate = useNavigate();
-  const filters = useSearch({ from: "/_app/(routes)/explore/" });
-
-  const filtering = Object.keys(filters).length > 0;
+  const filtering = useSearch({
+    from: "/_app/(routes)/explore/",
+    select: (search) => Object.keys(search).length > 0,
+  });
 
   const clearFilters = () => {
     navigate({ to: "/explore" });

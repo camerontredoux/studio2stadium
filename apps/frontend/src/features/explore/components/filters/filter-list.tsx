@@ -1,26 +1,49 @@
 import { Accordion } from "@/components/ui/accordion";
+import {
+  FilterItem,
+  type FilterValue,
+} from "@/components/shared/filters/filter-item";
+import type { ApiSchemas } from "@/lib/api/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useSearch } from "@tanstack/react-router";
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useCallback } from "react";
 import { queries } from "../../api/queries";
-import { FilterItem } from "./filter-item";
+
+type Filter = ApiSchemas["DancersFiltersResponse"][number];
+
+function ConnectedFilterItem({ filter }: { filter: Filter }) {
+  const value = useSearch({
+    from: "/_app/(routes)/explore/",
+    select: (search) => search[filter.paramKey],
+  });
+  const navigate = useNavigate({ from: "/explore/" });
+
+  const onFilterChange = useCallback(
+    (value: FilterValue, options?: { replace?: boolean }) => {
+      navigate({
+        replace: options?.replace,
+        search: (prev) => ({ ...prev, [filter.paramKey]: value }),
+      });
+    },
+    [navigate, filter.paramKey],
+  );
+
+  return (
+    <FilterItem
+      filter={filter}
+      value={value}
+      onFilterChange={onFilterChange}
+    />
+  );
+}
 
 export function FilterList() {
-  const filters = useSearch({ from: "/_app/(routes)/explore/" });
-
   const { data } = useSuspenseQuery(queries.filters());
-
-  const filtered = data
-    .filter((filter) => filters[filter.paramKey])
-    .map((filter) => filter.id);
 
   return (
     <Accordion defaultValue={[data[0].id]}>
       {data.map((filter) => (
-        <FilterItem
-          key={filter.id}
-          filter={filter}
-          hasFilter={filtered.includes(filter.id)}
-        />
+        <ConnectedFilterItem key={filter.id} filter={filter} />
       ))}
     </Accordion>
   );

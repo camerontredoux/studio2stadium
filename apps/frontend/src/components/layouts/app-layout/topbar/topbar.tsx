@@ -1,8 +1,8 @@
 import { MainLogo } from "@/components/shared/main-logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Menu,
-  MenuCheckboxItem,
   MenuGroup,
   MenuItem,
   MenuPopup,
@@ -11,8 +11,8 @@ import {
 } from "@/components/ui/menu";
 import { useSession } from "@/lib/session";
 import { Link } from "@tanstack/react-router";
+import { MoonIcon, SunIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Search } from "./search";
 
 export function Topbar() {
   const session = useSession();
@@ -33,10 +33,15 @@ export function Topbar() {
         <div className="absolute left-1/2 -translate-x-1/2 sm:static sm:translate-x-0 shrink-0">
           <MainLogo className="h-4 dark:invert" />
         </div>
-        <div className="flex items-center justify-center sm:max-w-md gap-2 sm:mx-8 sm:flex-1">
-          <Search />
-        </div>
-        <div className="flex items-center gap-2">
+        <div className="flex justify-between sm:justify-end w-full items-center gap-2">
+          <Button
+            variant="ghost"
+            className="rounded-full max-sm:size-8!"
+            size="icon"
+            onClick={() => setDarkMode(() => !darkMode)}
+          >
+            {darkMode ? <MoonIcon /> : <SunIcon />}
+          </Button>
           <Menu>
             <MenuTrigger>
               <Avatar className="mobile:size-9">
@@ -49,13 +54,6 @@ export function Topbar() {
             <MenuPopup align="end">
               <MenuGroup>
                 <MenuItem disabled>@{session.username}</MenuItem>
-                <MenuCheckboxItem
-                  variant="switch"
-                  checked={darkMode}
-                  onCheckedChange={() => setDarkMode(() => !darkMode)}
-                >
-                  Dark Mode
-                </MenuCheckboxItem>
               </MenuGroup>
               <MenuSeparator />
               <MenuGroup>
