@@ -1,4 +1,4 @@
-import { EventDetail } from "@/features/events/components/event-detail";
+import { EventDetail } from "@/features/events/components/details/event-detail";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/events/$eventId")({
