@@ -5,7 +5,7 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export const ProspectStatus = {
-    none: "none",
+    pending: "pending",
     released: "released",
     in_review: "in_review",
     accepted: "accepted"
@@ -37,6 +37,69 @@ export const AccountType = {
     school: "school"
 } as const;
 export type AccountType = (typeof AccountType)[keyof typeof AccountType];
+export const FeedItemType = {
+    image_upload: "image_upload",
+    video_upload: "video_upload",
+    profile_update: "profile_update",
+    reference_created: "reference_created",
+    achievement_created: "achievement_created"
+} as const;
+export type FeedItemType = (typeof FeedItemType)[keyof typeof FeedItemType];
+export const DanceEventType = {
+    audition: "audition",
+    rehearsal: "rehearsal",
+    recital: "recital",
+    showcase: "showcase",
+    competition: "competition",
+    class: "class",
+    intensive: "intensive",
+    workshop: "workshop",
+    fundraiser: "fundraiser",
+    combine: "combine",
+    convention: "convention",
+    other: "other"
+} as const;
+export type DanceEventType = (typeof DanceEventType)[keyof typeof DanceEventType];
+export type CrvSubmission = {
+    id: Generated<string>;
+    dancer_id: string;
+    school_id: string;
+    video_url: string;
+    status: Generated<ProspectStatus>;
+    watched: Generated<boolean>;
+    watched_at: Timestamp | null;
+    created_at: Generated<Timestamp>;
+    updated_at: Timestamp | null;
+};
+export type DanceEvent = {
+    id: Generated<string>;
+    school_id: string;
+    title: string;
+    description: string;
+    location: string;
+    address: string | null;
+    website: string | null;
+    tags: string[];
+    cost: number | null;
+    type: DanceEventType;
+    start_datetime: Timestamp;
+    end_datetime: Timestamp;
+    timezone: string;
+    created_at: Generated<Timestamp>;
+    updated_at: Timestamp | null;
+};
+export type DanceEventAttendee = {
+    event_id: string;
+    user_id: string;
+    registered_at: Generated<Timestamp>;
+};
+export type DanceEventSchedule = {
+    id: Generated<string>;
+    event_id: string;
+    items: unknown;
+    created_at: Generated<Timestamp>;
+    updated_at: Timestamp | null;
+};
 export type DancerAccount = {
     id: Generated<string>;
     user_id: string;
@@ -60,9 +123,15 @@ export type DancerAccount = {
 export type DancerAchievements = {
     id: Generated<string>;
     dancer_id: string;
-    content: string;
+    title: string;
+    description: string;
     created_at: Generated<Timestamp>;
     updated_at: Timestamp | null;
+};
+export type DancerInterest = {
+    dancer_id: string;
+    school_id: string;
+    created_at: Generated<Timestamp>;
 };
 export type DancerPlatform = {
     account_id: string;
@@ -72,9 +141,23 @@ export type DancerPlatform = {
 export type DancerReferences = {
     id: Generated<string>;
     dancer_id: string;
-    url: string;
+    name: string;
+    title: string;
+    description: string | null;
     created_at: Generated<Timestamp>;
     deleted_at: Timestamp | null;
+};
+export type DancerSkill = {
+    dancer_id: string;
+    skill_id: string;
+    created_at: Generated<Timestamp>;
+    updated_at: Timestamp;
+};
+export type DancerStyle = {
+    dancer_id: string;
+    style_id: string;
+    created_at: Generated<Timestamp>;
+    updated_at: Timestamp;
 };
 export type Favorite = {
     id: Generated<string>;
@@ -88,35 +171,18 @@ export type Favorite = {
     created_at: Generated<Timestamp>;
     updated_at: Timestamp | null;
 };
-export type GlobalDanceEvent = {
-    id: Generated<string>;
-    name: string;
-    location: string;
-    description: string;
-    website: string;
-    organization: string;
-    thumbnail: string;
-    start_datetime: Timestamp;
-    end_datetime: Timestamp;
-    timezone: string;
+export type FeedItem = {
+    id: string;
+    content_id: string;
+    content_type: FeedItemType;
+    payload: unknown | null;
+    actor_id: string;
     created_at: Generated<Timestamp>;
-    updated_at: Timestamp | null;
-};
-export type GlobalDanceEventAttendee = {
-    event_id: string;
-    user_id: string;
-    registered_at: Generated<Timestamp>;
 };
 export type GlobalNotification = {
     id: Generated<string>;
     content: unknown;
     created_at: Generated<Timestamp>;
-};
-export type HiddenItem = {
-    id: Generated<string>;
-    created_at: Generated<Timestamp>;
-    hidden_by_id: string;
-    media_id: string | null;
 };
 export type Notification = {
     id: Generated<string>;
@@ -135,6 +201,18 @@ export type Platform = {
     name: PlatformName;
     created_at: Generated<Timestamp>;
     updated_at: Timestamp | null;
+};
+export type Post = {
+    id: Generated<string>;
+    title: string;
+    content: string;
+    summary: string;
+    description: string;
+    thumbnail: string;
+    slug: string;
+    tags: Generated<string[]>;
+    created_at: Generated<Timestamp>;
+    updated_at: Timestamp;
 };
 export type ProcessedEvent = {
     event_id: string;
@@ -198,29 +276,33 @@ export type SchoolAccount = {
     what_we_do: string | null;
     skill_requirements: string | null;
     competitions: string[];
-    dance_styles: string[];
     sports: string[];
     gpa_requirement: number | null;
     school_size: number | null;
     created_at: Generated<Timestamp>;
     updated_at: Timestamp | null;
 };
-export type SchoolDanceEvent = {
-    id: Generated<string>;
+export type SchoolSkill = {
     school_id: string;
-    title: string;
-    description: string | null;
-    website: string | null;
-    start_datetime: Timestamp;
-    end_datetime: Timestamp;
-    timezone: string;
+    skill_id: string;
+    weight: Generated<number | null>;
     created_at: Generated<Timestamp>;
-    updated_at: Timestamp | null;
+    updated_at: Timestamp;
 };
-export type SchoolDanceEventAttendee = {
-    event_id: string;
-    user_id: string;
-    registered_at: Generated<Timestamp>;
+export type SchoolStyle = {
+    school_id: string;
+    style_id: string;
+    created_at: Generated<Timestamp>;
+    updated_at: Timestamp;
+};
+export type Skill = {
+    id: string;
+    name: string;
+    category: string;
+};
+export type Style = {
+    id: string;
+    name: string;
 };
 export type Subscription = {
     id: Generated<string>;
@@ -261,31 +343,40 @@ export type VideoLibrary = {
     category: string;
     youtube_id: string;
     title: string;
+    description: string;
     created_at: Generated<Timestamp>;
     updated_at: Timestamp | null;
 };
 export type DB = {
+    crv_submissions: CrvSubmission;
+    dance_event_attendees: DanceEventAttendee;
+    dance_event_schedules: DanceEventSchedule;
+    dance_events: DanceEvent;
     dancer_accounts: DancerAccount;
     dancer_achievements: DancerAchievements;
+    dancer_interests: DancerInterest;
     dancer_platforms: DancerPlatform;
     dancer_references: DancerReferences;
+    dancer_skills: DancerSkill;
+    dancer_styles: DancerStyle;
     event_outbox: OutboxEvent;
-    global_dance_event_attendees: GlobalDanceEventAttendee;
-    global_dance_events: GlobalDanceEvent;
+    feed_items: FeedItem;
     global_notifications: GlobalNotification;
     notifications: Notification;
     platforms: Platform;
+    posts: Post;
     processed_events: ProcessedEvent;
     prodigy_dance_event_attendees: ProdigyDanceEventAttendee;
     prodigy_dance_events: ProdigyDanceEvent;
     prodigy_library_videos: ProdigyLibraryVideo;
+    profile_media: ProfileMedia;
+    profile_skills: Skill;
+    profile_styles: Style;
     school_accounts: SchoolAccount;
-    school_dance_event_attendees: SchoolDanceEventAttendee;
-    school_dance_events: SchoolDanceEvent;
+    school_skills: SchoolSkill;
+    school_styles: SchoolStyle;
     user_activities: UserActivity;
     user_favorites: Favorite;
-    user_hidden_items: HiddenItem;
-    user_profile_media: ProfileMedia;
     user_subscriptions: Subscription;
     users: User;
     video_library: VideoLibrary;

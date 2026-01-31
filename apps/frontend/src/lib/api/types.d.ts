@@ -243,6 +243,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dancers/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dancer profile
+         * @description Returns the dancer's profile information
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dancers/filters": {
         parameters: {
             query?: never;
@@ -510,6 +560,24 @@ export interface components {
             birthday: string | number;
             location: string;
             platform: components["schemas"]["PlatformName"];
+        };
+        DancersIdResponse: {
+            username: string;
+            id: string;
+            avatar: string | null;
+            birthday: string;
+            location: string | null;
+            skill_level: string | null;
+            team_level: string | null;
+            high_school: string | null;
+            studio: string | null;
+            gpa: number | null;
+            grad_year: number | null;
+            training_hours: number | null;
+            platform: components["schemas"]["PlatformName"];
+            skills: string | null;
+            styles: string | null;
+            references: string | null;
         };
         DancersFiltersResponse: {
             /** @enum {string} */

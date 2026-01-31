@@ -1,4 +1,4 @@
-import { AccountType } from "#database/generated/types";
+import { AccountType } from "#database/generated/kysely/types";
 import vine, { SimpleMessagesProvider } from "@vinejs/vine";
 import { type Infer } from "@vinejs/vine/types";
 

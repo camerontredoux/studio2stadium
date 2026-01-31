@@ -27,6 +27,10 @@ type DancersPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/create-dancer/validator.ts')['createDancerValidator']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/create-dancer/index.ts').default['handle'], true>
 }
+type DancersIdGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/get-profile/schema.ts')['getProfileSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-profile/index.ts').default['handle'], true>
+}
 type DancersFiltersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/get-filters/index.ts').default['handle'], false>
@@ -71,6 +75,12 @@ export interface ApiDefinition {
     '$url': {
     };
     '$post': DancersPost;
+    ':username': {
+      '$url': {
+      };
+      '$get': DancersIdGetHead;
+      '$head': DancersIdGetHead;
+    };
     'filters': {
       '$url': {
       };

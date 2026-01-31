@@ -1,4 +1,4 @@
-import { PlatformName } from "#database/generated/types";
+import { PlatformName } from "#database/generated/kysely/types";
 import vine from "@vinejs/vine";
 import { type Infer } from "@vinejs/vine/types";
 

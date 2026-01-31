@@ -4,7 +4,7 @@ import type {
   PlatformName,
   Role,
   User,
-} from "#database/generated/types";
+} from "#database/generated/kysely/types";
 import hash from "@adonisjs/core/services/hash";
 import testUtils from "@adonisjs/core/services/test_utils";
 import { faker } from "@faker-js/faker";

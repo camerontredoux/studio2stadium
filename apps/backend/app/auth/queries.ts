@@ -1,5 +1,5 @@
 import { db } from "#database/connection";
-import { type PlatformName } from "#database/generated/types";
+import { type PlatformName } from "#database/generated/kysely/types";
 import { sql } from "kysely";
 
 /**

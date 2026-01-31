@@ -1,6 +1,6 @@
 import { db } from "#database/connection";
 import { matchPgError } from "#database/errors";
-import { DB } from "#database/generated/types";
+import { DB } from "#database/generated/kysely/types";
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
 import { Kysely } from "kysely";

@@ -1,4 +1,4 @@
-import { type User } from "#database/generated/types";
+import { type User } from "#database/generated/kysely/types";
 import BaseQuery from "#utils/base-query";
 import { type Insertable } from "kysely";
 

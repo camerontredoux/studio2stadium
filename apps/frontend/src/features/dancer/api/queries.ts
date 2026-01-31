@@ -1,12 +1,10 @@
-import { mockApi } from "@/lib/mock-api";
-import { queryOptions } from "@tanstack/react-query";
+import { $api } from "@/lib/api/client";
 
 export const queries = {
   all: () => ["dancer"],
   details: (username: string) => [...queries.all(), username],
   detail: (username: string) =>
-    queryOptions({
-      queryKey: queries.details(username),
-      queryFn: () => mockApi.success({ username }),
+    $api.queryOptions("get", "/dancers/{username}", {
+      params: { path: { username } },
     }),
 };
