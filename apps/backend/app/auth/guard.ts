@@ -421,8 +421,8 @@ export class RedisSessionGuard<
    * When making updates to fields in the user's session data,
    * this marks the user's session as stale by bumping the version.
    */
-  async refresh() {
-    this.#ctx.logger.debug("[RedisGuard]: Invalidating session");
+  async bump() {
+    this.#ctx.logger.debug("[RedisGuard]: Bumping session version");
 
     const user = await this.#userProvider.createUserForGuard(this.user!);
 

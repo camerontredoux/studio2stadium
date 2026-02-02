@@ -1,17 +1,5 @@
 import { type Filter } from "#shared/types/filters";
 
-type ParamKey =
-  | "name"
-  | "commonRecruitingApplication"
-  | "division"
-  | "gpaRange"
-  | "location"
-  | "sports"
-  | "styles"
-  | "hasUpcomingEvents"
-  | "teamSelection"
-  | "teamType";
-
 export const filters: Filter[] = [
   {
     label: "School Name",

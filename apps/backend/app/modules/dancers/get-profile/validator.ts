@@ -3,8 +3,9 @@ import { type Infer } from "@vinejs/vine/types";
 
 export const validator = vine.create(
   vine.object({
-    email: vine.string().email().normalizeEmail().trim(),
-    password: vine.string().minLength(8),
+    params: vine.object({
+      username: vine.string(),
+    }),
   })
 );
 

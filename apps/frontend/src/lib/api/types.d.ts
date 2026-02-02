@@ -511,28 +511,19 @@ export interface components {
              */
             message: string;
         };
-        /** @enum {string} */
-        Role: "admin" | "user" | "prodigy_admin";
-        /** @enum {string} */
-        AccountType: "dancer" | "school";
-        /** @enum {string} */
-        PlatformName: "prodigy" | "core";
         AuthSignupRequest: {
             phone?: string | null;
             email: string;
             password: string;
-            type: components["schemas"]["AccountType"];
+            /** @enum {string} */
+            type: "dancer" | "school";
             username: string;
             firstName: string;
             lastName: string;
             termsChecked: boolean;
         };
         AuthSignupResponse: {
-            email: string;
-            username: string;
             id: string;
-            role: components["schemas"]["Role"];
-            avatar: string | null;
             displayEmail: string;
             firstName: string;
             lastName: string;
@@ -546,42 +537,71 @@ export interface components {
         };
         AuthSessionResponse: {
             email: string;
-            type: components["schemas"]["AccountType"];
+            /** @enum {string} */
+            type: "dancer" | "school";
             username: string;
-            platforms: components["schemas"]["PlatformName"][];
+            firstName: string;
             id: string;
-            role: components["schemas"]["Role"];
-            avatar: string | null;
+            /** @enum {string} */
+            role: "admin" | "user" | "prodigy_admin";
             displayEmail: string;
+            avatar: string | null;
+            verified: boolean;
+            platforms: ("prodigy" | "core")[];
             subscribed: boolean;
         };
         DancersRequest: {
             phoneNumber?: string | null;
             birthday: string | number;
             location: string;
-            platform: components["schemas"]["PlatformName"];
+            /** @enum {string} */
+            platform: "prodigy" | "core";
         };
         DancersIdResponse: {
             username: string;
             id: string;
             avatar: string | null;
-            birthday: string;
-            location: string | null;
-            skill_level: string | null;
-            team_level: string | null;
-            high_school: string | null;
-            studio: string | null;
-            gpa: number | null;
-            grad_year: number | null;
-            training_hours: number | null;
-            platform: components["schemas"]["PlatformName"];
-            skills: string | null;
-            styles: string | null;
-            references: string | null;
+            dancerProfile: {
+                birthday: string;
+                location: string | null;
+                skillLevel: string | null;
+                teamLevel: string | null;
+                highSchool: string | null;
+                studio: string | null;
+                gpa: number | null;
+                gradYear: number | null;
+                trainingHours: number | null;
+                achievements: {
+                    id: string;
+                    createdAt: string;
+                    updatedAt: string;
+                    profileId: string;
+                    title: string;
+                    description: string;
+                }[];
+                references: {
+                    name: string;
+                    id: string;
+                    createdAt: string;
+                    updatedAt: string;
+                    profileId: string;
+                    title: string;
+                    description: string | null;
+                }[];
+                skills: {
+                    name: string;
+                    id: string;
+                    category: string;
+                }[];
+                styles: {
+                    name: string;
+                    id: string;
+                }[];
+            } | null;
         };
         DancersFiltersResponse: {
             /** @enum {string} */
-            type: "input" | "select" | "toggle" | "multi-select" | "range";
+            type: "select" | "input" | "toggle" | "multi-select" | "range";
             id: string;
             options?: {
                 label: string;
@@ -591,9 +611,9 @@ export interface components {
             paramKey: string;
         }[];
         HealthResponse: {
-            isHealthy: boolean;
             /** @enum {string} */
             status: "error" | "ok" | "warning";
+            isHealthy: boolean;
             finishedAt: string;
             debugInfo: {
                 pid: number;
@@ -605,16 +625,16 @@ export interface components {
             checks: {
                 name: string;
                 meta?: Record<string, never>;
-                message: string;
                 /** @enum {string} */
                 status: "error" | "ok" | "warning";
+                message: string;
                 finishedAt: string;
                 isCached: boolean;
             }[];
         };
         SchoolsFiltersResponse: {
             /** @enum {string} */
-            type: "input" | "select" | "toggle" | "multi-select" | "range";
+            type: "select" | "input" | "toggle" | "multi-select" | "range";
             id: string;
             options?: {
                 label: string;

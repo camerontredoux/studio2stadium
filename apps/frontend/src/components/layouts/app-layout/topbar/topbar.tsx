@@ -30,8 +30,8 @@ export function Topbar() {
         </div>
         <div className="flex justify-end w-full items-center gap-2">
           <Menu>
-            <MenuTrigger>
-              <Avatar className="mobile:size-9">
+            <MenuTrigger className="cursor-pointer">
+              <Avatar className="mobile:size-9 hover:border-2">
                 <AvatarImage src={session.avatar ?? undefined} />
                 <AvatarFallback>
                   {session.username.slice(0, 2).toUpperCase()}

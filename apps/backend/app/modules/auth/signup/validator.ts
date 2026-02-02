@@ -1,50 +1,101 @@
-import { AccountType } from "#database/generated/kysely/types";
+import { accountType } from "#database/schema/enums";
 import vine, { SimpleMessagesProvider } from "@vinejs/vine";
 import { type Infer } from "@vinejs/vine/types";
 
-const reservedUsernames = new Set([
+const blacklist = [
+  // Roles & access levels
   "admin",
+  "administrator",
   "superadmin",
+  "mod",
+  "moderator",
+  "staff",
+  "team",
+  "official",
   "root",
   "system",
   "guest",
-  "api",
+  "user",
   "bot",
   "robot",
-  "system",
-  "user",
+
+  // Auth & account
+  "auth",
+  "login",
+  "logout",
+  "signup",
+  "register",
+  "reset",
+  "verify",
+  "callback",
+  "onboarding",
+  "session",
+  "account",
+  "password",
+  "unsubscribe",
+
+  // Your app routes
+  "home",
   "dashboard",
-  "events",
-  "prodigy",
+  "profile",
   "settings",
   "explore",
-  "login",
-  "signup",
-  "home",
-  "profile",
-  "reset",
-  "resources",
+  "search",
+  "feed",
+  "events",
+  "notifications",
+  "messages",
   "library",
-  "session",
-  "unauthorized",
+  "resources",
+  "subscription",
+  "checkout",
+  "pricing",
+  "invite",
   "school",
   "dancer",
-  "onboarding",
-  "subscription",
-  "notifications",
-]);
+  "prodigy",
+  "core",
 
-export const signupValidator = vine.create(
+  // Static/legal pages
+  "about",
+  "help",
+  "support",
+  "terms",
+  "privacy",
+  "contact",
+  "blog",
+  "news",
+  "faq",
+
+  // Technical paths
+  "api",
+  "webhooks",
+  "static",
+  "assets",
+  "public",
+  "uploads",
+  "images",
+  "favicon.ico",
+  "robots.txt",
+  "sitemap",
+  ".well-known",
+
+  // Impersonation risks
+  "unauthorized",
+];
+
+export const validator = vine.create(
   vine.object({
     email: vine.string().trim().email(),
     password: vine.string().minLength(8),
-    type: vine.enum(AccountType),
+    type: vine.enum(accountType.enumValues),
     username: vine
       .string()
+      .alphaNumeric()
       .trim()
       .minLength(4)
       .maxLength(32)
-      .notIn(Array.from(reservedUsernames)),
+      .notIn(Array.from(blacklist)),
     firstName: vine.string().trim().minLength(2).maxLength(64),
     lastName: vine.string().trim().minLength(2).maxLength(64),
     phone: vine.string().mobile().optional(),
@@ -52,8 +103,8 @@ export const signupValidator = vine.create(
   })
 );
 
-signupValidator.messagesProvider = new SimpleMessagesProvider({
+validator.messagesProvider = new SimpleMessagesProvider({
   "termsChecked.literal": "Please accept the terms of service",
 });
 
-export type SignupValidator = Infer<typeof signupValidator>;
+export type Validator = Infer<typeof validator>;

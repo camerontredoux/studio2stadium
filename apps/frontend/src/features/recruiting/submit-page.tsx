@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -220,30 +221,36 @@ export function SubmitPage() {
             </div>
 
             <div className="relative">
-              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-              <Input
-                placeholder="Search schools by name or location..."
-                value={schoolSearch}
-                onChange={(e) => setSchoolSearch(e.target.value)}
-                className="pl-9"
-              />
+              <InputGroup>
+                <Input
+                  placeholder="Search schools by name or location..."
+                  value={schoolSearch}
+                  onChange={(e) => setSchoolSearch(e.target.value)}
+                  className="pl-9"
+                />
+                <InputGroupAddon align="inline-start">
+                  <SearchIcon />
+                </InputGroupAddon>
+              </InputGroup>
             </div>
 
-            <div className="flex flex-col gap-1.5 max-h-96 overflow-y-auto -mx-1 px-1">
-              {filteredSchools.map((school) => (
-                <SchoolSelectRow
-                  key={school.id}
-                  school={school}
-                  selected={selectedSchools.has(school.id)}
-                  onToggle={() => toggleSchool(school.id)}
-                />
-              ))}
-              {filteredSchools.length === 0 && (
-                <div className="py-8 text-center text-sm text-muted-foreground">
-                  No schools match your search
-                </div>
-              )}
-            </div>
+            <ScrollArea scrollFade className="h-96">
+              <div className="flex flex-col gap-1.5">
+                {filteredSchools.map((school) => (
+                  <SchoolSelectRow
+                    key={school.id}
+                    school={school}
+                    selected={selectedSchools.has(school.id)}
+                    onToggle={() => toggleSchool(school.id)}
+                  />
+                ))}
+                {filteredSchools.length === 0 && (
+                  <div className="py-8 text-center text-sm text-muted-foreground">
+                    No schools match your search
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
           </div>
 
           <div className="flex justify-between">

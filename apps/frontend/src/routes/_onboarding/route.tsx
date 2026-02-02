@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_onboarding")({
         });
       }
 
-      if (session.platforms) {
+      if (session.verified) {
         throw redirect({
           to: "/feed",
           replace: true,

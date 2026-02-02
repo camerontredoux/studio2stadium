@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_app")({
         });
       }
 
-      if (!session.platforms) {
+      if (!session.verified) {
         throw redirect({
           to: "/onboarding",
           replace: true,

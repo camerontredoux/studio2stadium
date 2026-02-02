@@ -1,9 +1,9 @@
 import { middleware } from "#start/kernel";
 import router from "@adonisjs/core/services/router";
 
-const GetProfileController = () => import("./get-profile/index.ts");
-const GetFiltersController = () => import("./get-filters/index.ts");
-const CreateDancerController = () => import("./create-dancer/index.ts");
+const GetProfileController = () => import("./get-profile/controller.ts");
+const GetFiltersController = () => import("./get-filters/controller.ts");
+const CreateDancerController = () => import("./create-dancer/controller.ts");
 
 router
   .group(() => {

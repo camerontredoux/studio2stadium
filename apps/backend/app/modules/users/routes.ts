@@ -2,7 +2,7 @@ import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
 
 const CheckAvailabilityController = () =>
-  import("./check-availability/index.ts");
+  import("./check-availability/controller.ts");
 
 router
   .group(() => {

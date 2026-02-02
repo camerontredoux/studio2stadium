@@ -1,54 +1,60 @@
 import { db } from "#database/connection";
-import { type PlatformName } from "#database/generated/kysely/types";
-import { sql } from "kysely";
 
 /**
  * Find user by email for login verification
  */
 export async function findUserByEmail(email: string) {
-  return await db
-    .selectFrom("users")
-    .select(["id", "password"])
-    .where("email", "=", email)
-    .executeTakeFirst();
+  return await db.query.users.findFirst({
+    where: {
+      email,
+    },
+    columns: {
+      id: true,
+      password: true,
+    },
+  });
 }
 
 /**
  * Get user session by ID for caching after login
  */
 export async function getUserSession(id: string) {
-  return await db
-    .selectFrom("users")
-    .leftJoin("dancer_accounts", "dancer_accounts.user_id", "users.id")
-    .leftJoin(
-      "dancer_platforms",
-      "dancer_platforms.account_id",
-      "dancer_accounts.id"
-    )
-    .leftJoin("user_subscriptions", "user_subscriptions.user_id", "users.id")
-    .select(({ fn, eb, selectFrom }) => [
-      "users.id as id",
-      "users.email as email",
-      "users.display_email as displayEmail",
-      "users.username as username",
-      "users.avatar as avatar",
-      "users.account_type as type",
-      "users.role as role",
-      eb
-        .exists(
-          selectFrom("user_subscriptions")
-            .select(sql`1`.as("one"))
-            .whereRef("user_subscriptions.user_id", "=", "users.id")
-            .where("user_subscriptions.current_period_end", ">", new Date())
-        )
-        .$castTo<boolean>()
-        .as("subscribed"),
-      fn
-        .agg<PlatformName[]>("json_agg", ["dancer_platforms.platform_name"])
-        .filterWhere("dancer_platforms.platform_name", "is not", null)
-        .as("platforms"),
-    ])
-    .where("users.id", "=", id)
-    .groupBy("users.id")
-    .executeTakeFirst();
+  const session = await db.query.users.findFirst({
+    where: { id },
+    columns: {
+      id: true,
+      email: true,
+      firstName: true,
+      displayEmail: true,
+      username: true,
+      avatar: true,
+      type: true,
+      role: true,
+      verified: true,
+    },
+    with: {
+      platforms: {
+        columns: {
+          platformName: true,
+        },
+      },
+      subscription: {
+        where: {
+          currentPeriodEnd: {
+            gt: new Date(),
+          },
+        },
+      },
+    },
+  });
+
+  if (!session) return null;
+
+  const { subscription, platforms, ...user } = session;
+
+  return {
+    ...user,
+    subscribed: !!subscription,
+    platforms: platforms.map((platform) => platform.platformName),
+  };
 }
