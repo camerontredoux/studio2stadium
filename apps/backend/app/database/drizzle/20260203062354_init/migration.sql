@@ -1,5 +1,5 @@
 CREATE TYPE "account_type" AS ENUM('dancer', 'school');--> statement-breakpoint
-CREATE TYPE "dance_event_type" AS ENUM('audition', 'rehearsal', 'recital', 'showcase', 'competition', 'class', 'intensive', 'workshop', 'fundraiser', 'combine', 'convention', 'other');--> statement-breakpoint
+CREATE TYPE "dance_event_type" AS ENUM('audition', 'rehearsal', 'recital', 'showcase', 'competition', 'class', 'intensive', 'workshop', 'fundraiser', 'combine', 'convention', 'clinic', 'deadline', 'recruitment', 'performance', 'camp', 'other');--> statement-breakpoint
 CREATE TYPE "feed_item_type" AS ENUM('image_upload', 'video_upload', 'profile_update', 'reference_created', 'achievement_created');--> statement-breakpoint
 CREATE TYPE "media_type" AS ENUM('image', 'video');--> statement-breakpoint
 CREATE TYPE "platform_name" AS ENUM('core', 'prodigy');--> statement-breakpoint
@@ -91,8 +91,8 @@ CREATE TABLE "dance_events" (
 	"tags" text[],
 	"cost" numeric,
 	"type" "dance_event_type" NOT NULL,
-	"start_datetime" timestamp with time zone NOT NULL,
-	"end_datetime" timestamp with time zone NOT NULL,
+	"start_datetime" timestamp NOT NULL,
+	"end_datetime" timestamp NOT NULL,
 	"timezone" text NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
@@ -225,15 +225,13 @@ CREATE TABLE "school_profiles" (
 	"time_commitment" text,
 	"head_coach" text,
 	"assistant_coach" text,
-	"tiktok" text,
-	"instagram" text,
 	"mission_statement" text,
 	"what_we_do" text,
-	"skill_requirements" text,
-	"competitions" text[],
 	"sports" text[],
-	"gpa_requirement" double precision,
-	"school_size" integer,
+	"gpa" double precision,
+	"size" integer,
+	"tiktok" text,
+	"instagram" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -354,7 +352,7 @@ CREATE INDEX "school_favorites_dancer_id_index" ON "school_favorites" ("dancer_i
 CREATE UNIQUE INDEX "dancer_follows_dancer_id_school_id_index" ON "dancer_follows" ("dancer_id","school_id");--> statement-breakpoint
 CREATE INDEX "dancer_follows_school_id_index" ON "dancer_follows" ("school_id");--> statement-breakpoint
 CREATE INDEX "school_media_school_id_created_at_index" ON "school_media" ("school_id","created_at");--> statement-breakpoint
-CREATE INDEX "school_profiles_gpa_requirement_index" ON "school_profiles" ("gpa_requirement");--> statement-breakpoint
+CREATE INDEX "school_profiles_gpa_index" ON "school_profiles" ("gpa");--> statement-breakpoint
 CREATE INDEX "profile_skills_category_index" ON "profile_skills" ("category");--> statement-breakpoint
 CREATE INDEX "user_platforms_platform_name_index" ON "user_platforms" ("platform_name");--> statement-breakpoint
 CREATE INDEX "user_subscriptions_current_period_end_index" ON "user_subscriptions" ("current_period_end");--> statement-breakpoint

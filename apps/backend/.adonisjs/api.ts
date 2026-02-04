@@ -41,7 +41,11 @@ type HealthGetHead = {
 }
 type SchoolsFiltersGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/schools/get-filters/index.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/schools/get-filters/contoller.ts').default['handle'], false>
+}
+type SchoolsGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/list-schools/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/list-schools/controller.ts').default['handle'], true>
 }
 type UsersCheckavailabilityGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/check-availability/validator.ts')['validator']>>
@@ -101,6 +105,10 @@ export interface ApiDefinition {
       '$get': SchoolsFiltersGetHead;
       '$head': SchoolsFiltersGetHead;
     };
+    '$url': {
+    };
+    '$get': SchoolsGetHead;
+    '$head': SchoolsGetHead;
   };
   'users': {
     'check-availability': {

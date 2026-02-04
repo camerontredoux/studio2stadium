@@ -20,18 +20,16 @@ export const schoolProfiles = pg.pgTable(
     timeCommitment: pg.text(),
     headCoach: pg.text(),
     assistantCoach: pg.text(),
-    tiktok: pg.text(),
-    instagram: pg.text(),
     missionStatement: pg.text(),
     whatWeDo: pg.text(),
-    skillRequirements: pg.text(),
-    competitions: pg.text().array(),
     sports: pg.text().array(),
-    gpaRequirement: pg.doublePrecision(),
-    schoolSize: pg.integer(),
+    gpa: pg.doublePrecision(),
+    size: pg.integer(),
+    tiktok: pg.text(),
+    instagram: pg.text(),
     ...timestamps,
   },
-  (table) => [pg.index().on(table.gpaRequirement)]
+  (table) => [pg.index().on(table.gpa)]
 );
 
 export const schoolMedia = pg.pgTable(

@@ -40,5 +40,10 @@ export const danceEventType = pgEnum("dance_event_type", [
   "fundraiser",
   "combine",
   "convention",
+  "clinic",
+  "deadline",
+  "recruitment",
+  "performance",
+  "camp",
   "other",
 ]);

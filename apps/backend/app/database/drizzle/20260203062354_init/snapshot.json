@@ -1,7 +1,7 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "bf3431c6-8bc3-4e36-9cbb-a173c0c73622",
+  "id": "acb0b4c5-e816-4269-b624-380b193ba0fc",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
@@ -28,6 +28,11 @@
         "fundraiser",
         "combine",
         "convention",
+        "clinic",
+        "deadline",
+        "recruitment",
+        "performance",
+        "camp",
         "other"
       ],
       "name": "dance_event_type",
@@ -1074,7 +1079,7 @@
       "table": "dance_events"
     },
     {
-      "type": "timestamp with time zone",
+      "type": "timestamp",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
@@ -1087,7 +1092,7 @@
       "table": "dance_events"
     },
     {
-      "type": "timestamp with time zone",
+      "type": "timestamp",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
@@ -2316,32 +2321,6 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "tiktok",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "school_profiles"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "instagram",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "school_profiles"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
       "name": "mission_statement",
       "entityType": "columns",
       "schema": "public",
@@ -2356,32 +2335,6 @@
       "generated": null,
       "identity": null,
       "name": "what_we_do",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "school_profiles"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "skill_requirements",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "school_profiles"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 1,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "competitions",
       "entityType": "columns",
       "schema": "public",
       "table": "school_profiles"
@@ -2407,7 +2360,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "gpa_requirement",
+      "name": "gpa",
       "entityType": "columns",
       "schema": "public",
       "table": "school_profiles"
@@ -2420,7 +2373,33 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "school_size",
+      "name": "size",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "school_profiles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "tiktok",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "school_profiles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "instagram",
       "entityType": "columns",
       "schema": "public",
       "table": "school_profiles"
@@ -3780,7 +3759,7 @@
       "nameExplicit": false,
       "columns": [
         {
-          "value": "gpa_requirement",
+          "value": "gpa",
           "isExpression": false,
           "asc": true,
           "nullsFirst": false,
@@ -3792,7 +3771,7 @@
       "with": "",
       "method": "btree",
       "concurrently": false,
-      "name": "school_profiles_gpa_requirement_index",
+      "name": "school_profiles_gpa_index",
       "entityType": "indexes",
       "schema": "public",
       "table": "school_profiles"

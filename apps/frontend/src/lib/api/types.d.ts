@@ -376,6 +376,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/schools": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List schools
+         * @description Returns a list of schools
+         */
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string | null;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/schools/filters": {
         parameters: {
             query?: never;
@@ -631,6 +681,22 @@ export interface components {
                 finishedAt: string;
                 isCached: boolean;
             }[];
+        };
+        SchoolsResponse: {
+            schools: {
+                user: {
+                    username: string;
+                    avatar: string | null;
+                } | null;
+                name: string;
+                id: string;
+                createdAt: string;
+                location: string;
+                gpa: number | null;
+                division: string | null;
+                size: number | null;
+            }[];
+            nextCursor: string;
         };
         SchoolsFiltersResponse: {
             /** @enum {string} */
