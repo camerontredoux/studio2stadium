@@ -7,20 +7,17 @@ import { validator } from "./validator.ts";
 export default class ListSchoolsController {
   @inject()
   async handle(ctx: HttpContext, service: Service) {
-    const user = ctx.auth.getUserOrFail();
-    const override = user.role === "admin";
-
     const payload = await ctx.request.validateUsing(validator);
 
-    if (Object.keys(payload).length > 0 || override) {
-      const schools = await service.execute(payload, override);
+    if (Object.keys(payload).length > 0) {
+      const schools = await service.execute(payload);
       return ctx.response.ok(schools);
     }
 
     const schools = await cache.getOrSet({
       key: `schools:list`,
       factory: async () => {
-        return await service.execute(payload, override);
+        return await service.execute(payload);
       },
       tags: ["schools:list"],
       ttl: "1h",

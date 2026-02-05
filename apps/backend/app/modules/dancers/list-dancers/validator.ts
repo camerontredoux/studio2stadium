@@ -1,5 +1,4 @@
 import { divisionCodes } from "#shared/constants/divisions";
-import { sportCodes } from "#shared/constants/sports";
 import { stateCodes } from "#shared/constants/states";
 import vine from "@vinejs/vine";
 import { Infer } from "@vinejs/vine/types";
@@ -19,41 +18,24 @@ const gpaRangeRule = vine.createRule((value, _, ctx) => {
     return;
   }
 
-  if (min < 0 || max > 4 || min > max) {
-    ctx.report("GPA range must be between 0 and 4", "gpaRange", ctx);
+  if (min < 0 || max > 5 || min > max) {
+    ctx.report("GPA range must be between 0 and 5", "gpaRange", ctx);
     return;
   }
 
   ctx.mutate({ min, max }, ctx);
 });
 
-const csvEnum = <T extends readonly string[]>(validValues: T) =>
-  vine.createRule((value, _, field) => {
-    if (typeof value !== "string") return;
-
-    const parts = value.split(",").map((v) => v.trim());
-    for (const part of parts) {
-      if (!validValues.includes(part)) {
-        field.report(
-          `Invalid value: ${part}. Must be one of: ${validValues.map((v) => `"${v}"`).join(", ")}`,
-          "csvEnum",
-          field
-        );
-        return;
-      }
-    }
-
-    field.mutate(parts as unknown as T[number][], field);
-  });
-
 export const validator = vine.create(
   vine.object({
+    cursor: vine.string().optional(),
+    name: vine.string().optional(),
     commonRecruiting: vine.boolean().optional(),
     upcomingEvents: vine.boolean().optional(),
-    gpaRange: vine.any().use(gpaRangeRule()).optional(),
+    gpaRange: vine.string().use(gpaRangeRule()).optional(),
     location: vine.enum(stateCodes).optional(),
-    division: vine.string().use(csvEnum(divisionCodes)()).optional(),
-    sports: vine.string().use(csvEnum(sportCodes)()).optional(),
+    division: vine.array(vine.enum(divisionCodes)).optional(),
+    sports: vine.array(vine.string()).optional(),
     styles: vine.array(vine.string()).optional(),
   })
 );

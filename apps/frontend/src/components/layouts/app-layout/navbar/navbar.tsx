@@ -58,14 +58,25 @@ export function Navbar() {
             activeIcon={HiBookOpen}
             inactiveIcon={HiOutlineBookOpen}
           />
-          <NavLink
-            to="/$username"
-            params={{ username: session.username }}
-            preload="render"
-            label="Profile"
-            activeIcon={HiUserCircle}
-            inactiveIcon={HiOutlineUserCircle}
-          />
+          {session.type === "dancer" ? (
+            <NavLink
+              to="/$username"
+              params={{ username: session.username }}
+              preload="render"
+              label="Profile"
+              activeIcon={HiUserCircle}
+              inactiveIcon={HiOutlineUserCircle}
+            />
+          ) : (
+            <NavLink
+              to="/explore/$username"
+              params={{ username: session.username }}
+              preload="render"
+              label="Profile"
+              activeIcon={HiUserCircle}
+              inactiveIcon={HiOutlineUserCircle}
+            />
+          )}
 
           <Separator className="mt-2 mb-1 hidden xl:block" />
 

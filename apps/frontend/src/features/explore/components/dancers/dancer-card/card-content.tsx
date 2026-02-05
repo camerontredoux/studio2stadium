@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { MapPinIcon, TargetIcon, Users2Icon, VerifiedIcon } from "lucide-react";
-import type { School } from "./school-card";
+import type { School } from "./dancer-card";
 
 export function CardContent({ school }: { school: School }) {
   return (

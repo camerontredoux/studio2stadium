@@ -1,62 +1,45 @@
-import { $api } from "@/lib/api/client";
+import { useQuery } from "@tanstack/react-query";
+import { useSearch } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
+import { queries } from "../../api/queries";
 import { SchoolCard } from "./school-card/school-card";
+import { SchoolListSkeleton } from "./school-skeleton";
 
 export function SchoolList() {
-  const { status, data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    $api.useInfiniteQuery(
-      "get",
-      "/schools",
-      {},
-      {
-        getNextPageParam: (lastPage) => lastPage.nextCursor,
-        initialPageParam: undefined,
-      },
-    );
+  const { name, ...search } = useSearch({ from: "/_app/(routes)/explore/" });
+  const { data, isPending, error } = useQuery(queries.schools(search));
 
-  const rows = data ? data.pages.flatMap((page) => page.schools) : [];
+  const rows =
+    data?.filter((school) =>
+      school.name
+        .toLowerCase()
+        .includes((name as string | undefined)?.toLowerCase() ?? ""),
+    ) ?? [];
 
   const parentRef = useRef<HTMLDivElement>(null);
 
   // eslint-disable-next-line react-hooks/refs
   const rowVirtualizer = useWindowVirtualizer({
-    count: hasNextPage ? rows.length + 1 : rows.length,
+    count: rows.length,
     estimateSize: () => 128,
     gap: 8,
-    overscan: 3,
     // eslint-disable-next-line react-hooks/refs
     scrollMargin: parentRef.current?.offsetTop ?? 0,
   });
 
   const virtualItems = rowVirtualizer.getVirtualItems();
 
-  useEffect(() => {
-    const [lastItem] = [...virtualItems].reverse();
-
-    if (!lastItem) return;
-
-    if (
-      lastItem.index >= rows.length - 1 &&
-      hasNextPage &&
-      !isFetchingNextPage
-    ) {
-      fetchNextPage();
-    }
-  }, [
-    hasNextPage,
-    fetchNextPage,
-    rows.length,
-    isFetchingNextPage,
-    virtualItems,
-  ]);
-
-  if (status === "pending") {
-    return "Loading...";
+  if (isPending) {
+    return <SchoolListSkeleton />;
   }
 
-  if (status === "error") {
-    return "Error loading schools";
+  if (error) {
+    return (
+      <div className="text-destructive">
+        {error.errors?.map((e) => e.message).join(", ")}
+      </div>
+    );
   }
 
   return (
@@ -79,7 +62,6 @@ export function SchoolList() {
           className="flex flex-col gap-2"
         >
           {virtualItems.map((row) => {
-            const isLoaderRow = row.index > rows.length - 1;
             const school = rows[row.index];
 
             return (
@@ -88,7 +70,7 @@ export function SchoolList() {
                 data-index={row.index}
                 ref={rowVirtualizer.measureElement}
               >
-                <SchoolCard school={school} isLoaderRow={isLoaderRow} />
+                <SchoolCard school={school} />
               </div>
             );
           })}

@@ -26,7 +26,7 @@ export function EventHero({ event }: EventHeroProps) {
           />
           <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/20 to-transparent pointer-events-none" />
           <Badge variant="brand" size="lg" className="absolute top-3 left-3">
-            {event.tag}
+            {event.type}
           </Badge>
         </div>
 
@@ -41,7 +41,7 @@ export function EventHero({ event }: EventHeroProps) {
             <div className="flex items-center gap-1.5">
               <CalendarIcon className="size-3.5 shrink-0 text-brand" />
               <span>
-                {event.date} &middot; {event.time} – {event.endTime}
+                {event.startDatetime} &middot; {event.time} – {event.endTime}
               </span>
             </div>
             <div className="flex items-center gap-1.5">

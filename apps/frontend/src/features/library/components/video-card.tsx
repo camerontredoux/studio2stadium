@@ -19,7 +19,7 @@ export function VideoCard({ video }: VideoCardProps) {
         </Button>
       }
     >
-      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
+      <p className="text-sm text-muted-foreground line-clamp-2">
         {video.description}
       </p>
     </ContentCard>

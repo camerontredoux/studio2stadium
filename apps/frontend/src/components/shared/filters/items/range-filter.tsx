@@ -15,7 +15,7 @@ interface RangeFilterProps {
 }
 
 const MIN = 0;
-const MAX = 5;
+const MAX = 4;
 
 export function RangeFilter({ value, onFilterChange }: RangeFilterProps) {
   const param = Array.isArray(value) ? value : value?.split(",");

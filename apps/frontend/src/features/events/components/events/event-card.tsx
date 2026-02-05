@@ -1,21 +1,24 @@
 import { ContentCard } from "@/components/shared/content-card";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
-import { CalendarIcon, MapPinIcon, TicketIcon, UsersIcon } from "lucide-react";
-import type { Event } from "./mock-data";
-
-export type { Event };
+import {
+  CalendarIcon,
+  GraduationCapIcon,
+  MapPinIcon,
+  TicketIcon,
+} from "lucide-react";
+import type { EventCard } from "../mock-data";
 
 interface EventCardProps {
-  event: Event;
+  event: EventCard["events"][number];
 }
 
 export function EventCard({ event }: EventCardProps) {
   return (
     <ContentCard
-      image={event.image}
+      image={event.organizer.thumbnail ?? ""}
       imageAlt={event.title}
-      badge={event.tag}
+      badge={event.type}
       title={event.title}
       footer={
         <>
@@ -34,10 +37,10 @@ export function EventCard({ event }: EventCardProps) {
         </>
       }
     >
-      <div className="flex flex-col gap-1 text-xs sm:text-sm text-muted-foreground">
+      <div className="flex flex-col gap-1 text-sm text-muted-foreground">
         <div className="flex items-center gap-1.5">
           <CalendarIcon className="size-3.5 shrink-0 text-brand" />
-          <span>
+          <span className="truncate">
             {event.date} &middot; {event.time}
           </span>
         </div>
@@ -46,10 +49,8 @@ export function EventCard({ event }: EventCardProps) {
           <span className="truncate">{event.location}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <UsersIcon className="size-3.5 shrink-0 text-brand" />
-          <span>
-            {event.attendees} attendee{event.attendees !== 1 ? "s" : ""}
-          </span>
+          <GraduationCapIcon className="size-3.5 shrink-0 text-brand" />
+          <span className="truncate">{event.organizer.name}</span>
         </div>
       </div>
     </ContentCard>

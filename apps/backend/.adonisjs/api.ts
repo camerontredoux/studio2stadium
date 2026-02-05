@@ -35,6 +35,10 @@ type DancersFiltersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/get-filters/controller.ts').default['handle'], false>
 }
+type EventsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/events/list-events/controller.ts').default['handle'], false>
+}
 type HealthGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/health/index.ts').default['handle'], false>
@@ -91,6 +95,12 @@ export interface ApiDefinition {
       '$get': DancersFiltersGetHead;
       '$head': DancersFiltersGetHead;
     };
+  };
+  'events': {
+    '$url': {
+    };
+    '$get': EventsGetHead;
+    '$head': EventsGetHead;
   };
   'health': {
     '$url': {

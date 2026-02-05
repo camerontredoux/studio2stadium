@@ -7,12 +7,12 @@ import { CardLoader } from "./card-loader";
 
 export type School = ApiSchemas["SchoolsResponse"]["schools"][number];
 
-interface SchoolCardProps {
+interface DancerCardProps {
   school: School;
   isLoaderRow: boolean;
 }
 
-export function SchoolCard({ school, isLoaderRow }: SchoolCardProps) {
+export function DancerCard({ school, isLoaderRow }: DancerCardProps) {
   if (isLoaderRow) {
     return <CardLoader />;
   }

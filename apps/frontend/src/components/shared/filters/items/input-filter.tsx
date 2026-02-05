@@ -23,7 +23,7 @@ export function InputFilter({
       onFilterChange(v || undefined, { replace: true });
       setBouncing(false);
     },
-    { wait: 500 },
+    { wait: 100 },
   );
 
   const handleSearch = (value: string) => {

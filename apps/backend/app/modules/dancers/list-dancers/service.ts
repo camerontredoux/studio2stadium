@@ -6,34 +6,15 @@ import { Validator } from "./validator.ts";
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute({ ...filters }: Validator, override: boolean) {
-    const where: any = {};
-    if (filters.location) {
-      where.location = filters.location;
-    }
-    if (filters.gpaRange) {
-      where.gpa = {
-        gte: filters.gpaRange.min,
-        lte: filters.gpaRange.max,
-      };
-    }
-    if (filters.division) {
-      where.division = {
-        in: filters.division,
-      };
-    }
-    if (filters.sports) {
-      where.sports = {
-        arrayContains: filters.sports,
-      };
-    }
-
+  async execute({ cursor, ...filters }: Validator) {
+    console.log(filters);
     const schools = await this.db.use((db) =>
       db.query.schoolProfiles.findMany({
+        // where: conditions.length ? { AND: conditions } : undefined,
         where: {
-          ...where,
-          user: {
-            role: override ? undefined : "user",
+          name: {
+            ilike: `%${filters.name}%`,
+            gt: cursor,
           },
         },
         columns: {
@@ -56,9 +37,14 @@ export class Service {
         orderBy: {
           name: "asc",
         },
+        limit: 20,
       })
     );
 
-    return schools;
+    return {
+      schools,
+      nextCursor:
+        schools.length > 0 ? schools[schools.length - 1].name : undefined,
+    };
   }
 }

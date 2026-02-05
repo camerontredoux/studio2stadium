@@ -332,6 +332,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List events
+         * @description Returns a list of events
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -390,7 +429,13 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    cursor?: string | null;
+                    location?: ("OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "ID" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
+                    division?: string | null;
+                    sports?: string | null;
+                    styles?: string[] | null;
+                    commonRecruiting?: (string | number | boolean) | null;
+                    upcomingEvents?: (string | number | boolean) | null;
+                    gpaRange?: Record<string, never>;
                 };
                 header?: never;
                 path?: never;
@@ -660,6 +705,22 @@ export interface components {
             label: string;
             paramKey: string;
         }[];
+        EventsResponse: {
+            events: {
+                /** @enum {string} */
+                type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+                id: string;
+                date: string;
+                time: string;
+                location: string;
+                title: string;
+                organizer: {
+                    name: string;
+                    thumbnail: string | null;
+                };
+            }[];
+            month: string;
+        }[];
         HealthResponse: {
             /** @enum {string} */
             status: "error" | "ok" | "warning";
@@ -683,21 +744,18 @@ export interface components {
             }[];
         };
         SchoolsResponse: {
-            schools: {
-                user: {
-                    username: string;
-                    avatar: string | null;
-                } | null;
-                name: string;
-                id: string;
-                createdAt: string;
-                location: string;
-                gpa: number | null;
-                division: string | null;
-                size: number | null;
-            }[];
-            nextCursor: string;
-        };
+            user: {
+                username: string;
+                avatar: string | null;
+            } | null;
+            name: string;
+            id: string;
+            createdAt: string;
+            location: string;
+            gpa: number | null;
+            division: string | null;
+            size: number | null;
+        }[];
         SchoolsFiltersResponse: {
             /** @enum {string} */
             type: "select" | "input" | "toggle" | "multi-select" | "range";
