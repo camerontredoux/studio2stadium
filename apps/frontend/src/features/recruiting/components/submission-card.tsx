@@ -82,7 +82,7 @@ interface SubmissionCardProps {
 
 export function SubmissionCard({ submission }: SubmissionCardProps) {
   return (
-    <div className="relative rounded-xl border overflow-clip p-3 sm:p-4 flex gap-3 bg-linear-to-br from-brand/10 via-background to-background hover:from-brand/16 hover:via-brand/8 transition-colors [content-visibility:auto] [contain-intrinsic-block-size:auto_100px]">
+    <div className="bg-clip-padding relative rounded-xl border overflow-clip p-3 sm:p-4 flex gap-3 bg-linear-to-br from-brand/10 via-background to-background hover:from-brand/16 hover:via-brand/8 transition-colors [content-visibility:auto] [contain-intrinsic-block-size:auto_100px]">
       <div
         className="absolute inset-0 -z-10 text-brand opacity-[0.08] dark:opacity-[0.03] pointer-events-none"
         aria-hidden
