@@ -5,4 +5,11 @@ export const queries = {
   filters: () => $api.queryOptions("get", "/schools/filters"),
   videos: () =>
     $api.queryOptions("get", "/library", {}, { staleTime: 86400000 }),
+  videosByCategory: (category: string, page: number) =>
+    $api.queryOptions("get", "/library/{category}", {
+      params: {
+        path: { category },
+        query: { page },
+      },
+    }),
 };

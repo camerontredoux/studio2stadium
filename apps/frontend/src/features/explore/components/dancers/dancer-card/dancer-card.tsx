@@ -5,7 +5,7 @@ import { CardButtons } from "./card-buttons";
 import { CardContent } from "./card-content";
 import { CardLoader } from "./card-loader";
 
-export type School = ApiSchemas["SchoolsResponse"]["schools"][number];
+export type School = ApiSchemas["SchoolsResponse"][number];
 
 interface DancerCardProps {
   school: School;

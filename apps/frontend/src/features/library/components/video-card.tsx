@@ -7,7 +7,6 @@ import { getYouTubeId } from "@/utils/get-youtube-id";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -64,7 +63,7 @@ export function ContentCard({
   return (
     <Frame
       compact
-      className="group [content-visibility:auto] [contain-intrinsic-block-size:auto_400px]"
+      className="group [content-visibility:auto] [contain-intrinsic-block-size:auto_300px]"
     >
       <FramePanel side="top">
         <div className="relative border-b flex items-center justify-center aspect-video">

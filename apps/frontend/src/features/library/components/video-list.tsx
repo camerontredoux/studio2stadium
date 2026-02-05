@@ -2,9 +2,9 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { queries } from "../api/queries";
 import { TagIcon } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { VideoCard } from "./video-card";
 import { ResourcesFilterSheet } from "./filters/filter-sheet";
 import { VIDEO_CATEGORIES } from "@/utils/constants/categories";
+import { VideosByCategory } from "./videos-by-category";
 
 export function VideoList() {
   const { data } = useSuspenseQuery(queries.videos());
@@ -29,11 +29,8 @@ export function VideoList() {
         </div>
       </div>
       <Separator className="flex-1 -z-10 absolute top-6 left-0" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-3">
-        {group.videos.map((video) => (
-          <VideoCard key={video.id} video={video} />
-        ))}
-      </div>
+
+      <VideosByCategory group={group} />
 
       <div className="absolute right-0 z-20 bg-background top-2">
         <ResourcesFilterSheet />

@@ -28,7 +28,11 @@ export const schoolProfiles = pg.pgTable(
     instagram: pg.text(),
     ...timestamps,
   },
-  (table) => [pg.index().on(table.gpa)]
+  (table) => [
+    pg.index().on(table.gpa),
+    pg.index().on(table.division),
+    pg.index().on(table.location),
+  ]
 );
 
 export const schoolMedia = pg.pgTable(

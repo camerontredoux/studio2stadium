@@ -55,6 +55,10 @@ type LibraryGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/library/list-videos/controller.ts').default['handle'], false>
 }
+type LibraryIdGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/library/list-videos-by-category/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/library/list-videos-by-category/controller.ts').default['handle'], true>
+}
 type UsersCheckavailabilityGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/check-availability/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/users/check-availability/controller.ts').default['handle'], true>
@@ -129,6 +133,12 @@ export interface ApiDefinition {
     };
     '$get': LibraryGetHead;
     '$head': LibraryGetHead;
+    ':category': {
+      '$url': {
+      };
+      '$get': LibraryIdGetHead;
+      '$head': LibraryIdGetHead;
+    };
   };
   'users': {
     'check-availability': {

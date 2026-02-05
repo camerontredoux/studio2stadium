@@ -21,7 +21,9 @@ export class Service {
         acc.set(category, []);
       }
 
-      acc.get(category)?.push(video);
+      if (acc.get(category)!.length < 6) {
+        acc.get(category)?.push(video);
+      }
 
       return acc;
     }, new Map<string, typeof videos>());
