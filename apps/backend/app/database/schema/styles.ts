@@ -4,12 +4,12 @@ import { timestamps } from "./helpers/columns.ts";
 import { schoolProfiles } from "./schools.ts";
 
 export const styles = pg.pgTable("profile_styles", {
-  id: pg.text().primaryKey(),
+  slug: pg.text().primaryKey(),
   name: pg.text().unique().notNull(),
 });
 
-export const dancersToStyles = pg.pgTable(
-  "dancers_to_styles",
+export const dancerStyles = pg.pgTable(
+  "dancer_styles",
   {
     dancerId: pg
       .uuid()
@@ -18,7 +18,7 @@ export const dancersToStyles = pg.pgTable(
     styleId: pg
       .text()
       .notNull()
-      .references(() => styles.id, {
+      .references(() => styles.slug, {
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
@@ -27,8 +27,8 @@ export const dancersToStyles = pg.pgTable(
   (table) => [pg.primaryKey({ columns: [table.dancerId, table.styleId] })]
 );
 
-export const schoolsToStyles = pg.pgTable(
-  "schools_to_styles",
+export const schoolStyles = pg.pgTable(
+  "school_styles",
   {
     schoolId: pg
       .uuid()
@@ -37,7 +37,7 @@ export const schoolsToStyles = pg.pgTable(
     styleId: pg
       .text()
       .notNull()
-      .references(() => styles.id, {
+      .references(() => styles.slug, {
         onDelete: "cascade",
         onUpdate: "cascade",
       }),

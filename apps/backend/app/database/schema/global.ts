@@ -18,13 +18,12 @@ export const posts = pg.pgTable(
 );
 
 export const library = pg.pgTable(
-  "library",
+  "video_library",
   {
     id: pg.uuid().primaryKey().defaultRandom(),
-    youtubeId: pg.text().notNull().unique(),
+    url: pg.text().notNull().unique(),
     category: pg.text().notNull(),
     title: pg.text().notNull(),
-    description: pg.text().notNull(),
     ...timestamps,
   },
   (table) => [pg.index().on(table.createdAt), pg.index().on(table.category)]

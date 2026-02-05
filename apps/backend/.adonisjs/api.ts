@@ -51,6 +51,10 @@ type SchoolsGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/list-schools/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/schools/list-schools/controller.ts').default['handle'], true>
 }
+type LibraryGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/library/list-videos/controller.ts').default['handle'], false>
+}
 type UsersCheckavailabilityGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/check-availability/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/users/check-availability/controller.ts').default['handle'], true>
@@ -119,6 +123,12 @@ export interface ApiDefinition {
     };
     '$get': SchoolsGetHead;
     '$head': SchoolsGetHead;
+  };
+  'library': {
+    '$url': {
+    };
+    '$get': LibraryGetHead;
+    '$head': LibraryGetHead;
   };
   'users': {
     'check-availability': {

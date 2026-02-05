@@ -22,7 +22,6 @@ export const schoolProfiles = pg.pgTable(
     assistantCoach: pg.text(),
     missionStatement: pg.text(),
     whatWeDo: pg.text(),
-    sports: pg.text().array(),
     gpa: pg.doublePrecision(),
     size: pg.integer(),
     tiktok: pg.text(),

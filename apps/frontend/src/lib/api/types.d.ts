@@ -431,8 +431,8 @@ export interface paths {
                 query?: {
                     location?: ("OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "ID" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
                     division?: string | null;
+                    styles?: string | null;
                     sports?: string | null;
-                    styles?: string[] | null;
                     commonRecruiting?: (string | number | boolean) | null;
                     upcomingEvents?: (string | number | boolean) | null;
                     gpaRange?: Record<string, never>;
@@ -498,6 +498,45 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["SchoolsFiltersResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List tap in videos
+         * @description Returns a list of all tap in videos with their category
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LibraryResponse"];
                     };
                 };
             };
@@ -685,12 +724,12 @@ export interface components {
                 }[];
                 skills: {
                     name: string;
-                    id: string;
+                    slug: string;
                     category: string;
                 }[];
                 styles: {
                     name: string;
-                    id: string;
+                    slug: string;
                 }[];
             } | null;
         };
@@ -766,6 +805,17 @@ export interface components {
             }[];
             label: string;
             paramKey: string;
+        }[];
+        LibraryResponse: {
+            category: string;
+            videos: {
+                url: string;
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                title: string;
+                category: string;
+            }[];
         }[];
         UsersCheckavailabilityResponse: {
             available: boolean;

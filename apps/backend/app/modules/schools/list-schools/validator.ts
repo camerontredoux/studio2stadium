@@ -54,7 +54,7 @@ export const validator = vine.create(
     location: vine.enum(stateCodes).optional(),
     division: vine.string().use(csvEnum(divisionCodes)()).optional(),
     sports: vine.string().use(csvEnum(sportCodes)()).optional(),
-    styles: vine.array(vine.string()).optional(),
+    styles: vine.string().use(csvEnum(sportCodes)()).optional(),
   })
 );
 

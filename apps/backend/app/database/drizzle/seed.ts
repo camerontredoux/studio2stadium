@@ -3,6 +3,8 @@ import { danceEvents } from "#database/schema/events";
 import { users } from "#database/schema/users";
 
 import usersData from "./users.json" with { type: "json" };
+import lib from "./library.json" with { type: "json" };
+import { library } from "#database/schema/global";
 
 type School = {
   id: string;
@@ -65,20 +67,24 @@ type School = {
   };
 };
 
+// async function main() {
+//   for (const data of usersData) {
+//     const { school, ...user } = data as School;
+
+//     const { skills, events, ...schoolData } = school;
+
+//     // await db.insert(users).values(user);
+
+//     // await db.insert(schoolProfiles).values(schoolData);
+
+//     if (events.length > 0) {
+//       await db.insert(danceEvents).values(events);
+//     }
+//   }
+// }
+
 async function main() {
-  for (const data of usersData) {
-    const { school, ...user } = data as School;
-
-    const { skills, events, ...schoolData } = school;
-
-    // await db.insert(users).values(user);
-
-    // await db.insert(schoolProfiles).values(schoolData);
-
-    if (events.length > 0) {
-      await db.insert(danceEvents).values(events);
-    }
-  }
+  await db.insert(library).values(lib);
 }
 
 main()

@@ -24,7 +24,16 @@ export class Service {
     }
     if (filters.sports) {
       where.sports = {
-        arrayContains: filters.sports,
+        slug: {
+          in: filters.sports,
+        },
+      };
+    }
+    if (filters.styles) {
+      where.styles = {
+        slug: {
+          in: filters.styles,
+        },
       };
     }
 

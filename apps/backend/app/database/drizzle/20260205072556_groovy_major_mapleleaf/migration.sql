@@ -1,0 +1,1 @@
+ALTER TABLE "school_profiles" DROP COLUMN "sports";

@@ -9,3 +9,4 @@ export * from "./schools.ts";
 export * from "./skills.ts";
 export * from "./styles.ts";
 export * from "./users.ts";
+export * from "./sports.ts";

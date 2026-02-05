@@ -39,12 +39,12 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.references.profileId,
     }),
     styles: r.many.styles({
-      from: r.dancerProfiles.id.through(r.dancersToStyles.dancerId),
-      to: r.styles.id.through(r.dancersToStyles.styleId),
+      from: r.dancerProfiles.id.through(r.dancerStyles.dancerId),
+      to: r.styles.slug.through(r.dancerStyles.styleId),
     }),
     skills: r.many.skills({
-      from: r.dancerProfiles.id.through(r.dancersToSkills.dancerId),
-      to: r.skills.id.through(r.dancersToSkills.skillId),
+      from: r.dancerProfiles.id.through(r.dancerSkills.dancerId),
+      to: r.skills.slug.through(r.dancerSkills.skillId),
     }),
     submissions: r.many.crvSubmissions({
       from: r.dancerProfiles.id,
@@ -53,6 +53,10 @@ export const relations = defineRelations(schema, (r) => ({
     interests: r.many.schoolProfiles({
       from: r.dancerProfiles.id.through(r.interests.dancerId),
       to: r.schoolProfiles.id.through(r.interests.schoolId),
+    }),
+    sports: r.many.sports({
+      from: r.dancerProfiles.id.through(r.dancerSports.dancerId),
+      to: r.sports.slug.through(r.dancerSports.sportId),
     }),
   },
   schoolProfiles: {
@@ -65,12 +69,12 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.schoolMedia.schoolId,
     }),
     styles: r.many.styles({
-      from: r.schoolProfiles.id.through(r.schoolsToStyles.schoolId),
-      to: r.styles.id.through(r.schoolsToStyles.styleId),
+      from: r.schoolProfiles.id.through(r.schoolStyles.schoolId),
+      to: r.styles.slug.through(r.schoolStyles.styleId),
     }),
     skills: r.many.skills({
-      from: r.schoolProfiles.id.through(r.schoolsToSkills.schoolId),
-      to: r.skills.id.through(r.schoolsToSkills.skillId),
+      from: r.schoolProfiles.id.through(r.schoolSkills.schoolId),
+      to: r.skills.slug.through(r.schoolSkills.skillId),
     }),
     events: r.many.danceEvents({
       from: r.schoolProfiles.id,
@@ -83,6 +87,10 @@ export const relations = defineRelations(schema, (r) => ({
     submissions: r.many.crvSubmissions({
       from: r.schoolProfiles.id,
       to: r.crvSubmissions.schoolId,
+    }),
+    sports: r.many.sports({
+      from: r.schoolProfiles.id.through(r.schoolSports.schoolId),
+      to: r.sports.slug.through(r.schoolSports.sportId),
     }),
   },
   danceEvents: {
