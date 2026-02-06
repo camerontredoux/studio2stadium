@@ -11,15 +11,13 @@ export class Service {
 
   async createDancer(userId: string, data: Validator) {
     await this.db.tx(async (tx) => {
-      if (data.phoneNumber) {
-        await tx
-          .update(users)
-          .set({
-            phone: data.phoneNumber,
-            verified: true,
-          })
-          .where(eq(users.id, userId));
-      }
+      await tx
+        .update(users)
+        .set({
+          ...(data.phoneNumber && { phone: data.phoneNumber }),
+          verified: true,
+        })
+        .where(eq(users.id, userId));
 
       await tx.insert(dancerProfiles).values({
         userId,

@@ -12,7 +12,7 @@ interface SchoolCardProps {
 
 export function SchoolCard({ school }: SchoolCardProps) {
   return (
-    <div className="sm:h-26 relative rounded-xl border bg-clip-padding overflow-clip p-3 sm:p-4 flex gap-3 bg-linear-to-br from-brand/10 via-background to-background hover:from-brand/16 hover:via-brand/8 transition-colors contain-[layout_style_paint] sm:items-center flex-row">
+    <div className="sm:h-26 relative rounded-xl border duration-75 bg-clip-padding overflow-clip p-3 sm:p-4 flex gap-3 bg-linear-to-br from-brand/10 via-background to-background hover:from-brand/16 hover:via-brand/8 transition-colors contain-[layout_style_paint] sm:items-center flex-row">
       <CardBackground />
 
       <div className="flex h-full gap-2 sm:gap-3 min-w-0 flex-1 sm:flex-row">

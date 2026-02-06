@@ -1,14 +1,27 @@
+import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { useQuery } from "@tanstack/react-query";
-import { useSearch } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import { GraduationCapIcon } from "lucide-react";
 import { useRef } from "react";
+import { HiOutlineCalendar } from "react-icons/hi";
 import { queries } from "../../api/queries";
 import { SchoolCard } from "./school-card/school-card";
 import { Spinner } from "@/components/ui/spinner";
 
 export function SchoolList() {
+  const navigate = useNavigate({ from: "/explore/" });
+
   const { name, ...search } = useSearch({ from: "/_app/(routes)/explore/" });
-  const { data, isPlaceholderData, error } = useQuery(queries.schools(search));
+  const { data, isPlaceholderData } = useQuery(queries.schools(search));
 
   const rows =
     data?.filter((school) =>
@@ -30,11 +43,28 @@ export function SchoolList() {
 
   const virtualItems = rowVirtualizer.getVirtualItems();
 
-  if (error) {
+  if (rows.length === 0) {
     return (
-      <div className="text-destructive">
-        {error.errors?.map((e) => e.message).join(", ")}
-      </div>
+      <Empty className="border">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <GraduationCapIcon />
+          </EmptyMedia>
+          <EmptyTitle>No schools found</EmptyTitle>
+          <EmptyDescription>Try different search criteria.</EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={() => navigate({ to: "/explore" })}>
+              Reset filters
+            </Button>
+            <Button size="sm" variant="outline" render={<Link to="/events" />}>
+              <HiOutlineCalendar />
+              View events
+            </Button>
+          </div>
+        </EmptyContent>
+      </Empty>
     );
   }
 
