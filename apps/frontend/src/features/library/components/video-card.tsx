@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Frame, FrameFooter, FramePanel } from "@/components/ui/frame";
+import { Frame, FramePanel } from "@/components/ui/frame";
 import type { ApiSchemas } from "@/lib/api/client";
 import { getYouTubeId } from "@/utils/get-youtube-id";
 
@@ -49,17 +49,17 @@ export function ContentCard({
       compact
       className="group [contain-intrinsic-block-size:auto_300px] [content-visibility:auto]"
     >
-      <FramePanel side="top">
+      <FramePanel side="inset">
         <Dialog>
           <DialogTrigger
             render={
-              <div className="group relative flex aspect-video cursor-pointer items-center justify-center">
+              <div className="relative flex aspect-video cursor-pointer items-center justify-center">
                 <img
                   src={`https://img.youtube.com/vi/${image}/hqdefault.jpg`}
                   alt={imageAlt}
                   className="aspect-video w-full object-cover"
                 />
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-black/80 to-transparent group-hover:from-black/60" />
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-black/80 to-transparent" />
                 {badge && (
                   <Badge variant="brand" className="absolute top-2.5 left-2.5">
                     {badge}
@@ -77,8 +77,23 @@ export function ContentCard({
             </div>
           </DialogContent>
         </Dialog>
+
+        <div className="from-brand/10 via-background to-background group-hover:from-brand/8 group-hover:via-brand/4 relative flex flex-1 flex-col gap-2.5 bg-linear-to-br p-3 transition-colors duration-75 sm:p-4">
+          <div
+            className="bg-brand pointer-events-none absolute inset-0 opacity-[0.12] dark:opacity-[0.06]"
+            aria-hidden
+          />
+          <div className="flex flex-1 flex-col gap-1.5">
+            <h3
+              title={title}
+              aria-label={title}
+              className="group-hover:text-brand truncate text-sm leading-snug font-semibold transition-colors"
+            >
+              {title}
+            </h3>
+          </div>
+        </div>
       </FramePanel>
-      <FrameFooter>{title}</FrameFooter>
     </Frame>
   );
 }

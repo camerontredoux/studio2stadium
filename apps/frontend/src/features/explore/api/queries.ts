@@ -22,6 +22,8 @@ export const queries = {
         },
       },
       {
+        staleTime: Infinity,
+        gcTime: Infinity,
         placeholderData: keepPreviousData,
       },
     );

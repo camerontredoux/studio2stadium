@@ -26,7 +26,7 @@ function FramePanel({
   className,
   side,
   ...props
-}: React.ComponentProps<"div"> & { side?: "top" | "bottom" }) {
+}: React.ComponentProps<"div"> & { side?: "top" | "bottom" | "inset" }) {
   return (
     <div
       className={cn(
@@ -34,7 +34,9 @@ function FramePanel({
         "in-data-compact:border-0 in-data-compact:p-0",
         side === "top"
           ? "in-data-compact:border-b"
-          : "in-data-compact:border-t",
+          : side === "bottom"
+            ? "in-data-compact:border-t"
+            : "",
         "not-in-data-compact:border not-in-data-compact:p-3 not-in-data-compact:sm:p-5",
         className,
       )}

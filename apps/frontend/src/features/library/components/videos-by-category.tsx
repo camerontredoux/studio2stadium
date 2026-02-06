@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { VideoCard } from "./video-card";
-import { $api, type ApiSchemas } from "@/lib/api/client";
+import { type ApiSchemas } from "@/lib/api/client";
 import { useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
+import { useVideosByCategory } from "../api/queries";
 
 type Group = ApiSchemas["LibraryResponse"][number];
 
@@ -10,23 +11,7 @@ export function VideosByCategory({ group }: { group: Group }) {
   const [fetch, setFetch] = useState(false);
 
   const { data, fetchNextPage, isFetchingNextPage, hasNextPage } =
-    $api.useInfiniteQuery(
-      "get",
-      "/library/{category}",
-      {
-        params: {
-          path: { category: group.category },
-          query: { page: 0 },
-        },
-      },
-      {
-        getNextPageParam: (lastPage, _, lastPageParam) =>
-          lastPage.length < 6 ? undefined : (lastPageParam as number) + 1,
-        initialPageParam: 1,
-        pageParamName: "page",
-        enabled: fetch,
-      },
-    );
+    useVideosByCategory(group.category, fetch);
 
   const rows = data?.pages.flatMap((row) => row);
 
