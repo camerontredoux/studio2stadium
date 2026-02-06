@@ -4,11 +4,11 @@ import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
 import { queries } from "../../api/queries";
 import { SchoolCard } from "./school-card/school-card";
-import { SchoolListSkeleton } from "./school-skeleton";
+import { Spinner } from "@/components/ui/spinner";
 
 export function SchoolList() {
   const { name, ...search } = useSearch({ from: "/_app/(routes)/explore/" });
-  const { data, isPending, error } = useQuery(queries.schools(search));
+  const { data, isPlaceholderData, error } = useQuery(queries.schools(search));
 
   const rows =
     data?.filter((school) =>
@@ -29,10 +29,6 @@ export function SchoolList() {
   });
 
   const virtualItems = rowVirtualizer.getVirtualItems();
-
-  if (isPending) {
-    return <SchoolListSkeleton />;
-  }
 
   if (error) {
     return (
@@ -61,11 +57,21 @@ export function SchoolList() {
           }}
           className="flex flex-col gap-2"
         >
+          {isPlaceholderData && (
+            <div className="absolute flex items-center justify-center z-10 w-full h-full">
+              <Spinner />
+            </div>
+          )}
           {virtualItems.map((row) => {
             const school = rows[row.index];
 
             return (
               <div
+                className={
+                  isPlaceholderData
+                    ? "blur-xs before:bg-black/20 before:inset-0 before:absolute before:z-10"
+                    : ""
+                }
                 key={row.key}
                 data-index={row.index}
                 ref={rowVirtualizer.measureElement}
