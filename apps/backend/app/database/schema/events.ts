@@ -40,11 +40,13 @@ export const danceEventSchedules = pg.pgTable(
       .uuid()
       .notNull()
       .references(() => danceEvents.id, { onDelete: "cascade" }),
-    schedule: pg.jsonb().notNull().$type<{
-      time: string;
-      activity: string;
-      description?: string;
-    }>(),
+    schedule: pg.jsonb().notNull().$type<
+      {
+        time: string;
+        activity: string;
+        description?: string;
+      }[]
+    >(),
     ...timestamps,
   },
   (table) => [pg.index().on(table.eventId)]

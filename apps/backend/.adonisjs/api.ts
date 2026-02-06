@@ -39,6 +39,10 @@ type EventsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/events/list-events/controller.ts').default['handle'], false>
 }
+type EventsIdGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/get-event-by-id/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/events/get-event-by-id/controller.ts').default['handle'], true>
+}
 type HealthGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/health/index.ts').default['handle'], false>
@@ -109,6 +113,12 @@ export interface ApiDefinition {
     };
     '$get': EventsGetHead;
     '$head': EventsGetHead;
+    ':id': {
+      '$url': {
+      };
+      '$get': EventsIdGetHead;
+      '$head': EventsIdGetHead;
+    };
   };
   'health': {
     '$url': {

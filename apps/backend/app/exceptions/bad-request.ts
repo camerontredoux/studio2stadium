@@ -7,7 +7,7 @@ export const E_BAD_REQUEST = class extends Exception {
 
   constructor(
     message: string,
-    meta: Record<string, unknown>,
+    meta?: Record<string, unknown>,
     options: ErrorOptions = {}
   ) {
     super(message, options);
