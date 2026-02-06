@@ -7,9 +7,10 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { CalendarIcon, ChevronLeftIcon } from "lucide-react";
-import { getEventById } from "../mock-data";
+import { queries } from "../../api/queries";
 import { EventAbout } from "./event-about";
 import { EventHero } from "./event-hero";
 import { EventLocation } from "./event-location";
@@ -21,7 +22,7 @@ interface EventDetailProps {
 }
 
 export function EventDetail({ eventId }: EventDetailProps) {
-  const event = getEventById(eventId);
+  const { data: event } = useSuspenseQuery(queries.event(eventId));
 
   if (!event) {
     return (
@@ -62,7 +63,7 @@ export function EventDetail({ eventId }: EventDetailProps) {
 
         <div className="flex flex-col gap-3 lg:gap-4">
           <EventOrganizer organizer={event.organizer} />
-          <EventLocation venue={event.venue} address={event.address} />
+          <EventLocation venue={event.location} address={event.address} />
         </div>
       </div>
     </div>

@@ -5,11 +5,10 @@ import {
   FrameTitle,
 } from "@/components/ui/frame";
 import { MapPinIcon } from "lucide-react";
-import type { EventDetail } from "../mock-data";
 
 interface EventLocationProps {
-  venue: EventDetail["venue"];
-  address: EventDetail["address"];
+  venue: string;
+  address: string | null;
 }
 
 export function EventLocation({ venue, address }: EventLocationProps) {
@@ -27,7 +26,7 @@ export function EventLocation({ venue, address }: EventLocationProps) {
             </div>
             <p className="text-muted-foreground pl-5 text-xs">{address}</p>
           </div>
-          {/* Map placeholder */}
+
           <div className="bg-muted/50 text-muted-foreground flex h-32 items-center justify-center rounded-lg border text-xs">
             Map coming soon
           </div>

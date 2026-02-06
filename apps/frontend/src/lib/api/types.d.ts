@@ -371,6 +371,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/events/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get event by id
+         * @description Returns details about a specific event
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventsIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -429,7 +479,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    location?: ("OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "ID" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
+                    location?: ("OR" | "ID" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
                     division?: string | null;
                     styles?: string | null;
                     sports?: string | null;
@@ -812,6 +862,34 @@ export interface components {
             }[];
             month: string;
         }[];
+        EventsIdResponse: {
+            /** @enum {string} */
+            type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            location: string;
+            title: string;
+            description: string;
+            website: string | null;
+            schoolId: string;
+            address: string | null;
+            tags: string[] | null;
+            cost: string | null;
+            startDatetime: string;
+            endDatetime: string;
+            timezone: string;
+            schedule?: {
+                time: string;
+                activity: string;
+                description?: string;
+            }[];
+            organizer: {
+                name: string;
+                username: string;
+                avatar: string | null;
+            };
+        };
         HealthResponse: {
             /** @enum {string} */
             status: "error" | "ok" | "warning";

@@ -7,10 +7,10 @@ import {
   FrameTitle,
 } from "@/components/ui/frame";
 import { Link } from "@tanstack/react-router";
-import type { EventDetail } from "../mock-data";
+import type { ApiEvent } from "../mock-data";
 
 interface EventOrganizerProps {
-  organizer: EventDetail["organizer"];
+  organizer: NonNullable<ApiEvent["organizer"]>;
 }
 
 export function EventOrganizer({ organizer }: EventOrganizerProps) {
@@ -23,27 +23,35 @@ export function EventOrganizer({ organizer }: EventOrganizerProps) {
             className="ml-auto"
             size="xs"
             variant="outline"
-            render={<Link to="/events" />}
+            render={
+              <Link
+                to="/explore/$username"
+                params={{ username: organizer.username }}
+              />
+            }
           >
             View Profile
           </Button>
         </FrameTitle>
       </FrameHeader>
       <FramePanel>
-        <div className="flex items-center gap-3">
-          <Avatar className="size-10 rounded-xl">
-            <AvatarImage src={organizer.avatar} />
-            <AvatarFallback>
-              {organizer.name
+        <div className="flex items-start gap-3">
+          <Avatar className="size-12 rounded-xl">
+            <AvatarImage
+              className="rounded-xl"
+              src={organizer.avatar || undefined}
+            />
+            <AvatarFallback className="rounded-xl">
+              {organizer?.name
                 .split(" ")
                 .map((n) => n[0])
                 .join("")}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <span className="text-sm font-medium">{organizer.name}</span>
+            <span className="text-sm font-medium">{organizer?.name}</span>
             <span className="text-muted-foreground text-xs">
-              {organizer.role}
+              Hosting x other events
             </span>
           </div>
         </div>

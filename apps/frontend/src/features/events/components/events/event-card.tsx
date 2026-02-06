@@ -29,7 +29,11 @@ export function EventCard({ event }: EventCardProps) {
             variant="outline"
             size="xs"
             render={
-              <Link to="/events/$eventId" params={{ eventId: event.id }} />
+              <Link
+                to="/events/$eventId"
+                preload="intent"
+                params={{ eventId: event.id }}
+              />
             }
           >
             View Details

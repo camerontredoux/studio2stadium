@@ -1,13 +1,16 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Frame, FrameFooter, FramePanel } from "@/components/ui/frame";
+import type { ApiSchemas } from "@/lib/api/client";
 import {
   CalendarIcon,
   ExternalLinkIcon,
   TicketIcon,
   UsersIcon,
 } from "lucide-react";
-import type { EventDetail } from "../mock-data";
+// import type { EventDetail } from "../mock-data";
+
+type EventDetail = ApiSchemas["EventsIdResponse"];
 
 interface EventHeroProps {
   event: EventDetail;
@@ -20,7 +23,7 @@ export function EventHero({ event }: EventHeroProps) {
         {/* Hero image */}
         <div className="relative border-b">
           <img
-            src={event.image}
+            src={event.organizer.avatar || undefined}
             alt={event.title}
             className="h-48 w-full object-cover sm:h-64 lg:h-72"
           />
@@ -41,26 +44,25 @@ export function EventHero({ event }: EventHeroProps) {
             <div className="flex items-center gap-1.5">
               <CalendarIcon className="text-brand size-3.5 shrink-0" />
               <span>
-                {event.startDatetime} &middot; {event.time} – {event.endTime}
+                {/* {event.startDatetime} &middot; {event.time} - {event.endTime} */}
               </span>
             </div>
             <div className="flex items-center gap-1.5">
               <UsersIcon className="text-brand size-3.5 shrink-0" />
-              <span>{event.attendees} attending</span>
+              {/* <span>{event.attendees} attending</span> */}
             </div>
             <div className="flex items-center gap-1.5">
               <TicketIcon className="text-brand size-3.5 shrink-0" />
-              <span>{event.price}</span>
+              <span>{event.cost}</span>
             </div>
           </div>
 
-          {/* Dance style badges */}
           <div className="flex flex-wrap gap-1.5">
-            {event.danceStyles.map((style) => (
+            {/* {event.danceStyles.map((style) => (
               <Badge key={style} variant="outline">
                 {style}
               </Badge>
-            ))}
+            ))} */}
           </div>
         </div>
       </FramePanel>
