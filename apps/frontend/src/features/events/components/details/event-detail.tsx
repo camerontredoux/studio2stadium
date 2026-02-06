@@ -43,10 +43,10 @@ export function EventDetail({ eventId }: EventDetailProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3 lg:gap-4 pt-1 lg:pt-0 max-lg:pb-14">
+    <div className="flex flex-col gap-3 pt-1 max-lg:pb-14 lg:gap-4 lg:pt-0">
       <Link
         to="/events"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
+        className="text-muted-foreground hover:text-foreground inline-flex w-fit items-center gap-1 text-sm transition-colors"
       >
         <ChevronLeftIcon className="size-4" />
         Back to Events
@@ -54,8 +54,8 @@ export function EventDetail({ eventId }: EventDetailProps) {
 
       <EventHero event={event} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4">
-        <div className="lg:col-span-2 flex flex-col gap-3 lg:gap-4">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3 lg:gap-4">
+        <div className="flex flex-col gap-3 lg:col-span-2 lg:gap-4">
           <EventAbout description={event.description} />
           <EventSchedule schedule={event.schedule} />
         </div>

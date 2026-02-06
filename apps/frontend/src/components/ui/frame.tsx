@@ -10,8 +10,8 @@ function Frame({
   return (
     <div
       className={cn(
-        "relative flex flex-col rounded-2xl bg-muted/72",
-        compact ? "p-0 border" : "p-1",
+        "bg-muted/72 relative flex flex-col rounded-2xl",
+        compact ? "border p-0" : "p-1",
         "*:[[data-slot=frame-panel]+[data-slot=frame-panel]]:mt-1",
         className,
       )}
@@ -30,12 +30,12 @@ function FramePanel({
   return (
     <div
       className={cn(
-        "relative overflow-clip rounded-2xl bg-background bg-clip-padding shadow-xs/5 before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-xl)-1px)] before:shadow-[0_1px_--theme(--color-black/6%)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]",
-        "in-data-compact:p-0 in-data-compact:border-0",
+        "bg-background relative overflow-clip rounded-2xl bg-clip-padding shadow-xs/5 before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-xl)-1px)] before:shadow-[0_1px_--theme(--color-black/6%)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]",
+        "in-data-compact:border-0 in-data-compact:p-0",
         side === "top"
           ? "in-data-compact:border-b"
           : "in-data-compact:border-t",
-        "not-in-data-compact:p-3 not-in-data-compact:sm:p-5 not-in-data-compact:border",
+        "not-in-data-compact:border not-in-data-compact:p-3 not-in-data-compact:sm:p-5",
         className,
       )}
       data-slot="frame-panel"
@@ -48,7 +48,7 @@ function FrameHeader({ className, ...props }: React.ComponentProps<"header">) {
   return (
     <header
       className={cn(
-        "flex flex-col px-5 in-data-compact:pt-2 pt-1 pb-2",
+        "flex flex-col px-5 pt-1 pb-2 in-data-compact:pt-2",
         className,
       )}
       data-slot="frame-panel-header"
@@ -60,7 +60,7 @@ function FrameHeader({ className, ...props }: React.ComponentProps<"header">) {
 function FrameTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      className={cn("font-semibold text-sm", className)}
+      className={cn("text-sm font-semibold", className)}
       data-slot="frame-panel-title"
       {...props}
     />

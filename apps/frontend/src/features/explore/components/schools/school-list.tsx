@@ -88,7 +88,7 @@ export function SchoolList() {
           className="flex flex-col gap-2"
         >
           {isPlaceholderData && (
-            <div className="absolute flex items-center justify-center z-10 w-full h-full">
+            <div className="absolute z-10 flex h-full w-full items-center justify-center">
               <Spinner />
             </div>
           )}
@@ -99,7 +99,7 @@ export function SchoolList() {
               <div
                 className={
                   isPlaceholderData
-                    ? "blur-xs before:bg-black/20 before:inset-0 before:absolute before:z-10"
+                    ? "blur-xs before:absolute before:inset-0 before:z-10 before:bg-black/20"
                     : ""
                 }
                 key={row.key}

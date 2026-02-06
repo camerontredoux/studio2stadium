@@ -9,19 +9,19 @@ export function FeedPage() {
   const session = useSession();
   return (
     <SidebarLayout sidebar={<FeedSidebar />}>
-      <div className="gap-2 lg:gap-4 flex flex-col max-lg:pb-14">
+      <div className="flex flex-col gap-2 max-lg:pb-14 lg:gap-4">
         <div className="hidden lg:block">
-          <h1 className="text-2xl font-bold tracking-tight leading-none">
+          <h1 className="text-2xl leading-none font-bold tracking-tight">
             Welcome back, {session.username}!
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Here's your latest personalized content
           </p>
         </div>
 
         <ProgramSpotlight />
 
-        <div className="rounded-t-xl rounded-b-xl border sm:border-none overflow-clip space-y-2 lg:space-y-4">
+        <div className="space-y-2 overflow-clip rounded-t-xl rounded-b-xl border sm:border-none lg:space-y-4">
           {Array.from({ length: 10 }).map((_, idx) => (
             <FeedItem key={idx} />
           ))}

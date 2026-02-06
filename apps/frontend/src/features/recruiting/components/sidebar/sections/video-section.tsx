@@ -41,7 +41,7 @@ export function VideoSection() {
             title="Recruiting video"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            className="w-full h-full"
+            className="h-full w-full"
           />
         </div>
       </FramePanel>

@@ -84,8 +84,8 @@ export function Search() {
         className="w-full justify-between"
         render={<Button variant="outline" />}
       >
-        <span className="font-normal mr-2 text-sm">Search</span>
-        <SearchIcon className="size-4 text-muted-foreground" />
+        <span className="mr-2 text-sm font-normal">Search</span>
+        <SearchIcon className="text-muted-foreground size-4" />
       </CommandDialogTrigger>
       <CommandDialogPopup>
         <Command items={groupedItems}>

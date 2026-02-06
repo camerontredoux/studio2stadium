@@ -3,7 +3,7 @@ import type { School } from "./school-card";
 
 export function CardAvatar({ school }: { school: School }) {
   return (
-    <Avatar className="size-16 rounded-xl shrink-0">
+    <Avatar className="size-16 shrink-0 rounded-xl">
       <AvatarImage
         className="rounded-xl"
         src={school.user?.avatar ?? undefined}

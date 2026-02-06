@@ -1,7 +1,7 @@
 export function CardLoader() {
   return (
-    <div className="sm:h-26 relative rounded-xl border bg-clip-padding overflow-clip p-3 sm:p-4 flex gap-3 bg-linear-to-br from-brand/10 via-background to-background hover:from-brand/16 hover:via-brand/8 transition-colors [content-visibility:auto] [contain-intrinsic-block-size:auto_104px] contain-[layout_style_paint]">
-      <div className="animate-pulse bg-muted rounded-xl size-16 sm:size-14 shrink-0" />
+    <div className="from-brand/10 via-background to-background hover:from-brand/16 hover:via-brand/8 relative flex gap-3 overflow-clip rounded-xl border bg-linear-to-br bg-clip-padding p-3 transition-colors contain-[layout_style_paint] [contain-intrinsic-block-size:auto_104px] [content-visibility:auto] sm:h-26 sm:p-4">
+      <div className="bg-muted size-16 shrink-0 animate-pulse rounded-xl sm:size-14" />
     </div>
   );
 }

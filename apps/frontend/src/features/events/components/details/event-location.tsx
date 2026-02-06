@@ -22,13 +22,13 @@ export function EventLocation({ venue, address }: EventLocationProps) {
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-1.5">
-              <MapPinIcon className="size-3.5 shrink-0 text-brand" />
+              <MapPinIcon className="text-brand size-3.5 shrink-0" />
               <span className="text-sm font-medium">{venue}</span>
             </div>
-            <p className="text-xs text-muted-foreground pl-5">{address}</p>
+            <p className="text-muted-foreground pl-5 text-xs">{address}</p>
           </div>
           {/* Map placeholder */}
-          <div className="rounded-lg border bg-muted/50 h-32 flex items-center justify-center text-xs text-muted-foreground">
+          <div className="bg-muted/50 text-muted-foreground flex h-32 items-center justify-center rounded-lg border text-xs">
             Map coming soon
           </div>
         </div>

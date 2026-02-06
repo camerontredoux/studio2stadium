@@ -42,7 +42,7 @@ export function EventOrganizer({ organizer }: EventOrganizerProps) {
           </Avatar>
           <div className="flex flex-col">
             <span className="text-sm font-medium">{organizer.name}</span>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-muted-foreground text-xs">
               {organizer.role}
             </span>
           </div>

@@ -45,9 +45,9 @@ export function VideoEditor({
       </FrameHeader>
       <FramePanel className="p-0!">
         <Field invalid={!!videoError}>
-          <div className="rounded-xl overflow-clip bg-black/5 dark:bg-white/5">
-            <div className="flex items-center gap-1 px-3 py-1 border-b bg-background">
-              <LinkIcon className="size-3.5 text-brand" />
+          <div className="overflow-clip rounded-xl bg-black/5 dark:bg-white/5">
+            <div className="bg-background flex items-center gap-1 border-b px-3 py-1">
+              <LinkIcon className="text-brand size-3.5" />
               <Input
                 autoComplete="off"
                 autoFocus
@@ -58,7 +58,7 @@ export function VideoEditor({
                 }}
                 unstyled
                 placeholder="https://www.youtube.com/watch?v=..."
-                className="sm:text-sm flex-1"
+                className="flex-1 sm:text-sm"
               />
             </div>
             {videoId ? (
@@ -68,7 +68,7 @@ export function VideoEditor({
                   title="Recruiting video preview"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
-                  className="w-full h-full"
+                  className="h-full w-full"
                 />
               </div>
             ) : (
@@ -78,7 +78,7 @@ export function VideoEditor({
                 </EmptyHeader>
                 <EmptyContent className="mt-4">
                   <EmptyMedia variant="icon">
-                    <VideoIcon className="size-4 text-brand" />
+                    <VideoIcon className="text-brand size-4" />
                   </EmptyMedia>
                   <EmptyDescription>
                     Please enter a valid YouTube URL

@@ -54,30 +54,30 @@ export function RecruitingSidebarDialog() {
                     title="Recruiting video"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
-                    className="w-full h-full"
+                    className="h-full w-full"
                   />
                 </div>
               )}
             </FramePanel>
             <FrameFooter>
               <div className="grid w-full grid-cols-3 gap-2 py-3">
-                <div className="rounded-lg bg-accent p-3 text-center">
-                  <p className="text-2xl font-semibold text-success-foreground">
+                <div className="bg-accent rounded-lg p-3 text-center">
+                  <p className="text-success-foreground text-2xl font-semibold">
                     {accepted}
                   </p>
-                  <p className="text-xs text-muted-foreground">Accepted</p>
+                  <p className="text-muted-foreground text-xs">Accepted</p>
                 </div>
-                <div className="rounded-lg bg-accent p-3 text-center">
-                  <p className="text-2xl font-semibold text-warning-foreground">
+                <div className="bg-accent rounded-lg p-3 text-center">
+                  <p className="text-warning-foreground text-2xl font-semibold">
                     {inReview}
                   </p>
-                  <p className="text-xs text-muted-foreground">In Review</p>
+                  <p className="text-muted-foreground text-xs">In Review</p>
                 </div>
-                <div className="rounded-lg bg-accent p-3 text-center">
-                  <p className="text-2xl font-semibold text-info-foreground">
+                <div className="bg-accent rounded-lg p-3 text-center">
+                  <p className="text-info-foreground text-2xl font-semibold">
                     {watched}
                   </p>
-                  <p className="text-xs text-muted-foreground">Watched</p>
+                  <p className="text-muted-foreground text-xs">Watched</p>
                 </div>
               </div>
             </FrameFooter>

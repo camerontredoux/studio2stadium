@@ -23,15 +23,15 @@ export function Topbar() {
   });
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-12 border-b bg-background lg:bg-background/50 lg:backdrop-blur-xs border-border">
-      <div className="relative max-w-7xl mx-auto h-full px-2 lg:px-4 flex items-center justify-between">
-        <div className="absolute left-1/2 -translate-x-1/2 sm:static sm:translate-x-0 shrink-0">
+    <header className="bg-background lg:bg-background/50 border-border fixed top-0 right-0 left-0 z-50 h-12 border-b lg:backdrop-blur-xs">
+      <div className="relative mx-auto flex h-full max-w-7xl items-center justify-between px-2 lg:px-4">
+        <div className="absolute left-1/2 shrink-0 -translate-x-1/2 sm:static sm:translate-x-0">
           <MainLogo className="h-4 dark:invert" />
         </div>
-        <div className="flex justify-end w-full items-center gap-2">
+        <div className="flex w-full items-center justify-end gap-2">
           <Menu>
             <MenuTrigger className="cursor-pointer">
-              <Avatar className="mobile:size-9 border hover:border-white/20 transition-colors duration-100">
+              <Avatar className="mobile:size-9 border transition-colors duration-100 hover:border-white/20">
                 <AvatarImage src={session.avatar ?? undefined} />
                 <AvatarFallback>
                   {session.username.slice(0, 2).toUpperCase()}

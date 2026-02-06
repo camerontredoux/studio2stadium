@@ -29,11 +29,7 @@ function ConnectedFilterItem({ filter }: { filter: Filter }) {
   );
 
   return (
-    <FilterItem
-      filter={filter}
-      value={value}
-      onFilterChange={onFilterChange}
-    />
+    <FilterItem filter={filter} value={value} onFilterChange={onFilterChange} />
   );
 }
 

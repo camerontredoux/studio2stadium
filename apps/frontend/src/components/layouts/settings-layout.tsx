@@ -37,7 +37,7 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
       {/* Left Navigation */}
       <Sidebar variant="floating" side="left" collapsible="icon">
         <SidebarHeader className="p-4">
-          <Link to="/feed" className="font-bold text-lg">
+          <Link to="/feed" className="text-lg font-bold">
             Studio2Stadium
           </Link>
         </SidebarHeader>
@@ -65,7 +65,7 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
       {/* Main Content Area */}
       <SidebarInset>
         {/* Mobile Header - hamburger + logo */}
-        <header className="md:hidden sticky top-0 z-20 flex items-center gap-4 border-b bg-background px-4 h-14">
+        <header className="bg-background sticky top-0 z-20 flex h-14 items-center gap-4 border-b px-4 md:hidden">
           <SidebarTrigger />
           <span className="font-semibold">Studio2Stadium</span>
         </header>
@@ -76,26 +76,26 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
         </header> */}
 
         {/* Content + Right Sidebar */}
-        <div className="flex flex-1 min-h-0">
+        <div className="flex min-h-0 flex-1">
           {/* Center Content */}
-          <main className="flex-1 min-w-0 overflow-y-auto p-4 lg:p-6">
+          <main className="min-w-0 flex-1 overflow-y-auto p-4 lg:p-6">
             {children}
           </main>
 
           {/* Right Sidebar - Desktop Only */}
-          <aside className="hidden lg:flex lg:w-80 shrink-0 flex-col border-l">
+          <aside className="hidden shrink-0 flex-col border-l lg:flex lg:w-80">
             <ScrollArea className="flex-1">
-              <div className="p-4 space-y-6">
+              <div className="space-y-6 p-4">
                 {/* Recommendations Section */}
                 <section>
-                  <h3 className="font-semibold text-sm mb-3">
+                  <h3 className="mb-3 text-sm font-semibold">
                     Recommendations
                   </h3>
                   <div className="space-y-3">
-                    <div className="rounded-lg border p-3 text-sm text-muted-foreground">
+                    <div className="text-muted-foreground rounded-lg border p-3 text-sm">
                       Recommendation placeholder
                     </div>
-                    <div className="rounded-lg border p-3 text-sm text-muted-foreground">
+                    <div className="text-muted-foreground rounded-lg border p-3 text-sm">
                       Recommendation placeholder
                     </div>
                   </div>
@@ -105,14 +105,14 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
 
                 {/* Upcoming Events Section */}
                 <section>
-                  <h3 className="font-semibold text-sm mb-3">
+                  <h3 className="mb-3 text-sm font-semibold">
                     Upcoming Events
                   </h3>
                   <div className="space-y-3">
-                    <div className="rounded-lg border p-3 text-sm text-muted-foreground">
+                    <div className="text-muted-foreground rounded-lg border p-3 text-sm">
                       Event placeholder
                     </div>
-                    <div className="rounded-lg border p-3 text-sm text-muted-foreground">
+                    <div className="text-muted-foreground rounded-lg border p-3 text-sm">
                       Event placeholder
                     </div>
                   </div>

@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
+    "pretty": "prettier --write .",
     "check": "prettier --write . && eslint --fix",
     "types": "openapi-typescript http://localhost:3333/openapi -o src/lib/api/types.d.ts"
   },
@@ -79,6 +80,7 @@
     "openapi-typescript": "^7.10.1",
     "openapi-typescript-helpers": "^0.0.15",
     "prettier": "^3.8.0",
+    "prettier-plugin-tailwindcss": "^0.7.2",
     "shadcn": "^3.7.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.53.0",

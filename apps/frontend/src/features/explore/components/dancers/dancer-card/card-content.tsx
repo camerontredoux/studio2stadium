@@ -4,13 +4,13 @@ import type { School } from "./dancer-card";
 
 export function CardContent({ school }: { school: School }) {
   return (
-    <div className="flex flex-1 flex-col gap-2 min-w-0">
+    <div className="flex min-w-0 flex-1 flex-col gap-2">
       <div>
-        <h3 className="font-semibold text-base flex items-center gap-1">
+        <h3 className="flex items-center gap-1 text-base font-semibold">
           <span className="truncate">{school.name}</span>
-          <VerifiedIcon className="size-4 text-brand shrink-0" />
+          <VerifiedIcon className="text-brand size-4 shrink-0" />
         </h3>
-        <p className="text-sm text-muted-foreground flex items-center gap-1">
+        <p className="text-muted-foreground flex items-center gap-1 text-sm">
           <MapPinIcon className="text-brand size-3 shrink-0" />{" "}
           {school.location}
         </p>

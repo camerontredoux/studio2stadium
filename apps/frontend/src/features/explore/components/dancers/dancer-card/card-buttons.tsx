@@ -4,7 +4,7 @@ import { UserPlusIcon } from "lucide-react";
 
 export function CardButtons({ username }: { username: string }) {
   return (
-    <div className="flex gap-2 flex-col sm:shrink-0">
+    <div className="flex flex-col gap-2 sm:shrink-0">
       <Button variant="outline" size="xs" className="gap-2">
         <UserPlusIcon /> Follow
       </Button>

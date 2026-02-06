@@ -22,34 +22,34 @@ export function EventHero({ event }: EventHeroProps) {
           <img
             src={event.image}
             alt={event.title}
-            className="w-full h-48 sm:h-64 lg:h-72 object-cover"
+            className="h-48 w-full object-cover sm:h-64 lg:h-72"
           />
-          <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/20 to-transparent pointer-events-none" />
+          <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-black/70 via-black/20 to-transparent" />
           <Badge variant="brand" size="lg" className="absolute top-3 left-3">
             {event.type}
           </Badge>
         </div>
 
         {/* Event header */}
-        <div className="relative p-4 sm:p-5 flex flex-col gap-3 bg-linear-to-br from-brand/10 via-brand/5 to-background">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight leading-tight">
+        <div className="from-brand/10 via-brand/5 to-background relative flex flex-col gap-3 bg-linear-to-br p-4 sm:p-5">
+          <h1 className="text-xl leading-tight font-bold tracking-tight sm:text-2xl">
             {event.title}
           </h1>
 
           {/* Metadata row */}
-          <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-2 text-sm">
             <div className="flex items-center gap-1.5">
-              <CalendarIcon className="size-3.5 shrink-0 text-brand" />
+              <CalendarIcon className="text-brand size-3.5 shrink-0" />
               <span>
                 {event.startDatetime} &middot; {event.time} – {event.endTime}
               </span>
             </div>
             <div className="flex items-center gap-1.5">
-              <UsersIcon className="size-3.5 shrink-0 text-brand" />
+              <UsersIcon className="text-brand size-3.5 shrink-0" />
               <span>{event.attendees} attending</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <TicketIcon className="size-3.5 shrink-0 text-brand" />
+              <TicketIcon className="text-brand size-3.5 shrink-0" />
               <span>{event.price}</span>
             </div>
           </div>
@@ -65,7 +65,7 @@ export function EventHero({ event }: EventHeroProps) {
         </div>
       </FramePanel>
 
-      <FrameFooter className="gap-2 px-4 sm:px-5 py-3">
+      <FrameFooter className="gap-2 px-4 py-3 sm:px-5">
         <Button className="gap-1.5">Attend Event</Button>
         <Button variant="outline" className="gap-1.5">
           <ExternalLinkIcon /> Website

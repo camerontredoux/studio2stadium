@@ -14,11 +14,11 @@ export function VideoList() {
       key={group.category}
       className="relative flex flex-col gap-2 lg:gap-3"
     >
-      <div className="sticky z-10 top-26 py-2">
+      <div className="sticky top-26 z-10 py-2">
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 rounded-full border border-brand/20 bg-background/90 backdrop-blur-sm px-2.5 py-1">
-            <TagIcon className="size-3.5 text-brand" />
-            <span className="text-sm font-semibold text-brand">
+          <div className="border-brand/20 bg-background/90 flex items-center gap-1.5 rounded-full border px-2.5 py-1 backdrop-blur-sm">
+            <TagIcon className="text-brand size-3.5" />
+            <span className="text-brand text-sm font-semibold">
               {
                 VIDEO_CATEGORIES[
                   group.category as keyof typeof VIDEO_CATEGORIES
@@ -28,11 +28,11 @@ export function VideoList() {
           </div>
         </div>
       </div>
-      <Separator className="flex-1 -z-10 absolute top-6 left-0" />
+      <Separator className="absolute top-6 left-0 -z-10 flex-1" />
 
       <VideosByCategory group={group} />
 
-      <div className="absolute right-0 z-20 bg-background top-2">
+      <div className="bg-background absolute top-2 right-0 z-20">
         <ResourcesFilterSheet />
       </div>
     </section>

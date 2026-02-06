@@ -61,7 +61,7 @@ export function FilterItem({
   return (
     <AccordionItem value={filter.id} className="relative px-5">
       <AccordionTrigger>
-        <div className="flex justify-between w-full items-center gap-2">
+        <div className="flex w-full items-center justify-between gap-2">
           {filter.label} {filtered ? <Badge>Active</Badge> : null}
         </div>
       </AccordionTrigger>

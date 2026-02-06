@@ -84,8 +84,8 @@ export function SignupForm() {
     >
       <Frame className="gap-2">
         <FramePanel className="flex flex-col gap-3">
-          <div className="flex bg-accent/30 hover:bg-accent/50 transition-colors items-center justify-between rounded-lg border border-border px-3 py-2">
-            <span className="text-xs text-muted-foreground">Signing up as</span>
+          <div className="bg-accent/30 hover:bg-accent/50 border-border flex items-center justify-between rounded-lg border px-3 py-2 transition-colors">
+            <span className="text-muted-foreground text-xs">Signing up as</span>
             <Badge
               variant="brand"
               size="sm"
@@ -164,7 +164,7 @@ export function SignupForm() {
           name="termsChecked"
           render={({ field, fieldState }) => (
             <Field name={field.name} invalid={fieldState.invalid}>
-              <FramePanel className="select-none hover:bg-muted/10 has-data-checked:border-primary/48 has-data-checked:bg-muted/50 p-0!">
+              <FramePanel className="hover:bg-muted/10 has-data-checked:border-primary/48 has-data-checked:bg-muted/50 p-0! select-none">
                 <FieldLabel className="flex items-start gap-2 p-3">
                   <Checkbox
                     checked={field.value}
@@ -172,7 +172,7 @@ export function SignupForm() {
                   />
                   <div className="flex flex-col gap-1">
                     <p>Accept terms and conditions</p>
-                    <p className="text-xs text-muted-foreground font-light">
+                    <p className="text-muted-foreground text-xs font-light">
                       By clicking this checkbox, you agree to our{" "}
                       <a
                         className="text-brand underline"
@@ -206,12 +206,12 @@ export function SignupForm() {
         )}
       </Button>
 
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-center text-sm">
         Already have an account?{" "}
         <Button
           type="button"
           variant="link"
-          className="p-0 text-sm font-medium text-brand"
+          className="text-brand p-0 text-sm font-medium"
           render={<Link to="/login" replace={true} />}
         >
           Login

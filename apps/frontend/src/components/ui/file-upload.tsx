@@ -879,7 +879,7 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
       tabIndex={context.disabled ? undefined : 0}
       {...dropzoneProps}
       className={cn(
-        "relative flex select-none flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 outline-none transition-colors hover:bg-accent/30 focus-visible:border-ring/50 data-disabled:pointer-events-none data-dragging:border-primary/30 data-invalid:border-destructive data-dragging:bg-accent/30 data-invalid:ring-destructive/20",
+        "hover:bg-accent/30 focus-visible:border-ring/50 data-dragging:border-primary/30 data-invalid:border-destructive data-dragging:bg-accent/30 data-invalid:ring-destructive/20 relative flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 transition-colors outline-none select-none data-disabled:pointer-events-none",
         className,
       )}
       onClick={onClick}
@@ -966,7 +966,7 @@ function FileUploadList(props: FileUploadListProps) {
       dir={context.dir}
       {...listProps}
       className={cn(
-        "data-[state=inactive]:fade-out-0 data-[state=active]:fade-in-0 data-[state=inactive]:slide-out-to-top-2 data-[state=active]:slide-in-from-top-2 flex flex-col gap-2 data-[state=active]:animate-in data-[state=inactive]:animate-out",
+        "data-[state=inactive]:fade-out-0 data-[state=active]:fade-in-0 data-[state=inactive]:slide-out-to-top-2 data-[state=active]:slide-in-from-top-2 data-[state=active]:animate-in data-[state=inactive]:animate-out flex flex-col gap-2",
         orientation === "horizontal" && "flex-row overflow-x-auto p-1.5",
         className,
       )}
@@ -1047,8 +1047,9 @@ function FileUploadItem(props: FileUploadItemProps) {
         id={id}
         aria-setsize={fileCount}
         aria-posinset={fileIndex}
-        aria-describedby={`${nameId} ${sizeId} ${statusId} ${fileState.error ? messageId : ""
-          }`}
+        aria-describedby={`${nameId} ${sizeId} ${statusId} ${
+          fileState.error ? messageId : ""
+        }`}
         aria-labelledby={nameId}
         data-slot="file-upload-item"
         dir={context.dir}
@@ -1119,7 +1120,7 @@ function FileUploadItemPreview(props: FileUploadItemPreviewProps) {
       data-slot="file-upload-preview"
       {...previewProps}
       className={cn(
-        "relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded border bg-accent/50 [&>svg]:size-10",
+        "bg-accent/50 relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded border [&>svg]:size-10",
         className,
       )}
     >
@@ -1162,8 +1163,8 @@ function FileUploadItemMetadata(props: FileUploadItemMetadataProps) {
           <span
             id={itemContext.nameId}
             className={cn(
-              "truncate font-medium text-sm",
-              size === "sm" && "font-normal text-[13px] leading-snug",
+              "truncate text-sm font-medium",
+              size === "sm" && "text-[13px] leading-snug font-normal",
             )}
           >
             {itemContext.fileState.file.name}
@@ -1171,7 +1172,7 @@ function FileUploadItemMetadata(props: FileUploadItemMetadataProps) {
           <span
             id={itemContext.sizeId}
             className={cn(
-              "truncate text-muted-foreground text-xs",
+              "text-muted-foreground truncate text-xs",
               size === "sm" && "text-[11px] leading-snug",
             )}
           >
@@ -1283,7 +1284,7 @@ function FileUploadItemProgress(props: FileUploadItemProgressProps) {
           data-slot="file-upload-progress"
           {...progressProps}
           className={cn(
-            "absolute inset-0 bg-primary/50 transition-[clip-path] duration-300 ease-linear",
+            "bg-primary/50 absolute inset-0 transition-[clip-path] duration-300 ease-linear",
             className,
           )}
           style={{
@@ -1305,12 +1306,12 @@ function FileUploadItemProgress(props: FileUploadItemProgressProps) {
           data-slot="file-upload-progress"
           {...progressProps}
           className={cn(
-            "relative h-1.5 w-full overflow-hidden rounded-full bg-primary/20",
+            "bg-primary/20 relative h-1.5 w-full overflow-hidden rounded-full",
             className,
           )}
         >
           <div
-            className="h-full w-full flex-1 bg-primary transition-transform duration-300 ease-linear"
+            className="bg-primary h-full w-full flex-1 transition-transform duration-300 ease-linear"
             style={{
               transform: `translateX(-${100 - itemContext.fileState.progress}%)`,
             }}

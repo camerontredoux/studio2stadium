@@ -34,16 +34,16 @@ export function ContentCard({
   return (
     <Frame
       compact
-      className="group [content-visibility:auto] [contain-intrinsic-block-size:auto_400px]"
+      className="group [contain-intrinsic-block-size:auto_400px] [content-visibility:auto]"
     >
       <FramePanel side="top">
         <div className="relative border-b">
           <img
             src={image}
             alt={imageAlt}
-            className="w-full h-48 object-cover"
+            className="h-48 w-full object-cover"
           />
-          <div className="absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-black/80 to-transparent pointer-events-none" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-black/80 to-transparent" />
           {badge && (
             <Badge variant="brand" className="absolute top-2.5 left-2.5">
               {badge}
@@ -51,14 +51,14 @@ export function ContentCard({
           )}
         </div>
 
-        <div className="relative duration-75 p-3 sm:p-4 flex flex-col gap-2.5 flex-1 bg-linear-to-br from-brand/10 via-background to-background group-hover:from-brand/8 group-hover:via-brand/4 transition-colors">
+        <div className="from-brand/10 via-background to-background group-hover:from-brand/8 group-hover:via-brand/4 relative flex flex-1 flex-col gap-2.5 bg-linear-to-br p-3 transition-colors duration-75 sm:p-4">
           <div
-            className="absolute inset-0 bg-brand opacity-[0.12] dark:opacity-[0.06] pointer-events-none"
+            className="bg-brand pointer-events-none absolute inset-0 opacity-[0.12] dark:opacity-[0.06]"
             style={sparkleMaskStyle}
             aria-hidden
           />
-          <div className="flex flex-col gap-1.5 flex-1">
-            <h3 className="font-semibold text-base leading-snug truncate group-hover:text-brand transition-colors">
+          <div className="flex flex-1 flex-col gap-1.5">
+            <h3 className="group-hover:text-brand truncate text-base leading-snug font-semibold transition-colors">
               {title}
             </h3>
             {children}
@@ -66,7 +66,7 @@ export function ContentCard({
         </div>
       </FramePanel>
 
-      <FrameFooter className="gap-2 px-3 sm:px-4 py-2.5">{footer}</FrameFooter>
+      <FrameFooter className="gap-2 px-3 py-2.5 sm:px-4">{footer}</FrameFooter>
     </Frame>
   );
 }

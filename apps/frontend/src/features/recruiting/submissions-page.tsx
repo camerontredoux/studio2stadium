@@ -53,18 +53,18 @@ export function SubmissionsPage() {
 
   return (
     <SidebarLayout sidebar={<RecruitingSidebar />}>
-      <div className="flex pt-1 sm:pt-0 flex-col gap-2 lg:gap-4 max-lg:pb-14">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+      <div className="flex flex-col gap-2 pt-1 max-lg:pb-14 sm:pt-0 lg:gap-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <div className="flex flex-col max-sm:pl-1">
             <div className="flex items-end gap-2">
-              <h1 className="text-2xl font-bold tracking-tight leading-none">
+              <h1 className="text-2xl leading-none font-bold tracking-tight">
                 Recruiting
               </h1>
               <Badge variant="brand" className="gap-1">
                 {MOCK_SUBMISSIONS.length} submissions
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Track your submissions and school responses
             </p>
           </div>
@@ -90,19 +90,19 @@ export function SubmissionsPage() {
           {grouped.map((group) => (
             <section
               key={group.date}
-              className="flex flex-col gap-2 lg:gap-3 relative"
+              className="relative flex flex-col gap-2 lg:gap-3"
             >
               <div className="sticky top-12 z-10 py-2">
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1.5 rounded-full border border-brand/20 bg-background/90 backdrop-blur-sm px-2.5 py-1">
-                    <CalendarIcon className="size-3.5 text-brand" />
-                    <span className="text-sm font-semibold text-brand">
+                  <div className="border-brand/20 bg-background/90 flex items-center gap-1.5 rounded-full border px-2.5 py-1 backdrop-blur-sm">
+                    <CalendarIcon className="text-brand size-3.5" />
+                    <span className="text-brand text-sm font-semibold">
                       {group.date}
                     </span>
                   </div>
                 </div>
               </div>
-              <Separator className="flex-1 -z-10 absolute top-6 left-0" />
+              <Separator className="absolute top-6 left-0 -z-10 flex-1" />
               <div className="flex flex-col gap-2 lg:gap-3">
                 {group.submissions.map((submission) => (
                   <SubmissionCard key={submission.id} submission={submission} />
@@ -114,12 +114,12 @@ export function SubmissionsPage() {
 
         {filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-            <div className="rounded-xl border bg-muted/50 p-4">
-              <TrophyIcon className="size-8 text-muted-foreground" />
+            <div className="bg-muted/50 rounded-xl border p-4">
+              <TrophyIcon className="text-muted-foreground size-8" />
             </div>
             <div>
               <p className="font-semibold">No submissions match</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Try adjusting your filters
               </p>
             </div>

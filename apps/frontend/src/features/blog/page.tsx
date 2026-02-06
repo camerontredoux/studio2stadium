@@ -5,7 +5,7 @@ import { MOCK_BLOGS } from "@/features/blog/components/mock-data";
 export function BlogPage() {
   return (
     <TabsContent value="/resources/blog">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-3 pt-2 lg:pt-4">
+      <div className="grid grid-cols-1 gap-2 pt-2 sm:grid-cols-2 lg:grid-cols-3 lg:gap-3 lg:pt-4">
         {MOCK_BLOGS.map((blog) => (
           <BlogCard key={blog.id} blog={blog} />
         ))}

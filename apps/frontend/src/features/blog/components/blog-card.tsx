@@ -15,11 +15,11 @@ export function BlogCard({ blog }: BlogCardProps) {
       title={blog.title}
       footer={<Button size="xs">Read More</Button>}
     >
-      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+      <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
         <CalendarIcon className="size-3.5 shrink-0" />
         <span>{blog.date}</span>
       </div>
-      <p className="text-sm text-muted-foreground line-clamp-3">
+      <p className="text-muted-foreground line-clamp-3 text-sm">
         {blog.description}
       </p>
     </ContentCard>

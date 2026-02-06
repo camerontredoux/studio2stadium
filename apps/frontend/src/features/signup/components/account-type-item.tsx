@@ -15,11 +15,11 @@ export function AccountTypeItem({
 }: AccountTypeItemProps) {
   return (
     <FramePanel className="p-0!">
-      <Label className="flex items-start gap-2 hover:bg-accent/50 p-3">
+      <Label className="hover:bg-accent/50 flex items-start gap-2 p-3">
         <Radio value={value} />
         <div className="flex flex-col gap-1">
           <p>{title}</p>
-          <p className="text-muted-foreground font-light text-xs">
+          <p className="text-muted-foreground text-xs font-light">
             {description}
           </p>
         </div>

@@ -47,7 +47,7 @@ function CalendarPopover({
             id={id}
             variant="outline"
             className={cn(
-              "group relative h-9 w-full justify-start whitespace-nowrap px-3 py-2 font-normal hover:bg-inherit",
+              "group relative h-9 w-full justify-start px-3 py-2 font-normal whitespace-nowrap hover:bg-inherit",
               className,
             )}
             {...props}

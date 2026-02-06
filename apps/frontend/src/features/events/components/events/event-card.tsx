@@ -37,19 +37,19 @@ export function EventCard({ event }: EventCardProps) {
         </>
       }
     >
-      <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+      <div className="text-muted-foreground flex flex-col gap-1 text-sm">
         <div className="flex items-center gap-1.5">
-          <CalendarIcon className="size-3.5 shrink-0 text-brand" />
+          <CalendarIcon className="text-brand size-3.5 shrink-0" />
           <span className="truncate">
             {event.date} &middot; {event.time}
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <MapPinIcon className="size-3.5 shrink-0 text-brand" />
+          <MapPinIcon className="text-brand size-3.5 shrink-0" />
           <span className="truncate">{event.location}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <GraduationCapIcon className="size-3.5 shrink-0 text-brand" />
+          <GraduationCapIcon className="text-brand size-3.5 shrink-0" />
           <span className="truncate">{event.organizer.name}</span>
         </div>
       </div>

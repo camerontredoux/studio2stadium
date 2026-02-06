@@ -14,15 +14,15 @@ interface School {
 
 export function RecommendedSchool({ school: _ }: { school?: School }) {
   return (
-    <div className="px-5 py-4 hover:bg-accent">
+    <div className="hover:bg-accent px-5 py-4">
       <div className="flex items-center gap-3">
-        <Avatar className="size-12 rounded-xl self-start">
+        <Avatar className="size-12 self-start rounded-xl">
           <AvatarImage src="https://github.com/shadcn.png" />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <div className="flex flex-col gap-1">
           <Link
-            className="text-sm font-semibold hover:text-brand underline underline-offset-4"
+            className="hover:text-brand text-sm font-semibold underline underline-offset-4"
             to="/explore/$username"
             params={{
               username: "usc-kaufman",
@@ -30,7 +30,7 @@ export function RecommendedSchool({ school: _ }: { school?: School }) {
           >
             USC Kaufman
           </Link>
-          <p className="text-xs text-muted-foreground flex items-center gap-1">
+          <p className="text-muted-foreground flex items-center gap-1 text-xs">
             <MapPinIcon className="size-3" /> Los Angeles, CA
           </p>
         </div>

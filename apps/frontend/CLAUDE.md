@@ -20,23 +20,27 @@ React 19 SPA using TanStack Router (file-based) and TanStack Query for data fetc
 ### Key Patterns
 
 **API Layer** (`src/lib/api/`):
+
 - Uses `openapi-fetch` + `openapi-react-query` for type-safe API calls
 - Types auto-generated from backend OpenAPI spec into `types.d.ts`
 - Global client in `client.ts` exports `$api` for TanStack Query integration
 - 401 responses auto-redirect to `/login`
 
 **Authentication Flow**:
+
 - Session fetched via `queries.session()` in `src/features/login/api/queries.ts`
 - `_app/route.tsx` guards authenticated routes with `beforeLoad`
 - Unauthenticated users redirect to `/login`, incomplete onboarding to `/onboarding`
 - `useSession()` hook provides session in authenticated routes
 
 **Access Control** (`src/lib/access.ts`):
+
 - `createAccess(session)` returns policy helpers: `can()`, `is()`, `any()`, `all()`, `guard()`, `self()`
 - Use `access.guard()` in route `beforeLoad` to enforce permissions
 - Admins bypass all policy checks
 
 **Feature Modules** (`src/features/`):
+
 - Each feature has `api/`, `components/`, `schemas.ts`
 - Features cannot import from other features (enforced by eslint-plugin-boundaries)
 - Import shared code from `components/`, `lib/`, `hooks/`, `utils/`

@@ -69,7 +69,7 @@ function videoBadge(status: VideoStatus) {
       );
     case "none":
       return (
-        <Badge variant="outline" className="gap-1 text-muted-foreground">
+        <Badge variant="outline" className="text-muted-foreground gap-1">
           <EyeIcon className="size-3" /> Not Watched
         </Badge>
       );
@@ -82,9 +82,9 @@ interface SubmissionCardProps {
 
 export function SubmissionCard({ submission }: SubmissionCardProps) {
   return (
-    <div className="bg-clip-padding relative rounded-xl border overflow-clip p-3 sm:p-4 flex gap-3 bg-linear-to-br from-brand/10 via-background to-background hover:from-brand/16 hover:via-brand/8 transition-colors [content-visibility:auto] [contain-intrinsic-block-size:auto_100px]">
+    <div className="from-brand/10 via-background to-background hover:from-brand/16 hover:via-brand/8 relative flex gap-3 overflow-clip rounded-xl border bg-linear-to-br bg-clip-padding p-3 transition-colors [contain-intrinsic-block-size:auto_100px] [content-visibility:auto] sm:p-4">
       <div
-        className="absolute inset-0 -z-10 text-brand opacity-[0.08] dark:opacity-[0.03] pointer-events-none"
+        className="text-brand pointer-events-none absolute inset-0 -z-10 opacity-[0.08] dark:opacity-[0.03]"
         aria-hidden
       >
         {TROPHY_CLASSES.map((cn, i) => (
@@ -102,17 +102,17 @@ export function SubmissionCard({ submission }: SubmissionCardProps) {
           </svg>
         ))}
       </div>
-      <Avatar className="size-14 sm:size-12 rounded-xl shrink-0">
+      <Avatar className="size-14 shrink-0 rounded-xl sm:size-12">
         <AvatarImage src={submission.avatar} />
         <AvatarFallback>{submission.initials}</AvatarFallback>
       </Avatar>
-      <div className="flex flex-col gap-2 min-w-0 flex-1 sm:flex-row sm:items-center sm:gap-4">
-        <div className="flex flex-col gap-1.5 min-w-0 sm:flex-1">
+      <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+        <div className="flex min-w-0 flex-col gap-1.5 sm:flex-1">
           <div>
-            <h3 className="font-semibold text-sm sm:text-base truncate">
+            <h3 className="truncate text-sm font-semibold sm:text-base">
               {submission.name}
             </h3>
-            <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+            <p className="text-muted-foreground flex items-center gap-1 text-xs sm:text-sm">
               <MapPinIcon className="size-3 shrink-0" /> {submission.location}
             </p>
           </div>
@@ -121,7 +121,7 @@ export function SubmissionCard({ submission }: SubmissionCardProps) {
             {videoBadge(submission.videoStatus)}
           </div>
         </div>
-        <div className="flex gap-2 sm:flex-col sm:shrink-0">
+        <div className="flex gap-2 sm:shrink-0 sm:flex-col">
           <Button
             size="xs"
             render={

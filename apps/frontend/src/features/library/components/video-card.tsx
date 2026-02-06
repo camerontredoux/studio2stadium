@@ -47,19 +47,19 @@ export function ContentCard({
   return (
     <Frame
       compact
-      className="group [content-visibility:auto] [contain-intrinsic-block-size:auto_300px]"
+      className="group [contain-intrinsic-block-size:auto_300px] [content-visibility:auto]"
     >
       <FramePanel side="top">
         <Dialog>
           <DialogTrigger
             render={
-              <div className="group cursor-pointer relative flex items-center justify-center aspect-video">
+              <div className="group relative flex aspect-video cursor-pointer items-center justify-center">
                 <img
                   src={`https://img.youtube.com/vi/${image}/hqdefault.jpg`}
                   alt={imageAlt}
-                  className="w-full aspect-video object-cover"
+                  className="aspect-video w-full object-cover"
                 />
-                <div className="group-hover:from-black/60 absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-black/80 to-transparent pointer-events-none" />
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-black/80 to-transparent group-hover:from-black/60" />
                 {badge && (
                   <Badge variant="brand" className="absolute top-2.5 left-2.5">
                     {badge}
@@ -68,7 +68,7 @@ export function ContentCard({
               </div>
             }
           />
-          <DialogContent className="overflow-clip max-w-7xl">
+          <DialogContent className="max-w-7xl overflow-clip">
             <DialogHeader>
               <DialogTitle>Watch Video</DialogTitle>
             </DialogHeader>

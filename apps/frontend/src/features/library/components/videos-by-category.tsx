@@ -32,7 +32,7 @@ export function VideosByCategory({ group }: { group: Group }) {
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-3">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 lg:gap-3">
         {group.videos.map((video) => (
           <VideoCard key={video.id} video={video} />
         ))}
@@ -44,7 +44,7 @@ export function VideosByCategory({ group }: { group: Group }) {
       {(hasNextPage || !fetch) && (
         <Button
           onClick={() => (!fetch ? setFetch(true) : fetchNextPage())}
-          className="w-fit mx-auto"
+          className="mx-auto w-fit"
         >
           {isFetchingNextPage ? <Spinner label="Loading..." /> : "Load More"}
         </Button>

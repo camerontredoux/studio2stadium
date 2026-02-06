@@ -454,7 +454,7 @@ function SortableItem(props: SortableItemProps) {
         ref={composedRef}
         style={composedStyle}
         className={cn(
-          "focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1",
+          "focus-visible:ring-ring focus-visible:ring-1 focus-visible:ring-offset-1 focus-visible:outline-hidden",
           {
             "touch-none select-none": asHandle,
             "cursor-default": context.flatCursor,
@@ -530,8 +530,8 @@ interface SortableOverlayProps extends Omit<
 > {
   container?: Element | DocumentFragment | null;
   children?:
-  | ((params: { value: UniqueIdentifier }) => React.ReactNode)
-  | React.ReactNode;
+    | ((params: { value: UniqueIdentifier }) => React.ReactNode)
+    | React.ReactNode;
 }
 
 function SortableOverlay(props: SortableOverlayProps) {

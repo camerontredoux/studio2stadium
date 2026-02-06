@@ -47,7 +47,7 @@ export const Route = createFileRoute("/_onboarding")({
 
 function PendingComponent() {
   return (
-    <div className="max-w-7xl mx-auto h-screen flex items-center justify-center">
+    <div className="mx-auto flex h-screen max-w-7xl items-center justify-center">
       <Spinner />
     </div>
   );
@@ -55,7 +55,7 @@ function PendingComponent() {
 
 function ErrorComponent({ error }: ErrorComponentProps) {
   return (
-    <div className="max-w-7xl mx-auto h-screen flex items-center justify-center">
+    <div className="mx-auto flex h-screen max-w-7xl items-center justify-center">
       <div>Error: {error.message}</div>
     </div>
   );
