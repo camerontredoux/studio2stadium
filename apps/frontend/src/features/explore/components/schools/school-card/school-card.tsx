@@ -16,10 +16,10 @@ export function SchoolCard({ school }: SchoolCardProps) {
       <CardBackground />
 
       <div className="flex h-full min-w-0 flex-1 gap-2 sm:flex-row sm:gap-3">
-        <CardAvatar school={school} />
+        <CardAvatar user={school.user} />
         <CardContent school={school} />
       </div>
-      <CardButtons username={school.user?.username ?? ""} />
+      <CardButtons username={school.user?.username} />
     </div>
   );
 }

@@ -27,24 +27,19 @@ const gpaRangeRule = vine.createRule((value, _, ctx) => {
   ctx.mutate({ min, max }, ctx);
 });
 
-const csvEnum = <T extends readonly string[]>(validValues: T) =>
-  vine.createRule((value, _, field) => {
-    if (typeof value !== "string") return;
-
+const csvEnum =
+  <T extends readonly string[]>(validValues: T) =>
+  (value: string) => {
     const parts = value.split(",").map((v) => v.trim());
     for (const part of parts) {
       if (!validValues.includes(part)) {
-        field.report(
-          `Invalid value: ${part}. Must be one of: ${validValues.map((v) => `"${v}"`).join(", ")}`,
-          "csvEnum",
-          field
+        throw new Error(
+          `Invalid value: ${part}. Must be one of: ${validValues.map((v) => `"${v}"`).join(", ")}`
         );
-        return;
       }
     }
-
-    field.mutate(parts as unknown as T[number][], field);
-  });
+    return parts as T[number][];
+  };
 
 export const validator = vine.create(
   vine.object({
@@ -52,9 +47,9 @@ export const validator = vine.create(
     upcomingEvents: vine.boolean().optional(),
     gpaRange: vine.any().use(gpaRangeRule()).optional(),
     location: vine.enum(stateCodes).optional(),
-    division: vine.string().use(csvEnum(divisionCodes)()).optional(),
-    sports: vine.string().use(csvEnum(sportCodes)()).optional(),
-    styles: vine.string().use(csvEnum(sportCodes)()).optional(),
+    division: vine.string().transform(csvEnum(divisionCodes)).optional(),
+    sports: vine.string().transform(csvEnum(sportCodes)).optional(),
+    styles: vine.string().transform(csvEnum(sportCodes)).optional(),
   })
 );
 

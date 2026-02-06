@@ -233,6 +233,28 @@
         "description": "Returns the filters to use when searching for dancers"
       }
     },
+    "/events": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Events"
+        ],
+        "summary": "List events",
+        "description": "Returns a list of events"
+      }
+    },
     "/health": {
       "get": {
         "parameters": [],
@@ -264,7 +286,74 @@
       "get": {
         "parameters": [
           {
-            "name": "cursor",
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "OR",
+                    "AL",
+                    "AK",
+                    "AZ",
+                    "AR",
+                    "CA",
+                    "CO",
+                    "CT",
+                    "DE",
+                    "FL",
+                    "GA",
+                    "HI",
+                    "ID",
+                    "IL",
+                    "IN",
+                    "IA",
+                    "KS",
+                    "KY",
+                    "LA",
+                    "ME",
+                    "MD",
+                    "MA",
+                    "MI",
+                    "MN",
+                    "MS",
+                    "MO",
+                    "MT",
+                    "NE",
+                    "NV",
+                    "NH",
+                    "NJ",
+                    "NM",
+                    "NY",
+                    "NC",
+                    "ND",
+                    "OH",
+                    "OK",
+                    "PA",
+                    "RI",
+                    "SC",
+                    "SD",
+                    "TN",
+                    "TX",
+                    "UT",
+                    "VT",
+                    "VA",
+                    "WA",
+                    "WV",
+                    "WI",
+                    "WY"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "division",
             "in": "query",
             "required": false,
             "schema": {
@@ -276,6 +365,83 @@
                   "type": "null"
                 }
               ]
+            }
+          },
+          {
+            "name": "styles",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "sports",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "commonRecruiting",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "upcomingEvents",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "gpaRange",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "object",
+              "properties": {}
             }
           }
         ],
@@ -328,6 +494,80 @@
         ],
         "summary": "Get school filters",
         "description": "Returns the filters to use when searching for schools"
+      }
+    },
+    "/library": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Video Library"
+        ],
+        "summary": "List tap in videos",
+        "description": "Returns a list of all tap in videos with their category"
+      }
+    },
+    "/library/{category}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": [
+                "string",
+                "number"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryIdResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Video Library"
+        ],
+        "summary": "List videos by category",
+        "description": "Returns a list of videos by category, paginated with 6 results at a time"
       }
     },
     "/users/check-availability": {
@@ -837,7 +1077,7 @@
                         "name": {
                           "type": "string"
                         },
-                        "id": {
+                        "slug": {
                           "type": "string"
                         },
                         "category": {
@@ -846,7 +1086,7 @@
                       },
                       "required": [
                         "name",
-                        "id",
+                        "slug",
                         "category"
                       ]
                     }
@@ -859,13 +1099,13 @@
                         "name": {
                           "type": "string"
                         },
-                        "id": {
+                        "slug": {
                           "type": "string"
                         }
                       },
                       "required": [
                         "name",
-                        "id"
+                        "slug"
                       ]
                     }
                   }
@@ -947,6 +1187,97 @@
             "id",
             "label",
             "paramKey"
+          ]
+        }
+      },
+      "EventsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "audition",
+                      "rehearsal",
+                      "recital",
+                      "showcase",
+                      "competition",
+                      "class",
+                      "intensive",
+                      "workshop",
+                      "fundraiser",
+                      "combine",
+                      "convention",
+                      "clinic",
+                      "deadline",
+                      "recruitment",
+                      "performance",
+                      "camp",
+                      "other"
+                    ]
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "date": {
+                    "type": "string"
+                  },
+                  "time": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "organizer": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "thumbnail": {
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "thumbnail"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "id",
+                  "date",
+                  "time",
+                  "location",
+                  "title",
+                  "organizer"
+                ]
+              }
+            },
+            "month": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "events",
+            "month"
           ]
         }
       },
@@ -1075,10 +1406,16 @@
                 }
               ]
             },
+            "events": {
+              "type": "number"
+            },
             "name": {
               "type": "string"
             },
             "id": {
+              "type": "string"
+            },
+            "createdAt": {
               "type": "string"
             },
             "location": {
@@ -1117,8 +1454,10 @@
           },
           "required": [
             "user",
+            "events",
             "name",
             "id",
+            "createdAt",
             "location",
             "gpa",
             "division",
@@ -1174,6 +1513,89 @@
             "id",
             "label",
             "paramKey"
+          ]
+        }
+      },
+      "LibraryResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string"
+            },
+            "videos": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "createdAt": {
+                    "type": "string"
+                  },
+                  "updatedAt": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "category": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "url",
+                  "id",
+                  "createdAt",
+                  "updatedAt",
+                  "title",
+                  "category"
+                ]
+              }
+            }
+          },
+          "required": [
+            "category",
+            "videos"
+          ]
+        }
+      },
+      "LibraryIdResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "updatedAt": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "category": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url",
+            "id",
+            "createdAt",
+            "updatedAt",
+            "title",
+            "category"
           ]
         }
       },

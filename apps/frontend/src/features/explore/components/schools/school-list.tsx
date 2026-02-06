@@ -16,12 +16,15 @@ import { HiOutlineCalendar } from "react-icons/hi";
 import { queries } from "../../api/queries";
 import { SchoolCard } from "./school-card/school-card";
 import { Spinner } from "@/components/ui/spinner";
+import { SchoolListSkeleton } from "./school-skeleton";
 
 export function SchoolList() {
   const navigate = useNavigate({ from: "/explore/" });
 
   const { name, ...search } = useSearch({ from: "/_app/(routes)/explore/" });
-  const { data, isPlaceholderData } = useQuery(queries.schools(search));
+  const { data, isPending, isPlaceholderData } = useQuery(
+    queries.schools(search),
+  );
 
   const rows =
     data?.filter((school) =>
@@ -42,6 +45,10 @@ export function SchoolList() {
   });
 
   const virtualItems = rowVirtualizer.getVirtualItems();
+
+  if (isPending) {
+    return <SchoolListSkeleton />;
+  }
 
   if (rows.length === 0) {
     return (

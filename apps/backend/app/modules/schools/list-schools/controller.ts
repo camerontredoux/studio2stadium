@@ -11,18 +11,18 @@ export default class ListSchoolsController {
     const override = user.role === "admin";
 
     const payload = await ctx.request.validateUsing(validator);
+    const { upcomingEvents, ...filters } = payload;
 
-    if (Object.keys(payload).length > 0 || override) {
+    if (Object.keys(filters).length || override) {
       const schools = await service.execute(payload, override);
       return ctx.response.ok(schools);
     }
 
+    const key = upcomingEvents ? "schools:list:upcoming" : "schools:list";
+
     const schools = await cache.getOrSet({
-      key: `schools:list`,
-      factory: async () => {
-        return await service.execute(payload, override);
-      },
-      tags: ["schools:list"],
+      key,
+      factory: () => service.execute(payload, override),
       ttl: "1h",
       grace: "24h",
     });

@@ -1,7 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { DIVISIONS } from "@/utils/constants/divisions";
 import { US_STATES } from "@/utils/constants/states";
-import { MapPinIcon, TargetIcon, Users2Icon, VerifiedIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  MapPinIcon,
+  TargetIcon,
+  Users2Icon,
+  VerifiedIcon,
+} from "lucide-react";
 import type { School } from "./school-card";
 
 export function CardContent({ school }: { school: School }) {
@@ -12,10 +18,18 @@ export function CardContent({ school }: { school: School }) {
           <span className="truncate">{school.name}</span>
           <VerifiedIcon className="text-brand size-4 shrink-0" />
         </h3>
-        <p className="text-muted-foreground flex items-center gap-1 text-sm">
-          <MapPinIcon className="text-brand size-3 shrink-0" />{" "}
-          {US_STATES[school.location as keyof typeof US_STATES]}
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-muted-foreground flex items-center gap-1 text-sm">
+            <MapPinIcon className="text-brand size-3.5 shrink-0" />{" "}
+            {US_STATES[school.location as keyof typeof US_STATES]}
+          </p>
+          {school.events ? (
+            <p className="text-muted-foreground flex items-center gap-1 text-sm">
+              <CalendarIcon className="text-brand size-3.5 shrink-0" />{" "}
+              {school.events} {school.events === 1 ? "event" : "events"}
+            </p>
+          ) : null}
+        </div>
       </div>
       <div className="flex flex-wrap gap-1.5">
         {school.division && (
