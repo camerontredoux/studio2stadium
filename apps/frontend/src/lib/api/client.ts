@@ -6,7 +6,7 @@ export type ApiSchemas = components["schemas"];
 
 export const createClient = () => {
   const client = createFetchClient<paths, "application/json">({
-    baseUrl: "api",
+    baseUrl: import.meta.env.VITE_API_URL,
     headers: {
       "Content-Type": "application/json",
     },

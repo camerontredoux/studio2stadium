@@ -4,7 +4,7 @@ import createFetchClient from "openapi-fetch";
 import { SessionNetworkError } from "./errors";
 
 const client = createFetchClient<paths>({
-  baseUrl: "api",
+  baseUrl: import.meta.env.VITE_API_URL,
   headers: {
     "Content-Type": "application/json",
   },
