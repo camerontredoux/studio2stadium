@@ -1,0 +1,55 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build OpenAPI package
+        run: pnpm --filter @stos/openapi build
+
+      - name: Generate OpenAPI spec
+        run: pnpm --filter backend exec node ace generate:openapi
+        env:
+          NODE_ENV: production
+          PORT: ${{ vars.PORT }}
+          APP_KEY: ${{ secrets.APP_KEY }}
+          HOST: ${{ vars.HOST }}
+          LOG_LEVEL: ${{ vars.LOG_LEVEL }}
+          HEALTH_SECRET: ${{ secrets.HEALTH_SECRET }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          REDIS_USERNAME: ${{ secrets.REDIS_USERNAME }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          SESSION_DRIVER: ${{ vars.SESSION_DRIVER }}
+          LIMITER_STORE: ${{ vars.LIMITER_STORE }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          MAIL_FROM_ADDRESS: ${{ vars.MAIL_FROM_ADDRESS }}
+          MAIL_FROM_NAME: ${{ vars.MAIL_FROM_NAME }}
+          DRIVE_DISK: ${{ vars.DRIVE_DISK }}
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy to Fly.io
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

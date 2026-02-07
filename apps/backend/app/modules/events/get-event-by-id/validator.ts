@@ -4,7 +4,7 @@ import { Infer } from "@vinejs/vine/types";
 export const validator = vine.create(
   vine.object({
     params: vine.object({
-      id: vine.string(),
+      id: vine.string().uuid(),
     }),
   })
 );

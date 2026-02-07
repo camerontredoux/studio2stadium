@@ -747,6 +747,8 @@ export interface components {
              */
             message: string;
         };
+        /** @enum {string} */
+        SearchParamKey: "name" | "location" | "division" | "styles" | "sports" | "commonRecruiting" | "upcomingEvents" | "gpaRange";
         AuthSignupRequest: {
             phone?: string | null;
             email: string;
@@ -835,17 +837,7 @@ export interface components {
                 }[];
             } | null;
         };
-        DancersFiltersResponse: {
-            /** @enum {string} */
-            type: "select" | "input" | "toggle" | "multi-select" | "range";
-            id: string;
-            options?: {
-                label: string;
-                value: string;
-            }[];
-            label: string;
-            paramKey: string;
-        }[];
+        DancersFiltersResponse: Record<string, never>[];
         EventsResponse: {
             events: {
                 /** @enum {string} */
@@ -935,7 +927,7 @@ export interface components {
                 value: string;
             }[];
             label: string;
-            paramKey: string;
+            paramKey: components["schemas"]["SearchParamKey"];
         }[];
         LibraryResponse: {
             category: string;

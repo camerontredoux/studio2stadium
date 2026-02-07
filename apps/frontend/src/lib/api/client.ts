@@ -6,7 +6,7 @@ export type ApiSchemas = components["schemas"];
 
 export const createClient = () => {
   const client = createFetchClient<paths, "application/json">({
-    baseUrl: "http://localhost:3333",
+    baseUrl: "api",
     headers: {
       "Content-Type": "application/json",
     },

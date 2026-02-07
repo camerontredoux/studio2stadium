@@ -4,7 +4,7 @@ const cacheConfig = defineConfig({
   default: "default",
   stores: {
     default: store()
-      .useL1Layer(drivers.memory({ maxSize: "100mb" }))
+      .useL1Layer(drivers.memory({ maxSize: "64mb" }))
       .useL2Layer(
         drivers.redis({
           connectionName: "cache",

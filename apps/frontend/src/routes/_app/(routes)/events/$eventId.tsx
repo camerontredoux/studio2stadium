@@ -3,9 +3,10 @@ import { EventDetail } from "@/features/events/components/details/event-detail";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/events/$eventId")({
-  loader: ({ context: { queryClient }, params }) => {
-    queryClient.ensureQueryData(queries.event(params.eventId));
+  loader: async ({ context: { queryClient }, params }) => {
+    await queryClient.ensureQueryData(queries.event(params.eventId));
   },
+  pendingMs: 200,
   component: RouteComponent,
 });
 

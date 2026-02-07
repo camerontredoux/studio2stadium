@@ -18,10 +18,12 @@ import {
 import { HiOutlineSparkles, HiSparkles } from "react-icons/hi2";
 
 import { useSession } from "@/lib/session";
+import { useLocation } from "@tanstack/react-router";
 import { NavLink } from "./nav-link";
 
 export function Navbar() {
   const session = useSession();
+  const pathname = useLocation({ select: (l) => l.pathname });
 
   return (
     <aside className="mobile:z-50 mobile:fixed mobile:bg-background mobile:left-0 mobile:right-0 mobile:bottom-0 mobile:w-full mobile:border-t w-fit shrink-0 xl:w-72">
@@ -36,7 +38,7 @@ export function Navbar() {
           <NavLink
             to="/explore"
             label="Explore"
-            preload="render"
+            preload={pathname === "/explore" ? false : "render"}
             activeIcon={HiSearchCircle}
             inactiveIcon={HiOutlineSearchCircle}
           />

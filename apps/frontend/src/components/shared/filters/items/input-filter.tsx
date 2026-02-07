@@ -4,7 +4,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { debounce } from "@tanstack/pacer";
 import { SearchIcon } from "lucide-react";
 import { useState } from "react";
-import type { FilterValue, OnFilterChange } from "../filter-item";
+import type { OnFilterChange } from "../filter-item";
+import type { FilterValue } from "../types";
 
 interface InputFilterProps {
   value: FilterValue;

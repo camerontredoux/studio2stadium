@@ -22,7 +22,11 @@ interface EventDetailProps {
 }
 
 export function EventDetail({ eventId }: EventDetailProps) {
-  const { data: event } = useSuspenseQuery(queries.event(eventId));
+  const { data: event, error } = useSuspenseQuery(queries.event(eventId));
+
+  if (error?.errors) {
+    return error.errors.map((err) => <div>{err.message}</div>);
+  }
 
   if (!event) {
     return (

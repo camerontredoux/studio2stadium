@@ -1,7 +1,5 @@
-import {
-  FilterItem,
-  type FilterValue,
-} from "@/components/shared/filters/filter-item";
+import { FilterItem } from "@/components/shared/filters/filter-item";
+import type { FilterValue } from "@/components/shared/filters/types";
 import { Accordion } from "@/components/ui/accordion";
 import type { ApiSchemas } from "@/lib/api/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -9,7 +7,7 @@ import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useCallback } from "react";
 import { queries } from "../../api/queries";
 
-type Filter = ApiSchemas["DancersFiltersResponse"][number];
+type Filter = ApiSchemas["SchoolsFiltersResponse"][number];
 
 function ConnectedFilterItem({ filter }: { filter: Filter }) {
   const value = useSearch({

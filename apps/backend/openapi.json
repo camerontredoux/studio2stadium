@@ -7,6 +7,10 @@
   },
   "servers": [
     {
+      "url": "https://studio2stadium-dev.fly.dev",
+      "description": "Development endpoint"
+    },
+    {
       "url": "http://localhost:3333"
     }
   ],
@@ -255,6 +259,47 @@
         "description": "Returns a list of events"
       }
     },
+    "/events/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventsIdResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Events"
+        ],
+        "summary": "Get event by id",
+        "description": "Returns details about a specific event"
+      }
+    },
     "/health": {
       "get": {
         "parameters": [],
@@ -295,6 +340,7 @@
                   "type": "string",
                   "enum": [
                     "OR",
+                    "ID",
                     "AL",
                     "AK",
                     "AZ",
@@ -306,7 +352,6 @@
                     "FL",
                     "GA",
                     "HI",
-                    "ID",
                     "IL",
                     "IN",
                     "IA",
@@ -673,6 +718,19 @@
         "required": [
           "field",
           "message"
+        ]
+      },
+      "SchoolFilterParam": {
+        "type": "string",
+        "enum": [
+          "name",
+          "location",
+          "division",
+          "styles",
+          "sports",
+          "commonRecruiting",
+          "upcomingEvents",
+          "gpaRange"
         ]
       },
       "AuthSignupRequest": {
@@ -1281,6 +1339,171 @@
           ]
         }
       },
+      "EventsIdResponse": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "audition",
+              "rehearsal",
+              "recital",
+              "showcase",
+              "competition",
+              "class",
+              "intensive",
+              "workshop",
+              "fundraiser",
+              "combine",
+              "convention",
+              "clinic",
+              "deadline",
+              "recruitment",
+              "performance",
+              "camp",
+              "other"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "website": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "schoolId": {
+            "type": "string"
+          },
+          "address": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tags": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cost": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "startDatetime": {
+            "type": "string"
+          },
+          "endDatetime": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "schedule": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "time": {
+                  "type": "string"
+                },
+                "activity": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "time",
+                "activity"
+              ]
+            }
+          },
+          "organizer": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              },
+              "avatar": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "name",
+              "username",
+              "avatar"
+            ]
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "createdAt",
+          "updatedAt",
+          "location",
+          "title",
+          "description",
+          "website",
+          "schoolId",
+          "address",
+          "tags",
+          "cost",
+          "startDatetime",
+          "endDatetime",
+          "timezone",
+          "organizer"
+        ]
+      },
       "HealthResponse": {
         "type": "object",
         "properties": {
@@ -1505,7 +1728,7 @@
               "type": "string"
             },
             "paramKey": {
-              "type": "string"
+              "$ref": "#/components/schemas/SchoolFilterParam"
             }
           },
           "required": [

@@ -33,6 +33,17 @@ export default defineConfig({
         "./src/routeTree.gen.ts",
       ],
     },
+    proxy: {
+      "/api": {
+        target: "https://studio2stadium-dev.fly.dev",
+        changeOrigin: true,
+        cookieDomainRewrite: "localhost",
+        rewrite: (path) => path.replace(/^\/api/, ""),
+        headers: {
+          Connection: "keep-alive",
+        },
+      },
+    },
   },
   plugins: [
     devtools(),

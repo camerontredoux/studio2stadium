@@ -10,7 +10,8 @@ import {
   ComboboxValue,
 } from "@/components/ui/combobox";
 import { Fragment } from "react";
-import type { FilterValue, OnFilterChange } from "../filter-item";
+import type { OnFilterChange } from "../filter-item";
+import type { FilterValue } from "../types";
 
 type Option = { value: string; label: string };
 

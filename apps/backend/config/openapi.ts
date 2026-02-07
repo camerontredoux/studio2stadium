@@ -9,6 +9,12 @@ const openapiConfig = defineConfig({
         description:
           "Endpoint documentation for the backend. TanStack Query hooks are generated using the openapi specification at `/openapi`",
       },
+      servers: [
+        {
+          url: "https://studio2stadium-dev.fly.dev",
+          description: "Development endpoint",
+        },
+      ],
       tags: [
         {
           name: "Authentication",

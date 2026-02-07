@@ -4,7 +4,7 @@ import createFetchClient from "openapi-fetch";
 import { SessionNetworkError } from "./errors";
 
 const client = createFetchClient<paths>({
-  baseUrl: "http://localhost:3333",
+  baseUrl: "api",
   headers: {
     "Content-Type": "application/json",
   },

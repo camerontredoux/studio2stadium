@@ -7,6 +7,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { Spinner } from "@/components/ui/spinner";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
@@ -15,7 +16,6 @@ import { useRef } from "react";
 import { HiOutlineCalendar } from "react-icons/hi";
 import { queries } from "../../api/queries";
 import { SchoolCard } from "./school-card/school-card";
-import { Spinner } from "@/components/ui/spinner";
 import { SchoolListSkeleton } from "./school-skeleton";
 
 export function SchoolList() {

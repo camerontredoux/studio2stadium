@@ -1,5 +1,6 @@
 import { Switch } from "@/components/ui/switch";
-import type { FilterValue, OnFilterChange } from "../filter-item";
+import type { OnFilterChange } from "../filter-item";
+import type { FilterValue } from "../types";
 
 interface SwitchFilterProps {
   value: FilterValue;

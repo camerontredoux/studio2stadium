@@ -7,7 +7,8 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { CheckIcon } from "lucide-react";
 import { useState } from "react";
-import type { FilterValue, OnFilterChange } from "../filter-item";
+import type { OnFilterChange } from "../filter-item";
+import type { FilterValue } from "../types";
 
 interface RangeFilterProps {
   value: FilterValue;

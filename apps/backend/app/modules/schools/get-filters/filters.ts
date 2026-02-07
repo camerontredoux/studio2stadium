@@ -1,7 +1,24 @@
 import { divisionOptions } from "#shared/constants/divisions";
 import { sportOptions } from "#shared/constants/sports";
 import { stateOptions } from "#shared/constants/states";
-import { type Filter } from "#shared/types/filters";
+
+type SchoolFilterParam =
+  | "name"
+  | "commonRecruiting"
+  | "upcomingEvents"
+  | "gpaRange"
+  | "location"
+  | "division"
+  | "sports"
+  | "styles";
+
+export type Filter = {
+  label: string;
+  id: string;
+  type: "input" | "select" | "toggle" | "multi-select" | "range";
+  paramKey: SchoolFilterParam;
+  options?: { label: string; value: string }[];
+};
 
 export const filters: Filter[] = [
   {

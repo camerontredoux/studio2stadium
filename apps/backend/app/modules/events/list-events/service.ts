@@ -77,7 +77,6 @@ export class Service {
         orderBy: {
           startDatetime: "asc",
         },
-        limit: 20,
       })
     );
   }
