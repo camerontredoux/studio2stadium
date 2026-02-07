@@ -13,18 +13,18 @@ interface Event {
 
 export function UpcomingEvent({ event: _ }: { event?: Event }) {
   return (
-    <div className="px-5 py-4 hover:bg-accent">
+    <div className="hover:bg-accent px-5 py-4">
       <div className="flex items-center gap-3">
-        <Avatar className="size-12 rounded-xl self-start">
+        <Avatar className="size-12 self-start rounded-xl">
           <AvatarImage src="https://github.com/shadcn.png" />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <div className="flex flex-col gap-1">
-          <h3 className="text-sm font-semibold flex items-center gap-2">
+          <h3 className="flex items-center gap-2 text-sm font-semibold">
             Event Title <Badge variant="success">Type</Badge>
           </h3>
-          <p className="text-xs text-muted-foreground">USC Kaufman</p>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">USC Kaufman</p>
+          <div className="text-muted-foreground flex items-center gap-2 text-xs">
             <div className="flex items-center gap-1">
               <CalendarIcon className="size-3" /> Oct 28
             </div>

@@ -1,4 +1,9 @@
-import { Frame, FrameHeader, FramePanel, FrameTitle } from "@/components/ui/frame";
+import {
+  Frame,
+  FrameHeader,
+  FramePanel,
+  FrameTitle,
+} from "@/components/ui/frame";
 
 interface EventAboutProps {
   description: string;
@@ -12,7 +17,7 @@ export function EventAbout({ description }: EventAboutProps) {
           <FrameTitle>About</FrameTitle>
         </FrameHeader>
         <div className="px-5 pb-4">
-          <p className="text-sm leading-relaxed text-muted-foreground">
+          <p className="text-muted-foreground text-sm leading-relaxed">
             {description}
           </p>
         </div>

@@ -2,10 +2,10 @@ import { middleware } from "#start/kernel";
 import { tooManyRequests } from "#utils/responses";
 import router from "@adonisjs/core/services/router";
 
-const GetSessionController = () => import("./get-session/index.ts");
-const LogoutController = () => import("./logout/index.ts");
-const LoginController = () => import("./login/index.ts");
-const SignupController = () => import("./signup/index.ts");
+const GetSessionController = () => import("./get-session/controller.ts");
+const LogoutController = () => import("./logout/controller.ts");
+const LoginController = () => import("./login/controller.ts");
+const SignupController = () => import("./signup/controller.ts");
 
 router
   .group(() => {

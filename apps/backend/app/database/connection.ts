@@ -1,16 +1,12 @@
 import env from "#start/env";
-import { Kysely, PostgresDialect } from "kysely";
-import { Pool } from "pg";
-import { type DB } from "./generated/types.ts";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import { relations } from "./schema/relations.ts";
 
-const pool = new Pool({
-  connectionString: env.get("DATABASE_URL"),
-});
+const client = postgres(env.get("DATABASE_URL"), { prepare: false });
 
-const dialect = new PostgresDialect({
-  pool,
-});
-
-export const db = new Kysely<DB>({
-  dialect,
+export const db = drizzle({
+  client,
+  relations,
+  casing: "snake_case",
 });

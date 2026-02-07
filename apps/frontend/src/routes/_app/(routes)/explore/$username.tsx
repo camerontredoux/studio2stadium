@@ -10,6 +10,7 @@ export const Route = createFileRoute("/_app/(routes)/explore/$username")({
     queryClient.ensureQueryData(queries.detail(params.username));
   },
   component: RouteComponent,
+  pendingComponent: () => <div>Pending...</div>,
 });
 
 function RouteComponent() {

@@ -943,11 +943,11 @@ function TourStep(props: TourStepProps) {
       typeof stepData.collisionPadding === "number"
         ? stepData.collisionPadding
         : {
-          top: stepData.collisionPadding?.top ?? 0,
-          right: stepData.collisionPadding?.right ?? 0,
-          bottom: stepData.collisionPadding?.bottom ?? 0,
-          left: stepData.collisionPadding?.left ?? 0,
-        };
+            top: stepData.collisionPadding?.top ?? 0,
+            right: stepData.collisionPadding?.right ?? 0,
+            bottom: stepData.collisionPadding?.bottom ?? 0,
+            left: stepData.collisionPadding?.left ?? 0,
+          };
 
     const boundary = Array.isArray(stepData.collisionBoundary)
       ? stepData.collisionBoundary
@@ -968,19 +968,19 @@ function TourStep(props: TourStepProps) {
         alignmentAxis: crossAxisOffset,
       }),
       stepData.avoidCollisions &&
-      shift({
-        mainAxis: true,
-        crossAxis: false,
-        limiter: stepData.sticky === "partial" ? limitShift() : undefined,
-        ...detectOverflowOptions,
-      }),
+        shift({
+          mainAxis: true,
+          crossAxis: false,
+          limiter: stepData.sticky === "partial" ? limitShift() : undefined,
+          ...detectOverflowOptions,
+        }),
       stepData.avoidCollisions && flip({ ...detectOverflowOptions }),
       arrow && onArrow({ element: arrow, padding: stepData.arrowPadding }),
       stepData.hideWhenDetached &&
-      hide({
-        strategy: "referenceHidden",
-        ...detectOverflowOptions,
-      }),
+        hide({
+          strategy: "referenceHidden",
+          ...detectOverflowOptions,
+        }),
     ].filter(Boolean) as Middleware[];
   }, [stepData, resolvedSideOffset, resolvedAlignOffset, arrow]);
 
@@ -1233,7 +1233,7 @@ function TourStep(props: TourStepProps) {
         onFocusCapture={onFocusCapture}
         onBlurCapture={onBlurCapture}
         className={cn(
-          "fixed z-50 flex w-80 flex-col gap-4 rounded-lg border bg-popover p-4 text-popover-foreground shadow-md outline-none",
+          "bg-popover text-popover-foreground fixed z-50 flex w-80 flex-col gap-4 rounded-lg border p-4 shadow-md outline-none",
           className,
         )}
         style={{
@@ -1280,7 +1280,7 @@ function TourSpotlight(props: TourSpotlightProps) {
       data-state={getDataState(open)}
       {...backdropProps}
       className={cn(
-        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/80 data-[state=closed]:animate-out data-[state=open]:animate-in",
+        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=open]:animate-in fixed inset-0 z-50 bg-black/80",
         className,
       )}
       style={{
@@ -1312,7 +1312,7 @@ function TourSpotlightRing(props: TourSpotlightRingProps) {
       data-state={getDataState(open)}
       {...ringProps}
       className={cn(
-        "pointer-events-none fixed z-50 border-ring ring-[3px] ring-ring/50",
+        "border-ring ring-ring/50 pointer-events-none fixed z-50 ring-[3px]",
         className,
       )}
       style={{
@@ -1406,7 +1406,7 @@ function TourArrow(props: TourArrowProps) {
         width={width}
         height={height}
         {...arrowProps}
-        className={cn("block fill-popover stroke-border", className)}
+        className={cn("fill-popover stroke-border block", className)}
       >
         {asChild ? children : <polygon points="0,0 30,0 15,10" />}
       </svg>
@@ -1447,7 +1447,7 @@ function TourTitle(props: DivProps) {
       dir={context.dir}
       {...titleProps}
       className={cn(
-        "font-semibold text-lg leading-none tracking-tight",
+        "text-lg leading-none font-semibold tracking-tight",
         className,
       )}
     />
@@ -1502,7 +1502,7 @@ function TourClose(props: TourCloseProps) {
       type="button"
       aria-label="Close tour"
       className={cn(
-        "absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "ring-offset-background focus:ring-ring absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       onClick={onClick}

@@ -1,14 +1,14 @@
-import { PlatformName } from "#database/generated/types";
+import { platformName } from "#database/schema/enums";
 import vine from "@vinejs/vine";
 import { type Infer } from "@vinejs/vine/types";
 
-export const createDancerValidator = vine.create(
+export const validator = vine.create(
   vine.object({
-    platform: vine.enum(PlatformName),
+    platform: vine.enum(platformName.enumValues),
     birthday: vine.date(),
     phoneNumber: vine.string().mobile().optional(),
     location: vine.string(),
   })
 );
 
-export type CreateDancerValidator = Infer<typeof createDancerValidator>;
+export type Validator = Infer<typeof validator>;

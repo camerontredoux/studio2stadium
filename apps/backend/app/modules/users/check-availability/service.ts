@@ -1,12 +1,17 @@
-import { inject } from "@adonisjs/core";
-import { getAccountByUsername } from "./queries.ts";
-import { CheckAvailabilityValidator } from "./validator.ts";
+import { db } from "#database/connection";
+import { sql } from "drizzle-orm";
+import { Validator } from "./validator.ts";
 
-@inject()
-export class CheckAvailabilityService {
-  async execute({ username }: CheckAvailabilityValidator): Promise<boolean> {
-    const user = await getAccountByUsername(username);
+export class Service {
+  async execute({ username }: Validator): Promise<boolean> {
+    const [user] = await this.getAccountByUsername(username);
 
-    return user === undefined;
+    return !user.exists;
+  }
+
+  async getAccountByUsername(username: string) {
+    return await db.execute<{ exists: boolean }>(
+      sql`SELECT EXISTS (SELECT 1 FROM users WHERE username = ${username})`
+    );
   }
 }

@@ -5,7 +5,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { FilterValue, OnFilterChange } from "../filter-item";
+import type { OnFilterChange } from "../filter-item";
+import type { FilterValue } from "../types";
 
 interface SelectFilterProps {
   options: { value: string; label: string }[] | undefined;

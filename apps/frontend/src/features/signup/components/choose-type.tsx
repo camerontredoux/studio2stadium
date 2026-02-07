@@ -32,12 +32,12 @@ export function ChooseType() {
         )}
       </Frame>
 
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-center text-sm">
         Already have an account?{" "}
         <Button
           type="button"
           variant="link"
-          className="p-0 text-sm font-medium text-brand"
+          className="text-brand p-0 text-sm font-medium"
           render={<Link to="/login" />}
         >
           Login

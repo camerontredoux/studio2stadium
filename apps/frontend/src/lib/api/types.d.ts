@@ -243,6 +243,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dancers/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dancer profile
+         * @description Returns the dancer's profile information
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dancers/filters": {
         parameters: {
             query?: never;
@@ -270,6 +320,95 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["DancersFiltersResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List events
+         * @description Returns a list of events
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get event by id
+         * @description Returns details about a specific event
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventsIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -326,6 +465,62 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/schools": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List schools
+         * @description Returns a list of schools
+         */
+        get: {
+            parameters: {
+                query?: {
+                    location?: ("OR" | "ID" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
+                    division?: string | null;
+                    styles?: string | null;
+                    sports?: string | null;
+                    commonRecruiting?: (string | number | boolean) | null;
+                    upcomingEvents?: (string | number | boolean) | null;
+                    gpaRange?: Record<string, never>;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/schools/filters": {
         parameters: {
             query?: never;
@@ -353,6 +548,97 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["SchoolsFiltersResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List tap in videos
+         * @description Returns a list of all tap in videos with their category
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LibraryResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library/{category}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List videos by category
+         * @description Returns a list of videos by category, paginated with 6 results at a time
+         */
+        get: {
+            parameters: {
+                query: {
+                    page: string | number;
+                };
+                header?: never;
+                path: {
+                    category: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LibraryIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -462,27 +748,20 @@ export interface components {
             message: string;
         };
         /** @enum {string} */
-        Role: "admin" | "user" | "prodigy_admin";
-        /** @enum {string} */
-        AccountType: "dancer" | "school";
-        /** @enum {string} */
-        PlatformName: "prodigy" | "core";
+        SearchParamKey: "name" | "location" | "division" | "styles" | "sports" | "commonRecruiting" | "upcomingEvents" | "gpaRange";
         AuthSignupRequest: {
             phone?: string | null;
             email: string;
             password: string;
-            type: components["schemas"]["AccountType"];
+            /** @enum {string} */
+            type: "dancer" | "school";
             username: string;
             firstName: string;
             lastName: string;
             termsChecked: boolean;
         };
         AuthSignupResponse: {
-            email: string;
-            username: string;
             id: string;
-            role: components["schemas"]["Role"];
-            avatar: string | null;
             displayEmail: string;
             firstName: string;
             lastName: string;
@@ -496,36 +775,117 @@ export interface components {
         };
         AuthSessionResponse: {
             email: string;
-            type: components["schemas"]["AccountType"];
+            /** @enum {string} */
+            type: "dancer" | "school";
             username: string;
-            platforms: components["schemas"]["PlatformName"][];
+            firstName: string;
             id: string;
-            role: components["schemas"]["Role"];
-            avatar: string | null;
+            /** @enum {string} */
+            role: "admin" | "user" | "prodigy_admin";
             displayEmail: string;
+            avatar: string | null;
+            verified: boolean;
+            platforms: ("prodigy" | "core")[];
             subscribed: boolean;
         };
         DancersRequest: {
             phoneNumber?: string | null;
             birthday: string | number;
             location: string;
-            platform: components["schemas"]["PlatformName"];
-        };
-        DancersFiltersResponse: {
             /** @enum {string} */
-            type: "input" | "select" | "toggle" | "multi-select" | "range";
+            platform: "prodigy" | "core";
+        };
+        DancersIdResponse: {
+            username: string;
             id: string;
-            options?: {
-                label: string;
-                value: string;
+            avatar: string | null;
+            dancerProfile: {
+                birthday: string;
+                location: string | null;
+                skillLevel: string | null;
+                teamLevel: string | null;
+                highSchool: string | null;
+                studio: string | null;
+                gpa: number | null;
+                gradYear: number | null;
+                trainingHours: number | null;
+                achievements: {
+                    id: string;
+                    createdAt: string;
+                    updatedAt: string;
+                    profileId: string;
+                    title: string;
+                    description: string;
+                }[];
+                references: {
+                    name: string;
+                    id: string;
+                    createdAt: string;
+                    updatedAt: string;
+                    profileId: string;
+                    title: string;
+                    description: string | null;
+                }[];
+                skills: {
+                    name: string;
+                    slug: string;
+                    category: string;
+                }[];
+                styles: {
+                    name: string;
+                    slug: string;
+                }[];
+            } | null;
+        };
+        DancersFiltersResponse: Record<string, never>[];
+        EventsResponse: {
+            events: {
+                /** @enum {string} */
+                type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+                id: string;
+                date: string;
+                time: string;
+                location: string;
+                title: string;
+                organizer: {
+                    name: string;
+                    thumbnail: string | null;
+                };
             }[];
-            label: string;
-            paramKey: string;
+            month: string;
         }[];
+        EventsIdResponse: {
+            /** @enum {string} */
+            type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            location: string;
+            title: string;
+            description: string;
+            website: string | null;
+            schoolId: string;
+            address: string | null;
+            tags: string[] | null;
+            cost: string | null;
+            startDatetime: string;
+            endDatetime: string;
+            timezone: string;
+            schedule?: {
+                time: string;
+                activity: string;
+                description?: string;
+            }[];
+            organizer: {
+                name: string;
+                username: string;
+                avatar: string | null;
+            };
+        };
         HealthResponse: {
-            isHealthy: boolean;
             /** @enum {string} */
             status: "error" | "ok" | "warning";
+            isHealthy: boolean;
             finishedAt: string;
             debugInfo: {
                 pid: number;
@@ -537,23 +897,56 @@ export interface components {
             checks: {
                 name: string;
                 meta?: Record<string, never>;
-                message: string;
                 /** @enum {string} */
                 status: "error" | "ok" | "warning";
+                message: string;
                 finishedAt: string;
                 isCached: boolean;
             }[];
         };
+        SchoolsResponse: {
+            user: {
+                username: string;
+                avatar: string | null;
+            } | null;
+            events: number;
+            name: string;
+            id: string;
+            createdAt: string;
+            location: string;
+            gpa: number | null;
+            division: string | null;
+            size: number | null;
+        }[];
         SchoolsFiltersResponse: {
             /** @enum {string} */
-            type: "input" | "select" | "toggle" | "multi-select" | "range";
+            type: "select" | "input" | "toggle" | "multi-select" | "range";
             id: string;
             options?: {
                 label: string;
                 value: string;
             }[];
             label: string;
-            paramKey: string;
+            paramKey: components["schemas"]["SearchParamKey"];
+        }[];
+        LibraryResponse: {
+            category: string;
+            videos: {
+                url: string;
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                title: string;
+                category: string;
+            }[];
+        }[];
+        LibraryIdResponse: {
+            url: string;
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            title: string;
+            category: string;
         }[];
         UsersCheckavailabilityResponse: {
             available: boolean;

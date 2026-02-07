@@ -10,10 +10,10 @@ interface MobileTabsProps {
 
 export function MobileTabs({ children }: MobileTabsProps) {
   return (
-    <div className="lg:hidden w-full p-2 pt-0 mobile:pb-0">
+    <div className="mobile:pb-0 w-full p-2 pt-0 lg:hidden">
       <Tabs defaultValue="feed">
         <TabsList
-          className="w-full sticky top-12 bg-background z-10 border-b"
+          className="bg-background sticky top-12 z-10 w-full border-b"
           variant="underline"
         >
           <TabsTab className="flex-1" value="feed">

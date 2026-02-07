@@ -21,9 +21,9 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <AnchoredToastProvider>
-      <main className="min-h-svh flex flex-col">
-        <div className="flex p-2 sm:p-4 flex-col flex-1 items-center justify-center h-full w-full">
-          <div className="max-w-sm w-full flex flex-col space-y-2 sm:space-y-4">
+      <main className="flex min-h-svh flex-col">
+        <div className="flex h-full w-full flex-1 flex-col items-center justify-center p-2 sm:p-4">
+          <div className="flex w-full max-w-sm flex-col space-y-2 sm:space-y-4">
             <RedirectMessage />
 
             <Card>

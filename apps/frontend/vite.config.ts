@@ -22,6 +22,7 @@ export default defineConfig({
     ],
   },
   server: {
+    host: true,
     fs: {
       allow: [path.resolve(__dirname, "../..")],
     },
@@ -31,6 +32,17 @@ export default defineConfig({
         "./src/routes/__root.tsx",
         "./src/routeTree.gen.ts",
       ],
+    },
+    proxy: {
+      "/api": {
+        target: "https://studio2stadium-dev.fly.dev",
+        changeOrigin: true,
+        cookieDomainRewrite: "localhost",
+        rewrite: (path) => path.replace(/^\/api/, ""),
+        headers: {
+          Connection: "keep-alive",
+        },
+      },
     },
   },
   plugins: [
@@ -52,6 +64,7 @@ export default defineConfig({
     analyzer({ summary: true, enabled: process.env.ANALYZE !== undefined }),
   ],
   resolve: {
+    dedupe: ["react", "react-dom"],
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },

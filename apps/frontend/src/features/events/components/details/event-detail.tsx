@@ -7,9 +7,10 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { CalendarIcon, ChevronLeftIcon } from "lucide-react";
-import { getEventById } from "../mock-data";
+import { queries } from "../../api/queries";
 import { EventAbout } from "./event-about";
 import { EventHero } from "./event-hero";
 import { EventLocation } from "./event-location";
@@ -21,7 +22,11 @@ interface EventDetailProps {
 }
 
 export function EventDetail({ eventId }: EventDetailProps) {
-  const event = getEventById(eventId);
+  const { data: event, error } = useSuspenseQuery(queries.event(eventId));
+
+  if (error?.errors) {
+    return error.errors.map((err) => <div>{err.message}</div>);
+  }
 
   if (!event) {
     return (
@@ -43,10 +48,10 @@ export function EventDetail({ eventId }: EventDetailProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3 lg:gap-4 max-lg:pb-14">
+    <div className="flex flex-col gap-3 pt-1 max-lg:pb-14 lg:gap-4 lg:pt-0">
       <Link
         to="/events"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
+        className="text-muted-foreground hover:text-foreground inline-flex w-fit items-center gap-1 text-sm transition-colors"
       >
         <ChevronLeftIcon className="size-4" />
         Back to Events
@@ -54,15 +59,15 @@ export function EventDetail({ eventId }: EventDetailProps) {
 
       <EventHero event={event} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4">
-        <div className="lg:col-span-2 flex flex-col gap-3 lg:gap-4">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3 lg:gap-4">
+        <div className="flex flex-col gap-3 lg:col-span-2 lg:gap-4">
           <EventAbout description={event.description} />
           <EventSchedule schedule={event.schedule} />
         </div>
 
         <div className="flex flex-col gap-3 lg:gap-4">
           <EventOrganizer organizer={event.organizer} />
-          <EventLocation venue={event.venue} address={event.address} />
+          <EventLocation venue={event.location} address={event.address} />
         </div>
       </div>
     </div>

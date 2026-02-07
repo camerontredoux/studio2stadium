@@ -1,20 +1,18 @@
 import { Badge } from "@/components/ui/badge";
 import { Frame, FrameFooter, FramePanel } from "@/components/ui/frame";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
-const SPARKLE_CLASSES = [
-  "absolute -top-1 -left-2 size-13 rotate-20",
-  "absolute top-2 left-[55%] size-7 -rotate-48",
-  "absolute -top-2 right-[8%] size-10 rotate-5",
-  "absolute top-[42%] left-[18%] size-6 -rotate-30",
-  "absolute top-[55%] right-[30%] size-9 rotate-70",
-  "absolute -bottom-2 left-[40%] size-11 -rotate-10",
-  "absolute bottom-3 -right-2 size-8 rotate-42",
-  "absolute -bottom-1 left-[5%] size-12 -rotate-58",
-] as const;
+const SPARKLE_MASK =
+  "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 100' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><defs><g id='s'><path d='M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z'/><path d='M20 2v4'/><path d='M22 4h-4'/><circle cx='4' cy='20' r='2'/></g></defs><use href='%23s' transform='translate(-8,-12) scale(2.17) rotate(20,12,12)'/><use href='%23s' transform='translate(165,7) scale(0.95) rotate(-48,12,12)'/><use href='%23s' transform='translate(252,-8) scale(1.35) rotate(5,12,12)'/><use href='%23s' transform='translate(54,42) scale(1) rotate(-30,12,12)'/><use href='%23s' transform='translate(174,55) scale(1.2) rotate(70,12,12)'/><use href='%23s' transform='translate(120,88) scale(1.83) rotate(-10,12,12)'/><use href='%23s' transform='translate(280,76) scale(1.05) rotate(42,12,12)'/><use href='%23s' transform='translate(15,92) scale(2) rotate(-58,12,12)'/></svg>";
 
-const SPARKLE_PATH =
-  "M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z";
+const sparkleMaskStyle = {
+  maskImage: `url("${SPARKLE_MASK}")`,
+  WebkitMaskImage: `url("${SPARKLE_MASK}")`,
+  maskSize: "100% 100%",
+  WebkitMaskSize: "100% 100%",
+  maskRepeat: "no-repeat",
+  WebkitMaskRepeat: "no-repeat",
+} as CSSProperties;
 
 interface ContentCardProps {
   image: string;
@@ -34,15 +32,18 @@ export function ContentCard({
   children,
 }: ContentCardProps) {
   return (
-    <Frame compact className="group [content-visibility:auto] [contain-intrinsic-block-size:auto_250px]">
+    <Frame
+      compact
+      className="group [contain-intrinsic-block-size:auto_400px] [content-visibility:auto]"
+    >
       <FramePanel side="top">
         <div className="relative border-b">
           <img
             src={image}
             alt={imageAlt}
-            className="w-full h-32 sm:h-36 object-cover"
+            className="h-48 w-full object-cover"
           />
-          <div className="absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-black/80 to-transparent pointer-events-none" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-black/80 to-transparent" />
           {badge && (
             <Badge variant="brand" className="absolute top-2.5 left-2.5">
               {badge}
@@ -50,31 +51,14 @@ export function ContentCard({
           )}
         </div>
 
-        <div className="relative p-3 sm:p-4 flex flex-col gap-2.5 flex-1 bg-linear-to-br from-brand/10 via-brand/5 to-background group-hover:from-brand/16 group-hover:via-brand/8 transition-colors">
+        <div className="from-brand/10 via-background to-background group-hover:from-brand/8 group-hover:via-brand/4 relative flex flex-1 flex-col gap-2.5 bg-linear-to-br p-3 transition-colors duration-75 sm:p-4">
           <div
-            className="absolute inset-0 overflow-hidden text-brand opacity-[0.12] dark:opacity-[0.06] pointer-events-none"
+            className="bg-brand pointer-events-none absolute inset-0 opacity-[0.12] dark:opacity-[0.06]"
+            style={sparkleMaskStyle}
             aria-hidden
-          >
-            {SPARKLE_CLASSES.map((cn, i) => (
-              <svg
-                key={i}
-                className={cn}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d={SPARKLE_PATH} />
-                <path d="M20 2v4" />
-                <path d="M22 4h-4" />
-                <circle cx="4" cy="20" r="2" />
-              </svg>
-            ))}
-          </div>
-          <div className="flex flex-col gap-1.5 flex-1">
-            <h3 className="font-semibold text-sm sm:text-base leading-snug line-clamp-2 sm:min-h-11 group-hover:text-brand transition-colors">
+          />
+          <div className="flex flex-1 flex-col gap-1.5">
+            <h3 className="group-hover:text-brand truncate text-base leading-snug font-semibold transition-colors">
               {title}
             </h3>
             {children}
@@ -82,7 +66,7 @@ export function ContentCard({
         </div>
       </FramePanel>
 
-      <FrameFooter className="gap-2 px-3 sm:px-4 py-2.5">{footer}</FrameFooter>
+      <FrameFooter className="gap-2 px-3 py-2.5 sm:px-4">{footer}</FrameFooter>
     </Frame>
   );
 }

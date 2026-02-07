@@ -213,6 +213,7 @@
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
   --animate-skeleton: skeleton 2s -1s infinite linear;
+  --animate-loading-bar: loading-bar 1.4s ease-in-out infinite alternate;
   --color-warning-foreground: var(--warning-foreground);
   --color-warning: var(--warning);
   --color-success-foreground: var(--success-foreground);
@@ -224,6 +225,14 @@
       background-position: -200% 0;
     }
   }
+  @keyframes loading-bar {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(150%);
+    }
+  }
 }
 
 @layer base {
@@ -231,7 +240,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply font-sans bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
   }
   html {
     @apply font-sans;

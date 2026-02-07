@@ -55,12 +55,12 @@ function PaginationLink({
     className: render
       ? className
       : cn(
-        buttonVariants({
-          size,
-          variant: isActive ? "outline" : "ghost",
-        }),
-        className,
-      ),
+          buttonVariants({
+            size,
+            variant: isActive ? "outline" : "ghost",
+          }),
+          className,
+        ),
     "data-active": isActive,
     "data-slot": "pagination-link",
   };

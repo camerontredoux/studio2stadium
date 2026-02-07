@@ -233,11 +233,11 @@ function useStore<T>(
 type SegmentPlaceholder =
   | string
   | {
-    hour?: string;
-    minute?: string;
-    second?: string;
-    period?: string;
-  };
+      hour?: string;
+      minute?: string;
+      second?: string;
+      period?: string;
+    };
 
 interface TimePickerContextValue {
   id: string;
@@ -528,7 +528,7 @@ function TimePickerLabel(props: TimePickerLabelProps) {
       {...labelProps}
       htmlFor={labelId}
       className={cn(
-        "font-medium text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+        "text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
         className,
       )}
     />
@@ -713,7 +713,7 @@ function TimePickerInputGroup(props: DivProps) {
           className={
             cn(
               !unstyled &&
-              "relative inline-flex w-full rounded-lg border border-input cursor-pointer bg-background bg-clip-padding text-base shadow-xs ring-ring/24 transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] has-focus-visible:has-aria-invalid:border-destructive/64 has-focus-visible:has-aria-invalid:ring-destructive/16 has-aria-invalid:border-destructive/36 has-focus-visible:border-ring has-disabled:cursor-not-allowed has-disabled:opacity-64 has-[:disabled,:focus-visible,[aria-invalid]]:shadow-none has-focus-visible:ring-[3px] sm:text-sm dark:bg-input/32 dark:not-in-data-[slot=group]:bg-clip-border dark:has-aria-invalid:ring-destructive/24 dark:not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/8%)]",
+                "border-input bg-background ring-ring/24 has-focus-visible:has-aria-invalid:border-destructive/64 has-focus-visible:has-aria-invalid:ring-destructive/16 has-aria-invalid:border-destructive/36 has-focus-visible:border-ring dark:bg-input/32 dark:has-aria-invalid:ring-destructive/24 relative inline-flex w-full cursor-pointer rounded-lg border bg-clip-padding text-base shadow-xs transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] has-focus-visible:ring-[3px] has-disabled:cursor-not-allowed has-disabled:opacity-64 has-[:disabled,:focus-visible,[aria-invalid]]:shadow-none sm:text-sm dark:not-in-data-[slot=group]:bg-clip-border dark:not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/8%)]",
               className,
             ) || undefined
           }
@@ -729,7 +729,7 @@ function TimePickerInputGroup(props: DivProps) {
             data-invalid={invalid ? "" : undefined}
             {...inputGroupProps}
             className={cn(
-              "h-8.5 w-full min-w-0 rounded-[inherit] px-[calc(--spacing(3)-1px)] leading-8.5 outline-none placeholder:text-muted-foreground/72 sm:h-7.5 sm:leading-7.5",
+              "placeholder:text-muted-foreground/72 h-8.5 w-full min-w-0 rounded-[inherit] px-[calc(--spacing(3)-1px)] leading-8.5 outline-none sm:h-7.5 sm:leading-7.5",
               className,
             )}
             style={
@@ -1424,7 +1424,7 @@ function TimePickerInput(props: TimePickerInputProps) {
       disabled={isDisabled}
       readOnly={isReadOnly}
       className={cn(
-        "inline-flex h-full items-center justify-center border-0 bg-transparent text-center text-sm tabular-nums outline-none transition-colors focus:bg-transparent disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex h-full items-center justify-center border-0 bg-transparent text-center text-sm tabular-nums transition-colors outline-none focus:bg-transparent disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
       style={{ width: segmentWidth, ...style }}
@@ -1464,7 +1464,7 @@ function TimePickerTrigger(props: ButtonProps) {
       ref={composedRef}
       {...triggerProps}
       className={cn(
-        "absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none [&>svg:not([class*='size-'])]:size-4",
+        "text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2 transition-colors disabled:pointer-events-none [&>svg:not([class*='size-'])]:size-4",
         className,
       )}
     >
@@ -1491,7 +1491,7 @@ function useTimePickerGroupContext(consumerName: string) {
 }
 
 interface TimePickerContentProps
-  extends DivProps, React.ComponentProps<typeof PopoverContent> { }
+  extends DivProps, React.ComponentProps<typeof PopoverContent> {}
 
 function TimePickerContent(props: TimePickerContentProps) {
   const {
@@ -1706,7 +1706,7 @@ function TimePickerColumn(props: DivProps) {
         ref={composedRef}
         data-slot="time-picker-column"
         {...columnProps}
-        className={cn("flex flex-col gap-1 not-last:border-r p-1", className)}
+        className={cn("flex flex-col gap-1 p-1 not-last:border-r", className)}
       >
         {children}
       </div>
@@ -1841,7 +1841,7 @@ function TimePickerColumnItem(props: TimePickerColumnItemProps) {
       ref={composedRef}
       data-selected={selected ? "" : undefined}
       className={cn(
-        "w-full rounded px-3 py-1.5 text-left text-sm hover:bg-accent hover:text-accent-foreground focus:border-ring focus:outline-none focus:ring-[3px] focus:ring-ring/50",
+        "hover:bg-accent hover:text-accent-foreground focus:border-ring focus:ring-ring/50 w-full rounded px-3 py-1.5 text-left text-sm focus:ring-[3px] focus:outline-none",
         "data-selected:bg-primary data-selected:text-primary-foreground data-selected:hover:bg-primary data-selected:hover:text-primary-foreground",
         className,
       )}
@@ -2190,7 +2190,7 @@ function TimePickerClear(props: ButtonProps) {
       disabled={isDisabled}
       {...clearProps}
       className={cn(
-        "inline-flex items-center justify-center rounded-sm font-medium text-sm transition-colors hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-50",
+        "hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center rounded-sm text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50",
         className,
       )}
       onClick={onClick}

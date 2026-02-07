@@ -13,6 +13,7 @@ import { Route as OnboardingRouteRouteImport } from './routes/_onboarding/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AdminRouteRouteImport } from './routes/_admin/route'
+import { Route as ApproutesIndexRouteImport } from './routes/_app/(routes)/index'
 import { Route as AuthroutesLoginRouteImport } from './routes/_auth/(routes)/login'
 import { Route as ApproutesUnauthorizedRouteImport } from './routes/_app/(routes)/unauthorized'
 import { Route as ApproutesLogoutRouteImport } from './routes/_app/(routes)/logout'
@@ -58,6 +59,11 @@ const AppRouteRoute = AppRouteRouteImport.update({
 const AdminRouteRoute = AdminRouteRouteImport.update({
   id: '/_admin',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ApproutesIndexRoute = ApproutesIndexRouteImport.update({
+  id: '/(routes)/',
+  path: '/',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 const AuthroutesLoginRoute = AuthroutesLoginRouteImport.update({
   id: '/(routes)/login',
@@ -216,7 +222,7 @@ const AdminroutesDashboardAssetsRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof OnboardingRouteRouteWithChildren
+  '/': typeof ApproutesIndexRoute
   '/recruiting': typeof ApproutesRecruitingRouteRouteWithChildren
   '/resources': typeof ApproutesResourcesRouteRouteWithChildren
   '/dashboard': typeof AdminroutesDashboardRouteWithChildren
@@ -248,7 +254,7 @@ export interface FileRoutesByFullPath {
   '/onboarding/': typeof OnboardingroutesOnboardingIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof OnboardingRouteRouteWithChildren
+  '/': typeof ApproutesIndexRoute
   '/dashboard': typeof AdminroutesDashboardRouteWithChildren
   '/$username': typeof ApproutesUsernameRoute
   '/feed': typeof ApproutesFeedRoute
@@ -291,6 +297,7 @@ export interface FileRoutesById {
   '/_app/(routes)/logout': typeof ApproutesLogoutRoute
   '/_app/(routes)/unauthorized': typeof ApproutesUnauthorizedRoute
   '/_auth/(routes)/login': typeof AuthroutesLoginRoute
+  '/_app/(routes)/': typeof ApproutesIndexRoute
   '/_admin/(routes)/dashboard/assets': typeof AdminroutesDashboardAssetsRoute
   '/_admin/(routes)/dashboard/metrics': typeof AdminroutesDashboardMetricsRoute
   '/_app/(routes)/events/$eventId': typeof ApproutesEventsEventIdRoute
@@ -390,6 +397,7 @@ export interface FileRouteTypes {
     | '/_app/(routes)/logout'
     | '/_app/(routes)/unauthorized'
     | '/_auth/(routes)/login'
+    | '/_app/(routes)/'
     | '/_admin/(routes)/dashboard/assets'
     | '/_admin/(routes)/dashboard/metrics'
     | '/_app/(routes)/events/$eventId'
@@ -449,6 +457,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AdminRouteRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/(routes)/': {
+      id: '/_app/(routes)/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof ApproutesIndexRouteImport
+      parentRoute: typeof AppRouteRoute
     }
     '/_auth/(routes)/login': {
       id: '/_auth/(routes)/login'
@@ -724,6 +739,7 @@ interface AppRouteRouteChildren {
   ApproutesFeedRoute: typeof ApproutesFeedRoute
   ApproutesLogoutRoute: typeof ApproutesLogoutRoute
   ApproutesUnauthorizedRoute: typeof ApproutesUnauthorizedRoute
+  ApproutesIndexRoute: typeof ApproutesIndexRoute
   ApproutesEventsEventIdRoute: typeof ApproutesEventsEventIdRoute
   ApproutesExploreUsernameRoute: typeof ApproutesExploreUsernameRoute
   ApproutesSettingsGeneralRoute: typeof ApproutesSettingsGeneralRoute
@@ -741,6 +757,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   ApproutesFeedRoute: ApproutesFeedRoute,
   ApproutesLogoutRoute: ApproutesLogoutRoute,
   ApproutesUnauthorizedRoute: ApproutesUnauthorizedRoute,
+  ApproutesIndexRoute: ApproutesIndexRoute,
   ApproutesEventsEventIdRoute: ApproutesEventsEventIdRoute,
   ApproutesExploreUsernameRoute: ApproutesExploreUsernameRoute,
   ApproutesSettingsGeneralRoute: ApproutesSettingsGeneralRoute,

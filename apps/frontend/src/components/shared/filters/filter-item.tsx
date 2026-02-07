@@ -4,21 +4,18 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import type { ApiSchemas } from "@/lib/api/client";
+import type { Filter } from "@/features/explore/components/filters/types";
 import { InputFilter } from "./items/input-filter";
 import { MultiSelectFilter } from "./items/multi-select-filter";
 import { RangeFilter } from "./items/range-filter";
 import { SelectFilter } from "./items/select-filter";
 import { SwitchFilter } from "./items/switch-filter";
-
-export type FilterValue = string | string[] | undefined;
+import type { FilterValue } from "./types";
 
 export type OnFilterChange = (
   value: FilterValue,
   options?: { replace?: boolean },
 ) => void;
-
-type Filter = ApiSchemas["DancersFiltersResponse"][number];
 
 export function FilterItem({
   filter,
@@ -61,7 +58,7 @@ export function FilterItem({
   return (
     <AccordionItem value={filter.id} className="relative px-5">
       <AccordionTrigger>
-        <div className="flex justify-between w-full items-center gap-2">
+        <div className="flex w-full items-center justify-between gap-2">
           {filter.label} {filtered ? <Badge>Active</Badge> : null}
         </div>
       </AccordionTrigger>

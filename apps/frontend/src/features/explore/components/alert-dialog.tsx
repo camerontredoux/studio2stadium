@@ -53,7 +53,6 @@ export function AlertParticle() {
           className="contents"
           onSubmit={(event) => {
             event.preventDefault();
-            // Close the dialog when submitting
             setDialogOpen(false);
           }}
         >

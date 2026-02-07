@@ -25,7 +25,6 @@ const router = createRouter({
     qs.stringify(search, {
       arrayFormat: "comma",
       addQueryPrefix: true,
-      // encodeValuesOnly: true,
       encode: false,
     }),
   parseSearch: (searchStr) => qs.parse(searchStr, { ignoreQueryPrefix: true }),

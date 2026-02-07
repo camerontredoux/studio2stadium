@@ -4,11 +4,11 @@ import { errors } from "@adonisjs/auth";
 import { inject } from "@adonisjs/core";
 import { RuntimeException } from "@adonisjs/core/exceptions";
 import hash from "@adonisjs/core/services/hash";
-import type { LoginValidator } from "./validator.ts";
+import type { Validator } from "./validator.ts";
 
 @inject()
-export class LoginService {
-  async execute({ email, password }: LoginValidator): Promise<SessionUser> {
+export class Service {
+  async execute({ email, password }: Validator): Promise<SessionUser> {
     const user = await findUserByEmail(email);
 
     if (!user) {

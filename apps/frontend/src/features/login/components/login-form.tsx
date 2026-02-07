@@ -120,7 +120,7 @@ export function LoginForm() {
           <Button
             type="button"
             variant="link"
-            className="p-0 ml-auto text-sm text-muted-foreground"
+            className="text-muted-foreground ml-auto p-0 text-sm"
           >
             Forgot password?
           </Button>
@@ -142,12 +142,12 @@ export function LoginForm() {
         )}
       </Button>
 
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-center text-sm">
         Don&apos;t have an account?{" "}
         <Button
           type="button"
           variant="link"
-          className="p-0 text-sm font-medium text-brand"
+          className="text-brand p-0 text-sm font-medium"
           render={<Link to="/signup" replace={true} />}
         >
           Sign up

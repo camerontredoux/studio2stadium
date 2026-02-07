@@ -34,9 +34,6 @@ type Policies = Policy[];
 export const createAccess = (session: Session) => {
   const _permissions = new Set<Permission>();
 
-  if (session.type === "dancer" && !session.platforms)
-    throw new Error("Unauthorized: Dancer has no platforms");
-
   const platforms = session.platforms;
 
   for (const platform of platforms) {

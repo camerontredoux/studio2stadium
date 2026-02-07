@@ -7,9 +7,12 @@
  * file that was distributed with this source code.
  */
 
+import { db } from "#database/connection";
 import { BaseCheck, Result } from "@adonisjs/core/health";
 import type { HealthCheckResult } from "@adonisjs/core/types/health";
-import type { Kysely } from "kysely";
+import { sql } from "drizzle-orm";
+
+type Client = typeof db;
 
 /**
  * The DbConnectionCountCheck can be used to monitor the active
@@ -17,23 +20,16 @@ import type { Kysely } from "kysely";
  * a certain threshold has been execeeded.
  */
 export class DbConnectionCountCheck extends BaseCheck {
-  #client: Kysely<any>;
+  #client: Client;
 
   /**
    * Method to compute the memory consumption
    */
-  #computeFn: (client: Kysely<any>) => Promise<number | null> = async (
-    client
-  ) => {
-    const response = await client
-      .selectFrom("pg_stat_activity")
-      .select(({ fn }) => fn.countAll().as("connections"))
-      .where("datname", "=", "postgres")
-      .executeTakeFirst();
+  #computeFn: (client: Client) => Promise<number | null> = async (client) => {
+    const [response] = await client.execute(
+      sql`SELECT COUNT(*) as connections FROM pg_stat_activity WHERE datname = 'postgres'`
+    );
 
-    if (!response) {
-      return null;
-    }
     return Number(response.connections);
   };
 
@@ -52,7 +48,7 @@ export class DbConnectionCountCheck extends BaseCheck {
    */
   name: string;
 
-  constructor(client: Kysely<any>) {
+  constructor(client: Client) {
     super();
     this.#client = client;
     this.name = `Connection count health check`;
@@ -116,7 +112,7 @@ export class DbConnectionCountCheck extends BaseCheck {
    * The return value must be a number of active connections
    * or null (if dialect is not supported).
    */
-  compute(callback: (client: Kysely<any>) => Promise<number | null>): this {
+  compute(callback: (client: Client) => Promise<number | null>): this {
     this.#computeFn = callback;
     return this;
   }

@@ -10,3 +10,5 @@ onlyBuiltDependencies:
   - '@prisma/engines'
   - msw
   - unrs-resolver
+
+injectWorkspacePackages: true

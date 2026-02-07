@@ -135,22 +135,22 @@ export default class OpenApiProvider {
 
     const openApiPath = config.openapi?.endpoints?.spec ?? "/openapi";
     router.get(openApiPath, async () => {
-      if (this.app.inDev) {
-        const { OpenApiGenerator } = await import("../src/generator.js");
-        return new OpenApiGenerator(
-          config,
-          metaStore,
-          tsConfigFilePath
-        ).generate();
+      if (this.app.inProduction) {
+        if (this.#cachedSpec) return this.#cachedSpec;
+
+        const buildPath = this.app.makePath(
+          config.openapi?.buildSpecPath ?? ".adonisjs/openapi.json"
+        );
+        this.#cachedSpec = await readFile(buildPath, "utf-8");
+        return this.#cachedSpec;
       }
 
-      if (this.#cachedSpec) return this.#cachedSpec;
-
-      const buildPath = this.app.makePath(
-        config.openapi?.buildSpecPath ?? ".adonisjs/openapi.json"
-      );
-      this.#cachedSpec = await readFile(buildPath, "utf-8");
-      return this.#cachedSpec;
+      const { OpenApiGenerator } = await import("../src/generator.js");
+      return new OpenApiGenerator(
+        config,
+        metaStore,
+        tsConfigFilePath
+      ).generate();
     });
   }
 

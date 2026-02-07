@@ -1,0 +1,31 @@
+import type { ApiSchemas } from "@/lib/api/client";
+import { CardAvatar } from "./card-avatar";
+import { CardBackground } from "./card-background";
+import { CardButtons } from "./card-buttons";
+import { CardContent } from "./card-content";
+import { CardLoader } from "./card-loader";
+
+export type School = ApiSchemas["SchoolsResponse"][number];
+
+interface DancerCardProps {
+  school: School;
+  isLoaderRow: boolean;
+}
+
+export function DancerCard({ school, isLoaderRow }: DancerCardProps) {
+  if (isLoaderRow) {
+    return <CardLoader />;
+  }
+
+  return (
+    <div className="from-brand/10 via-background to-background hover:from-brand/16 hover:via-brand/8 relative flex flex-row gap-3 overflow-clip rounded-xl border bg-linear-to-br bg-clip-padding p-3 transition-colors contain-[layout_style_paint] sm:h-26 sm:items-center sm:p-4">
+      <CardBackground />
+
+      <div className="flex h-full min-w-0 flex-1 gap-2 sm:flex-row sm:gap-3">
+        <CardAvatar school={school} />
+        <CardContent school={school} />
+      </div>
+      <CardButtons username={school.user?.username ?? ""} />
+    </div>
+  );
+}

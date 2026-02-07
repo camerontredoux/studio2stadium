@@ -1,8 +1,9 @@
 import { middleware } from "#start/kernel";
 import router from "@adonisjs/core/services/router";
 
-const GetFiltersController = () => import("./get-filters/index.ts");
-const CreateDancerController = () => import("./create-dancer/index.ts");
+const GetProfileController = () => import("./get-profile/controller.ts");
+const GetFiltersController = () => import("./get-filters/controller.ts");
+const CreateDancerController = () => import("./create-dancer/controller.ts");
 
 router
   .group(() => {
@@ -12,6 +13,14 @@ router
         summary: "Create a dancer",
         description:
           "Populate account with personal information to finish dancer signup",
+      })
+      .use(middleware.auth());
+
+    router
+      .get("/:username", [GetProfileController])
+      .openapi({
+        summary: "Get dancer profile",
+        description: "Returns the dancer's profile information",
       })
       .use(middleware.auth());
 

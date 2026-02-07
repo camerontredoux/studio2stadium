@@ -27,7 +27,7 @@ function Progress({
 function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
   return (
     <ProgressPrimitive.Label
-      className={cn("font-medium text-sm", className)}
+      className={cn("text-sm font-medium", className)}
       data-slot="progress-label"
       {...props}
     />
@@ -38,7 +38,7 @@ function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
   return (
     <ProgressPrimitive.Track
       className={cn(
-        "block h-1.5 w-full overflow-hidden rounded-full bg-input",
+        "bg-input block h-1.5 w-full overflow-hidden rounded-full",
         className,
       )}
       data-slot="progress-track"

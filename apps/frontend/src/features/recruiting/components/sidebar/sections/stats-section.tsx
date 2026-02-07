@@ -24,23 +24,23 @@ export function StatsSection() {
       </FrameHeader>
       <FramePanel>
         <div className="grid grid-cols-3 gap-2 p-3">
-          <div className="rounded-lg bg-accent p-3 text-center">
-            <p className="text-2xl font-semibold text-success-foreground">
+          <div className="bg-accent rounded-lg p-3 text-center">
+            <p className="text-success-foreground text-2xl font-semibold">
               {accepted}
             </p>
-            <p className="text-xs text-muted-foreground">Accepted</p>
+            <p className="text-muted-foreground text-xs">Accepted</p>
           </div>
-          <div className="rounded-lg bg-accent p-3 text-center">
-            <p className="text-2xl font-semibold text-warning-foreground">
+          <div className="bg-accent rounded-lg p-3 text-center">
+            <p className="text-warning-foreground text-2xl font-semibold">
               {inReview}
             </p>
-            <p className="text-xs text-muted-foreground">In Review</p>
+            <p className="text-muted-foreground text-xs">In Review</p>
           </div>
-          <div className="rounded-lg bg-accent p-3 text-center">
-            <p className="text-2xl font-semibold text-info-foreground">
+          <div className="bg-accent rounded-lg p-3 text-center">
+            <p className="text-info-foreground text-2xl font-semibold">
               {watched}
             </p>
-            <p className="text-xs text-muted-foreground">Watched</p>
+            <p className="text-muted-foreground text-xs">Watched</p>
           </div>
         </div>
       </FramePanel>

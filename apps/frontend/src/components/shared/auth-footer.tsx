@@ -1,6 +1,6 @@
 export function AuthFooter() {
   return (
-    <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+    <div className="text-muted-foreground flex items-center justify-center gap-2 text-xs">
       <p>Studio 2 Stadium &copy; {new Date().getFullYear()}</p>
       <span>|</span>
       <a

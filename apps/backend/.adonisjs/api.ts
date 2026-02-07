@@ -8,28 +8,40 @@ import type { MakeTuyauRequest, MakeTuyauResponse } from '@tuyau/utils/types'
 import type { InferInput } from '@vinejs/vine/types'
 
 type AuthSignupPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/auth/signup/validator.ts')['signupValidator']>>
-  response: MakeTuyauResponse<import('../app/modules/auth/signup/index.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/auth/signup/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/auth/signup/controller.ts').default['handle'], true>
 }
 type AuthLoginPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/auth/login/validator.ts')['loginValidator']>>
-  response: MakeTuyauResponse<import('../app/modules/auth/login/index.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/auth/login/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/auth/login/controller.ts').default['handle'], true>
 }
 type AuthLogoutPost = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/auth/logout/index.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/auth/logout/controller.ts').default['handle'], false>
 }
 type AuthSessionGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/auth/get-session/index.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/auth/get-session/controller.ts').default['handle'], false>
 }
 type DancersPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/create-dancer/validator.ts')['createDancerValidator']>>
-  response: MakeTuyauResponse<import('../app/modules/dancers/create-dancer/index.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/create-dancer/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/create-dancer/controller.ts').default['handle'], true>
+}
+type DancersIdGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/get-profile/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-profile/controller.ts').default['handle'], true>
 }
 type DancersFiltersGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/get-filters/index.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-filters/controller.ts').default['handle'], false>
+}
+type EventsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/events/list-events/controller.ts').default['handle'], false>
+}
+type EventsIdGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/get-event-by-id/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/events/get-event-by-id/controller.ts').default['handle'], true>
 }
 type HealthGetHead = {
   request: unknown
@@ -37,11 +49,23 @@ type HealthGetHead = {
 }
 type SchoolsFiltersGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/get-filters/index.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/schools/get-filters/contoller.ts').default['handle'], false>
+}
+type SchoolsGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/list-schools/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/list-schools/controller.ts').default['handle'], true>
+}
+type LibraryGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/library/list-videos/controller.ts').default['handle'], false>
+}
+type LibraryIdGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/library/list-videos-by-category/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/library/list-videos-by-category/controller.ts').default['handle'], true>
 }
 type UsersCheckavailabilityGetHead = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/check-availability/validator.ts')['checkAvailabilityValidator']>>
-  response: MakeTuyauResponse<import('../app/modules/users/check-availability/index.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/check-availability/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/users/check-availability/controller.ts').default['handle'], true>
 }
 export interface ApiDefinition {
   'auth': {
@@ -71,11 +95,29 @@ export interface ApiDefinition {
     '$url': {
     };
     '$post': DancersPost;
+    ':username': {
+      '$url': {
+      };
+      '$get': DancersIdGetHead;
+      '$head': DancersIdGetHead;
+    };
     'filters': {
       '$url': {
       };
       '$get': DancersFiltersGetHead;
       '$head': DancersFiltersGetHead;
+    };
+  };
+  'events': {
+    '$url': {
+    };
+    '$get': EventsGetHead;
+    '$head': EventsGetHead;
+    ':id': {
+      '$url': {
+      };
+      '$get': EventsIdGetHead;
+      '$head': EventsIdGetHead;
     };
   };
   'health': {
@@ -90,6 +132,22 @@ export interface ApiDefinition {
       };
       '$get': SchoolsFiltersGetHead;
       '$head': SchoolsFiltersGetHead;
+    };
+    '$url': {
+    };
+    '$get': SchoolsGetHead;
+    '$head': SchoolsGetHead;
+  };
+  'library': {
+    '$url': {
+    };
+    '$get': LibraryGetHead;
+    '$head': LibraryGetHead;
+    ':category': {
+      '$url': {
+      };
+      '$get': LibraryIdGetHead;
+      '$head': LibraryIdGetHead;
     };
   };
   'users': {

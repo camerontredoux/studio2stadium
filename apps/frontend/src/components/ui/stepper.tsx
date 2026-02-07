@@ -662,7 +662,7 @@ function StepperItem(props: StepperItemProps) {
         {...itemProps}
         ref={ref}
         className={cn(
-          "relative flex not-last:flex-1 items-center",
+          "relative flex items-center not-last:flex-1",
           orientation === "horizontal" ? "flex-row" : "flex-col",
           className,
         )}
@@ -968,7 +968,7 @@ function StepperTrigger(props: ButtonProps) {
       {...triggerProps}
       ref={composedRef}
       className={cn(
-        "inline-flex items-center justify-center gap-3 rounded-md text-left outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 inline-flex items-center justify-center gap-3 rounded-md text-left transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         "not-has-data-[slot=description]:rounded-full not-has-data-[slot=title]:rounded-full",
         className,
       )}
@@ -1008,7 +1008,7 @@ function StepperIndicator(props: StepperIndicatorProps) {
       {...indicatorProps}
       ref={ref}
       className={cn(
-        "flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-muted bg-background font-medium text-muted-foreground text-sm transition-colors data-[state=active]:border-primary data-[state=completed]:border-primary data-[state=active]:bg-primary data-[state=completed]:bg-primary data-[state=active]:text-primary-foreground data-[state=completed]:text-primary-foreground",
+        "border-muted bg-background text-muted-foreground data-[state=active]:border-primary data-[state=completed]:border-primary data-[state=active]:bg-primary data-[state=completed]:bg-primary data-[state=active]:text-primary-foreground data-[state=completed]:text-primary-foreground flex size-7 shrink-0 items-center justify-center rounded-full border-2 text-sm font-medium transition-colors",
         className,
       )}
     >
@@ -1073,7 +1073,7 @@ function StepperSeparator(props: StepperSeparatorProps) {
       {...separatorProps}
       ref={ref}
       className={cn(
-        "bg-border transition-colors data-[state=active]:bg-primary data-[state=completed]:bg-primary",
+        "bg-border data-[state=active]:bg-primary data-[state=completed]:bg-primary transition-colors",
         orientation === "horizontal" ? "h-px flex-1" : "h-10 w-px",
         className,
       )}
@@ -1102,7 +1102,7 @@ function StepperTitle(props: StepperTitleProps) {
       dir={context.dir}
       {...titleProps}
       ref={ref}
-      className={cn("font-medium text-sm", className)}
+      className={cn("text-sm font-medium", className)}
     />
   );
 }

@@ -42,9 +42,8 @@ export function Filters({
     <Accordion defaultValue={["prospect-status", "video-status"]} multiple>
       <AccordionItem value="prospect-status" className="relative px-5">
         <AccordionTrigger>
-          <div className="flex justify-between w-full items-center gap-2">
-            Prospect Status{" "}
-            {prospectActive ? <Badge>Active</Badge> : null}
+          <div className="flex w-full items-center justify-between gap-2">
+            Prospect Status {prospectActive ? <Badge>Active</Badge> : null}
           </div>
         </AccordionTrigger>
         <AccordionPanel>
@@ -52,7 +51,7 @@ export function Filters({
             {PROSPECT_OPTIONS.map((option) => (
               <label
                 key={option.value}
-                className="flex items-center gap-2.5 cursor-pointer text-sm"
+                className="flex cursor-pointer items-center gap-2.5 text-sm"
               >
                 <Checkbox
                   checked={prospectStatus === option.value}
@@ -71,9 +70,8 @@ export function Filters({
 
       <AccordionItem value="video-status" className="relative px-5">
         <AccordionTrigger>
-          <div className="flex justify-between w-full items-center gap-2">
-            Video Status{" "}
-            {videoActive ? <Badge>Active</Badge> : null}
+          <div className="flex w-full items-center justify-between gap-2">
+            Video Status {videoActive ? <Badge>Active</Badge> : null}
           </div>
         </AccordionTrigger>
         <AccordionPanel>
@@ -81,7 +79,7 @@ export function Filters({
             {VIDEO_OPTIONS.map((option) => (
               <label
                 key={option.value}
-                className="flex items-center gap-2.5 cursor-pointer text-sm"
+                className="flex cursor-pointer items-center gap-2.5 text-sm"
               >
                 <Checkbox
                   checked={videoStatus === option.value}

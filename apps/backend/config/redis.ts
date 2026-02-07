@@ -19,17 +19,38 @@ const redisConfig = defineConfig({
     session: {
       host: env.get("REDIS_HOST"),
       port: env.get("REDIS_PORT"),
+      username: env.get("REDIS_USERNAME"),
+      password: env.get("REDIS_PASSWORD"),
       keyPrefix: "session:",
+
+      connectTimeout: 1000,
+      commandTimeout: 1500,
+
+      maxRetriesPerRequest: 1,
+
+      enableAutoPipelining: true,
+
+      tls: {},
     },
     cache: {
       host: env.get("REDIS_HOST"),
       port: env.get("REDIS_PORT"),
+      username: env.get("REDIS_USERNAME"),
+      password: env.get("REDIS_PASSWORD"),
+
+      connectTimeout: 1000,
+      commandTimeout: 1500,
+
+      maxRetriesPerRequest: 1,
+
+      enableAutoPipelining: true,
+      tls: {},
       /**
        * Exponential backoff with full jitter
        * https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
        */
       retryStrategy(retries) {
-        if (retries > 10) return null;
+        if (retries > 3) return null;
         const delayMs = 50;
         const maxDelayMs = 5000;
         const baseDelay = delayMs * 2 ** (retries - 1);

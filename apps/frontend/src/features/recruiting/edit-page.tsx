@@ -3,7 +3,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { ArrowLeftIcon, CheckIcon, SaveIcon } from "lucide-react";
 import { useState } from "react";
 import { MOCK_VIDEO_URL } from "./components/mock-data";
-import { extractYouTubeId, VideoEditor } from "./components/video-editor";
+import { extractYouTubeId } from "./components/utils/extract-youtube-id";
+import { VideoEditor } from "./components/video-editor";
 
 export function EditPage() {
   const navigate = useNavigate();
@@ -26,13 +27,13 @@ export function EditPage() {
   };
 
   return (
-    <div className="flex flex-col gap-4 lg:gap-6 max-lg:pb-14">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+    <div className="flex flex-col gap-4 max-lg:pb-14 lg:gap-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div className="flex flex-col gap-0.5 max-sm:pl-1">
-          <h1 className="text-2xl font-bold tracking-tight leading-none">
+          <h1 className="text-2xl leading-none font-bold tracking-tight">
             Edit Video
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Update your recruiting video link
           </p>
         </div>

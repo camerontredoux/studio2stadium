@@ -2,18 +2,16 @@ name: studio2stadium
 
 services:
   db:
-    image: postgres:18
-    container_name: s2s-postgres
+    image: postgres:18-alpine
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     volumes:
-      - pgdata2:/var/lib/postgresql
+      - pgdata:/var/lib/postgresql
   redis:
     image: redis:latest
-    container_name: s2s-redis
     restart: always
     command:
       ["redis-server", "--save 20 1", "--loglevel warning"]
@@ -23,12 +21,11 @@ services:
       - cache:/data
   event-server:
     build:
-      context: ./apps/event-server
+      context: ./apps/events
       dockerfile: Dockerfile
-    container_name: s2s-event-server
     volumes:
-      - ./apps/event-server:/app
-      - ./apps/event-server/cmd/.env:/app/cmd/.env
+      - ./apps/events:/app
+      - ./apps/events/cmd/.env:/app/cmd/.env
     ports:
       - "8080:8080"
     depends_on:
@@ -37,4 +34,4 @@ services:
 volumes:
   cache:
     driver: local
-  pgdata2:
+  pgdata:
