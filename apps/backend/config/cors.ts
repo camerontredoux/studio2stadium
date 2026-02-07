@@ -1,3 +1,4 @@
+import env from "#start/env";
 import app from "@adonisjs/core/services/app";
 import { defineConfig } from "@adonisjs/cors";
 
@@ -9,7 +10,7 @@ import { defineConfig } from "@adonisjs/cors";
  */
 const corsConfig = defineConfig({
   enabled: true,
-  origin: app.inProduction ? true : "*",
+  origin: app.inProduction ? env.get("SITE_URL") : true,
   methods: ["GET", "HEAD", "POST", "PUT", "DELETE"],
   headers: true,
   exposeHeaders: ["Retry-After"],

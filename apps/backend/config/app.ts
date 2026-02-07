@@ -30,8 +30,7 @@ export const http = defineConfig({
    * defined inside the "config/session.ts" file.
    */
   cookie: {
-    domain: "",
-    path: "/",
+    domain: app.inProduction ? ".studio2stadium.com" : undefined,
     maxAge: "2h",
     httpOnly: true,
     secure: app.inProduction,
