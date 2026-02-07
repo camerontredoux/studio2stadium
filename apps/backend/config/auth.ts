@@ -16,7 +16,7 @@ const authConfig = defineConfig({
         sessionAge: 60 * 60 * 24 * 7,
         cookieOptions: (maxAge) => ({
           maxAge,
-          path: "/",
+          domain: app.inProduction ? ".studio2stadium.com" : undefined,
           httpOnly: true,
           secure: app.inProduction,
           sameSite: "lax",
