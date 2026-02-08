@@ -12,10 +12,12 @@ const corsConfig = defineConfig({
   enabled: true,
   origin: app.inProduction ? env.get("SITE_URL") : true,
   methods: ["GET", "HEAD", "POST", "PUT", "DELETE"],
-  headers: true,
+  headers: app.inProduction
+    ? ["Content-Type", "Authorization", "Accept"]
+    : true,
   exposeHeaders: ["Retry-After"],
   credentials: true,
-  maxAge: 90,
+  maxAge: -1,
 });
 
 export default corsConfig;

@@ -8,5 +8,5 @@ router
     if (request.header("X-Health-Secret") === env.get("HEALTH_SECRET")) {
       return next();
     }
-    response.unauthorized({ message: "Unauthorized access" });
+    response.ok({ message: "OK" });
   });
