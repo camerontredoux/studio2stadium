@@ -1,3 +1,5 @@
+import { SidebarLayout } from "@/components/layouts/sidebar-layout";
+import { UpcomingEventsSkeleton } from "@/components/shared/upcoming-events-skeleton";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -7,21 +9,26 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { Separator } from "@/components/ui/separator";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import { CalendarIcon, ChevronLeftIcon } from "lucide-react";
+import { Suspense } from "react";
 import { queries } from "../../api/queries";
 import { EventAbout } from "./event-about";
 import { EventHero } from "./event-hero";
 import { EventLocation } from "./event-location";
 import { EventOrganizer } from "./event-organizer";
 import { EventSchedule } from "./event-schedule";
+import { MoreEvents } from "./more-events";
 
 interface EventDetailProps {
   eventId: string;
 }
 
 export function EventDetail({ eventId }: EventDetailProps) {
+  const router = useRouter();
+
   const { data: event, error } = useSuspenseQuery(queries.event(eventId));
 
   if (error?.errors) {
@@ -48,28 +55,32 @@ export function EventDetail({ eventId }: EventDetailProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3 pt-1 max-lg:pb-14 lg:gap-4 lg:pt-0">
-      <Link
-        to="/events"
-        className="text-muted-foreground hover:text-foreground inline-flex w-fit items-center gap-1 text-sm transition-colors"
-      >
-        <ChevronLeftIcon className="size-4" />
-        Back to Events
-      </Link>
-
-      <EventHero event={event} />
-
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3 lg:gap-4">
-        <div className="flex flex-col gap-3 lg:col-span-2 lg:gap-4">
-          <EventAbout description={event.description} />
-          <EventSchedule schedule={event.schedule} />
-        </div>
-
-        <div className="flex flex-col gap-3 lg:gap-4">
+    <SidebarLayout
+      sidebar={
+        <>
           <EventOrganizer organizer={event.organizer} />
           <EventLocation venue={event.location} address={event.address} />
+        </>
+      }
+    >
+      <div className="flex flex-col gap-3 pt-1 max-lg:pb-14 lg:gap-4 lg:pt-0">
+        <button
+          className="text-muted-foreground hover:text-foreground inline-flex w-fit cursor-pointer items-center gap-1 text-sm transition-colors"
+          onClick={() => router.history.back()}
+        >
+          <ChevronLeftIcon className="size-4" />
+          Go back
+        </button>
+        <div className="flex flex-col gap-3 lg:gap-4">
+          <EventHero event={event} />
+          <EventAbout description={event.description} />
+          <EventSchedule schedule={event.schedule} />
+          <Separator className="my-2" />
+          <Suspense fallback={<UpcomingEventsSkeleton />}>
+            <MoreEvents />
+          </Suspense>
         </div>
       </div>
-    </div>
+    </SidebarLayout>
   );
 }

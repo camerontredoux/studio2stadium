@@ -11,8 +11,8 @@ const openapiConfig = defineConfig({
       },
       servers: [
         {
-          url: "https://studio2stadium-dev.fly.dev",
-          description: "Development endpoint",
+          url: "https://api.studio2stadium.com",
+          description: "Production Endpoint",
         },
       ],
       tags: [

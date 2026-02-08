@@ -1,6 +1,9 @@
+import { danceEventAttendees } from "#database/schema/events";
 import { DatabaseService } from "#database/service";
 import { E_BAD_REQUEST } from "#exceptions/bad-request";
+import { getDateAndTime } from "#utils/date";
 import { inject } from "@adonisjs/core";
+import { eq } from "drizzle-orm";
 import { Validator } from "./validator.ts";
 
 type Event = NonNullable<Awaited<ReturnType<Service["getEventById"]>>>;
@@ -41,16 +44,36 @@ export class Service {
             },
           },
         },
+        extras: {
+          attendees: (table) =>
+            db.$count(
+              danceEventAttendees,
+              eq(table.id, danceEventAttendees.eventId)
+            ),
+        },
       })
     );
   }
 
-  formatEvent({ organizer, schedule, ...event }: Event) {
+  formatEvent({
+    organizer,
+    schedule,
+    startDatetime,
+    endDatetime,
+    ...event
+  }: Event) {
     if (!organizer || !organizer.user)
       throw new E_BAD_REQUEST("Events must have an organizer");
 
+    const { time: startTime, date: startDate } = getDateAndTime(startDatetime);
+    const { time: endTime, date: endDate } = getDateAndTime(endDatetime);
+
     return {
       ...event,
+      startTime,
+      endTime,
+      startDate,
+      endDate,
       organizer: {
         name: organizer.name,
         username: organizer.user.username,

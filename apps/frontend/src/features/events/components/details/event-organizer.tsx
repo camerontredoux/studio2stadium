@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Frame,
@@ -36,20 +35,14 @@ export function EventOrganizer({ organizer }: EventOrganizerProps) {
       </FrameHeader>
       <FramePanel>
         <div className="flex items-start gap-3">
-          <Avatar className="size-12 rounded-xl">
-            <AvatarImage
-              className="rounded-xl"
-              src={organizer.avatar || undefined}
-            />
-            <AvatarFallback className="rounded-xl">
-              {organizer?.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col">
-            <span className="text-sm font-medium">{organizer?.name}</span>
+          <div className="flex flex-col overflow-hidden">
+            <h3
+              title={organizer?.name}
+              aria-label={organizer?.name}
+              className="truncate font-medium max-sm:text-sm"
+            >
+              {organizer?.name}
+            </h3>
             <span className="text-muted-foreground text-xs">
               Hosting x other events
             </span>

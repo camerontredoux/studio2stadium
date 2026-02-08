@@ -7,8 +7,8 @@
   },
   "servers": [
     {
-      "url": "https://studio2stadium-dev.fly.dev",
-      "description": "Development endpoint"
+      "url": "https://api.studio2stadium.com",
+      "description": "Production Endpoint"
     },
     {
       "url": "http://localhost:3333"
@@ -1428,12 +1428,6 @@
               }
             ]
           },
-          "startDatetime": {
-            "type": "string"
-          },
-          "endDatetime": {
-            "type": "string"
-          },
           "timezone": {
             "type": "string"
           },
@@ -1483,6 +1477,21 @@
               "username",
               "avatar"
             ]
+          },
+          "attendees": {
+            "type": "number"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
           }
         },
         "required": [
@@ -1498,10 +1507,13 @@
           "address",
           "tags",
           "cost",
-          "startDatetime",
-          "endDatetime",
           "timezone",
-          "organizer"
+          "organizer",
+          "attendees",
+          "startTime",
+          "endTime",
+          "startDate",
+          "endDate"
         ]
       },
       "HealthResponse": {

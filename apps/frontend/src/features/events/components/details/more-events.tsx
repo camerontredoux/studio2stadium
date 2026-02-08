@@ -7,16 +7,18 @@ import {
   FrameTitle,
 } from "@/components/ui/frame";
 import { Separator } from "@/components/ui/separator";
-import { $api } from "@/lib/api/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
+import { queries } from "../../api/queries";
 
-export function EventsSection() {
-  const { data } = useSuspenseQuery($api.queryOptions("get", "/events"));
+export function MoreEvents() {
+  const { eventId } = useParams({ from: "/_app/(routes)/events/$eventId" });
+  const { data } = useSuspenseQuery(queries.events());
 
-  const events = data.flatMap((group) => group.events).slice(0, 3);
-
-  if (events.length === 0) return null;
+  const events = data
+    .flatMap((group) => group.events)
+    .filter((e) => e.id !== eventId)
+    .slice(0, 3);
 
   return (
     <Frame compact>
@@ -32,7 +34,12 @@ export function EventsSection() {
         {events.map((event, i) => (
           <div key={event.id}>
             {i > 0 && <Separator />}
-            <Link to="/events/$eventId" params={{ eventId: event.id }}>
+            <Link
+              to="/events/$eventId"
+              params={{ eventId: event.id }}
+              replace={true}
+              preload="intent"
+            >
               <UpcomingEvent event={event} />
             </Link>
           </div>

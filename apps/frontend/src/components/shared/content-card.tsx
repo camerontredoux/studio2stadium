@@ -45,7 +45,10 @@ export function ContentCard({
           />
           <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-black/80 to-transparent" />
           {badge && (
-            <Badge variant="brand" className="absolute top-2.5 left-2.5">
+            <Badge
+              variant="brand"
+              className="absolute top-2.5 left-2.5 capitalize"
+            >
               {badge}
             </Badge>
           )}

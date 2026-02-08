@@ -12,16 +12,10 @@ interface EventAboutProps {
 export function EventAbout({ description }: EventAboutProps) {
   return (
     <Frame>
-      <FramePanel>
-        <FrameHeader>
-          <FrameTitle>About</FrameTitle>
-        </FrameHeader>
-        <div className="px-5 pb-4">
-          <p className="text-muted-foreground text-sm leading-relaxed">
-            {description}
-          </p>
-        </div>
-      </FramePanel>
+      <FrameHeader>
+        <FrameTitle>About</FrameTitle>
+      </FrameHeader>
+      <FramePanel className="text-sm leading-relaxed">{description}</FramePanel>
     </Frame>
   );
 }

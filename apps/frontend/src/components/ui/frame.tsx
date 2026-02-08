@@ -24,7 +24,7 @@ function Frame({
 
 function FramePanel({
   className,
-  side,
+  side = "bottom",
   ...props
 }: React.ComponentProps<"div"> & { side?: "top" | "bottom" | "inset" }) {
   return (

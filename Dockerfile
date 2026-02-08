@@ -23,6 +23,8 @@ RUN pnpm deploy --filter backend --prod /app/deployed
 FROM base AS production
 WORKDIR /app
 ENV NODE_ENV=production
+ENV PORT=8080
+ENV HOST=0.0.0.0
 COPY --from=build /app/deployed/node_modules ./node_modules
 COPY --from=build /app/deployed/build .
 COPY apps/backend/openapi.json ./.adonisjs/openapi.json

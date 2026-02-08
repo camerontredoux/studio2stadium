@@ -5,7 +5,7 @@ import {
   CalendarIcon,
   GraduationCapIcon,
   MapPinIcon,
-  TicketIcon,
+  SaveIcon,
 } from "lucide-react";
 import type { EventCard } from "../mock-data";
 
@@ -23,7 +23,7 @@ export function EventCard({ event }: EventCardProps) {
       footer={
         <>
           <Button size="xs" className="gap-1.5">
-            <TicketIcon /> Attend
+            <SaveIcon /> Save
           </Button>
           <Button
             variant="outline"
