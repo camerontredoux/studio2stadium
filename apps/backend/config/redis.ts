@@ -1,4 +1,5 @@
 import env from "#start/env";
+import app from "@adonisjs/core/services/app";
 import { defineConfig } from "@adonisjs/redis";
 import { type InferConnections } from "@adonisjs/redis/types";
 
@@ -30,7 +31,7 @@ const redisConfig = defineConfig({
 
       enableAutoPipelining: true,
 
-      tls: {},
+      tls: app.inProduction ? {} : undefined,
     },
     cache: {
       host: env.get("REDIS_HOST"),
@@ -44,7 +45,7 @@ const redisConfig = defineConfig({
       maxRetriesPerRequest: 1,
 
       enableAutoPipelining: true,
-      tls: {},
+      tls: app.inProduction ? {} : undefined,
       /**
        * Exponential backoff with full jitter
        * https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/

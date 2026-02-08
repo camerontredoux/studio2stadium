@@ -8,7 +8,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import { CalendarIcon, ChevronLeftIcon } from "lucide-react";
 import { queries } from "../../api/queries";
 import { EventAbout } from "./event-about";
@@ -22,6 +22,8 @@ interface EventDetailProps {
 }
 
 export function EventDetail({ eventId }: EventDetailProps) {
+  const router = useRouter();
+
   const { data: event, error } = useSuspenseQuery(queries.event(eventId));
 
   if (error?.errors) {
@@ -49,13 +51,13 @@ export function EventDetail({ eventId }: EventDetailProps) {
 
   return (
     <div className="flex flex-col gap-3 pt-1 max-lg:pb-14 lg:gap-4 lg:pt-0">
-      <Link
-        to="/events"
+      <button
         className="text-muted-foreground hover:text-foreground inline-flex w-fit items-center gap-1 text-sm transition-colors"
+        onClick={() => router.history.back()}
       >
         <ChevronLeftIcon className="size-4" />
         Back to Events
-      </Link>
+      </button>
 
       <EventHero event={event} />
 
