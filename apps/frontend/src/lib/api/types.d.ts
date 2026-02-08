@@ -748,7 +748,7 @@ export interface components {
             message: string;
         };
         /** @enum {string} */
-        SearchParamKey: "name" | "location" | "division" | "styles" | "sports" | "commonRecruiting" | "upcomingEvents" | "gpaRange";
+        SchoolFilterParam: "name" | "location" | "division" | "styles" | "sports" | "commonRecruiting" | "upcomingEvents" | "gpaRange";
         AuthSignupRequest: {
             phone?: string | null;
             email: string;
@@ -837,7 +837,17 @@ export interface components {
                 }[];
             } | null;
         };
-        DancersFiltersResponse: Record<string, never>[];
+        DancersFiltersResponse: {
+            /** @enum {string} */
+            type: "select" | "input" | "toggle" | "multi-select" | "range";
+            id: string;
+            options?: {
+                label: string;
+                value: string;
+            }[];
+            label: string;
+            paramKey: string;
+        }[];
         EventsResponse: {
             events: {
                 /** @enum {string} */
@@ -868,8 +878,6 @@ export interface components {
             address: string | null;
             tags: string[] | null;
             cost: string | null;
-            startDatetime: string;
-            endDatetime: string;
             timezone: string;
             schedule?: {
                 time: string;
@@ -881,6 +889,11 @@ export interface components {
                 username: string;
                 avatar: string | null;
             };
+            attendees: number;
+            startTime: string;
+            endTime: string;
+            startDate: string;
+            endDate: string;
         };
         HealthResponse: {
             /** @enum {string} */
@@ -927,7 +940,7 @@ export interface components {
                 value: string;
             }[];
             label: string;
-            paramKey: components["schemas"]["SearchParamKey"];
+            paramKey: components["schemas"]["SchoolFilterParam"];
         }[];
         LibraryResponse: {
             category: string;

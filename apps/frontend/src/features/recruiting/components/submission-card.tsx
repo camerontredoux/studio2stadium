@@ -82,7 +82,11 @@ interface SubmissionCardProps {
 
 export function SubmissionCard({ submission }: SubmissionCardProps) {
   return (
-    <div className="from-brand/10 via-background to-background hover:from-brand/16 hover:via-brand/8 relative flex gap-3 overflow-clip rounded-xl border bg-linear-to-br bg-clip-padding p-3 transition-colors [contain-intrinsic-block-size:auto_100px] [content-visibility:auto] sm:p-4">
+    <Link
+      to="/explore/$username"
+      params={{ username: submission.username }}
+      className="from-brand/10 via-background to-background hover:from-brand/16 hover:via-brand/8 relative flex gap-3 overflow-clip rounded-xl border bg-linear-to-br bg-clip-padding p-3 transition-colors [contain-intrinsic-block-size:auto_100px] [content-visibility:auto] sm:p-4"
+    >
       <div
         className="text-brand pointer-events-none absolute inset-0 -z-10 opacity-[0.08] dark:opacity-[0.03]"
         aria-hidden
@@ -121,20 +125,10 @@ export function SubmissionCard({ submission }: SubmissionCardProps) {
             {videoBadge(submission.videoStatus)}
           </div>
         </div>
-        <div className="flex gap-2 sm:shrink-0 sm:flex-col">
-          <Button
-            size="xs"
-            render={
-              <Link
-                to="/explore/$username"
-                params={{ username: submission.username }}
-              />
-            }
-          >
-            View Profile
-          </Button>
+        <div className="hidden gap-2 sm:flex sm:shrink-0 sm:flex-col">
+          <Button size="xs">View Profile</Button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

@@ -1,4 +1,5 @@
 import { DatabaseService } from "#database/service";
+import { getDateAndTime } from "#utils/date";
 import { inject } from "@adonisjs/core";
 
 type Event = Awaited<ReturnType<Service["findEvents"]>>[number];
@@ -31,13 +32,7 @@ export class Service {
   }
 
   formatEvent({ organizer, startDatetime, ...event }: Event) {
-    const time = startDatetime.toLocaleString("en-US", {
-      timeStyle: "short",
-    });
-
-    const date = startDatetime.toLocaleString("en-US", {
-      dateStyle: "medium",
-    });
+    const { time, date } = getDateAndTime(startDatetime);
 
     return {
       ...event,
