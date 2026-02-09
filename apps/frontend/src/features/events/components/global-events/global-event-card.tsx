@@ -2,6 +2,7 @@ import { ContentCard } from "@/components/shared/content-card";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -45,7 +46,10 @@ export function GlobalEventCard({ event }: GlobalEventCardProps) {
               </DialogHeader>
               <DialogPanel>{event.description}</DialogPanel>
               <DialogFooter>
-                <Button className="max-sm:flex-1">
+                <DialogClose
+                  render={<Button variant="secondary">Close</Button>}
+                />
+                <Button>
                   <SaveIcon /> Save
                 </Button>
               </DialogFooter>
