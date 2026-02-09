@@ -41,8 +41,8 @@ export function EventSchedule({ schedule }: EventScheduleProps) {
               </div>
             ))
           ) : (
-            <div className="text-muted-foreground text-sm">
-              No scheduled posted
+            <div className="text-muted-foreground p-4 text-sm">
+              No schedule posted
             </div>
           )}
         </div>

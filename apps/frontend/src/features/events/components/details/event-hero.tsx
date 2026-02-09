@@ -11,6 +11,7 @@ import type { ApiSchemas } from "@/lib/api/client";
 import {
   CalendarIcon,
   ExternalLinkIcon,
+  SaveIcon,
   TicketIcon,
   UsersIcon,
 } from "lucide-react";
@@ -26,11 +27,11 @@ export function EventHero({ event }: EventHeroProps) {
   return (
     <Frame compact>
       <FramePanel side="top">
-        <div className="relative overflow-clip border-b">
+        <div className="relative isolate transform-gpu overflow-clip border-b">
           <img
             src={event.organizer.avatar || undefined}
             alt={event.title}
-            className="h-48 w-full object-cover blur-md sm:h-64"
+            className="h-48 w-full scale-105 rounded-2xl object-cover blur-sm sm:h-64"
           />
           <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-black/70 via-black/20 to-transparent" />
           <Badge
@@ -45,7 +46,7 @@ export function EventHero({ event }: EventHeroProps) {
         <img
           src={event.organizer.avatar || undefined}
           alt={event.title}
-          className="absolute top-31 left-4 z-20 size-20 rounded-xl border bg-black object-cover sm:top-43 sm:size-24"
+          className="absolute top-31 left-4 z-20 size-20 rounded-xl bg-black object-cover shadow-xs sm:top-43 sm:size-24"
         />
 
         <div className="from-brand/10 via-brand/5 to-background relative flex flex-col gap-1 bg-linear-to-br p-4">
@@ -92,12 +93,14 @@ export function EventHero({ event }: EventHeroProps) {
         </div>
       </FramePanel>
 
-      <FrameFooter className="gap-2 px-4 py-3 sm:px-5">
-        <Button className="gap-1.5">Save Event</Button>
+      <FrameFooter className="flex w-fit items-center gap-2 px-4 py-3 max-sm:w-full sm:px-5">
+        <Button className="flex-1 gap-1.5">
+          <SaveIcon /> Save Event
+        </Button>
         {event.website && (
           <Button
             variant="outline"
-            className="gap-1.5"
+            className="flex-1 gap-1.5"
             render={<a target="_blank" href={event.website} />}
           >
             <ExternalLinkIcon /> Register

@@ -75,7 +75,9 @@ export function EventDetail({ eventId }: EventDetailProps) {
           <EventHero event={event} />
           <EventAbout description={event.description} />
           <EventSchedule schedule={event.schedule} />
+
           <Separator className="my-2" />
+
           <Suspense fallback={<UpcomingEventsSkeleton />}>
             <MoreEvents />
           </Suspense>

@@ -1,26 +1,13 @@
-import { Button } from "@/components/ui/button";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
 import { Spinner } from "@/components/ui/spinner";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { GraduationCapIcon } from "lucide-react";
-import { useRef } from "react";
-import { HiOutlineCalendar } from "react-icons/hi";
+import { useSearch } from "@tanstack/react-router";
 import { queries } from "../../api/queries";
+import { useVirtualizer } from "../hooks/use-virtualizer";
 import { SchoolCard } from "./school-card/school-card";
+import { SchoolEmpty } from "./school-empty";
 import { SchoolListSkeleton } from "./school-skeleton";
 
 export function SchoolList() {
-  const navigate = useNavigate({ from: "/explore/" });
-
   const { name, ...search } = useSearch({ from: "/_app/(routes)/explore/" });
   const { data, isPending, isPlaceholderData } = useQuery(
     queries.schools(search),
@@ -33,46 +20,14 @@ export function SchoolList() {
         .includes((name as string | undefined)?.toLowerCase() ?? ""),
     ) ?? [];
 
-  const parentRef = useRef<HTMLDivElement>(null);
-
-  // eslint-disable-next-line react-hooks/refs
-  const rowVirtualizer = useWindowVirtualizer({
-    count: rows.length,
-    estimateSize: () => 128,
-    gap: 8,
-    // eslint-disable-next-line react-hooks/refs
-    scrollMargin: parentRef.current?.offsetTop ?? 0,
-  });
-
-  const virtualItems = rowVirtualizer.getVirtualItems();
+  const { parentRef, rowVirtualizer, virtualItems } = useVirtualizer({ rows });
 
   if (isPending) {
     return <SchoolListSkeleton />;
   }
 
   if (rows.length === 0) {
-    return (
-      <Empty className="border">
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <GraduationCapIcon />
-          </EmptyMedia>
-          <EmptyTitle>No schools found</EmptyTitle>
-          <EmptyDescription>Try different search criteria.</EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent>
-          <div className="flex gap-2">
-            <Button size="sm" onClick={() => navigate({ to: "/explore" })}>
-              Reset filters
-            </Button>
-            <Button size="sm" variant="outline" render={<Link to="/events" />}>
-              <HiOutlineCalendar />
-              View events
-            </Button>
-          </div>
-        </EmptyContent>
-      </Empty>
-    );
+    return <SchoolEmpty />;
   }
 
   return (
@@ -101,6 +56,10 @@ export function SchoolList() {
           )}
           {virtualItems.map((row) => {
             const school = rows[row.index];
+
+            if (!school.user?.username) {
+              return null;
+            }
 
             return (
               <div

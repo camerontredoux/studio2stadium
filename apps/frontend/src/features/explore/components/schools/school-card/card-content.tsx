@@ -8,7 +8,7 @@ import {
   Users2Icon,
   VerifiedIcon,
 } from "lucide-react";
-import type { School } from "./school-card";
+import type { School } from "../../types/school";
 
 export function CardContent({ school }: { school: School }) {
   return (
@@ -33,17 +33,17 @@ export function CardContent({ school }: { school: School }) {
       </div>
       <div className="flex flex-wrap gap-1.5">
         {school.division && (
-          <Badge variant="secondary" className="rounded-full">
+          <Badge variant="outline">
             {DIVISIONS[school.division as keyof typeof DIVISIONS]}
           </Badge>
         )}
         {school.gpa ? (
-          <Badge variant="secondary" className="rounded-full">
+          <Badge variant="outline">
             <TargetIcon className="size-3 shrink-0" /> {school.gpa} GPA
           </Badge>
         ) : null}
         {school.size && school.size > 0 ? (
-          <Badge variant="secondary" className="rounded-full">
+          <Badge variant="outline">
             <Users2Icon className="size-3 shrink-0" />{" "}
             {school.size.toLocaleString()}
           </Badge>

@@ -39,6 +39,7 @@ export function ContentCard({
       <FramePanel side="top">
         <div className="relative border-b">
           <img
+            loading="lazy"
             src={image}
             alt={imageAlt}
             className="h-48 w-full object-cover"
