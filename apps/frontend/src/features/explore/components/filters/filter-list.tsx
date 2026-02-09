@@ -4,7 +4,7 @@ import { Accordion } from "@/components/ui/accordion";
 import type { ApiSchemas } from "@/lib/api/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { useCallback, useTransition } from "react";
+import { useTransition } from "react";
 import { queries } from "../../api/queries";
 
 type Filter = ApiSchemas["SchoolsFiltersResponse"][number];
@@ -15,19 +15,20 @@ function ConnectedFilterItem({ filter }: { filter: Filter }) {
     select: (search) => search[filter.paramKey],
   });
   const navigate = useNavigate({ from: "/explore/" });
+
   const [, startTransition] = useTransition();
 
-  const onFilterChange = useCallback(
-    (value: FilterValue, options?: { replace?: boolean }) => {
-      startTransition(() => {
-        navigate({
-          replace: options?.replace,
-          search: (prev) => ({ ...prev, [filter.paramKey]: value }),
-        });
+  const onFilterChange = (
+    value: FilterValue,
+    options?: { replace?: boolean },
+  ) => {
+    startTransition(() => {
+      navigate({
+        replace: options?.replace,
+        search: (prev) => ({ ...prev, [filter.paramKey]: value }),
       });
-    },
-    [navigate, filter.paramKey, startTransition],
-  );
+    });
+  };
 
   return (
     <FilterItem filter={filter} value={value} onFilterChange={onFilterChange} />
