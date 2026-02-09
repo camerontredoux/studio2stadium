@@ -4,14 +4,15 @@ import { type ApiSchemas } from "@/lib/api/client";
 import { useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { useVideosByCategory } from "../api/queries";
+import { ChevronDownIcon } from "lucide-react";
 
 type Group = ApiSchemas["LibraryResponse"][number];
 
 export function VideosByCategory({ group }: { group: Group }) {
-  const [fetch, setFetch] = useState(false);
+  const [enabled, setEnabled] = useState(false);
 
-  const { data, fetchNextPage, isFetchingNextPage, hasNextPage } =
-    useVideosByCategory(group.category, fetch);
+  const { data, fetchNextPage, hasNextPage, isFetching } =
+    useVideosByCategory(group.category, enabled);
 
   const rows = data?.pages.flatMap((row) => row);
 
@@ -26,13 +27,27 @@ export function VideosByCategory({ group }: { group: Group }) {
         ))}
       </div>
 
-      {(hasNextPage || !fetch) && (
-        <Button
-          onClick={() => (!fetch ? setFetch(true) : fetchNextPage())}
-          className="mx-auto w-fit"
-        >
-          {isFetchingNextPage ? <Spinner label="Loading..." /> : "Load More"}
-        </Button>
+      {(!enabled || hasNextPage || isFetching) && (
+        <div className="flex items-center gap-3 pt-1">
+          <div className="h-px flex-1 bg-border" />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => (enabled ? fetchNextPage() : setEnabled(true))}
+            disabled={isFetching}
+            className="text-muted-foreground"
+          >
+            {isFetching ? (
+              <Spinner label="Loading..." />
+            ) : (
+              <>
+                Load More
+                <ChevronDownIcon />
+              </>
+            )}
+          </Button>
+          <div className="h-px flex-1 bg-border" />
+        </div>
       )}
     </>
   );

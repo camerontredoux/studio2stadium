@@ -1,8 +1,9 @@
 import { Spinner } from "@/components/ui/spinner";
 import { useQuery } from "@tanstack/react-query";
-import { useSearch } from "@tanstack/react-router";
+import { useElementScrollRestoration, useSearch } from "@tanstack/react-router";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import { useRef } from "react";
 import { queries } from "../../api/queries";
-import { useVirtualizer } from "../hooks/use-virtualizer";
 import { SchoolCard } from "./school-card/school-card";
 import { SchoolEmpty } from "./school-empty";
 import { SchoolListSkeleton } from "./school-skeleton";
@@ -20,7 +21,24 @@ export function SchoolList() {
         .includes((name as string | undefined)?.toLowerCase() ?? ""),
     ) ?? [];
 
-  const { parentRef, rowVirtualizer, virtualItems } = useVirtualizer({ rows });
+  const scrollEntry = useElementScrollRestoration({
+    getElement: () => window,
+  });
+
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  // eslint-disable-next-line react-hooks/refs
+  const rowVirtualizer = useWindowVirtualizer({
+    count: rows.length,
+    estimateSize: () => 100,
+    gap: 8,
+    overscan: 3,
+    // eslint-disable-next-line react-hooks/refs
+    scrollMargin: parentRef.current?.offsetTop ?? 0,
+    initialOffset: scrollEntry?.scrollY,
+  });
+
+  const virtualItems = rowVirtualizer.getVirtualItems();
 
   if (isPending) {
     return <SchoolListSkeleton />;
@@ -56,10 +74,6 @@ export function SchoolList() {
           )}
           {virtualItems.map((row) => {
             const school = rows[row.index];
-
-            if (!school.user?.username) {
-              return null;
-            }
 
             return (
               <div

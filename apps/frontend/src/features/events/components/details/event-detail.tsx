@@ -63,7 +63,7 @@ export function EventDetail({ eventId }: EventDetailProps) {
         </>
       }
     >
-      <div className="flex flex-col gap-3 pt-1 max-lg:pb-14 lg:gap-4 lg:pt-0">
+      <div className="mobile:pb-14 flex flex-col gap-3 pt-1 lg:gap-4 lg:pt-0">
         <button
           className="text-muted-foreground hover:text-foreground inline-flex w-fit cursor-pointer items-center gap-1 text-sm transition-colors"
           onClick={() => router.history.back()}

@@ -7,8 +7,8 @@ import { SchoolList } from "./components/schools/school-list";
 export function ExplorePage() {
   return (
     <SidebarLayout sidebar={<FilterSidebar />}>
-      <div className="flex flex-col gap-2 pt-1 max-lg:pb-14 sm:pt-0 lg:gap-4">
-        <div className="flex items-center justify-between gap-2 sm:flex-row sm:gap-4">
+      <div className="mobile:pb-14 flex flex-col gap-2 pt-1 sm:pt-0 lg:gap-4">
+        <div className="flex justify-between gap-2 sm:flex-row sm:gap-4">
           <div className="flex flex-col max-sm:pl-1">
             <h1 className="text-2xl leading-none font-bold tracking-tight">
               Explore Schools

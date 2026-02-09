@@ -124,7 +124,7 @@ export function SubmitPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 max-lg:pb-14 lg:gap-6">
+    <div className="mobile:pb-14 flex flex-col gap-4 lg:gap-6">
       <div className="flex flex-col gap-0.5 max-sm:pl-1">
         <h1 className="text-2xl leading-none font-bold tracking-tight">
           Submit Video

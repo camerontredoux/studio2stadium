@@ -48,7 +48,7 @@ export function ExploreFilterSheet() {
         <Settings2Icon /> Filters
         {filters ? (
           <Badge
-            className="absolute -top-2 -right-2 rounded-full"
+            className="absolute -top-1.5 -right-1.5 rounded-full"
             variant="warning"
           >
             {filters}

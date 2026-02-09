@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_app/(routes)/explore/$username")({
     access.guard(access.is("core", "dancer"), access.self(params.username));
   },
   loader: ({ context: { queryClient }, params }) => {
-    queryClient.prefetchQuery(queries.detail(params.username));
+    queryClient.ensureQueryData(queries.detail(params.username));
   },
   component: RouteComponent,
   pendingComponent: () => <div>Pending...</div>,

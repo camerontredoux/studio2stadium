@@ -15,7 +15,7 @@ function VideoCardSkeleton() {
 
         <div className="flex flex-1 flex-col gap-2.5 p-3 sm:p-4">
           <div className="flex flex-1 flex-col gap-1.5">
-            <Skeleton className="h-4 w-4/5" />
+            <Skeleton className="h-4.5 w-4/5" />
           </div>
         </div>
       </FramePanel>
@@ -36,11 +36,11 @@ export function VideoListSkeleton() {
           key={group.category}
           className="relative flex flex-col gap-2 lg:gap-3"
         >
-          <div className="sticky top-26 z-10 py-2">
-            <div className="flex items-center gap-2">
-              <div className="border-muted flex items-center gap-1.5 rounded-full border px-2.5 py-1">
+          <div className="sticky top-24 z-10 py-2">
+            <div className="flex items-center justify-between gap-2">
+              <div className="bg-background/90 border-muted flex items-center gap-1.5 rounded-full border px-2.5 py-1 backdrop-blur-sm">
                 <Skeleton className="size-3.5 rounded-full" />
-                <Skeleton className="h-5 w-16" />
+                <Skeleton className="h-5 w-16 rounded-sm" />
               </div>
             </div>
           </div>

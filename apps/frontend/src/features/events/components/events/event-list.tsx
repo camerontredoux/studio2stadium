@@ -1,42 +1,129 @@
+import type { ApiSchemas } from "@/lib/api/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { queries } from "../../api/queries";
+import { useElementScrollRestoration } from "@tanstack/react-router";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { CalendarIcon } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { EventCard } from "./event-card";
+import { useCallback, useMemo, useRef } from "react";
+import { useResizeObserver } from "usehooks-ts";
+import { queries } from "../../api/queries";
 import { EventsFilterSheet } from "../filters/filter-sheet";
+import { EventCard } from "./event-card";
+
+type Events = ApiSchemas["EventsResponse"][number]["events"];
+
+type VirtualRow = { month: string; events: Events };
+
+function getColumns(width: number) {
+  if (width < 600) return 1;
+  if (width < 640) return 2;
+  return 3;
+}
 
 export function EventList() {
   const { data } = useSuspenseQuery(queries.events());
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const { width: containerWidth = 0 } = useResizeObserver({
+    ref: parentRef as React.RefObject<HTMLDivElement>,
+  });
+
+  const measured = containerWidth > 0;
+  const columns = getColumns(measured ? containerWidth : 0);
+
+  const virtualRows = useMemo(() => {
+    const rows: VirtualRow[] = [];
+    for (const category of data) {
+      for (let i = 0; i < category.events.length; i += columns) {
+        rows.push({
+          month: category.month,
+          events: category.events.slice(i, i + columns),
+        });
+      }
+    }
+    return rows;
+  }, [data, columns]);
+
+  const scrollEntry = useElementScrollRestoration({
+    getElement: () => window,
+  });
+
+  // eslint-disable-next-line react-hooks/refs
+  const rowVirtualizer = useWindowVirtualizer({
+    count: virtualRows.length,
+    estimateSize: () => 365,
+    overscan: 3,
+    // eslint-disable-next-line react-hooks/refs
+    scrollMargin: parentRef.current?.offsetTop ?? 0,
+    initialOffset: scrollEntry?.scrollY,
+  });
+
+  const measureRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (node) rowVirtualizer.measureElement(node);
+    },
+    [rowVirtualizer],
+  );
+
+  const virtualItems = rowVirtualizer.getVirtualItems();
+
+  const activeMonth =
+    virtualItems.length > 0
+      ? (virtualRows[virtualItems[0].index]?.month ?? "")
+      : "";
 
   return (
-    <div className="flex flex-col gap-2 lg:gap-4">
-      {data.map((group) => (
-        <section
-          key={group.month}
-          className="relative flex flex-col gap-2 lg:gap-3"
-        >
-          <div className="sticky top-12 z-10 py-2">
-            <div className="flex items-center gap-2">
-              <div className="border-brand/20 bg-background/90 flex items-center gap-1.5 rounded-full border px-2.5 py-1 backdrop-blur-sm">
-                <CalendarIcon className="text-brand size-3.5" />
-                <span className="text-brand text-sm font-semibold">
-                  {group.month}
-                </span>
-              </div>
-            </div>
+    <div ref={parentRef}>
+      <div className="sticky top-14 z-10 pb-3">
+        <div className="flex items-center justify-between">
+          <div className="border-brand/20 bg-background/90 flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-1 backdrop-blur-sm">
+            <CalendarIcon className="text-brand size-3.5" />
+            <span className="text-brand text-sm font-semibold">
+              {activeMonth}
+            </span>
           </div>
-          <Separator className="absolute top-6 left-0 -z-10 flex-1" />
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 lg:gap-3">
-            {group.events.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))}
-          </div>
-
-          <div className="bg-background absolute top-2 right-0 z-20">
+          <div className="bg-background rounded-lg">
             <EventsFilterSheet />
           </div>
-        </section>
-      ))}
+        </div>
+      </div>
+
+      <div
+        style={{
+          height: measured ? rowVirtualizer.getTotalSize() : undefined,
+          position: "relative",
+          visibility: measured ? undefined : "hidden",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            transform: `translateY(${(virtualItems[0]?.start ?? 0) - rowVirtualizer.options.scrollMargin}px)`,
+          }}
+        >
+          {virtualItems.map((virtualItem) => {
+            const row = virtualRows[virtualItem.index];
+
+            return (
+              <div
+                key={virtualItem.key}
+                data-index={virtualItem.index}
+                ref={measureRef}
+                className="grid gap-2 pb-2"
+                style={{
+                  gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+                }}
+              >
+                {row.events.map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
-import { Spinner } from "@/components/ui/spinner";
 import { debounce } from "@tanstack/pacer";
 import { SearchIcon } from "lucide-react";
 import { useState } from "react";
@@ -17,19 +16,16 @@ export function InputFilter({
   onFilterChange,
 }: InputFilterProps) {
   const [value, setValue] = useState(initialValue);
-  const [bouncing, setBouncing] = useState(false);
 
   const debouncedChange = debounce(
     (v: string) => {
       onFilterChange(v || undefined, { replace: true });
-      setBouncing(false);
     },
     { wait: 100 },
   );
 
   const handleSearch = (value: string) => {
     setValue(value);
-    setBouncing(true);
     debouncedChange(value);
   };
 
@@ -41,7 +37,7 @@ export function InputFilter({
         onValueChange={handleSearch}
       />
       <InputGroupAddon align="inline-start">
-        {bouncing ? <Spinner /> : <SearchIcon />}
+        <SearchIcon />
       </InputGroupAddon>
     </InputGroup>
   );
