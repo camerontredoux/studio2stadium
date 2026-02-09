@@ -7,8 +7,8 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { useNavigate } from "@tanstack/react-router";
-import { GraduationCapIcon, Link } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { GraduationCapIcon } from "lucide-react";
 import { HiOutlineCalendar } from "react-icons/hi";
 
 export function SchoolEmpty() {
