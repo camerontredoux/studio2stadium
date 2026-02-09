@@ -3,7 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useElementScrollRestoration } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { CalendarIcon } from "lucide-react";
-import { useCallback, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useResizeObserver } from "usehooks-ts";
 import { queries } from "../../api/queries";
 import { EventsFilterSheet } from "../filters/filter-sheet";
@@ -50,19 +50,13 @@ export function EventList() {
   // eslint-disable-next-line react-hooks/refs
   const rowVirtualizer = useWindowVirtualizer({
     count: virtualRows.length,
-    estimateSize: () => 365,
+    estimateSize: () => 350,
     overscan: 3,
+    gap: 8,
     // eslint-disable-next-line react-hooks/refs
     scrollMargin: parentRef.current?.offsetTop ?? 0,
     initialOffset: scrollEntry?.scrollY,
   });
-
-  const measureRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (node) rowVirtualizer.measureElement(node);
-    },
-    [rowVirtualizer],
-  );
 
   const virtualItems = rowVirtualizer.getVirtualItems();
 
@@ -102,6 +96,7 @@ export function EventList() {
             width: "100%",
             transform: `translateY(${(virtualItems[0]?.start ?? 0) - rowVirtualizer.options.scrollMargin}px)`,
           }}
+          className="flex flex-col gap-2"
         >
           {virtualItems.map((virtualItem) => {
             const row = virtualRows[virtualItem.index];
@@ -110,8 +105,8 @@ export function EventList() {
               <div
                 key={virtualItem.key}
                 data-index={virtualItem.index}
-                ref={measureRef}
-                className="grid gap-2 pb-2"
+                ref={rowVirtualizer.measureElement}
+                className="grid gap-2"
                 style={{
                   gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
                 }}
