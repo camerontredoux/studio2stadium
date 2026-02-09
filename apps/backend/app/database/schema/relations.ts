@@ -107,6 +107,12 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.danceEventSchedules.eventId,
     }),
   },
+  globalDanceEvents: {
+    attendees: r.many.users({
+      from: r.globalDanceEvents.id.through(r.globalDanceEventAttendees.eventId),
+      to: r.users.id.through(r.globalDanceEventAttendees.userId),
+    }),
+  },
   dancerFeed: {
     dancer: r.one.dancerProfiles({
       from: r.dancerFeed.dancerId,

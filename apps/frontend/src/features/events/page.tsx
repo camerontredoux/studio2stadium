@@ -1,6 +1,9 @@
+import { Tabs, TabsContent, TabsList, TabsTab } from "@/components/ui/tabs";
 import { Suspense } from "react";
 import { EventList } from "./components/events/event-list";
 import { EventListSkeleton } from "./components/events/event-skeleton";
+import { GlobalEventList } from "./components/global-events/global-event-list";
+import { GlobalEventListSkeleton } from "./components/global-events/global-event-skeleton";
 
 export function Page() {
   return (
@@ -16,9 +19,23 @@ export function Page() {
         </div>
       </div>
 
-      <Suspense fallback={<EventListSkeleton />}>
-        <EventList />
-      </Suspense>
+      <Tabs>
+        <TabsList className="mb-2 max-sm:w-full">
+          <TabsTab value="local">Schools</TabsTab>
+          <TabsTab value="global">Global</TabsTab>
+        </TabsList>
+        <TabsContent value="local">
+          <Suspense fallback={<EventListSkeleton />}>
+            <EventList />
+          </Suspense>
+        </TabsContent>
+
+        <TabsContent value="global">
+          <Suspense fallback={<GlobalEventListSkeleton />}>
+            <GlobalEventList />
+          </Suspense>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -37,11 +37,15 @@ type DancersFiltersGetHead = {
 }
 type EventsGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/events/list-events/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/events/get-events/controller.ts').default['handle'], false>
 }
 type EventsIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/get-event-by-id/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/events/get-event-by-id/controller.ts').default['handle'], true>
+}
+type EventsGlobalGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/events/get-global-events/controller.ts').default['handle'], false>
 }
 type HealthGetHead = {
   request: unknown
@@ -118,6 +122,12 @@ export interface ApiDefinition {
       };
       '$get': EventsIdGetHead;
       '$head': EventsIdGetHead;
+    };
+    'global': {
+      '$url': {
+      };
+      '$get': EventsGlobalGetHead;
+      '$head': EventsGlobalGetHead;
     };
   };
   'health': {

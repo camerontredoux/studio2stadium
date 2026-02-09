@@ -255,8 +255,8 @@
         "tags": [
           "Events"
         ],
-        "summary": "List events",
-        "description": "Returns a list of events"
+        "summary": "Get all events",
+        "description": "Returns a list of all upcoming events"
       }
     },
     "/events/{id}": {
@@ -298,6 +298,28 @@
         ],
         "summary": "Get event by id",
         "description": "Returns details about a specific event"
+      }
+    },
+    "/events/global": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventsGlobalResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Events"
+        ],
+        "summary": "Get all global events",
+        "description": "Returns a list of all upcoming global events"
       }
     },
     "/health": {
@@ -1515,6 +1537,83 @@
           "startDate",
           "endDate"
         ]
+      },
+      "EventsGlobalResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "startTime": {
+              "type": "string"
+            },
+            "endTime": {
+              "type": "string"
+            },
+            "startDate": {
+              "type": "string"
+            },
+            "endDate": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "audition",
+                "rehearsal",
+                "recital",
+                "showcase",
+                "competition",
+                "class",
+                "intensive",
+                "workshop",
+                "fundraiser",
+                "combine",
+                "convention",
+                "clinic",
+                "deadline",
+                "recruitment",
+                "performance",
+                "camp",
+                "other"
+              ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "website": {
+              "type": "string"
+            },
+            "thumbnail": {
+              "type": "string"
+            },
+            "organization": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "startTime",
+            "endTime",
+            "startDate",
+            "endDate",
+            "type",
+            "id",
+            "location",
+            "title",
+            "description",
+            "website",
+            "thumbnail",
+            "organization"
+          ]
+        }
       },
       "HealthResponse": {
         "type": "object",
