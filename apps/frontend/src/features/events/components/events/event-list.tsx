@@ -32,14 +32,16 @@ export function EventList() {
   const columns = getColumns(measured ? containerWidth : 0);
 
   const virtualRows = useMemo(() => {
+    const allEvents = data.flatMap((category) =>
+      category.events.map((event) => ({ month: category.month, event })),
+    );
     const rows: VirtualRow[] = [];
-    for (const category of data) {
-      for (let i = 0; i < category.events.length; i += columns) {
-        rows.push({
-          month: category.month,
-          events: category.events.slice(i, i + columns),
-        });
-      }
+    for (let i = 0; i < allEvents.length; i += columns) {
+      const chunk = allEvents.slice(i, i + columns);
+      rows.push({
+        month: chunk[0].month,
+        events: chunk.map((e) => e.event),
+      });
     }
     return rows;
   }, [data, columns]);
