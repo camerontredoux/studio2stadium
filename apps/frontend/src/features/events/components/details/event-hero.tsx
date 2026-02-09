@@ -94,11 +94,12 @@ export function EventHero({ event }: EventHeroProps) {
       </FramePanel>
 
       <FrameFooter className="flex w-fit items-center gap-2 px-4 py-3 max-sm:w-full sm:px-5">
-        <Button className="flex-1 gap-1.5">
+        <Button size="sm" className="flex-1 gap-1.5">
           <SaveIcon /> Save Event
         </Button>
         {event.website && (
           <Button
+            size="sm"
             variant="outline"
             className="flex-1 gap-1.5"
             render={<a target="_blank" href={event.website} />}
