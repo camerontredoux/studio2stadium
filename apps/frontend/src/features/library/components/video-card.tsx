@@ -19,61 +19,36 @@ interface VideoCardProps {
 export function VideoCard({ video }: VideoCardProps) {
   const id = getYouTubeId(video.url);
   return (
-    <ContentCard
-      image={id}
-      imageAlt={video.title}
-      badge={video.category}
-      title={video.title}
-      url={video.url}
-    />
-  );
-}
-
-interface ContentCardProps {
-  image: string | null;
-  imageAlt: string;
-  badge?: string;
-  title: string;
-  url: string;
-}
-
-export function ContentCard({
-  image,
-  imageAlt,
-  badge,
-  title,
-  url,
-}: ContentCardProps) {
-  return (
     <Frame
       compact
       className="group [contain-intrinsic-block-size:auto_300px] [content-visibility:auto]"
     >
       <FramePanel side="inset">
         <Dialog>
-          <DialogTrigger
-            render={
-              <div className="relative flex aspect-video cursor-pointer items-center justify-center">
-                <img
-                  src={`https://img.youtube.com/vi/${image}/hqdefault.jpg`}
-                  alt={imageAlt}
-                  className="aspect-video w-full object-cover"
-                />
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-black/80 to-transparent" />
-                {badge && (
-                  <Badge variant="brand" className="absolute top-2.5 left-2.5">
-                    {badge}
-                  </Badge>
-                )}
-              </div>
-            }
-          />
+          <DialogTrigger className="flex aspect-video items-center justify-center">
+            <div className="relative cursor-pointer">
+              <img
+                src={`https://img.youtube.com/vi/${id}/hqdefault.jpg`}
+                alt={video.title}
+                className="aspect-video w-full object-cover"
+              />
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-black/80 to-transparent" />
+              {video.category && (
+                <Badge variant="brand" className="absolute top-2.5 left-2.5">
+                  {video.category}
+                </Badge>
+              )}
+            </div>
+          </DialogTrigger>
           <DialogContent className="max-w-7xl overflow-clip">
             <DialogHeader>
               <DialogTitle>Watch Video</DialogTitle>
             </DialogHeader>
-            <div className="aspect-video max-h-[calc(100dvh-8rem)]">
-              <iframe src={url} className="h-full w-full" />
+            <div className="flex max-h-[calc(100dvh-8rem)] justify-center">
+              <iframe
+                src={video.url}
+                className="aspect-video max-h-full max-w-full"
+              />
             </div>
           </DialogContent>
         </Dialog>
@@ -85,11 +60,11 @@ export function ContentCard({
           />
           <div className="flex flex-1 flex-col gap-1.5">
             <h3
-              title={title}
-              aria-label={title}
+              title={video.title}
+              aria-label={video.title}
               className="group-hover:text-brand truncate text-sm leading-snug font-semibold transition-colors"
             >
-              {title}
+              {video.title}
             </h3>
           </div>
         </div>

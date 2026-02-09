@@ -6,8 +6,8 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/_app/(routes)/events/")({
   validateSearch: (search: Record<string, unknown>) => search as SearchFilter,
   loader: ({ context: { queryClient } }) => {
-    queryClient.ensureQueryData(queries.filters());
-    queryClient.ensureQueryData(queries.events());
+    queryClient.prefetchQuery(queries.filters());
+    queryClient.prefetchQuery(queries.events());
   },
   component: Page,
 });
