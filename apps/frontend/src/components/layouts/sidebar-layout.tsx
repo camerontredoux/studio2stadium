@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { useSwipeable } from "react-swipeable";
 import { SidebarWrapper } from "../shared/sidebar-wrapper";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "../ui/tabs";
 
@@ -28,12 +29,34 @@ function useCollapsedSidebar() {
   return below;
 }
 
+const sidebarTabs = ["content", "sidebar"] as const;
+
 export function SidebarLayout({ children, sidebar, tabs }: SidebarLayoutProps) {
   const collapsed = useCollapsedSidebar();
+  const [activeTab, setActiveTab] =
+    useState<(typeof sidebarTabs)[number]>("content");
+
+  const currentIndex = sidebarTabs.indexOf(activeTab);
+
+  const handlers = useSwipeable({
+    onSwipedLeft: () => {
+      const next = currentIndex + 1;
+      if (next < sidebarTabs.length) setActiveTab(sidebarTabs[next]);
+    },
+    onSwipedRight: () => {
+      const next = currentIndex - 1;
+      if (next >= 0) setActiveTab(sidebarTabs[next]);
+    },
+    preventScrollOnSwipe: true,
+    trackTouch: true,
+  });
 
   if (tabs && collapsed) {
     return (
-      <Tabs defaultValue="content">
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as (typeof sidebarTabs)[number])}
+      >
         <TabsList
           variant="underline"
           className="**:data-[slot=tab-indicator]:bg-brand bg-background sticky top-12 z-50 -mt-2 w-full"
@@ -51,12 +74,14 @@ export function SidebarLayout({ children, sidebar, tabs }: SidebarLayoutProps) {
             {tabs.sidebarLabel}
           </TabsTab>
         </TabsList>
-        <TabsPanel className="mobile:pb-16 mt-2" value="content">
-          {children}
-        </TabsPanel>
-        <TabsPanel className="mobile:pb-16 mt-2" value="sidebar">
-          <div className="space-y-2">{sidebar}</div>
-        </TabsPanel>
+        <div {...handlers} className="mt-4 overflow-x-clip">
+          <TabsPanel className="mobile:pb-16" value="content">
+            {children}
+          </TabsPanel>
+          <TabsPanel className="mobile:pb-16" value="sidebar">
+            <div className="space-y-2">{sidebar}</div>
+          </TabsPanel>
+        </div>
       </Tabs>
     );
   }
