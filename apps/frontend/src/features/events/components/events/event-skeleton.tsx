@@ -60,7 +60,10 @@ export function EventListSkeleton() {
 
       <div className="flex flex-col gap-2">
         {[3, 6].map((count, groupIdx) => (
-          <div key={groupIdx} className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          <div
+            key={groupIdx}
+            className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3"
+          >
             {Array.from({ length: count }).map((_, i) => (
               <EventCardSkeleton key={i} />
             ))}

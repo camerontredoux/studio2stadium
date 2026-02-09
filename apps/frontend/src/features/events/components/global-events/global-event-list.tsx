@@ -1,6 +1,5 @@
 import type { ApiSchemas } from "@/lib/api/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useElementScrollRestoration } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useMemo, useRef } from "react";
 import { useResizeObserver } from "usehooks-ts";
@@ -10,7 +9,7 @@ import { GlobalEventCard } from "./global-event-card";
 type Events = ApiSchemas["EventsGlobalResponse"];
 
 function getColumns(width: number) {
-  if (width < 600) return 1;
+  if (width < 560) return 1;
   if (width < 640) return 2;
   return 3;
 }
@@ -35,10 +34,6 @@ export function GlobalEventList() {
     return rows;
   }, [data, columns]);
 
-  const scrollEntry = useElementScrollRestoration({
-    getElement: () => window,
-  });
-
   // eslint-disable-next-line react-hooks/refs
   const rowVirtualizer = useWindowVirtualizer({
     count: virtualRows.length,
@@ -47,7 +42,6 @@ export function GlobalEventList() {
     gap: 8,
     // eslint-disable-next-line react-hooks/refs
     scrollMargin: parentRef.current?.offsetTop ?? 0,
-    initialOffset: scrollEntry?.scrollY,
   });
 
   const virtualItems = rowVirtualizer.getVirtualItems();

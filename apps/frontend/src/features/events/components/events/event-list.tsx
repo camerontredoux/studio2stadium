@@ -14,7 +14,7 @@ type Events = ApiSchemas["EventsResponse"][number]["events"];
 type VirtualRow = { month: string; events: Events };
 
 function getColumns(width: number) {
-  if (width < 600) return 1;
+  if (width < 560) return 1;
   if (width < 640) return 2;
   return 3;
 }

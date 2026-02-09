@@ -1,5 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTab } from "@/components/ui/tabs";
 import { Suspense, useState } from "react";
+import { flushSync } from "react-dom";
 import { useSwipeable } from "react-swipeable";
 import { EventList } from "./components/events/event-list";
 import { EventListSkeleton } from "./components/events/event-skeleton";
@@ -14,14 +15,21 @@ export function Page() {
 
   const currentIndex = eventTabs.indexOf(activeTab);
 
+  const changeTab = (tab: (typeof eventTabs)[number]) => {
+    flushSync(() => {
+      setActiveTab(tab);
+    });
+    window.scrollTo(0, 0);
+  };
+
   const handlers = useSwipeable({
     onSwipedLeft: () => {
       const next = currentIndex + 1;
-      if (next < eventTabs.length) setActiveTab(eventTabs[next]);
+      if (next < eventTabs.length) changeTab(eventTabs[next]);
     },
     onSwipedRight: () => {
       const next = currentIndex - 1;
-      if (next >= 0) setActiveTab(eventTabs[next]);
+      if (next >= 0) changeTab(eventTabs[next]);
     },
     preventScrollOnSwipe: true,
     trackTouch: true,
@@ -31,7 +39,7 @@ export function Page() {
     <div className="mobile:pb-14 flex flex-col gap-2 pt-1 sm:pt-0">
       <Tabs
         value={activeTab}
-        onValueChange={(v) => setActiveTab(v as (typeof eventTabs)[number])}
+        onValueChange={(v) => changeTab(v as (typeof eventTabs)[number])}
       >
         <TabsList
           variant="underline"
