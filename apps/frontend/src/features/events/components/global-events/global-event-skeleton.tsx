@@ -1,7 +1,7 @@
 import { Frame, FrameFooter, FramePanel } from "@/components/ui/frame";
 import { Skeleton } from "@/components/ui/skeleton";
 
-function EventCardSkeleton() {
+function GlobalEventCardSkeleton() {
   return (
     <Frame
       compact
@@ -43,30 +43,16 @@ function EventCardSkeleton() {
   );
 }
 
-export function EventListSkeleton() {
+export function GlobalEventListSkeleton() {
   return (
-    <div>
-      <div className="sticky top-14 z-10 pb-3">
-        <div className="flex items-center justify-between">
-          <div className="border-brand/20 bg-background/90 flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-1 backdrop-blur-sm">
-            <Skeleton className="size-3.5 rounded-full" />
-            <Skeleton className="h-5 w-16" />
-          </div>
-          <div className="bg-background rounded-lg">
-            <Skeleton className="h-8 w-22 rounded-md" />
-          </div>
+    <div className="flex flex-col gap-2">
+      {[3, 6].map((count, groupIdx) => (
+        <div key={groupIdx} className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          {Array.from({ length: count }).map((_, i) => (
+            <GlobalEventCardSkeleton key={i} />
+          ))}
         </div>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        {[3, 6].map((count, groupIdx) => (
-          <div key={groupIdx} className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            {Array.from({ length: count }).map((_, i) => (
-              <EventCardSkeleton key={i} />
-            ))}
-          </div>
-        ))}
-      </div>
+      ))}
     </div>
   );
 }

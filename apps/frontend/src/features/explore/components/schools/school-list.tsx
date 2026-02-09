@@ -2,7 +2,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useQuery } from "@tanstack/react-query";
 import { useElementScrollRestoration, useSearch } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { useRef } from "react";
+import { useDeferredValue, useRef } from "react";
 import { queries } from "../../api/queries";
 import { SchoolCard } from "./school-card/school-card";
 import { SchoolEmpty } from "./school-empty";
@@ -14,12 +14,11 @@ export function SchoolList() {
     queries.schools(search),
   );
 
+  const deferredName = useDeferredValue(name as string | undefined);
+
+  const needle = deferredName?.toLowerCase() ?? "";
   const rows =
-    data?.filter((school) =>
-      school.name
-        .toLowerCase()
-        .includes((name as string | undefined)?.toLowerCase() ?? ""),
-    ) ?? [];
+    data?.filter((school) => school.name.toLowerCase().includes(needle)) ?? [];
 
   const scrollEntry = useElementScrollRestoration({
     getElement: () => window,

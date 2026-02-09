@@ -1,6 +1,7 @@
 import { divisionOptions } from "#shared/constants/divisions";
 import { sportOptions } from "#shared/constants/sports";
 import { stateOptions } from "#shared/constants/states";
+import { styleOptions } from "#shared/constants/styles";
 
 type SchoolFilterParam =
   | "name"
@@ -71,16 +72,6 @@ export const filters: Filter[] = [
     id: "styles",
     type: "multi-select",
     paramKey: "styles",
-    options: [
-      { value: "hip-hop", label: "Hip Hop" },
-      { value: "jazz", label: "Jazz" },
-      { value: "pom", label: "Pom" },
-      { value: "game-day", label: "Game Day" },
-      { value: "kick", label: "Kick" },
-      { value: "military", label: "Military" },
-      { value: "lyrical-contemporary", label: "Lyrical/Contemporary" },
-      { value: "team-performance", label: "Team Performance" },
-      { value: "non-competitive", label: "Non-Competitive" },
-    ],
+    options: styleOptions,
   },
 ];

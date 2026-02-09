@@ -340,8 +340,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List events
-         * @description Returns a list of events
+         * Get all events
+         * @description Returns a list of all upcoming events
          */
         get: {
             parameters: {
@@ -409,6 +409,45 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/global": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all global events
+         * @description Returns a list of all upcoming global events
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventsGlobalResponse"];
                     };
                 };
             };
@@ -895,6 +934,21 @@ export interface components {
             startDate: string;
             endDate: string;
         };
+        EventsGlobalResponse: {
+            startTime: string;
+            endTime: string;
+            startDate: string;
+            endDate: string;
+            /** @enum {string} */
+            type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+            id: string;
+            location: string;
+            title: string;
+            description: string;
+            website: string;
+            thumbnail: string;
+            organization: string;
+        }[];
         HealthResponse: {
             /** @enum {string} */
             status: "error" | "ok" | "warning";
