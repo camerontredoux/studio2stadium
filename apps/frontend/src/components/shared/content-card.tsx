@@ -37,8 +37,9 @@ export function ContentCard({
       className="group [contain-intrinsic-block-size:auto_400px] [content-visibility:auto]"
     >
       <FramePanel side="top">
-        <div className="relative border-b">
+        <div className="relative isolate transform-gpu border-b">
           <img
+            loading="lazy"
             src={image}
             alt={imageAlt}
             className="h-48 w-full object-cover"

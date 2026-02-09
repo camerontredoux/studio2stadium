@@ -1,9 +1,9 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { queries } from "../api/queries";
-import { TagIcon } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { ResourcesFilterSheet } from "./filters/filter-sheet";
 import { VIDEO_CATEGORIES } from "@/utils/constants/categories";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { TagIcon } from "lucide-react";
+import { queries } from "../api/queries";
+import { ResourcesFilterSheet } from "./filters/filter-sheet";
 import { VideosByCategory } from "./videos-by-category";
 
 export function VideoList() {
@@ -14,7 +14,7 @@ export function VideoList() {
       key={group.category}
       className="relative flex flex-col gap-2 lg:gap-3"
     >
-      <div className="sticky top-26 z-10 py-2">
+      <div className="pointer-events-none sticky top-26 z-10 py-2">
         <div className="flex items-center gap-2">
           <div className="border-brand/20 bg-background/90 flex items-center gap-1.5 rounded-full border px-2.5 py-1 backdrop-blur-sm">
             <TagIcon className="text-brand size-3.5" />

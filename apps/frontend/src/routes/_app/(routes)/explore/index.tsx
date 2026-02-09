@@ -8,8 +8,8 @@ export const Route = createFileRoute("/_app/(routes)/explore/")({
   loaderDeps: ({ search }) => ({ search }),
   loader: ({ context: { queryClient }, deps: { search } }) => {
     const { name: _, ...filters } = search;
-    queryClient.ensureQueryData(queries.schools(filters));
-    queryClient.ensureQueryData(queries.filters());
+    queryClient.prefetchQuery(queries.schools(filters));
+    queryClient.prefetchQuery(queries.filters());
   },
   component: ExplorePage,
 });

@@ -8,6 +8,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -20,12 +21,19 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Settings2Icon } from "lucide-react";
 import { Filters } from "./filters";
 
 export function ExploreFilterSheet() {
   const navigate = useNavigate({ from: "/explore/" });
+  const filters = useSearch({
+    from: "/_app/(routes)/explore/",
+    select: (search) =>
+      Object.keys(search).filter(
+        (k) => search[k as keyof typeof search] !== undefined,
+      ).length,
+  });
 
   const clearFilters = () => {
     navigate({ to: "/explore" });
@@ -33,8 +41,19 @@ export function ExploreFilterSheet() {
 
   return (
     <Sheet>
-      <SheetTrigger render={<Button variant="outline" size="sm" />}>
+      <SheetTrigger
+        className="relative"
+        render={<Button variant="outline" size="sm" />}
+      >
         <Settings2Icon /> Filters
+        {filters ? (
+          <Badge
+            className="absolute -top-2 -right-2 rounded-full"
+            variant="warning"
+          >
+            {filters}
+          </Badge>
+        ) : null}
       </SheetTrigger>
       <SheetPopup variant="inset">
         <SheetHeader>

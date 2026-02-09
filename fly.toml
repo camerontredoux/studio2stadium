@@ -19,3 +19,10 @@ primary_region = 'iad'
 [[vm]]
   memory = '1gb'
   cpus = 1
+
+[[http_service.checks]]
+  grace_period = "10s"
+  interval = "30s"
+  method = "GET"
+  timeout = "5s"
+  path = "/health"
