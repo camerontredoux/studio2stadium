@@ -25,12 +25,12 @@ export function VideoCard({ video }: VideoCardProps) {
     >
       <FramePanel side="inset">
         <Dialog>
-          <DialogTrigger className="flex aspect-video items-center justify-center">
-            <div className="relative cursor-pointer">
+          <DialogTrigger className="flex items-center justify-center">
+            <div className="relative w-full aspect-video cursor-pointer">
               <img
                 src={`https://img.youtube.com/vi/${id}/hqdefault.jpg`}
                 alt={video.title}
-                className="aspect-video w-full object-cover"
+                className="aspect-video h-full w-full object-cover"
               />
               <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-black/80 to-transparent" />
               {video.category && (

@@ -22,6 +22,7 @@ function getColumns(width: number) {
 export function EventList() {
   const { data } = useSuspenseQuery(queries.events());
   const parentRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   const { width: containerWidth = 0 } = useResizeObserver({
     ref: parentRef as React.RefObject<HTMLDivElement>,
@@ -50,11 +51,11 @@ export function EventList() {
   // eslint-disable-next-line react-hooks/refs
   const rowVirtualizer = useWindowVirtualizer({
     count: virtualRows.length,
-    estimateSize: () => 350,
+    estimateSize: () => 365,
     overscan: 3,
     gap: 8,
     // eslint-disable-next-line react-hooks/refs
-    scrollMargin: parentRef.current?.offsetTop ?? 0,
+    scrollMargin: listRef.current?.offsetTop ?? 0,
     initialOffset: scrollEntry?.scrollY,
   });
 
@@ -82,6 +83,7 @@ export function EventList() {
       </div>
 
       <div
+        ref={listRef}
         style={{
           height: measured ? rowVirtualizer.getTotalSize() : undefined,
           position: "relative",
