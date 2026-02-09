@@ -64,7 +64,7 @@ export function EventDetail({ eventId }: EventDetailProps) {
       }
       tabs={{ contentLabel: "Event", sidebarLabel: "Details" }}
     >
-      <div className="mobile:pb-14 flex flex-col gap-3 pt-1 lg:gap-4 lg:pt-0">
+      <div className="mobile:pb-14 flex flex-col gap-3 lg:gap-4">
         <button
           className="text-muted-foreground hover:text-foreground inline-flex w-fit cursor-pointer items-center gap-1 text-sm transition-colors"
           onClick={() => router.history.back()}
