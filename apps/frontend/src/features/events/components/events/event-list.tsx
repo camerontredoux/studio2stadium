@@ -1,3 +1,5 @@
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import type { ApiSchemas } from "@/lib/api/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useElementScrollRestoration } from "@tanstack/react-router";
@@ -78,8 +80,14 @@ export function EventList() {
               {activeMonth}
             </span>
           </div>
-          <div className="bg-background rounded-lg">
-            <EventsFilterSheet />
+          <div className="flex items-center gap-2">
+            <Label className="text-muted-foreground">
+              Following
+              <Switch />
+            </Label>
+            <div className="bg-background rounded-lg">
+              <EventsFilterSheet />
+            </div>
           </div>
         </div>
       </div>

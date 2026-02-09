@@ -7,11 +7,11 @@ import { EventListSkeleton } from "./components/events/event-skeleton";
 import { GlobalEventList } from "./components/global-events/global-event-list";
 import { GlobalEventListSkeleton } from "./components/global-events/global-event-skeleton";
 
-const eventTabs = ["local", "global"] as const;
+const eventTabs = ["school", "global"] as const;
 
 export function Page() {
   const [activeTab, setActiveTab] =
-    useState<(typeof eventTabs)[number]>("local");
+    useState<(typeof eventTabs)[number]>("school");
 
   const currentIndex = eventTabs.indexOf(activeTab);
 
@@ -46,7 +46,7 @@ export function Page() {
           className="**:data-[slot=tab-indicator]:bg-brand bg-background sticky top-12 z-50 -mt-4 w-full"
         >
           <TabsTab
-            value="local"
+            value="school"
             className="text-brand data-active:text-brand max-sm:text-sm"
           >
             Schools
@@ -62,16 +62,18 @@ export function Page() {
         <div className="mt-6 mb-2 flex flex-col gap-2 sm:mb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <div className="flex flex-col max-sm:pl-1">
             <h1 className="text-2xl leading-none font-bold tracking-tight">
-              Events
+              {activeTab === "school" ? "School Events" : "Global Events"}
             </h1>
             <p className="text-muted-foreground text-sm">
-              Showcases, auditions, workshops & more
+              {activeTab === "school"
+                ? "Showcases, auditions & more from schools"
+                : "Events from organizations partnered with us"}
             </p>
           </div>
         </div>
 
         <div {...handlers} className="overflow-x-clip">
-          <TabsContent value="local">
+          <TabsContent value="school">
             <Suspense fallback={<EventListSkeleton />}>
               <EventList />
             </Suspense>

@@ -13,6 +13,7 @@ import {
 import type { ApiSchemas } from "@/lib/api/client";
 import {
   CalendarIcon,
+  ExternalLinkIcon,
   GraduationCapIcon,
   MapPinIcon,
   SaveIcon,
@@ -49,8 +50,8 @@ export function GlobalEventCard({ event }: GlobalEventCardProps) {
                 <DialogClose
                   render={<Button variant="secondary">Close</Button>}
                 />
-                <Button>
-                  <SaveIcon /> Save
+                <Button render={<a target="_blank" href={event.website} />}>
+                  <ExternalLinkIcon /> More Info
                 </Button>
               </DialogFooter>
             </DialogContent>
