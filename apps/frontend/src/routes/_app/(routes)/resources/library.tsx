@@ -6,8 +6,8 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/_app/(routes)/resources/library")({
   validateSearch: (search: Record<string, unknown>) => search as SearchFilter,
   loader: ({ context: { queryClient } }) => {
-    queryClient.prefetchQuery(queries.filters());
-    queryClient.prefetchQuery(queries.videos());
+    queryClient.ensureQueryData(queries.filters());
+    queryClient.ensureQueryData(queries.videos());
   },
   component: LibraryPage,
 });

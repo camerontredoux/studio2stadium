@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_app/(routes)/$username")({
     access.guard(access.is("core", "school"), access.self(params.username));
   },
   loader: ({ context: { queryClient }, params }) => {
-    queryClient.prefetchQuery(queries.detail(params.username));
+    queryClient.ensureQueryData(queries.detail(params.username));
   },
   component: RouteComponent,
 });

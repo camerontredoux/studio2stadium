@@ -48,6 +48,11 @@ export class Service {
   async findEvents() {
     return await this.db.use((db) =>
       db.query.danceEvents.findMany({
+        where: {
+          startDatetime: {
+            gt: new Date(),
+          },
+        },
         columns: {
           id: true,
           title: true,

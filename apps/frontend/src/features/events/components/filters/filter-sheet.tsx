@@ -33,9 +33,7 @@ export function EventsFilterSheet() {
 
   return (
     <Sheet>
-      <SheetTrigger
-        render={<Button variant="outline" size="sm" className="w-fit" />}
-      >
+      <SheetTrigger render={<Button variant="outline" size="sm" />}>
         <Settings2Icon /> Filters
       </SheetTrigger>
       <SheetPopup variant="inset">

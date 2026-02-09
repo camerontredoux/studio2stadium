@@ -9,7 +9,7 @@ export function FeedPage() {
   const session = useSession();
   return (
     <SidebarLayout sidebar={<FeedSidebar />}>
-      <div className="flex flex-col gap-2 max-lg:pb-14 lg:gap-4">
+      <div className="mobile:pb-14 flex flex-col gap-2 lg:gap-4">
         <div className="hidden lg:block">
           <h1 className="text-2xl leading-none font-bold tracking-tight">
             Welcome back, {session.username}!
