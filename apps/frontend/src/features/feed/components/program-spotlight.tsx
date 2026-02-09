@@ -4,7 +4,7 @@ import { MapPin, SparklesIcon, StarIcon, Users2Icon } from "lucide-react";
 
 export function ProgramSpotlight() {
   return (
-    <div className="overflow-clip rounded-xl border">
+    <div className="overflow-clip rounded-2xl border">
       <div className="from-brand/10 via-brand/5 to-background relative overflow-clip bg-linear-to-br p-4">
         <div className="text-brand absolute -top-1 -left-2 -z-10 flex items-center gap-2 opacity-10">
           <SparklesIcon className="size-24 rotate-6" />
@@ -21,7 +21,7 @@ export function ProgramSpotlight() {
         </p>
       </div>
       <div className="from-brand/10 via-background to-background grid grid-cols-1 gap-2 border-t bg-linear-to-tl p-2 sm:grid-cols-2 sm:gap-4 sm:p-4">
-        <div className="relative aspect-video overflow-clip rounded-xl">
+        <div className="relative aspect-video overflow-clip rounded-2xl">
           <img
             src="https://images.unsplash.com/photo-1724436781032-c1645c5783ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xsZWdlJTIwY2FtcHVzJTIwYnVpbGRpbmd8ZW58MXx8fHwxNzYwNTQ4OTIwfDA&ixlib=rb-4.1.0&q=80&w=1080"
             alt="Program Image"
