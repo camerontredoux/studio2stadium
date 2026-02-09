@@ -1,6 +1,4 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { BookOpenIcon, PlayIcon } from "lucide-react";
-import { useState } from "react";
 import { useSwipeable } from "react-swipeable";
 import { Tabs, TabsList, TabsTab } from "../ui/tabs";
 
@@ -10,10 +8,6 @@ export function ResourcesLayout({ children }: { children: React.ReactNode }) {
   const pathname = useLocation({ select: (location) => location.pathname });
   const navigate = useNavigate();
 
-  const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(
-    null,
-  );
-
   const currentIndex = resourceTabs.indexOf(
     pathname as (typeof resourceTabs)[number],
   );
@@ -22,7 +16,6 @@ export function ResourcesLayout({ children }: { children: React.ReactNode }) {
     const nextIndex =
       direction === "left" ? currentIndex + 1 : currentIndex - 1;
     if (nextIndex >= 0 && nextIndex < resourceTabs.length) {
-      setSlideDirection(direction);
       navigate({ to: resourceTabs[nextIndex] });
     }
   }
@@ -39,10 +32,6 @@ export function ResourcesLayout({ children }: { children: React.ReactNode }) {
       className="mobile:pb-14"
       value={pathname}
       onValueChange={(value) => {
-        const targetIndex = resourceTabs.indexOf(
-          value as (typeof resourceTabs)[number],
-        );
-        setSlideDirection(targetIndex > currentIndex ? "left" : "right");
         navigate({ to: value as string });
       }}
     >
@@ -52,31 +41,19 @@ export function ResourcesLayout({ children }: { children: React.ReactNode }) {
       >
         <TabsTab
           value="/resources/library"
-          className="text-brand data-active:text-brand gap-1.5 text-sm sm:text-xs"
+          className="text-brand data-active:text-brand max-sm:text-sm"
         >
-          <PlayIcon className="size-3.5" />
           Tap In
         </TabsTab>
         <TabsTab
           value="/resources/blog"
-          className="text-brand data-active:text-brand gap-1.5 text-sm sm:text-xs"
+          className="text-brand data-active:text-brand max-sm:text-sm"
         >
-          <BookOpenIcon className="size-3.5" />
           Blog
         </TabsTab>
       </TabsList>
       <div {...handlers} className="overflow-x-clip">
-        <div
-          key={pathname}
-          className="animate-slide-in"
-          style={{
-            ["--slide-from" as string]:
-              slideDirection === "left" ? "30%" : "-30%",
-          }}
-          onAnimationEnd={() => setSlideDirection(null)}
-        >
-          {children}
-        </div>
+        {children}
       </div>
     </Tabs>
   );

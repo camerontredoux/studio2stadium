@@ -34,7 +34,7 @@ export function ContentCard({
   return (
     <Frame
       compact
-      className="group [contain-intrinsic-block-size:auto_400px] [content-visibility:auto]"
+      className="group"
     >
       <FramePanel side="top">
         <div className="relative isolate transform-gpu border-b">

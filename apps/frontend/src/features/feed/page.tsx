@@ -8,7 +8,10 @@ import { ProgramSpotlight } from "./components/program-spotlight";
 export function FeedPage() {
   const session = useSession();
   return (
-    <SidebarLayout sidebar={<FeedSidebar />}>
+    <SidebarLayout
+      sidebar={<FeedSidebar />}
+      tabs={{ contentLabel: "Feed", sidebarLabel: "Discover" }}
+    >
       <div className="mobile:pb-14 flex flex-col gap-2 lg:gap-4">
         <div className="hidden lg:block">
           <h1 className="text-2xl leading-none font-bold tracking-tight">

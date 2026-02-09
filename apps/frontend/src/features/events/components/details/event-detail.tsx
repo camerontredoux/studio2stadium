@@ -62,6 +62,7 @@ export function EventDetail({ eventId }: EventDetailProps) {
           <EventLocation venue={event.location} address={event.address} />
         </>
       }
+      tabs={{ contentLabel: "Event", sidebarLabel: "Details" }}
     >
       <div className="mobile:pb-14 flex flex-col gap-3 pt-1 lg:gap-4 lg:pt-0">
         <button

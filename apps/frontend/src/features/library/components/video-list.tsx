@@ -8,8 +8,8 @@ export function VideoList() {
   const { data } = useSuspenseQuery(queries.videos());
 
   return data.map((group) => (
-    <section key={group.category} className="relative flex flex-col gap-2">
-      <div className="sticky top-24 z-10 py-2">
+    <section key={group.category} className="relative mt-1 flex flex-col gap-2">
+      <div className="sticky top-24 z-10 mt-2">
         <div className="flex items-center justify-between gap-2">
           <div className="border-brand/20 bg-background/90 flex items-center gap-1.5 rounded-full border px-2.5 py-1 backdrop-blur-sm">
             <TagIcon className="text-brand size-3.5" />
