@@ -1,6 +1,7 @@
 import { divisionCodes } from "#shared/constants/divisions";
 import { sportCodes } from "#shared/constants/sports";
 import { stateCodes } from "#shared/constants/states";
+import { styleCodes } from "#shared/constants/styles";
 import vine from "@vinejs/vine";
 import { Infer } from "@vinejs/vine/types";
 
@@ -49,7 +50,7 @@ export const validator = vine.create(
     location: vine.enum(stateCodes).optional(),
     division: vine.string().transform(csvEnum(divisionCodes)).optional(),
     sports: vine.string().transform(csvEnum(sportCodes)).optional(),
-    styles: vine.string().transform(csvEnum(sportCodes)).optional(),
+    styles: vine.string().transform(csvEnum(styleCodes)).optional(),
   })
 );
 
