@@ -43,6 +43,7 @@ export function PersonalDancerSettings() {
     },
   });
 
+  const { isDirty, isValid } = form.formState;
   const { mutate, isPending } = useUpdateDancerProfile();
 
   const onSubmit = (body: PersonalSettingsSchema) => {
@@ -211,9 +212,7 @@ export function PersonalDancerSettings() {
 
         <div className="flex justify-end">
           <Button
-            disabled={
-              isPending || !form.formState.isDirty || !form.formState.isValid
-            }
+            disabled={isPending || !isDirty || !isValid}
             type="submit"
             className="w-fit max-sm:w-full"
           >

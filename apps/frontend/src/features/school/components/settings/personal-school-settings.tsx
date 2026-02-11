@@ -30,6 +30,7 @@ export function PersonalSchoolSettings() {
     },
   });
 
+  const { isDirty, isValid } = form.formState;
   const { mutate, isPending } = useUpdateSchoolProfile();
 
   const onSubmit = (body: z.infer<typeof schemas.updateProfile>) => {
@@ -174,9 +175,7 @@ export function PersonalSchoolSettings() {
 
         <div className="flex justify-end">
           <Button
-            disabled={
-              isPending || !form.formState.isDirty || !form.formState.isValid
-            }
+            disabled={isPending || !isDirty || !isValid}
             type="submit"
             className="w-fit max-sm:w-full"
           >
