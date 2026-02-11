@@ -8,6 +8,7 @@ import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
 import { MaskInput } from "@/components/ui/mask-input";
 import { Spinner } from "@/components/ui/spinner";
 import { handleApiError } from "@/lib/api/errors";
+import { makeBirthday } from "@/utils/birthday";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PhoneIcon } from "lucide-react";
 import { useRef } from "react";
@@ -38,13 +39,7 @@ export function OnboardingForm() {
   });
 
   const onSubmit = (data: OnboardSchema) => {
-    const birthday = [
-      data.birthday.year,
-      data.birthday.month,
-      data.birthday.day,
-    ]
-      .map((n) => String(n).padStart(2, "0"))
-      .join("-");
+    const birthday = makeBirthday(data.birthday);
 
     mutate(
       {

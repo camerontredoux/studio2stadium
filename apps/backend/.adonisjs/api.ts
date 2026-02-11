@@ -7,6 +7,18 @@
 import type { MakeTuyauRequest, MakeTuyauResponse } from '@tuyau/utils/types'
 import type { InferInput } from '@vinejs/vine/types'
 
+type ApplicationGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/applications/get-application/controller.ts').default['handle'], false>
+}
+type ApplicationPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/applications/submit-application/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/applications/submit-application/controller.ts').default['handle'], true>
+}
+type ApplicationPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/applications/update-application/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/applications/update-application/controller.ts').default['handle'], true>
+}
 type AuthSignupPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/auth/signup/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/auth/signup/controller.ts').default['handle'], true>
@@ -27,37 +39,45 @@ type DancersPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/create-dancer/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/create-dancer/controller.ts').default['handle'], true>
 }
-type DancersIdGetHead = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/get-profile/validator.ts')['validator']>>
-  response: MakeTuyauResponse<import('../app/modules/dancers/get-profile/controller.ts').default['handle'], true>
-}
 type DancersFiltersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/get-filters/controller.ts').default['handle'], false>
+}
+type DancersMeProfileGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/dancers/me/get-profile/controller.ts').default['handle'], false>
+}
+type DancersMeProfilePatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/me/update-profile/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/me/update-profile/controller.ts').default['handle'], true>
+}
+type DancersMePortfolioGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/dancers/me/get-portfolio/controller.ts').default['handle'], false>
+}
+type DancersMePortfolioPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/me/update-portfolio/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/me/update-portfolio/controller.ts').default['handle'], true>
+}
+type DancersIdGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/get-dancer/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-dancer/controller.ts').default['handle'], true>
 }
 type EventsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/events/get-events/controller.ts').default['handle'], false>
 }
-type EventsIdGetHead = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/get-event-by-id/validator.ts')['validator']>>
-  response: MakeTuyauResponse<import('../app/modules/events/get-event-by-id/controller.ts').default['handle'], true>
-}
 type EventsGlobalGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/events/get-global-events/controller.ts').default['handle'], false>
 }
+type EventsIdGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/get-event-by-id/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/events/get-event-by-id/controller.ts').default['handle'], true>
+}
 type HealthGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/health/index.ts').default['handle'], false>
-}
-type SchoolsFiltersGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/schools/get-filters/contoller.ts').default['handle'], false>
-}
-type SchoolsGetHead = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/list-schools/validator.ts')['validator']>>
-  response: MakeTuyauResponse<import('../app/modules/schools/list-schools/controller.ts').default['handle'], true>
 }
 type LibraryGetHead = {
   request: unknown
@@ -67,11 +87,63 @@ type LibraryIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/library/list-videos-by-category/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/library/list-videos-by-category/controller.ts').default['handle'], true>
 }
+type SchoolsFiltersGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/schools/get-filters/contoller.ts').default['handle'], false>
+}
+type SchoolsGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-schools/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/get-schools/controller.ts').default['handle'], true>
+}
+type SchoolsMePrograminfoGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/schools/me/get-program-info/controller.ts').default['handle'], false>
+}
+type SchoolsMePrograminfoPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/me/update-program-info/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/me/update-program-info/controller.ts').default['handle'], true>
+}
+type SchoolsMeSchooldetailsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/schools/me/get-school-details/controller.ts').default['handle'], false>
+}
+type SchoolsMeSchooldetailsPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/me/update-school-details/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/me/update-school-details/controller.ts').default['handle'], true>
+}
+type SchoolsMeProfileGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/schools/me/get-profile/controller.ts').default['handle'], false>
+}
+type SchoolsMeProfilePatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/me/update-profile/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/me/update-profile/controller.ts').default['handle'], true>
+}
+type SchoolsIdGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/get-school/controller.ts').default['handle'], true>
+}
 type UsersCheckavailabilityGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/check-availability/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/users/check-availability/controller.ts').default['handle'], true>
 }
+type UsersGeneralGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/users/get-general/controller.ts').default['handle'], false>
+}
+type UsersGeneralPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/update-general/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/users/update-general/controller.ts').default['handle'], true>
+}
 export interface ApiDefinition {
+  'application': {
+    '$url': {
+    };
+    '$get': ApplicationGetHead;
+    '$head': ApplicationGetHead;
+    '$post': ApplicationPost;
+    '$patch': ApplicationPatch;
+  };
   'auth': {
     'signup': {
       '$url': {
@@ -99,17 +171,33 @@ export interface ApiDefinition {
     '$url': {
     };
     '$post': DancersPost;
-    ':username': {
-      '$url': {
-      };
-      '$get': DancersIdGetHead;
-      '$head': DancersIdGetHead;
-    };
     'filters': {
       '$url': {
       };
       '$get': DancersFiltersGetHead;
       '$head': DancersFiltersGetHead;
+    };
+    'me': {
+      'profile': {
+        '$url': {
+        };
+        '$get': DancersMeProfileGetHead;
+        '$head': DancersMeProfileGetHead;
+        '$patch': DancersMeProfilePatch;
+      };
+      'portfolio': {
+        '$url': {
+        };
+        '$get': DancersMePortfolioGetHead;
+        '$head': DancersMePortfolioGetHead;
+        '$patch': DancersMePortfolioPatch;
+      };
+    };
+    ':username': {
+      '$url': {
+      };
+      '$get': DancersIdGetHead;
+      '$head': DancersIdGetHead;
     };
   };
   'events': {
@@ -117,17 +205,17 @@ export interface ApiDefinition {
     };
     '$get': EventsGetHead;
     '$head': EventsGetHead;
-    ':id': {
-      '$url': {
-      };
-      '$get': EventsIdGetHead;
-      '$head': EventsIdGetHead;
-    };
     'global': {
       '$url': {
       };
       '$get': EventsGlobalGetHead;
       '$head': EventsGlobalGetHead;
+    };
+    ':id': {
+      '$url': {
+      };
+      '$get': EventsIdGetHead;
+      '$head': EventsIdGetHead;
     };
   };
   'health': {
@@ -135,18 +223,6 @@ export interface ApiDefinition {
     };
     '$get': HealthGetHead;
     '$head': HealthGetHead;
-  };
-  'schools': {
-    'filters': {
-      '$url': {
-      };
-      '$get': SchoolsFiltersGetHead;
-      '$head': SchoolsFiltersGetHead;
-    };
-    '$url': {
-    };
-    '$get': SchoolsGetHead;
-    '$head': SchoolsGetHead;
   };
   'library': {
     '$url': {
@@ -160,12 +236,60 @@ export interface ApiDefinition {
       '$head': LibraryIdGetHead;
     };
   };
+  'schools': {
+    'filters': {
+      '$url': {
+      };
+      '$get': SchoolsFiltersGetHead;
+      '$head': SchoolsFiltersGetHead;
+    };
+    '$url': {
+    };
+    '$get': SchoolsGetHead;
+    '$head': SchoolsGetHead;
+    'me': {
+      'program-info': {
+        '$url': {
+        };
+        '$get': SchoolsMePrograminfoGetHead;
+        '$head': SchoolsMePrograminfoGetHead;
+        '$patch': SchoolsMePrograminfoPatch;
+      };
+      'school-details': {
+        '$url': {
+        };
+        '$get': SchoolsMeSchooldetailsGetHead;
+        '$head': SchoolsMeSchooldetailsGetHead;
+        '$patch': SchoolsMeSchooldetailsPatch;
+      };
+      'profile': {
+        '$url': {
+        };
+        '$get': SchoolsMeProfileGetHead;
+        '$head': SchoolsMeProfileGetHead;
+        '$patch': SchoolsMeProfilePatch;
+      };
+    };
+    ':username': {
+      '$url': {
+      };
+      '$get': SchoolsIdGetHead;
+      '$head': SchoolsIdGetHead;
+    };
+  };
   'users': {
     'check-availability': {
       '$url': {
       };
       '$get': UsersCheckavailabilityGetHead;
       '$head': UsersCheckavailabilityGetHead;
+    };
+    'general': {
+      '$url': {
+      };
+      '$get': UsersGeneralGetHead;
+      '$head': UsersGeneralGetHead;
+      '$patch': UsersGeneralPatch;
     };
   };
 }

@@ -43,4 +43,6 @@ router.use([
  */
 export const middleware = router.named({
   auth: () => import("#middleware/routes/authenticated"),
+  dancer: () => import("#middleware/routes/dancer"),
+  school: () => import("#middleware/routes/school"),
 });

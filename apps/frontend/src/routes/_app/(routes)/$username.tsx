@@ -1,4 +1,4 @@
-import { queries } from "@/features/dancer/api/queries";
+import { dancerQueries } from "@/features/dancer/api/queries";
 import { DancerProfile } from "@/features/dancer/components/dancer-profile";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_app/(routes)/$username")({
     access.guard(access.is("core", "school"), access.self(params.username));
   },
   loader: ({ context: { queryClient }, params }) => {
-    queryClient.ensureQueryData(queries.detail(params.username));
+    queryClient.ensureQueryData(dancerQueries.profile(params.username));
   },
   component: RouteComponent,
 });

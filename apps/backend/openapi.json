@@ -15,6 +15,72 @@
     }
   ],
   "paths": {
+    "/application": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Applications"
+        ],
+        "summary": "Get application status",
+        "description": "Returns the school's application details"
+      },
+      "post": {
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Applications"
+        ],
+        "summary": "Submit application",
+        "description": "Submits the school's application"
+      },
+      "patch": {
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Applications"
+        ],
+        "summary": "Update application",
+        "description": "Updates the school's application"
+      }
+    },
     "/auth/signup": {
       "post": {
         "requestBody": {
@@ -174,6 +240,116 @@
         "description": "Populate account with personal information to finish dancer signup"
       }
     },
+    "/dancers/filters": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersFiltersResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Get dancer filters",
+        "description": "Returns the filters to use when searching for dancers"
+      }
+    },
+    "/dancers/me/profile": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersMeProfileResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Get my dancer profile",
+        "description": "Returns the authenticated dancer's profile settings"
+      },
+      "patch": {
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Update my dancer profile",
+        "description": "Updates the authenticated dancer's profile settings"
+      }
+    },
+    "/dancers/me/portfolio": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersMePortfolioResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Get my portfolio",
+        "description": "Returns the authenticated dancer's portfolio"
+      },
+      "patch": {
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Update my portfolio",
+        "description": "Updates the authenticated dancer's portfolio"
+      }
+    },
     "/dancers/{username}": {
       "get": {
         "parameters": [
@@ -211,30 +387,8 @@
         "tags": [
           "Dancers"
         ],
-        "summary": "Get dancer profile",
-        "description": "Returns the dancer's profile information"
-      }
-    },
-    "/dancers/filters": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DancersFiltersResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Dancers"
-        ],
-        "summary": "Get dancer filters",
-        "description": "Returns the filters to use when searching for dancers"
+        "summary": "Get a dancer",
+        "description": "Returns the dancer's public profile"
       }
     },
     "/events": {
@@ -257,6 +411,28 @@
         ],
         "summary": "Get all events",
         "description": "Returns a list of all upcoming events"
+      }
+    },
+    "/events/global": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventsGlobalResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Events"
+        ],
+        "summary": "Get all global events",
+        "description": "Returns a list of all upcoming global events"
       }
     },
     "/events/{id}": {
@@ -300,28 +476,6 @@
         "description": "Returns details about a specific event"
       }
     },
-    "/events/global": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EventsGlobalResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Events"
-        ],
-        "summary": "Get all global events",
-        "description": "Returns a list of all upcoming global events"
-      }
-    },
     "/health": {
       "get": {
         "parameters": [],
@@ -347,6 +501,80 @@
             }
           }
         }
+      }
+    },
+    "/library": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Video Library"
+        ],
+        "summary": "List tap in videos",
+        "description": "Returns a list of all tap in videos with their category"
+      }
+    },
+    "/library/{category}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": [
+                "string",
+                "number"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryIdResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Video Library"
+        ],
+        "summary": "List videos by category",
+        "description": "Returns a list of videos by category, paginated with 6 results at a time"
       }
     },
     "/schools": {
@@ -537,7 +765,7 @@
         "tags": [
           "Schools"
         ],
-        "summary": "List schools",
+        "summary": "Get schools",
         "description": "Returns a list of schools"
       }
     },
@@ -563,7 +791,7 @@
         "description": "Returns the filters to use when searching for schools"
       }
     },
-    "/library": {
+    "/schools/me/program-info": {
       "get": {
         "parameters": [],
         "responses": {
@@ -572,39 +800,138 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LibraryResponse"
+                  "$ref": "#/components/schemas/SchoolsMePrograminfoResponse"
                 }
               }
             }
           }
         },
         "tags": [
-          "Video Library"
+          "Schools"
         ],
-        "summary": "List tap in videos",
-        "description": "Returns a list of all tap in videos with their category"
+        "summary": "Get my program info",
+        "description": "Returns the authenticated school's program information"
+      },
+      "patch": {
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Update my program info",
+        "description": "Updates the authenticated school's program information"
       }
     },
-    "/library/{category}": {
+    "/schools/me/school-details": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsMeSchooldetailsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Get my school details",
+        "description": "Returns the authenticated school's details"
+      },
+      "patch": {
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Update my school details",
+        "description": "Updates the authenticated school's details"
+      }
+    },
+    "/schools/me/profile": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsMeProfileResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Get my school profile",
+        "description": "Returns the authenticated school's profile"
+      },
+      "post": {
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Update my school profile",
+        "description": "Updates the authenticated school's profile"
+      }
+    },
+    "/schools/{username}": {
       "get": {
         "parameters": [
           {
-            "name": "category",
+            "name": "username",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": [
-                "string",
-                "number"
-              ]
             }
           }
         ],
@@ -614,7 +941,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LibraryIdResponse"
+                  "$ref": "#/components/schemas/SchoolsIdResponse"
                 }
               }
             }
@@ -631,10 +958,10 @@
           }
         },
         "tags": [
-          "Video Library"
+          "Schools"
         ],
-        "summary": "List videos by category",
-        "description": "Returns a list of videos by category, paginated with 6 results at a time"
+        "summary": "Get a school",
+        "description": "Returns the school's public profile"
       }
     },
     "/users/check-availability": {
@@ -676,6 +1003,50 @@
         ],
         "summary": "Check username availability",
         "description": "Checks if a username is available for registration."
+      }
+    },
+    "/users/general": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsersGeneralResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get general settings",
+        "description": "Returns the user's general account settings"
+      },
+      "patch": {
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update general settings",
+        "description": "Updates the user's general account settings"
       }
     }
   },
@@ -754,6 +1125,10 @@
           "upcomingEvents",
           "gpaRange"
         ]
+      },
+      "ApplicationResponse": {
+        "type": "object",
+        "properties": {}
       },
       "AuthSignupRequest": {
         "type": "object",
@@ -962,6 +1337,132 @@
           "location",
           "platform"
         ]
+      },
+      "DancersFiltersResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "select",
+                "input",
+                "toggle",
+                "multi-select",
+                "range"
+              ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "label",
+                  "value"
+                ]
+              }
+            },
+            "label": {
+              "type": "string"
+            },
+            "paramKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "label",
+            "paramKey"
+          ]
+        }
+      },
+      "DancersMeProfileResponse": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "displayEmail": {
+            "type": "string"
+          },
+          "avatar": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "dancerProfile": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "birthday": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "birthday",
+                  "location"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "phone",
+          "displayEmail",
+          "avatar",
+          "dancerProfile"
+        ]
+      },
+      "DancersMePortfolioResponse": {
+        "type": "object",
+        "properties": {}
       },
       "DancersIdResponse": {
         "type": "object",
@@ -1219,57 +1720,6 @@
           "dancerProfile"
         ]
       },
-      "DancersFiltersResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "select",
-                "input",
-                "toggle",
-                "multi-select",
-                "range"
-              ]
-            },
-            "id": {
-              "type": "string"
-            },
-            "options": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "label": {
-                    "type": "string"
-                  },
-                  "value": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "label",
-                  "value"
-                ]
-              }
-            },
-            "label": {
-              "type": "string"
-            },
-            "paramKey": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "type",
-            "id",
-            "label",
-            "paramKey"
-          ]
-        }
-      },
       "EventsResponse": {
         "type": "array",
         "items": {
@@ -1358,6 +1808,83 @@
           "required": [
             "events",
             "month"
+          ]
+        }
+      },
+      "EventsGlobalResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "startTime": {
+              "type": "string"
+            },
+            "endTime": {
+              "type": "string"
+            },
+            "startDate": {
+              "type": "string"
+            },
+            "endDate": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "audition",
+                "rehearsal",
+                "recital",
+                "showcase",
+                "competition",
+                "class",
+                "intensive",
+                "workshop",
+                "fundraiser",
+                "combine",
+                "convention",
+                "clinic",
+                "deadline",
+                "recruitment",
+                "performance",
+                "camp",
+                "other"
+              ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "website": {
+              "type": "string"
+            },
+            "thumbnail": {
+              "type": "string"
+            },
+            "organization": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "startTime",
+            "endTime",
+            "startDate",
+            "endDate",
+            "type",
+            "id",
+            "location",
+            "title",
+            "description",
+            "website",
+            "thumbnail",
+            "organization"
           ]
         }
       },
@@ -1538,83 +2065,6 @@
           "endDate"
         ]
       },
-      "EventsGlobalResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "startTime": {
-              "type": "string"
-            },
-            "endTime": {
-              "type": "string"
-            },
-            "startDate": {
-              "type": "string"
-            },
-            "endDate": {
-              "type": "string"
-            },
-            "type": {
-              "type": "string",
-              "enum": [
-                "audition",
-                "rehearsal",
-                "recital",
-                "showcase",
-                "competition",
-                "class",
-                "intensive",
-                "workshop",
-                "fundraiser",
-                "combine",
-                "convention",
-                "clinic",
-                "deadline",
-                "recruitment",
-                "performance",
-                "camp",
-                "other"
-              ]
-            },
-            "id": {
-              "type": "string"
-            },
-            "location": {
-              "type": "string"
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "website": {
-              "type": "string"
-            },
-            "thumbnail": {
-              "type": "string"
-            },
-            "organization": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "startTime",
-            "endTime",
-            "startDate",
-            "endDate",
-            "type",
-            "id",
-            "location",
-            "title",
-            "description",
-            "website",
-            "thumbnail",
-            "organization"
-          ]
-        }
-      },
       "HealthResponse": {
         "type": "object",
         "properties": {
@@ -1705,6 +2155,89 @@
           "debugInfo",
           "checks"
         ]
+      },
+      "LibraryResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string"
+            },
+            "videos": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "createdAt": {
+                    "type": "string"
+                  },
+                  "updatedAt": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "category": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "url",
+                  "id",
+                  "createdAt",
+                  "updatedAt",
+                  "title",
+                  "category"
+                ]
+              }
+            }
+          },
+          "required": [
+            "category",
+            "videos"
+          ]
+        }
+      },
+      "LibraryIdResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "updatedAt": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "category": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url",
+            "id",
+            "createdAt",
+            "updatedAt",
+            "title",
+            "category"
+          ]
+        }
       },
       "SchoolsResponse": {
         "type": "array",
@@ -1850,88 +2383,182 @@
           ]
         }
       },
-      "LibraryResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "category": {
-              "type": "string"
-            },
-            "videos": {
-              "type": "array",
-              "items": {
+      "SchoolsMePrograminfoResponse": {
+        "type": "object",
+        "properties": {}
+      },
+      "SchoolsMeSchooldetailsResponse": {
+        "type": "object",
+        "properties": {}
+      },
+      "SchoolsMeProfileResponse": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "displayEmail": {
+            "type": "string"
+          },
+          "avatar": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "dancerProfile": {
+            "oneOf": [
+              {
                 "type": "object",
                 "properties": {
-                  "url": {
+                  "birthday": {
                     "type": "string"
                   },
-                  "id": {
-                    "type": "string"
-                  },
-                  "createdAt": {
-                    "type": "string"
-                  },
-                  "updatedAt": {
-                    "type": "string"
-                  },
-                  "title": {
-                    "type": "string"
-                  },
-                  "category": {
-                    "type": "string"
+                  "location": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   }
                 },
                 "required": [
-                  "url",
-                  "id",
-                  "createdAt",
-                  "updatedAt",
-                  "title",
-                  "category"
+                  "birthday",
+                  "location"
                 ]
+              },
+              {
+                "type": "null"
               }
-            }
-          },
-          "required": [
-            "category",
-            "videos"
-          ]
-        }
+            ]
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "phone",
+          "displayEmail",
+          "avatar",
+          "dancerProfile"
+        ]
       },
-      "LibraryIdResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "url": {
-              "type": "string"
-            },
-            "id": {
-              "type": "string"
-            },
-            "createdAt": {
-              "type": "string"
-            },
-            "updatedAt": {
-              "type": "string"
-            },
-            "title": {
-              "type": "string"
-            },
-            "category": {
-              "type": "string"
-            }
+      "SchoolsIdResponse": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
           },
-          "required": [
-            "url",
-            "id",
-            "createdAt",
-            "updatedAt",
-            "title",
-            "category"
-          ]
-        }
+          "id": {
+            "type": "string"
+          },
+          "avatar": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "schoolProfile": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "location": {
+                    "type": "string"
+                  },
+                  "gpa": {
+                    "oneOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "skills": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "slug": {
+                          "type": "string"
+                        },
+                        "category": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "slug",
+                        "category"
+                      ]
+                    }
+                  },
+                  "styles": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "slug": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "slug"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "location",
+                  "gpa",
+                  "skills",
+                  "styles"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "username",
+          "id",
+          "avatar",
+          "schoolProfile"
+        ]
       },
       "UsersCheckavailabilityResponse": {
         "type": "object",
@@ -1943,6 +2570,10 @@
         "required": [
           "available"
         ]
+      },
+      "UsersGeneralResponse": {
+        "type": "object",
+        "properties": {}
       }
     }
   },

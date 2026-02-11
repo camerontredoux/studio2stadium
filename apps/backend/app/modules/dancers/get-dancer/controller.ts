@@ -5,7 +5,7 @@ import { HttpContext } from "@adonisjs/core/http";
 import { Service } from "./service.ts";
 import { validator } from "./validator.ts";
 
-export default class GetProfileController {
+export default class GetDancerController {
   @inject()
   async handle(ctx: HttpContext, service: Service) {
     const { params } = await ctx.request.validateUsing(validator);

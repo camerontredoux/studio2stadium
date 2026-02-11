@@ -13,12 +13,12 @@ export const dancerProfiles = pg.pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     birthday: pg.date({ mode: "string" }).notNull(),
+    location: pg.text().notNull(),
     biography: pg.text(),
     awards: pg.text(),
     instagram: pg.text(),
     tiktok: pg.text(),
     youtube: pg.text(),
-    location: pg.text(),
     skillLevel: pg.text(),
     teamLevel: pg.text(),
     highSchool: pg.text(),

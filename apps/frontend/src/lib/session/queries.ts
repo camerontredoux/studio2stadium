@@ -11,11 +11,11 @@ const client = createFetchClient<paths>({
   credentials: "include",
 });
 
-export const queries = {
+export const sessionQueries = {
   all: () => ["session"] as const,
   session: () => {
     return queryOptions({
-      queryKey: queries.all(),
+      queryKey: sessionQueries.all(),
       queryFn: async () => {
         try {
           const { data, error, response } = await client.GET("/auth/session");

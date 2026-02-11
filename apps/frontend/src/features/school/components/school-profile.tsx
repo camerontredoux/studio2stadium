@@ -1,12 +1,21 @@
+import { useSession } from "@/lib/session";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { queries } from "../api/queries";
+import { schoolQueries } from "../api/queries";
 
 interface SchoolProfileProps {
   username: string;
 }
 
 export function SchoolProfile({ username }: SchoolProfileProps) {
-  const { data } = useSuspenseQuery(queries.detail(username));
+  const session = useSession();
 
-  return <div>{data.username}</div>;
+  const { data } = useSuspenseQuery(schoolQueries.detail(username));
+
+  return (
+    <div>
+      <pre className="whitespace-pre-wrap">
+        {JSON.stringify({ ...session, ...data }, null, 2)}
+      </pre>
+    </div>
+  );
 }

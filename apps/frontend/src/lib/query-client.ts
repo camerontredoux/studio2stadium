@@ -10,10 +10,11 @@ export const queryClient = new QueryClient({
     mutations: {
       retry: false,
       onSettled: (_data, _error, _variables, _context, mutation) => {
-        if (mutation.meta?.invalidateQuery) {
-          queryClient.invalidateQueries({
-            queryKey: mutation.meta.invalidateQuery,
-          });
+        const queries = mutation.meta?.invalidateQueries;
+        if (queries) {
+          for (const queryKey of queries) {
+            queryClient.invalidateQueries({ queryKey });
+          }
         }
       },
     },
@@ -23,7 +24,7 @@ export const queryClient = new QueryClient({
 declare module "@tanstack/react-query" {
   interface Register {
     mutationMeta: {
-      invalidateQuery?: QueryKey;
+      invalidateQueries?: QueryKey[];
     };
   }
 }

@@ -1,4 +1,5 @@
-import { useRouteContext } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { sessionQueries } from "../queries";
 import type { Session } from "../types";
 
 /**
@@ -6,7 +7,7 @@ import type { Session } from "../types";
  * @returns Guaranteed user session or throws an error if the session is not found.
  */
 export function useSession(): Session {
-  const { session } = useRouteContext({ strict: false });
+  const { data: session } = useSuspenseQuery(sessionQueries.session());
 
   if (!session) {
     throw new Error("useSession must be used within an authenticated route");

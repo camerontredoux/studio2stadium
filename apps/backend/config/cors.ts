@@ -11,7 +11,7 @@ import { defineConfig } from "@adonisjs/cors";
 const corsConfig = defineConfig({
   enabled: true,
   origin: app.inProduction ? env.get("SITE_URL") : true,
-  methods: ["GET", "HEAD", "POST", "PUT", "DELETE"],
+  methods: ["GET", "HEAD", "POST", "PATCH", "DELETE"],
   headers: app.inProduction
     ? ["Content-Type", "Authorization", "Accept"]
     : true,

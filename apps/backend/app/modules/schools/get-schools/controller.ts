@@ -4,7 +4,7 @@ import { HttpContext } from "@adonisjs/core/http";
 import { Service } from "./service.ts";
 import { validator } from "./validator.ts";
 
-export default class ListSchoolsController {
+export default class GetSchoolsController {
   @inject()
   async handle(ctx: HttpContext, service: Service) {
     const user = ctx.auth.getUserOrFail();

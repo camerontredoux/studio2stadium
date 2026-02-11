@@ -4,6 +4,105 @@
  */
 
 export interface paths {
+    "/application": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get application status
+         * @description Returns the school's application details
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApplicationResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Submit application
+         * @description Submits the school's application
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update application
+         * @description Updates the school's application
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/auth/signup": {
         parameters: {
             query?: never;
@@ -243,6 +342,187 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dancers/filters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dancer filters
+         * @description Returns the filters to use when searching for dancers
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersFiltersResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/me/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get my dancer profile
+         * @description Returns the authenticated dancer's profile settings
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersMeProfileResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update my dancer profile
+         * @description Updates the authenticated dancer's profile settings
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersMeProfileRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/dancers/me/portfolio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get my portfolio
+         * @description Returns the authenticated dancer's portfolio
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersMePortfolioResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update my portfolio
+         * @description Updates the authenticated dancer's portfolio
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/dancers/{username}": {
         parameters: {
             query?: never;
@@ -251,8 +531,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get dancer profile
-         * @description Returns the dancer's profile information
+         * Get a dancer
+         * @description Returns the dancer's public profile
          */
         get: {
             parameters: {
@@ -293,45 +573,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/dancers/filters": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get dancer filters
-         * @description Returns the filters to use when searching for dancers
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersFiltersResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/events": {
         parameters: {
             query?: never;
@@ -359,6 +600,45 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["EventsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/global": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all global events
+         * @description Returns a list of all upcoming global events
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventsGlobalResponse"];
                     };
                 };
             };
@@ -421,45 +701,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/events/global": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get all global events
-         * @description Returns a list of all upcoming global events
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["EventsGlobalResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/health": {
         parameters: {
             query?: never;
@@ -492,101 +733,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["HealthResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List schools
-         * @description Returns a list of schools
-         */
-        get: {
-            parameters: {
-                query?: {
-                    location?: ("OR" | "ID" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
-                    division?: string | null;
-                    styles?: string | null;
-                    sports?: string | null;
-                    commonRecruiting?: (string | number | boolean) | null;
-                    upcomingEvents?: (string | number | boolean) | null;
-                    gpaRange?: Record<string, never>;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools/filters": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get school filters
-         * @description Returns the filters to use when searching for schools
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsFiltersResponse"];
                     };
                 };
             };
@@ -690,6 +836,362 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/schools": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get schools
+         * @description Returns a list of schools
+         */
+        get: {
+            parameters: {
+                query?: {
+                    location?: ("OR" | "ID" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
+                    division?: string | null;
+                    styles?: string | null;
+                    sports?: string | null;
+                    commonRecruiting?: (string | number | boolean) | null;
+                    upcomingEvents?: (string | number | boolean) | null;
+                    gpaRange?: Record<string, never>;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools/filters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get school filters
+         * @description Returns the filters to use when searching for schools
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsFiltersResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools/me/program-info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get my program info
+         * @description Returns the authenticated school's program information
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsMePrograminfoResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update my program info
+         * @description Updates the authenticated school's program information
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/schools/me/school-details": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get my school details
+         * @description Returns the authenticated school's details
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsMeSchooldetailsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update my school details
+         * @description Updates the authenticated school's details
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/schools/me/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get my school profile
+         * @description Returns the authenticated school's profile
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsMeProfileResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update my school profile
+         * @description Updates the authenticated school's profile
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SchoolsMeProfileRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/schools/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a school
+         * @description Returns the school's public profile
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/check-availability": {
         parameters: {
             query?: never;
@@ -740,6 +1242,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/general": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get general settings
+         * @description Returns the user's general account settings
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UsersGeneralResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update general settings
+         * @description Updates the user's general account settings
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -788,6 +1359,7 @@ export interface components {
         };
         /** @enum {string} */
         SchoolFilterParam: "name" | "location" | "division" | "styles" | "sports" | "commonRecruiting" | "upcomingEvents" | "gpaRange";
+        ApplicationResponse: Record<string, never>;
         AuthSignupRequest: {
             phone?: string | null;
             email: string;
@@ -834,13 +1406,42 @@ export interface components {
             /** @enum {string} */
             platform: "prodigy" | "core";
         };
+        DancersFiltersResponse: {
+            /** @enum {string} */
+            type: "select" | "input" | "toggle" | "multi-select" | "range";
+            id: string;
+            options?: {
+                label: string;
+                value: string;
+            }[];
+            label: string;
+            paramKey: string;
+        }[];
+        DancersMeProfileResponse: {
+            birthday: string;
+            location: string;
+            firstName: string;
+            lastName: string;
+            phone: string | null;
+            displayEmail: string;
+            avatar: string | null;
+        };
+        DancersMeProfileRequest: {
+            firstName?: string | null;
+            lastName?: string | null;
+            phone?: string | null;
+            displayEmail?: string | null;
+            birthday?: string | null;
+            location?: string | null;
+        };
+        DancersMePortfolioResponse: Record<string, never>;
         DancersIdResponse: {
             username: string;
             id: string;
             avatar: string | null;
             dancerProfile: {
                 birthday: string;
-                location: string | null;
+                location: string;
                 skillLevel: string | null;
                 teamLevel: string | null;
                 highSchool: string | null;
@@ -876,17 +1477,6 @@ export interface components {
                 }[];
             } | null;
         };
-        DancersFiltersResponse: {
-            /** @enum {string} */
-            type: "select" | "input" | "toggle" | "multi-select" | "range";
-            id: string;
-            options?: {
-                label: string;
-                value: string;
-            }[];
-            label: string;
-            paramKey: string;
-        }[];
         EventsResponse: {
             events: {
                 /** @enum {string} */
@@ -902,6 +1492,21 @@ export interface components {
                 };
             }[];
             month: string;
+        }[];
+        EventsGlobalResponse: {
+            startTime: string;
+            endTime: string;
+            startDate: string;
+            endDate: string;
+            /** @enum {string} */
+            type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+            id: string;
+            location: string;
+            title: string;
+            description: string;
+            website: string;
+            thumbnail: string;
+            organization: string;
         }[];
         EventsIdResponse: {
             /** @enum {string} */
@@ -934,21 +1539,6 @@ export interface components {
             startDate: string;
             endDate: string;
         };
-        EventsGlobalResponse: {
-            startTime: string;
-            endTime: string;
-            startDate: string;
-            endDate: string;
-            /** @enum {string} */
-            type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
-            id: string;
-            location: string;
-            title: string;
-            description: string;
-            website: string;
-            thumbnail: string;
-            organization: string;
-        }[];
         HealthResponse: {
             /** @enum {string} */
             status: "error" | "ok" | "warning";
@@ -971,6 +1561,25 @@ export interface components {
                 isCached: boolean;
             }[];
         };
+        LibraryResponse: {
+            category: string;
+            videos: {
+                url: string;
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                title: string;
+                category: string;
+            }[];
+        }[];
+        LibraryIdResponse: {
+            url: string;
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            title: string;
+            category: string;
+        }[];
         SchoolsResponse: {
             user: {
                 username: string;
@@ -996,28 +1605,44 @@ export interface components {
             label: string;
             paramKey: components["schemas"]["SchoolFilterParam"];
         }[];
-        LibraryResponse: {
-            category: string;
-            videos: {
-                url: string;
-                id: string;
-                createdAt: string;
-                updatedAt: string;
-                title: string;
-                category: string;
-            }[];
-        }[];
-        LibraryIdResponse: {
-            url: string;
+        SchoolsMePrograminfoResponse: Record<string, never>;
+        SchoolsMeSchooldetailsResponse: Record<string, never>;
+        SchoolsMeProfileResponse: {
+            firstName: string;
+            lastName: string;
+            phone: string | null;
+            displayEmail: string;
+            avatar: string | null;
+        };
+        SchoolsMeProfileRequest: {
+            firstName?: string | null;
+            lastName?: string | null;
+            phone?: string | null;
+            displayEmail?: string | null;
+            avatar?: string | null;
+        };
+        SchoolsIdResponse: {
+            username: string;
             id: string;
-            createdAt: string;
-            updatedAt: string;
-            title: string;
-            category: string;
-        }[];
+            avatar: string | null;
+            schoolProfile: {
+                location: string;
+                gpa: number | null;
+                skills: {
+                    name: string;
+                    slug: string;
+                    category: string;
+                }[];
+                styles: {
+                    name: string;
+                    slug: string;
+                }[];
+            } | null;
+        };
         UsersCheckavailabilityResponse: {
             available: boolean;
         };
+        UsersGeneralResponse: Record<string, never>;
     };
     responses: never;
     parameters: never;

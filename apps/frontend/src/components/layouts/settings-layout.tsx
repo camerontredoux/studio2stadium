@@ -1,127 +1,42 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Link, useLocation } from "@tanstack/react-router";
-import { Calendar, Home, Search, Settings, User } from "lucide-react";
 import type { ReactNode } from "react";
 
-const navItems = [
-  { icon: Home, label: "Home", href: "/feed" },
-  { icon: Search, label: "Explore", href: "/explore/" },
-  { icon: Calendar, label: "Events", href: "/events" },
-  { icon: User, label: "Profile", href: "/profile" },
-  { icon: Settings, label: "Settings", href: "/settings" },
-];
+const pageTitles: Record<string, string> = {
+  personal: "Personal",
+  portfolio: "Portfolio",
+  general: "General",
+  membership: "Membership",
+};
 
-interface SettingsLayoutProps {
-  children: ReactNode;
-}
-
-export default function SettingsLayout({ children }: SettingsLayoutProps) {
-  const currentPath = useLocation({ select: (location) => location.pathname });
+export function SettingsLayout({ children }: { children: ReactNode }) {
+  const pathname = useLocation({ select: (location) => location.pathname });
+  const segment = pathname.split("/").filter(Boolean).pop() ?? "";
+  const pageTitle = pageTitles[segment] ?? segment;
 
   return (
-    <SidebarProvider>
-      {/* Left Navigation */}
-      <Sidebar variant="floating" side="left" collapsible="icon">
-        <SidebarHeader className="p-4">
-          <Link to="/feed" className="text-lg font-bold">
-            Studio2Stadium
-          </Link>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarGroup>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    isActive={currentPath === item.href}
-                    tooltip={item.label}
-                    render={<Link to={item.href} />}
-                  >
-                    <item.icon className="size-4" />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroup>
-        </SidebarContent>
-        <SidebarFooter>{/* User menu */}</SidebarFooter>
-      </Sidebar>
-
-      {/* Main Content Area */}
-      <SidebarInset>
-        {/* Mobile Header - hamburger + logo */}
-        <header className="bg-background sticky top-0 z-20 flex h-14 items-center gap-4 border-b px-4 md:hidden">
-          <SidebarTrigger />
-          <span className="font-semibold">Studio2Stadium</span>
-        </header>
-
-        {/* Desktop Header - minimal logo only
-        <header className="hidden md:flex sticky top-0 z-20 items-center border-b bg-background px-6 h-14">
-          <span className="font-semibold">Studio2Stadium</span>
-        </header> */}
-
-        {/* Content + Right Sidebar */}
-        <div className="flex min-h-0 flex-1">
-          {/* Center Content */}
-          <main className="min-w-0 flex-1 overflow-y-auto p-4 lg:p-6">
-            {children}
-          </main>
-
-          {/* Right Sidebar - Desktop Only */}
-          <aside className="hidden shrink-0 flex-col border-l lg:flex lg:w-80">
-            <ScrollArea className="flex-1">
-              <div className="space-y-6 p-4">
-                {/* Recommendations Section */}
-                <section>
-                  <h3 className="mb-3 text-sm font-semibold">
-                    Recommendations
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="text-muted-foreground rounded-lg border p-3 text-sm">
-                      Recommendation placeholder
-                    </div>
-                    <div className="text-muted-foreground rounded-lg border p-3 text-sm">
-                      Recommendation placeholder
-                    </div>
-                  </div>
-                </section>
-
-                <Separator />
-
-                {/* Upcoming Events Section */}
-                <section>
-                  <h3 className="mb-3 text-sm font-semibold">
-                    Upcoming Events
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="text-muted-foreground rounded-lg border p-3 text-sm">
-                      Event placeholder
-                    </div>
-                    <div className="text-muted-foreground rounded-lg border p-3 text-sm">
-                      Event placeholder
-                    </div>
-                  </div>
-                </section>
-              </div>
-            </ScrollArea>
-          </aside>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+    <div className="mobile:pb-14 flex flex-col gap-4 pt-1 sm:pt-0">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink render={<Link to="/settings" />}>
+              Settings
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{pageTitle}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      {children}
+    </div>
   );
 }

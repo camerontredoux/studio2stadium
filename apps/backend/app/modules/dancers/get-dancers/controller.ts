@@ -4,7 +4,7 @@ import { HttpContext } from "@adonisjs/core/http";
 import { Service } from "./service.ts";
 import { validator } from "./validator.ts";
 
-export default class ListSchoolsController {
+export default class GetDancersController {
   @inject()
   async handle(ctx: HttpContext, service: Service) {
     const payload = await ctx.request.validateUsing(validator);
@@ -14,16 +14,16 @@ export default class ListSchoolsController {
       return ctx.response.ok(schools);
     }
 
-    const schools = await cache.getOrSet({
-      key: `schools:list`,
+    const dancers = await cache.getOrSet({
+      key: `dancers:list`,
       factory: async () => {
         return await service.execute(payload);
       },
-      tags: ["schools:list"],
+      tags: ["dancers:list"],
       ttl: "1h",
       grace: "24h",
     });
 
-    return ctx.response.ok(schools);
+    return ctx.response.ok(dancers);
   }
 }
