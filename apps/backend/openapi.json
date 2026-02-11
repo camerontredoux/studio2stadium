@@ -284,6 +284,15 @@
         "description": "Returns the authenticated dancer's profile settings"
       },
       "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DancersMeProfileRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": "No Content"
@@ -900,7 +909,16 @@
         "summary": "Get my school profile",
         "description": "Returns the authenticated school's profile"
       },
-      "post": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolsMeProfileRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": "No Content"
@@ -1392,6 +1410,12 @@
       "DancersMeProfileResponse": {
         "type": "object",
         "properties": {
+          "birthday": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
           "firstName": {
             "type": "string"
           },
@@ -1420,45 +1444,82 @@
                 "type": "null"
               }
             ]
-          },
-          "dancerProfile": {
+          }
+        },
+        "required": [
+          "birthday",
+          "location",
+          "firstName",
+          "lastName",
+          "phone",
+          "displayEmail",
+          "avatar"
+        ]
+      },
+      "DancersMeProfileRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
             "oneOf": [
               {
-                "type": "object",
-                "properties": {
-                  "birthday": {
-                    "type": "string"
-                  },
-                  "location": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                },
-                "required": [
-                  "birthday",
-                  "location"
-                ]
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lastName": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "phone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "displayEmail": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "birthday": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "location": {
+            "oneOf": [
+              {
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ]
           }
-        },
-        "required": [
-          "firstName",
-          "lastName",
-          "phone",
-          "displayEmail",
-          "avatar",
-          "dancerProfile"
-        ]
+        }
       },
       "DancersMePortfolioResponse": {
         "type": "object",
@@ -1492,14 +1553,7 @@
                     "type": "string"
                   },
                   "location": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "skillLevel": {
                     "oneOf": [
@@ -2422,35 +2476,6 @@
                 "type": "null"
               }
             ]
-          },
-          "dancerProfile": {
-            "oneOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "birthday": {
-                    "type": "string"
-                  },
-                  "location": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                },
-                "required": [
-                  "birthday",
-                  "location"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
           }
         },
         "required": [
@@ -2458,9 +2483,63 @@
           "lastName",
           "phone",
           "displayEmail",
-          "avatar",
-          "dancerProfile"
+          "avatar"
         ]
+      },
+      "SchoolsMeProfileRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lastName": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "phone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "displayEmail": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "avatar": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
       },
       "SchoolsIdResponse": {
         "type": "object",
