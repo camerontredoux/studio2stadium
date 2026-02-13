@@ -1,5 +1,6 @@
 import { E_BAD_REQUEST } from "#exceptions/bad-request";
-import { E_UNAUTHORIZED_ACCESS } from "#exceptions/unauthorized";
+import { E_FORBIDDEN } from "#exceptions/forbidden";
+import cache from "@adonisjs/cache/services/main";
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
 import { Service } from "./service.ts";
@@ -11,22 +12,25 @@ export default class GetSchoolController {
     const { params } = await ctx.request.validateUsing(validator);
     const session = ctx.auth.getUserOrFail();
 
-    if (session.username !== params.username && session.type !== "school") {
+    if (session.username !== params.username && session.type !== "dancer") {
       if (session.role !== "admin") {
-        throw new E_UNAUTHORIZED_ACCESS(
-          "You are not authorized to view this profile"
-        );
+        throw new E_FORBIDDEN("You are not authorized to view this profile");
       }
     }
 
-    const user = await service.execute(params.username);
+    const school = await cache.getOrSet({
+      key: `schools:profile:${params.username}`,
+      factory: () => service.execute(params.username),
+      ttl: "1h",
+      grace: "24h",
+    });
 
-    if (!user) {
+    if (!school) {
       throw new E_BAD_REQUEST("School not found", {
         username: params.username,
       });
     }
 
-    return ctx.response.ok(user);
+    return ctx.response.ok(school);
   }
 }

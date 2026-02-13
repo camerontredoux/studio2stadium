@@ -1,5 +1,5 @@
 import { E_BAD_REQUEST } from "#exceptions/bad-request";
-import { E_UNAUTHORIZED_ACCESS } from "#exceptions/unauthorized";
+import { E_FORBIDDEN } from "#exceptions/forbidden";
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
 import { Service } from "./service.ts";
@@ -13,9 +13,7 @@ export default class GetDancerController {
 
     if (session.username !== params.username && session.type !== "school") {
       if (session.role !== "admin") {
-        throw new E_UNAUTHORIZED_ACCESS(
-          "You are not authorized to view this profile"
-        );
+        throw new E_FORBIDDEN("You are not authorized to view this profile");
       }
     }
 

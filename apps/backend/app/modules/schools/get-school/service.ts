@@ -10,9 +10,6 @@ export class Service {
       db.query.users.findFirst({
         where: {
           username,
-          platforms: {
-            platformName: "core",
-          },
         },
         columns: {
           id: true,
@@ -21,13 +18,19 @@ export class Service {
         },
         with: {
           schoolProfile: {
-            columns: {
-              location: true,
-              gpa: true,
-            },
             with: {
               skills: true,
               styles: true,
+              events: true,
+              sports: true,
+              media: true,
+              interested: {
+                where: {
+                  user: {
+                    username,
+                  },
+                },
+              },
             },
           },
         },
