@@ -22,6 +22,7 @@ export const users = pg.pgTable(
     avatar: pg.text(),
     phone: pg.text(),
     verified: pg.boolean().notNull().default(false),
+    notifications: pg.boolean().notNull().default(true),
     ...timestamps,
   },
   (table) => [pg.index().on(table.createdAt)]

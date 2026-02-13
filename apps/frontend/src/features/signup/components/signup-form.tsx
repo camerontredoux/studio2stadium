@@ -6,22 +6,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Frame, FramePanel } from "@/components/ui/frame";
 import { Input } from "@/components/ui/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
-import { Toggle } from "@/components/ui/toggle";
 import { handleApiError } from "@/lib/api/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useParams, useSearch } from "@tanstack/react-router";
-import { EyeIcon, EyeOffIcon, LockIcon } from "lucide-react";
-import { useReducer, useRef } from "react";
+import { useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { useSignup } from "../api/mutations";
-import { MAX_NAME_LENGTH, MAX_PASSWORD_LENGTH, schemas } from "../api/schemas";
+import { MAX_PASSWORD_LENGTH } from "@/lib/schemas";
+import { MAX_NAME_LENGTH, schemas } from "../api/schemas";
 
 type SignupSchema = z.infer<typeof schemas.signup>;
 
@@ -32,7 +27,6 @@ export function SignupForm() {
   const { mutate, isPending } = useSignup();
 
   const [retryAfter, startCountdown] = useCountdown();
-  const [password, togglePassword] = useReducer((state) => !state, false);
 
   const submitRef = useRef<HTMLButtonElement>(null);
   const errorToast = useAnchoredErrorToast(submitRef);
@@ -137,22 +131,11 @@ export function SignupForm() {
             render={({ field, fieldState }) => (
               <Field name={field.name} invalid={fieldState.invalid}>
                 <FieldLabel>Password</FieldLabel>
-                <InputGroup>
-                  <InputGroupAddon align="inline-start">
-                    <LockIcon className="size-3.5" />
-                  </InputGroupAddon>
-                  <InputGroupInput
-                    maxLength={MAX_PASSWORD_LENGTH}
-                    type={password ? "text" : "password"}
-                    autoComplete="off"
-                    {...field}
-                  />
-                  <InputGroupAddon align="inline-end">
-                    <Toggle tabIndex={-1} size="xs" onClick={togglePassword}>
-                      {password ? <EyeOffIcon /> : <EyeIcon />}
-                    </Toggle>
-                  </InputGroupAddon>
-                </InputGroup>
+                <PasswordInput
+                  maxLength={MAX_PASSWORD_LENGTH}
+                  autoComplete="off"
+                  {...field}
+                />
                 <FieldError error={fieldState.error} />
               </Field>
             )}

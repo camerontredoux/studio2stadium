@@ -207,6 +207,72 @@
         "description": "Retrieves the current session's user information."
       }
     },
+    "/auth/password/change": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthPasswordChangeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Change password",
+        "description": "Changes the user's password"
+      }
+    },
+    "/auth/password/reset": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthPasswordResetRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Reset password",
+        "description": "Resets the user's password"
+      }
+    },
     "/dancers": {
       "post": {
         "requestBody": {
@@ -260,59 +326,6 @@
         ],
         "summary": "Get dancer filters",
         "description": "Returns the filters to use when searching for dancers"
-      }
-    },
-    "/dancers/me/profile": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DancersMeProfileResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Dancers"
-        ],
-        "summary": "Get my dancer profile",
-        "description": "Returns the authenticated dancer's profile settings"
-      },
-      "patch": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DancersMeProfileRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Dancers"
-        ],
-        "summary": "Update my dancer profile",
-        "description": "Updates the authenticated dancer's profile settings"
       }
     },
     "/dancers/me/portfolio": {
@@ -800,7 +813,7 @@
         "description": "Returns the filters to use when searching for schools"
       }
     },
-    "/schools/me/program-info": {
+    "/schools/profile": {
       "get": {
         "parameters": [],
         "responses": {
@@ -809,7 +822,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SchoolsMePrograminfoResponse"
+                  "$ref": "#/components/schemas/SchoolsProfileResponse"
                 }
               }
             }
@@ -818,7 +831,7 @@
         "tags": [
           "Schools"
         ],
-        "summary": "Get my program info",
+        "summary": "Get school program information",
         "description": "Returns the authenticated school's program information"
       },
       "patch": {
@@ -840,105 +853,8 @@
         "tags": [
           "Schools"
         ],
-        "summary": "Update my program info",
+        "summary": "Update school program information",
         "description": "Updates the authenticated school's program information"
-      }
-    },
-    "/schools/me/school-details": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SchoolsMeSchooldetailsResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Schools"
-        ],
-        "summary": "Get my school details",
-        "description": "Returns the authenticated school's details"
-      },
-      "patch": {
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Schools"
-        ],
-        "summary": "Update my school details",
-        "description": "Updates the authenticated school's details"
-      }
-    },
-    "/schools/me/profile": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SchoolsMeProfileResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Schools"
-        ],
-        "summary": "Get my school profile",
-        "description": "Returns the authenticated school's profile"
-      },
-      "patch": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SchoolsMeProfileRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Schools"
-        ],
-        "summary": "Update my school profile",
-        "description": "Updates the authenticated school's profile"
       }
     },
     "/schools/{username}": {
@@ -1023,7 +939,7 @@
         "description": "Checks if a username is available for registration."
       }
     },
-    "/users/general": {
+    "/users/account": {
       "get": {
         "parameters": [],
         "responses": {
@@ -1032,7 +948,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UsersGeneralResponse"
+                  "$ref": "#/components/schemas/UsersAccountResponse"
                 }
               }
             }
@@ -1041,10 +957,19 @@
         "tags": [
           "Users"
         ],
-        "summary": "Get general settings",
-        "description": "Returns the user's general account settings"
+        "summary": "Get account settings",
+        "description": "Returns the user's account settings"
       },
       "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsersAccountRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": "No Content"
@@ -1063,8 +988,21 @@
         "tags": [
           "Users"
         ],
-        "summary": "Update general settings",
-        "description": "Updates the user's general account settings"
+        "summary": "Update account settings",
+        "description": "Updates the user's account settings"
+      },
+      "delete": {
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "summary": "Delete account",
+        "description": "Deletes the user's account"
       }
     }
   },
@@ -1249,9 +1187,6 @@
       "AuthSessionResponse": {
         "type": "object",
         "properties": {
-          "email": {
-            "type": "string"
-          },
           "type": {
             "type": "string",
             "enum": [
@@ -1259,10 +1194,16 @@
               "school"
             ]
           },
+          "notifications": {
+            "type": "boolean"
+          },
           "username": {
             "type": "string"
           },
           "firstName": {
+            "type": "string"
+          },
+          "lastName": {
             "type": "string"
           },
           "id": {
@@ -1307,10 +1248,11 @@
           }
         },
         "required": [
-          "email",
           "type",
+          "notifications",
           "username",
           "firstName",
+          "lastName",
           "id",
           "role",
           "displayEmail",
@@ -1318,6 +1260,36 @@
           "verified",
           "platforms",
           "subscribed"
+        ]
+      },
+      "AuthPasswordChangeRequest": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ]
+      },
+      "AuthPasswordResetRequest": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
         ]
       },
       "DancersRequest": {
@@ -1405,120 +1377,6 @@
             "label",
             "paramKey"
           ]
-        }
-      },
-      "DancersMeProfileResponse": {
-        "type": "object",
-        "properties": {
-          "birthday": {
-            "type": "string"
-          },
-          "location": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "phone": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "displayEmail": {
-            "type": "string"
-          },
-          "avatar": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "birthday",
-          "location",
-          "firstName",
-          "lastName",
-          "phone",
-          "displayEmail",
-          "avatar"
-        ]
-      },
-      "DancersMeProfileRequest": {
-        "type": "object",
-        "properties": {
-          "firstName": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "lastName": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "phone": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "displayEmail": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "birthday": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "location": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
         }
       },
       "DancersMePortfolioResponse": {
@@ -2437,109 +2295,9 @@
           ]
         }
       },
-      "SchoolsMePrograminfoResponse": {
+      "SchoolsProfileResponse": {
         "type": "object",
         "properties": {}
-      },
-      "SchoolsMeSchooldetailsResponse": {
-        "type": "object",
-        "properties": {}
-      },
-      "SchoolsMeProfileResponse": {
-        "type": "object",
-        "properties": {
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "phone": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "displayEmail": {
-            "type": "string"
-          },
-          "avatar": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "firstName",
-          "lastName",
-          "phone",
-          "displayEmail",
-          "avatar"
-        ]
-      },
-      "SchoolsMeProfileRequest": {
-        "type": "object",
-        "properties": {
-          "firstName": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "lastName": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "phone": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "displayEmail": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "avatar": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        }
       },
       "SchoolsIdResponse": {
         "type": "object",
@@ -2650,9 +2408,98 @@
           "available"
         ]
       },
-      "UsersGeneralResponse": {
+      "UsersAccountResponse": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "notifications": {
+            "type": "boolean"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "displayEmail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "notifications",
+          "firstName",
+          "lastName",
+          "phone",
+          "displayEmail"
+        ]
+      },
+      "UsersAccountRequest": {
+        "type": "object",
+        "properties": {
+          "notifications": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "firstName": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lastName": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "phone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "displayEmail": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
       }
     }
   },

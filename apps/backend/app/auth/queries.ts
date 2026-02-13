@@ -23,14 +23,15 @@ export async function getUserSession(id: string) {
     where: { id },
     columns: {
       id: true,
-      email: true,
       firstName: true,
+      lastName: true,
       displayEmail: true,
       username: true,
       avatar: true,
       type: true,
       role: true,
       verified: true,
+      notifications: true,
     },
     with: {
       platforms: {

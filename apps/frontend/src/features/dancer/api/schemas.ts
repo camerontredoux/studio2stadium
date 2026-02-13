@@ -9,7 +9,6 @@ export const schemas = {
     lastName: z.string().min(2).max(MAX_NAME_LENGTH).optional(),
     displayEmail: z.email().optional(),
     phone: z.string().nullable(),
-    avatar: z.string().optional(),
     location: z.string({ error: "Location is required" }).optional(),
     birthday: birthdaySchema,
   }),

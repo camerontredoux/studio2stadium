@@ -8,13 +8,13 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
-import { Toggle } from "@/components/ui/toggle";
 import { handleApiError } from "@/lib/api/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "@tanstack/react-router";
-import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from "lucide-react";
-import { useReducer, useRef } from "react";
+import { MailIcon } from "lucide-react";
+import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useLogin } from "../api/mutations";
@@ -26,7 +26,6 @@ export function LoginForm() {
   const { mutate, isPending } = useLogin();
 
   const [retryAfter, startCountdown] = useCountdown();
-  const [password, togglePassword] = useReducer((state) => !state, false);
 
   const submitRef = useRef<HTMLButtonElement>(null);
   const errorToast = useAnchoredErrorToast(submitRef);
@@ -96,21 +95,7 @@ export function LoginForm() {
             render={({ field, fieldState }) => (
               <Field name={field.name} invalid={fieldState.invalid}>
                 <FieldLabel>Password</FieldLabel>
-                <InputGroup>
-                  <InputGroupAddon align="inline-start">
-                    <LockIcon className="size-3.5" />
-                  </InputGroupAddon>
-                  <InputGroupInput
-                    type={password ? "text" : "password"}
-                    autoComplete="off"
-                    {...field}
-                  />
-                  <InputGroupAddon align="inline-end">
-                    <Toggle tabIndex={-1} size="xs" onClick={togglePassword}>
-                      {password ? <EyeOffIcon /> : <EyeIcon />}
-                    </Toggle>
-                  </InputGroupAddon>
-                </InputGroup>
+                <PasswordInput autoComplete="off" {...field} />
                 <FieldError error={fieldState.error} />
               </Field>
             )}

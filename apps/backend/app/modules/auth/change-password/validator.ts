@@ -3,8 +3,9 @@ import { type Infer } from "@vinejs/vine/types";
 
 export const schema = vine.create(
   vine.object({
-    // TODO: define fields
+    currentPassword: vine.string().minLength(8),
+    newPassword: vine.string().minLength(8),
   })
 );
 
-export type Schema = Infer<typeof schema>;
+export type Validator = Infer<typeof schema>;

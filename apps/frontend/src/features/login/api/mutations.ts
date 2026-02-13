@@ -13,8 +13,11 @@ export const useLogin = () => {
       queryClient.clear();
 
       const session = await queryClient.fetchQuery(queries.session());
+
+      if (!session) return;
+
       navigate({
-        to: !session?.platforms ? "/onboarding" : (redirect ?? "/feed"),
+        to: !session.platforms ? "/onboarding" : (redirect ?? "/feed"),
         replace: true,
       });
     },

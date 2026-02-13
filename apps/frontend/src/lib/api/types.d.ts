@@ -292,6 +292,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/password/change": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change password
+         * @description Changes the user's password
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AuthPasswordChangeRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/password/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reset password
+         * @description Resets the user's password
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AuthPasswordResetRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dancers": {
         parameters: {
             query?: never;
@@ -379,79 +479,6 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
-        trace?: never;
-    };
-    "/dancers/me/profile": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get my dancer profile
-         * @description Returns the authenticated dancer's profile settings
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersMeProfileResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update my dancer profile
-         * @description Updates the authenticated dancer's profile settings
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["DancersMeProfileRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
         trace?: never;
     };
     "/dancers/me/portfolio": {
@@ -1069,79 +1096,6 @@ export interface paths {
         };
         trace?: never;
     };
-    "/schools/me/profile": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get my school profile
-         * @description Returns the authenticated school's profile
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsMeProfileResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update my school profile
-         * @description Updates the authenticated school's profile
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SchoolsMeProfileRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
     "/schools/{username}": {
         parameters: {
             query?: never;
@@ -1242,7 +1196,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/general": {
+    "/users/account": {
         parameters: {
             query?: never;
             header?: never;
@@ -1250,8 +1204,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get general settings
-         * @description Returns the user's general account settings
+         * Get account settings
+         * @description Returns the user's account settings
          */
         get: {
             parameters: {
@@ -1268,19 +1222,40 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["UsersGeneralResponse"];
+                        "application/json": components["schemas"]["UsersAccountResponse"];
                     };
                 };
             };
         };
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete account
+         * @description Deletes the user's account
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         options?: never;
         head?: never;
         /**
-         * Update general settings
-         * @description Updates the user's general account settings
+         * Update account settings
+         * @description Updates the user's account settings
          */
         patch: {
             parameters: {
@@ -1289,7 +1264,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["UsersAccountRequest"];
+                };
+            };
             responses: {
                 /** @description No Content */
                 204: {
@@ -1385,11 +1364,12 @@ export interface components {
             message: string;
         };
         AuthSessionResponse: {
-            email: string;
             /** @enum {string} */
             type: "dancer" | "school";
+            notifications: boolean;
             username: string;
             firstName: string;
+            lastName: string;
             id: string;
             /** @enum {string} */
             role: "admin" | "user" | "prodigy_admin";
@@ -1398,6 +1378,14 @@ export interface components {
             verified: boolean;
             platforms: ("prodigy" | "core")[];
             subscribed: boolean;
+        };
+        AuthPasswordChangeRequest: {
+            currentPassword: string;
+            newPassword: string;
+        };
+        AuthPasswordResetRequest: {
+            currentPassword: string;
+            newPassword: string;
         };
         DancersRequest: {
             phoneNumber?: string | null;
@@ -1417,23 +1405,6 @@ export interface components {
             label: string;
             paramKey: string;
         }[];
-        DancersMeProfileResponse: {
-            birthday: string;
-            location: string;
-            firstName: string;
-            lastName: string;
-            phone: string | null;
-            displayEmail: string;
-            avatar: string | null;
-        };
-        DancersMeProfileRequest: {
-            firstName?: string | null;
-            lastName?: string | null;
-            phone?: string | null;
-            displayEmail?: string | null;
-            birthday?: string | null;
-            location?: string | null;
-        };
         DancersMePortfolioResponse: Record<string, never>;
         DancersIdResponse: {
             username: string;
@@ -1607,20 +1578,6 @@ export interface components {
         }[];
         SchoolsMePrograminfoResponse: Record<string, never>;
         SchoolsMeSchooldetailsResponse: Record<string, never>;
-        SchoolsMeProfileResponse: {
-            firstName: string;
-            lastName: string;
-            phone: string | null;
-            displayEmail: string;
-            avatar: string | null;
-        };
-        SchoolsMeProfileRequest: {
-            firstName?: string | null;
-            lastName?: string | null;
-            phone?: string | null;
-            displayEmail?: string | null;
-            avatar?: string | null;
-        };
         SchoolsIdResponse: {
             username: string;
             id: string;
@@ -1642,7 +1599,20 @@ export interface components {
         UsersCheckavailabilityResponse: {
             available: boolean;
         };
-        UsersGeneralResponse: Record<string, never>;
+        UsersAccountResponse: {
+            notifications: boolean;
+            firstName: string;
+            lastName: string;
+            phone: string | null;
+            displayEmail: string;
+        };
+        UsersAccountRequest: {
+            notifications?: (string | number | boolean) | null;
+            firstName?: string | null;
+            lastName?: string | null;
+            phone?: string | null;
+            displayEmail?: string | null;
+        };
     };
     responses: never;
     parameters: never;
