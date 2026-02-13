@@ -17,7 +17,7 @@ const corsConfig = defineConfig({
     : true,
   exposeHeaders: ["Retry-After"],
   credentials: true,
-  maxAge: -1,
+  maxAge: 90,
 });
 
 export default corsConfig;
