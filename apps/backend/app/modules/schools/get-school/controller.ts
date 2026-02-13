@@ -21,8 +21,7 @@ export default class GetSchoolController {
     const school = await cache.getOrSet({
       key: `schools:profile:${params.username}`,
       factory: () => service.execute(params.username),
-      ttl: "1h",
-      grace: "24h",
+      ttl: "10m",
     });
 
     if (!school) {
