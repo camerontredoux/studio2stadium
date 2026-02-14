@@ -20,7 +20,7 @@ export function VideosByCategory({ group }: { group: Group }) {
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 grid-rows-[auto] items-start gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {group.videos.map((video) => (
           <VideoCard key={video.id} video={video} />
         ))}

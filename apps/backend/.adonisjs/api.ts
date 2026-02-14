@@ -43,6 +43,10 @@ type AuthPasswordResetPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/auth/change-password/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/auth/change-password/controller.ts').default['handle'], true>
 }
+type BlogGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/blog/get-posts/controller.ts').default['handle'], false>
+}
 type DancersPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/create-dancer/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/create-dancer/controller.ts').default['handle'], true>
@@ -174,6 +178,12 @@ export interface ApiDefinition {
         '$post': AuthPasswordResetPost;
       };
     };
+  };
+  'blog': {
+    '$url': {
+    };
+    '$get': BlogGetHead;
+    '$head': BlogGetHead;
   };
   'dancers': {
     '$url': {

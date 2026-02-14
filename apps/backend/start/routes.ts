@@ -1,5 +1,6 @@
 import "#modules/applications/routes";
 import "#modules/auth/routes";
+import "#modules/blog/routes";
 import "#modules/dancers/routes";
 import "#modules/events/routes";
 import "#modules/health/routes";

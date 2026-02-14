@@ -19,18 +19,15 @@ interface VideoCardProps {
 export function VideoCard({ video }: VideoCardProps) {
   const id = getYouTubeId(video.url);
   return (
-    <Frame
-      compact
-      className="group [contain-intrinsic-block-size:auto_300px] [content-visibility:auto]"
-    >
-      <FramePanel side="inset">
+    <Frame compact className="group flex flex-col [content-visibility:auto]">
+      <FramePanel side="inset" className="flex flex-col">
         <Dialog>
-          <DialogTrigger className="flex items-center justify-center">
-            <div className="relative w-full aspect-video cursor-pointer">
+          <DialogTrigger className="block w-full">
+            <div className="relative aspect-video w-full cursor-pointer">
               <img
                 src={`https://img.youtube.com/vi/${id}/hqdefault.jpg`}
                 alt={video.title}
-                className="aspect-video h-full w-full object-cover"
+                className="h-full w-full object-cover"
               />
               <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-black/80 to-transparent" />
               {video.category && (
@@ -44,7 +41,7 @@ export function VideoCard({ video }: VideoCardProps) {
             <DialogHeader>
               <DialogTitle>Watch Video</DialogTitle>
             </DialogHeader>
-            <div className="flex max-h-[calc(100dvh-8rem)] justify-center">
+            <div className="flex justify-center sm:max-h-[calc(100dvh-8rem)]">
               <iframe
                 src={video.url}
                 className="aspect-video max-h-full max-w-full"

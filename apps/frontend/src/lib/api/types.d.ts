@@ -392,6 +392,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/blog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all posts
+         * @description Returns a list of all blog posts
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BlogResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dancers": {
         parameters: {
             query?: never;
@@ -1418,6 +1457,18 @@ export interface components {
             currentPassword: string;
             newPassword: string;
         };
+        BlogResponse: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            title: string;
+            description: string;
+            tags: string[] | null;
+            thumbnail: string;
+            slug: string;
+            content: string;
+            summary: string;
+        }[];
         DancersRequest: {
             phoneNumber?: string | null;
             birthday: string | number;

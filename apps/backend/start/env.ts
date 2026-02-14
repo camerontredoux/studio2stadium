@@ -10,7 +10,6 @@
 */
 
 import { Env } from "@adonisjs/core/env";
-import app from "@adonisjs/core/services/app";
 
 export default await Env.create(new URL("../", import.meta.url), {
   PORT: Env.schema.number(),
@@ -43,8 +42,12 @@ export default await Env.create(new URL("../", import.meta.url), {
   */
   REDIS_HOST: Env.schema.string({ format: "host" }),
   REDIS_PORT: Env.schema.number(),
-  REDIS_USERNAME: Env.schema.string.optionalWhen(!app.inProduction),
-  REDIS_PASSWORD: Env.schema.string.optionalWhen(!app.inProduction),
+  REDIS_USERNAME: Env.schema.string.optionalWhen(
+    process.env.NODE_ENV !== "production"
+  ),
+  REDIS_PASSWORD: Env.schema.string.optionalWhen(
+    process.env.NODE_ENV !== "production"
+  ),
 
   SESSION_DRIVER: Env.schema.enum(["cookie", "redis", "memory"] as const),
 

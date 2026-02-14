@@ -1,4 +1,5 @@
 import { db } from "#database/connection";
+import { posts } from "#database/schema/index";
 
 // type School = {
 //   id: string;
@@ -77,8 +78,19 @@ import { db } from "#database/connection";
 //   }
 // }
 
+import postsj from "./posts.json" with { type: "json" };
+
 async function main() {
   // await db.insert(library).values(lib);
+  for (const post of postsj) {
+    const created_at = new Date(post.created_at);
+    const updated_at = new Date(post.updated_at);
+    await db.insert(posts).values({
+      ...post,
+      createdAt: created_at,
+      updatedAt: updated_at,
+    });
+  }
 }
 
 main()

@@ -273,6 +273,28 @@
         "description": "Resets the user's password"
       }
     },
+    "/blog": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlogResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Blog"
+        ],
+        "summary": "Get all posts",
+        "description": "Returns a list of all blog posts"
+      }
+    },
     "/dancers": {
       "post": {
         "requestBody": {
@@ -1368,6 +1390,66 @@
           "currentPassword",
           "newPassword"
         ]
+      },
+      "BlogResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "updatedAt": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "tags": {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "thumbnail": {
+              "type": "string"
+            },
+            "slug": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            },
+            "summary": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "createdAt",
+            "updatedAt",
+            "title",
+            "description",
+            "tags",
+            "thumbnail",
+            "slug",
+            "content",
+            "summary"
+          ]
+        }
       },
       "DancersRequest": {
         "type": "object",
