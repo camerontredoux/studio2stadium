@@ -12,8 +12,8 @@ type Event = NonNullable<Awaited<ReturnType<Service["getEventById"]>>>;
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute({ params: { id } }: Validator) {
-    const event = await this.getEventById(id);
+  async execute({ params: { id } }: Validator, userId: string) {
+    const event = await this.getEventById(id, userId);
 
     if (!event) {
       throw new E_BAD_REQUEST("No event found with that ID");
@@ -22,7 +22,7 @@ export class Service {
     return this.formatEvent(event);
   }
 
-  async getEventById(id: string) {
+  async getEventById(id: string, userId: string) {
     return this.db.use((db) =>
       db.query.danceEvents.findFirst({
         where: {
@@ -43,9 +43,17 @@ export class Service {
               },
             },
           },
+          attendees: {
+            where: {
+              id: userId,
+            },
+            columns: {
+              id: true,
+            },
+          },
         },
         extras: {
-          attendees: (table) =>
+          eventAttendees: (table) =>
             db.$count(
               danceEventAttendees,
               eq(table.id, danceEventAttendees.eventId)
@@ -82,6 +90,8 @@ export class Service {
       ...(schedule?.schedule && {
         schedule: schedule.schedule,
       }),
+      saved: event.attendees.length > 0,
+      attendees: event.eventAttendees,
     };
   }
 }

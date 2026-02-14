@@ -9,8 +9,8 @@ type FormattedEvent = Awaited<ReturnType<Service["formatEvent"]>>;
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute() {
-    const events = await this.findEvents();
+  async execute(userId: string) {
+    const events = await this.findEvents(userId);
 
     const groupedEvents = events.reduce((acc, event) => {
       const month = event.startDatetime.toLocaleString("en-US", {
@@ -42,10 +42,11 @@ export class Service {
         name: organizer?.name,
         thumbnail: organizer?.user?.avatar,
       },
+      saved: event.attendees.length > 0,
     };
   }
 
-  async findEvents() {
+  async findEvents(userId: string) {
     return await this.db.use((db) =>
       db.query.danceEvents.findMany({
         where: {
@@ -71,6 +72,14 @@ export class Service {
                   avatar: true,
                 },
               },
+            },
+          },
+          attendees: {
+            where: {
+              id: userId,
+            },
+            columns: {
+              id: true,
             },
           },
         },

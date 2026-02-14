@@ -7,7 +7,7 @@ import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { CalendarIcon } from "lucide-react";
 import { useMemo, useRef } from "react";
 import { useResizeObserver } from "usehooks-ts";
-import { queries } from "../../api/queries";
+import { eventQueries } from "../../api/queries";
 import { EventsFilterSheet } from "../filters/filter-sheet";
 import { EventCard } from "./event-card";
 
@@ -22,7 +22,7 @@ function getColumns(width: number) {
 }
 
 export function EventList() {
-  const { data } = useSuspenseQuery(queries.events());
+  const { data } = useSuspenseQuery(eventQueries.events());
   const parentRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 

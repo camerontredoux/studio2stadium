@@ -6,8 +6,8 @@ export default class GetEventsController {
   @inject()
   async handle(ctx: HttpContext, service: Service) {
     // const payload = await ctx.request.validateUsing(validator);
-
-    const events = await service.execute();
+    const session = ctx.auth.getUserOrFail();
+    const events = await service.execute(session.id);
 
     return ctx.response.ok(events);
   }

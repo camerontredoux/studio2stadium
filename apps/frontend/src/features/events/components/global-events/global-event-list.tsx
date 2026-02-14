@@ -3,7 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useMemo, useRef } from "react";
 import { useResizeObserver } from "usehooks-ts";
-import { queries } from "../../api/queries";
+import { eventQueries } from "../../api/queries";
 import { GlobalEventCard } from "./global-event-card";
 
 type Events = ApiSchemas["EventsGlobalResponse"];
@@ -15,7 +15,7 @@ function getColumns(width: number) {
 }
 
 export function GlobalEventList() {
-  const { data } = useSuspenseQuery(queries.globalEvents());
+  const { data } = useSuspenseQuery(eventQueries.globalEvents());
   const parentRef = useRef<HTMLDivElement>(null);
 
   const { width: containerWidth = 0 } = useResizeObserver({

@@ -9,11 +9,11 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
-import { queries } from "../../api/queries";
+import { eventQueries } from "../../api/queries";
 
 export function MoreEvents() {
   const { eventId } = useParams({ from: "/_app/(routes)/events/$eventId" });
-  const { data } = useSuspenseQuery(queries.events());
+  const { data } = useSuspenseQuery(eventQueries.events());
 
   const events = data
     .flatMap((group) => group.events)

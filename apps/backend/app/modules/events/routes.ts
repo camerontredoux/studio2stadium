@@ -5,6 +5,8 @@ const GetEventByIdController = () => import("./get-event-by-id/controller.ts");
 const GetEventsController = () => import("./get-events/controller.ts");
 const GetGlobalEventsController = () =>
   import("./get-global-events/controller.ts");
+const SaveEventController = () => import("./save-event/controller.ts");
+const UnsaveEventController = () => import("./unsave-event/controller.ts");
 
 router
   .group(() => {
@@ -21,6 +23,16 @@ router
     router.get("/:id", [GetEventByIdController]).openapi({
       summary: "Get event by id",
       description: "Returns details about a specific event",
+    });
+
+    router.post("/:id/save", [SaveEventController]).openapi({
+      summary: "Save event",
+      description: "Saves an event for the current user",
+    });
+
+    router.delete("/:id/unsave", [UnsaveEventController]).openapi({
+      summary: "Unsave event",
+      description: "Unsaves an event for the current user",
     });
   })
   .use(middleware.auth())

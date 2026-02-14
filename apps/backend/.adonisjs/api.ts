@@ -75,6 +75,14 @@ type EventsIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/get-event-by-id/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/events/get-event-by-id/controller.ts').default['handle'], true>
 }
+type EventsIdSavePost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/save-event/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/events/save-event/controller.ts').default['handle'], true>
+}
+type EventsIdUnsaveDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/unsave-event/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/events/unsave-event/controller.ts').default['handle'], true>
+}
 type HealthGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/health/index.ts').default['handle'], false>
@@ -209,6 +217,16 @@ export interface ApiDefinition {
       };
       '$get': EventsIdGetHead;
       '$head': EventsIdGetHead;
+      'save': {
+        '$url': {
+        };
+        '$post': EventsIdSavePost;
+      };
+      'unsave': {
+        '$url': {
+        };
+        '$delete': EventsIdUnsaveDelete;
+      };
     };
   };
   'health': {

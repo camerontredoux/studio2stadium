@@ -1,6 +1,7 @@
 import { AppLayout } from "@/components/layouts/app-layout/app-layout";
 import { ErrorComponent } from "@/components/layouts/app-layout/error-layout";
 import { PendingComponent } from "@/components/layouts/app-layout/pending-layout";
+import { ToastProvider } from "@/components/ui/toast";
 import { createAccess } from "@/lib/access/access";
 import { queries, SessionNetworkError } from "@/lib/session";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
@@ -44,8 +45,10 @@ export const Route = createFileRoute("/_app")({
 
 function RouteComponent() {
   return (
-    <AppLayout>
-      <Outlet />
-    </AppLayout>
+    <ToastProvider position="top-center">
+      <AppLayout>
+        <Outlet />
+      </AppLayout>
+    </ToastProvider>
   );
 }

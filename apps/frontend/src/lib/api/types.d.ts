@@ -728,6 +728,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/events/{id}/save": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Save event
+         * @description Saves an event for the current user
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["EventsIdSaveRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}/unsave": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Unsave event
+         * @description Unsaves an event for the current user
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -958,7 +1058,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/schools/me/program-info": {
+    "/schools/profile": {
         parameters: {
             query?: never;
             header?: never;
@@ -966,7 +1066,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get my program info
+         * Get school program information
          * @description Returns the authenticated school's program information
          */
         get: {
@@ -984,7 +1084,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["SchoolsMePrograminfoResponse"];
+                        "application/json": components["schemas"]["SchoolsProfileResponse"];
                     };
                 };
             };
@@ -995,77 +1095,8 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Update my program info
+         * Update school program information
          * @description Updates the authenticated school's program information
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/schools/me/school-details": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get my school details
-         * @description Returns the authenticated school's details
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsMeSchooldetailsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update my school details
-         * @description Updates the authenticated school's details
          */
         patch: {
             parameters: {
@@ -1461,6 +1492,10 @@ export interface components {
                     name: string;
                     thumbnail: string | null;
                 };
+                attendees: {
+                    id: string;
+                }[];
+                saved: boolean;
             }[];
             month: string;
         }[];
@@ -1505,10 +1540,17 @@ export interface components {
                 avatar: string | null;
             };
             attendees: number;
+            saved: boolean;
             startTime: string;
             endTime: string;
             startDate: string;
             endDate: string;
+            eventAttendees: number;
+        };
+        EventsIdSaveRequest: {
+            params: {
+                id: string;
+            };
         };
         HealthResponse: {
             /** @enum {string} */
@@ -1576,15 +1618,49 @@ export interface components {
             label: string;
             paramKey: components["schemas"]["SchoolFilterParam"];
         }[];
-        SchoolsMePrograminfoResponse: Record<string, never>;
-        SchoolsMeSchooldetailsResponse: Record<string, never>;
+        SchoolsProfileResponse: Record<string, never>;
         SchoolsIdResponse: {
             username: string;
             id: string;
             avatar: string | null;
             schoolProfile: {
+                events: {
+                    /** @enum {string} */
+                    type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+                    id: string;
+                    createdAt: string;
+                    updatedAt: string;
+                    location: string;
+                    title: string;
+                    description: string;
+                    website: string | null;
+                    schoolId: string;
+                    address: string | null;
+                    tags: string[] | null;
+                    cost: string | null;
+                    startDatetime: string;
+                    endDatetime: string;
+                    timezone: string;
+                }[];
+                about: string | null;
+                name: string;
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                userId: string;
                 location: string;
+                instagram: string | null;
+                tiktok: string | null;
                 gpa: number | null;
+                division: string | null;
+                benefits: string | null;
+                website: string | null;
+                timeCommitment: string | null;
+                headCoach: string | null;
+                assistantCoach: string | null;
+                missionStatement: string | null;
+                whatWeDo: string | null;
+                size: number | null;
                 skills: {
                     name: string;
                     slug: string;
@@ -1593,6 +1669,40 @@ export interface components {
                 styles: {
                     name: string;
                     slug: string;
+                }[];
+                sports: {
+                    name: string;
+                    slug: string;
+                }[];
+                media: {
+                    /** @enum {string} */
+                    type: "image" | "video";
+                    id: string;
+                    createdAt: string;
+                    updatedAt: string;
+                    schoolId: string;
+                    mediaId: string;
+                    caption: string | null;
+                }[];
+                interested: {
+                    id: string;
+                    createdAt: string;
+                    updatedAt: string;
+                    userId: string;
+                    birthday: string;
+                    location: string;
+                    biography: string | null;
+                    awards: string | null;
+                    instagram: string | null;
+                    tiktok: string | null;
+                    youtube: string | null;
+                    skillLevel: string | null;
+                    teamLevel: string | null;
+                    highSchool: string | null;
+                    studio: string | null;
+                    gpa: number | null;
+                    gradYear: number | null;
+                    trainingHours: number | null;
                 }[];
             } | null;
         };

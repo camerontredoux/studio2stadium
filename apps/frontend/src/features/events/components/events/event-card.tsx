@@ -21,14 +21,11 @@ export function EventCard({ event }: EventCardProps) {
       badge={event.type}
       title={event.title}
       footer={
-        <div className="flex items-center gap-2 max-sm:w-full">
-          <Button size="xs" className="flex-1">
-            <SaveIcon /> Save
-          </Button>
+        <div className="flex w-full items-center justify-between gap-2">
           <Button
             variant="outline"
-            className="flex-1"
             size="xs"
+            className="flex-1 sm:max-w-fit"
             render={
               <Link
                 to="/events/$eventId"
@@ -39,6 +36,16 @@ export function EventCard({ event }: EventCardProps) {
           >
             View Details
           </Button>
+          {event.saved ? (
+            <Button
+              size="xs"
+              variant="ghost"
+              disabled
+              className="flex-1 gap-1.5 sm:max-w-fit"
+            >
+              <SaveIcon className="text-brand" /> Saved
+            </Button>
+          ) : null}
         </div>
       }
     >

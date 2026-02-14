@@ -14,7 +14,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
 import { CalendarIcon, ChevronLeftIcon } from "lucide-react";
 import { Suspense } from "react";
-import { queries } from "../../api/queries";
+import { eventQueries } from "../../api/queries";
 import { EventAbout } from "./event-about";
 import { EventHero } from "./event-hero";
 import { EventLocation } from "./event-location";
@@ -29,7 +29,7 @@ interface EventDetailProps {
 export function EventDetail({ eventId }: EventDetailProps) {
   const router = useRouter();
 
-  const { data: event, error } = useSuspenseQuery(queries.event(eventId));
+  const { data: event, error } = useSuspenseQuery(eventQueries.event(eventId));
 
   if (error?.errors) {
     return error.errors.map((err) => <div>{err.message}</div>);

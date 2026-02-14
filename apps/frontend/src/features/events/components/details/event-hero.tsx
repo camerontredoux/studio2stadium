@@ -11,11 +11,11 @@ import type { ApiSchemas } from "@/lib/api/client";
 import {
   CalendarIcon,
   ExternalLinkIcon,
-  SaveIcon,
   TicketIcon,
   UsersIcon,
 } from "lucide-react";
-// import type { EventDetail } from "../mock-data";
+import { SaveEvent } from "./attendance/save-event";
+import { UnsaveEvent } from "./attendance/unsave-event";
 
 type EventDetail = ApiSchemas["EventsIdResponse"];
 
@@ -82,21 +82,15 @@ export function EventHero({ event }: EventHeroProps) {
               <span>{event.cost || "Free"}</span>
             </div>
           </div>
-
-          {/* <div className="flex flex-wrap gap-1.5">
-            {event.danceStyles.map((style) => (
-              <Badge key={style} variant="outline">
-                {style}
-              </Badge>
-            ))}
-          </div> */}
         </div>
       </FramePanel>
 
       <FrameFooter className="flex w-fit items-center gap-2 px-4 py-3 max-sm:w-full sm:px-5">
-        <Button size="sm" className="flex-1 gap-1.5">
-          <SaveIcon /> Save Event
-        </Button>
+        {event.saved ? (
+          <UnsaveEvent size="sm" eventId={event.id} />
+        ) : (
+          <SaveEvent size="sm" eventId={event.id} />
+        )}
         {event.website && (
           <Button
             size="sm"
