@@ -1,7 +1,5 @@
-import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
-import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,6 +7,7 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useUpdatePassword } from "../api/mutations";
 import { accountSchemas } from "../api/schemas";
+import { ConfirmDialog } from "./password/confirm-dialog";
 
 type PasswordSettingsSchema = z.infer<typeof accountSchemas.updatePassword>;
 
@@ -58,10 +57,7 @@ export function PasswordSettings() {
 
   return (
     <FormProvider {...form}>
-      <form
-        onSubmit={(e) => form.handleSubmit(onSubmit)(e)}
-        className="flex flex-col gap-4 px-2 lg:gap-6"
-      >
+      <form className="flex flex-col gap-4 px-2 lg:gap-6">
         <div className="grid grid-cols-1 gap-x-4 gap-y-4 lg:grid-cols-[1fr_2fr] lg:gap-x-8 lg:gap-y-4">
           <div className="flex flex-col">
             <h2 className="text-sm font-semibold">Reset Password</h2>
@@ -96,17 +92,11 @@ export function PasswordSettings() {
         </div>
 
         <div className="flex justify-end">
-          <Button
+          <ConfirmDialog
+            isPending={isPending}
             disabled={isPending || !isDirty || !isValid}
-            type="submit"
-            className="w-fit max-sm:w-full"
-          >
-            {isPending ? (
-              <Spinner label="Updating password..." />
-            ) : (
-              "Update Password"
-            )}
-          </Button>
+            onConfirm={form.handleSubmit(onSubmit)}
+          />
         </div>
       </form>
     </FormProvider>

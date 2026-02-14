@@ -1,3 +1,13 @@
+import { useSession } from "@/lib/session";
+import { Subscribed } from "./membership/subscribed";
+import { Unsubscribed } from "./membership/unsubscribed";
+
 export function MembershipSettings() {
-  return <div className="flex flex-col gap-4 px-2 lg:gap-6">asd</div>;
+  const session = useSession();
+
+  if (!session.subscribed) {
+    return <Subscribed />;
+  }
+
+  return <Unsubscribed />;
 }
