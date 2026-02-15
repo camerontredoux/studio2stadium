@@ -1,4 +1,5 @@
 import { middleware } from "#start/kernel";
+import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
 
 const DeleteAccountController = () => import("./delete-account/controller.ts");
@@ -9,10 +10,13 @@ const UpdateAccountController = () => import("./update-account/controller.ts");
 
 router
   .group(() => {
-    router.get("check-availability", [CheckAvailabilityController]).openapi({
-      summary: "Check username availability",
-      description: "Checks if a username is available for registration.",
-    });
+    router
+      .get("check-availability", [CheckAvailabilityController])
+      .openapi({
+        summary: "Check username availability",
+        description: "Checks if a username is available for registration.",
+      })
+      .use(throttle("check-availability", 20));
 
     router
       .group(() => {

@@ -18,12 +18,12 @@ export const throttle = (
   store: keyof LimitersList = "redis"
 ) =>
   limiter.define("api", (ctx) => {
-    const userId = ctx.auth.user?.id;
+    const id = ctx.auth.user?.id ?? ctx.request.ip();
     return limiter
       .allowRequests(requests)
       .every("1 minute")
       .store(store)
-      .usingKey(`${key}:${userId}`)
+      .usingKey(`${key}:${id}`)
       .limitExceeded((error) => {
         error.setMessage("Slow down! You're making too many requests.");
       });

@@ -18,12 +18,13 @@ import { useNavigate } from "@tanstack/react-router";
 import { CheckIcon, InfoIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 import { queries } from "../api/queries";
-import { MAX_USERNAME_LENGTH } from "../api/schemas";
+import { MAX_USERNAME_LENGTH, schemas } from "../api/schemas";
 
 export function DancerInputGroup() {
   const [username, setUsername] = useState("");
   const [debounced, setDebouncedUsername] = useState("");
   const [typing, setTyping] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { data, isFetching, error } = useQuery(queries.available(debounced));
 
@@ -47,7 +48,30 @@ export function DancerInputGroup() {
     });
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setUsername(value);
+
+    if (!value) {
+      setErrorMessage(null);
+      return;
+    }
+
+    const result = schemas.available.safeParse({ username: value });
+    if (!result.success) {
+      setErrorMessage(
+        result.error.issues.map((issue) => issue.message).join(", "),
+      );
+      return;
+    }
+
+    setErrorMessage(null);
+    setTyping(true);
+    debouncedUsername(value);
+  };
+
   const checking = typing || isFetching;
+  const message = errorMessage ?? error?.message;
 
   return (
     <InputGroup className="rounded-xl">
@@ -61,12 +85,7 @@ export function DancerInputGroup() {
         size="sm"
         autoFocus
         value={username}
-        onChange={(e) => {
-          const value = e.target.value;
-          setTyping(true);
-          setUsername(value);
-          debouncedUsername(value);
-        }}
+        onChange={handleChange}
       />
       <InputGroupAddon align="block-start">
         <Label className="font-medium">Dancer</Label>
@@ -87,7 +106,9 @@ export function DancerInputGroup() {
           <Spinner />
         ) : (
           <InputGroupText className="text-xs">
-            {data ? (
+            {message ? (
+              <span className="text-destructive">{message}</span>
+            ) : data ? (
               data.available ? (
                 <div className="flex items-center gap-2 text-green-600">
                   Available
@@ -99,8 +120,6 @@ export function DancerInputGroup() {
                   <XIcon className="size-3" />
                 </div>
               )
-            ) : error ? (
-              <span className="text-destructive">{error.message}</span>
             ) : (
               "Minimum 4 characters"
             )}
@@ -110,7 +129,7 @@ export function DancerInputGroup() {
           <Button
             variant="default"
             size="sm"
-            disabled={!username || !data?.available || checking}
+            disabled={!username || !data?.available || checking || !!message}
             className="-m-1"
             onClick={onSubmit}
           >

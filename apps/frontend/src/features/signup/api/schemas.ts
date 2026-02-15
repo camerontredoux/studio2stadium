@@ -29,4 +29,10 @@ export const schemas = {
     password: passwordSchema,
     termsChecked: z.boolean(),
   }),
+
+  available: z.object({
+    username: z.string().regex(/^[a-zA-Z0-9_]+$/, {
+      error: "Username must be alphanumeric",
+    }),
+  }),
 } as const;
