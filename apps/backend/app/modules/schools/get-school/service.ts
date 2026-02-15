@@ -6,6 +6,19 @@ export class Service {
   constructor(private db: DatabaseService) {}
 
   async execute(username: string) {
+    const school = await this.getSchool(username);
+
+    if (!school) return null;
+
+    const { schoolProfile, ...user } = school;
+
+    return {
+      ...user,
+      ...schoolProfile,
+    };
+  }
+
+  async getSchool(username: string) {
     return await this.db.use((db) =>
       db.query.users.findFirst({
         where: {
@@ -17,13 +30,15 @@ export class Service {
           avatar: true,
         },
         with: {
+          images: true,
+          videos: true,
           schoolProfile: {
             with: {
               skills: true,
               styles: true,
               events: true,
               sports: true,
-              media: true,
+
               interested: {
                 where: {
                   user: {

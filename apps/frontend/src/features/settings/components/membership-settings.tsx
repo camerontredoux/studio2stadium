@@ -5,7 +5,7 @@ import { Unsubscribed } from "./membership/unsubscribed";
 export function MembershipSettings() {
   const session = useSession();
 
-  if (!session.subscribed) {
+  if (session.subscribed) {
     return <Subscribed />;
   }
 

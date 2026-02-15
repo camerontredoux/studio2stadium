@@ -1,5 +1,4 @@
 import * as pg from "drizzle-orm/pg-core";
-import { mediaType } from "./enums.ts";
 import { timestamps } from "./helpers/columns.ts";
 import { schoolProfiles } from "./schools.ts";
 import { users } from "./users.ts";
@@ -79,20 +78,4 @@ export const interests = pg.pgTable(
     pg.primaryKey({ columns: [table.dancerId, table.schoolId] }),
     pg.index().on(table.schoolId),
   ]
-);
-
-export const dancerMedia = pg.pgTable(
-  "dancer_media",
-  {
-    id: pg.uuid().primaryKey().defaultRandom(),
-    dancerId: pg
-      .uuid()
-      .notNull()
-      .references(() => dancerProfiles.id, { onDelete: "cascade" }),
-    mediaId: pg.text().unique().notNull(),
-    type: mediaType().notNull(),
-    caption: pg.text(),
-    ...timestamps,
-  },
-  (table) => [pg.index().on(table.dancerId, table.createdAt)]
 );

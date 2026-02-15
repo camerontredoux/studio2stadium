@@ -20,15 +20,19 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.users.id,
       to: r.platforms.userId,
     }),
+    images: r.many.images({
+      from: r.users.id,
+      to: r.images.userId,
+    }),
+    videos: r.many.videos({
+      from: r.users.id,
+      to: r.videos.userId,
+    }),
   },
   dancerProfiles: {
     user: r.one.users({
       from: r.dancerProfiles.userId,
       to: r.users.id,
-    }),
-    media: r.many.dancerMedia({
-      from: r.dancerProfiles.id,
-      to: r.dancerMedia.dancerId,
     }),
     achievements: r.many.achievements({
       from: r.dancerProfiles.id,
@@ -63,10 +67,6 @@ export const relations = defineRelations(schema, (r) => ({
     user: r.one.users({
       from: r.schoolProfiles.userId,
       to: r.users.id,
-    }),
-    media: r.many.schoolMedia({
-      from: r.schoolProfiles.id,
-      to: r.schoolMedia.schoolId,
     }),
     styles: r.many.styles({
       from: r.schoolProfiles.id.through(r.schoolStyles.schoolId),
@@ -113,16 +113,10 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.users.id.through(r.globalDanceEventAttendees.userId),
     }),
   },
-  dancerFeed: {
-    dancer: r.one.dancerProfiles({
-      from: r.dancerFeed.dancerId,
-      to: r.dancerProfiles.id,
-    }),
-  },
-  schoolFeed: {
-    school: r.one.schoolProfiles({
-      from: r.schoolFeed.schoolId,
-      to: r.schoolProfiles.id,
+  feed: {
+    user: r.one.users({
+      from: r.feed.userId,
+      to: r.users.id,
     }),
   },
   notifications: {

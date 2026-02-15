@@ -21,11 +21,11 @@ export const role = pgEnum("role", ["admin", "prodigy_admin", "user"]);
 export const accountType = pgEnum("account_type", ["dancer", "school"]);
 
 export const feedItemType = pgEnum("feed_item_type", [
-  "image_upload",
-  "video_upload",
-  "profile_update",
-  "reference_created",
-  "achievement_created",
+  "image",
+  "video",
+  "profile",
+  "reference",
+  "achievement",
 ]);
 
 export const danceEventType = pgEnum("dance_event_type", [
