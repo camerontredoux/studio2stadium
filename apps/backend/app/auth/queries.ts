@@ -53,8 +53,34 @@ export async function getUserSession(id: string) {
 
   const { subscription, platforms, ...user } = session;
 
+  let profileId: string | undefined;
+  if (user.type === "dancer") {
+    const profile = await db.query.dancerProfiles.findFirst({
+      where: {
+        userId: user.id,
+      },
+    });
+
+    if (profile) {
+      profileId = profile.id;
+    }
+  } else if (user.type === "school") {
+    const profile = await db.query.schoolProfiles.findFirst({
+      where: {
+        userId: user.id,
+      },
+    });
+
+    if (profile) {
+      profileId = profile.id;
+    }
+  }
+
+  if (!profileId) return null;
+
   return {
     ...user,
+    profileId,
     subscribed: !!subscription,
     platforms: platforms.map((platform) => platform.platformName),
   };

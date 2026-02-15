@@ -1105,7 +1105,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get school program information
+         * Get school portfolio
          * @description Returns the authenticated school's program information
          */
         get: {
@@ -1134,7 +1134,7 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Update school program information
+         * Update school portfolio
          * @description Updates the authenticated school's program information
          */
         patch: {
@@ -1195,6 +1195,149 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["SchoolsIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools/{id}/follow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Follow a school
+         * @description Follows the school's profile using the school ID
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SchoolsIdFollowRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsIdFollowResponse"];
+                    };
+                };
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        /**
+         * Unfollow a school
+         * @description Unfollows the school's profile using the school ID
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools/{id}/metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get school metadata
+         * @description Returns the school's metadata
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsIdMetadataResponse"];
                     };
                 };
                 /** @description Unprocessable Entity */
@@ -1446,6 +1589,7 @@ export interface components {
             displayEmail: string;
             avatar: string | null;
             verified: boolean;
+            profileId: string;
             platforms: ("prodigy" | "core")[];
             subscribed: boolean;
         };
@@ -1736,7 +1880,18 @@ export interface components {
                 name: string;
                 slug: string;
             }[];
+            following: boolean;
             interested: boolean;
+            followers: number;
+        };
+        SchoolsIdFollowRequest: {
+            params: {
+                id: string;
+            };
+        };
+        SchoolsIdFollowResponse: Record<string, never>;
+        SchoolsIdMetadataResponse: {
+            following: boolean;
             followers: number;
         };
         UsersCheckavailabilityResponse: {

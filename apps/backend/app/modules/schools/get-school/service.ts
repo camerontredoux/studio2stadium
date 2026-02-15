@@ -1,14 +1,12 @@
-import { follows } from "#database/schema/profiles";
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
-import { eq } from "drizzle-orm";
 
 @inject()
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute(username: string, userId: string) {
-    const school = await this.getSchool(username, userId);
+  async execute(username: string) {
+    const school = await this.getSchool(username);
 
     if (!school) return null;
 
@@ -16,18 +14,13 @@ export class Service {
 
     if (!schoolProfile) return null;
 
-    const { interested, followers, followersCount, ...profile } = schoolProfile;
-
     return {
       ...user,
-      ...profile,
-      followers: followersCount,
-      following: followers.length > 0,
-      interested: interested.length > 0,
+      ...schoolProfile,
     };
   }
 
-  async getSchool(username: string, userId: string) {
+  async getSchool(username: string) {
     return await this.db.use((db) =>
       db.query.users.findFirst({
         where: {
@@ -46,30 +39,6 @@ export class Service {
               styles: true,
               events: true,
               sports: true,
-              followers: {
-                where: {
-                  user: {
-                    id: userId,
-                  },
-                },
-                columns: {
-                  id: true,
-                },
-              },
-              interested: {
-                where: {
-                  user: {
-                    id: userId,
-                  },
-                },
-                columns: {
-                  id: true,
-                },
-              },
-            },
-            extras: {
-              followersCount: (table) =>
-                db.$count(follows, eq(follows.schoolId, table.id)),
             },
           },
         },

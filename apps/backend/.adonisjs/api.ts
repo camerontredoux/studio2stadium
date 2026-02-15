@@ -119,6 +119,18 @@ type SchoolsIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/schools/get-school/controller.ts').default['handle'], true>
 }
+type SchoolsIdFollowPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/follow/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/follow/controller.ts').default['handle'], true>
+}
+type SchoolsIdFollowDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/unfollow/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/unfollow/controller.ts').default['handle'], true>
+}
+type SchoolsIdMetadataGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/metadata/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/metadata/controller.ts').default['handle'], true>
+}
 type UsersCheckavailabilityGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/check-availability/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/users/check-availability/controller.ts').default['handle'], true>
@@ -280,6 +292,20 @@ export interface ApiDefinition {
       };
       '$get': SchoolsIdGetHead;
       '$head': SchoolsIdGetHead;
+    };
+    ':id': {
+      'follow': {
+        '$url': {
+        };
+        '$post': SchoolsIdFollowPost;
+        '$delete': SchoolsIdFollowDelete;
+      };
+      'metadata': {
+        '$url': {
+        };
+        '$get': SchoolsIdMetadataGetHead;
+        '$head': SchoolsIdMetadataGetHead;
+      };
     };
   };
   'users': {

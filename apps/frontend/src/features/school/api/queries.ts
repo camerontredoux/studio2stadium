@@ -5,4 +5,8 @@ export const schoolQueries = {
     $api.queryOptions("get", "/schools/{username}", {
       params: { path: { username } },
     }),
+  metadata: (id: string) =>
+    $api.queryOptions("get", "/schools/{id}/metadata", {
+      params: { path: { id } },
+    }),
 };

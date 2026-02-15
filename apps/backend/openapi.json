@@ -930,7 +930,7 @@
         "tags": [
           "Schools"
         ],
-        "summary": "Get school program information",
+        "summary": "Get school portfolio",
         "description": "Returns the authenticated school's program information"
       },
       "patch": {
@@ -952,7 +952,7 @@
         "tags": [
           "Schools"
         ],
-        "summary": "Update school program information",
+        "summary": "Update school portfolio",
         "description": "Updates the authenticated school's program information"
       }
     },
@@ -995,6 +995,132 @@
         ],
         "summary": "Get a school",
         "description": "Returns the school's public profile"
+      }
+    },
+    "/schools/{id}/follow": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolsIdFollowRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsIdFollowResponse"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Follow a school",
+        "description": "Follows the school's profile using the school ID"
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Unfollow a school",
+        "description": "Unfollows the school's profile using the school ID"
+      }
+    },
+    "/schools/{id}/metadata": {
+      "get": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsIdMetadataResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Get school metadata",
+        "description": "Returns the school's metadata"
       }
     },
     "/users/check-availability": {
@@ -1332,6 +1458,9 @@
           "verified": {
             "type": "boolean"
           },
+          "profileId": {
+            "type": "string"
+          },
           "platforms": {
             "type": "array",
             "items": {
@@ -1357,6 +1486,7 @@
           "displayEmail",
           "avatar",
           "verified",
+          "profileId",
           "platforms",
           "subscribed"
         ]
@@ -2906,6 +3036,9 @@
               ]
             }
           },
+          "following": {
+            "type": "boolean"
+          },
           "interested": {
             "type": "boolean"
           },
@@ -2941,7 +3074,46 @@
           "skills",
           "sports",
           "styles",
+          "following",
           "interested",
+          "followers"
+        ]
+      },
+      "SchoolsIdFollowRequest": {
+        "type": "object",
+        "properties": {
+          "params": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          }
+        },
+        "required": [
+          "params"
+        ]
+      },
+      "SchoolsIdFollowResponse": {
+        "type": "object",
+        "properties": {}
+      },
+      "SchoolsIdMetadataResponse": {
+        "type": "object",
+        "properties": {
+          "following": {
+            "type": "boolean"
+          },
+          "followers": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "following",
           "followers"
         ]
       },
