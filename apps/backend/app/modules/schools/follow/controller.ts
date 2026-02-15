@@ -12,7 +12,7 @@ export default class FollowSchoolController {
     const result = await service.execute(payload, session.profileId);
 
     if (result.created) {
-      return ctx.response.created();
+      return ctx.response.created({ following: true });
     }
 
     return ctx.response.noContent();

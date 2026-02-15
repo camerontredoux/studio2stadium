@@ -20,14 +20,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApplicationResponse"
-                }
-              }
-            }
+            "description": "OK"
           }
         },
         "tags": [
@@ -355,14 +348,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DancersMePortfolioResponse"
-                }
-              }
-            }
+            "description": "OK"
           }
         },
         "tags": [
@@ -522,15 +508,6 @@
     },
     "/events/{id}/save": {
       "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EventsIdSaveRequest"
-              }
-            }
-          }
-        },
         "parameters": [
           {
             "name": "id",
@@ -917,14 +894,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SchoolsProfileResponse"
-                }
-              }
-            }
+            "description": "OK"
           }
         },
         "tags": [
@@ -999,15 +969,6 @@
     },
     "/schools/{id}/follow": {
       "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SchoolsIdFollowRequest"
-              }
-            }
-          }
-        },
         "parameters": [
           {
             "name": "id",
@@ -1020,14 +981,7 @@
         ],
         "responses": {
           "201": {
-            "description": "Created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SchoolsIdFollowResponse"
-                }
-              }
-            }
+            "description": "Created"
           },
           "204": {
             "description": "No Content"
@@ -1306,10 +1260,6 @@
           "upcomingEvents",
           "gpaRange"
         ]
-      },
-      "ApplicationResponse": {
-        "type": "object",
-        "properties": {}
       },
       "AuthSignupRequest": {
         "type": "object",
@@ -1641,10 +1591,6 @@
             "paramKey"
           ]
         }
-      },
-      "DancersMePortfolioResponse": {
-        "type": "object",
-        "properties": {}
       },
       "DancersIdResponse": {
         "type": "object",
@@ -2267,25 +2213,6 @@
           "eventAttendees"
         ]
       },
-      "EventsIdSaveRequest": {
-        "type": "object",
-        "properties": {
-          "params": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "id"
-            ]
-          }
-        },
-        "required": [
-          "params"
-        ]
-      },
       "HealthResponse": {
         "type": "object",
         "properties": {
@@ -2607,10 +2534,6 @@
             "paramKey"
           ]
         }
-      },
-      "SchoolsProfileResponse": {
-        "type": "object",
-        "properties": {}
       },
       "SchoolsIdResponse": {
         "type": "object",
@@ -3035,15 +2958,6 @@
                 "slug"
               ]
             }
-          },
-          "following": {
-            "type": "boolean"
-          },
-          "interested": {
-            "type": "boolean"
-          },
-          "followers": {
-            "type": "number"
           }
         },
         "required": [
@@ -3073,39 +2987,16 @@
           "videos",
           "skills",
           "sports",
-          "styles",
-          "following",
-          "interested",
-          "followers"
+          "styles"
         ]
-      },
-      "SchoolsIdFollowRequest": {
-        "type": "object",
-        "properties": {
-          "params": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "id"
-            ]
-          }
-        },
-        "required": [
-          "params"
-        ]
-      },
-      "SchoolsIdFollowResponse": {
-        "type": "object",
-        "properties": {}
       },
       "SchoolsIdMetadataResponse": {
         "type": "object",
         "properties": {
           "following": {
+            "type": "boolean"
+          },
+          "interested": {
             "type": "boolean"
           },
           "followers": {
@@ -3114,6 +3005,7 @@
         },
         "required": [
           "following",
+          "interested",
           "followers"
         ]
       },

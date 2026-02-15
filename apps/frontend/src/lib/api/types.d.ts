@@ -29,9 +29,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "application/json": components["schemas"]["ApplicationResponse"];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -545,9 +543,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "application/json": components["schemas"]["DancersMePortfolioResponse"];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -789,11 +785,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["EventsIdSaveRequest"];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description No Content */
                 204: {
@@ -1122,9 +1114,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsProfileResponse"];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -1238,20 +1228,14 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SchoolsIdFollowRequest"];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description Created */
                 201: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsIdFollowResponse"];
-                    };
+                    content?: never;
                 };
                 /** @description No Content */
                 204: {
@@ -1551,7 +1535,6 @@ export interface components {
         };
         /** @enum {string} */
         SchoolFilterParam: "name" | "location" | "division" | "sports" | "styles" | "commonRecruiting" | "upcomingEvents" | "gpaRange";
-        ApplicationResponse: Record<string, never>;
         AuthSignupRequest: {
             phone?: string | null;
             email: string;
@@ -1627,7 +1610,6 @@ export interface components {
             label: string;
             paramKey: string;
         }[];
-        DancersMePortfolioResponse: Record<string, never>;
         DancersIdResponse: {
             username: string;
             id: string;
@@ -1738,11 +1720,6 @@ export interface components {
             endDate: string;
             eventAttendees: number;
         };
-        EventsIdSaveRequest: {
-            params: {
-                id: string;
-            };
-        };
         HealthResponse: {
             /** @enum {string} */
             status: "error" | "ok" | "warning";
@@ -1810,7 +1787,6 @@ export interface components {
             label: string;
             paramKey: components["schemas"]["SchoolFilterParam"];
         }[];
-        SchoolsProfileResponse: Record<string, never>;
         SchoolsIdResponse: {
             events: {
                 /** @enum {string} */
@@ -1880,18 +1856,10 @@ export interface components {
                 name: string;
                 slug: string;
             }[];
-            following: boolean;
-            interested: boolean;
-            followers: number;
         };
-        SchoolsIdFollowRequest: {
-            params: {
-                id: string;
-            };
-        };
-        SchoolsIdFollowResponse: Record<string, never>;
         SchoolsIdMetadataResponse: {
             following: boolean;
+            interested: boolean;
             followers: number;
         };
         UsersCheckavailabilityResponse: {

@@ -274,14 +274,29 @@ export class OpenApiGenerator {
   #schemaObjectToRequestBody(
     request: SchemaObject
   ): RequestBodyObject | undefined {
-    if (!request.properties || Object.keys(request.properties).length === 0) {
+    if (!request.properties) {
       return undefined;
     }
+
+    // Filter out `params` since path params are handled separately
+    const { params, ...bodyProperties } = request.properties;
+
+    if (Object.keys(bodyProperties).length === 0) {
+      return undefined;
+    }
+
+    // Build body schema without params
+    const bodyRequired = request.required?.filter((r) => r !== "params") || [];
+    const bodySchema: SchemaObject = {
+      type: "object",
+      properties: bodyProperties,
+      ...(bodyRequired.length && { required: bodyRequired }),
+    };
 
     return {
       content: {
         "application/json": {
-          schema: request,
+          schema: bodySchema,
         },
       },
     };
@@ -434,21 +449,33 @@ export class OpenApiGenerator {
     } = {};
 
     if (methods.includes(options.method)) {
-      // If we have an endpoint alias and the request has properties, create a named schema
-      if (
-        endpointAliasName &&
-        request.properties &&
-        Object.keys(request.properties).length > 0
-      ) {
+      // Filter out `params` since path params are handled separately
+      const bodyProperties = request.properties
+        ? Object.fromEntries(
+            Object.entries(request.properties).filter(([key]) => key !== "params")
+          )
+        : {};
+      const hasBodyProperties = Object.keys(bodyProperties).length > 0;
+
+      // If we have an endpoint alias and the request has body properties (excluding params), create a named schema
+      if (endpointAliasName && hasBodyProperties) {
         const baseName = endpointAliasName.replace(
           /(Get|Head|Post|Put|Patch|Delete)+$/,
           ""
         );
         const requestSchemaName = `${baseName}Request`;
 
+        // Build body schema without params
+        const bodyRequired = request.required?.filter((r) => r !== "params") || [];
+        const bodySchema: SchemaObject = {
+          type: "object",
+          properties: bodyProperties,
+          ...(bodyRequired.length && { required: bodyRequired }),
+        };
+
         // Register the schema if not already registered
         if (!this.#aliasSchemas.has(requestSchemaName)) {
-          this.#aliasSchemas.set(requestSchemaName, request);
+          this.#aliasSchemas.set(requestSchemaName, bodySchema);
         }
 
         spec.requestBody = {
@@ -458,9 +485,10 @@ export class OpenApiGenerator {
             },
           },
         };
-      } else {
+      } else if (hasBodyProperties) {
         spec.requestBody = this.#schemaObjectToRequestBody(request);
       }
+      // If no body properties (only params or empty), don't set requestBody
 
       if (openApiParameters.length) {
         spec.parameters = openApiParameters;
@@ -564,6 +592,21 @@ export class OpenApiGenerator {
 
         // 204 No Content should not have a response body
         if (status === "204") {
+          responses[status] = {
+            description: this.#statusToResponseDescription(status),
+          };
+          continue;
+        }
+
+        // Check if response schema is empty (no properties or empty object)
+        const schemaObj = schema as SchemaObject;
+        const hasNoContent =
+          !schemaObj.type ||
+          (schemaObj.type === "object" &&
+            (!schemaObj.properties ||
+              Object.keys(schemaObj.properties).length === 0));
+
+        if (hasNoContent) {
           responses[status] = {
             description: this.#statusToResponseDescription(status),
           };
