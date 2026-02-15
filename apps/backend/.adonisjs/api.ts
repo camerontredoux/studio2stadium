@@ -123,6 +123,10 @@ type SchoolsIdMetadataGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-metadata/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/schools/get-metadata/controller.ts').default['handle'], true>
 }
+type SchoolsIdInterestPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/show-interest/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/show-interest/controller.ts').default['handle'], true>
+}
 type UsersCheckavailabilityGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/check-availability/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/users/check-availability/controller.ts').default['handle'], true>
@@ -294,6 +298,11 @@ export interface ApiDefinition {
         };
         '$get': SchoolsIdMetadataGetHead;
         '$head': SchoolsIdMetadataGetHead;
+      };
+      'interest': {
+        '$url': {
+        };
+        '$post': SchoolsIdInterestPost;
       };
     };
   };

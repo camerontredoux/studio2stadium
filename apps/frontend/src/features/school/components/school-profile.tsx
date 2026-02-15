@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button";
+import { toastManager } from "@/components/ui/toast-manager";
+import { handleApiError } from "@/lib/api/errors";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { HeartCrackIcon, HeartIcon } from "lucide-react";
-import { useFollowSchool, useUnfollowSchool } from "../api/mutations";
+import {
+  useFollowSchool,
+  useShowInterest,
+  useUnfollowSchool,
+} from "../api/mutations";
 import { schoolQueries } from "../api/queries";
 
 interface SchoolProfileProps {
@@ -17,6 +23,7 @@ export function SchoolProfile({ username }: SchoolProfileProps) {
 
   const { mutate: followSchool } = useFollowSchool(data.id);
   const { mutate: unfollowSchool } = useUnfollowSchool(data.id);
+  const { mutate: showInterest } = useShowInterest(data.id);
 
   return (
     <div>
@@ -30,16 +37,67 @@ export function SchoolProfile({ username }: SchoolProfileProps) {
           {metadata?.followers} followers
         </span>
       </div>
+      <Button
+        onClick={() =>
+          showInterest(
+            { params: { path: { id: data.id } } },
+            {
+              onError: handleApiError({
+                onError: (error) => {
+                  toastManager.add({
+                    title: "Error",
+                    description: error.message,
+                    type: "error",
+                  });
+                },
+              }),
+            },
+          )
+        }
+        variant="outline"
+      >
+        <HeartIcon /> Show Interest
+      </Button>
       {metadata?.following ? (
         <Button
-          onClick={() => unfollowSchool({ params: { path: { id: data.id } } })}
+          onClick={() =>
+            unfollowSchool(
+              { params: { path: { id: data.id } } },
+              {
+                onError: handleApiError({
+                  onError: (error) => {
+                    toastManager.add({
+                      title: "Error",
+                      description: error.message,
+                      type: "error",
+                    });
+                  },
+                }),
+              },
+            )
+          }
           variant="destructive-outline"
         >
           <HeartCrackIcon /> Unfollow
         </Button>
       ) : (
         <Button
-          onClick={() => followSchool({ params: { path: { id: data.id } } })}
+          onClick={() =>
+            followSchool(
+              { params: { path: { id: data.id } } },
+              {
+                onError: handleApiError({
+                  onError: (error) => {
+                    toastManager.add({
+                      title: "Error",
+                      description: error.message,
+                      type: "error",
+                    });
+                  },
+                }),
+              },
+            )
+          }
           variant="outline"
         >
           <HeartIcon /> Follow

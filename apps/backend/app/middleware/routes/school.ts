@@ -7,7 +7,7 @@ export default class SchoolMiddleware {
 
     if (user.type !== "school") {
       return ctx.response.forbidden({
-        message: `This resource is only available to school accounts`,
+        message: "This resource is only available to school accounts.",
       });
     }
 

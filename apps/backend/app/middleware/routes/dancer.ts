@@ -7,7 +7,7 @@ export default class DancerMiddleware {
 
     if (user.type !== "dancer") {
       return ctx.response.forbidden({
-        message: `This resource is only available to dancer accounts`,
+        message: "This resource is only available to dancer accounts.",
       });
     }
 

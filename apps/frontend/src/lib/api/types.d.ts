@@ -1296,6 +1296,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/schools/{id}/interest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Show interest in a school
+         * @description A dancer can show interest in a school up to 3 times. This endpoint will increment the interest count for the school, and send a notification to the school.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsIdInterestResponse"];
+                    };
+                };
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/check-availability": {
         parameters: {
             query?: never;
@@ -1818,6 +1875,9 @@ export interface components {
             following: boolean;
             interested: boolean;
             followers: number;
+        };
+        SchoolsIdInterestResponse: {
+            interested: boolean;
         };
         UsersCheckavailabilityResponse: {
             available: boolean;

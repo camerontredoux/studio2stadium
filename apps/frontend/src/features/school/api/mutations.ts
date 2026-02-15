@@ -23,31 +23,23 @@ export function useFollowSchool(id: string) {
         queryKey: followingQueryKey,
       });
 
-      const previousMetadata = queryClient.getQueryData<Metadata>(
-        metadataQueryKey,
-      );
-      const previousFollowing = queryClient.getQueryData<string[]>(
-        followingQueryKey,
-      );
+      const previousMetadata =
+        queryClient.getQueryData<Metadata>(metadataQueryKey);
+      const previousFollowing =
+        queryClient.getQueryData<string[]>(followingQueryKey);
 
-      queryClient.setQueryData<Metadata>(
-        metadataQueryKey,
-        (old) => {
-          if (!old) return;
-          return {
-            ...old,
-            followers: old.followers + 1,
-            following: true,
-          };
-        },
-      );
-      queryClient.setQueryData<string[]>(
-        followingQueryKey,
-        (old) => {
-          if (!old) return;
-          return [...old, id];
-        },
-      );
+      queryClient.setQueryData<Metadata>(metadataQueryKey, (old) => {
+        if (!old) return;
+        return {
+          ...old,
+          followers: old.followers + 1,
+          following: true,
+        };
+      });
+      queryClient.setQueryData<string[]>(followingQueryKey, (old) => {
+        if (!old) return;
+        return [...old, id];
+      });
 
       return { previousMetadata, previousFollowing };
     },
@@ -90,32 +82,24 @@ export function useUnfollowSchool(id: string) {
         queryKey: followingQueryKey,
       });
 
-      const previousMetadata = queryClient.getQueryData<Metadata>(
-        metadataQueryKey,
-      );
-      const previousFollowing = queryClient.getQueryData<string[]>(
-        followingQueryKey,
-      );
+      const previousMetadata =
+        queryClient.getQueryData<Metadata>(metadataQueryKey);
+      const previousFollowing =
+        queryClient.getQueryData<string[]>(followingQueryKey);
 
-      queryClient.setQueryData<Metadata>(
-        metadataQueryKey,
-        (old) => {
-          if (!old) return;
-          return {
-            ...old,
-            followers: old.followers - 1,
-            following: false,
-          };
-        },
-      );
+      queryClient.setQueryData<Metadata>(metadataQueryKey, (old) => {
+        if (!old) return;
+        return {
+          ...old,
+          followers: old.followers - 1,
+          following: false,
+        };
+      });
 
-      queryClient.setQueryData<string[]>(
-        followingQueryKey,
-        (old) => {
-          if (!old) return;
-          return old.filter((followingId) => followingId !== id);
-        },
-      );
+      queryClient.setQueryData<string[]>(followingQueryKey, (old) => {
+        if (!old) return;
+        return old.filter((followingId) => followingId !== id);
+      });
 
       return { previousMetadata, previousFollowing };
     },
@@ -136,6 +120,14 @@ export function useUnfollowSchool(id: string) {
           result.previousFollowing,
         );
       }
+    },
+  });
+}
+
+export function useShowInterest(id: string) {
+  return $api.useMutation("post", "/schools/{id}/interest", {
+    meta: {
+      invalidateQueries: [schoolQueries.metadata(id).queryKey],
     },
   });
 }

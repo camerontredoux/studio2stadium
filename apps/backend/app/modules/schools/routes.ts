@@ -7,6 +7,7 @@ const GetSchoolController = () => import("./get-school/controller.ts");
 const FollowSchoolController = () => import("./follow/controller.ts");
 const UnfollowSchoolController = () => import("./unfollow/controller.ts");
 const GetMetadataController = () => import("./get-metadata/controller.ts");
+const ShowInterestController = () => import("./show-interest/controller.ts");
 
 router
   .group(() => {
@@ -21,7 +22,7 @@ router
         summary: "Get schools",
         description: "Returns a list of schools",
       })
-      .use(middleware.auth());
+      .use([middleware.auth(), middleware.dancer()]);
 
     router
       .get("/:username", [GetSchoolController])
@@ -37,7 +38,7 @@ router
         summary: "Follow a school",
         description: "Follows the school's profile using the school ID",
       })
-      .use(middleware.auth());
+      .use([middleware.auth(), middleware.dancer()]);
 
     router
       .delete("/:id/follow", [UnfollowSchoolController])
@@ -45,7 +46,7 @@ router
         summary: "Unfollow a school",
         description: "Unfollows the school's profile using the school ID",
       })
-      .use(middleware.auth());
+      .use([middleware.auth(), middleware.dancer()]);
 
     router
       .get("/:id/metadata", [GetMetadataController])
@@ -53,7 +54,16 @@ router
         summary: "Get school metadata",
         description: "Returns the school's metadata",
       })
-      .use(middleware.auth());
+      .use([middleware.auth(), middleware.dancer()]);
+
+    router
+      .post("/:id/interest", [ShowInterestController])
+      .openapi({
+        summary: "Show interest in a school",
+        description:
+          "A dancer can show interest in a school up to 3 times. This endpoint will increment the interest count for the school, and send a notification to the school.",
+      })
+      .use([middleware.auth(), middleware.dancer(), middleware.premium()]);
   })
   .prefix("schools")
   .openapi({ tags: ["Schools"] });

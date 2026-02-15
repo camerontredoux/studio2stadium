@@ -1056,6 +1056,50 @@
         "description": "Returns the school's metadata"
       }
     },
+    "/schools/{id}/interest": {
+      "post": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsIdInterestResponse"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Show interest in a school",
+        "description": "A dancer can show interest in a school up to 3 times. This endpoint will increment the interest count for the school, and send a notification to the school."
+      }
+    },
     "/users/check-availability": {
       "get": {
         "parameters": [
@@ -3003,6 +3047,17 @@
           "following",
           "interested",
           "followers"
+        ]
+      },
+      "SchoolsIdInterestResponse": {
+        "type": "object",
+        "properties": {
+          "interested": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "interested"
         ]
       },
       "UsersCheckavailabilityResponse": {

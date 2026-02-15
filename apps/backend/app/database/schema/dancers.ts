@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { timestamps } from "./helpers/columns.ts";
 import { schoolProfiles } from "./schools.ts";
@@ -72,10 +73,12 @@ export const interests = pg.pgTable(
       .uuid()
       .notNull()
       .references(() => schoolProfiles.id, { onDelete: "cascade" }),
+    count: pg.integer().notNull().default(1),
     ...timestamps,
   },
   (table) => [
     pg.primaryKey({ columns: [table.dancerId, table.schoolId] }),
     pg.index().on(table.schoolId),
+    pg.check("count <= 3", sql`${table.count} <= 3`),
   ]
 );

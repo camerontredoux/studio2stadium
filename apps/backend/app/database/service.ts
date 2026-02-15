@@ -46,6 +46,11 @@ export class DatabaseService {
               cause: cause.column_name,
             }
           );
+        case "23514":
+          throw new E_DATABASE_ERROR("Check constraint violation", {
+            code: "E_CHECK_CONSTRAINT_VIOLATION",
+            cause: cause.detail,
+          });
         case "42601":
           throw new E_DATABASE_ERROR("Database syntax error", {
             code: "E_PARSE_ERROR",
