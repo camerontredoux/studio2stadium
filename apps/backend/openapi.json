@@ -784,7 +784,7 @@
             }
           },
           {
-            "name": "styles",
+            "name": "sports",
             "in": "query",
             "required": false,
             "schema": {
@@ -799,7 +799,7 @@
             }
           },
           {
-            "name": "sports",
+            "name": "styles",
             "in": "query",
             "required": false,
             "schema": {
@@ -1174,8 +1174,8 @@
           "name",
           "location",
           "division",
-          "styles",
           "sports",
+          "styles",
           "commonRecruiting",
           "upcomingEvents",
           "gpaRange"
@@ -1402,52 +1402,26 @@
             "createdAt": {
               "type": "string"
             },
-            "updatedAt": {
-              "type": "string"
-            },
             "title": {
               "type": "string"
             },
             "description": {
               "type": "string"
             },
-            "tags": {
-              "oneOf": [
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
             "thumbnail": {
               "type": "string"
             },
             "slug": {
-              "type": "string"
-            },
-            "content": {
-              "type": "string"
-            },
-            "summary": {
               "type": "string"
             }
           },
           "required": [
             "id",
             "createdAt",
-            "updatedAt",
             "title",
             "description",
-            "tags",
             "thumbnail",
-            "slug",
-            "content",
-            "summary"
+            "slug"
           ]
         }
       },
@@ -2434,6 +2408,9 @@
                   "type": "null"
                 }
               ]
+            },
+            "followers": {
+              "type": "number"
             }
           },
           "required": [
@@ -2445,7 +2422,8 @@
             "location",
             "gpa",
             "division",
-            "size"
+            "size",
+            "followers"
           ]
         }
       },
@@ -2507,7 +2485,181 @@
       "SchoolsIdResponse": {
         "type": "object",
         "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "audition",
+                    "rehearsal",
+                    "recital",
+                    "showcase",
+                    "competition",
+                    "class",
+                    "intensive",
+                    "workshop",
+                    "fundraiser",
+                    "combine",
+                    "convention",
+                    "clinic",
+                    "deadline",
+                    "recruitment",
+                    "performance",
+                    "camp",
+                    "other"
+                  ]
+                },
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "website": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "schoolId": {
+                  "type": "string"
+                },
+                "address": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "tags": {
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "cost": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "startDatetime": {
+                  "type": "string"
+                },
+                "endDatetime": {
+                  "type": "string"
+                },
+                "timezone": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "id",
+                "createdAt",
+                "updatedAt",
+                "location",
+                "title",
+                "description",
+                "website",
+                "schoolId",
+                "address",
+                "tags",
+                "cost",
+                "startDatetime",
+                "endDatetime",
+                "timezone"
+              ]
+            }
+          },
+          "about": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "userId": {
+                  "type": "string"
+                },
+                "caption": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "mediaUrl": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "createdAt",
+                "updatedAt",
+                "userId",
+                "caption",
+                "mediaUrl"
+              ]
+            }
+          },
           "username": {
+            "type": "string"
+          },
+          "name": {
             "type": "string"
           },
           "id": {
@@ -2523,592 +2675,274 @@
               }
             ]
           },
-          "schoolProfile": {
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "instagram": {
             "oneOf": [
               {
-                "type": "object",
-                "properties": {
-                  "events": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "enum": [
-                            "audition",
-                            "rehearsal",
-                            "recital",
-                            "showcase",
-                            "competition",
-                            "class",
-                            "intensive",
-                            "workshop",
-                            "fundraiser",
-                            "combine",
-                            "convention",
-                            "clinic",
-                            "deadline",
-                            "recruitment",
-                            "performance",
-                            "camp",
-                            "other"
-                          ]
-                        },
-                        "id": {
-                          "type": "string"
-                        },
-                        "createdAt": {
-                          "type": "string"
-                        },
-                        "updatedAt": {
-                          "type": "string"
-                        },
-                        "location": {
-                          "type": "string"
-                        },
-                        "title": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        },
-                        "website": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "schoolId": {
-                          "type": "string"
-                        },
-                        "address": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "tags": {
-                          "oneOf": [
-                            {
-                              "type": "array",
-                              "items": {
-                                "type": "string"
-                              }
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "cost": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "startDatetime": {
-                          "type": "string"
-                        },
-                        "endDatetime": {
-                          "type": "string"
-                        },
-                        "timezone": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "type",
-                        "id",
-                        "createdAt",
-                        "updatedAt",
-                        "location",
-                        "title",
-                        "description",
-                        "website",
-                        "schoolId",
-                        "address",
-                        "tags",
-                        "cost",
-                        "startDatetime",
-                        "endDatetime",
-                        "timezone"
-                      ]
-                    }
-                  },
-                  "about": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "id": {
-                    "type": "string"
-                  },
-                  "createdAt": {
-                    "type": "string"
-                  },
-                  "updatedAt": {
-                    "type": "string"
-                  },
-                  "userId": {
-                    "type": "string"
-                  },
-                  "location": {
-                    "type": "string"
-                  },
-                  "instagram": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "tiktok": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "gpa": {
-                    "oneOf": [
-                      {
-                        "type": "number"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "division": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "benefits": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "website": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "timeCommitment": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "headCoach": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "assistantCoach": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "missionStatement": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "whatWeDo": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "size": {
-                    "oneOf": [
-                      {
-                        "type": "number"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "skills": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string"
-                        },
-                        "slug": {
-                          "type": "string"
-                        },
-                        "category": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "name",
-                        "slug",
-                        "category"
-                      ]
-                    }
-                  },
-                  "styles": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string"
-                        },
-                        "slug": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "name",
-                        "slug"
-                      ]
-                    }
-                  },
-                  "sports": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string"
-                        },
-                        "slug": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "name",
-                        "slug"
-                      ]
-                    }
-                  },
-                  "media": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "enum": [
-                            "image",
-                            "video"
-                          ]
-                        },
-                        "id": {
-                          "type": "string"
-                        },
-                        "createdAt": {
-                          "type": "string"
-                        },
-                        "updatedAt": {
-                          "type": "string"
-                        },
-                        "schoolId": {
-                          "type": "string"
-                        },
-                        "mediaId": {
-                          "type": "string"
-                        },
-                        "caption": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        }
-                      },
-                      "required": [
-                        "type",
-                        "id",
-                        "createdAt",
-                        "updatedAt",
-                        "schoolId",
-                        "mediaId",
-                        "caption"
-                      ]
-                    }
-                  },
-                  "interested": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "createdAt": {
-                          "type": "string"
-                        },
-                        "updatedAt": {
-                          "type": "string"
-                        },
-                        "userId": {
-                          "type": "string"
-                        },
-                        "birthday": {
-                          "type": "string"
-                        },
-                        "location": {
-                          "type": "string"
-                        },
-                        "biography": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "awards": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "instagram": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "tiktok": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "youtube": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "skillLevel": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "teamLevel": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "highSchool": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "studio": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "gpa": {
-                          "oneOf": [
-                            {
-                              "type": "number"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "gradYear": {
-                          "oneOf": [
-                            {
-                              "type": "number"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "trainingHours": {
-                          "oneOf": [
-                            {
-                              "type": "number"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        }
-                      },
-                      "required": [
-                        "id",
-                        "createdAt",
-                        "updatedAt",
-                        "userId",
-                        "birthday",
-                        "location",
-                        "biography",
-                        "awards",
-                        "instagram",
-                        "tiktok",
-                        "youtube",
-                        "skillLevel",
-                        "teamLevel",
-                        "highSchool",
-                        "studio",
-                        "gpa",
-                        "gradYear",
-                        "trainingHours"
-                      ]
-                    }
-                  }
-                },
-                "required": [
-                  "events",
-                  "about",
-                  "name",
-                  "id",
-                  "createdAt",
-                  "updatedAt",
-                  "userId",
-                  "location",
-                  "instagram",
-                  "tiktok",
-                  "gpa",
-                  "division",
-                  "benefits",
-                  "website",
-                  "timeCommitment",
-                  "headCoach",
-                  "assistantCoach",
-                  "missionStatement",
-                  "whatWeDo",
-                  "size",
-                  "skills",
-                  "styles",
-                  "sports",
-                  "media",
-                  "interested"
-                ]
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ]
+          },
+          "tiktok": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "gpa": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "division": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "benefits": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "website": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timeCommitment": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "headCoach": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "assistantCoach": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "missionStatement": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "whatWeDo": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "size": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "videos": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "userId": {
+                  "type": "string"
+                },
+                "mediaId": {
+                  "type": "string"
+                },
+                "caption": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "createdAt",
+                "updatedAt",
+                "userId",
+                "mediaId",
+                "caption"
+              ]
+            }
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "slug",
+                "category"
+              ]
+            }
+          },
+          "sports": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "slug"
+              ]
+            }
+          },
+          "styles": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "slug"
+              ]
+            }
+          },
+          "interested": {
+            "type": "boolean"
+          },
+          "followers": {
+            "type": "number"
           }
         },
         "required": [
+          "events",
+          "about",
+          "images",
           "username",
+          "name",
           "id",
           "avatar",
-          "schoolProfile"
+          "createdAt",
+          "updatedAt",
+          "userId",
+          "location",
+          "instagram",
+          "tiktok",
+          "gpa",
+          "division",
+          "benefits",
+          "website",
+          "timeCommitment",
+          "headCoach",
+          "assistantCoach",
+          "missionStatement",
+          "whatWeDo",
+          "size",
+          "videos",
+          "skills",
+          "sports",
+          "styles",
+          "interested",
+          "followers"
         ]
       },
       "UsersCheckavailabilityResponse": {

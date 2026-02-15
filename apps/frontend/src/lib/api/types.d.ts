@@ -1018,8 +1018,8 @@ export interface paths {
                 query?: {
                     location?: ("OR" | "ID" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
                     division?: string | null;
-                    styles?: string | null;
                     sports?: string | null;
+                    styles?: string | null;
                     commonRecruiting?: (string | number | boolean) | null;
                     upcomingEvents?: (string | number | boolean) | null;
                     gpaRange?: Record<string, never>;
@@ -1407,7 +1407,7 @@ export interface components {
             message: string;
         };
         /** @enum {string} */
-        SchoolFilterParam: "name" | "location" | "division" | "styles" | "sports" | "commonRecruiting" | "upcomingEvents" | "gpaRange";
+        SchoolFilterParam: "name" | "location" | "division" | "sports" | "styles" | "commonRecruiting" | "upcomingEvents" | "gpaRange";
         ApplicationResponse: Record<string, never>;
         AuthSignupRequest: {
             phone?: string | null;
@@ -1460,14 +1460,10 @@ export interface components {
         BlogResponse: {
             id: string;
             createdAt: string;
-            updatedAt: string;
             title: string;
             description: string;
-            tags: string[] | null;
             thumbnail: string;
             slug: string;
-            content: string;
-            summary: string;
         }[];
         DancersRequest: {
             phoneNumber?: string | null;
@@ -1657,6 +1653,7 @@ export interface components {
             gpa: number | null;
             division: string | null;
             size: number | null;
+            followers: number;
         }[];
         SchoolsFiltersResponse: {
             /** @enum {string} */
@@ -1671,91 +1668,76 @@ export interface components {
         }[];
         SchoolsProfileResponse: Record<string, never>;
         SchoolsIdResponse: {
-            username: string;
-            id: string;
-            avatar: string | null;
-            schoolProfile: {
-                events: {
-                    /** @enum {string} */
-                    type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
-                    id: string;
-                    createdAt: string;
-                    updatedAt: string;
-                    location: string;
-                    title: string;
-                    description: string;
-                    website: string | null;
-                    schoolId: string;
-                    address: string | null;
-                    tags: string[] | null;
-                    cost: string | null;
-                    startDatetime: string;
-                    endDatetime: string;
-                    timezone: string;
-                }[];
-                about: string | null;
-                name: string;
+            events: {
+                /** @enum {string} */
+                type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                location: string;
+                title: string;
+                description: string;
+                website: string | null;
+                schoolId: string;
+                address: string | null;
+                tags: string[] | null;
+                cost: string | null;
+                startDatetime: string;
+                endDatetime: string;
+                timezone: string;
+            }[];
+            about: string | null;
+            images: {
                 id: string;
                 createdAt: string;
                 updatedAt: string;
                 userId: string;
-                location: string;
-                instagram: string | null;
-                tiktok: string | null;
-                gpa: number | null;
-                division: string | null;
-                benefits: string | null;
-                website: string | null;
-                timeCommitment: string | null;
-                headCoach: string | null;
-                assistantCoach: string | null;
-                missionStatement: string | null;
-                whatWeDo: string | null;
-                size: number | null;
-                skills: {
-                    name: string;
-                    slug: string;
-                    category: string;
-                }[];
-                styles: {
-                    name: string;
-                    slug: string;
-                }[];
-                sports: {
-                    name: string;
-                    slug: string;
-                }[];
-                media: {
-                    /** @enum {string} */
-                    type: "image" | "video";
-                    id: string;
-                    createdAt: string;
-                    updatedAt: string;
-                    schoolId: string;
-                    mediaId: string;
-                    caption: string | null;
-                }[];
-                interested: {
-                    id: string;
-                    createdAt: string;
-                    updatedAt: string;
-                    userId: string;
-                    birthday: string;
-                    location: string;
-                    biography: string | null;
-                    awards: string | null;
-                    instagram: string | null;
-                    tiktok: string | null;
-                    youtube: string | null;
-                    skillLevel: string | null;
-                    teamLevel: string | null;
-                    highSchool: string | null;
-                    studio: string | null;
-                    gpa: number | null;
-                    gradYear: number | null;
-                    trainingHours: number | null;
-                }[];
-            } | null;
+                caption: string | null;
+                mediaUrl: string;
+            }[];
+            username: string;
+            name: string;
+            id: string;
+            avatar: string | null;
+            createdAt: string;
+            updatedAt: string;
+            userId: string;
+            location: string;
+            instagram: string | null;
+            tiktok: string | null;
+            gpa: number | null;
+            division: string | null;
+            benefits: string | null;
+            website: string | null;
+            timeCommitment: string | null;
+            headCoach: string | null;
+            assistantCoach: string | null;
+            missionStatement: string | null;
+            whatWeDo: string | null;
+            size: number | null;
+            videos: {
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                userId: string;
+                mediaId: string;
+                caption: string | null;
+            }[];
+            skills: {
+                name: string;
+                slug: string;
+                category: string;
+            }[];
+            sports: {
+                name: string;
+                slug: string;
+            }[];
+            styles: {
+                name: string;
+                slug: string;
+            }[];
+            interested: boolean;
+            followers: number;
         };
         UsersCheckavailabilityResponse: {
             available: boolean;

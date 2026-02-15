@@ -23,8 +23,7 @@ export default class GetSchoolsController {
     const schools = await cache.getOrSet({
       key,
       factory: () => service.execute(payload, override),
-      ttl: "1h",
-      grace: "24h",
+      ttl: "10m",
     });
 
     return ctx.response.ok(schools);

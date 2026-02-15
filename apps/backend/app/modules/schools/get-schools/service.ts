@@ -1,5 +1,6 @@
 import { db } from "#database/connection";
 import { danceEvents } from "#database/schema/events";
+import { follows } from "#database/schema/profiles";
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { eq } from "drizzle-orm";
@@ -47,6 +48,8 @@ export class Service {
         extras: {
           events: (table) =>
             db.$count(danceEvents, eq(danceEvents.schoolId, table.id)),
+          followers: (table) =>
+            db.$count(follows, eq(follows.schoolId, table.id)),
         },
       })
     );

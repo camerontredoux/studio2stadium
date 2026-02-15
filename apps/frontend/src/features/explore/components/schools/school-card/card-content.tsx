@@ -1,11 +1,17 @@
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { DIVISIONS } from "@/utils/constants/divisions";
 import { US_STATES } from "@/utils/constants/states";
 import {
   CalendarIcon,
+  GraduationCapIcon,
   MapPinIcon,
   TargetIcon,
-  Users2Icon,
   VerifiedIcon,
 } from "lucide-react";
 import type { School } from "../../types/school";
@@ -43,10 +49,17 @@ export function CardContent({ school }: { school: School }) {
           </Badge>
         ) : null}
         {school.size && school.size > 0 ? (
-          <Badge variant="outline">
-            <Users2Icon className="size-3 shrink-0" />{" "}
-            {school.size.toLocaleString()}
-          </Badge>
+          <TooltipProvider delay={100}>
+            <Tooltip>
+              <TooltipTrigger render={<Badge variant="outline" />}>
+                <GraduationCapIcon className="size-3 shrink-0" />{" "}
+                {school.size.toLocaleString()}
+              </TooltipTrigger>
+              <TooltipContent>
+                {school.size.toLocaleString()} students
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         ) : null}
       </div>
     </div>
