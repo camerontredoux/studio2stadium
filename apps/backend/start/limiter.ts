@@ -12,12 +12,18 @@
 import limiter from "@adonisjs/limiter/services/main";
 import { type LimitersList } from "@adonisjs/limiter/types";
 
-export const throttle = (key: string, store: keyof LimitersList = "redis") =>
-  limiter.define(key, () => {
+export const throttle = (
+  key: string,
+  requests: number = 10,
+  store: keyof LimitersList = "redis"
+) =>
+  limiter.define("api", (ctx) => {
+    const userId = ctx.auth.user?.id;
     return limiter
-      .allowRequests(10)
+      .allowRequests(requests)
       .every("1 minute")
       .store(store)
+      .usingKey(`${key}:${userId}`)
       .limitExceeded((error) => {
         error.setMessage("Slow down! You're making too many requests.");
       });

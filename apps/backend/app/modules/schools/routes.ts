@@ -1,4 +1,5 @@
 import { middleware } from "#start/kernel";
+import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
 
 const GetFiltersController = () => import("./get-filters/contoller.ts");
@@ -38,7 +39,7 @@ router
         summary: "Follow a school",
         description: "Follows the school's profile using the school ID",
       })
-      .use([middleware.auth(), middleware.dancer()]);
+      .use([middleware.auth(), middleware.dancer(), throttle("follow")]);
 
     router
       .delete("/:id/follow", [UnfollowSchoolController])
@@ -46,7 +47,7 @@ router
         summary: "Unfollow a school",
         description: "Unfollows the school's profile using the school ID",
       })
-      .use([middleware.auth(), middleware.dancer()]);
+      .use([middleware.auth(), middleware.dancer(), throttle("unfollow")]);
 
     router
       .get("/:id/metadata", [GetMetadataController])
