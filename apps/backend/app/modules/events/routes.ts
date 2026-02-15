@@ -1,4 +1,5 @@
 import { middleware } from "#start/kernel";
+import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
 
 const GetEventByIdController = () => import("./get-event-by-id/controller.ts");
@@ -25,15 +26,21 @@ router
       description: "Returns details about a specific event",
     });
 
-    router.post("/:id/save", [SaveEventController]).openapi({
-      summary: "Save event",
-      description: "Saves an event for the current user",
-    });
+    router
+      .post("/:id/save", [SaveEventController])
+      .openapi({
+        summary: "Save event",
+        description: "Saves an event for the current user",
+      })
+      .use(throttle("save-event"));
 
-    router.delete("/:id/unsave", [UnsaveEventController]).openapi({
-      summary: "Unsave event",
-      description: "Unsaves an event for the current user",
-    });
+    router
+      .delete("/:id/unsave", [UnsaveEventController])
+      .openapi({
+        summary: "Unsave event",
+        description: "Unsaves an event for the current user",
+      })
+      .use(throttle("unsave-event"));
   })
   .use(middleware.auth())
   .prefix("events")

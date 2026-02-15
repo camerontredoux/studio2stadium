@@ -14,8 +14,7 @@ import {
   TicketIcon,
   UsersIcon,
 } from "lucide-react";
-import { SaveEvent } from "./attendance/save-event";
-import { UnsaveEvent } from "./attendance/unsave-event";
+import { SaveEventButton } from "./save-event";
 
 type EventDetail = ApiSchemas["EventsIdResponse"];
 
@@ -86,11 +85,7 @@ export function EventHero({ event }: EventHeroProps) {
       </FramePanel>
 
       <FrameFooter className="flex w-fit items-center gap-2 px-4 py-3 max-sm:w-full sm:px-5">
-        {event.saved ? (
-          <UnsaveEvent size="sm" eventId={event.id} />
-        ) : (
-          <SaveEvent size="sm" eventId={event.id} />
-        )}
+        <SaveEventButton size="sm" id={event.id} isSaved={event.saved} />
         {event.website && (
           <Button
             size="sm"
