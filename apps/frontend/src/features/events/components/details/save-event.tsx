@@ -48,6 +48,7 @@ export function SaveEventButton({
       disabled={isPending || !!retryAfter}
       size={size}
       onClick={handleClick}
+      className="flex-1 gap-1.5"
     >
       <BookmarkIcon className={isSaved ? "fill-current" : undefined} />
       {retryAfter ? `Retry in ${retryAfter}s` : isSaved ? "Unsave" : "Save"}
