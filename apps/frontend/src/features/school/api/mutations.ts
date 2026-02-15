@@ -1,4 +1,5 @@
 import { $api, type ApiSchemas } from "@/lib/api/client";
+import { queries } from "@/shared/api/queries";
 import { useQueryClient } from "@tanstack/react-query";
 import { schoolQueries } from "./queries";
 
@@ -7,21 +8,30 @@ type Metadata = ApiSchemas["SchoolsIdMetadataResponse"];
 export function useFollowSchool(id: string) {
   const queryClient = useQueryClient();
 
+  const followingQueryKey = queries.following().queryKey;
+  const metadataQueryKey = schoolQueries.metadata(id).queryKey;
+
   return $api.useMutation("post", "/schools/{id}/follow", {
     meta: {
-      invalidateQueries: [schoolQueries.metadata(id).queryKey],
+      invalidateQueries: [metadataQueryKey],
     },
     onMutate: async () => {
       await queryClient.cancelQueries({
-        queryKey: schoolQueries.metadata(id).queryKey,
+        queryKey: metadataQueryKey,
+      });
+      await queryClient.cancelQueries({
+        queryKey: followingQueryKey,
       });
 
-      const previousData = queryClient.getQueryData<Metadata>(
-        schoolQueries.metadata(id).queryKey,
+      const previousMetadata = queryClient.getQueryData<Metadata>(
+        metadataQueryKey,
+      );
+      const previousFollowing = queryClient.getQueryData<string[]>(
+        followingQueryKey,
       );
 
       queryClient.setQueryData<Metadata>(
-        schoolQueries.metadata(id).queryKey,
+        metadataQueryKey,
         (old) => {
           if (!old) return;
           return {
@@ -31,15 +41,31 @@ export function useFollowSchool(id: string) {
           };
         },
       );
+      queryClient.setQueryData<string[]>(
+        followingQueryKey,
+        (old) => {
+          if (!old) return;
+          return [...old, id];
+        },
+      );
 
-      return { previousData };
+      return { previousMetadata, previousFollowing };
     },
     onError: (_err, _variables, context) => {
-      const result = context as { previousData: Metadata | undefined };
-      if (result?.previousData) {
+      const result = context as {
+        previousMetadata: Metadata | undefined;
+        previousFollowing: string[] | undefined;
+      };
+      if (result?.previousMetadata) {
         queryClient.setQueryData<Metadata>(
-          schoolQueries.metadata(id).queryKey,
-          result.previousData,
+          metadataQueryKey,
+          result.previousMetadata,
+        );
+      }
+      if (result?.previousFollowing) {
+        queryClient.setQueryData<string[]>(
+          followingQueryKey,
+          result.previousFollowing,
         );
       }
     },
@@ -49,21 +75,30 @@ export function useFollowSchool(id: string) {
 export function useUnfollowSchool(id: string) {
   const queryClient = useQueryClient();
 
+  const followingQueryKey = queries.following().queryKey;
+  const metadataQueryKey = schoolQueries.metadata(id).queryKey;
+
   return $api.useMutation("delete", "/schools/{id}/follow", {
     meta: {
-      invalidateQueries: [schoolQueries.metadata(id).queryKey],
+      invalidateQueries: [metadataQueryKey],
     },
     onMutate: async () => {
       await queryClient.cancelQueries({
-        queryKey: schoolQueries.metadata(id).queryKey,
+        queryKey: metadataQueryKey,
+      });
+      await queryClient.cancelQueries({
+        queryKey: followingQueryKey,
       });
 
-      const previousData = queryClient.getQueryData<Metadata>(
-        schoolQueries.metadata(id).queryKey,
+      const previousMetadata = queryClient.getQueryData<Metadata>(
+        metadataQueryKey,
+      );
+      const previousFollowing = queryClient.getQueryData<string[]>(
+        followingQueryKey,
       );
 
       queryClient.setQueryData<Metadata>(
-        schoolQueries.metadata(id).queryKey,
+        metadataQueryKey,
         (old) => {
           if (!old) return;
           return {
@@ -74,14 +109,31 @@ export function useUnfollowSchool(id: string) {
         },
       );
 
-      return { previousData };
+      queryClient.setQueryData<string[]>(
+        followingQueryKey,
+        (old) => {
+          if (!old) return;
+          return old.filter((followingId) => followingId !== id);
+        },
+      );
+
+      return { previousMetadata, previousFollowing };
     },
     onError: (_err, _variables, context) => {
-      const result = context as { previousData: Metadata | undefined };
-      if (result?.previousData) {
+      const result = context as {
+        previousMetadata: Metadata | undefined;
+        previousFollowing: string[] | undefined;
+      };
+      if (result?.previousMetadata) {
         queryClient.setQueryData<Metadata>(
-          schoolQueries.metadata(id).queryKey,
-          result.previousData,
+          metadataQueryKey,
+          result.previousMetadata,
+        );
+      }
+      if (result?.previousFollowing) {
+        queryClient.setQueryData<string[]>(
+          followingQueryKey,
+          result.previousFollowing,
         );
       }
     },

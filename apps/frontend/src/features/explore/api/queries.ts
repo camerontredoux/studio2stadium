@@ -2,8 +2,7 @@ import type { FilterValue } from "@/components/shared/filters/types";
 import { $api } from "@/lib/api/client";
 import { keepPreviousData } from "@tanstack/react-query";
 
-export const queries = {
-  all: () => ["explore"],
+export const exploreQueries = {
   filters: () =>
     $api.queryOptions(
       "get",

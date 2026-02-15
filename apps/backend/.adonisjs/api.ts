@@ -55,9 +55,9 @@ type DancersFiltersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/get-filters/controller.ts').default['handle'], false>
 }
-type DancersMePortfolioGetHead = {
+type DancersMeFollowingGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/me/get-portfolio/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/me/get-following/controller.ts').default['handle'], false>
 }
 type DancersMePortfolioPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/me/update-portfolio/validator.ts')['validator']>>
@@ -107,14 +107,6 @@ type SchoolsGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-schools/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/schools/get-schools/controller.ts').default['handle'], true>
 }
-type SchoolsProfileGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/schools/me/get-profile/controller.ts').default['handle'], false>
-}
-type SchoolsProfilePatch = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/me/update-profile/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/schools/me/update-profile/controller.ts').default['handle'], true>
-}
 type SchoolsIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/schools/get-school/controller.ts').default['handle'], true>
@@ -128,8 +120,8 @@ type SchoolsIdFollowDelete = {
   response: MakeTuyauResponse<import('../app/modules/schools/unfollow/controller.ts').default['handle'], true>
 }
 type SchoolsIdMetadataGetHead = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/metadata/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/schools/metadata/controller.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-metadata/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/get-metadata/controller.ts').default['handle'], true>
 }
 type UsersCheckavailabilityGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/check-availability/validator.ts')['validator']>>
@@ -208,11 +200,15 @@ export interface ApiDefinition {
       '$head': DancersFiltersGetHead;
     };
     'me': {
+      'following': {
+        '$url': {
+        };
+        '$get': DancersMeFollowingGetHead;
+        '$head': DancersMeFollowingGetHead;
+      };
       'portfolio': {
         '$url': {
         };
-        '$get': DancersMePortfolioGetHead;
-        '$head': DancersMePortfolioGetHead;
         '$patch': DancersMePortfolioPatch;
       };
     };
@@ -280,13 +276,6 @@ export interface ApiDefinition {
     };
     '$get': SchoolsGetHead;
     '$head': SchoolsGetHead;
-    'profile': {
-      '$url': {
-      };
-      '$get': SchoolsProfileGetHead;
-      '$head': SchoolsProfileGetHead;
-      '$patch': SchoolsProfilePatch;
-    };
     ':username': {
       '$url': {
       };

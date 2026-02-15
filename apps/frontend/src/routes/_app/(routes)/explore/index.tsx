@@ -1,6 +1,7 @@
-import { queries } from "@/features/explore/api/queries";
+import { exploreQueries } from "@/features/explore/api/queries";
 import type { SearchFilter } from "@/features/explore/components/filters/types";
 import { ExplorePage } from "@/features/explore/page";
+import { queries } from "@/shared/api/queries";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/explore/")({
@@ -8,8 +9,9 @@ export const Route = createFileRoute("/_app/(routes)/explore/")({
   loaderDeps: ({ search }) => ({ search }),
   loader: ({ context: { queryClient }, deps: { search } }) => {
     const { name: _, ...filters } = search;
-    queryClient.ensureQueryData(queries.filters());
-    queryClient.ensureQueryData(queries.schools(filters));
+    queryClient.ensureQueryData(exploreQueries.filters());
+    queryClient.ensureQueryData(exploreQueries.schools(filters));
+    queryClient.ensureQueryData(queries.following());
   },
   component: ExplorePage,
 });

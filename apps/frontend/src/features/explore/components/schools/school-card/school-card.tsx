@@ -2,14 +2,15 @@ import { Link } from "@tanstack/react-router";
 import type { School } from "../../types/school";
 import { CardAvatar } from "./card-avatar";
 import { CardBackground } from "./card-background";
-import { CardButtons } from "./card-buttons";
 import { CardContent } from "./card-content";
+import { CardInfo } from "./card-info";
 
 interface SchoolCardProps {
   school: School;
+  isFollowing?: boolean;
 }
 
-export function SchoolCard({ school }: SchoolCardProps) {
+export function SchoolCard({ school, isFollowing }: SchoolCardProps) {
   return (
     <Link
       to={"/explore/$username"}
@@ -22,7 +23,7 @@ export function SchoolCard({ school }: SchoolCardProps) {
           <CardAvatar user={school.user} />
           <CardContent school={school} />
         </div>
-        <CardButtons username={school.user!.username} />
+        <CardInfo isFollowing={isFollowing} />
       </div>
     </Link>
   );

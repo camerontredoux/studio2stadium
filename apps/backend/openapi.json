@@ -343,20 +343,29 @@
         "description": "Returns the filters to use when searching for dancers"
       }
     },
-    "/dancers/me/portfolio": {
+    "/dancers/me/following": {
       "get": {
         "parameters": [],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersMeFollowingResponse"
+                }
+              }
+            }
           }
         },
         "tags": [
           "Dancers"
         ],
-        "summary": "Get my portfolio",
-        "description": "Returns the authenticated dancer's portfolio"
-      },
+        "summary": "Get following list",
+        "description": "Returns the list of school's IDs I'm following"
+      }
+    },
+    "/dancers/me/portfolio": {
       "patch": {
         "responses": {
           "204": {
@@ -889,43 +898,6 @@
         "description": "Returns the filters to use when searching for schools"
       }
     },
-    "/schools/profile": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        },
-        "tags": [
-          "Schools"
-        ],
-        "summary": "Get school portfolio",
-        "description": "Returns the authenticated school's program information"
-      },
-      "patch": {
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Schools"
-        ],
-        "summary": "Update school portfolio",
-        "description": "Updates the authenticated school's program information"
-      }
-    },
     "/schools/{username}": {
       "get": {
         "parameters": [
@@ -981,7 +953,14 @@
         ],
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsIdFollowResponse"
+                }
+              }
+            }
           },
           "204": {
             "description": "No Content"
@@ -1590,6 +1569,12 @@
             "label",
             "paramKey"
           ]
+        }
+      },
+      "DancersMeFollowingResponse": {
+        "type": "array",
+        "items": {
+          "type": "string"
         }
       },
       "DancersIdResponse": {
@@ -2988,6 +2973,17 @@
           "skills",
           "sports",
           "styles"
+        ]
+      },
+      "SchoolsIdFollowResponse": {
+        "type": "object",
+        "properties": {
+          "following": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "following"
         ]
       },
       "SchoolsIdMetadataResponse": {

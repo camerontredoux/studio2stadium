@@ -5,7 +5,7 @@ import type { ApiSchemas } from "@/lib/api/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useTransition } from "react";
-import { queries } from "../../api/queries";
+import { exploreQueries } from "../../api/queries";
 
 type Filter = ApiSchemas["SchoolsFiltersResponse"][number];
 
@@ -36,7 +36,7 @@ function ConnectedFilterItem({ filter }: { filter: Filter }) {
 }
 
 export function FilterList() {
-  const { data } = useSuspenseQuery(queries.filters());
+  const { data } = useSuspenseQuery(exploreQueries.filters());
 
   return (
     <Accordion defaultValue={[data[0].id]}>

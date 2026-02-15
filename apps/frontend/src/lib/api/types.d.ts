@@ -518,7 +518,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/dancers/me/portfolio": {
+    "/dancers/me/following": {
         parameters: {
             query?: never;
             header?: never;
@@ -526,8 +526,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get my portfolio
-         * @description Returns the authenticated dancer's portfolio
+         * Get following list
+         * @description Returns the list of school's IDs I'm following
          */
         get: {
             parameters: {
@@ -543,10 +543,28 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["DancersMeFollowingResponse"];
+                    };
                 };
             };
         };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/me/portfolio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
         put?: never;
         post?: never;
         delete?: never;
@@ -1089,73 +1107,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/schools/profile": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get school portfolio
-         * @description Returns the authenticated school's program information
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update school portfolio
-         * @description Updates the authenticated school's program information
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
     "/schools/{username}": {
         parameters: {
             query?: never;
@@ -1235,7 +1186,9 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["SchoolsIdFollowResponse"];
+                    };
                 };
                 /** @description No Content */
                 204: {
@@ -1610,6 +1563,7 @@ export interface components {
             label: string;
             paramKey: string;
         }[];
+        DancersMeFollowingResponse: string[];
         DancersIdResponse: {
             username: string;
             id: string;
@@ -1856,6 +1810,9 @@ export interface components {
                 name: string;
                 slug: string;
             }[];
+        };
+        SchoolsIdFollowResponse: {
+            following: boolean;
         };
         SchoolsIdMetadataResponse: {
             following: boolean;

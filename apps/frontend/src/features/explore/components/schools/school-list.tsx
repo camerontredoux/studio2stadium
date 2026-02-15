@@ -1,18 +1,21 @@
 import { Spinner } from "@/components/ui/spinner";
-import { useQuery } from "@tanstack/react-query";
+import { queries } from "@/shared/api/queries";
+import { useQueries } from "@tanstack/react-query";
 import { useElementScrollRestoration, useSearch } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useDeferredValue, useRef } from "react";
-import { queries } from "../../api/queries";
+import { exploreQueries } from "../../api/queries";
 import { SchoolCard } from "./school-card/school-card";
 import { SchoolEmpty } from "./school-empty";
 import { SchoolListSkeleton } from "./school-skeleton";
 
 export function SchoolList() {
   const { name, ...search } = useSearch({ from: "/_app/(routes)/explore/" });
-  const { data, isPending, isPlaceholderData } = useQuery(
-    queries.schools(search),
-  );
+
+  const [{ data, isPending, isPlaceholderData }, { data: following }] =
+    useQueries({
+      queries: [exploreQueries.schools(search), queries.following()],
+    });
 
   const deferredName = useDeferredValue(name as string | undefined);
 
@@ -74,6 +77,10 @@ export function SchoolList() {
           {virtualItems.map((row) => {
             const school = rows[row.index];
 
+            const isFollowing = following?.some(
+              (following) => following === school.id,
+            );
+
             return (
               <div
                 className={
@@ -85,7 +92,7 @@ export function SchoolList() {
                 data-index={row.index}
                 ref={rowVirtualizer.measureElement}
               >
-                <SchoolCard school={school} />
+                <SchoolCard school={school} isFollowing={isFollowing} />
               </div>
             );
           })}

@@ -4,7 +4,7 @@ import router from "@adonisjs/core/services/router";
 const GetDancerController = () => import("./get-dancer/controller.ts");
 const GetFiltersController = () => import("./get-filters/controller.ts");
 const CreateDancerController = () => import("./create-dancer/controller.ts");
-const GetPortfolioController = () => import("./me/get-portfolio/controller.ts");
+const GetFollowingController = () => import("./me/get-following/controller.ts");
 const UpdatePortfolioController = () =>
   import("./me/update-portfolio/controller.ts");
 
@@ -26,9 +26,9 @@ router
 
     router
       .group(() => {
-        router.get("portfolio", [GetPortfolioController]).openapi({
-          summary: "Get my portfolio",
-          description: "Returns the authenticated dancer's portfolio",
+        router.get("following", [GetFollowingController]).openapi({
+          summary: "Get following list",
+          description: "Returns the list of school's IDs I'm following",
         });
         router.patch("portfolio", [UpdatePortfolioController]).openapi({
           summary: "Update my portfolio",
