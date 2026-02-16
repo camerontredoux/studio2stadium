@@ -653,6 +653,180 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get feed
+         * @description Returns the feed for the current user
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FeedResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["HealthResponse"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["HealthResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List tap in videos
+         * @description Returns a list of all tap in videos with their category
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LibraryResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library/{category}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List videos by category
+         * @description Returns a list of videos by category, paginated with 6 results at a time
+         */
+        get: {
+            parameters: {
+                query: {
+                    page: string | number;
+                };
+                header?: never;
+                path: {
+                    category: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LibraryIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/events": {
         parameters: {
             query?: never;
@@ -872,141 +1046,6 @@ export interface paths {
                 };
             };
         };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["HealthResponse"];
-                    };
-                };
-                /** @description Service Unavailable */
-                503: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["HealthResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/library": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List tap in videos
-         * @description Returns a list of all tap in videos with their category
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["LibraryResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/library/{category}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List videos by category
-         * @description Returns a list of videos by category, paginated with 6 results at a time
-         */
-        get: {
-            parameters: {
-                query: {
-                    page: string | number;
-                };
-                header?: never;
-                path: {
-                    category: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["LibraryIdResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1328,13 +1367,6 @@ export interface paths {
                     content: {
                         "application/json": components["schemas"]["SchoolsIdInterestResponse"];
                     };
-                };
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
                 };
                 /** @description Unprocessable Entity */
                 422: {
@@ -1663,6 +1695,67 @@ export interface components {
                 }[];
             } | null;
         };
+        FeedResponse: {
+            user: {
+                username: string;
+                firstName: string;
+                lastName: string;
+                avatar: string | null;
+                schoolProfile: {
+                    name: string;
+                } | null;
+            };
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            userId: string;
+            contentId: string;
+            /** @enum {string} */
+            contentType: "profile" | "image" | "video" | "reference" | "achievement";
+            payload: Record<string, never>;
+            content: Record<string, never>;
+        }[];
+        HealthResponse: {
+            /** @enum {string} */
+            status: "error" | "ok" | "warning";
+            isHealthy: boolean;
+            finishedAt: string;
+            debugInfo: {
+                pid: number;
+                ppid?: number;
+                uptime: number;
+                version: string;
+                platform: string;
+            };
+            checks: {
+                name: string;
+                meta?: Record<string, never>;
+                /** @enum {string} */
+                status: "error" | "ok" | "warning";
+                message: string;
+                finishedAt: string;
+                isCached: boolean;
+            }[];
+        };
+        LibraryResponse: {
+            category: string;
+            videos: {
+                url: string;
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                title: string;
+                category: string;
+            }[];
+        }[];
+        LibraryIdResponse: {
+            url: string;
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            title: string;
+            category: string;
+        }[];
         EventsResponse: {
             events: {
                 /** @enum {string} */
@@ -1731,47 +1824,6 @@ export interface components {
             endDate: string;
             eventAttendees: number;
         };
-        HealthResponse: {
-            /** @enum {string} */
-            status: "error" | "ok" | "warning";
-            isHealthy: boolean;
-            finishedAt: string;
-            debugInfo: {
-                pid: number;
-                ppid?: number;
-                uptime: number;
-                version: string;
-                platform: string;
-            };
-            checks: {
-                name: string;
-                meta?: Record<string, never>;
-                /** @enum {string} */
-                status: "error" | "ok" | "warning";
-                message: string;
-                finishedAt: string;
-                isCached: boolean;
-            }[];
-        };
-        LibraryResponse: {
-            category: string;
-            videos: {
-                url: string;
-                id: string;
-                createdAt: string;
-                updatedAt: string;
-                title: string;
-                category: string;
-            }[];
-        }[];
-        LibraryIdResponse: {
-            url: string;
-            id: string;
-            createdAt: string;
-            updatedAt: string;
-            title: string;
-            category: string;
-        }[];
         SchoolsResponse: {
             user: {
                 username: string;
@@ -1869,7 +1921,7 @@ export interface components {
             }[];
         };
         SchoolsIdFollowResponse: {
-            following: boolean;
+            created: boolean;
         };
         SchoolsIdMetadataResponse: {
             following: boolean;
@@ -1877,7 +1929,7 @@ export interface components {
             followers: number;
         };
         SchoolsIdInterestResponse: {
-            interested: boolean;
+            created: boolean;
         };
         UsersCheckavailabilityResponse: {
             available: boolean;

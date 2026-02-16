@@ -1,43 +1,45 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { dateToRelativeTime } from "@/utils/date";
+import { Link } from "@tanstack/react-router";
 import { HeartIcon, MessageCircleIcon, VerifiedIcon } from "lucide-react";
+import { FeedContent } from "./content/feed-content";
+import type { FeedItem } from "./types";
 
-export function FeedItem() {
+interface FeedItemProps {
+  item: FeedItem;
+}
+
+export function FeedItem({ item }: FeedItemProps) {
   return (
-    <div className="overflow-clip [contain-intrinsic-block-size:auto_450px] [content-visibility:auto] sm:rounded-xl sm:border">
-      <div className="relative aspect-video">
-        <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent" />
-        <img
-          src="https://images.unsplash.com/photo-1724436781032-c1645c5783ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xsZWdlJTIwY2FtcHVzJTIwYnVpbGRpbmd8ZW58MXx8fHwxNzYwNTQ4OTIwfDA&ixlib=rb-4.1.0&q=80&w=1080"
-          alt="Feed Item"
-          className="h-full w-full object-cover"
-        />
-      </div>
-      <div className="flex flex-col gap-2 p-2 sm:p-4">
+    <div className="overflow-clip sm:rounded-2xl sm:border">
+      <FeedContent item={item} />
+      <div className="flex flex-col py-2 sm:gap-2 sm:p-4">
         <div className="flex items-start gap-2">
-          <Avatar className="size-10 rounded-xl sm:size-11">
-            <AvatarImage src="https://github.com/camerontredoux.png" />
-            <AvatarFallback>CN</AvatarFallback>
+          <Avatar className="size-10 rounded-lg sm:size-12 sm:rounded-xl">
+            <AvatarImage src={item.user?.avatar ?? ""} />
+            <AvatarFallback>
+              {item.user?.username?.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <h3 className="flex items-center gap-1 text-sm font-semibold sm:text-base">
-              University of Washington{" "}
+            <Link
+              className="flex w-fit items-center gap-1 text-sm leading-0 font-semibold hover:opacity-90 sm:text-base"
+              to={`/explore/$username`}
+              params={{ username: item.user.username }}
+            >
+              {item.user?.schoolProfile?.name}{" "}
               <VerifiedIcon className="text-brand size-4" />
-            </h3>
+            </Link>
             <p className="text-muted-foreground flex items-center gap-1 text-xs sm:text-sm">
-              posted a video <span>•</span>{" "}
-              <span className="text-xs font-medium sm:text-sm">
-                2 hours ago
-              </span>
+              posted {item.contentType} <span>•</span>{" "}
+              {dateToRelativeTime(item.createdAt)}
             </p>
           </div>
         </div>
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 text-sm sm:text-base">
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Est modi
-            cumque tempore. Ipsa suscipit quidem quisquam tenetur, maxime
-            explicabo. Harum minus adipisci consectetur modi incidunt eaque
-            laudantium magnam omnis assumenda.
+            {item.content?.caption}
           </div>
           <div className="flex items-center gap-2 border-t pt-2">
             <Button

@@ -430,6 +430,129 @@
         "description": "Returns the dancer's public profile"
       }
     },
+    "/feed": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Feed"
+        ],
+        "summary": "Get feed",
+        "description": "Returns the feed for the current user"
+      }
+    },
+    "/health": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/library": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Video Library"
+        ],
+        "summary": "List tap in videos",
+        "description": "Returns a list of all tap in videos with their category"
+      }
+    },
+    "/library/{category}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": [
+                "string",
+                "number"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryIdResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Video Library"
+        ],
+        "summary": "List videos by category",
+        "description": "Returns a list of videos by category, paginated with 6 results at a time"
+      }
+    },
     "/events": {
       "get": {
         "parameters": [],
@@ -581,107 +704,6 @@
         ],
         "summary": "Unsave event",
         "description": "Unsaves an event for the current user"
-      }
-    },
-    "/health": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HealthResponse"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Service Unavailable",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HealthResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/library": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LibraryResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Video Library"
-        ],
-        "summary": "List tap in videos",
-        "description": "Returns a list of all tap in videos with their category"
-      }
-    },
-    "/library/{category}": {
-      "get": {
-        "parameters": [
-          {
-            "name": "category",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": [
-                "string",
-                "number"
-              ]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LibraryIdResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Video Library"
-        ],
-        "summary": "List videos by category",
-        "description": "Returns a list of videos by category, paginated with 6 results at a time"
       }
     },
     "/schools": {
@@ -1078,9 +1100,6 @@
                 }
               }
             }
-          },
-          "204": {
-            "description": "No Content"
           },
           "422": {
             "description": "Unprocessable Entity",
@@ -1870,6 +1889,281 @@
           "dancerProfile"
         ]
       },
+      "FeedResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "user": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string"
+                },
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "avatar": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "schoolProfile": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "username",
+                "firstName",
+                "lastName",
+                "avatar",
+                "schoolProfile"
+              ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "updatedAt": {
+              "type": "string"
+            },
+            "userId": {
+              "type": "string"
+            },
+            "contentId": {
+              "type": "string"
+            },
+            "contentType": {
+              "type": "string",
+              "enum": [
+                "profile",
+                "image",
+                "video",
+                "reference",
+                "achievement"
+              ]
+            },
+            "payload": {
+              "type": "object",
+              "properties": {}
+            },
+            "content": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "required": [
+            "user",
+            "id",
+            "createdAt",
+            "updatedAt",
+            "userId",
+            "contentId",
+            "contentType",
+            "payload",
+            "content"
+          ]
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "error",
+              "ok",
+              "warning"
+            ]
+          },
+          "isHealthy": {
+            "type": "boolean"
+          },
+          "finishedAt": {
+            "type": "string"
+          },
+          "debugInfo": {
+            "type": "object",
+            "properties": {
+              "pid": {
+                "type": "number"
+              },
+              "ppid": {
+                "type": "number"
+              },
+              "uptime": {
+                "type": "number"
+              },
+              "version": {
+                "type": "string"
+              },
+              "platform": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "pid",
+              "uptime",
+              "version",
+              "platform"
+            ]
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "error",
+                    "ok",
+                    "warning"
+                  ]
+                },
+                "message": {
+                  "type": "string"
+                },
+                "finishedAt": {
+                  "type": "string"
+                },
+                "isCached": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "name",
+                "status",
+                "message",
+                "finishedAt",
+                "isCached"
+              ]
+            }
+          }
+        },
+        "required": [
+          "status",
+          "isHealthy",
+          "finishedAt",
+          "debugInfo",
+          "checks"
+        ]
+      },
+      "LibraryResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string"
+            },
+            "videos": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "createdAt": {
+                    "type": "string"
+                  },
+                  "updatedAt": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "category": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "url",
+                  "id",
+                  "createdAt",
+                  "updatedAt",
+                  "title",
+                  "category"
+                ]
+              }
+            }
+          },
+          "required": [
+            "category",
+            "videos"
+          ]
+        }
+      },
+      "LibraryIdResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "updatedAt": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "category": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url",
+            "id",
+            "createdAt",
+            "updatedAt",
+            "title",
+            "category"
+          ]
+        }
+      },
       "EventsResponse": {
         "type": "array",
         "items": {
@@ -2241,180 +2535,6 @@
           "endDate",
           "eventAttendees"
         ]
-      },
-      "HealthResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": [
-              "error",
-              "ok",
-              "warning"
-            ]
-          },
-          "isHealthy": {
-            "type": "boolean"
-          },
-          "finishedAt": {
-            "type": "string"
-          },
-          "debugInfo": {
-            "type": "object",
-            "properties": {
-              "pid": {
-                "type": "number"
-              },
-              "ppid": {
-                "type": "number"
-              },
-              "uptime": {
-                "type": "number"
-              },
-              "version": {
-                "type": "string"
-              },
-              "platform": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "pid",
-              "uptime",
-              "version",
-              "platform"
-            ]
-          },
-          "checks": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "meta": {
-                  "type": "object",
-                  "properties": {}
-                },
-                "status": {
-                  "type": "string",
-                  "enum": [
-                    "error",
-                    "ok",
-                    "warning"
-                  ]
-                },
-                "message": {
-                  "type": "string"
-                },
-                "finishedAt": {
-                  "type": "string"
-                },
-                "isCached": {
-                  "type": "boolean"
-                }
-              },
-              "required": [
-                "name",
-                "status",
-                "message",
-                "finishedAt",
-                "isCached"
-              ]
-            }
-          }
-        },
-        "required": [
-          "status",
-          "isHealthy",
-          "finishedAt",
-          "debugInfo",
-          "checks"
-        ]
-      },
-      "LibraryResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "category": {
-              "type": "string"
-            },
-            "videos": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "url": {
-                    "type": "string"
-                  },
-                  "id": {
-                    "type": "string"
-                  },
-                  "createdAt": {
-                    "type": "string"
-                  },
-                  "updatedAt": {
-                    "type": "string"
-                  },
-                  "title": {
-                    "type": "string"
-                  },
-                  "category": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "url",
-                  "id",
-                  "createdAt",
-                  "updatedAt",
-                  "title",
-                  "category"
-                ]
-              }
-            }
-          },
-          "required": [
-            "category",
-            "videos"
-          ]
-        }
-      },
-      "LibraryIdResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "url": {
-              "type": "string"
-            },
-            "id": {
-              "type": "string"
-            },
-            "createdAt": {
-              "type": "string"
-            },
-            "updatedAt": {
-              "type": "string"
-            },
-            "title": {
-              "type": "string"
-            },
-            "category": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "url",
-            "id",
-            "createdAt",
-            "updatedAt",
-            "title",
-            "category"
-          ]
-        }
       },
       "SchoolsResponse": {
         "type": "array",
@@ -3022,12 +3142,12 @@
       "SchoolsIdFollowResponse": {
         "type": "object",
         "properties": {
-          "following": {
+          "created": {
             "type": "boolean"
           }
         },
         "required": [
-          "following"
+          "created"
         ]
       },
       "SchoolsIdMetadataResponse": {
@@ -3052,12 +3172,12 @@
       "SchoolsIdInterestResponse": {
         "type": "object",
         "properties": {
-          "interested": {
+          "created": {
             "type": "boolean"
           }
         },
         "required": [
-          "interested"
+          "created"
         ]
       },
       "UsersCheckavailabilityResponse": {

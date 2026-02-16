@@ -3,6 +3,7 @@ import "#modules/auth/routes";
 import "#modules/blog/routes";
 import "#modules/dancers/routes";
 import "#modules/events/routes";
+import "#modules/feed/routes";
 import "#modules/health/routes";
 import "#modules/library/routes";
 import "#modules/schools/routes";

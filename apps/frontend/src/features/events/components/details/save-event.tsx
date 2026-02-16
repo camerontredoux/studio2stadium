@@ -44,7 +44,7 @@ export function SaveEventButton({
 
   return (
     <Button
-      variant={isSaved ? "destructive-outline" : "outline"}
+      variant={isSaved ? "destructive-outline" : "default"}
       disabled={isPending || !!retryAfter}
       size={size}
       onClick={handleClick}

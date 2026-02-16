@@ -2,7 +2,7 @@ import { SidebarLayout } from "@/components/layouts/sidebar-layout";
 import { FeedSidebar } from "@/features/feed/components/sidebar/sidebar";
 
 import { useSession } from "@/lib/session";
-import { FeedItem } from "./components/feed-item";
+import { Feed } from "./components/feed";
 import { ProgramSpotlight } from "./components/program-spotlight";
 
 export function FeedPage() {
@@ -24,11 +24,7 @@ export function FeedPage() {
 
         <ProgramSpotlight />
 
-        <div className="space-y-2 overflow-clip rounded-t-xl rounded-b-xl border sm:border-none lg:space-y-4">
-          {Array.from({ length: 10 }).map((_, idx) => (
-            <FeedItem key={idx} />
-          ))}
-        </div>
+        <Feed />
       </div>
     </SidebarLayout>
   );
