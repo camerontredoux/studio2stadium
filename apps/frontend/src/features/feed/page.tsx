@@ -17,7 +17,7 @@ export function FeedPage() {
       <div className="mobile:pb-14 flex flex-col gap-2 lg:gap-4">
         <div className="hidden lg:block">
           <h1 className="text-2xl leading-none font-bold tracking-tight">
-            Welcome back, {session.username}!
+            Welcome back, {session.firstName}!
           </h1>
           <p className="text-muted-foreground text-sm">
             Here's your latest personalized content

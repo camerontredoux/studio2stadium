@@ -33,7 +33,7 @@ router
           summary: "Get following list",
           description: "Returns the list of school's IDs I'm following",
         });
-        router.get("following-ids", [GetFollowingIdsController]).openapi({
+        router.get("following/ids", [GetFollowingIdsController]).openapi({
           summary: "Get following list IDs",
           description: "Returns the list of school's IDs I'm following",
         });

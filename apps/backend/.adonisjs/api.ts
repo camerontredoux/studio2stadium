@@ -59,7 +59,7 @@ type DancersMeFollowingGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/me/get-following/controller.ts').default['handle'], false>
 }
-type DancersMeFollowingidsGetHead = {
+type DancersMeFollowingIdsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/me/get-following-ids/controller.ts').default['handle'], false>
 }
@@ -94,6 +94,10 @@ type LibraryIdGetHead = {
 type EventsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/events/get-events/controller.ts').default['handle'], false>
+}
+type EventsUpcomingGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/events/get-upcoming-events/controller.ts').default['handle'], false>
 }
 type EventsGlobalGetHead = {
   request: unknown
@@ -229,12 +233,12 @@ export interface ApiDefinition {
         };
         '$get': DancersMeFollowingGetHead;
         '$head': DancersMeFollowingGetHead;
-      };
-      'following-ids': {
-        '$url': {
+        'ids': {
+          '$url': {
+          };
+          '$get': DancersMeFollowingIdsGetHead;
+          '$head': DancersMeFollowingIdsGetHead;
         };
-        '$get': DancersMeFollowingidsGetHead;
-        '$head': DancersMeFollowingidsGetHead;
       };
       'portfolio': {
         '$url': {
@@ -284,6 +288,12 @@ export interface ApiDefinition {
     };
     '$get': EventsGetHead;
     '$head': EventsGetHead;
+    'upcoming': {
+      '$url': {
+      };
+      '$get': EventsUpcomingGetHead;
+      '$head': EventsUpcomingGetHead;
+    };
     'global': {
       '$url': {
       };

@@ -8,12 +8,19 @@ const GetGlobalEventsController = () =>
   import("./get-global-events/controller.ts");
 const SaveEventController = () => import("./save-event/controller.ts");
 const UnsaveEventController = () => import("./unsave-event/controller.ts");
+const GetUpcomingEventsController = () =>
+  import("./get-upcoming-events/controller.ts");
 
 router
   .group(() => {
     router.get("/", [GetEventsController]).openapi({
       summary: "Get all events",
       description: "Returns a list of all upcoming events",
+    });
+
+    router.get("/upcoming", [GetUpcomingEventsController]).openapi({
+      summary: "Get upcoming events",
+      description: "Returns a list of upcoming events",
     });
 
     router.get("/global", [GetGlobalEventsController]).openapi({

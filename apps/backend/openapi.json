@@ -365,7 +365,7 @@
         "description": "Returns the list of school's IDs I'm following"
       }
     },
-    "/dancers/me/following-ids": {
+    "/dancers/me/following/ids": {
       "get": {
         "parameters": [],
         "responses": {
@@ -374,7 +374,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DancersMeFollowingidsResponse"
+                  "$ref": "#/components/schemas/DancersMeFollowingIdsResponse"
                 }
               }
             }
@@ -617,6 +617,28 @@
         ],
         "summary": "Get all events",
         "description": "Returns a list of all upcoming events"
+      }
+    },
+    "/events/upcoming": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventsUpcomingResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Events"
+        ],
+        "summary": "Get upcoming events",
+        "description": "Returns a list of upcoming events"
       }
     },
     "/events/global": {
@@ -1755,7 +1777,7 @@
           ]
         }
       },
-      "DancersMeFollowingidsResponse": {
+      "DancersMeFollowingIdsResponse": {
         "type": "array",
         "items": {
           "type": "string"
@@ -2421,6 +2443,82 @@
           "required": [
             "events",
             "month"
+          ]
+        }
+      },
+      "EventsUpcomingResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "audition",
+                "rehearsal",
+                "recital",
+                "showcase",
+                "competition",
+                "class",
+                "intensive",
+                "workshop",
+                "fundraiser",
+                "combine",
+                "convention",
+                "clinic",
+                "deadline",
+                "recruitment",
+                "performance",
+                "camp",
+                "other"
+              ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "date": {
+              "type": "string"
+            },
+            "time": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "organizer": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "thumbnail": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "name",
+                "thumbnail"
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "date",
+            "time",
+            "location",
+            "title",
+            "organizer"
           ]
         }
       },

@@ -7,16 +7,12 @@ import {
   FrameTitle,
 } from "@/components/ui/frame";
 import { Separator } from "@/components/ui/separator";
-import { $api } from "@/lib/api/client";
+import { eventQueries } from "@/features/events/api/queries";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 
 export function EventsSection() {
-  const { data } = useSuspenseQuery($api.queryOptions("get", "/events"));
-
-  const events = data.flatMap((group) => group.events).slice(0, 3);
-
-  if (events.length === 0) return null;
+  const { data } = useSuspenseQuery(eventQueries.upcoming());
 
   return (
     <Frame compact>
@@ -29,7 +25,7 @@ export function EventsSection() {
         </FrameTitle>
       </FrameHeader>
       <FramePanel>
-        {events.map((event, i) => (
+        {data.map((event, i) => (
           <div key={event.id}>
             {i > 0 && <Separator />}
             <Link to="/events/$eventId" params={{ eventId: event.id }}>

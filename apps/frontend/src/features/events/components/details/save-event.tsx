@@ -14,12 +14,10 @@ export function SaveEventButton({
   isSaved: boolean;
   size?: "xs" | "sm";
 }) {
-  const { mutate: save, isPending: isSavePending } = useSaveEvent(id);
-  const { mutate: unsave, isPending: isUnsavePending } = useUnsaveEvent(id);
+  const { mutate: save } = useSaveEvent(id);
+  const { mutate: unsave } = useUnsaveEvent(id);
 
   const [retryAfter, startCountdown] = useCountdown();
-
-  const isPending = isSavePending || isUnsavePending;
 
   const handleClick = () => {
     const mutate = isSaved ? unsave : save;
@@ -45,7 +43,7 @@ export function SaveEventButton({
   return (
     <Button
       variant={isSaved ? "destructive-outline" : "default"}
-      disabled={isPending || !!retryAfter}
+      disabled={!!retryAfter}
       size={size}
       onClick={handleClick}
       className="flex-1 gap-1.5"

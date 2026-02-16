@@ -25,7 +25,7 @@ export function DancerCard({ school, isLoaderRow }: DancerCardProps) {
         <CardAvatar school={school} />
         <CardContent school={school} />
       </div>
-      <CardButtons username={school.user?.username ?? ""} />
+      <CardButtons username={school.username ?? ""} />
     </div>
   );
 }

@@ -12,13 +12,10 @@ export function FollowButton({
   id: string;
   isFollowing: boolean;
 }) {
-  const { mutate: follow, isPending: isFollowPending } = useFollowSchool(id);
-  const { mutate: unfollow, isPending: isUnfollowPending } =
-    useUnfollowSchool(id);
+  const { mutate: follow } = useFollowSchool(id);
+  const { mutate: unfollow } = useUnfollowSchool(id);
 
   const [retryAfter, startCountdown] = useCountdown();
-
-  const isPending = isFollowPending || isUnfollowPending;
 
   const handleClick = () => {
     const mutate = isFollowing ? unfollow : follow;
@@ -44,7 +41,7 @@ export function FollowButton({
   return (
     <Button
       variant={isFollowing ? "destructive-outline" : "outline"}
-      disabled={isPending || !!retryAfter}
+      disabled={!!retryAfter}
       onClick={handleClick}
     >
       <HeartIcon className={isFollowing ? "fill-current" : undefined} />

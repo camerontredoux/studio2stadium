@@ -11,7 +11,11 @@ const corsConfig = defineConfig({
   enabled: true,
   origin: app.inProduction
     ? ["https://api.studio2stadium.com", "https://app.studio2stadium.com"]
-    : ["http://localhost:3333", "http://localhost:5173"],
+    : [
+        "http://localhost:3333",
+        "http://localhost:5173",
+        "http://localhost:4173",
+      ],
   methods: ["GET", "HEAD", "POST", "PATCH", "DELETE"],
   headers: app.inProduction
     ? ["Content-Type", "Authorization", "Accept"]

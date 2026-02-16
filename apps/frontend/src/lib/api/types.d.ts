@@ -557,7 +557,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/dancers/me/following-ids": {
+    "/dancers/me/following/ids": {
         parameters: {
             query?: never;
             header?: never;
@@ -583,7 +583,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["DancersMeFollowingidsResponse"];
+                        "application/json": components["schemas"]["DancersMeFollowingIdsResponse"];
                     };
                 };
             };
@@ -932,6 +932,45 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["EventsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/upcoming": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get upcoming events
+         * @description Returns a list of upcoming events
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventsUpcomingResponse"];
                     };
                 };
             };
@@ -1814,7 +1853,7 @@ export interface components {
             avatar: string | null;
             name: string;
         }[];
-        DancersMeFollowingidsResponse: string[];
+        DancersMeFollowingIdsResponse: string[];
         DancersMeFollowersResponse: {
             username: string;
             avatar: string | null;
@@ -1942,6 +1981,19 @@ export interface components {
                 saved: boolean;
             }[];
             month: string;
+        }[];
+        EventsUpcomingResponse: {
+            /** @enum {string} */
+            type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+            id: string;
+            date: string;
+            time: string;
+            location: string;
+            title: string;
+            organizer: {
+                name: string;
+                thumbnail: string | null;
+            };
         }[];
         EventsGlobalResponse: {
             startTime: string;
