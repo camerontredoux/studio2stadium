@@ -15,15 +15,25 @@ import {
   VerifiedIcon,
 } from "lucide-react";
 import type { School } from "../../types/school";
+import { CardInfo } from "./card-info";
 
-export function CardContent({ school }: { school: School }) {
+export function CardContent({
+  school,
+  isFollowing,
+}: {
+  school: School;
+  isFollowing?: boolean;
+}) {
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-2">
-      <div>
-        <h3 className="flex items-center gap-1 text-base font-semibold">
-          <span className="truncate">{school.name}</span>
-          <VerifiedIcon className="text-brand size-4 shrink-0" />
-        </h3>
+      <div className="flex flex-col">
+        <div className="flex items-center justify-between gap-1">
+          <h3 className="flex min-w-0 items-center gap-1 text-base leading-none font-semibold">
+            <span className="truncate">{school.name}</span>
+            <VerifiedIcon className="text-brand size-4 shrink-0" />
+          </h3>
+          <CardInfo isFollowing={isFollowing} />
+        </div>
         <div className="flex items-center gap-2">
           <p className="text-muted-foreground flex items-center gap-1 text-sm">
             <MapPinIcon className="text-brand size-3.5 shrink-0" />{" "}
@@ -38,29 +48,24 @@ export function CardContent({ school }: { school: School }) {
         </div>
       </div>
       <div className="flex flex-wrap gap-1.5">
-        {school.division && (
-          <Badge variant="outline">
-            {DIVISIONS[school.division as keyof typeof DIVISIONS]}
-          </Badge>
-        )}
-        {school.gpa ? (
-          <Badge variant="outline">
-            <TargetIcon className="size-3 shrink-0" /> {school.gpa} GPA
-          </Badge>
-        ) : null}
-        {school.size && school.size > 0 ? (
-          <TooltipProvider delay={100}>
-            <Tooltip>
-              <TooltipTrigger render={<Badge variant="outline" />}>
-                <GraduationCapIcon className="size-3 shrink-0" />{" "}
-                {school.size.toLocaleString()}
-              </TooltipTrigger>
-              <TooltipContent>
-                {school.size.toLocaleString()} students
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        ) : null}
+        <Badge variant="outline">
+          {DIVISIONS[school.division as keyof typeof DIVISIONS] ??
+            "No division"}
+        </Badge>
+        <Badge variant="outline">
+          <TargetIcon className="size-3 shrink-0" /> {school.gpa ?? 0} GPA
+        </Badge>
+        <TooltipProvider delay={100}>
+          <Tooltip>
+            <TooltipTrigger render={<Badge variant="outline" />}>
+              <GraduationCapIcon className="size-3 shrink-0" />{" "}
+              {school.size?.toLocaleString() ?? 0}
+            </TooltipTrigger>
+            <TooltipContent>
+              {school.size?.toLocaleString() ?? 0} students
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </div>
   );

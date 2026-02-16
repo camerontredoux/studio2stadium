@@ -3,7 +3,7 @@ import { useElementScrollRestoration } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
 import { feedQueries } from "../api/queries";
-import { FeedItem } from "./feed-item";
+import { FeedItem } from "./content/feed-item";
 
 export function Feed() {
   const { data } = useSuspenseQuery(feedQueries.feed());

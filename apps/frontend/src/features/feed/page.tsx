@@ -2,7 +2,9 @@ import { SidebarLayout } from "@/components/layouts/sidebar-layout";
 import { FeedSidebar } from "@/features/feed/components/sidebar/sidebar";
 
 import { useSession } from "@/lib/session";
+import { Suspense } from "react";
 import { Feed } from "./components/feed";
+import { FeedSkeleton } from "./components/feed-skeleton";
 import { ProgramSpotlight } from "./components/program-spotlight";
 
 export function FeedPage() {
@@ -24,7 +26,9 @@ export function FeedPage() {
 
         <ProgramSpotlight />
 
-        <Feed />
+        <Suspense fallback={<FeedSkeleton />}>
+          <Feed />
+        </Suspense>
       </div>
     </SidebarLayout>
   );
