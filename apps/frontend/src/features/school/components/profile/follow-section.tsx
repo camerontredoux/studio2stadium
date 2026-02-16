@@ -18,7 +18,13 @@ export function FollowSection({ id }: { id: string }) {
 
   return (
     <div>
-      <pre className="whitespace-pre-wrap">{JSON.stringify(data, null, 2)}</pre>
+      <pre className="whitespace-pre-wrap">
+        {JSON.stringify(
+          data ? data : { followers: 0, following: false, interested: false },
+          null,
+          2,
+        )}
+      </pre>
 
       {isFollowing && session.subscribed && (
         <Button

@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
   TooltipContent,
@@ -29,17 +30,21 @@ export function CardContent({
     <div className="flex min-w-0 flex-1 flex-col gap-2">
       <div className="flex flex-col">
         <div className="flex items-center justify-between gap-1">
-          <h3 className="flex min-w-0 items-center gap-1 text-base leading-none font-semibold">
+          <h3 className="flex min-w-0 items-center gap-1 text-base leading-tight font-semibold">
             <Link
               to="/explore/$username"
               params={{ username: school.username }}
-              className="truncate hover:underline"
+              className="desktop:after:hidden truncate after:absolute after:inset-0 after:content-[''] hover:underline"
             >
               {school.name}
             </Link>
             <VerifiedIcon className="text-brand size-4 shrink-0" />
           </h3>
-          <CardInfo isFollowing={isFollowing} />
+          {isFollowing !== undefined ? (
+            <CardInfo isFollowing={isFollowing} />
+          ) : (
+            <Skeleton className="h-4 w-19" />
+          )}
         </div>
         <div className="flex items-center gap-2">
           <p className="text-muted-foreground flex items-center gap-1 text-sm">

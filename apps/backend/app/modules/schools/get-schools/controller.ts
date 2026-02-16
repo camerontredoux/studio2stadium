@@ -14,7 +14,7 @@ export default class GetSchoolsController {
     const { upcomingEvents, ...filters } = payload;
 
     if (Object.keys(filters).length || override) {
-      const schools = await service.execute(payload, override);
+      const schools = await service.execute(payload, override, user.id);
       return ctx.response.ok(schools);
     }
 
@@ -22,7 +22,7 @@ export default class GetSchoolsController {
 
     const schools = await cache.getOrSet({
       key,
-      factory: () => service.execute(payload, override),
+      factory: () => service.execute(payload, override, user.id),
       ttl: "10m",
     });
 

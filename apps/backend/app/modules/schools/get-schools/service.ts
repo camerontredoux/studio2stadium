@@ -14,8 +14,8 @@ type SchoolProfileWhere = NonNullable<
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute(filters: Validator, override: boolean) {
-    const wheres = this.buildFilters(filters);
+  async execute(filters: Validator, override: boolean, userId: string) {
+    const wheres = this.buildFilters(filters, userId);
 
     const schools = await this.db.use((db) =>
       db.query.schoolProfiles.findMany({
@@ -69,9 +69,14 @@ export class Service {
     });
   }
 
-  buildFilters(filters: Validator) {
+  buildFilters(filters: Validator, userId: string) {
     const where: SchoolProfileWhere = {};
 
+    if (filters.following) {
+      where.followers = {
+        userId,
+      };
+    }
     if (filters.upcomingEvents) {
       where.events = {
         startDatetime: {

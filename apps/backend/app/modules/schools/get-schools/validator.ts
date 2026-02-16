@@ -45,6 +45,7 @@ const csvEnum =
 export const validator = vine.create(
   vine.object({
     commonRecruiting: vine.boolean().optional(),
+    following: vine.boolean().optional(),
     upcomingEvents: vine.boolean().optional(),
     gpaRange: vine.any().use(gpaRangeRule()).optional(),
     location: vine.enum(stateCodes).optional(),

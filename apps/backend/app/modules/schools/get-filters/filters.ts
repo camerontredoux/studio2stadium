@@ -11,7 +11,8 @@ type SchoolFilterParam =
   | "location"
   | "division"
   | "sports"
-  | "styles";
+  | "styles"
+  | "following";
 
 export type Filter = {
   label: string;
@@ -27,6 +28,12 @@ export const filters: Filter[] = [
     id: "school-name",
     type: "input",
     paramKey: "name",
+  },
+  {
+    label: "Following",
+    id: "following",
+    type: "toggle",
+    paramKey: "following",
   },
   {
     label: "Common Recruiting",

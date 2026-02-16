@@ -1,6 +1,6 @@
 import { Spinner } from "@/components/ui/spinner";
 import { queries } from "@/shared/api/queries";
-import { useQueries } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useElementScrollRestoration, useSearch } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useDeferredValue, useRef } from "react";
@@ -12,10 +12,11 @@ import { SchoolListSkeleton } from "./school-skeleton";
 export function SchoolList() {
   const { name, ...search } = useSearch({ from: "/_app/(routes)/explore/" });
 
-  const [{ data, isPending, isPlaceholderData }, { data: following }] =
-    useQueries({
-      queries: [exploreQueries.schools(search), queries.followingIds()],
-    });
+  const { data, isPending, isPlaceholderData } = useQuery(
+    exploreQueries.schools(search),
+  );
+
+  const { data: following } = useQuery(queries.followingIds());
 
   const deferredName = useDeferredValue(name as string | undefined);
 

@@ -12,11 +12,11 @@ export function Activity() {
       <div className="flex flex-col gap-0.5">
         <div className="flex items-center gap-2">
           <p className="text-muted-foreground">Videos</p>
-          <p className="ml-auto">{data?.videos}</p>
+          <p className="ml-auto">{data?.videos ?? 0}</p>
         </div>
         <div className="flex items-center gap-2">
           <p className="text-muted-foreground">Images</p>
-          <p className="ml-auto">{data?.images}</p>
+          <p className="ml-auto">{data?.images ?? 0}</p>
         </div>
         <Followers followers={data?.followers ?? 0} />
         <Following following={data?.following ?? 0} />

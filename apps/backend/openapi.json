@@ -888,6 +888,25 @@
             }
           },
           {
+            "name": "following",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
             "name": "commonRecruiting",
             "in": "query",
             "required": false,
@@ -1408,6 +1427,7 @@
           "division",
           "sports",
           "styles",
+          "following",
           "commonRecruiting",
           "upcomingEvents",
           "gpaRange"
