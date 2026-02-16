@@ -9,6 +9,7 @@ const FollowSchoolController = () => import("./follow/controller.ts");
 const UnfollowSchoolController = () => import("./unfollow/controller.ts");
 const GetMetadataController = () => import("./get-metadata/controller.ts");
 const ShowInterestController = () => import("./show-interest/controller.ts");
+const GetFollowersController = () => import("./get-followers/controller.ts");
 
 router
   .group(() => {
@@ -24,6 +25,14 @@ router
         description: "Returns a list of schools",
       })
       .use([middleware.auth(), middleware.dancer()]);
+
+    router
+      .get("followers", [GetFollowersController])
+      .openapi({
+        summary: "Get school followers",
+        description: "Returns the dancers that have followed this school.",
+      })
+      .use([middleware.auth(), middleware.school()]);
 
     router
       .get("/:username", [GetSchoolController])

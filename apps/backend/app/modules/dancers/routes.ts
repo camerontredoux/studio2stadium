@@ -7,6 +7,9 @@ const CreateDancerController = () => import("./create-dancer/controller.ts");
 const GetFollowingController = () => import("./me/get-following/controller.ts");
 const UpdatePortfolioController = () =>
   import("./me/update-portfolio/controller.ts");
+const GetFollowersController = () => import("./me/get-followers/controller.ts");
+const GetFollowingIdsController = () =>
+  import("./me/get-following-ids/controller.ts");
 
 router
   .group(() => {
@@ -30,9 +33,17 @@ router
           summary: "Get following list",
           description: "Returns the list of school's IDs I'm following",
         });
+        router.get("following-ids", [GetFollowingIdsController]).openapi({
+          summary: "Get following list IDs",
+          description: "Returns the list of school's IDs I'm following",
+        });
         router.patch("portfolio", [UpdatePortfolioController]).openapi({
           summary: "Update my portfolio",
           description: "Updates the authenticated dancer's portfolio",
+        });
+        router.get("followers", [GetFollowersController]).openapi({
+          summary: "Get dancer followers",
+          description: "Returns the schools that have favorited this dancer.",
         });
       })
       .prefix("me")

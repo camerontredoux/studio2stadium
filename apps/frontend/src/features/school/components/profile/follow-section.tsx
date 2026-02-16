@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
 import { useSession } from "@/lib/session";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { HeartIcon } from "lucide-react";
 import { useShowInterest } from "../../api/mutations";
 import { schoolQueries } from "../../api/queries";
@@ -10,9 +10,9 @@ import { FollowButton } from "./follow-button";
 
 export function FollowSection({ id }: { id: string }) {
   const session = useSession();
-  const { data } = useSuspenseQuery(schoolQueries.metadata(id));
+  const { data } = useQuery(schoolQueries.metadata(id));
 
-  const isFollowing = data.following;
+  const isFollowing = data?.following;
 
   const { mutate } = useShowInterest(id);
 
@@ -43,7 +43,7 @@ export function FollowSection({ id }: { id: string }) {
           <HeartIcon /> Show Interest
         </Button>
       )}
-      <FollowButton id={id} isFollowing={isFollowing} />
+      <FollowButton id={id} isFollowing={isFollowing ?? false} />
     </div>
   );
 }

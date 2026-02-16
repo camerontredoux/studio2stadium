@@ -5,4 +5,6 @@ export const dancerQueries = {
     $api.queryOptions("get", "/dancers/{username}", {
       params: { path: { username } },
     }),
+  followers: () => $api.queryOptions("get", "/dancers/me/followers"),
+  following: () => $api.queryOptions("get", "/dancers/me/following"),
 };

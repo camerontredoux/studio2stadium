@@ -1,5 +1,6 @@
 import { $api } from "@/lib/api/client";
 
 export const queries = {
-  following: () => $api.queryOptions("get", "/dancers/me/following"),
+  followingIds: () => $api.queryOptions("get", "/dancers/me/following-ids"),
+  activity: () => $api.queryOptions("get", "/users/activity"),
 };

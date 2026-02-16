@@ -8,8 +8,8 @@ type ContentType = FeedItem["contentType"];
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute(userId: string) {
-    const following = await this.getFollowing(userId);
+  async execute(type: "dancer" | "school", userId: string) {
+    const following = await this.getFollowing(type, userId);
 
     const feed = await this.getFeed(following);
 
@@ -96,20 +96,42 @@ export class Service {
     return grouped;
   }
 
-  async getFollowing(userId: string) {
-    const following = await this.db.use((db) =>
-      db.query.schoolProfiles.findMany({
-        where: {
-          followers: {
+  async getFollowing(type: "dancer" | "school", userId: string) {
+    if (type === "dancer") {
+      const profile = await this.db.use((db) =>
+        db.query.dancerProfiles.findFirst({
+          where: {
             userId,
           },
+          columns: {},
+          with: {
+            following: {
+              columns: {
+                userId: true,
+              },
+            },
+          },
+        })
+      );
+      return profile?.following.map((profile) => profile.userId) ?? [];
+    }
+
+    const profile = await this.db.use((db) =>
+      db.query.schoolProfiles.findFirst({
+        where: {
+          userId,
         },
-        columns: {
-          userId: true,
+        columns: {},
+        with: {
+          favorites: {
+            columns: {
+              userId: true,
+            },
+          },
         },
       })
     );
-    return following.map((following) => following.userId);
+    return profile?.favorites.map((profile) => profile.userId) ?? [];
   }
 
   private async fetchContentByType(type: ContentType, ids: string[]) {

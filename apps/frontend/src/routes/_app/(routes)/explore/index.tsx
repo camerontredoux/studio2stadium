@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_app/(routes)/explore/")({
     const { name: _, ...filters } = search;
     queryClient.ensureQueryData(exploreQueries.filters());
     queryClient.ensureQueryData(exploreQueries.schools(filters));
-    queryClient.ensureQueryData(queries.following());
+    queryClient.ensureQueryData(queries.followingIds());
   },
   component: ExplorePage,
 });

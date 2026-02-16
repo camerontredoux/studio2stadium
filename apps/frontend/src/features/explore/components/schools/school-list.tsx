@@ -14,7 +14,7 @@ export function SchoolList() {
 
   const [{ data, isPending, isPlaceholderData }, { data: following }] =
     useQueries({
-      queries: [exploreQueries.schools(search), queries.following()],
+      queries: [exploreQueries.schools(search), queries.followingIds()],
     });
 
   const deferredName = useDeferredValue(name as string | undefined);
@@ -77,9 +77,7 @@ export function SchoolList() {
           {virtualItems.map((row) => {
             const school = rows[row.index];
 
-            const isFollowing = following?.some(
-              (following) => following === school.id,
-            );
+            const isFollowing = following?.some((id) => id === school.id);
 
             return (
               <div

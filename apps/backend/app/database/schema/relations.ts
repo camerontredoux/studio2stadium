@@ -100,6 +100,10 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.schoolProfiles.id.through(r.follows.schoolId),
       to: r.dancerProfiles.id.through(r.follows.dancerId),
     }),
+    favorites: r.many.dancerProfiles({
+      from: r.schoolProfiles.id.through(r.favorites.schoolId),
+      to: r.dancerProfiles.id.through(r.favorites.dancerId),
+    }),
   },
   danceEvents: {
     organizer: r.one.schoolProfiles({
@@ -137,6 +141,26 @@ export const relations = defineRelations(schema, (r) => ({
     user: r.one.users({
       from: r.userActivities.userId,
       to: r.users.id,
+    }),
+  },
+  follows: {
+    school: r.one.schoolProfiles({
+      from: r.follows.schoolId,
+      to: r.schoolProfiles.id,
+    }),
+    dancer: r.one.dancerProfiles({
+      from: r.follows.dancerId,
+      to: r.dancerProfiles.id,
+    }),
+  },
+  favorites: {
+    school: r.one.schoolProfiles({
+      from: r.favorites.schoolId,
+      to: r.schoolProfiles.id,
+    }),
+    dancer: r.one.dancerProfiles({
+      from: r.favorites.dancerId,
+      to: r.dancerProfiles.id,
     }),
   },
 }));

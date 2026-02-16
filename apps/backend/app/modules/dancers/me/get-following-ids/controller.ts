@@ -2,13 +2,13 @@ import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
 import { Service } from "./service.ts";
 
-export default class GetFeedController {
+export default class GetFollowingIdsController {
   @inject()
   async handle(ctx: HttpContext, service: Service) {
     const session = ctx.auth.getUserOrFail();
 
-    const feed = await service.execute(session.type, session.id);
+    const data = await service.execute(session.profileId);
 
-    return ctx.response.ok(feed);
+    return ctx.response.ok(data);
   }
 }

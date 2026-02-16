@@ -19,6 +19,7 @@ import { HiOutlineSparkles, HiSparkles } from "react-icons/hi2";
 
 import { useSession } from "@/lib/session";
 import { useLocation } from "@tanstack/react-router";
+import { Activity } from "./activity/activity";
 import { NavLink } from "./nav-link";
 
 export function Navbar() {
@@ -92,23 +93,7 @@ export function Navbar() {
 
           <Separator className="mt-1 hidden xl:block" />
 
-          <div className="hidden p-2 text-sm xl:block">
-            <p className="mb-2">Your Activity</p>
-            <div className="flex flex-col gap-0.5">
-              <div className="flex items-center gap-2">
-                <p className="text-muted-foreground text-xs">Videos</p>
-                <p className="ml-auto">10</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <p className="text-muted-foreground text-xs">Followers</p>
-                <p className="ml-auto">10</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <p className="text-muted-foreground text-xs">Following</p>
-                <p className="ml-auto">10</p>
-              </div>
-            </div>
-          </div>
+          <Activity />
         </div>
       </nav>
     </aside>

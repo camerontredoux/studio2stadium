@@ -11,12 +11,32 @@ export class Service {
         where: {
           dancerId: profileId,
         },
-        columns: {
-          schoolId: true,
+        with: {
+          school: {
+            columns: {
+              id: true,
+              name: true,
+            },
+            with: {
+              user: {
+                columns: {
+                  username: true,
+                  avatar: true,
+                },
+              },
+            },
+          },
         },
       })
     );
 
-    return following.map((follow) => follow.schoolId);
+    return following
+      .filter((f) => f.school?.user)
+      .map((f) => ({
+        id: f.school!.id,
+        username: f.school!.user!.username,
+        avatar: f.school!.user!.avatar,
+        name: f.school!.name,
+      }));
   }
 }

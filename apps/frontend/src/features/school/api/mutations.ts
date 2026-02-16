@@ -8,7 +8,7 @@ type Metadata = ApiSchemas["SchoolsIdMetadataResponse"];
 export function useFollowSchool(id: string) {
   const queryClient = useQueryClient();
 
-  const followingQueryKey = queries.following().queryKey;
+  const followingQueryKey = queries.followingIds().queryKey;
   const metadataQueryKey = schoolQueries.metadata(id).queryKey;
 
   return $api.useMutation("post", "/schools/{id}/follow", {
@@ -67,7 +67,7 @@ export function useFollowSchool(id: string) {
 export function useUnfollowSchool(id: string) {
   const queryClient = useQueryClient();
 
-  const followingQueryKey = queries.following().queryKey;
+  const followingQueryKey = queries.followingIds().queryKey;
   const metadataQueryKey = schoolQueries.metadata(id).queryKey;
 
   return $api.useMutation("delete", "/schools/{id}/follow", {

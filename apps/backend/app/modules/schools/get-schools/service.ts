@@ -54,7 +54,19 @@ export class Service {
       })
     );
 
-    return schools;
+    return schools.flatMap((school) => {
+      if (!school.user) return [];
+
+      const { user, ...schoolProfile } = school;
+
+      return [
+        {
+          ...schoolProfile,
+          username: user.username,
+          avatar: user.avatar,
+        },
+      ];
+    });
   }
 
   buildFilters(filters: Validator) {

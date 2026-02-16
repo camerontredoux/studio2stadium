@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/tooltip";
 import { DIVISIONS } from "@/utils/constants/divisions";
 import { US_STATES } from "@/utils/constants/states";
+import { Link } from "@tanstack/react-router";
 import {
   CalendarIcon,
   GraduationCapIcon,
@@ -29,7 +30,13 @@ export function CardContent({
       <div className="flex flex-col">
         <div className="flex items-center justify-between gap-1">
           <h3 className="flex min-w-0 items-center gap-1 text-base leading-none font-semibold">
-            <span className="truncate">{school.name}</span>
+            <Link
+              to="/explore/$username"
+              params={{ username: school.username }}
+              className="truncate hover:underline"
+            >
+              {school.name}
+            </Link>
             <VerifiedIcon className="text-brand size-4 shrink-0" />
           </h3>
           <CardInfo isFollowing={isFollowing} />

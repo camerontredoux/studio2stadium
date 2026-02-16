@@ -365,6 +365,28 @@
         "description": "Returns the list of school's IDs I'm following"
       }
     },
+    "/dancers/me/following-ids": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersMeFollowingidsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Get following list IDs",
+        "description": "Returns the list of school's IDs I'm following"
+      }
+    },
     "/dancers/me/portfolio": {
       "patch": {
         "responses": {
@@ -387,6 +409,28 @@
         ],
         "summary": "Update my portfolio",
         "description": "Updates the authenticated dancer's portfolio"
+      }
+    },
+    "/dancers/me/followers": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersMeFollowersResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Get dancer followers",
+        "description": "Returns the schools that have favorited this dancer."
       }
     },
     "/dancers/{username}": {
@@ -920,6 +964,28 @@
         "description": "Returns the filters to use when searching for schools"
       }
     },
+    "/schools/followers": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsFollowersResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Get school followers",
+        "description": "Returns the dancers that have followed this school."
+      }
+    },
     "/schools/{username}": {
       "get": {
         "parameters": [
@@ -1224,6 +1290,28 @@
         ],
         "summary": "Delete account",
         "description": "Deletes the user's account"
+      }
+    },
+    "/users/activity": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsersActivityResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get user activity",
+        "description": "Returns the user's activity"
       }
     }
   },
@@ -1637,7 +1725,69 @@
       "DancersMeFollowingResponse": {
         "type": "array",
         "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "username": {
+              "type": "string"
+            },
+            "avatar": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "username",
+            "avatar",
+            "name"
+          ]
+        }
+      },
+      "DancersMeFollowingidsResponse": {
+        "type": "array",
+        "items": {
           "type": "string"
+        }
+      },
+      "DancersMeFollowersResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string"
+            },
+            "avatar": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "username",
+            "avatar",
+            "name"
+          ]
         }
       },
       "DancersIdResponse": {
@@ -2541,43 +2691,27 @@
         "items": {
           "type": "object",
           "properties": {
-            "user": {
-              "oneOf": [
-                {
-                  "type": "object",
-                  "properties": {
-                    "username": {
-                      "type": "string"
-                    },
-                    "avatar": {
-                      "oneOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    }
-                  },
-                  "required": [
-                    "username",
-                    "avatar"
-                  ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
             "events": {
               "type": "number"
+            },
+            "username": {
+              "type": "string"
             },
             "name": {
               "type": "string"
             },
             "id": {
               "type": "string"
+            },
+            "avatar": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
             "createdAt": {
               "type": "string"
@@ -2620,10 +2754,11 @@
             }
           },
           "required": [
-            "user",
             "events",
+            "username",
             "name",
             "id",
+            "avatar",
             "createdAt",
             "location",
             "gpa",
@@ -2681,6 +2816,35 @@
             "id",
             "label",
             "paramKey"
+          ]
+        }
+      },
+      "SchoolsFollowersResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string"
+            },
+            "avatar": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "username",
+            "avatar",
+            "name"
           ]
         }
       },
@@ -3283,6 +3447,29 @@
             ]
           }
         }
+      },
+      "UsersActivityResponse": {
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "number"
+          },
+          "videos": {
+            "type": "number"
+          },
+          "following": {
+            "type": "number"
+          },
+          "followers": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "images",
+          "videos",
+          "following",
+          "followers"
+        ]
       }
     }
   },

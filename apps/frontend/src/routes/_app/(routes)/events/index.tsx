@@ -6,7 +6,6 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/_app/(routes)/events/")({
   validateSearch: (search: Record<string, unknown>) => search as SearchFilter,
   loader: ({ context: { queryClient } }) => {
-    queryClient.ensureQueryData(eventQueries.filters());
     queryClient.ensureQueryData(eventQueries.events());
   },
   component: Page,

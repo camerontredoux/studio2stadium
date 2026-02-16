@@ -59,9 +59,17 @@ type DancersMeFollowingGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/me/get-following/controller.ts').default['handle'], false>
 }
+type DancersMeFollowingidsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/dancers/me/get-following-ids/controller.ts').default['handle'], false>
+}
 type DancersMePortfolioPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/me/update-portfolio/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/me/update-portfolio/controller.ts').default['handle'], true>
+}
+type DancersMeFollowersGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/dancers/me/get-followers/controller.ts').default['handle'], false>
 }
 type DancersIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/get-dancer/validator.ts')['validator']>>
@@ -111,6 +119,10 @@ type SchoolsGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-schools/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/schools/get-schools/controller.ts').default['handle'], true>
 }
+type SchoolsFollowersGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/schools/get-followers/controller.ts').default['handle'], false>
+}
 type SchoolsIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/schools/get-school/controller.ts').default['handle'], true>
@@ -146,6 +158,10 @@ type UsersAccountPatch = {
 type UsersAccountDelete = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/users/delete-account/controller.ts').default['handle'], false>
+}
+type UsersActivityGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/users/get-activity/controller.ts').default['handle'], false>
 }
 export interface ApiDefinition {
   'application': {
@@ -214,10 +230,22 @@ export interface ApiDefinition {
         '$get': DancersMeFollowingGetHead;
         '$head': DancersMeFollowingGetHead;
       };
+      'following-ids': {
+        '$url': {
+        };
+        '$get': DancersMeFollowingidsGetHead;
+        '$head': DancersMeFollowingidsGetHead;
+      };
       'portfolio': {
         '$url': {
         };
         '$patch': DancersMePortfolioPatch;
+      };
+      'followers': {
+        '$url': {
+        };
+        '$get': DancersMeFollowersGetHead;
+        '$head': DancersMeFollowersGetHead;
       };
     };
     ':username': {
@@ -290,6 +318,12 @@ export interface ApiDefinition {
     };
     '$get': SchoolsGetHead;
     '$head': SchoolsGetHead;
+    'followers': {
+      '$url': {
+      };
+      '$get': SchoolsFollowersGetHead;
+      '$head': SchoolsFollowersGetHead;
+    };
     ':username': {
       '$url': {
       };
@@ -330,6 +364,12 @@ export interface ApiDefinition {
       '$head': UsersAccountGetHead;
       '$patch': UsersAccountPatch;
       '$delete': UsersAccountDelete;
+    };
+    'activity': {
+      '$url': {
+      };
+      '$get': UsersActivityGetHead;
+      '$head': UsersActivityGetHead;
     };
   };
 }

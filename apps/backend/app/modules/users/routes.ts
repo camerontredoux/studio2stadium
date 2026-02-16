@@ -7,6 +7,7 @@ const CheckAvailabilityController = () =>
   import("./check-availability/controller.ts");
 const GetAccountController = () => import("./get-account/controller.ts");
 const UpdateAccountController = () => import("./update-account/controller.ts");
+const GetActivityController = () => import("./get-activity/controller.ts");
 
 router
   .group(() => {
@@ -34,6 +35,14 @@ router
           summary: "Delete account",
           description: "Deletes the user's account",
         });
+      })
+      .use(middleware.auth());
+
+    router
+      .get("activity", [GetActivityController])
+      .openapi({
+        summary: "Get user activity",
+        description: "Returns the user's activity",
       })
       .use(middleware.auth());
   })
