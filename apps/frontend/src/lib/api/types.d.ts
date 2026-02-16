@@ -1186,6 +1186,7 @@ export interface paths {
                     division?: string | null;
                     sports?: string | null;
                     styles?: string | null;
+                    following?: (string | number | boolean) | null;
                     commonRecruiting?: (string | number | boolean) | null;
                     upcomingEvents?: (string | number | boolean) | null;
                     gpaRange?: Record<string, never>;
@@ -1771,7 +1772,7 @@ export interface components {
             message: string;
         };
         /** @enum {string} */
-        SchoolFilterParam: "name" | "location" | "division" | "sports" | "styles" | "commonRecruiting" | "upcomingEvents" | "gpaRange";
+        SchoolFilterParam: "name" | "location" | "division" | "sports" | "styles" | "following" | "commonRecruiting" | "upcomingEvents" | "gpaRange";
         AuthSignupRequest: {
             phone?: string | null;
             email: string;
