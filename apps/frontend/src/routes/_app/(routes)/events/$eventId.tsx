@@ -6,7 +6,6 @@ export const Route = createFileRoute("/_app/(routes)/events/$eventId")({
   loader: async ({ context: { queryClient }, params }) => {
     await queryClient.ensureQueryData(eventQueries.event(params.eventId));
   },
-  pendingMs: 200,
   component: RouteComponent,
 });
 

@@ -6,8 +6,8 @@ export const Route = createFileRoute("/_app/(routes)/$username")({
   beforeLoad: ({ context: { access }, params }) => {
     access.guard(access.is("core", "school"), access.self(params.username));
   },
-  loader: ({ context: { queryClient }, params }) => {
-    queryClient.ensureQueryData(dancerQueries.profile(params.username));
+  loader: async ({ context: { queryClient }, params }) => {
+    await queryClient.ensureQueryData(dancerQueries.profile(params.username));
   },
   component: RouteComponent,
 });
