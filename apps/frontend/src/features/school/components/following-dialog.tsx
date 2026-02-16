@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,14 +11,30 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useSession } from "@/lib/session";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { Suspense } from "react";
-import { DancerFollowing } from "./dancer-following";
-import { SchoolFollowing } from "./school-following";
+import { schoolQueries } from "../api/queries";
 
-export function Following({ following }: { following: number }) {
-  const session = useSession();
+function FollowingList() {
+  const { data } = useSuspenseQuery(schoolQueries.followers());
 
+  return data.map((follower) => (
+    <div key={follower.username} className="flex items-center gap-2">
+      <Avatar>
+        <AvatarImage src={follower.avatar ?? undefined} />
+        <AvatarFallback>
+          {follower.username.slice(0, 2).toUpperCase()}
+        </AvatarFallback>
+      </Avatar>
+      <Link to="/$username" params={{ username: follower?.username }}>
+        {follower?.name}
+      </Link>
+    </div>
+  ));
+}
+
+export function SchoolFollowingDialog({ count }: { count: number }) {
   return (
     <Dialog>
       <DialogTrigger className="cursor-pointer">
@@ -25,7 +42,7 @@ export function Following({ following }: { following: number }) {
           <p className="text-muted-foreground group-hover:text-foreground">
             Following
           </p>
-          <p className="ml-auto">{following}</p>
+          <p className="ml-auto">{count}</p>
         </div>
       </DialogTrigger>
       <DialogContent>
@@ -35,11 +52,7 @@ export function Following({ following }: { following: number }) {
         </DialogHeader>
         <DialogPanel className="max-h-96">
           <Suspense>
-            {session.type === "dancer" ? (
-              <DancerFollowing />
-            ) : (
-              <SchoolFollowing />
-            )}
+            <FollowingList />
           </Suspense>
         </DialogPanel>
         <DialogFooter>

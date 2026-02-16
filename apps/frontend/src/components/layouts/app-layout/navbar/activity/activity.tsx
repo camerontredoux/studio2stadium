@@ -1,10 +1,17 @@
+import { DancerFollowersDialog } from "@/features/dancer/components/followers-dialog";
+import { DancerFollowingDialog } from "@/features/dancer/components/following-dialog";
+import { SchoolFollowersDialog } from "@/features/school/components/followers-dialog";
+import { SchoolFollowingDialog } from "@/features/school/components/following-dialog";
+import { useSession } from "@/lib/session";
 import { queries } from "@/shared/api/queries";
 import { useQuery } from "@tanstack/react-query";
-import { Followers } from "./followers/followers";
-import { Following } from "./following/following";
 
 export function Activity() {
+  const session = useSession();
   const { data } = useQuery(queries.activity());
+
+  const followers = data?.followers ?? 0;
+  const following = data?.following ?? 0;
 
   return (
     <div className="hidden p-2 text-sm xl:block">
@@ -18,8 +25,17 @@ export function Activity() {
           <p className="text-muted-foreground">Images</p>
           <p className="ml-auto">{data?.images ?? 0}</p>
         </div>
-        <Followers followers={data?.followers ?? 0} />
-        <Following following={data?.following ?? 0} />
+        {session.type === "dancer" ? (
+          <>
+            <DancerFollowersDialog count={followers} />
+            <DancerFollowingDialog count={following} />
+          </>
+        ) : (
+          <>
+            <SchoolFollowersDialog count={followers} />
+            <SchoolFollowingDialog count={following} />
+          </>
+        )}
       </div>
     </div>
   );

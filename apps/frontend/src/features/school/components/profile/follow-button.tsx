@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
 import { HeartIcon } from "lucide-react";
-import { useFollowSchool, useUnfollowSchool } from "../../api/mutations";
+import { useFollowSchool, useUnfollowSchool } from "@/shared/api/mutations";
 
 export function FollowButton({
   id,
