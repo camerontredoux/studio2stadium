@@ -275,3 +275,7 @@
     display: none;
   }
 }
+
+#nprogress .bar {
+  background: var(--brand);
+}
