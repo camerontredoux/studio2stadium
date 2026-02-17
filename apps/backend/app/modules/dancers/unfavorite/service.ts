@@ -8,12 +8,16 @@ import { Validator } from "./validator.ts";
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute({ params }: Validator, profileId: string) {
+  async execute({ params, platformName }: Validator, profileId: string) {
     await this.db.use((db) =>
       db
         .delete(favorites)
         .where(
-          and(eq(favorites.schoolId, profileId), eq(favorites.dancerId, params.id))
+          and(
+            eq(favorites.schoolId, profileId),
+            eq(favorites.dancerId, params.id),
+            eq(favorites.platformName, platformName)
+          )
         )
     );
   }

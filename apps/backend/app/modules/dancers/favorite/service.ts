@@ -14,7 +14,7 @@ export class Service {
         db.insert(favorites).values({
           schoolId: profileId,
           dancerId: params.id,
-          platformName: platformName ?? "core",
+          platformName,
         })
       );
     } catch (error) {
