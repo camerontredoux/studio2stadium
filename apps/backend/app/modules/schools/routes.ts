@@ -7,9 +7,11 @@ const GetSchoolsController = () => import("./get-schools/controller.ts");
 const GetSchoolController = () => import("./get-school/controller.ts");
 const FollowSchoolController = () => import("./follow/controller.ts");
 const UnfollowSchoolController = () => import("./unfollow/controller.ts");
-const GetMetadataController = () => import("./get-metadata/controller.ts");
+const GetMetadataController = () =>
+  import("./get-school-metadata/controller.ts");
 const ShowInterestController = () => import("./show-interest/controller.ts");
-const GetFollowersController = () => import("./get-followers/controller.ts");
+const GetFollowersController = () => import("./me/get-followers/controller.ts");
+const GetFollowingController = () => import("./me/get-following/controller.ts");
 
 router
   .group(() => {
@@ -27,11 +29,17 @@ router
       .use([middleware.auth(), middleware.dancer()]);
 
     router
-      .get("followers", [GetFollowersController])
-      .openapi({
-        summary: "Get school followers",
-        description: "Returns the dancers that have followed this school.",
+      .group(() => {
+        router.get("followers", [GetFollowersController]).openapi({
+          summary: "Get school followers",
+          description: "Returns the dancers that have followed this school.",
+        });
+        router.get("following", [GetFollowingController]).openapi({
+          summary: "Get following list",
+          description: "Returns the list of dancers this school has favorited.",
+        });
       })
+      .prefix("me")
       .use([middleware.auth(), middleware.school()]);
 
     router

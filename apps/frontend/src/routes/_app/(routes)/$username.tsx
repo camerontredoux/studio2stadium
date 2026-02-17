@@ -6,8 +6,13 @@ export const Route = createFileRoute("/_app/(routes)/$username")({
   beforeLoad: ({ context: { access }, params }) => {
     access.guard(access.is("core", "school"), access.self(params.username));
   },
-  loader: async ({ context: { queryClient }, params }) => {
-    await queryClient.ensureQueryData(dancerQueries.profile(params.username));
+  loader: async ({ context: { queryClient, session }, params }) => {
+    const dancer = await queryClient.ensureQueryData(
+      dancerQueries.profile(params.username),
+    );
+    if (session.type === "school") {
+      await queryClient.ensureQueryData(dancerQueries.metadata(dancer.id));
+    }
   },
   component: RouteComponent,
 });

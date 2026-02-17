@@ -6,6 +6,21 @@ export class Service {
   constructor(private db: DatabaseService) {}
 
   async execute(username: string) {
+    const dancer = await this.getDancer(username);
+
+    if (!dancer) return null;
+
+    const { dancerProfile, ...user } = dancer;
+
+    if (!dancerProfile) return null;
+
+    return {
+      ...user,
+      ...dancerProfile,
+    };
+  }
+
+  async getDancer(username: string) {
     return await this.db.use((db) =>
       db.query.users.findFirst({
         where: {
@@ -15,13 +30,13 @@ export class Service {
           },
         },
         columns: {
-          id: true,
           username: true,
           avatar: true,
         },
         with: {
           dancerProfile: {
             columns: {
+              id: true,
               birthday: true,
               location: true,
               skillLevel: true,

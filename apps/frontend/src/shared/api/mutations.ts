@@ -2,42 +2,35 @@ import { $api, type ApiSchemas } from "@/lib/api/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { queries } from "./queries";
 
-type Metadata = ApiSchemas["SchoolsIdMetadataResponse"];
+type SchoolMetadata = ApiSchemas["SchoolsIdMetadataResponse"];
+type Activity = ApiSchemas["UsersActivityResponse"];
 
 const schoolMetadataKey = (id: string) =>
   $api.queryOptions("get", "/schools/{id}/metadata", {
     params: { path: { id } },
   }).queryKey;
 
-const dancerFollowingKey = $api.queryOptions(
-  "get",
-  "/dancers/me/following",
-).queryKey;
-
 export function useFollowSchool(id: string) {
   const queryClient = useQueryClient();
 
-  const followingQueryKey = queries.followingIds().queryKey;
+  const followingIdsQueryKey = queries.followingIds().queryKey;
+  const activityQueryKey = queries.activity().queryKey;
   const metadataQueryKey = schoolMetadataKey(id);
 
   return $api.useMutation("post", "/schools/{id}/follow", {
-    meta: {
-      invalidateQueries: [metadataQueryKey],
-    },
     onMutate: async () => {
-      await queryClient.cancelQueries({
-        queryKey: metadataQueryKey,
-      });
-      await queryClient.cancelQueries({
-        queryKey: followingQueryKey,
-      });
+      await queryClient.cancelQueries({ queryKey: metadataQueryKey });
+      await queryClient.cancelQueries({ queryKey: followingIdsQueryKey });
+      await queryClient.cancelQueries({ queryKey: activityQueryKey });
 
       const previousMetadata =
-        queryClient.getQueryData<Metadata>(metadataQueryKey);
-      const previousFollowing =
-        queryClient.getQueryData<string[]>(followingQueryKey);
+        queryClient.getQueryData<SchoolMetadata>(metadataQueryKey);
+      const previousFollowingIds =
+        queryClient.getQueryData<string[]>(followingIdsQueryKey);
+      const previousActivity =
+        queryClient.getQueryData<Activity>(activityQueryKey);
 
-      queryClient.setQueryData<Metadata>(metadataQueryKey, (old) => {
+      queryClient.setQueryData<SchoolMetadata>(metadataQueryKey, (old) => {
         if (!old) return;
         return {
           ...old,
@@ -45,28 +38,39 @@ export function useFollowSchool(id: string) {
           following: true,
         };
       });
-      queryClient.setQueryData<string[]>(followingQueryKey, (old) => {
+      queryClient.setQueryData<string[]>(followingIdsQueryKey, (old) => {
         if (!old) return;
         return [...old, id];
       });
+      queryClient.setQueryData<Activity>(activityQueryKey, (old) => {
+        if (!old) return;
+        return { ...old, following: old.following + 1 };
+      });
 
-      return { previousMetadata, previousFollowing };
+      return { previousMetadata, previousFollowingIds, previousActivity };
     },
     onError: (_err, _variables, context) => {
       const result = context as {
-        previousMetadata: Metadata | undefined;
-        previousFollowing: string[] | undefined;
+        previousMetadata: SchoolMetadata | undefined;
+        previousFollowingIds: string[] | undefined;
+        previousActivity: Activity | undefined;
       };
       if (result?.previousMetadata) {
-        queryClient.setQueryData<Metadata>(
+        queryClient.setQueryData<SchoolMetadata>(
           metadataQueryKey,
           result.previousMetadata,
         );
       }
-      if (result?.previousFollowing) {
+      if (result?.previousFollowingIds) {
         queryClient.setQueryData<string[]>(
-          followingQueryKey,
-          result.previousFollowing,
+          followingIdsQueryKey,
+          result.previousFollowingIds,
+        );
+      }
+      if (result?.previousActivity) {
+        queryClient.setQueryData<Activity>(
+          activityQueryKey,
+          result.previousActivity,
         );
       }
     },
@@ -77,27 +81,23 @@ export function useUnfollowSchool(id: string) {
   const queryClient = useQueryClient();
 
   const followingIdsQueryKey = queries.followingIds().queryKey;
+  const activityQueryKey = queries.activity().queryKey;
   const metadataQueryKey = schoolMetadataKey(id);
-  const followingQueryKey = dancerFollowingKey;
 
   return $api.useMutation("delete", "/schools/{id}/follow", {
-    meta: {
-      invalidateQueries: [metadataQueryKey, followingQueryKey],
-    },
     onMutate: async () => {
-      await queryClient.cancelQueries({
-        queryKey: metadataQueryKey,
-      });
-      await queryClient.cancelQueries({
-        queryKey: followingIdsQueryKey,
-      });
+      await queryClient.cancelQueries({ queryKey: metadataQueryKey });
+      await queryClient.cancelQueries({ queryKey: followingIdsQueryKey });
+      await queryClient.cancelQueries({ queryKey: activityQueryKey });
 
       const previousMetadata =
-        queryClient.getQueryData<Metadata>(metadataQueryKey);
-      const previousFollowing =
+        queryClient.getQueryData<SchoolMetadata>(metadataQueryKey);
+      const previousFollowingIds =
         queryClient.getQueryData<string[]>(followingIdsQueryKey);
+      const previousActivity =
+        queryClient.getQueryData<Activity>(activityQueryKey);
 
-      queryClient.setQueryData<Metadata>(metadataQueryKey, (old) => {
+      queryClient.setQueryData<SchoolMetadata>(metadataQueryKey, (old) => {
         if (!old) return;
         return {
           ...old,
@@ -105,29 +105,149 @@ export function useUnfollowSchool(id: string) {
           following: false,
         };
       });
-
       queryClient.setQueryData<string[]>(followingIdsQueryKey, (old) => {
         if (!old) return;
         return old.filter((followingId) => followingId !== id);
       });
+      queryClient.setQueryData<Activity>(activityQueryKey, (old) => {
+        if (!old) return;
+        return { ...old, following: old.following - 1 };
+      });
 
-      return { previousMetadata, previousFollowing };
+      return { previousMetadata, previousFollowingIds, previousActivity };
     },
     onError: (_err, _variables, context) => {
       const result = context as {
-        previousMetadata: Metadata | undefined;
-        previousFollowing: string[] | undefined;
+        previousMetadata: SchoolMetadata | undefined;
+        previousFollowingIds: string[] | undefined;
+        previousActivity: Activity | undefined;
       };
       if (result?.previousMetadata) {
-        queryClient.setQueryData<Metadata>(
+        queryClient.setQueryData<SchoolMetadata>(
           metadataQueryKey,
           result.previousMetadata,
         );
       }
-      if (result?.previousFollowing) {
+      if (result?.previousFollowingIds) {
         queryClient.setQueryData<string[]>(
           followingIdsQueryKey,
-          result.previousFollowing,
+          result.previousFollowingIds,
+        );
+      }
+      if (result?.previousActivity) {
+        queryClient.setQueryData<Activity>(
+          activityQueryKey,
+          result.previousActivity,
+        );
+      }
+    },
+  });
+}
+
+type DancerMetadata = ApiSchemas["DancersIdMetadataResponse"];
+
+export function useFavoriteDancer(id: string) {
+  const queryClient = useQueryClient();
+
+  const metadataQueryKey = $api.queryOptions("get", "/dancers/{id}/metadata", {
+    params: { path: { id } },
+  }).queryKey;
+  const activityQueryKey = queries.activity().queryKey;
+
+  return $api.useMutation("post", "/dancers/{id}/favorite", {
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: metadataQueryKey });
+      await queryClient.cancelQueries({ queryKey: activityQueryKey });
+
+      const previousMetadata =
+        queryClient.getQueryData<DancerMetadata>(metadataQueryKey);
+      const previousActivity =
+        queryClient.getQueryData<Activity>(activityQueryKey);
+
+      queryClient.setQueryData<DancerMetadata>(metadataQueryKey, (old) => {
+        if (!old) return;
+        return {
+          ...old,
+          followers: old.followers + 1,
+          favorited: true,
+        };
+      });
+      queryClient.setQueryData<Activity>(activityQueryKey, (old) => {
+        if (!old) return;
+        return { ...old, following: old.following + 1 };
+      });
+
+      return { previousMetadata, previousActivity };
+    },
+    onError: (_err, _variables, context) => {
+      const result = context as {
+        previousMetadata: DancerMetadata | undefined;
+        previousActivity: Activity | undefined;
+      };
+      if (result?.previousMetadata) {
+        queryClient.setQueryData<DancerMetadata>(
+          metadataQueryKey,
+          result.previousMetadata,
+        );
+      }
+      if (result?.previousActivity) {
+        queryClient.setQueryData<Activity>(
+          activityQueryKey,
+          result.previousActivity,
+        );
+      }
+    },
+  });
+}
+
+export function useUnfavoriteDancer(id: string) {
+  const queryClient = useQueryClient();
+
+  const metadataQueryKey = $api.queryOptions("get", "/dancers/{id}/metadata", {
+    params: { path: { id } },
+  }).queryKey;
+  const activityQueryKey = queries.activity().queryKey;
+
+  return $api.useMutation("delete", "/dancers/{id}/favorite", {
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: metadataQueryKey });
+      await queryClient.cancelQueries({ queryKey: activityQueryKey });
+
+      const previousMetadata =
+        queryClient.getQueryData<DancerMetadata>(metadataQueryKey);
+      const previousActivity =
+        queryClient.getQueryData<Activity>(activityQueryKey);
+
+      queryClient.setQueryData<DancerMetadata>(metadataQueryKey, (old) => {
+        if (!old) return;
+        return {
+          ...old,
+          followers: old.followers - 1,
+          favorited: false,
+        };
+      });
+      queryClient.setQueryData<Activity>(activityQueryKey, (old) => {
+        if (!old) return;
+        return { ...old, following: old.following - 1 };
+      });
+
+      return { previousMetadata, previousActivity };
+    },
+    onError: (_err, _variables, context) => {
+      const result = context as {
+        previousMetadata: DancerMetadata | undefined;
+        previousActivity: Activity | undefined;
+      };
+      if (result?.previousMetadata) {
+        queryClient.setQueryData<DancerMetadata>(
+          metadataQueryKey,
+          result.previousMetadata,
+        );
+      }
+      if (result?.previousActivity) {
+        queryClient.setQueryData<Activity>(
+          activityQueryKey,
+          result.previousActivity,
         );
       }
     },

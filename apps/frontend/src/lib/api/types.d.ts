@@ -429,6 +429,180 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get feed
+         * @description Returns the feed for the current user
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FeedResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["HealthResponse"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["HealthResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List tap in videos
+         * @description Returns a list of all tap in videos with their category
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LibraryResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library/{category}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List videos by category
+         * @description Returns a list of videos by category, paginated with 6 results at a time
+         */
+        get: {
+            parameters: {
+                query: {
+                    page: string | number;
+                };
+                header?: never;
+                path: {
+                    category: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LibraryIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dancers": {
         parameters: {
             query?: never;
@@ -731,147 +905,116 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/feed": {
+    "/dancers/{id}/favorite": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        get?: never;
+        put?: never;
         /**
-         * Get feed
-         * @description Returns the feed for the current user
+         * Favorite a dancer
+         * @description Adds a dancer to the school's favorites list.
          */
-        get: {
+        post: {
             parameters: {
                 query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["FeedResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["HealthResponse"];
-                    };
-                };
-                /** @description Service Unavailable */
-                503: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["HealthResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/library": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List tap in videos
-         * @description Returns a list of all tap in videos with their category
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["LibraryResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/library/{category}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List videos by category
-         * @description Returns a list of videos by category, paginated with 6 results at a time
-         */
-        get: {
-            parameters: {
-                query: {
-                    page: string | number;
-                };
                 header?: never;
                 path: {
-                    category: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersIdFavoriteRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersIdFavoriteResponse"];
+                    };
+                };
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        /**
+         * Unfavorite a dancer
+         * @description Removes a dancer from the school's favorites list.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/{id}/metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dancer metadata
+         * @description Returns the dancer's metadata
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
                 };
                 cookie?: never;
             };
@@ -883,7 +1026,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["LibraryIdResponse"];
+                        "application/json": components["schemas"]["DancersIdMetadataResponse"];
                     };
                 };
                 /** @description Unprocessable Entity */
@@ -1264,7 +1407,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/schools/followers": {
+    "/schools/me/followers": {
         parameters: {
             query?: never;
             header?: never;
@@ -1290,7 +1433,46 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["SchoolsFollowersResponse"];
+                        "application/json": components["schemas"]["SchoolsMeFollowersResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools/me/following": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get following list
+         * @description Returns the list of dancers this school has favorited.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsMeFollowingResponse"];
                     };
                 };
             };
@@ -1830,78 +2012,6 @@ export interface components {
             thumbnail: string;
             slug: string;
         }[];
-        DancersRequest: {
-            phoneNumber?: string | null;
-            birthday: string | number;
-            location: string;
-            /** @enum {string} */
-            platform: "prodigy" | "core";
-        };
-        DancersFiltersResponse: {
-            /** @enum {string} */
-            type: "select" | "input" | "toggle" | "multi-select" | "range";
-            id: string;
-            options?: {
-                label: string;
-                value: string;
-            }[];
-            label: string;
-            paramKey: string;
-        }[];
-        DancersMeFollowingResponse: {
-            id: string;
-            username: string;
-            avatar: string | null;
-            name: string;
-        }[];
-        DancersMeFollowingIdsResponse: string[];
-        DancersMeFollowersResponse: {
-            username: string;
-            avatar: string | null;
-            name: string;
-        }[];
-        DancersIdResponse: {
-            username: string;
-            id: string;
-            avatar: string | null;
-            dancerProfile: {
-                birthday: string;
-                location: string;
-                skillLevel: string | null;
-                teamLevel: string | null;
-                highSchool: string | null;
-                studio: string | null;
-                gpa: number | null;
-                gradYear: number | null;
-                trainingHours: number | null;
-                achievements: {
-                    id: string;
-                    createdAt: string;
-                    updatedAt: string;
-                    profileId: string;
-                    title: string;
-                    description: string;
-                }[];
-                references: {
-                    name: string;
-                    id: string;
-                    createdAt: string;
-                    updatedAt: string;
-                    profileId: string;
-                    title: string;
-                    description: string | null;
-                }[];
-                skills: {
-                    name: string;
-                    slug: string;
-                    category: string;
-                }[];
-                styles: {
-                    name: string;
-                    slug: string;
-                }[];
-            } | null;
-        };
         FeedResponse: {
             user: {
                 username: string;
@@ -1963,6 +2073,86 @@ export interface components {
             title: string;
             category: string;
         }[];
+        DancersRequest: {
+            phoneNumber?: string | null;
+            birthday: string | number;
+            location: string;
+            /** @enum {string} */
+            platform: "prodigy" | "core";
+        };
+        DancersFiltersResponse: {
+            /** @enum {string} */
+            type: "select" | "input" | "toggle" | "multi-select" | "range";
+            id: string;
+            options?: {
+                label: string;
+                value: string;
+            }[];
+            label: string;
+            paramKey: string;
+        }[];
+        DancersMeFollowingResponse: {
+            id: string;
+            username: string;
+            avatar: string | null;
+            name: string;
+        }[];
+        DancersMeFollowingIdsResponse: string[];
+        DancersMeFollowersResponse: {
+            username: string;
+            avatar: string | null;
+            name: string;
+        }[];
+        DancersIdResponse: {
+            username: string;
+            id: string;
+            avatar: string | null;
+            birthday: string;
+            location: string;
+            skillLevel: string | null;
+            teamLevel: string | null;
+            highSchool: string | null;
+            studio: string | null;
+            gpa: number | null;
+            gradYear: number | null;
+            trainingHours: number | null;
+            achievements: {
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                profileId: string;
+                title: string;
+                description: string;
+            }[];
+            references: {
+                name: string;
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                profileId: string;
+                title: string;
+                description: string | null;
+            }[];
+            skills: {
+                name: string;
+                slug: string;
+                category: string;
+            }[];
+            styles: {
+                name: string;
+                slug: string;
+            }[];
+        };
+        DancersIdFavoriteRequest: {
+            platformName?: ("prodigy" | "core") | null;
+        };
+        DancersIdFavoriteResponse: {
+            created: boolean;
+        };
+        DancersIdMetadataResponse: {
+            followers: number;
+            favorited: boolean;
+        };
         EventsResponse: {
             events: {
                 /** @enum {string} */
@@ -2068,7 +2258,13 @@ export interface components {
             label: string;
             paramKey: components["schemas"]["SchoolFilterParam"];
         }[];
-        SchoolsFollowersResponse: {
+        SchoolsMeFollowersResponse: {
+            username: string;
+            avatar: string | null;
+            name: string;
+        }[];
+        SchoolsMeFollowingResponse: {
+            id: string;
             username: string;
             avatar: string | null;
             name: string;
@@ -2148,8 +2344,8 @@ export interface components {
         };
         SchoolsIdMetadataResponse: {
             following: boolean;
-            interested: boolean;
             followers: number;
+            interested: boolean;
         };
         SchoolsIdInterestResponse: {
             created: boolean;

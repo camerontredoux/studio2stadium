@@ -9,5 +9,6 @@ export const schoolQueries = {
     $api.queryOptions("get", "/schools/{id}/metadata", {
       params: { path: { id } },
     }),
-  followers: () => $api.queryOptions("get", "/schools/followers"),
+  followers: () => $api.queryOptions("get", "/schools/me/followers"),
+  following: () => $api.queryOptions("get", "/schools/me/following"),
 };

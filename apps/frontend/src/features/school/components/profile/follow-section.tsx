@@ -12,7 +12,7 @@ export function FollowSection({ id }: { id: string }) {
   const session = useSession();
   const { data } = useQuery(schoolQueries.metadata(id));
 
-  const isFollowing = data?.following;
+  const isFollowing = data?.following ?? false;
 
   const { mutate } = useShowInterest(id);
 
@@ -49,7 +49,7 @@ export function FollowSection({ id }: { id: string }) {
           <HeartIcon /> Show Interest
         </Button>
       )}
-      <FollowButton id={id} isFollowing={isFollowing ?? false} />
+      <FollowButton id={id} isFollowing={isFollowing} />
     </div>
   );
 }

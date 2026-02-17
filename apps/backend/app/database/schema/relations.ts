@@ -66,6 +66,10 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.dancerProfiles.id.through(r.follows.dancerId),
       to: r.schoolProfiles.id.through(r.follows.schoolId),
     }),
+    followers: r.many.schoolProfiles({
+      from: r.dancerProfiles.id.through(r.favorites.dancerId),
+      to: r.schoolProfiles.id.through(r.favorites.schoolId),
+    }),
   },
   schoolProfiles: {
     user: r.one.users({

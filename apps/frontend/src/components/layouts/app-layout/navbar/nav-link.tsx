@@ -31,11 +31,11 @@ const NavLinkComponent = forwardRef<
         render={<a ref={ref} {...props} />}
       >
         {active ? (
-          <ActiveIcon className="size-5 text-black sm:size-4.5 dark:text-white" />
+          <ActiveIcon className="size-6 text-black sm:size-5.5 dark:text-white" />
         ) : (
-          <InactiveIcon className="size-5 sm:size-4.5" />
+          <InactiveIcon className="size-6 sm:size-5.5" />
         )}
-        <span className="sr-only xl:not-sr-only">{label}</span>
+        <span className="sr-only text-base xl:not-sr-only">{label}</span>
       </Button>
       <Button
         className="flex xl:hidden"
@@ -44,9 +44,9 @@ const NavLinkComponent = forwardRef<
         render={<a ref={ref} {...props} />}
       >
         {active ? (
-          <ActiveIcon className="size-5 text-black sm:size-4.5 dark:text-white" />
+          <ActiveIcon className="size-6 text-black sm:size-5.5 dark:text-white" />
         ) : (
-          <InactiveIcon className="size-5 sm:size-4.5" />
+          <InactiveIcon className="size-6 sm:size-5.5" />
         )}
       </Button>
     </>

@@ -26,7 +26,7 @@ export function Topbar() {
     <header className="bg-background border-border fixed top-0 right-0 left-0 z-50 h-12 border-b">
       <div className="relative mx-auto flex h-full max-w-7xl items-center justify-between px-2 lg:px-4">
         <div className="absolute left-1/2 shrink-0 -translate-x-1/2 sm:static sm:translate-x-0">
-          <MainLogo className="h-4 dark:invert" />
+          <MainLogo className="h-5 dark:invert" />
         </div>
         <div className="flex w-full items-center justify-end gap-2">
           <Menu>

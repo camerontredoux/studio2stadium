@@ -18,7 +18,8 @@ export const throttle = (
   store: keyof LimitersList = "redis"
 ) =>
   limiter.define("api", (ctx) => {
-    const id = ctx.auth.user?.id ?? ctx.request.ip();
+    const user = ctx.auth.user;
+    const id = user?.id ?? ctx.request.ip();
     return limiter
       .allowRequests(requests)
       .every("1 minute")

@@ -47,6 +47,22 @@ type BlogGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/blog/get-posts/controller.ts').default['handle'], false>
 }
+type FeedGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/feed/get-feed/controller.ts').default['handle'], false>
+}
+type HealthGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/health/index.ts').default['handle'], false>
+}
+type LibraryGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/library/list-videos/controller.ts').default['handle'], false>
+}
+type LibraryIdGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/library/list-videos-by-category/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/library/list-videos-by-category/controller.ts').default['handle'], true>
+}
 type DancersPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/create-dancer/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/create-dancer/controller.ts').default['handle'], true>
@@ -75,21 +91,17 @@ type DancersIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/get-dancer/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/get-dancer/controller.ts').default['handle'], true>
 }
-type FeedGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/feed/get-feed/controller.ts').default['handle'], false>
+type DancersIdFavoritePost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/favorite/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/favorite/controller.ts').default['handle'], true>
 }
-type HealthGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/health/index.ts').default['handle'], false>
+type DancersIdFavoriteDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/unfavorite/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/unfavorite/controller.ts').default['handle'], true>
 }
-type LibraryGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/library/list-videos/controller.ts').default['handle'], false>
-}
-type LibraryIdGetHead = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/library/list-videos-by-category/validator.ts')['validator']>>
-  response: MakeTuyauResponse<import('../app/modules/library/list-videos-by-category/controller.ts').default['handle'], true>
+type DancersIdMetadataGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/get-dancer-metadata/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-dancer-metadata/controller.ts').default['handle'], true>
 }
 type EventsGetHead = {
   request: unknown
@@ -123,9 +135,13 @@ type SchoolsGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-schools/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/schools/get-schools/controller.ts').default['handle'], true>
 }
-type SchoolsFollowersGetHead = {
+type SchoolsMeFollowersGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/schools/get-followers/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/me/get-followers/controller.ts').default['handle'], false>
+}
+type SchoolsMeFollowingGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/dancers/me/get-following/controller.ts').default['handle'], false>
 }
 type SchoolsIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school/validator.ts')['validator']>>
@@ -140,8 +156,8 @@ type SchoolsIdFollowDelete = {
   response: MakeTuyauResponse<import('../app/modules/schools/unfollow/controller.ts').default['handle'], true>
 }
 type SchoolsIdMetadataGetHead = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-metadata/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/schools/get-metadata/controller.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school-metadata/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/get-school-metadata/controller.ts').default['handle'], true>
 }
 type SchoolsIdInterestPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/show-interest/validator.ts')['schema']>>
@@ -217,6 +233,30 @@ export interface ApiDefinition {
     '$get': BlogGetHead;
     '$head': BlogGetHead;
   };
+  'feed': {
+    '$url': {
+    };
+    '$get': FeedGetHead;
+    '$head': FeedGetHead;
+  };
+  'health': {
+    '$url': {
+    };
+    '$get': HealthGetHead;
+    '$head': HealthGetHead;
+  };
+  'library': {
+    '$url': {
+    };
+    '$get': LibraryGetHead;
+    '$head': LibraryGetHead;
+    ':category': {
+      '$url': {
+      };
+      '$get': LibraryIdGetHead;
+      '$head': LibraryIdGetHead;
+    };
+  };
   'dancers': {
     '$url': {
     };
@@ -258,29 +298,19 @@ export interface ApiDefinition {
       '$get': DancersIdGetHead;
       '$head': DancersIdGetHead;
     };
-  };
-  'feed': {
-    '$url': {
-    };
-    '$get': FeedGetHead;
-    '$head': FeedGetHead;
-  };
-  'health': {
-    '$url': {
-    };
-    '$get': HealthGetHead;
-    '$head': HealthGetHead;
-  };
-  'library': {
-    '$url': {
-    };
-    '$get': LibraryGetHead;
-    '$head': LibraryGetHead;
-    ':category': {
-      '$url': {
+    ':id': {
+      'favorite': {
+        '$url': {
+        };
+        '$post': DancersIdFavoritePost;
+        '$delete': DancersIdFavoriteDelete;
       };
-      '$get': LibraryIdGetHead;
-      '$head': LibraryIdGetHead;
+      'metadata': {
+        '$url': {
+        };
+        '$get': DancersIdMetadataGetHead;
+        '$head': DancersIdMetadataGetHead;
+      };
     };
   };
   'events': {
@@ -328,11 +358,19 @@ export interface ApiDefinition {
     };
     '$get': SchoolsGetHead;
     '$head': SchoolsGetHead;
-    'followers': {
-      '$url': {
+    'me': {
+      'followers': {
+        '$url': {
+        };
+        '$get': SchoolsMeFollowersGetHead;
+        '$head': SchoolsMeFollowersGetHead;
       };
-      '$get': SchoolsFollowersGetHead;
-      '$head': SchoolsFollowersGetHead;
+      'following': {
+        '$url': {
+        };
+        '$get': SchoolsMeFollowingGetHead;
+        '$head': SchoolsMeFollowingGetHead;
+      };
     };
     ':username': {
       '$url': {

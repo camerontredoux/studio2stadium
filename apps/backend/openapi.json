@@ -288,6 +288,129 @@
         "description": "Returns a list of all blog posts"
       }
     },
+    "/feed": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Feed"
+        ],
+        "summary": "Get feed",
+        "description": "Returns the feed for the current user"
+      }
+    },
+    "/health": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/library": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Video Library"
+        ],
+        "summary": "List tap in videos",
+        "description": "Returns a list of all tap in videos with their category"
+      }
+    },
+    "/library/{category}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": [
+                "string",
+                "number"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryIdResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Video Library"
+        ],
+        "summary": "List videos by category",
+        "description": "Returns a list of videos by category, paginated with 6 results at a time"
+      }
+    },
     "/dancers": {
       "post": {
         "requestBody": {
@@ -474,97 +597,100 @@
         "description": "Returns the dancer's public profile"
       }
     },
-    "/feed": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FeedResponse"
-                }
+    "/dancers/{id}/favorite": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DancersIdFavoriteRequest"
               }
             }
           }
         },
-        "tags": [
-          "Feed"
-        ],
-        "summary": "Get feed",
-        "description": "Returns the feed for the current user"
-      }
-    },
-    "/health": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HealthResponse"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Service Unavailable",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HealthResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/library": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LibraryResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Video Library"
-        ],
-        "summary": "List tap in videos",
-        "description": "Returns a list of all tap in videos with their category"
-      }
-    },
-    "/library/{category}": {
-      "get": {
         "parameters": [
           {
-            "name": "category",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string"
             }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersIdFavoriteResponse"
+                }
+              }
+            }
           },
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Favorite a dancer",
+        "description": "Adds a dancer to the school's favorites list."
+      },
+      "delete": {
+        "parameters": [
           {
-            "name": "page",
-            "in": "query",
+            "name": "id",
+            "in": "path",
             "required": true,
             "schema": {
-              "type": [
-                "string",
-                "number"
-              ]
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Unfavorite a dancer",
+        "description": "Removes a dancer from the school's favorites list."
+      }
+    },
+    "/dancers/{id}/metadata": {
+      "get": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -574,7 +700,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LibraryIdResponse"
+                  "$ref": "#/components/schemas/DancersIdMetadataResponse"
                 }
               }
             }
@@ -591,10 +717,10 @@
           }
         },
         "tags": [
-          "Video Library"
+          "Dancers"
         ],
-        "summary": "List videos by category",
-        "description": "Returns a list of videos by category, paginated with 6 results at a time"
+        "summary": "Get dancer metadata",
+        "description": "Returns the dancer's metadata"
       }
     },
     "/events": {
@@ -1005,7 +1131,7 @@
         "description": "Returns the filters to use when searching for schools"
       }
     },
-    "/schools/followers": {
+    "/schools/me/followers": {
       "get": {
         "parameters": [],
         "responses": {
@@ -1014,7 +1140,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SchoolsFollowersResponse"
+                  "$ref": "#/components/schemas/SchoolsMeFollowersResponse"
                 }
               }
             }
@@ -1025,6 +1151,28 @@
         ],
         "summary": "Get school followers",
         "description": "Returns the dancers that have followed this school."
+      }
+    },
+    "/schools/me/following": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsMeFollowingResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Get following list",
+        "description": "Returns the list of dancers this school has favorited."
       }
     },
     "/schools/{username}": {
@@ -1677,410 +1825,6 @@
           ]
         }
       },
-      "DancersRequest": {
-        "type": "object",
-        "properties": {
-          "phoneNumber": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "birthday": {
-            "type": [
-              "string",
-              "number"
-            ]
-          },
-          "location": {
-            "type": "string"
-          },
-          "platform": {
-            "type": "string",
-            "enum": [
-              "prodigy",
-              "core"
-            ]
-          }
-        },
-        "required": [
-          "birthday",
-          "location",
-          "platform"
-        ]
-      },
-      "DancersFiltersResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "select",
-                "input",
-                "toggle",
-                "multi-select",
-                "range"
-              ]
-            },
-            "id": {
-              "type": "string"
-            },
-            "options": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "label": {
-                    "type": "string"
-                  },
-                  "value": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "label",
-                  "value"
-                ]
-              }
-            },
-            "label": {
-              "type": "string"
-            },
-            "paramKey": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "type",
-            "id",
-            "label",
-            "paramKey"
-          ]
-        }
-      },
-      "DancersMeFollowingResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "username": {
-              "type": "string"
-            },
-            "avatar": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "name": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "id",
-            "username",
-            "avatar",
-            "name"
-          ]
-        }
-      },
-      "DancersMeFollowingIdsResponse": {
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
-      },
-      "DancersMeFollowersResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "username": {
-              "type": "string"
-            },
-            "avatar": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "name": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "username",
-            "avatar",
-            "name"
-          ]
-        }
-      },
-      "DancersIdResponse": {
-        "type": "object",
-        "properties": {
-          "username": {
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
-          },
-          "avatar": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "dancerProfile": {
-            "oneOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "birthday": {
-                    "type": "string"
-                  },
-                  "location": {
-                    "type": "string"
-                  },
-                  "skillLevel": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "teamLevel": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "highSchool": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "studio": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "gpa": {
-                    "oneOf": [
-                      {
-                        "type": "number"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "gradYear": {
-                    "oneOf": [
-                      {
-                        "type": "number"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "trainingHours": {
-                    "oneOf": [
-                      {
-                        "type": "number"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "achievements": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "createdAt": {
-                          "type": "string"
-                        },
-                        "updatedAt": {
-                          "type": "string"
-                        },
-                        "profileId": {
-                          "type": "string"
-                        },
-                        "title": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "id",
-                        "createdAt",
-                        "updatedAt",
-                        "profileId",
-                        "title",
-                        "description"
-                      ]
-                    }
-                  },
-                  "references": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string"
-                        },
-                        "id": {
-                          "type": "string"
-                        },
-                        "createdAt": {
-                          "type": "string"
-                        },
-                        "updatedAt": {
-                          "type": "string"
-                        },
-                        "profileId": {
-                          "type": "string"
-                        },
-                        "title": {
-                          "type": "string"
-                        },
-                        "description": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        }
-                      },
-                      "required": [
-                        "name",
-                        "id",
-                        "createdAt",
-                        "updatedAt",
-                        "profileId",
-                        "title",
-                        "description"
-                      ]
-                    }
-                  },
-                  "skills": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string"
-                        },
-                        "slug": {
-                          "type": "string"
-                        },
-                        "category": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "name",
-                        "slug",
-                        "category"
-                      ]
-                    }
-                  },
-                  "styles": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string"
-                        },
-                        "slug": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "name",
-                        "slug"
-                      ]
-                    }
-                  }
-                },
-                "required": [
-                  "birthday",
-                  "location",
-                  "skillLevel",
-                  "teamLevel",
-                  "highSchool",
-                  "studio",
-                  "gpa",
-                  "gradYear",
-                  "trainingHours",
-                  "achievements",
-                  "references",
-                  "skills",
-                  "styles"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "username",
-          "id",
-          "avatar",
-          "dancerProfile"
-        ]
-      },
       "FeedResponse": {
         "type": "array",
         "items": {
@@ -2355,6 +2099,440 @@
             "category"
           ]
         }
+      },
+      "DancersRequest": {
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "birthday": {
+            "type": [
+              "string",
+              "number"
+            ]
+          },
+          "location": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "prodigy",
+              "core"
+            ]
+          }
+        },
+        "required": [
+          "birthday",
+          "location",
+          "platform"
+        ]
+      },
+      "DancersFiltersResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "select",
+                "input",
+                "toggle",
+                "multi-select",
+                "range"
+              ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "label",
+                  "value"
+                ]
+              }
+            },
+            "label": {
+              "type": "string"
+            },
+            "paramKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "label",
+            "paramKey"
+          ]
+        }
+      },
+      "DancersMeFollowingResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "username": {
+              "type": "string"
+            },
+            "avatar": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "username",
+            "avatar",
+            "name"
+          ]
+        }
+      },
+      "DancersMeFollowingIdsResponse": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "DancersMeFollowersResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string"
+            },
+            "avatar": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "username",
+            "avatar",
+            "name"
+          ]
+        }
+      },
+      "DancersIdResponse": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "avatar": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "birthday": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "skillLevel": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "teamLevel": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "highSchool": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "studio": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "gpa": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "gradYear": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trainingHours": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "achievements": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "profileId": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "createdAt",
+                "updatedAt",
+                "profileId",
+                "title",
+                "description"
+              ]
+            }
+          },
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "profileId": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "name",
+                "id",
+                "createdAt",
+                "updatedAt",
+                "profileId",
+                "title",
+                "description"
+              ]
+            }
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "slug",
+                "category"
+              ]
+            }
+          },
+          "styles": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "slug"
+              ]
+            }
+          }
+        },
+        "required": [
+          "username",
+          "id",
+          "avatar",
+          "birthday",
+          "location",
+          "skillLevel",
+          "teamLevel",
+          "highSchool",
+          "studio",
+          "gpa",
+          "gradYear",
+          "trainingHours",
+          "achievements",
+          "references",
+          "skills",
+          "styles"
+        ]
+      },
+      "DancersIdFavoriteRequest": {
+        "type": "object",
+        "properties": {
+          "platformName": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "prodigy",
+                  "core"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "DancersIdFavoriteResponse": {
+        "type": "object",
+        "properties": {
+          "created": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "created"
+        ]
+      },
+      "DancersIdMetadataResponse": {
+        "type": "object",
+        "properties": {
+          "followers": {
+            "type": "number"
+          },
+          "favorited": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "followers",
+          "favorited"
+        ]
       },
       "EventsResponse": {
         "type": "array",
@@ -2937,7 +3115,7 @@
           ]
         }
       },
-      "SchoolsFollowersResponse": {
+      "SchoolsMeFollowersResponse": {
         "type": "array",
         "items": {
           "type": "object",
@@ -2960,6 +3138,39 @@
             }
           },
           "required": [
+            "username",
+            "avatar",
+            "name"
+          ]
+        }
+      },
+      "SchoolsMeFollowingResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "username": {
+              "type": "string"
+            },
+            "avatar": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
             "username",
             "avatar",
             "name"
@@ -3438,17 +3649,17 @@
           "following": {
             "type": "boolean"
           },
-          "interested": {
-            "type": "boolean"
-          },
           "followers": {
             "type": "number"
+          },
+          "interested": {
+            "type": "boolean"
           }
         },
         "required": [
           "following",
-          "interested",
-          "followers"
+          "followers",
+          "interested"
         ]
       },
       "SchoolsIdInterestResponse": {
