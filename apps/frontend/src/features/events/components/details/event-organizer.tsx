@@ -6,7 +6,7 @@ import {
   FrameTitle,
 } from "@/components/ui/frame";
 import { Link } from "@tanstack/react-router";
-import type { ApiEvent } from "../mock-data";
+import type { ApiEvent } from "../../types";
 
 interface EventOrganizerProps {
   organizer: NonNullable<ApiEvent["organizer"]>;

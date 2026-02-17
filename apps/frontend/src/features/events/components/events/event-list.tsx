@@ -1,15 +1,14 @@
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import type { ApiSchemas } from "@/lib/api/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useElementScrollRestoration } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { CalendarIcon } from "lucide-react";
 import { useMemo, useRef } from "react";
-import { useResizeObserver } from "usehooks-ts";
+import { useResizeObserver, useToggle } from "usehooks-ts";
 import { eventQueries } from "../../api/queries";
 import { EventsFilterSheet } from "../filters/filter-sheet";
 import { EventCard } from "./event-card";
+import { SavedToggle } from "./saved-toggle";
 
 type Events = ApiSchemas["EventsResponse"][number]["events"];
 
@@ -26,6 +25,8 @@ export function EventList() {
   const parentRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
+  const [showSaved, toggleShowSaved] = useToggle(false);
+
   const { width: containerWidth = 0 } = useResizeObserver({
     ref: parentRef as React.RefObject<HTMLDivElement>,
   });
@@ -37,16 +38,19 @@ export function EventList() {
     const allEvents = data.flatMap((category) =>
       category.events.map((event) => ({ month: category.month, event })),
     );
+    const filteredEvents = showSaved
+      ? allEvents.filter((event) => event.event.saved)
+      : allEvents;
     const rows: VirtualRow[] = [];
-    for (let i = 0; i < allEvents.length; i += columns) {
-      const chunk = allEvents.slice(i, i + columns);
+    for (let i = 0; i < filteredEvents.length; i += columns) {
+      const chunk = filteredEvents.slice(i, i + columns);
       rows.push({
         month: chunk[0].month,
         events: chunk.map((e) => e.event),
       });
     }
     return rows;
-  }, [data, columns]);
+  }, [data, columns, showSaved]);
 
   const scrollEntry = useElementScrollRestoration({
     getElement: () => window,
@@ -81,10 +85,7 @@ export function EventList() {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <Label className="text-muted-foreground">
-              Following
-              <Switch />
-            </Label>
+            <SavedToggle onChange={toggleShowSaved} />
             <div className="bg-background rounded-lg">
               <EventsFilterSheet />
             </div>

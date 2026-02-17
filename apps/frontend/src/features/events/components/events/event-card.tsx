@@ -7,7 +7,7 @@ import {
   MapPinIcon,
   SaveIcon,
 } from "lucide-react";
-import type { EventCard } from "../mock-data";
+import type { EventCard } from "../../types";
 
 interface EventCardProps {
   event: EventCard["events"][number];

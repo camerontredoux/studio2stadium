@@ -1,3 +1,4 @@
+import { platformName } from "#database/schema/enums";
 import { favorites } from "#database/schema/profiles";
 import { DatabaseService } from "#database/service";
 import { E_DATABASE_ERROR } from "#exceptions/database";
@@ -8,13 +9,17 @@ import { Validator } from "./validator.ts";
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute({ params, platformName }: Validator, profileId: string) {
+  async execute(
+    { params }: Validator,
+    profileId: string,
+    platform: (typeof platformName.enumValues)[number]
+  ) {
     try {
       await this.db.use((db) =>
         db.insert(favorites).values({
           schoolId: profileId,
           dancerId: params.id,
-          platformName,
+          platformName: platform,
         })
       );
     } catch (error) {

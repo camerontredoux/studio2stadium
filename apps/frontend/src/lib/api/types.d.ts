@@ -938,11 +938,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["DancersIdFavoriteRequest"];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description Created */
                 201: {
@@ -977,9 +973,7 @@ export interface paths {
          */
         delete: {
             parameters: {
-                query: {
-                    platformName: "prodigy" | "core";
-                };
+                query?: never;
                 header?: never;
                 path: {
                     id: string;
@@ -2027,15 +2021,15 @@ export interface components {
         }[];
         FeedResponse: {
             feed: {
-                username: string;
-                name: string;
                 id: string;
-                avatar: string | null;
-                createdAt: string;
                 /** @enum {string} */
                 contentType: "profile" | "image" | "video" | "reference" | "achievement";
-                content: string | null;
+                createdAt: string;
+                username: string;
+                avatar: string | null;
+                name: string | null;
                 caption: string | null;
+                content: string | null;
             }[];
             nextCursor: string;
         };
@@ -2150,10 +2144,6 @@ export interface components {
                 name: string;
                 slug: string;
             }[];
-        };
-        DancersIdFavoriteRequest: {
-            /** @enum {string} */
-            platformName: "prodigy" | "core";
         };
         DancersIdFavoriteResponse: {
             created: boolean;

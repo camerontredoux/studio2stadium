@@ -8,7 +8,13 @@ export default class FavoriteDancerController {
   async handle(ctx: HttpContext, service: Service) {
     const payload = await ctx.request.validateUsing(schema);
 
-    const result = await service.execute(payload, ctx.session.profileId);
+    const platform = ctx.session.platforms[0];
+
+    const result = await service.execute(
+      payload,
+      ctx.session.profileId,
+      platform
+    );
 
     if (result.created) {
       return ctx.response.created(result);

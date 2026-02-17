@@ -625,15 +625,6 @@
     },
     "/dancers/{id}/favorite": {
       "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DancersIdFavoriteRequest"
-              }
-            }
-          }
-        },
         "parameters": [
           {
             "name": "id",
@@ -683,18 +674,6 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "name": "platformName",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "prodigy",
-                "core"
-              ]
             }
           }
         ],
@@ -1871,68 +1850,7 @@
             "items": {
               "type": "object",
               "properties": {
-                "user": {
-                  "type": "object",
-                  "properties": {
-                    "username": {
-                      "type": "string"
-                    },
-                    "firstName": {
-                      "type": "string"
-                    },
-                    "lastName": {
-                      "type": "string"
-                    },
-                    "avatar": {
-                      "oneOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "schoolProfile": {
-                      "oneOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "name": {
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "name"
-                          ]
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    }
-                  },
-                  "required": [
-                    "username",
-                    "firstName",
-                    "lastName",
-                    "avatar",
-                    "schoolProfile"
-                  ]
-                },
                 "id": {
-                  "type": "string"
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "updatedAt": {
-                  "type": "string"
-                },
-                "userId": {
-                  "type": "string"
-                },
-                "contentId": {
                   "type": "string"
                 },
                 "contentType": {
@@ -1945,24 +1863,61 @@
                     "achievement"
                   ]
                 },
-                "payload": {
-                  "type": "object",
-                  "properties": {}
+                "createdAt": {
+                  "type": "string"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "avatar": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "name": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "caption": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 },
                 "content": {
-                  "type": "object",
-                  "properties": {}
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 }
               },
               "required": [
-                "user",
                 "id",
-                "createdAt",
-                "updatedAt",
-                "userId",
-                "contentId",
                 "contentType",
-                "payload",
+                "createdAt",
+                "username",
+                "avatar",
+                "name",
+                "caption",
                 "content"
               ]
             }
@@ -2541,21 +2496,6 @@
           "references",
           "skills",
           "styles"
-        ]
-      },
-      "DancersIdFavoriteRequest": {
-        "type": "object",
-        "properties": {
-          "platformName": {
-            "type": "string",
-            "enum": [
-              "prodigy",
-              "core"
-            ]
-          }
-        },
-        "required": [
-          "platformName"
         ]
       },
       "DancersIdFavoriteResponse": {

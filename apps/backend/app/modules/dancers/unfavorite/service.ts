@@ -1,3 +1,4 @@
+import { platformName } from "#database/schema/enums";
 import { favorites } from "#database/schema/profiles";
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
@@ -8,7 +9,11 @@ import { Validator } from "./validator.ts";
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute({ params, platformName }: Validator, profileId: string) {
+  async execute(
+    { params }: Validator,
+    profileId: string,
+    platform: (typeof platformName.enumValues)[number]
+  ) {
     await this.db.use((db) =>
       db
         .delete(favorites)
@@ -16,7 +21,7 @@ export class Service {
           and(
             eq(favorites.schoolId, profileId),
             eq(favorites.dancerId, params.id),
-            eq(favorites.platformName, platformName)
+            eq(favorites.platformName, platform)
           )
         )
     );

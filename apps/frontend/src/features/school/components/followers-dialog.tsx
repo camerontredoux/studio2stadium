@@ -36,7 +36,12 @@ function FavoriteToggleButton({
 
   const handleClick = () => {
     if (isFavorited) {
-      unfavoriteMutation.mutate({ params: { path: { id: dancer.id } } });
+      unfavoriteMutation.mutate({
+        params: {
+          path: { id: dancer.id },
+          query: { platformName: dancer.platform },
+        },
+      });
     } else {
       favoriteMutation.mutate({ params: { path: { id: dancer.id } } });
     }

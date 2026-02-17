@@ -4,7 +4,7 @@ import {
   FramePanel,
   FrameTitle,
 } from "@/components/ui/frame";
-import type { ApiEvent } from "../mock-data";
+import type { ApiEvent } from "../../types";
 
 interface EventScheduleProps {
   schedule: ApiEvent["schedule"];

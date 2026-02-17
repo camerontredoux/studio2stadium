@@ -21,7 +21,11 @@ export function FavoriteButton({
   const handleClick = () => {
     const mutate = isFavorited ? unfavorite : favorite;
     mutate(
-      { params: { path: { id: dancer.id } } },
+      {
+        params: {
+          path: { id: dancer.id },
+        },
+      },
       {
         onError: handleApiError({
           onError: (error) => {

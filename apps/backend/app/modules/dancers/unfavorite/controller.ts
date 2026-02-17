@@ -8,7 +8,9 @@ export default class UnfavoriteDancerController {
   async handle(ctx: HttpContext, service: Service) {
     const payload = await ctx.request.validateUsing(schema);
 
-    await service.execute(payload, ctx.session.profileId);
+    const platform = ctx.session.platforms[0];
+
+    await service.execute(payload, ctx.session.profileId, platform);
 
     return ctx.response.noContent();
   }
