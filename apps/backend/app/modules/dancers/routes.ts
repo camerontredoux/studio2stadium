@@ -18,14 +18,11 @@ const GetMetadataController = () =>
 
 router
   .group(() => {
-    router
-      .post("/", [CreateDancerController])
-      .openapi({
-        summary: "Create a dancer",
-        description:
-          "Populate account with personal information to finish dancer signup",
-      })
-      .use(middleware.auth());
+    router.post("/", [CreateDancerController]).openapi({
+      summary: "Create a dancer",
+      description:
+        "Populate account with personal information to finish dancer signup",
+    });
 
     router.get("/filters", [GetFiltersController]).openapi({
       summary: "Get dancer filters",
@@ -52,15 +49,12 @@ router
         });
       })
       .prefix("me")
-      .use([middleware.auth(), middleware.dancer()]);
+      .use(middleware.dancer());
 
-    router
-      .get("/:username", [GetDancerController])
-      .openapi({
-        summary: "Get a dancer",
-        description: "Returns the dancer's public profile",
-      })
-      .use(middleware.auth());
+    router.get("/:username", [GetDancerController]).openapi({
+      summary: "Get a dancer",
+      description: "Returns the dancer's public profile",
+    });
 
     router
       .post("/:id/favorite", [FavoriteDancerController])
@@ -68,7 +62,7 @@ router
         summary: "Favorite a dancer",
         description: "Adds a dancer to the school's favorites list.",
       })
-      .use([middleware.auth(), middleware.school(), throttle("favorite")]);
+      .use([middleware.school(), throttle("favorite")]);
 
     router
       .delete("/:id/favorite", [UnfavoriteDancerController])
@@ -76,7 +70,7 @@ router
         summary: "Unfavorite a dancer",
         description: "Removes a dancer from the school's favorites list.",
       })
-      .use([middleware.auth(), middleware.school(), throttle("unfavorite")]);
+      .use([middleware.school(), throttle("unfavorite")]);
 
     router
       .get("/:id/metadata", [GetMetadataController])
@@ -84,7 +78,8 @@ router
         summary: "Get dancer metadata",
         description: "Returns the dancer's metadata",
       })
-      .use([middleware.auth(), middleware.school()]);
+      .use(middleware.school());
   })
+  .use(middleware.auth())
   .prefix("dancers")
   .openapi({ tags: ["Dancers"] });

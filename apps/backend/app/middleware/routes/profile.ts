@@ -4,19 +4,13 @@ import type { HttpContext } from "@adonisjs/core/http";
 import type { NextFn } from "@adonisjs/core/types/http";
 
 /**
- * Dancer middleware ensures the authenticated user is a dancer with a profile.
+ * Profile middleware ensures the authenticated user has a profile (any type).
  * Sets ctx.session with typed ProfileSession for use in controllers.
+ * Use this for type-agnostic routes that need profileId.
  */
-export default class DancerMiddleware {
+export default class ProfileMiddleware {
   async handle(ctx: HttpContext, next: NextFn) {
     const user = ctx.auth.getUserOrFail();
-
-    if (user.type !== "dancer") {
-      return ctx.response.forbidden({
-        message: "This resource is only available to dancers.",
-      });
-    }
-
     if (!user.profileId) {
       return ctx.response.forbidden({
         message: "This resource requires a profile.",

@@ -6,10 +6,9 @@ import { schema } from "./validator.ts";
 export default class UnfollowSchoolController {
   @inject()
   async handle(ctx: HttpContext, service: Service) {
-    const session = ctx.auth.getUserOrFail();
     const payload = await ctx.request.validateUsing(schema);
 
-    await service.execute(payload, session.profileId);
+    await service.execute(payload, ctx.session.profileId);
 
     return ctx.response.noContent();
   }

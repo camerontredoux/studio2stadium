@@ -44,7 +44,7 @@ router
         summary: "Get user activity",
         description: "Returns the user's activity",
       })
-      .use(middleware.auth());
+      .use([middleware.auth(), middleware.profile()]);
   })
   .prefix("users")
   .openapi({ tags: ["Users"] });

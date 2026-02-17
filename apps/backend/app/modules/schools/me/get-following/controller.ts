@@ -5,9 +5,7 @@ import { Service } from "./service.ts";
 export default class GetFollowingController {
   @inject()
   async handle(ctx: HttpContext, service: Service) {
-    const session = ctx.auth.getUserOrFail();
-
-    const data = await service.execute(session.profileId);
+    const data = await service.execute(ctx.session.profileId);
 
     return ctx.response.ok(data);
   }

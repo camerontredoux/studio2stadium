@@ -6,10 +6,9 @@ import { schema } from "./validator.ts";
 export default class FollowSchoolController {
   @inject()
   async handle(ctx: HttpContext, service: Service) {
-    const session = ctx.auth.getUserOrFail();
     const payload = await ctx.request.validateUsing(schema);
 
-    const result = await service.execute(payload, session.profileId);
+    const result = await service.execute(payload, ctx.session.profileId);
 
     if (result.created) {
       return ctx.response.created(result);

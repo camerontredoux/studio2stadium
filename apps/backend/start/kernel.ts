@@ -46,4 +46,5 @@ export const middleware = router.named({
   dancer: () => import("#middleware/routes/dancer"),
   school: () => import("#middleware/routes/school"),
   premium: () => import("#middleware/routes/premium"),
+  profile: () => import("#middleware/routes/profile"),
 });

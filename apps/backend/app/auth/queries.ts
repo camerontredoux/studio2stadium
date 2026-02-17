@@ -76,8 +76,6 @@ export async function getUserSession(id: string) {
     }
   }
 
-  if (!profileId) return null;
-
   return {
     ...user,
     profileId,
