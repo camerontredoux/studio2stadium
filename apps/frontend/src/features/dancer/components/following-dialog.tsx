@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
 import { useUnfollowSchool } from "@/shared/api/mutations";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -18,16 +19,17 @@ import { Suspense } from "react";
 import { dancerQueries } from "../api/queries";
 
 function UnfollowButton({ id }: { id: string }) {
-  const { mutate } = useUnfollowSchool(id);
+  const { mutate, isPending } = useUnfollowSchool(id);
 
   return (
     <Button
+      disabled={isPending}
       onClick={() => mutate({ params: { path: { id } } })}
       size="sm"
       variant="ghost"
       className="text-destructive-foreground"
     >
-      Unfollow
+      {isPending ? <Spinner label="Unfollow" /> : "Unfollow"}
     </Button>
   );
 }
@@ -78,13 +80,19 @@ export function DancerFollowingDialog({ count }: { count: number }) {
           <p className="ml-auto">{count}</p>
         </div>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>Following</DialogTitle>
-          <DialogDescription>Accounts you are following</DialogDescription>
+          <DialogDescription>Schools you are following</DialogDescription>
         </DialogHeader>
-        <DialogPanel className="max-h-96">
-          <Suspense>
+        <DialogPanel className="h-96">
+          <Suspense
+            fallback={
+              <div className="flex h-full items-center justify-center">
+                <Spinner />
+              </div>
+            }
+          >
             <FollowingList />
           </Suspense>
         </DialogPanel>

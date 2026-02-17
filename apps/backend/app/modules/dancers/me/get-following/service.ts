@@ -31,6 +31,7 @@ export class Service {
     );
 
     return following
+      .sort((a, b) => a.school!.name.localeCompare(b.school!.name))
       .filter((f) => f.school?.user)
       .map((f) => ({
         id: f.school!.id,

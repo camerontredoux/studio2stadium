@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Suspense } from "react";
@@ -48,10 +49,16 @@ export function DancerFollowersDialog({ count }: { count: number }) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Followers</DialogTitle>
-          <DialogDescription>Accounts following you</DialogDescription>
+          <DialogDescription>Schools who have favorited you</DialogDescription>
         </DialogHeader>
-        <DialogPanel className="max-h-96">
-          <Suspense>
+        <DialogPanel className="h-96">
+          <Suspense
+            fallback={
+              <div className="flex h-full items-center justify-center">
+                <Spinner />
+              </div>
+            }
+          >
             <FollowersList />
           </Suspense>
         </DialogPanel>

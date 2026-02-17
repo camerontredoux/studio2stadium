@@ -67,17 +67,19 @@ export function CardContent({
         <Badge variant="outline">
           <TargetIcon className="size-3 shrink-0" /> {school.gpa ?? 0} GPA
         </Badge>
-        <TooltipProvider delay={100}>
-          <Tooltip>
-            <TooltipTrigger render={<Badge variant="outline" />}>
-              <GraduationCapIcon className="size-3 shrink-0" />{" "}
-              {school.size?.toLocaleString() ?? 0}
-            </TooltipTrigger>
-            <TooltipContent>
-              {school.size?.toLocaleString() ?? 0} students
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        {school.size && school.size > 0 && (
+          <TooltipProvider delay={100}>
+            <Tooltip>
+              <TooltipTrigger render={<Badge variant="outline" />}>
+                <GraduationCapIcon className="size-3 shrink-0" />{" "}
+                {school.size.toLocaleString()}
+              </TooltipTrigger>
+              <TooltipContent>
+                {school.size.toLocaleString()} students
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </div>
     </div>
   );
