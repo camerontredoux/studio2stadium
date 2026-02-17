@@ -290,7 +290,23 @@
     },
     "/feed": {
       "get": {
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -298,6 +314,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/FeedResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -657,6 +683,18 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "platformName",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "prodigy",
+                "core"
+              ]
             }
           }
         ],
@@ -1826,105 +1864,117 @@
         }
       },
       "FeedResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "user": {
+        "type": "object",
+        "properties": {
+          "feed": {
+            "type": "array",
+            "items": {
               "type": "object",
               "properties": {
-                "username": {
-                  "type": "string"
-                },
-                "firstName": {
-                  "type": "string"
-                },
-                "lastName": {
-                  "type": "string"
-                },
-                "avatar": {
-                  "oneOf": [
-                    {
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "username": {
                       "type": "string"
                     },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "schoolProfile": {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "name": {
+                    "firstName": {
+                      "type": "string"
+                    },
+                    "lastName": {
+                      "type": "string"
+                    },
+                    "avatar": {
+                      "oneOf": [
+                        {
                           "type": "string"
+                        },
+                        {
+                          "type": "null"
                         }
-                      },
-                      "required": [
-                        "name"
                       ]
                     },
-                    {
-                      "type": "null"
+                    "schoolProfile": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "name"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
+                  },
+                  "required": [
+                    "username",
+                    "firstName",
+                    "lastName",
+                    "avatar",
+                    "schoolProfile"
                   ]
+                },
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "userId": {
+                  "type": "string"
+                },
+                "contentId": {
+                  "type": "string"
+                },
+                "contentType": {
+                  "type": "string",
+                  "enum": [
+                    "profile",
+                    "image",
+                    "video",
+                    "reference",
+                    "achievement"
+                  ]
+                },
+                "payload": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "content": {
+                  "type": "object",
+                  "properties": {}
                 }
               },
               "required": [
-                "username",
-                "firstName",
-                "lastName",
-                "avatar",
-                "schoolProfile"
+                "user",
+                "id",
+                "createdAt",
+                "updatedAt",
+                "userId",
+                "contentId",
+                "contentType",
+                "payload",
+                "content"
               ]
-            },
-            "id": {
-              "type": "string"
-            },
-            "createdAt": {
-              "type": "string"
-            },
-            "updatedAt": {
-              "type": "string"
-            },
-            "userId": {
-              "type": "string"
-            },
-            "contentId": {
-              "type": "string"
-            },
-            "contentType": {
-              "type": "string",
-              "enum": [
-                "profile",
-                "image",
-                "video",
-                "reference",
-                "achievement"
-              ]
-            },
-            "payload": {
-              "type": "object",
-              "properties": {}
-            },
-            "content": {
-              "type": "object",
-              "properties": {}
             }
           },
-          "required": [
-            "user",
-            "id",
-            "createdAt",
-            "updatedAt",
-            "userId",
-            "contentId",
-            "contentType",
-            "payload",
-            "content"
-          ]
-        }
+          "nextCursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "feed",
+          "nextCursor"
+        ]
       },
       "HealthResponse": {
         "type": "object",
@@ -2497,20 +2547,16 @@
         "type": "object",
         "properties": {
           "platformName": {
-            "oneOf": [
-              {
-                "type": "string",
-                "enum": [
-                  "prodigy",
-                  "core"
-                ]
-              },
-              {
-                "type": "null"
-              }
+            "type": "string",
+            "enum": [
+              "prodigy",
+              "core"
             ]
           }
-        }
+        },
+        "required": [
+          "platformName"
+        ]
       },
       "DancersIdFavoriteResponse": {
         "type": "object",

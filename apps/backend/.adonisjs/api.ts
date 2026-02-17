@@ -48,8 +48,8 @@ type BlogGetHead = {
   response: MakeTuyauResponse<import('../app/modules/blog/get-posts/controller.ts').default['handle'], false>
 }
 type FeedGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/feed/get-feed/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/feed/get-feed/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/feed/get-feed/controller.ts').default['handle'], true>
 }
 type HealthGetHead = {
   request: unknown
