@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { HeartIcon, MessageCircleIcon } from "lucide-react";
 
-export function FeedDescription({ caption }: { caption: string | undefined }) {
+export function FeedDescription({ caption }: { caption: string | null }) {
   return (
     <div className="flex flex-col gap-2">
       {caption && (

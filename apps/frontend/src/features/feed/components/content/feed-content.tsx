@@ -5,9 +5,9 @@ import { FeedVideo } from "./feed-video";
 export function FeedContent({ item }: { item: FeedItem }) {
   switch (item.contentType) {
     case "image":
-      return <FeedImage image={item.content?.mediaUrl ?? ""} />;
+      return <FeedImage item={item} />;
     case "video":
-      return <FeedVideo video={item.content?.mediaId ?? ""} />;
+      return <FeedVideo item={item} />;
     case "profile":
     case "achievement":
     case "reference":

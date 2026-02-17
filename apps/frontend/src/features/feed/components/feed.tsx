@@ -1,31 +1,51 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useElementScrollRestoration } from "@tanstack/react-router";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { feedQueries } from "../api/queries";
 import { FeedItem } from "./content/feed-item";
+import { FeedItemSkeleton, FeedSkeleton } from "./feed-skeleton";
 
 export function Feed() {
-  const { data } = useSuspenseQuery(feedQueries.feed());
+  const { status, data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteQuery(feedQueries.feed());
 
-  const scrollEntry = useElementScrollRestoration({
-    getElement: () => window,
-  });
+  const rows = data ? data.pages.flatMap((page) => page.feed) : [];
 
   const parentRef = useRef<HTMLDivElement>(null);
 
   // eslint-disable-next-line react-hooks/refs
   const rowVirtualizer = useWindowVirtualizer({
-    count: data.length,
+    count: hasNextPage ? rows.length + 1 : rows.length,
     estimateSize: () => 450,
     gap: 8,
     overscan: 2,
     // eslint-disable-next-line react-hooks/refs
     scrollMargin: parentRef.current?.offsetTop ?? 0,
-    initialOffset: scrollEntry?.scrollY,
   });
 
   const virtualItems = rowVirtualizer.getVirtualItems();
+
+  useEffect(() => {
+    const [lastItem] = [...virtualItems].reverse();
+
+    if (!lastItem) return;
+
+    if (
+      lastItem.index >= rows.length - 1 &&
+      hasNextPage &&
+      !isFetchingNextPage
+    ) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, fetchNextPage, rows.length, isFetchingNextPage, virtualItems]);
+
+  if (status === "pending") {
+    return <FeedSkeleton />;
+  }
+
+  if (status === "error") {
+    return <div>Error loading feed</div>;
+  }
 
   return (
     <div ref={parentRef} className="sm:pb-6 lg:pb-8">
@@ -46,15 +66,20 @@ export function Feed() {
           }}
           className="flex flex-col gap-2 overflow-clip rounded-2xl lg:gap-4"
         >
-          {virtualItems.map((row) => (
-            <div
-              key={row.key}
-              data-index={row.index}
-              ref={rowVirtualizer.measureElement}
-            >
-              <FeedItem item={data[row.index]} />
-            </div>
-          ))}
+          {virtualItems.map((row) => {
+            const isLoaderRow = row.index > rows.length - 1;
+            const item = rows[row.index];
+
+            return (
+              <div
+                key={row.key}
+                data-index={row.index}
+                ref={rowVirtualizer.measureElement}
+              >
+                {isLoaderRow ? <FeedItemSkeleton /> : <FeedItem item={item} />}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

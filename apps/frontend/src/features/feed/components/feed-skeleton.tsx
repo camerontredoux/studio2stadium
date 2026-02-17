@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-function FeedItemSkeleton() {
+export function FeedItemSkeleton() {
   return (
     <div className="overflow-clip sm:rounded-2xl sm:border">
       <Skeleton className="aspect-video w-full" />

@@ -5,7 +5,7 @@ import { FeedPage } from "@/features/feed/page";
 
 export const Route = createFileRoute("/_app/(routes)/feed")({
   loader: ({ context: { queryClient } }) => {
-    queryClient.ensureQueryData(feedQueries.feed());
+    queryClient.ensureInfiniteQueryData(feedQueries.feed());
   },
   component: FeedPage,
 });

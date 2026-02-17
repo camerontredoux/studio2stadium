@@ -7,14 +7,19 @@ import {
   DialogPanel,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import type { FeedItem } from "../types";
 
-export function FeedImage({ image }: { image: string }) {
+interface FeedImageProps {
+  item: FeedItem;
+}
+
+export function FeedImage({ item }: FeedImageProps) {
   return (
     <Dialog>
       <DialogTrigger className="block w-full">
         <div className="group relative cursor-pointer overflow-hidden">
           <img
-            src={image}
+            src={item.content ?? undefined}
             alt="Feed Item"
             className="h-full w-full object-cover"
           />
@@ -27,12 +32,12 @@ export function FeedImage({ image }: { image: string }) {
       >
         <DialogPanel className="h-full p-0">
           <img
-            src={image}
+            src={item.content ?? undefined}
             alt="Feed Item"
             className="absolute z-10 flex h-full w-full items-center justify-center object-contain"
           />
           <img
-            src={image}
+            src={item.content ?? undefined}
             alt="Feed Item"
             className="h-full w-full object-cover opacity-20 blur-md"
           />

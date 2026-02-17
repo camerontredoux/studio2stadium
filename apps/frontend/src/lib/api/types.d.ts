@@ -442,7 +442,9 @@ export interface paths {
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    cursor?: string | null;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -456,6 +458,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["FeedResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -966,7 +977,9 @@ export interface paths {
          */
         delete: {
             parameters: {
-                query?: never;
+                query: {
+                    platformName: "prodigy" | "core";
+                };
                 header?: never;
                 path: {
                     id: string;
@@ -2013,25 +2026,19 @@ export interface components {
             slug: string;
         }[];
         FeedResponse: {
-            user: {
+            feed: {
                 username: string;
-                firstName: string;
-                lastName: string;
+                name: string;
+                id: string;
                 avatar: string | null;
-                schoolProfile: {
-                    name: string;
-                } | null;
-            };
-            id: string;
-            createdAt: string;
-            updatedAt: string;
-            userId: string;
-            contentId: string;
-            /** @enum {string} */
-            contentType: "profile" | "image" | "video" | "reference" | "achievement";
-            payload: Record<string, never>;
-            content: Record<string, never>;
-        }[];
+                createdAt: string;
+                /** @enum {string} */
+                contentType: "profile" | "image" | "video" | "reference" | "achievement";
+                content: string | null;
+                caption: string | null;
+            }[];
+            nextCursor: string;
+        };
         HealthResponse: {
             /** @enum {string} */
             status: "error" | "ok" | "warning";
@@ -2145,7 +2152,8 @@ export interface components {
             }[];
         };
         DancersIdFavoriteRequest: {
-            platformName?: ("prodigy" | "core") | null;
+            /** @enum {string} */
+            platformName: "prodigy" | "core";
         };
         DancersIdFavoriteResponse: {
             created: boolean;

@@ -17,18 +17,18 @@ export function FeedItem({ item }: FeedItemProps) {
       <div className="flex flex-col gap-2 py-2 sm:gap-4 sm:p-4">
         <div className="flex items-start gap-2">
           <Avatar className="size-8 rounded-full sm:size-9">
-            <AvatarImage src={item.user?.avatar ?? ""} />
+            <AvatarImage src={item.avatar ?? ""} />
             <AvatarFallback>
-              {item.user?.username?.slice(0, 2).toUpperCase()}
+              {item.username?.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex min-w-0 flex-col">
             <Link
               className="flex items-center gap-1 text-sm leading-none font-semibold hover:opacity-90 sm:text-base"
               to={`/explore/$username`}
-              params={{ username: item.user.username }}
+              params={{ username: item.username }}
             >
-              <span className="truncate">{item.user?.schoolProfile?.name}</span>
+              <span className="truncate">{item.name}</span>
               <VerifiedIcon className="text-brand size-4 shrink-0" />
             </Link>
             <p className="text-muted-foreground flex items-center gap-1 text-xs sm:text-sm">
@@ -40,7 +40,7 @@ export function FeedItem({ item }: FeedItemProps) {
           </div>
         </div>
 
-        <FeedDescription caption={item.content?.caption} />
+        <FeedDescription caption={item.caption} />
       </div>
     </div>
   );
