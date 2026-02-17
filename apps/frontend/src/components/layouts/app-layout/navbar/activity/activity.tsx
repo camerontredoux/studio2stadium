@@ -27,7 +27,14 @@ export function Activity() {
         </div>
         {session.type === "dancer" ? (
           <>
-            <DancerFollowersDialog count={followers} />
+            <DancerFollowersDialog>
+              <div className="group flex items-center gap-2">
+                <p className="text-muted-foreground group-hover:text-foreground">
+                  Followers
+                </p>
+                <p className="ml-auto">{followers}</p>
+              </div>
+            </DancerFollowersDialog>
             <DancerFollowingDialog>
               <div className="group flex items-center gap-2">
                 <p className="text-muted-foreground group-hover:text-foreground">
@@ -39,7 +46,14 @@ export function Activity() {
           </>
         ) : (
           <>
-            <SchoolFollowersDialog count={followers} />
+            <SchoolFollowersDialog>
+              <div className="group flex items-center gap-2">
+                <p className="text-muted-foreground group-hover:text-foreground">
+                  Followers
+                </p>
+                <p className="ml-auto">{followers}</p>
+              </div>
+            </SchoolFollowersDialog>
             <SchoolFollowingDialog count={following} />
           </>
         )}
