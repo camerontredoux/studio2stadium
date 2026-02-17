@@ -32,19 +32,23 @@ export const danceEvents = pg.pgTable(
   ]
 );
 
-export const globalDanceEvents = pg.pgTable("global_dance_events", {
-  id: pg.uuid().primaryKey().defaultRandom(),
-  title: pg.text().notNull(),
-  thumbnail: pg.text().notNull(),
-  description: pg.text().notNull(),
-  location: pg.text().notNull(),
-  website: pg.text().notNull(),
-  organization: pg.text().notNull(),
-  startDatetime: pg.timestamp().notNull(),
-  endDatetime: pg.timestamp().notNull(),
-  type: danceEventType().notNull(),
-  ...timestamps,
-});
+export const globalDanceEvents = pg.pgTable(
+  "global_dance_events",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    title: pg.text().notNull(),
+    thumbnail: pg.text().notNull(),
+    description: pg.text().notNull(),
+    location: pg.text().notNull(),
+    website: pg.text().notNull(),
+    organization: pg.text().notNull(),
+    startDatetime: pg.timestamp().notNull(),
+    endDatetime: pg.timestamp().notNull(),
+    type: danceEventType().notNull(),
+    ...timestamps,
+  },
+  (table) => [pg.index().on(table.startDatetime)]
+);
 
 export const danceEventSchedules = pg.pgTable(
   "dance_event_schedules",

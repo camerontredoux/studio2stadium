@@ -24,7 +24,10 @@ export const dancerSports = pg.pgTable(
       }),
     ...timestamps,
   },
-  (table) => [pg.primaryKey({ columns: [table.dancerId, table.sportId] })]
+  (table) => [
+    pg.primaryKey({ columns: [table.dancerId, table.sportId] }),
+    pg.index().on(table.dancerId),
+  ]
 );
 
 export const schoolSports = pg.pgTable(
@@ -43,5 +46,8 @@ export const schoolSports = pg.pgTable(
       }),
     ...timestamps,
   },
-  (table) => [pg.primaryKey({ columns: [table.schoolId, table.sportId] })]
+  (table) => [
+    pg.primaryKey({ columns: [table.schoolId, table.sportId] }),
+    pg.index().on(table.schoolId),
+  ]
 );

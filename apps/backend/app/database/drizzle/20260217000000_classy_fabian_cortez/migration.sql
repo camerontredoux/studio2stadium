@@ -1,0 +1,1 @@
+CREATE INDEX "global_dance_events_start_datetime_index" ON "global_dance_events" ("start_datetime");

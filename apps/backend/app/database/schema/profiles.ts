@@ -50,6 +50,7 @@ export const favorites = pg.pgTable(
   (table) => [
     pg.uniqueIndex().on(table.schoolId, table.dancerId),
     pg.index().on(table.dancerId),
+    pg.index().on(table.schoolId),
   ]
 );
 
@@ -70,5 +71,6 @@ export const follows = pg.pgTable(
   (table) => [
     pg.uniqueIndex().on(table.dancerId, table.schoolId),
     pg.index().on(table.schoolId),
+    pg.index().on(table.dancerId),
   ]
 );

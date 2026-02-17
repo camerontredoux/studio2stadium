@@ -28,7 +28,11 @@ export const dancerProfiles = pg.pgTable(
     trainingHours: pg.integer(),
     ...timestamps,
   },
-  (table) => [pg.index().on(table.gradYear), pg.index().on(table.location)]
+  (table) => [
+    pg.index().on(table.userId),
+    pg.index().on(table.gpa),
+    pg.index().on(table.location),
+  ]
 );
 
 export const achievements = pg.pgTable(

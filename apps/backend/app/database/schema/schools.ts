@@ -28,6 +28,7 @@ export const schoolProfiles = pg.pgTable(
     ...timestamps,
   },
   (table) => [
+    pg.index().on(table.userId),
     pg.index().on(table.gpa),
     pg.index().on(table.division),
     pg.index().on(table.location),

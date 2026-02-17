@@ -16,5 +16,8 @@ export const feed = pg.pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     ...timestamps,
   },
-  (table) => [pg.index().on(table.userId, table.createdAt.desc())]
+  (table) => [
+    pg.index().on(table.userId, table.createdAt.desc()),
+    pg.index().on(table.userId),
+  ]
 );

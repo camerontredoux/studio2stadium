@@ -14,7 +14,10 @@ export const videos = pg.pgTable(
     caption: pg.text(),
     ...timestamps,
   },
-  (table) => [pg.index().on(table.userId, table.createdAt)]
+  (table) => [
+    pg.index().on(table.userId, table.createdAt),
+    pg.index().on(table.userId),
+  ]
 );
 
 export const images = pg.pgTable(
@@ -29,5 +32,8 @@ export const images = pg.pgTable(
     caption: pg.text(),
     ...timestamps,
   },
-  (table) => [pg.index().on(table.userId, table.createdAt)]
+  (table) => [
+    pg.index().on(table.userId, table.createdAt),
+    pg.index().on(table.userId),
+  ]
 );

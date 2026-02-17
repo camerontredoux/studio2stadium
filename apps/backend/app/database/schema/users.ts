@@ -63,7 +63,10 @@ export const subscriptions = pg.pgTable(
     canceledAt: pg.timestamp({ withTimezone: true }),
     ...timestamps,
   },
-  (table) => [pg.index().on(table.currentPeriodEnd)]
+  (table) => [
+    pg.index().on(table.userId),
+    pg.index().on(table.currentPeriodEnd),
+  ]
 );
 
 export const platforms = pg.pgTable(
@@ -78,6 +81,7 @@ export const platforms = pg.pgTable(
   },
   (table) => [
     pg.primaryKey({ columns: [table.userId, table.platformName] }),
+    pg.index().on(table.userId),
     pg.index().on(table.platformName),
   ]
 );
