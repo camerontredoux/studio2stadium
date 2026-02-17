@@ -13,7 +13,9 @@ export class Service {
             id: profileId,
           },
         },
-        columns: {},
+        columns: {
+          id: true,
+        },
         with: {
           user: {
             columns: {
@@ -30,6 +32,7 @@ export class Service {
     return followers
       .filter((f) => f.user)
       .map((f) => ({
+        id: f.id,
         username: f.user!.username,
         avatar: f.user!.avatar,
         name: `${f.user!.firstName} ${f.user!.lastName}`,

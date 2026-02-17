@@ -2099,6 +2099,7 @@ export interface components {
         }[];
         DancersMeFollowingIdsResponse: string[];
         DancersMeFollowersResponse: {
+            id: string;
             username: string;
             avatar: string | null;
             name: string;
@@ -2259,6 +2260,7 @@ export interface components {
             paramKey: components["schemas"]["SchoolFilterParam"];
         }[];
         SchoolsMeFollowersResponse: {
+            id: string;
             username: string;
             avatar: string | null;
             name: string;

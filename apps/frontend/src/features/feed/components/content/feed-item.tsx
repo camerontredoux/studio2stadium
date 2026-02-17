@@ -33,7 +33,9 @@ export function FeedItem({ item }: FeedItemProps) {
             </Link>
             <p className="text-muted-foreground flex items-center gap-1 text-xs sm:text-sm">
               posted {item.contentType} <span>•</span>{" "}
-              {dateToRelativeTime(item.createdAt)}
+              <span title={new Date(item.createdAt).toISOString()}>
+                {dateToRelativeTime(item.createdAt)}
+              </span>
             </p>
           </div>
         </div>

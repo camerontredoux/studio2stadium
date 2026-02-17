@@ -74,17 +74,14 @@ function FollowingList() {
   );
 }
 
-export function DancerFollowingDialog({ count }: { count: number }) {
+export function DancerFollowingDialog({
+  children,
+}: {
+  children: React.ReactElement;
+}) {
   return (
     <Dialog>
-      <DialogTrigger className="cursor-pointer">
-        <div className="group flex items-center gap-2">
-          <p className="text-muted-foreground group-hover:text-foreground">
-            Following
-          </p>
-          <p className="ml-auto">{count}</p>
-        </div>
-      </DialogTrigger>
+      <DialogTrigger render={children} className="cursor-pointer" />
       <DialogContent showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>Following</DialogTitle>

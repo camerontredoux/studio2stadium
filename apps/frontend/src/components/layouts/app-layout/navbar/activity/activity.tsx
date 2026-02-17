@@ -28,7 +28,14 @@ export function Activity() {
         {session.type === "dancer" ? (
           <>
             <DancerFollowersDialog count={followers} />
-            <DancerFollowingDialog count={following} />
+            <DancerFollowingDialog>
+              <div className="group flex items-center gap-2">
+                <p className="text-muted-foreground group-hover:text-foreground">
+                  Following
+                </p>
+                <p className="ml-auto">{following}</p>
+              </div>
+            </DancerFollowingDialog>
           </>
         ) : (
           <>

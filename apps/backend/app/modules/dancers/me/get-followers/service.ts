@@ -14,6 +14,7 @@ export class Service {
           },
         },
         columns: {
+          id: true,
           name: true,
         },
         with: {
@@ -30,6 +31,7 @@ export class Service {
     return followers
       .filter((f) => f.user)
       .map((f) => ({
+        id: f.id,
         username: f.user!.username,
         avatar: f.user!.avatar,
         name: f.name,

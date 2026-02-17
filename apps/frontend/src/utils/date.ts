@@ -1,9 +1,9 @@
-import { formatDistanceToNowStrict } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 
 export function dateToRelativeTime(date: Date | string | number | undefined) {
   if (!date) return "";
 
-  return formatDistanceToNowStrict(new Date(date), {
+  return formatDistanceToNow(new Date(date), {
     addSuffix: true,
   });
 }
