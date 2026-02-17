@@ -28,9 +28,17 @@ function FollowersList() {
           {follower.username.slice(0, 2).toUpperCase()}
         </AvatarFallback>
       </Avatar>
-      <Link to="/explore/$username" params={{ username: follower?.username }}>
+      <DialogClose
+        render={
+          <Link
+            className="truncate leading-tight group-hover:underline"
+            to="/explore/$username"
+            params={{ username: follower?.username }}
+          />
+        }
+      >
         {follower?.name}
-      </Link>
+      </DialogClose>
     </div>
   ));
 }

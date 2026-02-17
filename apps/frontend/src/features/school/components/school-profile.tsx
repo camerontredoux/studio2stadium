@@ -14,7 +14,7 @@ export function SchoolProfile({ username }: SchoolProfileProps) {
 
   return (
     <div>
-      {session.type === "dancer" && <FollowSection id={data.id} />}
+      {session.type === "dancer" && <FollowSection school={data} />}
       <pre className="max-w-full wrap-break-word whitespace-pre-wrap">
         {JSON.stringify(data, null, 2)}
       </pre>

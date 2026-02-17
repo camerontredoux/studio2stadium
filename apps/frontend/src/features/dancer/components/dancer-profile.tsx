@@ -9,7 +9,7 @@ export function DancerProfile({ username }: { username: string }) {
 
   return (
     <div>
-      {session.type === "school" && <FavoriteSection id={data.id} />}
+      {session.type === "school" && <FavoriteSection dancer={data} />}
       <pre className="max-w-full wrap-break-word whitespace-pre-wrap">
         {JSON.stringify({ session, data }, null, 2)}
       </pre>

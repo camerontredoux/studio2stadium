@@ -3,24 +3,25 @@ import { Button } from "@/components/ui/button";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
 import { useFavoriteDancer, useUnfavoriteDancer } from "@/shared/api/mutations";
+import type { FavoritedDancer } from "@/shared/types";
 import { HeartIcon } from "lucide-react";
 
 export function FavoriteButton({
-  id,
+  dancer,
   isFavorited,
 }: {
-  id: string;
+  dancer: FavoritedDancer;
   isFavorited: boolean;
 }) {
-  const { mutate: favorite } = useFavoriteDancer(id);
-  const { mutate: unfavorite } = useUnfavoriteDancer(id);
+  const { mutate: favorite } = useFavoriteDancer(dancer);
+  const { mutate: unfavorite } = useUnfavoriteDancer(dancer);
 
   const [retryAfter, startCountdown] = useCountdown();
 
   const handleClick = () => {
     const mutate = isFavorited ? unfavorite : favorite;
     mutate(
-      { params: { path: { id } } },
+      { params: { path: { id: dancer.id } } },
       {
         onError: handleApiError({
           onError: (error) => {

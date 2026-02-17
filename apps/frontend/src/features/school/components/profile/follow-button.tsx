@@ -2,25 +2,26 @@ import { useCountdown } from "@/components/hooks/use-countdown";
 import { Button } from "@/components/ui/button";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
-import { HeartIcon } from "lucide-react";
 import { useFollowSchool, useUnfollowSchool } from "@/shared/api/mutations";
+import type { FollowedSchool } from "@/shared/types";
+import { HeartIcon } from "lucide-react";
 
 export function FollowButton({
-  id,
+  school,
   isFollowing,
 }: {
-  id: string;
+  school: FollowedSchool;
   isFollowing: boolean;
 }) {
-  const { mutate: follow } = useFollowSchool(id);
-  const { mutate: unfollow } = useUnfollowSchool(id);
+  const { mutate: follow } = useFollowSchool(school);
+  const { mutate: unfollow } = useUnfollowSchool(school);
 
   const [retryAfter, startCountdown] = useCountdown();
 
   const handleClick = () => {
     const mutate = isFollowing ? unfollow : follow;
     mutate(
-      { params: { path: { id } } },
+      { params: { path: { id: school.id } } },
       {
         onError: handleApiError({
           onError: (error) => {

@@ -13,18 +13,19 @@ import {
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { useUnfavoriteDancer } from "@/shared/api/mutations";
+import { type FavoritedDancer } from "@/shared/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { schoolQueries } from "../api/queries";
 
-function UnfavoriteButton({ id }: { id: string }) {
-  const { mutate, isPending } = useUnfavoriteDancer(id);
+function UnfavoriteButton({ dancer }: { dancer: FavoritedDancer }) {
+  const { mutate, isPending } = useUnfavoriteDancer(dancer);
 
   return (
     <Button
       disabled={isPending}
-      onClick={() => mutate({ params: { path: { id } } })}
+      onClick={() => mutate({ params: { path: { id: dancer.id } } })}
       size="sm"
       variant="ghost"
       className="text-destructive-foreground"
@@ -49,19 +50,23 @@ function FollowingList() {
           </Avatar>
           <div className="flex w-full min-w-0 items-start justify-between gap-2">
             <div className="flex min-w-0 flex-col">
-              <Link
-                to="/$username"
-                className="truncate leading-tight group-hover:underline"
-                params={{ username: dancer?.username }}
+              <DialogClose
+                render={
+                  <Link
+                    className="truncate leading-tight group-hover:underline"
+                    to="/$username"
+                    params={{ username: dancer.username }}
+                  />
+                }
               >
-                {dancer?.name}
-              </Link>
+                {dancer.name}
+              </DialogClose>
               <span className="text-muted-foreground text-xs leading-none">
-                {dancer?.username}
+                {dancer.username}
               </span>
             </div>
 
-            {dancer.id && <UnfavoriteButton id={dancer.id} />}
+            <UnfavoriteButton dancer={dancer} />
           </div>
         </div>
       ))}

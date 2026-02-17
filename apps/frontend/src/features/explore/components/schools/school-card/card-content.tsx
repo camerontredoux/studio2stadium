@@ -34,7 +34,7 @@ export function CardContent({
             <Link
               to="/explore/$username"
               params={{ username: school.username }}
-              className="desktop:after:hidden truncate underline-offset-2 group-hover:underline after:absolute after:inset-0 after:content-['']"
+              className="desktop:after:hidden truncate underline-offset-2 after:absolute after:inset-0 after:content-[''] hover:underline"
             >
               {school.name}
             </Link>

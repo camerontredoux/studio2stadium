@@ -13,18 +13,19 @@ import {
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { useUnfollowSchool } from "@/shared/api/mutations";
+import { type FollowedSchool } from "@/shared/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { dancerQueries } from "../api/queries";
 
-function UnfollowButton({ id }: { id: string }) {
-  const { mutate, isPending } = useUnfollowSchool(id);
+function UnfollowButton({ school }: { school: FollowedSchool }) {
+  const { mutate, isPending } = useUnfollowSchool(school);
 
   return (
     <Button
       disabled={isPending}
-      onClick={() => mutate({ params: { path: { id } } })}
+      onClick={() => mutate({ params: { path: { id: school.id } } })}
       size="sm"
       variant="ghost"
       className="text-destructive-foreground"
@@ -39,29 +40,33 @@ function FollowingList() {
 
   return (
     <div className="flex flex-col gap-4 pb-4">
-      {data.map((follower) => (
-        <div key={follower.username} className="group flex items-center gap-3">
+      {data.map((school) => (
+        <div key={school.username} className="group flex items-center gap-3">
           <Avatar className="size-9">
-            <AvatarImage src={follower.avatar ?? undefined} />
+            <AvatarImage src={school.avatar ?? undefined} />
             <AvatarFallback>
-              {follower.username.slice(0, 2).toUpperCase()}
+              {school.username.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex w-full min-w-0 items-start justify-between gap-2">
             <div className="flex min-w-0 flex-col">
-              <Link
-                to="/explore/$username"
-                className="truncate leading-tight group-hover:underline"
-                params={{ username: follower?.username }}
+              <DialogClose
+                render={
+                  <Link
+                    className="truncate leading-tight group-hover:underline"
+                    to="/explore/$username"
+                    params={{ username: school.username }}
+                  />
+                }
               >
-                {follower?.name}
-              </Link>
+                {school.name}
+              </DialogClose>
               <span className="text-muted-foreground text-xs leading-none">
-                {follower?.username}
+                {school.username}
               </span>
             </div>
 
-            {follower.id && <UnfollowButton id={follower.id} />}
+            <UnfollowButton school={school} />
           </div>
         </div>
       ))}

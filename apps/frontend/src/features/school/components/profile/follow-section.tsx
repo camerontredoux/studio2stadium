@@ -6,15 +6,16 @@ import { useQuery } from "@tanstack/react-query";
 import { HeartIcon } from "lucide-react";
 import { useShowInterest } from "../../api/mutations";
 import { schoolQueries } from "../../api/queries";
+import { type SchoolProfile } from "../../types";
 import { FollowButton } from "./follow-button";
 
-export function FollowSection({ id }: { id: string }) {
+export function FollowSection({ school }: { school: SchoolProfile }) {
   const session = useSession();
-  const { data } = useQuery(schoolQueries.metadata(id));
+  const { data } = useQuery(schoolQueries.metadata(school.id));
 
   const isFollowing = data?.following ?? false;
 
-  const { mutate } = useShowInterest(id);
+  const { mutate } = useShowInterest(school.id);
 
   return (
     <div>
@@ -30,7 +31,7 @@ export function FollowSection({ id }: { id: string }) {
         <Button
           onClick={() =>
             mutate(
-              { params: { path: { id } } },
+              { params: { path: { id: school.id } } },
               {
                 onError: handleApiError({
                   onError: (error) => {
@@ -49,7 +50,7 @@ export function FollowSection({ id }: { id: string }) {
           <HeartIcon /> Show Interest
         </Button>
       )}
-      <FollowButton id={id} isFollowing={isFollowing} />
+      <FollowButton school={school} isFollowing={isFollowing} />
     </div>
   );
 }
