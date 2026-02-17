@@ -19,5 +19,6 @@ export const feed = pg.pgTable(
   (table) => [
     pg.index().on(table.userId, table.createdAt.desc()),
     pg.index().on(table.userId),
+    pg.index().on(table.createdAt.desc()),
   ]
 );

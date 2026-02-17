@@ -1,15 +1,32 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
+import { sql } from "drizzle-orm";
 
-type FeedItem = Awaited<ReturnType<Service["getFeed"]>>[number];
-type ContentType = FeedItem["contentType"];
-type ContentData = {
-  id: string;
+const PAGE_SIZE = 10;
+
+type FeedRow = {
+  content_type: "image" | "video" | "achievement" | "reference" | "profile";
+  content_id: string;
+  created_at: string;
+  username: string;
+  avatar: string | null;
+  first_name: string;
+  last_name: string;
+  school_name: string | null;
   caption: string | null;
   content: string | null;
 };
 
-const PAGE_SIZE = 10;
+type FeedItemResponse = {
+  id: string;
+  contentType: FeedRow["content_type"];
+  createdAt: string;
+  username: string;
+  avatar: string | null;
+  name: string | null;
+  caption: string | null;
+  content: string | null;
+};
 
 @inject()
 export class Service {
@@ -17,66 +34,88 @@ export class Service {
 
   async execute(type: "dancer" | "school", userId: string, cursor?: string) {
     const following = await this.getFollowing(type, userId);
-    const feed = await this.getFeed(following, cursor);
-    const groupedByType = this.groupByContentType(feed);
-    const contentMap = await this.fetchAllContent(groupedByType);
-    const items = this.mapFeedItems(feed, contentMap, type);
+
+    if (following.length === 0) {
+      return { feed: [], nextCursor: undefined };
+    }
+
+    const feed = await this.getFeedWithContent(following, cursor);
+    const items = this.mapFeedItems(feed, type);
     const nextCursor = this.calculateNextCursor(feed);
 
     return { feed: items, nextCursor };
   }
 
-  mapFeedItems(
-    feed: FeedItem[],
-    contentMap: Map<string, ContentData>,
-    type: "dancer" | "school"
-  ) {
-    return feed.flatMap((item) => {
-      if (!item.user) return [];
+  async getFeedWithContent(
+    following: string[],
+    cursor?: string
+  ): Promise<FeedRow[]> {
+    return this.db.use(async (db) => {
+      const rows = await db.execute<FeedRow>(sql`
+        SELECT
+          f.content_type,
+          f.content_id,
+          to_char(f.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS created_at,
+          u.username,
+          u.avatar,
+          u.first_name,
+          u.last_name,
+          sp.name AS school_name,
+          COALESCE(
+            i.caption,
+            v.caption,
+            a.title,
+            r.name || ' - ' || r.title,
+            p.name
+          ) AS caption,
+          COALESCE(
+            i.media_url,
+            v.media_id,
+            a.description,
+            r.description,
+            'Updated profile'
+          ) AS content
+        FROM feed f
+        JOIN users u ON f.user_id = u.id
+        LEFT JOIN school_profiles sp ON u.id = sp.user_id
+        LEFT JOIN profile_images i ON f.content_type = 'image' AND f.content_id = i.id
+        LEFT JOIN profile_videos v ON f.content_type = 'video' AND f.content_id = v.id
+        LEFT JOIN dancer_achievements a ON f.content_type = 'achievement' AND f.content_id = a.id
+        LEFT JOIN dancer_references r ON f.content_type = 'reference' AND f.content_id = r.id
+        LEFT JOIN school_profiles p ON f.content_type = 'profile' AND f.content_id = p.id
+        WHERE f.user_id IN (${sql.join(following.map(id => sql`${id}::uuid`), sql`, `)})
+        ${cursor ? sql`AND f.created_at < ${cursor}::timestamptz` : sql``}
+        ORDER BY f.created_at DESC
+        LIMIT ${PAGE_SIZE}
+      `);
 
-      const name = this.getDisplayName(item.user, type);
-      const content = contentMap.get(`${item.contentType}:${item.contentId}`);
-
-      if (!content) return [];
-
-      return [
-        {
-          ...content,
-          contentType: item.contentType,
-          createdAt: item.createdAt,
-          username: item.user.username,
-          avatar: item.user.avatar,
-          name,
-        },
-      ];
+      return [...rows];
     });
   }
 
-  getDisplayName(
-    user: NonNullable<FeedItem["user"]>,
-    type: "dancer" | "school"
-  ): string | undefined {
+  mapFeedItems(feed: FeedRow[], type: "dancer" | "school"): FeedItemResponse[] {
+    return feed.map((row) => ({
+      id: row.content_id,
+      contentType: row.content_type,
+      createdAt: row.created_at,
+      username: row.username,
+      avatar: row.avatar,
+      name: this.getDisplayName(row, type),
+      caption: row.caption,
+      content: row.content,
+    }));
+  }
+
+  getDisplayName(row: FeedRow, type: "dancer" | "school"): string | null {
     return type === "dancer"
-      ? user.schoolProfile?.name
-      : user.firstName + " " + user.lastName;
+      ? row.school_name
+      : row.first_name + " " + row.last_name;
   }
 
-  calculateNextCursor(feed: FeedItem[]): string | undefined {
+  calculateNextCursor(feed: FeedRow[]): string | undefined {
     return feed.length === PAGE_SIZE
-      ? feed[feed.length - 1].createdAt.toISOString()
+      ? feed[feed.length - 1].created_at
       : undefined;
-  }
-
-  groupByContentType(feed: FeedItem[]) {
-    const grouped = new Map<ContentType, string[]>();
-
-    for (const item of feed) {
-      const ids = grouped.get(item.contentType) ?? [];
-      ids.push(item.contentId);
-      grouped.set(item.contentType, ids);
-    }
-
-    return grouped;
   }
 
   async getFollowing(type: "dancer" | "school", userId: string) {
@@ -113,157 +152,5 @@ export class Service {
       })
     );
     return profile?.favorites.map((f) => f.userId) ?? [];
-  }
-
-  async getFeed(following: string[], cursor?: string) {
-    return this.db.use((db) =>
-      db.query.feed.findMany({
-        columns: {
-          contentType: true,
-          contentId: true,
-          createdAt: true,
-        },
-        where: {
-          userId: { in: following },
-          user: true,
-          ...(cursor && {
-            createdAt: { lt: new Date(cursor) },
-          }),
-        },
-        with: {
-          user: {
-            columns: {
-              username: true,
-              avatar: true,
-              firstName: true,
-              lastName: true,
-            },
-            with: {
-              schoolProfile: {
-                columns: { name: true },
-              },
-            },
-          },
-        },
-        orderBy: { createdAt: "desc" },
-        limit: PAGE_SIZE,
-      })
-    );
-  }
-
-  async fetchAllContent(groupedByType: Map<ContentType, string[]>) {
-    const contentMap = new Map<string, ContentData>();
-    const fetchPromises: Promise<void>[] = [];
-
-    for (const [type, ids] of groupedByType) {
-      fetchPromises.push(
-        this.fetchContentByType(type, ids).then((items) => {
-          for (const item of items) {
-            contentMap.set(`${type}:${item.id}`, item);
-          }
-        })
-      );
-    }
-
-    await Promise.all(fetchPromises);
-    return contentMap;
-  }
-
-  async fetchContentByType(
-    type: ContentType,
-    ids: string[]
-  ): Promise<ContentData[]> {
-    return this.db.use(async (db) => {
-      switch (type) {
-        case "image":
-          return this.fetchImages(db, ids);
-        case "video":
-          return this.fetchVideos(db, ids);
-        case "achievement":
-          return this.fetchAchievements(db, ids);
-        case "reference":
-          return this.fetchReferences(db, ids);
-        case "profile":
-          return this.fetchProfiles(db, ids);
-        default:
-          console.warn(`Unknown content type: ${type}`);
-          return [];
-      }
-    });
-  }
-
-  private async fetchImages(
-    db: Parameters<Parameters<DatabaseService["use"]>[0]>[0],
-    ids: string[]
-  ) {
-    const images = await db.query.images.findMany({
-      where: { id: { in: ids } },
-      columns: { id: true, caption: true, mediaUrl: true },
-    });
-    return images.map((image) => ({
-      id: image.id,
-      caption: image.caption,
-      content: image.mediaUrl,
-    }));
-  }
-
-  private async fetchVideos(
-    db: Parameters<Parameters<DatabaseService["use"]>[0]>[0],
-    ids: string[]
-  ) {
-    const videos = await db.query.videos.findMany({
-      where: { id: { in: ids } },
-      columns: { id: true, caption: true, mediaId: true },
-    });
-    return videos.map((video) => ({
-      id: video.id,
-      caption: video.caption,
-      content: video.mediaId,
-    }));
-  }
-
-  private async fetchAchievements(
-    db: Parameters<Parameters<DatabaseService["use"]>[0]>[0],
-    ids: string[]
-  ) {
-    const achievements = await db.query.achievements.findMany({
-      where: { id: { in: ids } },
-      columns: { id: true, title: true, description: true },
-    });
-    return achievements.map((achievement) => ({
-      id: achievement.id,
-      caption: achievement.title,
-      content: achievement.description,
-    }));
-  }
-
-  private async fetchReferences(
-    db: Parameters<Parameters<DatabaseService["use"]>[0]>[0],
-    ids: string[]
-  ) {
-    const references = await db.query.references.findMany({
-      where: { id: { in: ids } },
-      columns: { id: true, name: true, title: true, description: true },
-    });
-    return references.map((reference) => ({
-      id: reference.id,
-      caption: reference.name + " - " + reference.title,
-      content: reference.description,
-    }));
-  }
-
-  private async fetchProfiles(
-    db: Parameters<Parameters<DatabaseService["use"]>[0]>[0],
-    ids: string[]
-  ) {
-    const profiles = await db.query.schoolProfiles.findMany({
-      where: { id: { in: ids } },
-      columns: { id: true, name: true },
-    });
-    return profiles.map((profile) => ({
-      id: profile.id,
-      caption: profile.name,
-      content: "Updated profile",
-    }));
   }
 }

@@ -1,0 +1,1 @@
+CREATE INDEX "feed_created_at_index" ON "feed" ("created_at" DESC NULLS LAST);
