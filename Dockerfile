@@ -4,14 +4,15 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 # Install dependencies
 FROM base AS deps
 WORKDIR /app
+
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/backend/package.json ./apps/backend/
-COPY packages/openapi/package.json ./packages/openapi/
+COPY packages/openapi ./packages/openapi/
+
 RUN pnpm install --frozen-lockfile
 
 # Build
 FROM deps AS build
-COPY packages/openapi ./packages/openapi
 COPY apps/backend ./apps/backend
 
 RUN pnpm --filter @stos/openapi build
