@@ -63,7 +63,7 @@ router
         summary: "Follow a school",
         description: "Follows the school's profile using the school ID",
       })
-      .use([middleware.dancer(), throttle("follow")]);
+      .use([middleware.dancer(), throttle("follow", 20)]);
 
     router
       .delete("/:id/follow", [UnfollowSchoolController])
@@ -71,7 +71,7 @@ router
         summary: "Unfollow a school",
         description: "Unfollows the school's profile using the school ID",
       })
-      .use([middleware.dancer(), throttle("unfollow")]);
+      .use([middleware.dancer(), throttle("unfollow", 20)]);
 
     router
       .get("/:id/metadata", [GetMetadataController])

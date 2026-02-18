@@ -9,6 +9,7 @@ import { ProgramSpotlight } from "./components/program-spotlight";
 
 export function FeedPage() {
   const session = useSession();
+
   return (
     <SidebarLayout
       sidebar={<FeedSidebar />}
@@ -24,7 +25,9 @@ export function FeedPage() {
           </p>
         </div>
 
-        <ProgramSpotlight />
+        <Suspense fallback={<FeedSkeleton />}>
+          <ProgramSpotlight />
+        </Suspense>
 
         <Suspense fallback={<FeedSkeleton />}>
           <Feed />

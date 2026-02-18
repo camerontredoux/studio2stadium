@@ -19,7 +19,10 @@ type RecommendedProgram = {
   locationScore: number;
   username: string;
   avatar: string | null;
+  size: number | null;
+  about: string | null;
   matchScore: number;
+  top3Matches: string[];
   matchTier: MatchTier;
   matchedSkillsCount: number;
   totalSchoolSkills: number;
@@ -48,7 +51,7 @@ export class Service {
 
   async execute(
     profileId: string,
-    options: { debug?: boolean } = {}
+    options: { debug?: boolean; limit?: number } = {}
   ): Promise<RecommendedProgram[]> {
     const dancer = await this.getDancerProfile(profileId);
     if (!dancer || dancer.skills.length < 10) {
@@ -66,7 +69,11 @@ export class Service {
       options.debug
     );
 
-    return scored.filter((s) => s.matchScore > 0);
+    return scored
+      .filter((s) => {
+        return s.matchScore > 0 && s.matchTier !== "unqualified";
+      })
+      .slice(0, options.limit);
   }
 
   /**
@@ -131,6 +138,9 @@ export class Service {
           name: true,
           location: true,
           gpa: true,
+          about: true,
+          missionStatement: true,
+          size: true,
         },
         with: {
           user: { columns: { username: true, avatar: true } },
@@ -211,7 +221,6 @@ export class Service {
       );
 
       const gpaBonus = this.getGpaBonus(dancer.gpa, school.gpa);
-      console.log("gpaBonus", gpaBonus, dancer.gpa, school.gpa);
 
       const matchScore = baseScore + locationScore + coverageBonus + gpaBonus;
 
@@ -224,10 +233,15 @@ export class Service {
         ? "unqualified"
         : this.getMatchTier(matchScore);
 
+      const top3Matches = matchedStyles.slice(0, 3).map((s) => s.slug);
+
       scored.push({
         id: school.id,
         name: school.name,
         location: school.location,
+        size: school.size,
+        about: school.about ?? school.missionStatement,
+        top3Matches,
         locationScore,
         username: school.user.username,
         avatar: school.user.avatar,

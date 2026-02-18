@@ -5,11 +5,14 @@ import {
   FramePanel,
   FrameTitle,
 } from "@/components/ui/frame";
-import { Separator } from "@/components/ui/separator";
+import { feedQueries } from "@/features/feed/api/queries";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { RecommendedSchool } from "./recommended-school";
 
 export function ProgramsSection() {
+  const { data: recommended } = useSuspenseQuery(feedQueries.recommended());
+
   return (
     <Frame compact>
       <FrameHeader>
@@ -20,10 +23,10 @@ export function ProgramsSection() {
           </Button>
         </FrameTitle>
       </FrameHeader>
-      <FramePanel>
-        <RecommendedSchool />
-        <Separator />
-        <RecommendedSchool />
+      <FramePanel className="divide-y">
+        {recommended.slice(1).map((school) => (
+          <RecommendedSchool key={school.id} school={school} />
+        ))}
       </FramePanel>
     </Frame>
   );

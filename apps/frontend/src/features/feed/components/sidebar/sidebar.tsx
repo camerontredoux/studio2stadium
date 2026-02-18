@@ -11,7 +11,9 @@ export function FeedSidebar() {
       <Suspense fallback={<UpcomingEventsSkeleton />}>
         <EventsSection />
       </Suspense>
-      <ProgramsSection />
+      <Suspense fallback={<UpcomingEventsSkeleton />}>
+        <ProgramsSection />
+      </Suspense>
       <ConsultationsSection />
     </Fragment>
   );

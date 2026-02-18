@@ -136,8 +136,8 @@ type SchoolsGetHead = {
   response: MakeTuyauResponse<import('../app/modules/schools/get-schools/controller.ts').default['handle'], true>
 }
 type SchoolsRecommendedGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/schools/get-recommended-programs/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-recommended-programs/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/get-recommended-programs/controller.ts').default['handle'], true>
 }
 type SchoolsMeFollowersGetHead = {
   request: unknown

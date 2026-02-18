@@ -1427,7 +1427,9 @@ export interface paths {
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    limit?: (string | number) | null;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -1441,6 +1443,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["SchoolsRecommendedResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -2298,6 +2309,7 @@ export interface components {
             paramKey: components["schemas"]["SchoolFilterParam"];
         }[];
         SchoolsRecommendedResponse: {
+            about: string | null;
             username: string;
             name: string;
             debug?: {
@@ -2316,8 +2328,10 @@ export interface components {
             avatar: string | null;
             location: string;
             gpa: number | null;
+            size: number | null;
             locationScore: number;
             matchScore: number;
+            top3Matches: string[];
             matchTier: components["schemas"]["MatchTier"];
             matchedSkillsCount: number;
             totalSchoolSkills: number;

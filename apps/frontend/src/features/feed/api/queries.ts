@@ -1,4 +1,4 @@
-import { client } from "@/lib/api/client";
+import { $api, client } from "@/lib/api/client";
 import { infiniteQueryOptions } from "@tanstack/react-query";
 
 export const feedQueries = {
@@ -13,5 +13,9 @@ export const feedQueries = {
       },
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       initialPageParam: undefined as string | undefined,
+    }),
+  recommended: () =>
+    $api.queryOptions("get", "/schools/recommended", {
+      params: { query: { limit: 4 } },
     }),
 };
