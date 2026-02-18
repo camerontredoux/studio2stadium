@@ -47,3 +47,18 @@ export const danceEventType = pgEnum("dance_event_type", [
   "camp",
   "other",
 ]);
+
+export const teamSelectionType = pgEnum("team_selection_type", [
+  "recruitment",
+  "audition",
+  "hybrid",
+]);
+
+export const competitiveCircuitType = pgEnum("competitive_circuit_type", [
+  "uda",
+  "dtu",
+  "nda",
+  "usa",
+  "non-competitive",
+  "other",
+]);

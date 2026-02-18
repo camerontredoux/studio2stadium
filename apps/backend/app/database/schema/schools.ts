@@ -1,4 +1,5 @@
 import * as pg from "drizzle-orm/pg-core";
+import { competitiveCircuitType, teamSelectionType } from "./enums.ts";
 import { timestamps } from "./helpers/columns.ts";
 import { users } from "./users.ts";
 
@@ -12,6 +13,11 @@ export const schoolProfiles = pg.pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     name: pg.text().notNull().unique(),
     location: pg.text().notNull(),
+    commonRecruiting: pg.boolean().notNull().default(false),
+    teamSelection: teamSelectionType().notNull().default("recruitment"),
+    competitiveCircuit: competitiveCircuitType()
+      .notNull()
+      .default("non-competitive"),
     division: pg.text(),
     benefits: pg.text(),
     about: pg.text(),
@@ -32,5 +38,7 @@ export const schoolProfiles = pg.pgTable(
     pg.index().on(table.gpa),
     pg.index().on(table.division),
     pg.index().on(table.location),
+    pg.index().on(table.teamSelection),
+    pg.index().on(table.competitiveCircuit),
   ]
 );
