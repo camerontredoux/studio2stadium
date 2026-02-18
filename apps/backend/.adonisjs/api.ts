@@ -135,6 +135,10 @@ type SchoolsGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-schools/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/schools/get-schools/controller.ts').default['handle'], true>
 }
+type SchoolsRecommendedGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/schools/get-recommended-programs/controller.ts').default['handle'], false>
+}
 type SchoolsMeFollowersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/me/get-followers/controller.ts').default['handle'], false>
@@ -358,6 +362,12 @@ export interface ApiDefinition {
     };
     '$get': SchoolsGetHead;
     '$head': SchoolsGetHead;
+    'recommended': {
+      '$url': {
+      };
+      '$get': SchoolsRecommendedGetHead;
+      '$head': SchoolsRecommendedGetHead;
+    };
     'me': {
       'followers': {
         '$url': {

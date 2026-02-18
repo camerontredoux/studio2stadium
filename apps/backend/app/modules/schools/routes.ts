@@ -12,6 +12,8 @@ const GetMetadataController = () =>
 const ShowInterestController = () => import("./show-interest/controller.ts");
 const GetFollowersController = () => import("./me/get-followers/controller.ts");
 const GetFollowingController = () => import("./me/get-following/controller.ts");
+const GetRecommendedProgramsController = () =>
+  import("./get-recommended-programs/controller.ts");
 
 router
   .group(() => {
@@ -26,7 +28,15 @@ router
         summary: "Get schools",
         description: "Returns a list of schools",
       })
-      .use([middleware.auth(), middleware.dancer()]);
+      .use([middleware.dancer()]);
+
+    router
+      .get("recommended", [GetRecommendedProgramsController])
+      .openapi({
+        summary: "Get recommended programs",
+        description: "Returns a list of recommended programs",
+      })
+      .use([middleware.dancer()]);
 
     router
       .group(() => {
@@ -40,15 +50,12 @@ router
         });
       })
       .prefix("me")
-      .use([middleware.auth(), middleware.school()]);
+      .use([middleware.school()]);
 
-    router
-      .get("/:username", [GetSchoolController])
-      .openapi({
-        summary: "Get a school",
-        description: "Returns the school's public profile",
-      })
-      .use(middleware.auth());
+    router.get("/:username", [GetSchoolController]).openapi({
+      summary: "Get a school",
+      description: "Returns the school's public profile",
+    });
 
     router
       .post("/:id/follow", [FollowSchoolController])
@@ -56,7 +63,7 @@ router
         summary: "Follow a school",
         description: "Follows the school's profile using the school ID",
       })
-      .use([middleware.auth(), middleware.dancer(), throttle("follow")]);
+      .use([middleware.dancer(), throttle("follow")]);
 
     router
       .delete("/:id/follow", [UnfollowSchoolController])
@@ -64,7 +71,7 @@ router
         summary: "Unfollow a school",
         description: "Unfollows the school's profile using the school ID",
       })
-      .use([middleware.auth(), middleware.dancer(), throttle("unfollow")]);
+      .use([middleware.dancer(), throttle("unfollow")]);
 
     router
       .get("/:id/metadata", [GetMetadataController])
@@ -72,7 +79,7 @@ router
         summary: "Get school metadata",
         description: "Returns the school's metadata",
       })
-      .use([middleware.auth(), middleware.dancer()]);
+      .use([middleware.dancer()]);
 
     router
       .post("/:id/interest", [ShowInterestController])
@@ -81,7 +88,8 @@ router
         description:
           "A dancer can show interest in a school up to 3 times. This endpoint will increment the interest count for the school, and send a notification to the school.",
       })
-      .use([middleware.auth(), middleware.dancer(), middleware.premium()]);
+      .use([middleware.dancer(), middleware.premium()]);
   })
+  .use(middleware.auth())
   .prefix("schools")
   .openapi({ tags: ["Schools"] });

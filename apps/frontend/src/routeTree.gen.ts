@@ -16,6 +16,7 @@ import { Route as AdminRouteRouteImport } from './routes/_admin/route'
 import { Route as ApproutesIndexRouteImport } from './routes/_app/(routes)/index'
 import { Route as AuthroutesLoginRouteImport } from './routes/_auth/(routes)/login'
 import { Route as ApproutesUnauthorizedRouteImport } from './routes/_app/(routes)/unauthorized'
+import { Route as ApproutesRecommendedRouteImport } from './routes/_app/(routes)/recommended'
 import { Route as ApproutesLogoutRouteImport } from './routes/_app/(routes)/logout'
 import { Route as ApproutesFeedRouteImport } from './routes/_app/(routes)/feed'
 import { Route as ApproutesUsernameRouteImport } from './routes/_app/(routes)/$username'
@@ -77,6 +78,11 @@ const AuthroutesLoginRoute = AuthroutesLoginRouteImport.update({
 const ApproutesUnauthorizedRoute = ApproutesUnauthorizedRouteImport.update({
   id: '/(routes)/unauthorized',
   path: '/unauthorized',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const ApproutesRecommendedRoute = ApproutesRecommendedRouteImport.update({
+  id: '/(routes)/recommended',
+  path: '/recommended',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const ApproutesLogoutRoute = ApproutesLogoutRouteImport.update({
@@ -256,6 +262,7 @@ export interface FileRoutesByFullPath {
   '/$username': typeof ApproutesUsernameRoute
   '/feed': typeof ApproutesFeedRoute
   '/logout': typeof ApproutesLogoutRoute
+  '/recommended': typeof ApproutesRecommendedRoute
   '/unauthorized': typeof ApproutesUnauthorizedRoute
   '/login': typeof AuthroutesLoginRoute
   '/dashboard/assets': typeof AdminroutesDashboardAssetsRoute
@@ -289,6 +296,7 @@ export interface FileRoutesByTo {
   '/$username': typeof ApproutesUsernameRoute
   '/feed': typeof ApproutesFeedRoute
   '/logout': typeof ApproutesLogoutRoute
+  '/recommended': typeof ApproutesRecommendedRoute
   '/unauthorized': typeof ApproutesUnauthorizedRoute
   '/login': typeof AuthroutesLoginRoute
   '/dashboard/assets': typeof AdminroutesDashboardAssetsRoute
@@ -329,6 +337,7 @@ export interface FileRoutesById {
   '/_app/(routes)/$username': typeof ApproutesUsernameRoute
   '/_app/(routes)/feed': typeof ApproutesFeedRoute
   '/_app/(routes)/logout': typeof ApproutesLogoutRoute
+  '/_app/(routes)/recommended': typeof ApproutesRecommendedRoute
   '/_app/(routes)/unauthorized': typeof ApproutesUnauthorizedRoute
   '/_auth/(routes)/login': typeof AuthroutesLoginRoute
   '/_app/(routes)/': typeof ApproutesIndexRoute
@@ -368,6 +377,7 @@ export interface FileRouteTypes {
     | '/$username'
     | '/feed'
     | '/logout'
+    | '/recommended'
     | '/unauthorized'
     | '/login'
     | '/dashboard/assets'
@@ -401,6 +411,7 @@ export interface FileRouteTypes {
     | '/$username'
     | '/feed'
     | '/logout'
+    | '/recommended'
     | '/unauthorized'
     | '/login'
     | '/dashboard/assets'
@@ -440,6 +451,7 @@ export interface FileRouteTypes {
     | '/_app/(routes)/$username'
     | '/_app/(routes)/feed'
     | '/_app/(routes)/logout'
+    | '/_app/(routes)/recommended'
     | '/_app/(routes)/unauthorized'
     | '/_auth/(routes)/login'
     | '/_app/(routes)/'
@@ -525,6 +537,13 @@ declare module '@tanstack/react-router' {
       path: '/unauthorized'
       fullPath: '/unauthorized'
       preLoaderRoute: typeof ApproutesUnauthorizedRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/(routes)/recommended': {
+      id: '/_app/(routes)/recommended'
+      path: '/recommended'
+      fullPath: '/recommended'
+      preLoaderRoute: typeof ApproutesRecommendedRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/(routes)/logout': {
@@ -839,6 +858,7 @@ interface AppRouteRouteChildren {
   ApproutesUsernameRoute: typeof ApproutesUsernameRoute
   ApproutesFeedRoute: typeof ApproutesFeedRoute
   ApproutesLogoutRoute: typeof ApproutesLogoutRoute
+  ApproutesRecommendedRoute: typeof ApproutesRecommendedRoute
   ApproutesUnauthorizedRoute: typeof ApproutesUnauthorizedRoute
   ApproutesIndexRoute: typeof ApproutesIndexRoute
   ApproutesEventsEventIdRoute: typeof ApproutesEventsEventIdRoute
@@ -855,6 +875,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   ApproutesUsernameRoute: ApproutesUsernameRoute,
   ApproutesFeedRoute: ApproutesFeedRoute,
   ApproutesLogoutRoute: ApproutesLogoutRoute,
+  ApproutesRecommendedRoute: ApproutesRecommendedRoute,
   ApproutesUnauthorizedRoute: ApproutesUnauthorizedRoute,
   ApproutesIndexRoute: ApproutesIndexRoute,
   ApproutesEventsEventIdRoute: ApproutesEventsEventIdRoute,

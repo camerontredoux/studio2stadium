@@ -1414,6 +1414,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/schools/recommended": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get recommended programs
+         * @description Returns a list of recommended programs
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsRecommendedResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/schools/me/followers": {
         parameters: {
             query?: never;
@@ -1962,6 +2001,7 @@ export interface components {
         };
         /** @enum {string} */
         SchoolFilterParam: "name" | "location" | "division" | "sports" | "styles" | "following" | "commonRecruiting" | "upcomingEvents" | "gpaRange";
+        MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
         AuthSignupRequest: {
             phone?: string | null;
             email: string;
@@ -2256,6 +2296,25 @@ export interface components {
             }[];
             label: string;
             paramKey: components["schemas"]["SchoolFilterParam"];
+        }[];
+        SchoolsRecommendedResponse: {
+            id: string;
+            name: string;
+            location: string;
+            username: string;
+            avatar: string | null;
+            matchScore: number;
+            matchTier: components["schemas"]["MatchTier"];
+            matchedSkillsCount: number;
+            totalSchoolSkills: number;
+            matchedStylesCount: number;
+            totalSchoolStyles: number;
+            matchedSportsCount: number;
+            totalSchoolSports: number;
+            sameState: boolean;
+            meetsGpaRequirement: boolean;
+            isAdditionalMatch: boolean;
+            percentageMatch: number;
         }[];
         SchoolsMeFollowersResponse: {
             id: string;

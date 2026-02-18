@@ -1148,6 +1148,21 @@
         "description": "Returns the filters to use when searching for schools"
       }
     },
+    "/schools/recommended": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Get recommended programs",
+        "description": "Returns a list of recommended programs"
+      }
+    },
     "/schools/me/followers": {
       "get": {
         "parameters": [],

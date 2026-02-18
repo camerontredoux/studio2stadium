@@ -57,3 +57,13 @@ export const schoolSkills = pg.pgTable(
     pg.index().on(table.schoolId),
   ]
 );
+
+export const skillRarity = pg.pgTable("skill_rarity", {
+  skillId: pg
+    .text()
+    .primaryKey()
+    .references(() => skills.slug, { onDelete: "cascade" }),
+  rarity: pg.real().notNull(),
+  count: pg.integer().notNull(),
+  ...timestamps,
+});
