@@ -12,7 +12,7 @@ interface TierDistributionProps {
 }
 
 const TIER_CONFIG: Record<
-  MatchTier | "none",
+  MatchTier | "unqualified" | "none",
   { label: string; color: string; description: string }
 > = {
   excellent: {
@@ -29,6 +29,11 @@ const TIER_CONFIG: Record<
     label: "Partial",
     color: "hsl(25, 95%, 53%)",
     description: "Some matching factors found",
+  },
+  unqualified: {
+    label: "Unranked",
+    color: "var(--muted-foreground)",
+    description: "New or limited data",
   },
   none: {
     label: "Unranked",
@@ -53,10 +58,10 @@ export function TierDistribution({
   const data = (Object.keys(TIER_CONFIG) as (MatchTier | "none")[])
     .filter((tier) => tierCounts[tier] > 0)
     .map((tier) => ({
-      name: TIER_CONFIG[tier].label,
+      name: TIER_CONFIG[tier as keyof typeof TIER_CONFIG].label,
       value: tierCounts[tier],
-      color: TIER_CONFIG[tier].color,
-      description: TIER_CONFIG[tier].description,
+      color: TIER_CONFIG[tier as keyof typeof TIER_CONFIG].color,
+      description: TIER_CONFIG[tier as keyof typeof TIER_CONFIG].description,
     }));
 
   const total = schools.length;

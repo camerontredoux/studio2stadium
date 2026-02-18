@@ -197,7 +197,7 @@ export class Service {
         const rarity = getRarityBonus(s.skillId);
 
         // Base score + rarity bonus
-        return sum + 1 + 1 * rarity;
+        return sum + weight + weight * rarity;
       }, 0);
 
       // Styles: 3 pts each (limited to 3, high identity signal)

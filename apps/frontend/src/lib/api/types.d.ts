@@ -1333,11 +1333,11 @@ export interface paths {
             parameters: {
                 query?: {
                     location?: ("OR" | "ID" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
+                    commonRecruiting?: (string | number | boolean) | null;
                     division?: string | null;
                     sports?: string | null;
                     styles?: string | null;
                     following?: (string | number | boolean) | null;
-                    commonRecruiting?: (string | number | boolean) | null;
                     upcomingEvents?: (string | number | boolean) | null;
                     gpaRange?: Record<string, never>;
                 };
@@ -2000,7 +2000,7 @@ export interface components {
             message: string;
         };
         /** @enum {string} */
-        SchoolFilterParam: "name" | "location" | "division" | "sports" | "styles" | "following" | "commonRecruiting" | "upcomingEvents" | "gpaRange";
+        SchoolFilterParam: "name" | "location" | "commonRecruiting" | "division" | "sports" | "styles" | "following" | "upcomingEvents" | "gpaRange";
         MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
         AuthSignupRequest: {
             phone?: string | null;
@@ -2195,7 +2195,7 @@ export interface components {
         EventsResponse: {
             events: {
                 /** @enum {string} */
-                type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 id: string;
                 date: string;
                 time: string;
@@ -2214,7 +2214,7 @@ export interface components {
         }[];
         EventsUpcomingResponse: {
             /** @enum {string} */
-            type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             id: string;
             date: string;
             time: string;
@@ -2231,7 +2231,7 @@ export interface components {
             startDate: string;
             endDate: string;
             /** @enum {string} */
-            type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             id: string;
             location: string;
             title: string;
@@ -2242,7 +2242,7 @@ export interface components {
         }[];
         EventsIdResponse: {
             /** @enum {string} */
-            type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             id: string;
             createdAt: string;
             updatedAt: string;
@@ -2298,11 +2298,25 @@ export interface components {
             paramKey: components["schemas"]["SchoolFilterParam"];
         }[];
         SchoolsRecommendedResponse: {
-            id: string;
-            name: string;
-            location: string;
             username: string;
+            name: string;
+            debug?: {
+                schoolSkills: {
+                    skillId: string;
+                    weight: number;
+                    rarityBonus: number;
+                }[];
+                matchedSkills: {
+                    skillId: string;
+                    weight: number;
+                    rarityBonus: number;
+                }[];
+            };
+            id: string;
             avatar: string | null;
+            location: string;
+            gpa: number | null;
+            locationScore: number;
             matchScore: number;
             matchTier: components["schemas"]["MatchTier"];
             matchedSkillsCount: number;
@@ -2313,8 +2327,6 @@ export interface components {
             totalSchoolSports: number;
             sameState: boolean;
             meetsGpaRequirement: boolean;
-            isAdditionalMatch: boolean;
-            percentageMatch: number;
         }[];
         SchoolsMeFollowersResponse: {
             id: string;
@@ -2331,7 +2343,7 @@ export interface components {
         SchoolsIdResponse: {
             events: {
                 /** @enum {string} */
-                type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 id: string;
                 createdAt: string;
                 updatedAt: string;
@@ -2367,6 +2379,11 @@ export interface components {
             instagram: string | null;
             tiktok: string | null;
             gpa: number | null;
+            commonRecruiting: boolean;
+            /** @enum {string} */
+            teamSelection: "recruitment" | "audition" | "hybrid";
+            /** @enum {string} */
+            competitiveCircuit: "other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive";
             division: string | null;
             benefits: string | null;
             website: string | null;

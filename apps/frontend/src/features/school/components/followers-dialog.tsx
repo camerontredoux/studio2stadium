@@ -39,7 +39,6 @@ function FavoriteToggleButton({
       unfavoriteMutation.mutate({
         params: {
           path: { id: dancer.id },
-          query: { platformName: dancer.platform },
         },
       });
     } else {

@@ -82,7 +82,7 @@ export function MatchScoreRing({
   const containerSize = config.outer * 2 + 20;
 
   const tierColor = school.matchTier
-    ? TIER_COLORS[school.matchTier]
+    ? TIER_COLORS[school.matchTier as keyof typeof TIER_COLORS]
     : "var(--muted-foreground)";
 
   return (
@@ -136,7 +136,7 @@ export function MatchScoreRing({
           {Math.round(totalScore)}
         </span>
         <span
-          className="text-xs font-medium uppercase tracking-wider"
+          className="text-xs font-medium tracking-wider uppercase"
           style={{ color: tierColor }}
         >
           {school.matchTier ?? "match"}

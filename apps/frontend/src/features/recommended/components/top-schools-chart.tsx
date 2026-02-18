@@ -28,7 +28,7 @@ const TIER_COLORS = {
 
 function getBarColor(tier: RecommendedSchool["matchTier"]) {
   if (!tier) return TIER_COLORS.default;
-  return TIER_COLORS[tier];
+  return TIER_COLORS[tier as keyof typeof TIER_COLORS] ?? TIER_COLORS.default;
 }
 
 export function TopSchoolsChart({
@@ -37,7 +37,8 @@ export function TopSchoolsChart({
   className,
 }: TopSchoolsChartProps) {
   const chartData = schools.slice(0, limit).map((school) => ({
-    name: school.name.length > 20 ? school.name.slice(0, 18) + "..." : school.name,
+    name:
+      school.name.length > 20 ? school.name.slice(0, 18) + "..." : school.name,
     fullName: school.name,
     score: school.matchScore,
     tier: school.matchTier,
@@ -95,11 +96,7 @@ export function TopSchoolsChart({
               return null;
             }}
           />
-          <Bar
-            dataKey="score"
-            radius={[0, 4, 4, 0]}
-            maxBarSize={28}
-          >
+          <Bar dataKey="score" radius={[0, 4, 4, 0]} maxBarSize={28}>
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={getBarColor(entry.tier)} />
             ))}

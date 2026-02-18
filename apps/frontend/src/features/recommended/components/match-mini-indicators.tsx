@@ -174,7 +174,8 @@ export function MatchScoreBadge({
   size = "md",
 }: MatchScoreBadgeProps) {
   const tierStyle = school.matchTier
-    ? TIER_STYLES[school.matchTier]
+    ? (TIER_STYLES[school.matchTier as keyof typeof TIER_STYLES] ??
+      TIER_STYLES.default)
     : TIER_STYLES.default;
 
   return (
