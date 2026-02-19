@@ -43,7 +43,7 @@ export function FeedImage({ item }: FeedImageProps) {
           />
         </DialogPanel>
         <DialogFooter>
-          <DialogClose render={<Button variant="outline">Close</Button>}>
+          <DialogClose render={<Button variant="secondary">Close</Button>}>
             Close
           </DialogClose>
         </DialogFooter>

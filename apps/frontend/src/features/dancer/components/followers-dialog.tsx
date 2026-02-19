@@ -144,7 +144,7 @@ export function DancerFollowersDialog({
           </Suspense>
         </DialogPanel>
         <DialogFooter>
-          <DialogClose render={<Button variant="outline">Close</Button>} />
+          <DialogClose render={<Button variant="secondary">Close</Button>} />
         </DialogFooter>
       </DialogContent>
     </Dialog>

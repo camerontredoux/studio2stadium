@@ -102,7 +102,7 @@ export function SchoolFollowingDialog({ count }: { count: number }) {
           </Suspense>
         </DialogPanel>
         <DialogFooter>
-          <DialogClose render={<Button variant="outline">Close</Button>} />
+          <DialogClose render={<Button variant="secondary">Close</Button>} />
         </DialogFooter>
       </DialogContent>
     </Dialog>

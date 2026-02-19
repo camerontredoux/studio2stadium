@@ -78,7 +78,7 @@ export function SkillsDialog({
         />
 
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" />}>
+          <DialogClose render={<Button variant="secondary" />}>
             Cancel
           </DialogClose>
           <Button onClick={handleSave} disabled={isPending}>

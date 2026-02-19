@@ -40,7 +40,7 @@ export function FeedVideo({ item }: FeedVideoProps) {
           className="aspect-video h-full w-full"
         />
         <DialogFooter>
-          <DialogClose render={<Button variant="outline">Close</Button>}>
+          <DialogClose render={<Button variant="secondary">Close</Button>}>
             Close
           </DialogClose>
         </DialogFooter>
