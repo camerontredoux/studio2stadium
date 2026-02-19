@@ -56,7 +56,7 @@ export function SkillsDialog({
       <DialogTrigger render={<Button variant="outline" />}>
         Skills
       </DialogTrigger>
-      <DialogContent className="h-[80svh] max-w-7xl">
+      <DialogContent className="max-w-7xl max-sm:h-[calc(100svh-3rem)] sm:h-200 sm:max-h-[90svh]">
         <DialogHeader>
           <DialogTitle>Edit Skills</DialogTitle>
           <DialogDescription>

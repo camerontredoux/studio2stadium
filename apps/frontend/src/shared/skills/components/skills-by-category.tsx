@@ -23,7 +23,7 @@ export function SkillsByCategory({
             onClick={() => onToggle(skill.slug)}
             variant="outline"
             className={cn(
-              "rounded-full transition-colors duration-150 before:rounded-full",
+              "rounded-full before:rounded-full",
               isSelected ? "border-brand bg-brand! text-white" : "",
             )}
           >

@@ -2,21 +2,21 @@ import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useSwipeable } from "react-swipeable";
 import { Tabs, TabsList, TabsTab } from "../ui/tabs";
 
-const resourceTabs = ["/resources/library", "/resources/blog"] as const;
+const eventTabs = ["/events/schools", "/events/global"] as const;
 
-export function ResourcesLayout({ children }: { children: React.ReactNode }) {
+export function EventsLayout({ children }: { children: React.ReactNode }) {
   const pathname = useLocation({ select: (location) => location.pathname });
   const navigate = useNavigate();
 
-  const currentIndex = resourceTabs.indexOf(
-    pathname as (typeof resourceTabs)[number],
+  const currentIndex = eventTabs.indexOf(
+    pathname as (typeof eventTabs)[number],
   );
 
   function navigateTab(direction: "left" | "right") {
     const nextIndex =
       direction === "left" ? currentIndex + 1 : currentIndex - 1;
-    if (nextIndex >= 0 && nextIndex < resourceTabs.length) {
-      navigate({ to: resourceTabs[nextIndex] });
+    if (nextIndex >= 0 && nextIndex < eventTabs.length) {
+      navigate({ to: eventTabs[nextIndex] });
     }
   }
 
@@ -35,19 +35,19 @@ export function ResourcesLayout({ children }: { children: React.ReactNode }) {
       >
         <TabsTab
           nativeButton={false}
-          value="/resources/library"
+          value="/events/schools"
           className="text-brand data-active:text-brand max-sm:text-sm"
-          render={<Link to="/resources/library" />}
+          render={<Link to="/events/schools" />}
         >
-          Tap In
+          Schools
         </TabsTab>
         <TabsTab
           nativeButton={false}
-          value="/resources/blog"
+          value="/events/global"
           className="text-brand data-active:text-brand max-sm:text-sm"
-          render={<Link to="/resources/blog" />}
+          render={<Link to="/events/global" />}
         >
-          Blog
+          Global
         </TabsTab>
       </TabsList>
       <div {...handlers} className="overflow-x-clip">

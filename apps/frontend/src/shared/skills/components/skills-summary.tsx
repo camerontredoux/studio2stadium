@@ -70,7 +70,8 @@ export function SkillsSummary({
         side="bottom"
         className={cn(
           "overflow-hidden md:flex-1",
-          "h-screen md:max-h-none",
+          "md:max-h-none",
+          isExpanded && "max-md:h-400",
           !isExpanded && "hidden md:block",
         )}
       >

@@ -122,7 +122,11 @@ export function DancerFollowersDialog({
 }) {
   return (
     <Dialog>
-      <DialogTrigger render={children} className="cursor-pointer" />
+      <DialogTrigger
+        render={children}
+        className="cursor-pointer"
+        nativeButton={false}
+      />
       <DialogContent showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>Followers</DialogTitle>
