@@ -1,7 +1,7 @@
 import { Frame, FrameFooter, FramePanel } from "@/components/ui/frame";
 import { Skeleton } from "@/components/ui/skeleton";
 
-function GlobalEventCardSkeleton() {
+export function GlobalEventCardSkeleton() {
   return (
     <Frame compact className="group">
       <FramePanel side="top">
@@ -34,7 +34,7 @@ function GlobalEventCardSkeleton() {
       </FramePanel>
 
       <FrameFooter className="gap-2 px-3 py-2.5 sm:px-4">
-        <div className="flex w-full items-center justify-between gap-2">
+        <div className="flex items-center gap-2 max-sm:w-full">
           <Skeleton className="h-7 w-20 rounded-md sm:h-6" />
           <Skeleton className="h-7 w-24 rounded-md sm:h-6" />
         </div>

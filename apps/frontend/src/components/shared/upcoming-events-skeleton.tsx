@@ -12,20 +12,23 @@ import { Link } from "@tanstack/react-router";
 function UpcomingEventSkeleton() {
   return (
     <div className="flex items-center gap-3 px-5 py-4">
-      <Skeleton className="size-12 shrink-0 rounded-xl" />
+      <Skeleton className="size-12 shrink-0 self-start rounded-xl" />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <div className="flex items-center gap-2">
-          <Skeleton className="h-5 w-14 rounded-full" />
-          <Skeleton className="h-5 w-32" />
+        {/* Row 1: badge + title (text-sm → h-5) */}
+        <div className="flex h-5 items-center gap-2">
+          <Skeleton className="h-4.5 w-14 shrink-0 rounded-full" />
+          <Skeleton className="h-5 w-32 shrink-0" />
         </div>
+        {/* Row 2: organizer (text-xs → h-4) */}
         <Skeleton className="h-4 w-24" />
-        <div className="flex items-center gap-2">
+        {/* Row 3: date + location (text-xs → h-4) */}
+        <div className="flex h-4 items-center gap-2">
           <div className="flex items-center gap-1">
-            <Skeleton className="size-3 rounded-full" />
+            <Skeleton className="size-3 shrink-0 rounded-full" />
             <Skeleton className="h-4 w-14" />
           </div>
           <div className="flex items-center gap-1">
-            <Skeleton className="size-3 rounded-full" />
+            <Skeleton className="size-3 shrink-0 rounded-full" />
             <Skeleton className="h-4 w-24" />
           </div>
         </div>

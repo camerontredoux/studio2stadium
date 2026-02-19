@@ -1,3 +1,4 @@
+import { SuggestedProgramsSkeleton } from "@/components/shared/suggested-programs-skeleton";
 import { UpcomingEventsSkeleton } from "@/components/shared/upcoming-events-skeleton";
 import { Suspense } from "react";
 import { Fragment } from "react/jsx-runtime";
@@ -11,7 +12,7 @@ export function FeedSidebar() {
       <Suspense fallback={<UpcomingEventsSkeleton />}>
         <EventsSection />
       </Suspense>
-      <Suspense fallback={<UpcomingEventsSkeleton />}>
+      <Suspense fallback={<SuggestedProgramsSkeleton />}>
         <ProgramsSection />
       </Suspense>
       <ConsultationsSection />
