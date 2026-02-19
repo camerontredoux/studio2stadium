@@ -1,25 +1,45 @@
+import { toastManager } from "@/components/ui/toast-manager";
+import { handleApiError } from "@/lib/api/errors";
 import { SkillsDialog } from "@/shared/skills/components/skills-dialog";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useUpdateSkills } from "../../api/mutations";
 import { dancerQueries } from "../../api/queries";
 
 export function SkillsList() {
   const { data } = useSuspenseQuery(dancerQueries.skills());
+  const { mutateAsync, isPending } = useUpdateSkills();
 
-  const [selectedSkillIds, setSelectedSkillIds] = useState<string[]>(
-    data.map((skill) => skill.skillId),
-  );
+  const selectedSkillIds = data.map((skill) => skill.skillId);
+
+  const handleSave = async (skillIds: string[]) => {
+    await mutateAsync(
+      { body: { skills: skillIds } },
+      {
+        onSuccess: () => {
+          toastManager.add({
+            title: "Success",
+            description: "Your skills have been updated",
+            type: "success",
+          });
+        },
+        onError: handleApiError({
+          onError: (error) => {
+            toastManager.add({
+              title: "Error",
+              description: error.message,
+              type: "error",
+            });
+          },
+        }),
+      },
+    );
+  };
 
   return (
     <SkillsDialog
       selectedSkillIds={selectedSkillIds}
-      onToggle={(skillId) => {
-        setSelectedSkillIds((prev) =>
-          prev.includes(skillId)
-            ? prev.filter((id) => id !== skillId)
-            : [...prev, skillId],
-        );
-      }}
+      onSave={handleSave}
+      isPending={isPending}
     />
   );
 }

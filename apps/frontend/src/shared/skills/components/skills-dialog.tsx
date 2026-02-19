@@ -10,23 +10,49 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useState } from "react";
 import { useSkillsByCategory } from "../hooks/use-skills-by-category";
 import { SkillsList } from "./skills-list";
 import { SkillsSummary } from "./skills-summary";
 
 interface SkillsDialogProps {
   selectedSkillIds: string[];
-  onToggle: (skillId: string) => void;
+  onSave: (skillIds: string[]) => Promise<void>;
+  isPending?: boolean;
 }
 
 export function SkillsDialog({
   selectedSkillIds,
-  onToggle,
+  onSave,
+  isPending,
 }: SkillsDialogProps) {
   const skillsByCategory = useSkillsByCategory();
+  const [open, setOpen] = useState(false);
+  const [localSelectedSkillIds, setLocalSelectedSkillIds] =
+    useState<string[]>(selectedSkillIds);
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      setLocalSelectedSkillIds(selectedSkillIds);
+    }
+    setOpen(nextOpen);
+  };
+
+  const handleToggle = (skillId: string) => {
+    setLocalSelectedSkillIds((prev) =>
+      prev.includes(skillId)
+        ? prev.filter((id) => id !== skillId)
+        : [...prev, skillId],
+    );
+  };
+
+  const handleSave = async () => {
+    await onSave(localSelectedSkillIds);
+    setOpen(false);
+  };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger render={<Button variant="outline" />}>
         Skills
       </DialogTrigger>
@@ -38,20 +64,26 @@ export function SkillsDialog({
           </DialogDescription>
         </DialogHeader>
         <DialogPanel className="h-full">
-          <SkillsList selectedSkillIds={selectedSkillIds} onToggle={onToggle} />
+          <SkillsList
+            selectedSkillIds={localSelectedSkillIds}
+            onToggle={handleToggle}
+          />
         </DialogPanel>
 
         <SkillsSummary
           className="mx-6 mb-2 md:hidden"
           skillsByCategory={skillsByCategory}
-          selectedSkillIds={selectedSkillIds}
-          onRemove={onToggle}
+          selectedSkillIds={localSelectedSkillIds}
+          onRemove={handleToggle}
         />
 
         <DialogFooter>
           <DialogClose render={<Button variant="outline" />}>
             Cancel
           </DialogClose>
+          <Button onClick={handleSave} disabled={isPending}>
+            {isPending ? "Saving..." : "Save"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
