@@ -102,10 +102,12 @@ export function ProgramSpotlight() {
                 ))}
               </div>
             </div>
-            <div className="text-muted-foreground flex items-center gap-2 text-sm">
-              <Users2Icon className="size-4" />{" "}
-              {recommended.size?.toLocaleString() ?? "Unknown"} Dance Students
-            </div>
+            {recommended.size && recommended.size > 0 && (
+              <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                <Users2Icon className="size-4" />{" "}
+                {recommended.size.toLocaleString() ?? "Unknown"} Dance Students
+              </div>
+            )}
             <div className="flex flex-1 items-center gap-2">
               <Button
                 className="flex-1"
