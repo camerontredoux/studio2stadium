@@ -35,6 +35,10 @@ function MatchTierBadge({ matchTier }: { matchTier: MatchTier }) {
 export function ProgramSpotlight() {
   const { data } = useSuspenseQuery(feedQueries.recommended());
 
+  if (data.length === 0) {
+    return <div>No recommended programs found</div>;
+  }
+
   const recommended = data[0];
 
   return (
@@ -61,7 +65,7 @@ export function ProgramSpotlight() {
           />
           <div className="absolute inset-0 bg-linear-to-t from-black/70 to-black/20" />
           <div className="absolute bottom-2 left-2 flex items-center gap-2 p-1">
-            <div className="size-12 shrink-0 overflow-clip rounded-lg bg-black shadow-lg">
+            <div className="size-12 shrink-0 overflow-clip rounded-lg bg-white shadow-lg">
               <img
                 src={recommended.avatar ?? undefined}
                 alt="Program Image"
@@ -77,7 +81,7 @@ export function ProgramSpotlight() {
             </div>
           </div>
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2 sm:gap-4">
           <p className="line-clamp-4 text-sm">{recommended.about}</p>
           <div className="flex flex-col gap-3">
             <div className="space-y-1">

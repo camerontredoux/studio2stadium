@@ -1,6 +1,6 @@
 import { db } from "#database/connection";
 import { sql } from "drizzle-orm";
-import { Validator } from "./validator.ts";
+import { type Validator } from "./validator.ts";
 
 export class Service {
   async execute({ username }: Validator): Promise<boolean> {

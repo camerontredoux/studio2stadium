@@ -28,7 +28,10 @@ export class Service {
       return acc;
     }, new Map<string, FormattedEvent[]>());
 
-    return Array.from(groupedEvents, ([month, events]) => ({ month, events }));
+    return Array.from(groupedEvents, ([month, monthEvents]) => ({
+      month,
+      events: monthEvents,
+    }));
   }
 
   formatEvent({ organizer, startDatetime, ...event }: Event) {

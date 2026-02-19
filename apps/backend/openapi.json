@@ -986,6 +986,25 @@
             }
           },
           {
+            "name": "commonRecruiting",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
             "name": "division",
             "in": "query",
             "required": false,
@@ -1032,25 +1051,6 @@
           },
           {
             "name": "following",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": [
-                    "string",
-                    "number",
-                    "boolean"
-                  ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          {
-            "name": "commonRecruiting",
             "in": "query",
             "required": false,
             "schema": {
@@ -1150,10 +1150,46 @@
     },
     "/schools/recommended": {
       "get": {
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsRecommendedResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -1604,13 +1640,29 @@
         "enum": [
           "name",
           "location",
+          "commonRecruiting",
           "division",
           "sports",
           "styles",
           "following",
-          "commonRecruiting",
           "upcomingEvents",
           "gpaRange"
+        ]
+      },
+      "MatchTier": {
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": [
+              "partial",
+              "excellent",
+              "good",
+              "unqualified"
+            ]
+          },
+          {
+            "type": "null"
+          }
         ]
       },
       "AuthSignupRequest": {
@@ -2552,7 +2604,9 @@
                   "type": {
                     "type": "string",
                     "enum": [
+                      "recruitment",
                       "audition",
+                      "other",
                       "rehearsal",
                       "recital",
                       "showcase",
@@ -2565,10 +2619,8 @@
                       "convention",
                       "clinic",
                       "deadline",
-                      "recruitment",
                       "performance",
-                      "camp",
-                      "other"
+                      "camp"
                     ]
                   },
                   "id": {
@@ -2657,7 +2709,9 @@
             "type": {
               "type": "string",
               "enum": [
+                "recruitment",
                 "audition",
+                "other",
                 "rehearsal",
                 "recital",
                 "showcase",
@@ -2670,10 +2724,8 @@
                 "convention",
                 "clinic",
                 "deadline",
-                "recruitment",
                 "performance",
-                "camp",
-                "other"
+                "camp"
               ]
             },
             "id": {
@@ -2745,7 +2797,9 @@
             "type": {
               "type": "string",
               "enum": [
+                "recruitment",
                 "audition",
+                "other",
                 "rehearsal",
                 "recital",
                 "showcase",
@@ -2758,10 +2812,8 @@
                 "convention",
                 "clinic",
                 "deadline",
-                "recruitment",
                 "performance",
-                "camp",
-                "other"
+                "camp"
               ]
             },
             "id": {
@@ -2808,7 +2860,9 @@
           "type": {
             "type": "string",
             "enum": [
+              "recruitment",
               "audition",
+              "other",
               "rehearsal",
               "recital",
               "showcase",
@@ -2821,10 +2875,8 @@
               "convention",
               "clinic",
               "deadline",
-              "recruitment",
               "performance",
-              "camp",
-              "other"
+              "camp"
             ]
           },
           "id": {
@@ -3120,6 +3172,180 @@
           ]
         }
       },
+      "SchoolsRecommendedResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "about": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "username": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "debug": {
+              "type": "object",
+              "properties": {
+                "schoolSkills": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "skillId": {
+                        "type": "string"
+                      },
+                      "weight": {
+                        "type": "number"
+                      },
+                      "rarityBonus": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "skillId",
+                      "weight",
+                      "rarityBonus"
+                    ]
+                  }
+                },
+                "matchedSkills": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "skillId": {
+                        "type": "string"
+                      },
+                      "weight": {
+                        "type": "number"
+                      },
+                      "rarityBonus": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "skillId",
+                      "weight",
+                      "rarityBonus"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "schoolSkills",
+                "matchedSkills"
+              ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "avatar": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "location": {
+              "type": "string"
+            },
+            "gpa": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "size": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "locationScore": {
+              "type": "number"
+            },
+            "matchScore": {
+              "type": "number"
+            },
+            "top3Matches": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "matchTier": {
+              "$ref": "#/components/schemas/MatchTier"
+            },
+            "matchedSkillsCount": {
+              "type": "number"
+            },
+            "totalSchoolSkills": {
+              "type": "number"
+            },
+            "matchedStylesCount": {
+              "type": "number"
+            },
+            "totalSchoolStyles": {
+              "type": "number"
+            },
+            "matchedSportsCount": {
+              "type": "number"
+            },
+            "totalSchoolSports": {
+              "type": "number"
+            },
+            "sameState": {
+              "type": "boolean"
+            },
+            "meetsGpaRequirement": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "about",
+            "username",
+            "name",
+            "id",
+            "avatar",
+            "location",
+            "gpa",
+            "size",
+            "locationScore",
+            "matchScore",
+            "top3Matches",
+            "matchTier",
+            "matchedSkillsCount",
+            "totalSchoolSkills",
+            "matchedStylesCount",
+            "totalSchoolStyles",
+            "matchedSportsCount",
+            "totalSchoolSports",
+            "sameState",
+            "meetsGpaRequirement"
+          ]
+        }
+      },
       "SchoolsMeFollowersResponse": {
         "type": "array",
         "items": {
@@ -3197,7 +3423,9 @@
                 "type": {
                   "type": "string",
                   "enum": [
+                    "recruitment",
                     "audition",
+                    "other",
                     "rehearsal",
                     "recital",
                     "showcase",
@@ -3210,10 +3438,8 @@
                     "convention",
                     "clinic",
                     "deadline",
-                    "recruitment",
                     "performance",
-                    "camp",
-                    "other"
+                    "camp"
                   ]
                 },
                 "id": {
@@ -3421,6 +3647,28 @@
               }
             ]
           },
+          "commonRecruiting": {
+            "type": "boolean"
+          },
+          "teamSelection": {
+            "type": "string",
+            "enum": [
+              "recruitment",
+              "audition",
+              "hybrid"
+            ]
+          },
+          "competitiveCircuit": {
+            "type": "string",
+            "enum": [
+              "other",
+              "uda",
+              "dtu",
+              "nda",
+              "usa",
+              "non-competitive"
+            ]
+          },
           "division": {
             "oneOf": [
               {
@@ -3626,6 +3874,9 @@
           "instagram",
           "tiktok",
           "gpa",
+          "commonRecruiting",
+          "teamSelection",
+          "competitiveCircuit",
           "division",
           "benefits",
           "website",

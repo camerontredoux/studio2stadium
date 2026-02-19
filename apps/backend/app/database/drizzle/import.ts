@@ -21,7 +21,7 @@ import { dancerSkills, schoolSkills, skills } from "#database/schema/skills";
 import { dancerSports, schoolSports, sports } from "#database/schema/sports";
 import { dancerStyles, schoolStyles, styles } from "#database/schema/styles";
 import { platforms, subscriptions, users } from "#database/schema/users";
-import { existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync } from "node:fs";
 
 // Path to export directory - update this to match your export location
 const EXPORT_DIR = "app/database/drizzle/export";
@@ -64,7 +64,7 @@ function toDate(dateStr: string | Date | null | undefined): Date | null {
 }
 
 // Helper to batch insert - fails on first error
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 async function batchInsert<T extends Record<string, unknown>>(
   table: any,
   data: T[],

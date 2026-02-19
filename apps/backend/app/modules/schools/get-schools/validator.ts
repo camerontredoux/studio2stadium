@@ -3,7 +3,7 @@ import { sportCodes } from "#shared/constants/sports";
 import { stateCodes } from "#shared/constants/states";
 import { styleCodes } from "#shared/constants/styles";
 import vine from "@vinejs/vine";
-import { Infer } from "@vinejs/vine/types";
+import { type Infer } from "@vinejs/vine/types";
 
 const gpaRangeRule = vine.createRule((value, _, ctx) => {
   if (typeof value !== "string") {
@@ -12,10 +12,10 @@ const gpaRangeRule = vine.createRule((value, _, ctx) => {
   }
 
   const [minStr, maxStr] = value.split(",");
-  const min = parseFloat(minStr);
-  const max = parseFloat(maxStr);
+  const min = Number.parseFloat(minStr);
+  const max = Number.parseFloat(maxStr);
 
-  if (isNaN(min) || isNaN(max)) {
+  if (Number.isNaN(min) || Number.isNaN(max)) {
     ctx.report("Invalid GPA range", "gpaRange", ctx);
     return;
   }

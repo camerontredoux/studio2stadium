@@ -83,7 +83,10 @@ export class Service {
         LEFT JOIN dancer_achievements a ON f.content_type = 'achievement' AND f.content_id = a.id
         LEFT JOIN dancer_references r ON f.content_type = 'reference' AND f.content_id = r.id
         LEFT JOIN school_profiles p ON f.content_type = 'profile' AND f.content_id = p.id
-        WHERE f.user_id IN (${sql.join(following.map(id => sql`${id}::uuid`), sql`, `)})
+        WHERE f.user_id IN (${sql.join(
+          following.map((id) => sql`${id}::uuid`),
+          sql`, `
+        )})
         ${cursor ? sql`AND f.created_at < ${cursor}::timestamptz` : sql``}
         ORDER BY f.created_at DESC
         LIMIT ${PAGE_SIZE}

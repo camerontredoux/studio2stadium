@@ -2,11 +2,16 @@ import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/session";
 import { queries } from "@/shared/api/queries";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { dancerQueries } from "../api/queries";
-import { DancerFollowingDialog } from "./following-dialog";
-import { FavoriteSection } from "./profile/favorite-section";
+import { useParams } from "@tanstack/react-router";
+import { Suspense } from "react";
+import { dancerQueries } from "./api/queries";
+import { DancerFollowingDialog } from "./components/following-dialog";
+import { FavoriteSection } from "./components/profile/favorite-section";
+import { SkillsList } from "./components/skills/skills-list";
 
-export function DancerProfile({ username }: { username: string }) {
+export function DancerProfile() {
+  const { username } = useParams({ from: "/_app/(routes)/$username" });
+
   const session = useSession();
   const { data } = useSuspenseQuery(dancerQueries.profile(username));
 
@@ -18,6 +23,9 @@ export function DancerProfile({ username }: { username: string }) {
       <DancerFollowingDialog>
         <Button>{activity?.following} Following</Button>
       </DancerFollowingDialog>
+      <Suspense fallback={<div>Loading...</div>}>
+        <SkillsList />
+      </Suspense>
       <pre className="max-w-full wrap-break-word whitespace-pre-wrap">
         {JSON.stringify({ session, data }, null, 2)}
       </pre>

@@ -63,6 +63,10 @@ type LibraryIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/library/list-videos-by-category/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/library/list-videos-by-category/controller.ts').default['handle'], true>
 }
+type SkillsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/skills/get-skills/controller.ts').default['handle'], false>
+}
 type DancersPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/create-dancer/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/create-dancer/controller.ts').default['handle'], true>
@@ -71,21 +75,29 @@ type DancersFiltersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/get-filters/controller.ts').default['handle'], false>
 }
+type DancersMeSkillsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-skills/controller.ts').default['handle'], false>
+}
+type DancersMeSkillsPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/update-skills/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/update-skills/controller.ts').default['handle'], true>
+}
 type DancersMeFollowingGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/me/get-following/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-following/controller.ts').default['handle'], false>
 }
 type DancersMeFollowingIdsGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/me/get-following-ids/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-following-ids/controller.ts').default['handle'], false>
 }
 type DancersMePortfolioPatch = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/me/update-portfolio/validator.ts')['validator']>>
-  response: MakeTuyauResponse<import('../app/modules/dancers/me/update-portfolio/controller.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/update-portfolio/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/update-portfolio/controller.ts').default['handle'], true>
 }
 type DancersMeFollowersGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/me/get-followers/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-followers/controller.ts').default['handle'], false>
 }
 type DancersIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/get-dancer/validator.ts')['validator']>>
@@ -129,7 +141,7 @@ type EventsIdUnsaveDelete = {
 }
 type SchoolsFiltersGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/schools/get-filters/contoller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/schools/get-school-filters/controller.ts').default['handle'], false>
 }
 type SchoolsGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-schools/validator.ts')['validator']>>
@@ -141,11 +153,11 @@ type SchoolsRecommendedGetHead = {
 }
 type SchoolsMeFollowersGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/me/get-followers/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-followers/controller.ts').default['handle'], false>
 }
 type SchoolsMeFollowingGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/me/get-following/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-following/controller.ts').default['handle'], false>
 }
 type SchoolsIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school/validator.ts')['validator']>>
@@ -261,6 +273,12 @@ export interface ApiDefinition {
       '$head': LibraryIdGetHead;
     };
   };
+  'skills': {
+    '$url': {
+    };
+    '$get': SkillsGetHead;
+    '$head': SkillsGetHead;
+  };
   'dancers': {
     '$url': {
     };
@@ -272,6 +290,13 @@ export interface ApiDefinition {
       '$head': DancersFiltersGetHead;
     };
     'me': {
+      'skills': {
+        '$url': {
+        };
+        '$get': DancersMeSkillsGetHead;
+        '$head': DancersMeSkillsGetHead;
+        '$patch': DancersMeSkillsPatch;
+      };
       'following': {
         '$url': {
         };

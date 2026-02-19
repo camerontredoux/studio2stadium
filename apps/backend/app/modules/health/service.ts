@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import { db } from "#database/connection";
+import { type db } from "#database/connection";
 import { BaseCheck, Result } from "@adonisjs/core/health";
 import type { HealthCheckResult } from "@adonisjs/core/types/health";
 import { sql } from "drizzle-orm";

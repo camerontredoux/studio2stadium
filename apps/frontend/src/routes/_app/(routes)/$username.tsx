@@ -1,5 +1,5 @@
 import { dancerQueries } from "@/features/dancer/api/queries";
-import { DancerProfile } from "@/features/dancer/components/dancer-profile";
+import { DancerProfile } from "@/features/dancer/page";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/$username")({
@@ -14,11 +14,5 @@ export const Route = createFileRoute("/_app/(routes)/$username")({
       queryClient.ensureQueryData(dancerQueries.metadata(dancer.id));
     }
   },
-  component: RouteComponent,
+  component: DancerProfile,
 });
-
-function RouteComponent() {
-  const { username } = Route.useParams();
-
-  return <DancerProfile username={username} />;
-}

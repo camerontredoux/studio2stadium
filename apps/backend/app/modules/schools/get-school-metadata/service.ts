@@ -23,9 +23,7 @@ export class Service {
     const following = metadata?.followers.some(
       (follower) => follower.id === profileId
     );
-    const interested = metadata?.interested.some(
-      (interested) => interested.id === profileId
-    );
+    const interested = metadata?.interested.some((i) => i.id === profileId);
 
     return { followers, following, interested };
   }

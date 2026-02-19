@@ -15,7 +15,7 @@ export function FeedPage() {
       sidebar={<FeedSidebar />}
       tabs={{ contentLabel: "Feed", sidebarLabel: "Discover" }}
     >
-      <div className="mobile:pb-14 flex flex-col gap-2 lg:gap-4">
+      <div className="flex flex-col gap-2 lg:gap-4">
         <div className="hidden lg:block">
           <h1 className="text-2xl leading-none font-bold tracking-tight">
             Welcome back, {session.firstName}!

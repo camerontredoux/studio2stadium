@@ -15,12 +15,11 @@ pnpm test                           # Run all tests
 node ace test --files "app/modules/users/signup/test.ts"  # Run single test file
 
 # Database
-pnpm db:migrate       # Run migrations (dev)
-pnpm db:deploy        # Run migrations (production)
-pnpm db:generate      # Generate Kysely types from Prisma schema
-pnpm db:push          # Push schema without migrations
+pnpm db:generate      # Generate migration from schema changes
+pnpm db:migrate       # Run migrations
+pnpm db:push          # Push schema directly (no migration)
 pnpm db:reset         # Reset database
-pnpm db:studio        # Open Prisma Studio
+pnpm db:studio        # Open Drizzle Studio
 
 # Code Quality
 pnpm lint             # ESLint
@@ -28,54 +27,62 @@ pnpm format           # Prettier
 pnpm typecheck        # TypeScript check
 
 # Code Generation
-pnpm make:feature     # Generate new feature scaffold
-pnpm make:docs        # Generate Tuyau API docs
-pnpm make:spec        # Generate OpenAPI spec
+pnpm make:docs        # Generate Tuyau API docs and OpenAPI spec
 ```
 
 ## Architecture
 
-This is an AdonisJS 6 backend using Kysely as the query builder with Prisma for migrations and type generation.
+AdonisJS 6 backend using Drizzle ORM with PostgreSQL.
 
 ### Module-Based Structure
 
 Features live in `app/modules/{domain}/{feature-name}/` with co-located files:
 
-- `controller.ts` - HTTP handler, validates input, calls service
-- `service.ts` - Business logic, orchestrates queries
-- `queries.ts` - Database queries extending `BaseQuery`
-- `validator.ts` - VineJS validation schema
-- `test.ts` - Japa tests (functional tests live alongside features)
-- `event.ts` - Domain events
-- `routes.ts` - Route definitions (at domain level, e.g., `users/routes.ts`)
+- `controller.ts` - HTTP handler with `@inject()` decorator, validates input, calls service
+- `service.ts` - Business logic, injects `DatabaseService` for queries
+- `validator.ts` - VineJS validation schema, exports `Validator` type
+- `event.ts` - Domain events (optional)
+- `routes.ts` - Route definitions at domain level (e.g., `auth/routes.ts`)
 
-Routes are registered by importing the routes file in `start/routes.ts`.
+Routes are registered by importing in `start/routes.ts`.
 
 ### Database Layer
 
-- **Prisma** (`app/database/prisma/schema.prisma`): Schema definition and migrations only
-- **Kysely** (`app/database/connection.ts`): Query builder for all database operations
-- **Types** (`app/database/generated/types.ts`): Auto-generated from Prisma via `prisma-kysely`
+- **Drizzle ORM** (`app/database/connection.ts`): Query builder, exports `db`
+- **Schema** (`app/database/schema/*.ts`): Table definitions using `drizzle-orm/pg-core`
+- **Relations** (`app/database/schema/relations.ts`): Drizzle relation definitions
+- **DatabaseService** (`app/database/service.ts`): Wrapper with PostgreSQL error handling
 
-After schema changes: `pnpm db:migrate` then `pnpm db:generate` to update types.
+After schema changes: `pnpm db:generate` then `pnpm db:migrate`.
 
 ### Query Pattern
 
-All query classes extend `BaseQuery` which provides:
-
-- `use(fn)` - Wraps queries with automatic PostgreSQL error handling
-- `transaction(fn)` - Transaction support with error handling
-- Auto-injection of `HttpContext` for error reporting
+Services inject `DatabaseService` for database operations with automatic error handling:
 
 ```typescript
-export class FeatureQueries extends BaseQuery {
-  async findSomething(id: string) {
-    return await this.use((db) =>
-      db.selectFrom("table").where("id", "=", id).executeTakeFirst()
+@inject()
+export class Service {
+  constructor(private db: DatabaseService) {}
+
+  async execute(input: Validator) {
+    // Simple query
+    return await this.db.use((db) =>
+      db.select().from(users).where(eq(users.id, input.id))
     );
+  }
+
+  async createWithTransaction(input: Validator) {
+    // Transaction
+    return await this.db.tx(async (tx) => {
+      const [user] = await tx.insert(users).values(input).returning();
+      await tx.insert(platforms).values({ userId: user.id });
+      return user;
+    });
   }
 }
 ```
+
+For simple queries without error handling, import `db` directly from `#database/connection`.
 
 ### Authentication & Session Caching
 
@@ -88,16 +95,18 @@ Session-based auth with Redis sessions and a multi-layer caching strategy.
 3. **Database** - Full query (on version mismatch or cache miss)
 
 **Cookie Cache Design:**
-The cookie cache is intentionally stateless, modeled after [BetterAuth's cookie cache](https://www.better-auth.com/docs/concepts/session-management#cookie-cache). During its TTL (5 min), it never hits Redis — this is by design for performance. It does NOT participate in version-based invalidation. This is an accepted tradeoff: GET requests may use slightly stale user data until the cookie expires. State-changing requests (POST/PUT/DELETE) always validate against Redis.
+The cookie cache is intentionally stateless. During its TTL, it never hits Redis — this is by design for performance. It does NOT participate in version-based invalidation. GET requests may use slightly stale user data until the cookie expires. State-changing requests (POST/PUT/DELETE) always validate against Redis.
 
-**Version-Based Invalidation (Redis session only):**
-Redis stores `version:{userId}` as an invalidation key. The Redis session stores this version; on mismatch, the session is refreshed from the database. Calling `guard.refresh()` bumps the version, invalidating Redis sessions across all devices.
+**Version-Based Invalidation:**
+Redis stores `version:{userId}` as an invalidation key. The Redis session stores this version; on mismatch, the session is refreshed from the database. Calling `guard.bump()` invalidates Redis sessions across all devices.
 
 **Named Middleware** (`start/kernel.ts`):
 
 - `auth` - Requires authenticated user
-- `subscribed` - Requires active subscription
-- `prodigy` - Requires prodigy platform access
+- `dancer` - Requires dancer profile access
+- `school` - Requires school profile access
+- `premium` - Requires premium subscription
+- `profile` - Requires any profile type
 
 ### Path Aliases
 
@@ -108,17 +117,18 @@ Use import aliases defined in `package.json`:
 - `#utils/*` - `app/utils/*.ts`
 - `#middleware/*` - `app/middleware/*.ts`
 - `#auth/*` - `app/auth/*.ts`
+- `#shared/*` - `app/shared/*.ts`
 - `#start/*` - `start/*.ts`
 - `#config/*` - `config/*.ts`
 
 ### Testing
 
-Tests use Japa with functional tests in `app/modules/**/*.test.ts`. Test setup clears database tables in `group.each.setup()`. Use `@faker-js/faker` for test data.
+Tests use Japa with functional tests co-located at `app/modules/**/*.test.ts`. Use `@faker-js/faker` for test data.
 
 ```typescript
 test.group("Feature tests", (group) => {
   group.each.setup(async () => {
-    await db.deleteFrom("table").execute();
+    await db.delete(table).execute();
   });
 
   test("description", async ({ client }) => {

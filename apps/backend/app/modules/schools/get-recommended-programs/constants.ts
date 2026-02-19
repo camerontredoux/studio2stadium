@@ -1,4 +1,4 @@
-import { StateCode } from "#shared/constants/states";
+import { type StateCode } from "#shared/constants/states";
 
 export const stateAdjacencies: Record<StateCode, StateCode[]> = {
   AL: ["FL", "GA", "MS", "TN"],

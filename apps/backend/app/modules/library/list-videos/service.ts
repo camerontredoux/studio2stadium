@@ -28,9 +28,9 @@ export class Service {
       return acc;
     }, new Map<string, typeof videos>());
 
-    return Array.from(groupedVideos, ([category, videos]) => ({
+    return Array.from(groupedVideos, ([category, categoryVideos]) => ({
       category,
-      videos,
+      videos: categoryVideos,
     }));
   }
 }

@@ -2,7 +2,7 @@ import { middleware } from "#start/kernel";
 import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
 
-const GetFiltersController = () => import("./get-filters/contoller.ts");
+const GetFiltersController = () => import("./get-school-filters/controller.ts");
 const GetSchoolsController = () => import("./get-schools/controller.ts");
 const GetSchoolController = () => import("./get-school/controller.ts");
 const FollowSchoolController = () => import("./follow/controller.ts");
@@ -10,8 +10,8 @@ const UnfollowSchoolController = () => import("./unfollow/controller.ts");
 const GetMetadataController = () =>
   import("./get-school-metadata/controller.ts");
 const ShowInterestController = () => import("./show-interest/controller.ts");
-const GetFollowersController = () => import("./me/get-followers/controller.ts");
-const GetFollowingController = () => import("./me/get-following/controller.ts");
+const GetFollowersController = () => import("./get-followers/controller.ts");
+const GetFollowingController = () => import("./get-following/controller.ts");
 const GetRecommendedProgramsController = () =>
   import("./get-recommended-programs/controller.ts");
 

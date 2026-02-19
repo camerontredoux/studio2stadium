@@ -18,7 +18,7 @@ import {
 import { HiOutlineSparkles, HiSparkles } from "react-icons/hi2";
 
 import { useSession } from "@/lib/session";
-import { Activity } from "./activity/activity";
+import { Activity } from "./activity";
 import { NavLink } from "./nav-link";
 
 export function Navbar() {

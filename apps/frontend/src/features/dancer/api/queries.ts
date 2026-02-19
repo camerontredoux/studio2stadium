@@ -11,4 +11,5 @@ export const dancerQueries = {
     }),
   followers: () => $api.queryOptions("get", "/dancers/me/followers"),
   following: () => $api.queryOptions("get", "/dancers/me/following"),
+  skills: () => $api.queryOptions("get", "/dancers/me/skills"),
 };
