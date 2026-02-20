@@ -1,3 +1,4 @@
+import { useCountdown } from "@/components/hooks/use-countdown";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +13,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
+import { toastManager } from "@/components/ui/toast-manager";
 import { type ApiSchemas } from "@/lib/api/client";
+import { handleApiError } from "@/lib/api/errors";
 import { useFollowSchool, useUnfollowSchool } from "@/shared/api/mutations";
 import { queries } from "@/shared/api/queries";
 import { type FollowedSchool } from "@/shared/types";
@@ -30,34 +33,44 @@ function FollowToggleButton({
   school: FollowedSchool;
   isFollowing: boolean;
 }) {
-  const followMutation = useFollowSchool(school);
-  const unfollowMutation = useUnfollowSchool(school);
+  const { mutate: follow } = useFollowSchool(school);
+  const { mutate: unfollow } = useUnfollowSchool(school);
 
-  const isPending = followMutation.isPending || unfollowMutation.isPending;
+  const [retryAfter, startCountdown] = useCountdown();
 
   const handleClick = () => {
-    if (isFollowing) {
-      unfollowMutation.mutate({ params: { path: { id: school.id } } });
-    } else {
-      followMutation.mutate({ params: { path: { id: school.id } } });
-    }
+    const mutate = isFollowing ? unfollow : follow;
+    mutate(
+      { params: { path: { id: school.id } } },
+      {
+        onError: handleApiError({
+          onRateLimit: (retryAfter) => {
+            startCountdown(retryAfter);
+          },
+          onError: (error) => {
+            toastManager.add({
+              title: "Error",
+              description: error.message,
+              type: "error",
+            });
+          },
+        }),
+      },
+    );
   };
 
   return (
     <Button
-      disabled={isPending}
       onClick={handleClick}
       size="sm"
       variant={isFollowing ? "ghost" : "outline"}
       className={isFollowing ? "text-destructive-foreground" : ""}
     >
-      {isPending ? (
-        <Spinner label={isFollowing ? "Unfollow" : "Follow"} />
-      ) : isFollowing ? (
-        "Unfollow"
-      ) : (
-        "Follow"
-      )}
+      {retryAfter
+        ? `Retry in ${retryAfter}s`
+        : isFollowing
+          ? "Unfollow"
+          : "Follow"}
     </Button>
   );
 }
@@ -66,7 +79,7 @@ function FollowersList() {
   const { data: followers } = useSuspenseQuery(dancerQueries.followers());
   const { data: followingIds } = useQuery(queries.followingIds());
 
-  return (
+  return followers.length > 0 ? (
     <div className="flex flex-col gap-4 pb-4">
       {followers.map((follower: Follower) => {
         const isFollowing = followingIds?.includes(follower.id) ?? false;
@@ -111,6 +124,10 @@ function FollowersList() {
           </div>
         );
       })}
+    </div>
+  ) : (
+    <div className="text-muted-foreground flex h-full items-center justify-center text-sm">
+      No followers found
     </div>
   );
 }

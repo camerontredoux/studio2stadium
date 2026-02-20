@@ -13,17 +13,14 @@ function SuggestedProgramSkeleton() {
     <div className="flex items-start gap-3 px-5 py-4">
       <Skeleton className="size-12 shrink-0 self-start rounded-xl" />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        {/* Row 1: title only (text-sm → h-5), no badge */}
         <div className="flex items-center gap-1">
           <Skeleton className="h-4 w-40 shrink-0" />
           <Skeleton className="h-4.5 w-12 shrink-0 self-center rounded-md" />
         </div>
-        {/* Row 2: location (text-xs → h-4) */}
         <div className="flex h-3 items-center gap-1">
           <Skeleton className="size-3 shrink-0 rounded-full" />
           <Skeleton className="h-3 w-20" />
         </div>
-        {/* Row 3: students (text-xs → h-4) */}
         <div className="flex h-4 items-center gap-1">
           <Skeleton className="size-3 shrink-0 rounded-full" />
           <Skeleton className="h-3 w-24" />

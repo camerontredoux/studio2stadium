@@ -1,11 +1,36 @@
+import { useCountdown } from "@/components/hooks/use-countdown";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import type { RecommendedSchool } from "@/features/feed/types";
+import { handleApiError } from "@/lib/api/errors";
+import { useFollowSchool } from "@/shared/api/mutations";
+import { queries } from "@/shared/api/queries";
 import { US_STATES } from "@/utils/constants/states";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { MapPinIcon, Users2Icon } from "lucide-react";
 
 export function RecommendedSchool({ school }: { school: RecommendedSchool }) {
+  const { data } = useSuspenseQuery(queries.followingIds());
+  const { mutate } = useFollowSchool(school);
+
+  const [retryAfter, startCountdown] = useCountdown();
+
+  const handleFollow = () => {
+    mutate(
+      { params: { path: { id: school.id } } },
+      {
+        onError: handleApiError({
+          onRateLimit: (retryAfter) => {
+            startCountdown(retryAfter);
+          },
+        }),
+      },
+    );
+  };
+
+  const isFollowing = data?.includes(school.id) ?? false;
+
   return (
     <div className="hover:bg-accent px-5 py-4">
       <div className="flex items-start gap-3">
@@ -34,8 +59,18 @@ export function RecommendedSchool({ school }: { school: RecommendedSchool }) {
             </p>
           </div>
         </div>
-        <Button className="ml-auto" size="xs" variant="outline">
-          Follow
+        <Button
+          className="ml-auto"
+          size="xs"
+          variant="outline"
+          onClick={handleFollow}
+          disabled={isFollowing || !!retryAfter}
+        >
+          {retryAfter
+            ? `Retry in ${retryAfter}s`
+            : isFollowing
+              ? "Following"
+              : "Follow"}
         </Button>
       </div>
     </div>

@@ -120,9 +120,6 @@ export function ProgramSpotlight() {
               >
                 View Program
               </Button>
-              <Button className="flex-1" variant="outline">
-                Follow
-              </Button>
             </div>
           </div>
         </div>

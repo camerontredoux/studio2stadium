@@ -20,17 +20,20 @@ import { Suspense } from "react";
 import { dancerQueries } from "../api/queries";
 
 function UnfollowButton({ school }: { school: FollowedSchool }) {
-  const { mutate, isPending } = useUnfollowSchool(school);
+  const { mutate } = useUnfollowSchool(school);
+
+  const handleClick = () => {
+    mutate({ params: { path: { id: school.id } } });
+  };
 
   return (
     <Button
-      disabled={isPending}
-      onClick={() => mutate({ params: { path: { id: school.id } } })}
+      onClick={handleClick}
       size="sm"
       variant="ghost"
       className="text-destructive-foreground"
     >
-      {isPending ? <Spinner label="Unfollow" /> : "Unfollow"}
+      Unfollow
     </Button>
   );
 }
@@ -38,7 +41,7 @@ function UnfollowButton({ school }: { school: FollowedSchool }) {
 function FollowingList() {
   const { data } = useSuspenseQuery(dancerQueries.following());
 
-  return (
+  return data.length > 0 ? (
     <div className="flex flex-col gap-4 pb-4">
       {data.map((school) => (
         <div key={school.username} className="group flex items-center gap-3">
@@ -70,6 +73,10 @@ function FollowingList() {
           </div>
         </div>
       ))}
+    </div>
+  ) : (
+    <div className="text-muted-foreground flex h-full items-center justify-center text-sm">
+      No schools found
     </div>
   );
 }
