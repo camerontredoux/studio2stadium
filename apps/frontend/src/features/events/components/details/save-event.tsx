@@ -2,7 +2,7 @@ import { useCountdown } from "@/components/hooks/use-countdown";
 import { Button } from "@/components/ui/button";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
-import { BookmarkIcon } from "lucide-react";
+import { CheckIcon, SaveIcon } from "lucide-react";
 import { useSaveEvent, useUnsaveEvent } from "../../api/mutations";
 
 export function SaveEventButton({
@@ -48,8 +48,17 @@ export function SaveEventButton({
       onClick={handleClick}
       className="flex-1 gap-1.5"
     >
-      <BookmarkIcon className={isSaved ? "fill-current" : undefined} />
-      {retryAfter ? `Retry in ${retryAfter}s` : isSaved ? "Unsave" : "Save"}
+      {retryAfter ? (
+        `Retry in ${retryAfter}s`
+      ) : isSaved ? (
+        <>
+          <CheckIcon /> Saved
+        </>
+      ) : (
+        <>
+          <SaveIcon /> Save
+        </>
+      )}
     </Button>
   );
 }

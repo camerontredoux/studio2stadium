@@ -33,21 +33,17 @@ export function EventOrganizer({ organizer }: EventOrganizerProps) {
           </Button>
         </FrameTitle>
       </FrameHeader>
-      <FramePanel>
-        <div className="flex items-start gap-3">
-          <div className="flex flex-col overflow-hidden">
-            <h3
-              title={organizer?.name}
-              aria-label={organizer?.name}
-              className="truncate font-medium max-sm:text-sm"
-            >
-              {organizer?.name}
-            </h3>
-            <span className="text-muted-foreground text-xs">
-              Hosting x other events
-            </span>
-          </div>
-        </div>
+      <FramePanel className="pt-4!">
+        <h3
+          title={organizer?.name}
+          aria-label={organizer?.name}
+          className="truncate font-medium max-sm:text-sm"
+        >
+          {organizer?.name}
+        </h3>
+        <p className="text-muted-foreground text-xs">
+          Hosting {organizer.events ?? "no"} more events
+        </p>
       </FramePanel>
     </Frame>
   );

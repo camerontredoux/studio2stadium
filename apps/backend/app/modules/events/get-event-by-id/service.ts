@@ -1,4 +1,4 @@
-import { danceEventAttendees } from "#database/schema/events";
+import { danceEventAttendees, danceEvents } from "#database/schema/events";
 import { DatabaseService } from "#database/service";
 import { E_BAD_REQUEST } from "#exceptions/bad-request";
 import { getDateAndTime } from "#utils/date";
@@ -41,6 +41,10 @@ export class Service {
                   avatar: true,
                 },
               },
+            },
+            extras: {
+              otherEvents: (table) =>
+                db.$count(danceEvents, eq(table.id, danceEvents.schoolId)),
             },
           },
           attendees: {
@@ -86,6 +90,7 @@ export class Service {
         name: organizer.name,
         username: organizer.user.username,
         avatar: organizer.user.avatar,
+        events: organizer.otherEvents,
       },
       ...(schedule?.schedule && {
         schedule: schedule.schedule,

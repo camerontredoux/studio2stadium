@@ -11,7 +11,7 @@ type Filter = ApiSchemas["SchoolsFiltersResponse"][number];
 
 function ConnectedFilterItem({ filter }: { filter: Filter }) {
   const value = useSearch({
-    from: "/_app/(routes)/events/schools",
+    from: "/_app/(routes)/events/",
     select: (search) => search[filter.paramKey],
   });
   const navigate = useNavigate({ from: "/events/" });

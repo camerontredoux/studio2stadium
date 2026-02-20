@@ -5,7 +5,8 @@ import { Service } from "./service.ts";
 export default class GetGlobalEventsController {
   @inject()
   async handle(ctx: HttpContext, service: Service) {
-    const events = await service.execute();
+    const session = ctx.auth.getUserOrFail();
+    const events = await service.execute(session.id);
 
     return ctx.response.ok(events);
   }

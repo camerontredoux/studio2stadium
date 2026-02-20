@@ -1356,7 +1356,11 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["EventsIdSaveRequest"];
+                };
+            };
             responses: {
                 /** @description No Content */
                 204: {
@@ -1398,7 +1402,9 @@ export interface paths {
          */
         delete: {
             parameters: {
-                query?: never;
+                query?: {
+                    type?: string | null;
+                };
                 header?: never;
                 path: {
                     id: string;
@@ -2364,6 +2370,8 @@ export interface components {
             endTime: string;
             startDate: string;
             endDate: string;
+            saved: boolean;
+            attendees: number;
             /** @enum {string} */
             type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             id: string;
@@ -2373,6 +2381,7 @@ export interface components {
             website: string;
             thumbnail: string;
             organization: string;
+            eventAttendees: number;
         }[];
         EventsIdResponse: {
             /** @enum {string} */
@@ -2398,14 +2407,18 @@ export interface components {
                 name: string;
                 username: string;
                 avatar: string | null;
+                events: number;
             };
             attendees: number;
             saved: boolean;
+            eventAttendees: number;
             startTime: string;
             endTime: string;
             startDate: string;
             endDate: string;
-            eventAttendees: number;
+        };
+        EventsIdSaveRequest: {
+            type?: string | null;
         };
         SchoolsResponse: {
             events: number;

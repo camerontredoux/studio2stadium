@@ -6,6 +6,7 @@ export const schema = vine.create(
     params: vine.object({
       id: vine.string().uuid(),
     }),
+    type: vine.string().in(["global"]).optional(),
   })
 );
 

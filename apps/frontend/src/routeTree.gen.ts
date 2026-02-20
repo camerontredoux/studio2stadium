@@ -45,7 +45,6 @@ import { Route as ApproutesResourcesBlogRouteImport } from './routes/_app/(route
 import { Route as ApproutesRecruitingSubmitRouteImport } from './routes/_app/(routes)/recruiting/submit'
 import { Route as ApproutesRecruitingEditRouteImport } from './routes/_app/(routes)/recruiting/edit'
 import { Route as ApproutesExploreUsernameRouteImport } from './routes/_app/(routes)/explore/$username'
-import { Route as ApproutesEventsSchoolsRouteImport } from './routes/_app/(routes)/events/schools'
 import { Route as ApproutesEventsGlobalRouteImport } from './routes/_app/(routes)/events/global'
 import { Route as ApproutesEventsEventIdRouteImport } from './routes/_app/(routes)/events/$eventId'
 import { Route as AdminroutesDashboardMetricsRouteImport } from './routes/_admin/(routes)/dashboard/metrics'
@@ -237,11 +236,6 @@ const ApproutesExploreUsernameRoute =
     path: '/explore/$username',
     getParentRoute: () => AppRouteRoute,
   } as any)
-const ApproutesEventsSchoolsRoute = ApproutesEventsSchoolsRouteImport.update({
-  id: '/schools',
-  path: '/schools',
-  getParentRoute: () => ApproutesEventsRouteRoute,
-} as any)
 const ApproutesEventsGlobalRoute = ApproutesEventsGlobalRouteImport.update({
   id: '/global',
   path: '/global',
@@ -282,7 +276,6 @@ export interface FileRoutesByFullPath {
   '/dashboard/metrics': typeof AdminroutesDashboardMetricsRoute
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
   '/events/global': typeof ApproutesEventsGlobalRoute
-  '/events/schools': typeof ApproutesEventsSchoolsRoute
   '/explore/$username': typeof ApproutesExploreUsernameRoute
   '/recruiting/edit': typeof ApproutesRecruitingEditRoute
   '/recruiting/submit': typeof ApproutesRecruitingSubmitRoute
@@ -317,7 +310,6 @@ export interface FileRoutesByTo {
   '/dashboard/metrics': typeof AdminroutesDashboardMetricsRoute
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
   '/events/global': typeof ApproutesEventsGlobalRoute
-  '/events/schools': typeof ApproutesEventsSchoolsRoute
   '/explore/$username': typeof ApproutesExploreUsernameRoute
   '/recruiting/edit': typeof ApproutesRecruitingEditRoute
   '/recruiting/submit': typeof ApproutesRecruitingSubmitRoute
@@ -361,7 +353,6 @@ export interface FileRoutesById {
   '/_admin/(routes)/dashboard/metrics': typeof AdminroutesDashboardMetricsRoute
   '/_app/(routes)/events/$eventId': typeof ApproutesEventsEventIdRoute
   '/_app/(routes)/events/global': typeof ApproutesEventsGlobalRoute
-  '/_app/(routes)/events/schools': typeof ApproutesEventsSchoolsRoute
   '/_app/(routes)/explore/$username': typeof ApproutesExploreUsernameRoute
   '/_app/(routes)/recruiting/edit': typeof ApproutesRecruitingEditRoute
   '/_app/(routes)/recruiting/submit': typeof ApproutesRecruitingSubmitRoute
@@ -402,7 +393,6 @@ export interface FileRouteTypes {
     | '/dashboard/metrics'
     | '/events/$eventId'
     | '/events/global'
-    | '/events/schools'
     | '/explore/$username'
     | '/recruiting/edit'
     | '/recruiting/submit'
@@ -437,7 +427,6 @@ export interface FileRouteTypes {
     | '/dashboard/metrics'
     | '/events/$eventId'
     | '/events/global'
-    | '/events/schools'
     | '/explore/$username'
     | '/recruiting/edit'
     | '/recruiting/submit'
@@ -480,7 +469,6 @@ export interface FileRouteTypes {
     | '/_admin/(routes)/dashboard/metrics'
     | '/_app/(routes)/events/$eventId'
     | '/_app/(routes)/events/global'
-    | '/_app/(routes)/events/schools'
     | '/_app/(routes)/explore/$username'
     | '/_app/(routes)/recruiting/edit'
     | '/_app/(routes)/recruiting/submit'
@@ -764,13 +752,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApproutesExploreUsernameRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/_app/(routes)/events/schools': {
-      id: '/_app/(routes)/events/schools'
-      path: '/schools'
-      fullPath: '/events/schools'
-      preLoaderRoute: typeof ApproutesEventsSchoolsRouteImport
-      parentRoute: typeof ApproutesEventsRouteRoute
-    }
     '/_app/(routes)/events/global': {
       id: '/_app/(routes)/events/global'
       path: '/global'
@@ -830,14 +811,12 @@ const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
 interface ApproutesEventsRouteRouteChildren {
   ApproutesEventsEventIdRoute: typeof ApproutesEventsEventIdRoute
   ApproutesEventsGlobalRoute: typeof ApproutesEventsGlobalRoute
-  ApproutesEventsSchoolsRoute: typeof ApproutesEventsSchoolsRoute
   ApproutesEventsIndexRoute: typeof ApproutesEventsIndexRoute
 }
 
 const ApproutesEventsRouteRouteChildren: ApproutesEventsRouteRouteChildren = {
   ApproutesEventsEventIdRoute: ApproutesEventsEventIdRoute,
   ApproutesEventsGlobalRoute: ApproutesEventsGlobalRoute,
-  ApproutesEventsSchoolsRoute: ApproutesEventsSchoolsRoute,
   ApproutesEventsIndexRoute: ApproutesEventsIndexRoute,
 }
 

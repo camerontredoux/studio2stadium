@@ -1,4 +1,7 @@
-import { danceEventAttendees } from "#database/schema/events";
+import {
+  danceEventAttendees,
+  globalDanceEventAttendees,
+} from "#database/schema/events";
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { Validator } from "./validator.ts";
@@ -7,9 +10,12 @@ import { Validator } from "./validator.ts";
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute({ params }: Validator, userId: string) {
+  async execute({ params, type }: Validator, userId: string) {
+    const table =
+      type === "global" ? globalDanceEventAttendees : danceEventAttendees;
+
     await this.db.use((db) =>
-      db.insert(danceEventAttendees).values({
+      db.insert(table).values({
         eventId: params.id,
         userId,
       })

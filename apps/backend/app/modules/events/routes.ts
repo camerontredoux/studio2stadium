@@ -39,7 +39,7 @@ router
         summary: "Save event",
         description: "Saves an event for the current user",
       })
-      .use(throttle("save-event"));
+      .use(throttle("save-event", 30));
 
     router
       .delete("/:id/unsave", [UnsaveEventController])
@@ -47,7 +47,7 @@ router
         summary: "Unsave event",
         description: "Unsaves an event for the current user",
       })
-      .use(throttle("unsave-event"));
+      .use(throttle("unsave-event", 30));
   })
   .use(middleware.auth())
   .prefix("events")

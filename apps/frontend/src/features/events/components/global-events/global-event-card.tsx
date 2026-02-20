@@ -10,9 +10,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  useSaveGlobalEvent,
+  useUnsaveGlobalEvent,
+} from "@/features/events/api/mutations";
 import type { ApiSchemas } from "@/lib/api/client";
 import {
   CalendarIcon,
+  CheckIcon,
   ExternalLinkIcon,
   GraduationCapIcon,
   MapPinIcon,
@@ -20,20 +25,45 @@ import {
 } from "lucide-react";
 
 interface GlobalEventCardProps {
-  event: ApiSchemas["EventsGlobalResponse"][number];
+  event: ApiSchemas["EventsGlobalResponse"][number] & { saved?: boolean };
 }
 
 export function GlobalEventCard({ event }: GlobalEventCardProps) {
+  const { mutate: save } = useSaveGlobalEvent(event.id);
+  const { mutate: unsave } = useUnsaveGlobalEvent(event.id);
+
+  function handleToggleSave() {
+    if (event.saved) {
+      unsave();
+    } else {
+      save();
+    }
+  }
+
   return (
     <ContentCard
       image={event.thumbnail ?? ""}
       imageAlt={event.title}
       badge={event.type}
       title={event.title}
+      altBadge={`${event.attendees} attendees`}
       footer={
         <div className="flex items-center gap-2 max-sm:w-full">
-          <Button size="xs" className="flex-1">
-            <SaveIcon /> Save
+          <Button
+            size="xs"
+            className="flex-1"
+            variant={event.saved ? "destructive-outline" : "default"}
+            onClick={handleToggleSave}
+          >
+            {event.saved ? (
+              <>
+                <CheckIcon /> Saved
+              </>
+            ) : (
+              <>
+                <SaveIcon /> Save
+              </>
+            )}
           </Button>
           <Dialog>
             <DialogTrigger

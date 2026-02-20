@@ -8,8 +8,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { ApiSchemas } from "@/lib/api/client";
+import { useRouter } from "@tanstack/react-router";
 import {
   CalendarIcon,
+  ChevronLeftIcon,
   ExternalLinkIcon,
   TicketIcon,
   UsersIcon,
@@ -23,6 +25,8 @@ interface EventHeroProps {
 }
 
 export function EventHero({ event }: EventHeroProps) {
+  const router = useRouter();
+
   return (
     <Frame compact>
       <FramePanel side="top">
@@ -32,11 +36,21 @@ export function EventHero({ event }: EventHeroProps) {
             alt={event.title}
             className="h-48 w-full scale-105 rounded-2xl object-cover blur-sm sm:h-64"
           />
-          <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-black/70 via-black/20 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/70 via-black/20 to-transparent" />
+
+          <Button
+            className="absolute top-3 left-3"
+            size="xs"
+            variant="ghost"
+            onClick={() => router.history.back()}
+          >
+            <ChevronLeftIcon className="size-4" />
+            Go back
+          </Button>
           <Badge
             variant="brand"
             size="lg"
-            className="absolute top-3 left-3 capitalize"
+            className="absolute top-3 right-3 capitalize"
           >
             {event.type}
           </Badge>

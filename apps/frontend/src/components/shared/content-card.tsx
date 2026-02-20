@@ -18,6 +18,7 @@ interface ContentCardProps {
   image: string;
   imageAlt: string;
   badge?: string;
+  altBadge?: string;
   title: string;
   footer: ReactNode;
   children?: ReactNode;
@@ -27,15 +28,13 @@ export function ContentCard({
   image,
   imageAlt,
   badge,
+  altBadge,
   title,
   footer,
   children,
 }: ContentCardProps) {
   return (
-    <Frame
-      compact
-      className="group"
-    >
+    <Frame compact className="group">
       <FramePanel side="top">
         <div className="relative isolate transform-gpu border-b">
           <img
@@ -44,7 +43,7 @@ export function ContentCard({
             alt={imageAlt}
             className="h-48 w-full object-cover"
           />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-black/80 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-black/80 via-black/40 to-transparent" />
           {badge && (
             <Badge
               variant="brand"
@@ -53,6 +52,14 @@ export function ContentCard({
               {badge}
             </Badge>
           )}
+          {altBadge ? (
+            <Badge
+              variant="brand"
+              className="absolute top-2.5 right-2.5 capitalize"
+            >
+              {altBadge}
+            </Badge>
+          ) : null}
         </div>
 
         <div className="from-brand/10 via-background to-background group-hover:from-brand/8 group-hover:via-brand/4 relative flex flex-1 flex-col gap-2.5 bg-linear-to-br p-3 transition-colors duration-75 sm:p-4">

@@ -1,6 +1,8 @@
+import { globalDanceEventAttendees } from "#database/schema/events";
 import { DatabaseService } from "#database/service";
 import { getDateAndTime } from "#utils/date";
 import { inject } from "@adonisjs/core";
+import { eq } from "drizzle-orm";
 
 type Event = Awaited<ReturnType<Service["findEvents"]>>[number];
 
@@ -8,8 +10,8 @@ type Event = Awaited<ReturnType<Service["findEvents"]>>[number];
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute() {
-    const events = await this.findEvents();
+  async execute(userId: string) {
+    const events = await this.findEvents(userId);
 
     return events.map(this.formatEvent);
   }
@@ -24,10 +26,12 @@ export class Service {
       endTime,
       startDate,
       endDate,
+      saved: event.attendees.length > 0,
+      attendees: event.eventAttendees,
     };
   }
 
-  async findEvents() {
+  async findEvents(userId: string) {
     return await this.db.use((db) =>
       db.query.globalDanceEvents.findMany({
         where: {
@@ -47,8 +51,25 @@ export class Service {
           website: true,
           type: true,
         },
+        with: {
+          attendees: {
+            where: {
+              id: userId,
+            },
+            columns: {
+              id: true,
+            },
+          },
+        },
         orderBy: {
           startDatetime: "asc",
+        },
+        extras: {
+          eventAttendees: (table) =>
+            db.$count(
+              globalDanceEventAttendees,
+              eq(table.id, globalDanceEventAttendees.eventId)
+            ),
         },
       })
     );
