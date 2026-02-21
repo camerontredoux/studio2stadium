@@ -1,4 +1,4 @@
-import type { School } from "../../types/school";
+import type { School } from "@/shared/types";
 import { CardAvatar } from "./card-avatar";
 import { CardBackground } from "./card-background";
 import { CardContent } from "./card-content";

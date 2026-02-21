@@ -6,6 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import type { School } from "@/shared/types";
 import { DIVISIONS } from "@/utils/constants/divisions";
 import { US_STATES } from "@/utils/constants/states";
 import { Link } from "@tanstack/react-router";
@@ -16,7 +17,6 @@ import {
   TargetIcon,
   VerifiedIcon,
 } from "lucide-react";
-import type { School } from "../../types/school";
 import { CardInfo } from "./card-info";
 
 export function CardContent({
