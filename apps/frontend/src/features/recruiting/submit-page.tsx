@@ -5,12 +5,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import type { School } from "@/shared/types";
+import { getYouTubeId } from "@/utils/get-youtube-id";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
   CheckIcon,
   LinkIcon,
+  LoaderCircleIcon,
   MapPinIcon,
   SchoolIcon,
   SearchIcon,
@@ -18,11 +22,8 @@ import {
   VideoIcon,
 } from "lucide-react";
 import { useState } from "react";
-import {
-  MOCK_ALL_SCHOOLS,
-  type SelectableSchool,
-} from "./components/mock-data";
-import { extractYouTubeId } from "./components/utils/extract-youtube-id";
+import { useSubmitVideo } from "./api/mutations";
+import { recruitingQueries } from "./api/queries";
 import { VideoEditor } from "./components/video-editor";
 
 type Step = "video" | "schools" | "confirm";
@@ -39,6 +40,9 @@ const STEPS: { key: Step; label: string; icon: React.ReactNode }[] = [
 
 export function SubmitPage() {
   const navigate = useNavigate();
+  const { data: schools } = useSuspenseQuery(recruitingQueries.schools());
+  const submitMutation = useSubmitVideo();
+
   const [step, setStep] = useState<Step>("video");
   const [videoUrl, setVideoUrl] = useState("");
   const [videoError, setVideoError] = useState<string>();
@@ -48,9 +52,9 @@ export function SubmitPage() {
   const [schoolSearch, setSchoolSearch] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const videoId = extractYouTubeId(videoUrl);
+  const videoId = getYouTubeId(videoUrl);
 
-  const filteredSchools = MOCK_ALL_SCHOOLS.filter(
+  const filteredSchools = schools.filter(
     (school) =>
       school.name.toLowerCase().includes(schoolSearch.toLowerCase()) ||
       school.location.toLowerCase().includes(schoolSearch.toLowerCase()),
@@ -78,7 +82,7 @@ export function SubmitPage() {
       setVideoError("Please enter a YouTube video link");
       return;
     }
-    if (!extractYouTubeId(videoUrl)) {
+    if (!getYouTubeId(videoUrl)) {
       setVideoError("Please enter a valid YouTube URL");
       return;
     }
@@ -91,12 +95,21 @@ export function SubmitPage() {
   };
 
   const handleSubmit = () => {
-    setSubmitted(true);
+    if (!videoId) return;
+    submitMutation.mutate(
+      {
+        body: {
+          schoolId: Array.from(selectedSchools),
+          videoId,
+        },
+      },
+      {
+        onSuccess: () => setSubmitted(true),
+      },
+    );
   };
 
-  const selectedSchoolsList = MOCK_ALL_SCHOOLS.filter((s) =>
-    selectedSchools.has(s.id),
-  );
+  const selectedSchoolsList = schools.filter((s) => selectedSchools.has(s.id));
 
   if (submitted) {
     return (
@@ -315,8 +328,10 @@ export function SubmitPage() {
                         className="flex items-center gap-3 rounded-lg border px-3 py-2"
                       >
                         <Avatar className="size-8 shrink-0 rounded-lg">
-                          <AvatarImage src={school.avatar} />
-                          <AvatarFallback>{school.initials}</AvatarFallback>
+                          <AvatarImage src={school.avatar ?? undefined} />
+                          <AvatarFallback>
+                            {getInitials(school.name)}
+                          </AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
                           <div className="truncate text-sm font-medium">
@@ -343,8 +358,17 @@ export function SubmitPage() {
             >
               <ArrowLeftIcon /> Back
             </Button>
-            <Button onClick={handleSubmit} className="gap-2">
-              <SendIcon /> Submit to {selectedSchools.size} School
+            <Button
+              onClick={handleSubmit}
+              disabled={submitMutation.isPending}
+              className="gap-2"
+            >
+              {submitMutation.isPending ? (
+                <LoaderCircleIcon className="animate-spin" />
+              ) : (
+                <SendIcon />
+              )}{" "}
+              Submit to {selectedSchools.size} School
               {selectedSchools.size !== 1 ? "s" : ""}
             </Button>
           </div>
@@ -354,12 +378,21 @@ export function SubmitPage() {
   );
 }
 
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
 function SchoolSelectRow({
   school,
   selected,
   onToggle,
 }: {
-  school: SelectableSchool;
+  school: School;
   selected: boolean;
   onToggle: () => void;
 }) {
@@ -373,8 +406,8 @@ function SchoolSelectRow({
     >
       <Checkbox checked={selected} onCheckedChange={onToggle} />
       <Avatar className="size-9 shrink-0 rounded-lg">
-        <AvatarImage src={school.avatar} />
-        <AvatarFallback>{school.initials}</AvatarFallback>
+        <AvatarImage src={school.avatar ?? undefined} />
+        <AvatarFallback>{getInitials(school.name)}</AvatarFallback>
       </Avatar>
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-medium">{school.name}</div>

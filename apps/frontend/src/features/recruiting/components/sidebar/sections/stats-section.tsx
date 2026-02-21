@@ -4,18 +4,16 @@ import {
   FramePanel,
   FrameTitle,
 } from "@/components/ui/frame";
-import { MOCK_SUBMISSIONS } from "../../mock-data";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { recruitingQueries } from "../../../api/queries";
 
 export function StatsSection() {
-  const accepted = MOCK_SUBMISSIONS.filter(
-    (s) => s.prospectStatus === "accepted",
-  ).length;
-  const inReview = MOCK_SUBMISSIONS.filter(
-    (s) => s.prospectStatus === "in-review",
-  ).length;
-  const watched = MOCK_SUBMISSIONS.filter(
-    (s) => s.videoStatus === "watched",
-  ).length;
+  const { data } = useSuspenseQuery(recruitingQueries.submissions());
+  const submissions = data?.submissions ?? [];
+
+  const accepted = submissions.filter((s) => s.status === "accepted").length;
+  const inReview = submissions.filter((s) => s.status === "in_review").length;
+  const watched = submissions.filter((s) => s.watched).length;
 
   return (
     <Frame compact>

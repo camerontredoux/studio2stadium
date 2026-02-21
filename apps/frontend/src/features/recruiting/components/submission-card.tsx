@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import type { Submission } from "@/shared/types";
 import { Link } from "@tanstack/react-router";
 import {
   CheckCircle2Icon,
@@ -8,13 +9,7 @@ import {
   ClockIcon,
   EyeIcon,
   MapPinIcon,
-  XCircleIcon,
 } from "lucide-react";
-import type {
-  ProspectStatus,
-  SchoolSubmission,
-  VideoStatus,
-} from "./mock-data";
 
 const TROPHY_CLASSES = [
   "absolute -top-2 -left-1 size-12 rotate-15",
@@ -30,7 +25,9 @@ const TROPHY_CLASSES = [
 const TROPHY_PATH =
   "M6 9H4.5a2.5 2.5 0 0 1 0-5H6m12 5h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22m7-7.34V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0z";
 
-function prospectBadge(status: ProspectStatus) {
+type SubmissionStatus = Submission["status"];
+
+function statusBadge(status: SubmissionStatus) {
   switch (status) {
     case "accepted":
       return (
@@ -38,19 +35,19 @@ function prospectBadge(status: ProspectStatus) {
           <CheckCircle2Icon className="size-3" /> Accepted
         </Badge>
       );
-    case "in-review":
+    case "in_review":
       return (
         <Badge variant="warning" className="gap-1">
           <ClockIcon className="size-3" /> In Review
         </Badge>
       );
-    case "rejected":
+    case "released":
       return (
-        <Badge variant="error" className="gap-1">
-          <XCircleIcon className="size-3" /> Rejected
+        <Badge variant="info" className="gap-1">
+          <CircleDotIcon className="size-3" /> Released
         </Badge>
       );
-    case "none":
+    case "pending":
       return (
         <Badge variant="outline" className="gap-1">
           <CircleDotIcon className="size-3" /> Pending
@@ -59,32 +56,39 @@ function prospectBadge(status: ProspectStatus) {
   }
 }
 
-function videoBadge(status: VideoStatus) {
-  switch (status) {
-    case "watched":
-      return (
-        <Badge variant="info" className="gap-1">
-          <EyeIcon className="size-3" /> Watched
-        </Badge>
-      );
-    case "none":
-      return (
-        <Badge variant="outline" className="text-muted-foreground gap-1">
-          <EyeIcon className="size-3" /> Not Watched
-        </Badge>
-      );
+function watchedBadge(watched: boolean) {
+  if (watched) {
+    return (
+      <Badge variant="info" className="gap-1">
+        <EyeIcon className="size-3" /> Watched
+      </Badge>
+    );
   }
+  return (
+    <Badge variant="outline" className="text-muted-foreground gap-1">
+      <EyeIcon className="size-3" /> Not Watched
+    </Badge>
+  );
 }
 
 interface SubmissionCardProps {
-  submission: SchoolSubmission;
+  submission: Submission;
+}
+
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 }
 
 export function SubmissionCard({ submission }: SubmissionCardProps) {
   return (
     <Link
       to="/explore/$username"
-      params={{ username: submission.username }}
+      params={{ username: submission.school.username }}
       className="from-brand/10 via-background to-background hover:from-brand/16 hover:via-brand/8 relative flex gap-3 overflow-clip rounded-xl border bg-linear-to-br bg-clip-padding p-3 transition-colors [contain-intrinsic-block-size:auto_100px] [content-visibility:auto] sm:p-4"
     >
       <div
@@ -107,22 +111,23 @@ export function SubmissionCard({ submission }: SubmissionCardProps) {
         ))}
       </div>
       <Avatar className="size-14 shrink-0 rounded-xl sm:size-12">
-        <AvatarImage src={submission.avatar} />
-        <AvatarFallback>{submission.initials}</AvatarFallback>
+        <AvatarImage src={submission.school.avatar ?? undefined} />
+        <AvatarFallback>{getInitials(submission.school.name)}</AvatarFallback>
       </Avatar>
       <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
         <div className="flex min-w-0 flex-col gap-1.5 sm:flex-1">
           <div>
             <h3 className="truncate text-sm font-semibold sm:text-base">
-              {submission.name}
+              {submission.school.name}
             </h3>
             <p className="text-muted-foreground flex items-center gap-1 text-xs sm:text-sm">
-              <MapPinIcon className="size-3 shrink-0" /> {submission.location}
+              <MapPinIcon className="size-3 shrink-0" />{" "}
+              {submission.school.location}
             </p>
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {prospectBadge(submission.prospectStatus)}
-            {videoBadge(submission.videoStatus)}
+            {statusBadge(submission.status)}
+            {watchedBadge(submission.watched)}
           </div>
         </div>
         <div className="hidden gap-2 sm:flex sm:shrink-0 sm:flex-col">

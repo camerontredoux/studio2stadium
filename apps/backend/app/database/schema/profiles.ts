@@ -17,8 +17,8 @@ export const crvSubmissions = pg.pgTable(
       .notNull()
       .references(() => schoolProfiles.id, { onDelete: "cascade" }),
     videoId: pg.text().notNull(),
-    status: prospectStatus().notNull(),
-    watched: pg.boolean().notNull(),
+    status: prospectStatus().notNull().default("pending"),
+    watched: pg.boolean().notNull().default(false),
     watchedAt: pg.timestamp({ withTimezone: true }),
     ...timestamps,
   },

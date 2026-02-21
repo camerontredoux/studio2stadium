@@ -7,7 +7,7 @@ export function GlobalEventCardSkeleton() {
       <FramePanel side="top">
         <div className="relative isolate transform-gpu border-b">
           <Skeleton className="h-48 w-full rounded-none" />
-          <Skeleton className="absolute top-2.5 left-2.5 h-5 w-16 rounded-full" />
+          <Skeleton className="absolute top-2.5 left-2.5 h-4 w-12" />
         </div>
 
         <div className="from-brand/10 via-background to-background group-hover:from-brand/8 group-hover:via-brand/4 relative flex flex-1 flex-col gap-2.5 bg-linear-to-br p-3 transition-colors duration-75 sm:p-4">
@@ -24,7 +24,7 @@ export function GlobalEventCardSkeleton() {
                 <Skeleton className="size-3.5 shrink-0 rounded-full" />
                 <Skeleton className="h-[1.375em] w-40 rounded-sm" />
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="mb-0.5 flex items-center gap-1.5">
                 <Skeleton className="size-3.5 shrink-0 rounded-full" />
                 <Skeleton className="h-[1.375em] w-28 rounded-sm" />
               </div>
@@ -35,8 +35,8 @@ export function GlobalEventCardSkeleton() {
 
       <FrameFooter className="gap-2 px-3 py-2.5 sm:px-4">
         <div className="flex items-center gap-2 max-sm:w-full">
-          <Skeleton className="h-7 w-20 rounded-md sm:h-6" />
-          <Skeleton className="h-7 w-24 rounded-md sm:h-6" />
+          <Skeleton className="h-6.5 w-16 rounded-md max-sm:flex-1 sm:h-5.5" />
+          <Skeleton className="h-6.5 w-20 rounded-md max-sm:flex-1 sm:h-5.5" />
         </div>
       </FrameFooter>
     </Frame>

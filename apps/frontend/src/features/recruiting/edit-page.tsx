@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { getYouTubeId } from "@/utils/get-youtube-id";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowLeftIcon, CheckIcon, SaveIcon } from "lucide-react";
 import { useState } from "react";
 import { MOCK_VIDEO_URL } from "./components/mock-data";
-import { extractYouTubeId } from "./components/utils/extract-youtube-id";
 import { VideoEditor } from "./components/video-editor";
 
 export function EditPage() {
@@ -17,7 +17,7 @@ export function EditPage() {
       setVideoError("Please enter a YouTube video link");
       return;
     }
-    if (!extractYouTubeId(videoUrl)) {
+    if (!getYouTubeId(videoUrl)) {
       setVideoError("Please enter a valid YouTube URL");
       return;
     }

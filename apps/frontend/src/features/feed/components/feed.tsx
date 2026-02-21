@@ -16,7 +16,7 @@ export function Feed() {
   // eslint-disable-next-line react-hooks/refs
   const rowVirtualizer = useWindowVirtualizer({
     count: hasNextPage ? rows.length + 1 : rows.length,
-    estimateSize: () => 450,
+    estimateSize: () => 740,
     gap: 8,
     overscan: 2,
     // eslint-disable-next-line react-hooks/refs
@@ -37,7 +37,13 @@ export function Feed() {
     ) {
       fetchNextPage();
     }
-  }, [hasNextPage, fetchNextPage, rows.length, isFetchingNextPage, virtualItems]);
+  }, [
+    hasNextPage,
+    fetchNextPage,
+    rows.length,
+    isFetchingNextPage,
+    virtualItems,
+  ]);
 
   if (status === "pending") {
     return <FeedSkeleton />;

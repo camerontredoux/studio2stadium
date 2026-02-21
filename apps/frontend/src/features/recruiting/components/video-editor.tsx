@@ -14,10 +14,9 @@ import {
   FrameTitle,
 } from "@/components/ui/frame";
 import { Input } from "@/components/ui/input";
+import { getYouTubeId } from "@/utils/get-youtube-id";
 import { LinkIcon, VideoIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { extractYouTubeId } from "./utils/extract-youtube-id";
-
 interface VideoEditorProps {
   videoUrl: string;
   onVideoUrlChange: (url: string) => void;
@@ -33,7 +32,7 @@ export function VideoEditor({
   onErrorClear,
   headerAction,
 }: VideoEditorProps) {
-  const videoId = extractYouTubeId(videoUrl);
+  const videoId = getYouTubeId(videoUrl);
 
   return (
     <Frame>

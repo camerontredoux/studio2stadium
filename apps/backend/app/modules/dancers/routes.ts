@@ -2,6 +2,8 @@ import { middleware } from "#start/kernel";
 import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
 
+const GetSubmissionsController = () =>
+  import("./get-submissions/controller.ts");
 const GetDancerController = () => import("./get-dancer/controller.ts");
 const GetFiltersController = () => import("./get-filters/controller.ts");
 const CreateDancerController = () => import("./create-dancer/controller.ts");
@@ -17,6 +19,8 @@ const GetMetadataController = () =>
   import("./get-dancer-metadata/controller.ts");
 const GetSkillsController = () => import("./get-skills/controller.ts");
 const UpdateSkillsController = () => import("./update-skills/controller.ts");
+const CreateSubmissionController = () =>
+  import("./create-submission/controller.ts");
 
 router
   .group(() => {
@@ -59,6 +63,23 @@ router
         });
       })
       .prefix("me")
+      .use(middleware.dancer());
+
+    router
+      .get("submissions", [GetSubmissionsController])
+      .openapi({
+        summary: "Get dancer's CRV submissions",
+        description:
+          "Returns the common recruiting video submissions for the authenticated dancer",
+      })
+      .use(middleware.dancer());
+    router
+      .post("submissions", [CreateSubmissionController])
+      .openapi({
+        summary: "Create a CRV submission",
+        description:
+          "Creates a common recruiting video submission for the authenticated dancer",
+      })
       .use(middleware.dancer());
 
     router.get(":username", [GetDancerController]).openapi({

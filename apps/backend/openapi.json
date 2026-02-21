@@ -437,6 +437,28 @@
         "description": "Returns a list of videos by category, paginated with 6 results at a time"
       }
     },
+    "/skills": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SkillsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Skills"
+        ],
+        "summary": "Get all skills",
+        "description": "Returns a list of all skills"
+      }
+    },
     "/dancers": {
       "post": {
         "requestBody": {
@@ -490,6 +512,59 @@
         ],
         "summary": "Get dancer filters",
         "description": "Returns the filters to use when searching for dancers"
+      }
+    },
+    "/dancers/me/skills": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersMeSkillsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Get dancer skills",
+        "description": "Returns the dancer's skills"
+      },
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DancersMeSkillsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Update dancer skills",
+        "description": "Updates the dancer's skills"
       }
     },
     "/dancers/me/following": {
@@ -580,6 +655,59 @@
         ],
         "summary": "Get dancer followers",
         "description": "Returns the schools that have favorited this dancer."
+      }
+    },
+    "/dancers/submissions": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersSubmissionsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Get dancer's CRV submissions",
+        "description": "Returns the common recruiting video submissions for the authenticated dancer"
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DancersSubmissionsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Create a CRV submission",
+        "description": "Creates a common recruiting video submission for the authenticated dancer"
       }
     },
     "/dancers/{username}": {
@@ -849,6 +977,15 @@
     },
     "/events/{id}/save": {
       "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventsIdSaveRequest"
+              }
+            }
+          }
+        },
         "parameters": [
           {
             "name": "id",
@@ -890,6 +1027,21 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           }
         ],
@@ -2172,6 +2324,28 @@
           ]
         }
       },
+      "SkillsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "slug": {
+              "type": "string"
+            },
+            "category": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "slug",
+            "category"
+          ]
+        }
+      },
       "DancersRequest": {
         "type": "object",
         "properties": {
@@ -2259,6 +2433,34 @@
           ]
         }
       },
+      "DancersMeSkillsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "skillId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "skillId"
+          ]
+        }
+      },
+      "DancersMeSkillsRequest": {
+        "type": "object",
+        "properties": {
+          "skills": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "skills"
+        ]
+      },
       "DancersMeFollowingResponse": {
         "type": "array",
         "items": {
@@ -2330,6 +2532,114 @@
             "name"
           ]
         }
+      },
+      "DancersSubmissionsResponse": {
+        "type": "object",
+        "properties": {
+          "videoId": {
+            "type": "string"
+          },
+          "submissions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "school": {
+                  "type": "object",
+                  "properties": {
+                    "username": {
+                      "type": "string"
+                    },
+                    "avatar": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "username",
+                    "avatar",
+                    "name",
+                    "id",
+                    "location"
+                  ]
+                },
+                "id": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "released",
+                    "in_review",
+                    "accepted"
+                  ]
+                },
+                "watched": {
+                  "type": "boolean"
+                },
+                "watchedAt": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "school",
+                "id",
+                "updatedAt",
+                "status",
+                "watched",
+                "watchedAt"
+              ]
+            }
+          }
+        },
+        "required": [
+          "videoId",
+          "submissions"
+        ]
+      },
+      "DancersSubmissionsRequest": {
+        "type": "object",
+        "properties": {
+          "schoolId": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "videoId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "schoolId",
+          "videoId"
+        ]
       },
       "DancersIdResponse": {
         "type": "object",
@@ -2794,6 +3104,12 @@
             "endDate": {
               "type": "string"
             },
+            "saved": {
+              "type": "boolean"
+            },
+            "attendees": {
+              "type": "number"
+            },
             "type": {
               "type": "string",
               "enum": [
@@ -2836,6 +3152,9 @@
             },
             "organization": {
               "type": "string"
+            },
+            "eventAttendees": {
+              "type": "number"
             }
           },
           "required": [
@@ -2843,6 +3162,8 @@
             "endTime",
             "startDate",
             "endDate",
+            "saved",
+            "attendees",
             "type",
             "id",
             "location",
@@ -2850,7 +3171,8 @@
             "description",
             "website",
             "thumbnail",
-            "organization"
+            "organization",
+            "eventAttendees"
           ]
         }
       },
@@ -2985,12 +3307,16 @@
                     "type": "null"
                   }
                 ]
+              },
+              "events": {
+                "type": "number"
               }
             },
             "required": [
               "name",
               "username",
-              "avatar"
+              "avatar",
+              "events"
             ]
           },
           "attendees": {
@@ -2998,6 +3324,9 @@
           },
           "saved": {
             "type": "boolean"
+          },
+          "eventAttendees": {
+            "type": "number"
           },
           "startTime": {
             "type": "string"
@@ -3010,9 +3339,6 @@
           },
           "endDate": {
             "type": "string"
-          },
-          "eventAttendees": {
-            "type": "number"
           }
         },
         "required": [
@@ -3032,12 +3358,27 @@
           "organizer",
           "attendees",
           "saved",
+          "eventAttendees",
           "startTime",
           "endTime",
           "startDate",
-          "endDate",
-          "eventAttendees"
+          "endDate"
         ]
+      },
+      "EventsIdSaveRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
       },
       "SchoolsResponse": {
         "type": "array",

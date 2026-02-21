@@ -171,4 +171,14 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.dancerProfiles.id,
     }),
   },
+  crvSubmissions: {
+    dancer: r.one.dancerProfiles({
+      from: r.crvSubmissions.dancerId,
+      to: r.dancerProfiles.id,
+    }),
+    school: r.one.schoolProfiles({
+      from: r.crvSubmissions.schoolId,
+      to: r.schoolProfiles.id,
+    }),
+  },
 }));

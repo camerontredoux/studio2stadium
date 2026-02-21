@@ -99,6 +99,14 @@ type DancersMeFollowersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/get-followers/controller.ts').default['handle'], false>
 }
+type DancersSubmissionsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-submissions/controller.ts').default['handle'], false>
+}
+type DancersSubmissionsPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/create-submission/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/create-submission/controller.ts').default['handle'], true>
+}
 type DancersIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/get-dancer/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/get-dancer/controller.ts').default['handle'], true>
@@ -320,6 +328,13 @@ export interface ApiDefinition {
         '$get': DancersMeFollowersGetHead;
         '$head': DancersMeFollowersGetHead;
       };
+    };
+    'submissions': {
+      '$url': {
+      };
+      '$get': DancersSubmissionsGetHead;
+      '$head': DancersSubmissionsGetHead;
+      '$post': DancersSubmissionsPost;
     };
     ':username': {
       '$url': {

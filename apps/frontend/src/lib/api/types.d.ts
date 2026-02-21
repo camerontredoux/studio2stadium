@@ -978,6 +978,79 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dancers/submissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dancer's CRV submissions
+         * @description Returns the common recruiting video submissions for the authenticated dancer
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersSubmissionsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create a CRV submission
+         * @description Creates a common recruiting video submission for the authenticated dancer
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersSubmissionsRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dancers/{username}": {
         parameters: {
             query?: never;
@@ -2285,6 +2358,28 @@ export interface components {
             avatar: string | null;
             name: string;
         }[];
+        DancersSubmissionsResponse: {
+            videoId: string;
+            submissions: {
+                school: {
+                    username: string;
+                    avatar: string | null;
+                    name: string;
+                    id: string;
+                    location: string;
+                };
+                id: string;
+                updatedAt: string;
+                /** @enum {string} */
+                status: "pending" | "released" | "in_review" | "accepted";
+                watched: boolean;
+                watchedAt: string | null;
+            }[];
+        };
+        DancersSubmissionsRequest: {
+            schoolId: string[];
+            videoId: string;
+        };
         DancersIdResponse: {
             username: string;
             id: string;

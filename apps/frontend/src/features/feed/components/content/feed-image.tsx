@@ -17,7 +17,7 @@ export function FeedImage({ item }: FeedImageProps) {
   return (
     <Dialog>
       <DialogTrigger className="block w-full">
-        <div className="group relative cursor-pointer overflow-hidden">
+        <div className="group relative aspect-square cursor-pointer overflow-hidden">
           <img
             src={item.content ?? undefined}
             alt="Feed Item"

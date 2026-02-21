@@ -39,7 +39,9 @@ export default class CodegenTypes extends BaseCommand {
       tsConfigFilePath
     ).generate();
 
-    writeFile(this.destination, openApiSpec, "utf-8");
+    await writeFile(this.destination, openApiSpec, "utf-8");
     this.logger.success(`OpenAPI spec generated at ${this.destination}`);
+
+    await this.app.terminate();
   }
 }

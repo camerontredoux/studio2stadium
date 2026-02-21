@@ -1,53 +1,79 @@
 import { SidebarLayout } from "@/components/layouts/sidebar-layout";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Link } from "@tanstack/react-router";
-import { CalendarIcon, SendIcon, TrophyIcon } from "lucide-react";
-import { useState } from "react";
-import { RecruitingFilterSheet } from "./components/filters/filter-sheet";
 import {
-  MOCK_SUBMISSIONS,
-  type SchoolSubmission,
-} from "./components/mock-data";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import type { components } from "@/lib/api/types";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import {
+  CalendarIcon,
+  SendIcon,
+  Settings2Icon,
+  TrophyIcon,
+} from "lucide-react";
+import { useState } from "react";
+import { recruitingQueries } from "./api/queries";
+import { Filters } from "./components/filters";
 import { RecruitingSidebar } from "./components/sidebar/sidebar";
 import { SubmissionCard } from "./components/submission-card";
 
-function groupByDate(submissions: SchoolSubmission[]) {
-  const groups: { date: string; submissions: SchoolSubmission[] }[] = [];
-  for (const sub of submissions) {
+type Submission =
+  components["schemas"]["DancersSubmissionsResponse"]["submissions"][number];
+
+function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function groupByDate(submissions: Submission[]) {
+  const groups: { date: string; submissions: Submission[] }[] = [];
+  const sorted = [...submissions].sort(
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+  );
+  for (const sub of sorted) {
+    const dateStr = formatDate(sub.updatedAt);
     const last = groups[groups.length - 1];
-    if (last?.date === sub.submittedAt) {
+    if (last?.date === dateStr) {
       last.submissions.push(sub);
     } else {
-      groups.push({ date: sub.submittedAt, submissions: [sub] });
+      groups.push({ date: dateStr, submissions: [sub] });
     }
   }
   return groups;
 }
 
 function filterSubmissions(
-  submissions: SchoolSubmission[],
-  prospectStatus: string,
-  videoStatus: string,
+  submissions: Submission[],
+  status: string,
+  watched: string,
 ) {
   return submissions.filter((s) => {
-    if (prospectStatus !== "all" && s.prospectStatus !== prospectStatus)
-      return false;
-    if (videoStatus !== "all" && s.videoStatus !== videoStatus) return false;
+    if (status !== "all" && s.status !== status) return false;
+    if (watched !== "all") {
+      const isWatched = s.watched;
+      if (watched === "watched" && !isWatched) return false;
+      if (watched === "not_watched" && isWatched) return false;
+    }
     return true;
   });
 }
 
 export function SubmissionsPage() {
-  const [prospectStatus, setProspectStatus] = useState("all");
-  const [videoStatus, setVideoStatus] = useState("all");
+  const { data } = useSuspenseQuery(recruitingQueries.submissions());
 
-  const filtered = filterSubmissions(
-    MOCK_SUBMISSIONS,
-    prospectStatus,
-    videoStatus,
-  );
-  const grouped = groupByDate([...filtered].reverse());
+  const submissions = data.submissions;
+  const [status, setStatus] = useState("all");
+  const [watched, setWatched] = useState("all");
+
+  const filtered = filterSubmissions(submissions, status, watched);
+  const grouped = groupByDate(filtered);
 
   return (
     <SidebarLayout
@@ -65,16 +91,19 @@ export function SubmissionsPage() {
             </p>
           </div>
           <div className="flex gap-2 max-sm:pl-1">
-            <RecruitingFilterSheet
-              prospectStatus={prospectStatus}
-              videoStatus={videoStatus}
-              onProspectStatusChange={setProspectStatus}
-              onVideoStatusChange={setVideoStatus}
-              onClear={() => {
-                setProspectStatus("all");
-                setVideoStatus("all");
-              }}
-            />
+            <Popover>
+              <PopoverTrigger render={<Button variant="outline" size="sm" />}>
+                <Settings2Icon /> Filters
+              </PopoverTrigger>
+              <PopoverContent className="w-56">
+                <Filters
+                  status={status}
+                  watched={watched}
+                  onStatusChange={setStatus}
+                  onWatchedChange={setWatched}
+                />
+              </PopoverContent>
+            </Popover>
             <Button size="sm" render={<Link to="/recruiting/submit" />}>
               <SendIcon /> Submit
             </Button>
