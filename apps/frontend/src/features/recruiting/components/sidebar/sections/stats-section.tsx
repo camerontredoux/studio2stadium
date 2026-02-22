@@ -4,16 +4,30 @@ import {
   FramePanel,
   FrameTitle,
 } from "@/components/ui/frame";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { recruitingQueries } from "../../../api/queries";
 
 export function StatsSection() {
-  const { data } = useSuspenseQuery(recruitingQueries.submissions());
-  const submissions = data?.submissions ?? [];
+  const { data } = useQuery(recruitingQueries.submissions());
 
-  const accepted = submissions.filter((s) => s.status === "accepted").length;
-  const inReview = submissions.filter((s) => s.status === "in_review").length;
-  const watched = submissions.filter((s) => s.watched).length;
+  if (!data) {
+    return (
+      <Frame compact>
+        <FrameHeader>
+          <FrameTitle>Stats</FrameTitle>
+        </FrameHeader>
+        <FramePanel>
+          <div className="flex h-12 flex-col items-center justify-center">
+            No submission found
+          </div>
+        </FramePanel>
+      </Frame>
+    );
+  }
+
+  const accepted = data.filter((s) => s.status === "accepted").length;
+  const inReview = data.filter((s) => s.status === "in_review").length;
+  const watched = data.filter((s) => s.watched).length;
 
   return (
     <Frame compact>

@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { School } from "@/shared/types";
+import type { ApiSchemas } from "@/lib/api/client";
 import { getYouTubeId } from "@/utils/get-youtube-id";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -22,9 +22,9 @@ import {
   VideoIcon,
 } from "lucide-react";
 import { useState } from "react";
-import { useSubmitVideo } from "./api/mutations";
-import { recruitingQueries } from "./api/queries";
-import { VideoEditor } from "./components/video-editor";
+import { useSubmitVideo } from "../../api/mutations";
+import { recruitingQueries } from "../../api/queries";
+import { VideoEditor } from "../video-editor";
 
 type Step = "video" | "schools" | "confirm";
 
@@ -386,6 +386,8 @@ function getInitials(name: string) {
     .slice(0, 2)
     .toUpperCase();
 }
+
+type School = ApiSchemas["DancersSubmissionsSchoolsResponse"][number];
 
 function SchoolSelectRow({
   school,

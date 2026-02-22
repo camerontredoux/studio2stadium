@@ -1051,6 +1051,84 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dancers/submissions/schools": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get schools that the dancer has not submitted to
+         * @description Returns the schools that the dancer has not submitted to
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersSubmissionsSchoolsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/submissions/video": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the dancer's submission video
+         * @description Returns the dancer's submission video
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersSubmissionsVideoResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dancers/{username}": {
         parameters: {
             query?: never;
@@ -2359,26 +2437,33 @@ export interface components {
             name: string;
         }[];
         DancersSubmissionsResponse: {
-            videoId: string;
-            submissions: {
-                school: {
-                    username: string;
-                    avatar: string | null;
-                    name: string;
-                    id: string;
-                    location: string;
-                };
+            school: {
+                username: string;
+                avatar: string | null;
+                name: string;
                 id: string;
-                updatedAt: string;
-                /** @enum {string} */
-                status: "pending" | "released" | "in_review" | "accepted";
-                watched: boolean;
-                watchedAt: string | null;
-            }[];
-        };
+                location: string;
+            };
+            id: string;
+            updatedAt: string;
+            /** @enum {string} */
+            status: "pending" | "released" | "in_review" | "accepted";
+            watched: boolean;
+            watchedAt: string | null;
+        }[];
         DancersSubmissionsRequest: {
             schoolId: string[];
             videoId: string;
+        };
+        DancersSubmissionsSchoolsResponse: {
+            username: string;
+            avatar: string | null;
+            id: string;
+            name: string;
+            location: string;
+        }[];
+        DancersSubmissionsVideoResponse: {
+            youtubeId: string;
         };
         DancersIdResponse: {
             username: string;
@@ -2471,9 +2556,9 @@ export interface components {
             type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             id: string;
             location: string;
+            website: string;
             title: string;
             description: string;
-            website: string;
             thumbnail: string;
             organization: string;
             eventAttendees: number;
@@ -2485,10 +2570,10 @@ export interface components {
             createdAt: string;
             updatedAt: string;
             location: string;
-            title: string;
-            description: string;
             website: string | null;
             schoolId: string;
+            title: string;
+            description: string;
             address: string | null;
             tags: string[] | null;
             cost: string | null;
@@ -2593,10 +2678,10 @@ export interface components {
                 createdAt: string;
                 updatedAt: string;
                 location: string;
-                title: string;
-                description: string;
                 website: string | null;
                 schoolId: string;
+                title: string;
+                description: string;
                 address: string | null;
                 tags: string[] | null;
                 cost: string | null;

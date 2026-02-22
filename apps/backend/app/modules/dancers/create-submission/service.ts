@@ -1,4 +1,4 @@
-import { crvSubmissions } from "#database/schema/profiles";
+import { crvSubmissions, crvVideos } from "#database/schema/crv";
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { Validator } from "./validator.ts";
@@ -8,22 +8,27 @@ export class Service {
   constructor(private db: DatabaseService) {}
 
   async execute(profileId: string, data: Validator) {
-    return await this.db.use((db) =>
-      db
-        .insert(crvSubmissions)
-        .values(
-          data.schoolId.map((schoolId) => ({
-            dancerId: profileId,
-            schoolId,
-            videoId: data.videoId,
-          }))
-        )
-        .onConflictDoUpdate({
-          target: [crvSubmissions.dancerId, crvSubmissions.schoolId],
-          set: {
-            videoId: data.videoId,
-          },
+    await this.db.tx(async (tx) => {
+      await tx
+        .insert(crvVideos)
+        .values({
+          dancerId: profileId,
+          youtubeId: data.videoId,
         })
-    );
+        .onConflictDoUpdate({
+          target: crvVideos.dancerId,
+          set: {
+            youtubeId: data.videoId,
+          },
+        });
+
+      await tx.insert(crvSubmissions).values(
+        data.schoolId.map((schoolId) => ({
+          dancerId: profileId,
+          schoolId,
+          videoId: data.videoId,
+        }))
+      );
+    });
   }
 }

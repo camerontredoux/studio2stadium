@@ -5,7 +5,7 @@ import { useElementScrollRestoration, useSearch } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useDeferredValue, useRef } from "react";
 import { exploreQueries } from "../../api/queries";
-import { SchoolCard } from "./school-card/school-card";
+import { SchoolCard } from "./school-card";
 import { SchoolEmpty } from "./school-empty";
 import { SchoolListSkeleton } from "./school-skeleton";
 

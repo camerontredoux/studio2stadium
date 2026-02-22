@@ -1,0 +1,1 @@
+ALTER TABLE "crv_submissions" DROP COLUMN "video_id";

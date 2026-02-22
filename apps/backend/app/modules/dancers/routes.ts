@@ -2,6 +2,10 @@ import { middleware } from "#start/kernel";
 import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
 
+const GetSubmissionVideoController = () =>
+  import("./get-submission-video/controller.ts");
+const GetSubmissionSchoolsController = () =>
+  import("./get-submission-schools/controller.ts");
 const GetSubmissionsController = () =>
   import("./get-submissions/controller.ts");
 const GetDancerController = () => import("./get-dancer/controller.ts");
@@ -66,21 +70,29 @@ router
       .use(middleware.dancer());
 
     router
-      .get("submissions", [GetSubmissionsController])
-      .openapi({
-        summary: "Get dancer's CRV submissions",
-        description:
-          "Returns the common recruiting video submissions for the authenticated dancer",
+      .group(() => {
+        router.get("", [GetSubmissionsController]).openapi({
+          summary: "Get dancer's CRV submissions",
+          description:
+            "Returns the common recruiting video submissions for the authenticated dancer",
+        });
+        router.post("", [CreateSubmissionController]).openapi({
+          summary: "Create a CRV submission",
+          description:
+            "Creates a common recruiting video submission for the authenticated dancer",
+        });
+        router.get("schools", [GetSubmissionSchoolsController]).openapi({
+          summary: "Get schools that the dancer has not submitted to",
+          description:
+            "Returns the schools that the dancer has not submitted to",
+        });
+        router.get("video", [GetSubmissionVideoController]).openapi({
+          summary: "Get the dancer's submission video",
+          description: "Returns the dancer's submission video",
+        });
       })
-      .use(middleware.dancer());
-    router
-      .post("submissions", [CreateSubmissionController])
-      .openapi({
-        summary: "Create a CRV submission",
-        description:
-          "Creates a common recruiting video submission for the authenticated dancer",
-      })
-      .use(middleware.dancer());
+      .use(middleware.dancer())
+      .prefix("submissions");
 
     router.get(":username", [GetDancerController]).openapi({
       summary: "Get a dancer",

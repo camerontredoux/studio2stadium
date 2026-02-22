@@ -11,7 +11,6 @@ export class Service {
         where: { dancerId: profileId },
         columns: {
           id: true,
-          videoId: true,
           status: true,
           watched: true,
           watchedAt: true,
@@ -44,11 +43,9 @@ export class Service {
 
       if (!user) return [];
 
-      const { videoId, ...submissionWithoutVideoId } = submission;
-
       return [
         {
-          ...submissionWithoutVideoId,
+          ...submission,
           school: {
             ...school,
             ...user,
@@ -57,9 +54,6 @@ export class Service {
       ];
     });
 
-    return {
-      videoId: submissions[0]?.videoId ?? null,
-      submissions: flattenedSubmissions,
-    };
+    return flattenedSubmissions;
   }
 }

@@ -1,32 +1,8 @@
 import * as pg from "drizzle-orm/pg-core";
 import { dancerProfiles } from "./dancers.ts";
-import { platformName, prospectStatus } from "./enums.ts";
+import { platformName } from "./enums.ts";
 import { timestamps } from "./helpers/columns.ts";
 import { schoolProfiles } from "./schools.ts";
-
-export const crvSubmissions = pg.pgTable(
-  "crv_submissions",
-  {
-    id: pg.uuid().primaryKey().defaultRandom(),
-    dancerId: pg
-      .uuid()
-      .notNull()
-      .references(() => dancerProfiles.id, { onDelete: "cascade" }),
-    schoolId: pg
-      .uuid()
-      .notNull()
-      .references(() => schoolProfiles.id, { onDelete: "cascade" }),
-    videoId: pg.text().notNull(),
-    status: prospectStatus().notNull().default("pending"),
-    watched: pg.boolean().notNull().default(false),
-    watchedAt: pg.timestamp({ withTimezone: true }),
-    ...timestamps,
-  },
-  (table) => [
-    pg.uniqueIndex().on(table.dancerId, table.schoolId),
-    pg.index().on(table.schoolId),
-  ]
-);
 
 export const favorites = pg.pgTable(
   "school_favorites",
