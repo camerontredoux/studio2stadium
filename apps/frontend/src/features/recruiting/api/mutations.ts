@@ -4,7 +4,10 @@ import { recruitingQueries } from "./queries";
 export function useSubmitVideo() {
   return $api.useMutation("post", "/dancers/submissions", {
     meta: {
-      invalidateQueries: [recruitingQueries.submissions().queryKey],
+      invalidateQueries: [
+        recruitingQueries.submissions().queryKey,
+        recruitingQueries.schools().queryKey,
+      ],
     },
   });
 }

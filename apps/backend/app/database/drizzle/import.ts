@@ -1,4 +1,5 @@
 import { db } from "#database/connection";
+import { crvSubmissions } from "#database/schema/crv";
 import {
   achievements,
   dancerProfiles,
@@ -15,7 +16,7 @@ import { feed } from "#database/schema/feed";
 import { library, posts } from "#database/schema/global";
 import { images, videos } from "#database/schema/media";
 import { notifications } from "#database/schema/notifications";
-import { crvSubmissions, favorites, follows } from "#database/schema/profiles";
+import { favorites, follows } from "#database/schema/profiles";
 import { schoolProfiles } from "#database/schema/schools";
 import { dancerSkills, schoolSkills, skills } from "#database/schema/skills";
 import { dancerSports, schoolSports, sports } from "#database/schema/sports";

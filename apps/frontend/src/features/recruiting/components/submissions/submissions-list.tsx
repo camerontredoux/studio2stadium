@@ -1,3 +1,10 @@
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Separator } from "@/components/ui/separator";
 import { SubmissionCard } from "@/features/recruiting/components/submissions/submission-card";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -43,17 +50,15 @@ export function SubmissionsList({ status, watched }: SubmissionsListProps) {
           </section>
         ))
       ) : (
-        <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-          <div className="bg-muted/50 rounded-xl border p-4">
-            <TrophyIcon className="text-muted-foreground size-8" />
-          </div>
-          <div>
-            <p className="font-semibold">No submissions match</p>
-            <p className="text-muted-foreground text-sm">
-              Try adjusting your filters
-            </p>
-          </div>
-        </div>
+        <Empty className="border">
+          <EmptyHeader>
+            <EmptyMedia variant="icon" className="text-brand">
+              <TrophyIcon />
+            </EmptyMedia>
+            <EmptyTitle>No submissions match criteria</EmptyTitle>
+            <EmptyDescription>Try adjusting your filters</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       )}
     </div>
   );

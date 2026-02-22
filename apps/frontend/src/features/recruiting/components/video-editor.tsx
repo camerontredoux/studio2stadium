@@ -49,7 +49,6 @@ export function VideoEditor({
               <LinkIcon className="text-brand size-3.5" />
               <Input
                 autoComplete="off"
-                autoFocus
                 value={videoUrl}
                 onChange={(e) => {
                   onVideoUrlChange(e.target.value);
