@@ -2,10 +2,10 @@ import { ContentCard } from "@/components/shared/content-card";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import {
+  BookmarkIcon,
   CalendarIcon,
   GraduationCapIcon,
   MapPinIcon,
-  SaveIcon,
 } from "lucide-react";
 import type { EventCard } from "../../types";
 
@@ -43,7 +43,7 @@ export function EventCard({ event }: EventCardProps) {
               disabled
               className="flex-1 gap-1.5 sm:max-w-fit"
             >
-              <SaveIcon className="text-brand" /> Saved
+              <BookmarkIcon className="fill-brand text-brand" /> Attending
             </Button>
           ) : null}
         </div>

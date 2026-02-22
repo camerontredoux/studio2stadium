@@ -32,9 +32,17 @@ export function SubmissionsPage() {
               Track your submissions and school responses
             </p>
           </div>
-          <div className="flex gap-2 max-sm:pl-1">
+          <div className="flex gap-2 max-sm:w-full max-sm:pl-1">
             <Popover>
-              <PopoverTrigger render={<Button variant="outline" size="sm" />}>
+              <PopoverTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 sm:max-w-fit"
+                  />
+                }
+              >
                 <Settings2Icon /> Filters
               </PopoverTrigger>
               <PopoverContent className="w-56">
@@ -46,7 +54,11 @@ export function SubmissionsPage() {
                 />
               </PopoverContent>
             </Popover>
-            <Button size="sm" render={<Link to="/recruiting/submit" />}>
+            <Button
+              size="sm"
+              className="flex-1 sm:max-w-fit"
+              render={<Link to="/recruiting/submit" />}
+            >
               <SendIcon /> Submit
             </Button>
           </div>

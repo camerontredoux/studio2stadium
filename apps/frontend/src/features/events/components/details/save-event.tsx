@@ -2,7 +2,7 @@ import { useCountdown } from "@/components/hooks/use-countdown";
 import { Button } from "@/components/ui/button";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
-import { CheckIcon, SaveIcon } from "lucide-react";
+import { BookmarkIcon } from "lucide-react";
 import { useSaveEvent, useUnsaveEvent } from "../../api/mutations";
 
 export function SaveEventButton({
@@ -52,11 +52,11 @@ export function SaveEventButton({
         `Retry in ${retryAfter}s`
       ) : isSaved ? (
         <>
-          <CheckIcon /> Saved
+          <BookmarkIcon className="fill-destructive-foreground" /> Attending
         </>
       ) : (
         <>
-          <SaveIcon /> Save
+          <BookmarkIcon /> Attend
         </>
       )}
     </Button>

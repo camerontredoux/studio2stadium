@@ -16,12 +16,11 @@ import {
 } from "@/features/events/api/mutations";
 import type { ApiSchemas } from "@/lib/api/client";
 import {
+  BookmarkIcon,
   CalendarIcon,
-  CheckIcon,
   ExternalLinkIcon,
   GraduationCapIcon,
   MapPinIcon,
-  SaveIcon,
 } from "lucide-react";
 
 interface GlobalEventCardProps {
@@ -57,11 +56,12 @@ export function GlobalEventCard({ event }: GlobalEventCardProps) {
           >
             {event.saved ? (
               <>
-                <CheckIcon /> Saved
+                <BookmarkIcon className="fill-destructive-foreground" />{" "}
+                Attending
               </>
             ) : (
               <>
-                <SaveIcon /> Save
+                <BookmarkIcon /> Attend
               </>
             )}
           </Button>
