@@ -1,8 +1,10 @@
 import { dancerQueries } from "@/features/dancer/api/queries";
-import { DancerProfile } from "@/features/dancer/page";
+import { DancerPage } from "@/features/dancer/page";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/$username")({
+  validateSearch: (search: Record<string, unknown>) =>
+    search as { mode: "preview" | undefined },
   beforeLoad: ({ context: { access }, params }) => {
     access.guard(access.is("core", "school"), access.self(params.username));
   },
@@ -14,5 +16,11 @@ export const Route = createFileRoute("/_app/(routes)/$username")({
       queryClient.ensureQueryData(dancerQueries.metadata(dancer.id));
     }
   },
-  component: DancerProfile,
+  component: RouteComponent,
 });
+
+function RouteComponent() {
+  const { username } = Route.useParams();
+
+  return <DancerPage username={username} />;
+}

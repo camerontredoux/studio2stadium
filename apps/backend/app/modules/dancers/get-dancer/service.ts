@@ -30,13 +30,18 @@ export class Service {
           },
         },
         columns: {
+          displayEmail: true,
           username: true,
           avatar: true,
+          phone: true,
+          firstName: true,
+          lastName: true,
         },
         with: {
           dancerProfile: {
             columns: {
               id: true,
+              biography: true,
               birthday: true,
               location: true,
               skillLevel: true,
@@ -46,10 +51,14 @@ export class Service {
               gpa: true,
               gradYear: true,
               trainingHours: true,
+              tiktok: true,
+              instagram: true,
+              youtube: true,
             },
             with: {
               skills: true,
               styles: true,
+              sports: true,
               references: true,
               achievements: true,
             },

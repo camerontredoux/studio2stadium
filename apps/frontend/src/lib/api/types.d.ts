@@ -2467,10 +2467,17 @@ export interface components {
         };
         DancersIdResponse: {
             username: string;
+            firstName: string;
+            lastName: string;
+            phone: string | null;
             id: string;
+            displayEmail: string;
             avatar: string | null;
             birthday: string;
             location: string;
+            instagram: string | null;
+            tiktok: string | null;
+            youtube: string | null;
             skillLevel: string | null;
             teamLevel: string | null;
             highSchool: string | null;
@@ -2499,6 +2506,10 @@ export interface components {
                 name: string;
                 slug: string;
                 category: string;
+            }[];
+            sports: {
+                name: string;
+                slug: string;
             }[];
             styles: {
                 name: string;

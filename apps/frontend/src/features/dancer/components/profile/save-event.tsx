@@ -2,29 +2,27 @@ import { useCountdown } from "@/components/hooks/use-countdown";
 import { Button } from "@/components/ui/button";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
-import { useFavoriteDancer, useUnfavoriteDancer } from "@/shared/api/mutations";
-import { HeartIcon } from "lucide-react";
+import { BookmarkIcon } from "lucide-react";
+import { useSaveEvent, useUnsaveEvent } from "../../api/mutations";
 
-export function FavoriteButton({
-  dancerId,
-  isFavorited,
+export function SaveEventButton({
+  id,
+  isSaved,
+  size = "xs",
 }: {
-  dancerId: string;
-  isFavorited: boolean;
+  id: string;
+  isSaved: boolean;
+  size?: "xs" | "sm";
 }) {
-  const { mutate: favorite } = useFavoriteDancer(dancerId);
-  const { mutate: unfavorite } = useUnfavoriteDancer(dancerId);
+  const { mutate: save } = useSaveEvent(id);
+  const { mutate: unsave } = useUnsaveEvent(id);
 
   const [retryAfter, startCountdown] = useCountdown();
 
   const handleClick = () => {
-    const mutate = isFavorited ? unfavorite : favorite;
+    const mutate = isSaved ? unsave : save;
     mutate(
-      {
-        params: {
-          path: { id: dancerId },
-        },
-      },
+      { params: { path: { id } } },
       {
         onError: handleApiError({
           onError: (error) => {
@@ -44,18 +42,23 @@ export function FavoriteButton({
 
   return (
     <Button
-      variant={isFavorited ? "destructive-outline" : "outline"}
+      variant={isSaved ? "destructive-outline" : "default"}
       disabled={!!retryAfter}
-      size="sm"
+      size={size}
       onClick={handleClick}
-      className="flex-1 gap-2"
+      className="flex-1 gap-1.5"
     >
-      <HeartIcon className={isFavorited ? "fill-current" : undefined} />
-      {retryAfter
-        ? `Retry in ${retryAfter}s`
-        : isFavorited
-          ? "Unfavorite"
-          : "Favorite"}
+      {retryAfter ? (
+        `Retry in ${retryAfter}s`
+      ) : isSaved ? (
+        <>
+          <BookmarkIcon className="fill-destructive-foreground" /> Attending
+        </>
+      ) : (
+        <>
+          <BookmarkIcon /> Attend
+        </>
+      )}
     </Button>
   );
 }
