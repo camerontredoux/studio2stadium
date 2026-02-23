@@ -42,7 +42,7 @@ export function EventOrganizer({ organizer }: EventOrganizerProps) {
           {organizer?.name}
         </h3>
         <p className="text-muted-foreground text-xs">
-          Hosting {organizer.events ?? "no"} more events
+          Hosting {organizer.events ?? "no"} events
         </p>
       </FramePanel>
     </Frame>

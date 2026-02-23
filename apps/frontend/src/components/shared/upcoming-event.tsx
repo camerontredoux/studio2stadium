@@ -1,6 +1,5 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, MapPinIcon } from "lucide-react";
+import { CalendarIcon, GraduationCapIcon, MapPinIcon } from "lucide-react";
 
 export interface UpcomingEventData {
   title: string;
@@ -22,12 +21,12 @@ export function UpcomingEvent({ event }: UpcomingEventProps) {
   return (
     <div className="hover:bg-accent px-5 py-4">
       <div className="flex items-center gap-3">
-        <Avatar className="size-12 self-start rounded-xl">
+        {/* <Avatar className="size-12 self-start rounded-xl">
           <AvatarImage src={event.organizer.thumbnail ?? undefined} />
           <AvatarFallback className="rounded-xl">
             {event.organizer.name.slice(0, 2).toUpperCase()}
           </AvatarFallback>
-        </Avatar>
+        </Avatar> */}
         <div className="flex min-w-0 flex-col gap-1">
           <h3 className="flex items-center gap-2 text-sm font-semibold">
             <Badge variant="brand" className="shrink-0 capitalize">
@@ -35,7 +34,8 @@ export function UpcomingEvent({ event }: UpcomingEventProps) {
             </Badge>
             <span className="truncate">{event.title}</span>
           </h3>
-          <p className="text-muted-foreground truncate text-xs">
+          <p className="text-muted-foreground flex items-center gap-1 truncate text-xs">
+            <GraduationCapIcon className="text-brand size-3" />{" "}
             {event.organizer.name}
           </p>
           <div className="text-muted-foreground flex min-w-0 items-center gap-2 text-xs">

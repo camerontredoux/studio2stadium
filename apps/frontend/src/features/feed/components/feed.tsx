@@ -1,5 +1,13 @@
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import { GraduationCapIcon, XIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { feedQueries } from "../api/queries";
 import { FeedItem } from "./content/feed-item";
@@ -50,7 +58,33 @@ export function Feed() {
   }
 
   if (status === "error") {
-    return <div>Error loading feed</div>;
+    return (
+      <Empty className="border">
+        <EmptyHeader>
+          <EmptyMedia variant="icon" className="border-destructive-foreground">
+            <XIcon className="text-destructive-foreground size-6" />
+          </EmptyMedia>
+          <EmptyTitle>Error loading feed</EmptyTitle>
+          <EmptyDescription>Try refreshing the page.</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    );
+  }
+
+  if (rows.length === 0) {
+    return (
+      <Empty className="border">
+        <EmptyHeader>
+          <EmptyMedia variant="icon" className="border-brand">
+            <GraduationCapIcon className="text-brand size-6" />
+          </EmptyMedia>
+          <EmptyTitle>No feed items</EmptyTitle>
+          <EmptyDescription>
+            Try following more accounts to see their latest content.
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    );
   }
 
   return (

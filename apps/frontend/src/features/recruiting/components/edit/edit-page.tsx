@@ -3,12 +3,13 @@ import { getYouTubeId } from "@/utils/get-youtube-id";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowLeftIcon, CheckIcon, SaveIcon } from "lucide-react";
 import { useState } from "react";
-import { MOCK_VIDEO_URL } from "./components/mock-data";
-import { VideoEditor } from "./components/video-editor";
+import { VideoEditor } from "../video-editor";
 
 export function EditPage() {
   const navigate = useNavigate();
-  const [videoUrl, setVideoUrl] = useState(MOCK_VIDEO_URL);
+  const [videoUrl, setVideoUrl] = useState(
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  );
   const [videoError, setVideoError] = useState<string>();
   const [saved, setSaved] = useState(false);
 

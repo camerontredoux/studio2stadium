@@ -1,37 +1,31 @@
 import { getYouTubeId } from "@/utils/get-youtube-id";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useSubmitVideo } from "../../api/mutations";
-import { recruitingQueries } from "../../api/queries";
 import { ConfirmStep } from "./confirm";
 import { SchoolsStep } from "./schools";
 import { StepIndicator } from "./step-indicator";
 import { SuccessView } from "./success";
-import type { Step } from "./types";
+import type { School, Step } from "./types";
 import { VideoStep } from "./video";
 
 export function SubmitPage() {
   const navigate = useNavigate();
-  const { data: schools } = useSuspenseQuery(recruitingQueries.schools());
-  const submitMutation = useSubmitVideo();
+  const { mutate, isPending } = useSubmitVideo();
 
   const [step, setStep] = useState<Step>("video");
   const [videoUrl, setVideoUrl] = useState("");
-  const [selectedSchools, setSelectedSchools] = useState<Set<string>>(
-    new Set(),
-  );
+  const [selectedSchools, setSelectedSchools] = useState<School[]>([]);
   const [submitted, setSubmitted] = useState(false);
 
   const videoId = getYouTubeId(videoUrl);
-  const selectedSchoolsList = schools.filter((s) => selectedSchools.has(s.id));
 
   const handleSubmit = () => {
     if (!videoId) return;
-    submitMutation.mutate(
+    mutate(
       {
         body: {
-          schoolId: Array.from(selectedSchools),
+          schoolId: selectedSchools.map((s) => s.id),
           videoId,
         },
       },
@@ -44,7 +38,7 @@ export function SubmitPage() {
   if (submitted) {
     return (
       <SuccessView
-        schoolCount={selectedSchools.size}
+        schoolCount={selectedSchools.length}
         onViewSubmissions={() => navigate({ to: "/recruiting" })}
       />
     );
@@ -73,7 +67,6 @@ export function SubmitPage() {
 
       {step === "schools" && (
         <SchoolsStep
-          schools={schools}
           selectedSchools={selectedSchools}
           onSelectionChange={setSelectedSchools}
           onBack={() => setStep("video")}
@@ -85,8 +78,8 @@ export function SubmitPage() {
         <ConfirmStep
           videoId={videoId}
           videoUrl={videoUrl}
-          selectedSchools={selectedSchoolsList}
-          isSubmitting={submitMutation.isPending}
+          selectedSchools={selectedSchools}
+          isSubmitting={isPending}
           onEditVideo={() => setStep("video")}
           onBack={() => setStep("schools")}
           onSubmit={handleSubmit}

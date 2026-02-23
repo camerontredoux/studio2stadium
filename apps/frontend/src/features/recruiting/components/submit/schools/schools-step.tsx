@@ -4,27 +4,36 @@ import { Empty, EmptyDescription } from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeftIcon, ArrowRightIcon, SearchIcon } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { recruitingQueries } from "../../../api/queries";
 import type { School } from "../types";
 import { SchoolSelectRow } from "./school-select-row";
 
 interface SchoolsStepProps {
-  schools: School[];
-  selectedSchools: Set<string>;
-  onSelectionChange: (selected: Set<string>) => void;
+  selectedSchools: School[];
+  onSelectionChange: (selected: School[]) => void;
   onBack: () => void;
   onNext: () => void;
 }
 
 export function SchoolsStep({
-  schools,
   selectedSchools,
   onSelectionChange,
   onBack,
   onNext,
 }: SchoolsStepProps) {
+  const { data: schools = [], isLoading } = useQuery(
+    recruitingQueries.schools(),
+  );
   const [searchQuery, setSearchQuery] = useState("");
+
+  const selectedIds = useMemo(
+    () => new Set(selectedSchools.map((s) => s.id)),
+    [selectedSchools],
+  );
 
   const filteredSchools = schools.filter(
     (school) =>
@@ -32,24 +41,25 @@ export function SchoolsStep({
       school.location.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const toggleSchool = (id: string) => {
-    const next = new Set(selectedSchools);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    onSelectionChange(next);
+  const toggleSchool = (school: School) => {
+    if (selectedIds.has(school.id)) {
+      onSelectionChange(selectedSchools.filter((s) => s.id !== school.id));
+    } else {
+      onSelectionChange([...selectedSchools, school]);
+    }
   };
 
   const selectAll = () => {
-    onSelectionChange(new Set(filteredSchools.map((s) => s.id)));
+    onSelectionChange(filteredSchools);
   };
 
   const deselectAll = () => {
-    onSelectionChange(new Set());
+    onSelectionChange([]);
   };
 
   return (
     <div className="flex flex-col gap-4 lg:gap-6">
-      <div className="flex flex-col gap-4 rounded-xl border p-4 sm:p-6">
+      <div className="flex flex-col gap-4 rounded-2xl border p-4 sm:p-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-base font-semibold">Select Schools</h2>
@@ -58,17 +68,17 @@ export function SchoolsStep({
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="brand">{selectedSchools.size} selected</Badge>
+            <Badge variant="brand">{selectedSchools.length} selected</Badge>
             <Button
               variant="ghost"
               size="xs"
               onClick={
-                selectedSchools.size === filteredSchools.length
+                selectedSchools.length === filteredSchools.length
                   ? deselectAll
                   : selectAll
               }
             >
-              {selectedSchools.size === filteredSchools.length
+              {selectedSchools.length === filteredSchools.length
                 ? "Deselect All"
                 : "Select All"}
             </Button>
@@ -91,18 +101,23 @@ export function SchoolsStep({
 
         <ScrollArea scrollFade className="h-96">
           <div className="flex h-full flex-col gap-1.5">
-            {filteredSchools.map((school) => (
-              <SchoolSelectRow
-                key={school.id}
-                school={school}
-                selected={selectedSchools.has(school.id)}
-                onToggle={() => toggleSchool(school.id)}
-              />
-            ))}
-            {filteredSchools.length === 0 && (
+            {isLoading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))
+            ) : filteredSchools.length === 0 ? (
               <Empty className="h-full border">
                 <EmptyDescription>No schools found</EmptyDescription>
               </Empty>
+            ) : (
+              filteredSchools.map((school) => (
+                <SchoolSelectRow
+                  key={school.id}
+                  school={school}
+                  selected={selectedIds.has(school.id)}
+                  onToggle={() => toggleSchool(school)}
+                />
+              ))
             )}
           </div>
         </ScrollArea>
@@ -114,7 +129,7 @@ export function SchoolsStep({
         </Button>
         <Button
           onClick={onNext}
-          disabled={selectedSchools.size === 0}
+          disabled={selectedSchools.length === 0}
           className="gap-2"
         >
           Review & Submit <ArrowRightIcon />
