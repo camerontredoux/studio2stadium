@@ -21,7 +21,8 @@ import { schoolProfiles } from "#database/schema/schools";
 import { dancerSkills, schoolSkills, skills } from "#database/schema/skills";
 import { dancerSports, schoolSports, sports } from "#database/schema/sports";
 import { dancerStyles, schoolStyles, styles } from "#database/schema/styles";
-import { platforms, subscriptions, users } from "#database/schema/users";
+import { subscriptions } from "#database/schema/subscriptions";
+import { platforms, users } from "#database/schema/users";
 import { existsSync, readFileSync } from "node:fs";
 
 // Path to export directory - update this to match your export location
