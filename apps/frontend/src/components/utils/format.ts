@@ -1,5 +1,5 @@
 export function formatDate(
-  date: Date | string | number | undefined,
+  date: Date | string | number | undefined | null,
   opts: Intl.DateTimeFormatOptions = {},
 ) {
   if (!date) return "";

@@ -459,6 +459,28 @@
         "description": "Returns a list of all skills"
       }
     },
+    "/subscriptions/status": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionsStatusResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Get subscription status",
+        "description": "Gets the authenticated dancer's subscription status"
+      }
+    },
     "/subscriptions/checkout": {
       "post": {
         "requestBody": {
@@ -2097,9 +2119,6 @@
                 "core"
               ]
             }
-          },
-          "subscribed": {
-            "type": "boolean"
           }
         },
         "required": [
@@ -2114,8 +2133,7 @@
           "avatar",
           "verified",
           "profileId",
-          "platforms",
-          "subscribed"
+          "platforms"
         ]
       },
       "AuthPasswordChangeRequest": {
@@ -2466,6 +2484,32 @@
             "category"
           ]
         }
+      },
+      "SubscriptionsStatusResponse": {
+        "type": "object",
+        "properties": {
+          "cancelAtPeriodEnd": {
+            "type": "boolean"
+          },
+          "currentPeriodEnd": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "subscribed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "cancelAtPeriodEnd",
+          "currentPeriodEnd",
+          "subscribed"
+        ]
       },
       "SubscriptionsCheckoutRequest": {
         "type": "object",

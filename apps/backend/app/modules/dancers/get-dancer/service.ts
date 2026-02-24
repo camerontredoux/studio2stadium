@@ -70,12 +70,7 @@ export class Service {
           },
           subscription: {
             where: {
-              currentPeriodEnd: {
-                gt: new Date(),
-              },
-            },
-            columns: {
-              id: true,
+              status: "active",
             },
           },
           dancerProfile: {

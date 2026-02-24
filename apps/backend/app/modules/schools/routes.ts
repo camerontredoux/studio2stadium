@@ -88,7 +88,7 @@ router
         description:
           "A dancer can show interest in a school up to 3 times. This endpoint will increment the interest count for the school, and send a notification to the school.",
       })
-      .use([middleware.dancer(), middleware.premium()]);
+      .use([middleware.dancer(), middleware.subscribed()]);
   })
   .use(middleware.auth())
   .prefix("schools")

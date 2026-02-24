@@ -39,19 +39,12 @@ export async function getUserSession(id: string) {
           platformName: true,
         },
       },
-      subscription: {
-        where: {
-          currentPeriodEnd: {
-            gt: new Date(),
-          },
-        },
-      },
     },
   });
 
   if (!session) return null;
 
-  const { subscription, platforms, ...user } = session;
+  const { platforms, ...user } = session;
 
   let profileId: string | undefined;
   if (user.type === "dancer") {
@@ -79,7 +72,6 @@ export async function getUserSession(id: string) {
   return {
     ...user,
     profileId,
-    subscribed: subscription && subscription.status === "active",
     platforms: platforms.map((platform) => platform.platformName),
   };
 }

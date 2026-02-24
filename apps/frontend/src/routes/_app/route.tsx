@@ -13,6 +13,10 @@ export const Route = createFileRoute("/_app")({
         queries.session(),
       );
 
+      const subscription = await context.queryClient.ensureQueryData(
+        queries.subscribed(),
+      );
+
       if (!session) {
         throw redirect({
           to: "/login",
@@ -27,7 +31,7 @@ export const Route = createFileRoute("/_app")({
         });
       }
 
-      return { session, access: createAccess(session) };
+      return { session, access: createAccess(session), subscription };
     } catch (error) {
       if (error instanceof SessionNetworkError) {
         throw redirect({

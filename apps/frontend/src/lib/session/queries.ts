@@ -1,6 +1,7 @@
 import type { paths } from "@/lib/api/types";
 import { queryOptions } from "@tanstack/react-query";
 import createFetchClient from "openapi-fetch";
+import { $api } from "../api/client";
 import { SessionNetworkError } from "./errors";
 
 const client = createFetchClient<paths>({
@@ -30,5 +31,13 @@ export const sessionQueries = {
       staleTime: Infinity,
       gcTime: Infinity,
     });
+  },
+  subscribed: () => {
+    return $api.queryOptions(
+      "get",
+      "/subscriptions/status",
+      {},
+      { staleTime: Infinity, gcTime: Infinity },
+    );
   },
 };

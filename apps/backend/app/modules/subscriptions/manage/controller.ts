@@ -8,10 +8,6 @@ export default class ManageController {
   async handle(ctx: HttpContext, service: Service) {
     const user = ctx.auth.getUserOrFail();
 
-    if (!user.subscribed) {
-      return ctx.response.redirect(`${env.get("SITE_URL")}/checkout`);
-    }
-
     const session = await service.execute(user.id);
 
     if (!session) {

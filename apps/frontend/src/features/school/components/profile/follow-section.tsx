@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
-import { useSession } from "@/lib/session";
+import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { useQuery } from "@tanstack/react-query";
 import { HeartIcon } from "lucide-react";
 import { useShowInterest } from "../../api/mutations";
@@ -10,7 +10,7 @@ import { type SchoolProfile } from "../../types";
 import { FollowButton } from "./follow-button";
 
 export function FollowSection({ school }: { school: SchoolProfile }) {
-  const session = useSession();
+  const { subscribed } = useSubscribed();
   const { data } = useQuery(schoolQueries.metadata(school.id));
 
   const isFollowing = data?.following ?? false;
@@ -27,7 +27,7 @@ export function FollowSection({ school }: { school: SchoolProfile }) {
         )}
       </pre>
 
-      {isFollowing && session.subscribed && (
+      {isFollowing && subscribed && (
         <Button
           onClick={() =>
             mutate(

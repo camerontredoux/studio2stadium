@@ -89,7 +89,7 @@ export function DancerPage({ username }: DancerPageProps) {
 
             <div>
               <pre className="max-w-full wrap-break-word whitespace-pre-wrap">
-                {JSON.stringify(data, null, 2)}
+                {JSON.stringify({ session, data }, null, 2)}
               </pre>
             </div>
           </div>

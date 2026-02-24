@@ -67,6 +67,10 @@ type SkillsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/skills/get-skills/controller.ts').default['handle'], false>
 }
+type SubscriptionsStatusGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/subscriptions/status/controller.ts').default['handle'], false>
+}
 type SubscriptionsCheckoutPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/subscriptions/checkout/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/subscriptions/checkout/controller.ts').default['handle'], true>
@@ -308,6 +312,12 @@ export interface ApiDefinition {
     '$head': SkillsGetHead;
   };
   'subscriptions': {
+    'status': {
+      '$url': {
+      };
+      '$get': SubscriptionsStatusGetHead;
+      '$head': SubscriptionsStatusGetHead;
+    };
     'checkout': {
       '$url': {
       };

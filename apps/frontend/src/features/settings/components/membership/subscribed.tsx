@@ -1,10 +1,19 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { formatDate } from "@/components/utils/format";
 import { CalendarIcon, CreditCardIcon } from "lucide-react";
 import { useManage } from "../../api/mutations";
 
-export function Subscribed() {
+interface SubscribedProps {
+  cancelAtPeriodEnd: boolean;
+  currentPeriodEnd: string | null;
+}
+
+export function Subscribed({
+  cancelAtPeriodEnd,
+  currentPeriodEnd,
+}: SubscribedProps) {
   const { mutateAsync, isPending } = useManage();
 
   const handleManage = async () => {
@@ -39,7 +48,10 @@ export function Subscribed() {
 
           <div className="mt-2 flex items-center gap-2 text-sm text-white/70">
             <CalendarIcon className="text-brand size-4" />
-            <span>Renews on March 15, 2026</span>
+            <span>
+              {cancelAtPeriodEnd ? "Cancels" : "Renews"} on{" "}
+              {formatDate(currentPeriodEnd)}
+            </span>
           </div>
         </div>
       </div>

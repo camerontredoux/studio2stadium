@@ -1,12 +1,17 @@
-import { useSession } from "@/lib/session";
+import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { Subscribed } from "./membership/subscribed";
 import { Unsubscribed } from "./membership/unsubscribed";
 
 export function MembershipSettings() {
-  const session = useSession();
+  const { subscribed, cancelAtPeriodEnd, currentPeriodEnd } = useSubscribed();
 
-  if (session.subscribed) {
-    return <Subscribed />;
+  if (subscribed) {
+    return (
+      <Subscribed
+        cancelAtPeriodEnd={cancelAtPeriodEnd}
+        currentPeriodEnd={currentPeriodEnd}
+      />
+    );
   }
 
   return <Unsubscribed />;

@@ -653,6 +653,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/subscriptions/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get subscription status
+         * @description Gets the authenticated dancer's subscription status
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubscriptionsStatusResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/subscriptions/checkout": {
         parameters: {
             query?: never;
@@ -2447,7 +2486,6 @@ export interface components {
             verified: boolean;
             profileId: string;
             platforms: ("prodigy" | "core")[];
-            subscribed: boolean;
         };
         AuthPasswordChangeRequest: {
             currentPassword: string;
@@ -2525,6 +2563,11 @@ export interface components {
             slug: string;
             category: string;
         }[];
+        SubscriptionsStatusResponse: {
+            cancelAtPeriodEnd: boolean;
+            currentPeriodEnd: string | null;
+            subscribed: boolean;
+        };
         SubscriptionsCheckoutRequest: {
             /** @enum {string} */
             type: "monthly" | "yearly";

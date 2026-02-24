@@ -85,7 +85,9 @@ export default class WebhookHandlers {
         .set({
           status: subscription.status,
           priceId,
-          cancelAtPeriodEnd: subscription.cancel_at_period_end,
+          cancelAtPeriodEnd:
+            subscription.cancel_at_period_end ||
+            subscription.cancel_at !== null,
           currentPeriodEnd: new Date(currentPeriodEnd * 1000),
           canceledAt: subscription.canceled_at
             ? new Date(subscription.canceled_at * 1000)
