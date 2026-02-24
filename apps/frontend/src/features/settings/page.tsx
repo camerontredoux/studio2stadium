@@ -51,8 +51,17 @@ export function SettingsPage() {
   ] as const;
 
   return (
-    <div className="divide-y overflow-hidden">
-      {settingsItems.map((item, index) => (
+    <div className="flex flex-col gap-2 pt-1 sm:pt-0 lg:gap-4">
+      <div className="flex flex-col max-sm:pl-1">
+        <h1 className="text-2xl leading-none font-bold tracking-tight">
+          Settings
+        </h1>
+        <p className="text-muted-foreground text-sm">
+          Manage your account and preferences
+        </p>
+      </div>
+      <div className="divide-y overflow-hidden">
+        {settingsItems.map((item, index) => (
         <Link
           key={item.href}
           to={item.href}
@@ -81,6 +90,7 @@ export function SettingsPage() {
           <ChevronRight className="text-muted-foreground size-4 shrink-0" />
         </Link>
       ))}
+      </div>
     </div>
   );
 }
