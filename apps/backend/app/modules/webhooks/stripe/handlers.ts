@@ -54,7 +54,18 @@ export default class WebhookHandlers {
         .returning({
           id: subscriptions.userId,
         })
-        .onConflictDoNothing({ target: subscriptions.subscriptionId })
+        .onConflictDoUpdate({
+          target: subscriptions.userId,
+          set: {
+            status: subscription.status,
+            subscriptionId: subscription.id,
+            customerId: subscription.customer as string,
+            priceId,
+            cancelAtPeriodEnd: subscription.cancel_at_period_end,
+            currentPeriodEnd: new Date(currentPeriodEnd * 1000),
+            canceledAt: null,
+          },
+        })
     );
 
     console.log(user);

@@ -79,7 +79,7 @@ export async function getUserSession(id: string) {
   return {
     ...user,
     profileId,
-    subscribed: !!subscription,
+    subscribed: subscription && subscription.status === "active",
     platforms: platforms.map((platform) => platform.platformName),
   };
 }
