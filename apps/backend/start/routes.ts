@@ -8,5 +8,6 @@ import "#modules/health/routes";
 import "#modules/library/routes";
 import "#modules/schools/routes";
 import "#modules/skills/routes";
+import "#modules/subscriptions/routes";
 import "#modules/users/routes";
 import "#modules/webhooks/routes";

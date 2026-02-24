@@ -20,3 +20,7 @@ export function useUpdatePassword() {
 export function useDeleteAccount() {
   return $api.useMutation("delete", "/users/account");
 }
+
+export function useManage() {
+  return $api.useMutation("post", "/subscriptions/manage");
+}

@@ -653,6 +653,97 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/subscriptions/checkout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a checkout session
+         * @description Creates a checkout session for the authenticated dancer
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SubscriptionsCheckoutRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubscriptionsCheckoutResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/subscriptions/manage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Manage a subscription
+         * @description Manages the authenticated dancer's subscription
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubscriptionsManageResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/stripe/webhook": {
         parameters: {
             query?: never;
@@ -720,58 +811,6 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dancers/checkout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Create a checkout session
-         * @description Creates a checkout session for the authenticated dancer
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["DancersCheckoutRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersCheckoutResponse"];
-                    };
                 };
                 /** @description Unprocessable Entity */
                 422: {
@@ -2486,6 +2525,16 @@ export interface components {
             slug: string;
             category: string;
         }[];
+        SubscriptionsCheckoutRequest: {
+            /** @enum {string} */
+            type: "monthly" | "yearly";
+        };
+        SubscriptionsCheckoutResponse: {
+            clientSecret: string;
+        };
+        SubscriptionsManageResponse: {
+            url: string;
+        };
         StripeWebhookResponse: {
             received: boolean;
         };
@@ -2495,13 +2544,6 @@ export interface components {
             location: string;
             /** @enum {string} */
             platform: "prodigy" | "core";
-        };
-        DancersCheckoutRequest: {
-            /** @enum {string} */
-            type: "monthly" | "yearly";
-        };
-        DancersCheckoutResponse: {
-            clientSecret: string;
         };
         DancersFiltersResponse: {
             /** @enum {string} */

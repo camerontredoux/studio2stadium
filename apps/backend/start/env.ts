@@ -24,7 +24,7 @@ export default await Env.create(new URL("../", import.meta.url), {
     "trace",
     "silent",
   ]),
-  SITE_URL: Env.schema.string({ format: "url" }),
+  SITE_URL: Env.schema.string(),
 
   HEALTH_SECRET: Env.schema.string(),
 

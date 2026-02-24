@@ -2,7 +2,6 @@ import { middleware } from "#start/kernel";
 import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
 
-const CheckoutController = () => import("./checkout/controller.ts");
 const GetSubmissionVideoController = () =>
   import("./get-submission-video/controller.ts");
 const GetSubmissionSchoolsController = () =>
@@ -33,11 +32,6 @@ router
       summary: "Create a dancer",
       description:
         "Populate account with personal information to finish dancer signup",
-    });
-
-    router.post("checkout", [CheckoutController]).openapi({
-      summary: "Create a checkout session",
-      description: "Creates a checkout session for the authenticated dancer",
     });
 
     router.get("filters", [GetFiltersController]).openapi({

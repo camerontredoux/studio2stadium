@@ -1,8 +1,16 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { CalendarIcon, CreditCardIcon } from "lucide-react";
+import { useManage } from "../../api/mutations";
 
 export function Subscribed() {
+  const { mutateAsync, isPending } = useManage();
+
+  const handleManage = async () => {
+    await mutateAsync({}).then((data) => (window.location.href = data.url));
+  };
+
   return (
     <div className="flex flex-col gap-6 px-2">
       <div className="relative overflow-hidden rounded-2xl">
@@ -45,9 +53,13 @@ export function Subscribed() {
               subscription.
             </p>
           </div>
-          <Button variant="outline" size="sm">
-            <CreditCardIcon />
-            Billing
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleManage}
+            disabled={isPending}
+          >
+            {isPending ? <Spinner /> : <CreditCardIcon />} Billing
           </Button>
         </div>
       </div>

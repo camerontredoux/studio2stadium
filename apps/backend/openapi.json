@@ -459,6 +459,67 @@
         "description": "Returns a list of all skills"
       }
     },
+    "/subscriptions/checkout": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionsCheckoutRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionsCheckoutResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Create a checkout session",
+        "description": "Creates a checkout session for the authenticated dancer"
+      }
+    },
+    "/subscriptions/manage": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionsManageResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Manage a subscription",
+        "description": "Manages the authenticated dancer's subscription"
+      }
+    },
     "/stripe/webhook": {
       "post": {
         "responses": {
@@ -506,46 +567,6 @@
         ],
         "summary": "Create a dancer",
         "description": "Populate account with personal information to finish dancer signup"
-      }
-    },
-    "/dancers/checkout": {
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DancersCheckoutRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DancersCheckoutResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Dancers"
-        ],
-        "summary": "Create a checkout session",
-        "description": "Creates a checkout session for the authenticated dancer"
       }
     },
     "/dancers/filters": {
@@ -2446,6 +2467,43 @@
           ]
         }
       },
+      "SubscriptionsCheckoutRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "monthly",
+              "yearly"
+            ]
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "SubscriptionsCheckoutResponse": {
+        "type": "object",
+        "properties": {
+          "clientSecret": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "clientSecret"
+        ]
+      },
+      "SubscriptionsManageResponse": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
       "StripeWebhookResponse": {
         "type": "object",
         "properties": {
@@ -2491,32 +2549,6 @@
           "birthday",
           "location",
           "platform"
-        ]
-      },
-      "DancersCheckoutRequest": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "enum": [
-              "monthly",
-              "yearly"
-            ]
-          }
-        },
-        "required": [
-          "type"
-        ]
-      },
-      "DancersCheckoutResponse": {
-        "type": "object",
-        "properties": {
-          "clientSecret": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "clientSecret"
         ]
       },
       "DancersFiltersResponse": {
