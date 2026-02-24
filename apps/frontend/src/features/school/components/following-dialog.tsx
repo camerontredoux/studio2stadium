@@ -20,7 +20,7 @@ import { Suspense } from "react";
 import { schoolQueries } from "../api/queries";
 
 function UnfavoriteButton({ dancer }: { dancer: FavoritedDancer }) {
-  const { mutate, isPending } = useUnfavoriteDancer(dancer);
+  const { mutate, isPending } = useUnfavoriteDancer(dancer.id);
 
   return (
     <Button

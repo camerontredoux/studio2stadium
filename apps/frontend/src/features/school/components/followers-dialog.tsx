@@ -29,8 +29,8 @@ function FavoriteToggleButton({
   dancer: FavoritedDancer;
   isFavorited: boolean;
 }) {
-  const favoriteMutation = useFavoriteDancer(dancer);
-  const unfavoriteMutation = useUnfavoriteDancer(dancer);
+  const favoriteMutation = useFavoriteDancer(dancer.id);
+  const unfavoriteMutation = useUnfavoriteDancer(dancer.id);
 
   const isPending = favoriteMutation.isPending || unfavoriteMutation.isPending;
 

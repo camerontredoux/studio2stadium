@@ -1,9 +1,9 @@
 import { useCountdown } from "@/components/hooks/use-countdown";
 import { Button } from "@/components/ui/button";
 import { toastManager } from "@/components/ui/toast-manager";
+import { useSaveEvent, useUnsaveEvent } from "@/features/events/api/mutations";
 import { handleApiError } from "@/lib/api/errors";
 import { BookmarkIcon } from "lucide-react";
-import { useSaveEvent, useUnsaveEvent } from "../../api/mutations";
 
 export function SaveEventButton({
   id,
