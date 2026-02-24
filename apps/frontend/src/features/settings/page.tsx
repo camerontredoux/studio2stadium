@@ -63,11 +63,17 @@ export function SettingsPage() {
               : undefined
           }
         >
-          <div className="bg-muted text-brand flex size-9 shrink-0 items-center justify-center rounded-lg">
+          <div
+            className={`bg-muted ${item.label === "Danger" ? "text-destructive-foreground" : "text-brand"} flex size-9 shrink-0 items-center justify-center rounded-lg`}
+          >
             <item.icon className="size-4.5" />
           </div>
           <div className="flex min-w-0 flex-1 flex-col">
-            <span className="text-sm font-medium">{item.label}</span>
+            <span
+              className={`text-sm font-medium ${item.label === "Danger" ? "text-destructive-foreground" : "text-brand"}`}
+            >
+              {item.label}
+            </span>
             <span className="text-muted-foreground text-xs">
               {item.description}
             </span>

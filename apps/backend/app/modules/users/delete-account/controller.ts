@@ -1,3 +1,4 @@
+import { E_BAD_REQUEST } from "#exceptions/bad-request";
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
 import { Service } from "./service.ts";
@@ -7,10 +8,19 @@ export default class DeleteAccountController {
   async handle(ctx: HttpContext, service: Service) {
     const session = ctx.auth.getUserOrFail();
 
-    await service.execute(session.id);
+    try {
+      await service.execute(session.id);
+      await ctx.auth.use("redis").logout();
 
-    await ctx.auth.use("redis").logout();
-
-    return ctx.response.noContent();
+      return ctx.response.noContent();
+    } catch (err) {
+      if (err instanceof Error) {
+        throw new E_BAD_REQUEST(err.message, {
+          cause: err.message,
+          code: "E_DELETE_ACCOUNT_FAILED",
+        });
+      }
+      return ctx.response.internalServerError();
+    }
   }
 }
