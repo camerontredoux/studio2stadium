@@ -67,9 +67,17 @@ type SkillsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/skills/get-skills/controller.ts').default['handle'], false>
 }
+type StripeWebhookPost = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/webhooks/stripe/controller.ts').default['handle'], false>
+}
 type DancersPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/create-dancer/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/create-dancer/controller.ts').default['handle'], true>
+}
+type DancersCheckoutPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/checkout/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/checkout/controller.ts').default['handle'], true>
 }
 type DancersFiltersGetHead = {
   request: unknown
@@ -295,10 +303,22 @@ export interface ApiDefinition {
     '$get': SkillsGetHead;
     '$head': SkillsGetHead;
   };
+  'stripe': {
+    'webhook': {
+      '$url': {
+      };
+      '$post': StripeWebhookPost;
+    };
+  };
   'dancers': {
     '$url': {
     };
     '$post': DancersPost;
+    'checkout': {
+      '$url': {
+      };
+      '$post': DancersCheckoutPost;
+    };
     'filters': {
       '$url': {
       };

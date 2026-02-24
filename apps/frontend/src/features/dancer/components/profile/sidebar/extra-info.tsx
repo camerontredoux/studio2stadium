@@ -8,27 +8,49 @@ import {
 import {
   ClockIcon,
   GraduationCapIcon,
+  InfoIcon,
   School2Icon,
   StarIcon,
   TrophyIcon,
 } from "lucide-react";
 import { type DancerProfile } from "../../../types";
+import { useProfile } from "../context/use-profile";
 
 interface ExtraInfoProps {
   dancer: DancerProfile;
 }
 
 export function ExtraInfo({ dancer }: ExtraInfoProps) {
+  const { showOwnerControls } = useProfile();
+
+  const noInfo =
+    !dancer.trainingHours &&
+    !dancer.highSchool &&
+    !dancer.studio &&
+    !dancer.skillLevel &&
+    !dancer.teamLevel;
+
   return (
     <Frame compact>
       <FrameHeader>
         <FrameTitle className="flex items-center justify-between gap-2">
           Education & Training
-          <Button size="xs">Edit</Button>
+          {showOwnerControls ? (
+            <Button size="xs">Edit</Button>
+          ) : (
+            <div className="h-6 w-fit" />
+          )}
         </FrameTitle>
       </FrameHeader>
       <FramePanel side="bottom">
         <div className="flex min-w-0 flex-col divide-y">
+          {noInfo ? (
+            <ExtraInfoItem
+              icon={<InfoIcon className="size-4 shrink-0" />}
+              label="No information"
+              value="No education or training information"
+            />
+          ) : null}
           {dancer.trainingHours && (
             <ExtraInfoItem
               icon={<ClockIcon className="size-4 shrink-0" />}

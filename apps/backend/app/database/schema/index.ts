@@ -11,4 +11,5 @@ export * from "./schools.ts";
 export * from "./skills.ts";
 export * from "./sports.ts";
 export * from "./styles.ts";
+export * from "./subscriptions.ts";
 export * from "./users.ts";

@@ -13,19 +13,26 @@ import {
   AiOutlineYoutube,
 } from "react-icons/ai";
 import { type DancerProfile } from "../../../types";
+import { useProfile } from "../context/use-profile";
 
 interface ContactInfoProps {
   dancer: DancerProfile;
 }
 
 export function ContactInfo({ dancer }: ContactInfoProps) {
+  const { showOwnerControls } = useProfile();
+
   const phone = dancer.phone ? formatPhoneNumber(dancer.phone) : null;
   return (
     <Frame compact>
       <FrameHeader>
         <FrameTitle className="flex items-center justify-between gap-2">
           Contact Information
-          <Button size="xs">Edit</Button>
+          {showOwnerControls ? (
+            <Button size="xs">Edit</Button>
+          ) : (
+            <div className="h-6 w-fit" />
+          )}
         </FrameTitle>
       </FrameHeader>
       <FramePanel side="bottom">

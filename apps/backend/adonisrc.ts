@@ -59,6 +59,7 @@ export default defineConfig({
     () => import("@adonisjs/mail/mail_provider"),
     () => import("@adonisjs/cache/cache_provider"),
     () => import("@adonisjs/drive/drive_provider"),
+    () => import("#payments/stripe/provider"),
   ],
 
   /*
@@ -73,6 +74,7 @@ export default defineConfig({
     () => import("#start/routes"),
     () => import("#start/kernel"),
     () => import("#start/events"),
+    () => import("#start/payments"),
     {
       file: () => import("#start/cron"),
       environment: ["web"],

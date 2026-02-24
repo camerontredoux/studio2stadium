@@ -459,6 +459,22 @@
         "description": "Returns a list of all skills"
       }
     },
+    "/stripe/webhook": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StripeWebhookResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/dancers": {
       "post": {
         "requestBody": {
@@ -490,6 +506,46 @@
         ],
         "summary": "Create a dancer",
         "description": "Populate account with personal information to finish dancer signup"
+      }
+    },
+    "/dancers/checkout": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DancersCheckoutRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersCheckoutResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Create a checkout session",
+        "description": "Creates a checkout session for the authenticated dancer"
       }
     },
     "/dancers/filters": {
@@ -2390,6 +2446,17 @@
           ]
         }
       },
+      "StripeWebhookResponse": {
+        "type": "object",
+        "properties": {
+          "received": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "received"
+        ]
+      },
       "DancersRequest": {
         "type": "object",
         "properties": {
@@ -2424,6 +2491,32 @@
           "birthday",
           "location",
           "platform"
+        ]
+      },
+      "DancersCheckoutRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "monthly",
+              "yearly"
+            ]
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "DancersCheckoutResponse": {
+        "type": "object",
+        "properties": {
+          "clientSecret": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "clientSecret"
         ]
       },
       "DancersFiltersResponse": {
@@ -2678,24 +2771,8 @@
         "items": {
           "type": "object",
           "properties": {
-            "id": {
-              "type": "string"
-            },
-            "name": {
-              "type": "string"
-            },
-            "location": {
-              "type": "string"
-            },
             "username": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
+              "type": "string"
             },
             "avatar": {
               "oneOf": [
@@ -2706,14 +2783,23 @@
                   "type": "null"
                 }
               ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
             }
           },
           "required": [
+            "username",
+            "avatar",
             "id",
             "name",
-            "location",
-            "username",
-            "avatar"
+            "location"
           ]
         }
       },
@@ -2731,10 +2817,101 @@
       "DancersIdResponse": {
         "type": "object",
         "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "recruitment",
+                    "audition",
+                    "other",
+                    "rehearsal",
+                    "recital",
+                    "showcase",
+                    "competition",
+                    "class",
+                    "intensive",
+                    "workshop",
+                    "fundraiser",
+                    "combine",
+                    "convention",
+                    "clinic",
+                    "deadline",
+                    "performance",
+                    "camp"
+                  ]
+                },
+                "id": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "startDatetime": {
+                  "type": "string"
+                },
+                "endDatetime": {
+                  "type": "string"
+                },
+                "organizer": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "type",
+                "id",
+                "location",
+                "title",
+                "startDatetime",
+                "endDatetime",
+                "organizer"
+              ]
+            }
+          },
           "username": {
             "type": "string"
           },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "id": {
+            "type": "string"
+          },
+          "displayEmail": {
             "type": "string"
           },
           "avatar": {
@@ -2752,6 +2929,46 @@
           },
           "location": {
             "type": "string"
+          },
+          "biography": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "instagram": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tiktok": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "youtube": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "skillLevel": {
             "oneOf": [
@@ -2924,6 +3141,24 @@
               ]
             }
           },
+          "sports": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "slug"
+              ]
+            }
+          },
           "styles": {
             "type": "array",
             "items": {
@@ -2941,14 +3176,79 @@
                 "slug"
               ]
             }
+          },
+          "globalEvents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "recruitment",
+                    "audition",
+                    "other",
+                    "rehearsal",
+                    "recital",
+                    "showcase",
+                    "competition",
+                    "class",
+                    "intensive",
+                    "workshop",
+                    "fundraiser",
+                    "combine",
+                    "convention",
+                    "clinic",
+                    "deadline",
+                    "performance",
+                    "camp"
+                  ]
+                },
+                "id": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "startDatetime": {
+                  "type": "string"
+                },
+                "endDatetime": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "id",
+                "location",
+                "title",
+                "startDatetime",
+                "endDatetime"
+              ]
+            }
+          },
+          "subscribed": {
+            "type": "boolean"
           }
         },
         "required": [
+          "events",
           "username",
+          "firstName",
+          "lastName",
+          "phone",
           "id",
+          "displayEmail",
           "avatar",
           "birthday",
           "location",
+          "biography",
+          "instagram",
+          "tiktok",
+          "youtube",
           "skillLevel",
           "teamLevel",
           "highSchool",
@@ -2959,7 +3259,10 @@
           "achievements",
           "references",
           "skills",
-          "styles"
+          "sports",
+          "styles",
+          "globalEvents",
+          "subscribed"
         ]
       },
       "DancersIdFavoriteResponse": {

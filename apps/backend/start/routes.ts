@@ -9,3 +9,4 @@ import "#modules/library/routes";
 import "#modules/schools/routes";
 import "#modules/skills/routes";
 import "#modules/users/routes";
+import "#modules/webhooks/routes";

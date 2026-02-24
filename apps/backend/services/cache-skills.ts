@@ -1,7 +1,7 @@
 import { db } from "#database/connection";
 import { sql } from "drizzle-orm";
 
-export default class CacheSkillsCommand {
+export default class CacheSkillsService {
   async run() {
     await db.execute(sql`
       INSERT INTO skill_rarity (skill_id, rarity, count, updated_at)

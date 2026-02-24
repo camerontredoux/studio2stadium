@@ -25,6 +25,8 @@
     "@radix-ui/react-direction": "^1.1.1",
     "@radix-ui/react-popover": "^1.1.15",
     "@radix-ui/react-slot": "^1.2.4",
+    "@stripe/react-stripe-js": "^5.6.0",
+    "@stripe/stripe-js": "^8.8.0",
     "@t3-oss/env-core": "^0.13.10",
     "@tanstack/match-sorter-utils": "^8.19.4",
     "@tanstack/pacer": "^0.17.3",

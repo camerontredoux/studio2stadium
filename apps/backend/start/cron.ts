@@ -1,7 +1,7 @@
 import { CronJob } from "cron";
-import CacheSkillsCommand from "../services/cache-skills.ts";
+import CacheSkillsService from "../services/cache-skills.ts";
 
-const service = new CacheSkillsCommand();
+const service = new CacheSkillsService();
 
 new CronJob("0 * * * *", async () => {
   console.log("[Cron]: Staring cron job for skill rarity cache");

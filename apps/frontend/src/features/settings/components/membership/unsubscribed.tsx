@@ -7,6 +7,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { Link } from "@tanstack/react-router";
 import { SparklesIcon } from "lucide-react";
 
 export function Unsubscribed() {
@@ -24,7 +25,11 @@ export function Unsubscribed() {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button variant="outline" className="border-brand text-brand">
+          <Button
+            variant="outline"
+            className="border-brand text-brand"
+            render={<Link to="/checkout" />}
+          >
             Upgrade to Premium
           </Button>
         </EmptyContent>

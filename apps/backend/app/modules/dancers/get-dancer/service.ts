@@ -12,11 +12,14 @@ export class Service {
 
     const { dancerProfile, ...user } = dancer;
 
+    const { subscription, ...rest } = user;
+
     if (!dancerProfile) return null;
 
     return {
-      ...user,
+      ...rest,
       ...dancerProfile,
+      subscribed: !!subscription,
     };
   }
 
@@ -38,6 +41,43 @@ export class Service {
           lastName: true,
         },
         with: {
+          events: {
+            columns: {
+              id: true,
+              title: true,
+              startDatetime: true,
+              endDatetime: true,
+              location: true,
+              type: true,
+            },
+            with: {
+              organizer: {
+                columns: {
+                  name: true,
+                },
+              },
+            },
+          },
+          globalEvents: {
+            columns: {
+              id: true,
+              title: true,
+              startDatetime: true,
+              endDatetime: true,
+              location: true,
+              type: true,
+            },
+          },
+          subscription: {
+            where: {
+              currentPeriodEnd: {
+                gt: new Date(),
+              },
+            },
+            columns: {
+              id: true,
+            },
+          },
           dancerProfile: {
             columns: {
               id: true,

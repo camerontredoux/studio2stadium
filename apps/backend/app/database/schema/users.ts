@@ -1,10 +1,5 @@
 import * as pg from "drizzle-orm/pg-core";
-import {
-  accountType,
-  platformName,
-  role,
-  subscriptionSource,
-} from "./enums.ts";
+import { accountType, platformName, role } from "./enums.ts";
 import { citext, timestamps } from "./helpers/columns.ts";
 
 export const users = pg.pgTable(
@@ -43,29 +38,6 @@ export const userActivities = pg.pgTable(
   (table) => [
     pg.index().on(table.userId, table.createdAt),
     pg.index().on(table.createdAt, table.eventType),
-  ]
-);
-
-export const subscriptions = pg.pgTable(
-  "user_subscriptions",
-  {
-    id: pg.uuid().primaryKey().defaultRandom(),
-    userId: pg
-      .uuid()
-      .notNull()
-      .unique()
-      .references(() => users.id, { onDelete: "cascade" }),
-    source: subscriptionSource().notNull(),
-    subscriptionId: pg.text().notNull().unique(),
-    customerId: pg.text().notNull().unique(),
-    cancelAtPeriodEnd: pg.boolean().notNull().default(false),
-    currentPeriodEnd: pg.timestamp({ withTimezone: true }),
-    canceledAt: pg.timestamp({ withTimezone: true }),
-    ...timestamps,
-  },
-  (table) => [
-    pg.index().on(table.userId),
-    pg.index().on(table.currentPeriodEnd),
   ]
 );
 

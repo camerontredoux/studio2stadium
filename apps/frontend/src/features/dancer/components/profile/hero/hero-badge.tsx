@@ -1,3 +1,9 @@
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { cn } from "@/components/utils/cn";
 
 export function HeroBadge({
@@ -10,16 +16,15 @@ export function HeroBadge({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "group flex w-full flex-1 flex-col items-center gap-1 rounded-lg border px-2 py-1 sm:w-20 sm:px-4 sm:py-2",
-        className,
-      )}
-    >
-      <span className="text-muted-foreground group-hover:text-brand text-sm">
-        {label}
-      </span>
-      <span className="text-sm">{value ?? "-"}</span>
-    </div>
+    <Card className={cn("flex-1 py-1! text-center", className)}>
+      <CardHeader>
+        <CardTitle className="text-muted-foreground group-hover:text-brand text-sm">
+          {label}
+        </CardTitle>
+        <CardDescription className="text-primary text-sm">
+          {value ?? "-"}
+        </CardDescription>
+      </CardHeader>
+    </Card>
   );
 }

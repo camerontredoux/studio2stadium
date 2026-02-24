@@ -2,6 +2,7 @@ import { middleware } from "#start/kernel";
 import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
 
+const CheckoutController = () => import("./checkout/controller.ts");
 const GetSubmissionVideoController = () =>
   import("./get-submission-video/controller.ts");
 const GetSubmissionSchoolsController = () =>
@@ -32,6 +33,11 @@ router
       summary: "Create a dancer",
       description:
         "Populate account with personal information to finish dancer signup",
+    });
+
+    router.post("checkout", [CheckoutController]).openapi({
+      summary: "Create a checkout session",
+      description: "Creates a checkout session for the authenticated dancer",
     });
 
     router.get("filters", [GetFiltersController]).openapi({
@@ -105,7 +111,7 @@ router
         summary: "Favorite a dancer",
         description: "Adds a dancer to the school's favorites list.",
       })
-      .use([middleware.school(), throttle("favorite")]);
+      .use([throttle("favorite", 60), middleware.school()]);
 
     router
       .delete(":id/favorite", [UnfavoriteDancerController])
@@ -113,7 +119,7 @@ router
         summary: "Unfavorite a dancer",
         description: "Removes a dancer from the school's favorites list.",
       })
-      .use([middleware.school(), throttle("unfavorite")]);
+      .use([throttle("unfavorite", 60), middleware.school()]);
 
     router
       .get(":id/metadata", [GetMetadataController])

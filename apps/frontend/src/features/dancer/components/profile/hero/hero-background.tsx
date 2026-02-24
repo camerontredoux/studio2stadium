@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Share2Icon } from "lucide-react";
+import { useProfile } from "../context/use-profile";
 
-export function HeroBackground({ visible }: { visible: boolean }) {
+export function HeroBackground() {
+  const { showOwnerControls } = useProfile();
+
   return (
     <div className="relative isolate transform-gpu overflow-clip sm:border-b">
       <img
@@ -11,15 +14,15 @@ export function HeroBackground({ visible }: { visible: boolean }) {
       />
       <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/70 via-black/20 to-transparent" />
 
-      {visible && (
+      {showOwnerControls ? (
         <Button
-          className="absolute top-3 right-3 flex items-center gap-2"
+          className="absolute top-3 right-3 flex items-center gap-2 text-white"
           size="xs"
           variant="ghost"
         >
           <Share2Icon /> Share
         </Button>
-      )}
+      ) : null}
     </div>
   );
 }

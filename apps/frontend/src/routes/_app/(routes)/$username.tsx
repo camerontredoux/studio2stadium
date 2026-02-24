@@ -4,7 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/$username")({
   validateSearch: (search: Record<string, unknown>) =>
-    search as { mode: "preview" | undefined },
+    search as { mode?: "preview" | undefined },
   beforeLoad: ({ context: { access }, params }) => {
     access.guard(access.is("core", "school"), access.self(params.username));
   },

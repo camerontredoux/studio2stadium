@@ -8,21 +8,20 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Separator } from "@/components/ui/separator";
 import { useSession } from "@/lib/session";
-import { queries } from "@/shared/api/queries";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useSearch } from "@tanstack/react-router";
 import { CalendarIcon } from "lucide-react";
-import { Suspense } from "react";
 import { dancerQueries } from "./api/queries";
-import { DancerFollowingDialog } from "./components/following-dialog";
-import { DancerAbout } from "./components/profile/dancer-about";
-import { FavoriteSection } from "./components/profile/favorite-section";
+import { Achievements } from "./components/profile/achievements";
+import { Biography } from "./components/profile/biography";
+import { ProfileProvider } from "./components/profile/context/profile-provider";
+import { Events } from "./components/profile/events";
 import { DancerHero } from "./components/profile/hero";
+import { References } from "./components/profile/references";
 import { ContactInfo } from "./components/profile/sidebar/contact-info";
 import { ExtraInfo } from "./components/profile/sidebar/extra-info";
-import { SkillsList } from "./components/profile/skills-list";
+import { Submission } from "./components/profile/submission";
 
 interface DancerPageProps {
   username: string;
@@ -36,7 +35,6 @@ export function DancerPage({ username }: DancerPageProps) {
   });
 
   const { data } = useSuspenseQuery(dancerQueries.profile(username));
-  const { data: activity } = useQuery(queries.activity());
 
   const visible = session.username === username;
 
@@ -59,38 +57,44 @@ export function DancerPage({ username }: DancerPageProps) {
     );
   }
 
+  const isOwner = visible;
+  const isPreview = mode === "preview";
+
   return (
-    <SidebarLayout
-      sidebar={
-        <>
-          <ContactInfo dancer={data} />
-          <ExtraInfo dancer={data} />
-        </>
-      }
-      tabs={{ contentLabel: "Profile", sidebarLabel: "Extra" }}
-    >
-      <div className="mobile:pb-14 flex flex-col gap-3 lg:gap-4">
-        <div className="flex flex-col gap-3 lg:gap-4">
-          <DancerHero visible={visible} mode={mode} dancer={data} />
+    <ProfileProvider isOwner={isOwner} isPreview={isPreview}>
+      <SidebarLayout
+        sidebar={
+          <>
+            <ContactInfo dancer={data} />
+            <ExtraInfo dancer={data} />
+          </>
+        }
+        tabs={{ contentLabel: "Profile", sidebarLabel: "Extra" }}
+      >
+        <div className="mobile:pb-14 flex flex-col gap-3 lg:gap-4">
+          <div className="flex flex-col gap-3 lg:gap-4">
+            <DancerHero dancer={data} />
 
-          <DancerAbout description={data.biography} />
+            <Biography description={data.biography} />
+            <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
+              <Achievements achievements={data.achievements} />
+              <References references={data.references} />
+            </div>
+            {data.subscribed ? (
+              <>
+                <Submission />
+                <Events events={data.events} />
+              </>
+            ) : null}
 
-          <Separator className="my-2" />
-
-          <div>
-            {session.type === "school" && <FavoriteSection dancer={data} />}
-            <DancerFollowingDialog>
-              <Button>{activity?.following} Following</Button>
-            </DancerFollowingDialog>
-            <Suspense fallback={<div>Loading...</div>}>
-              <SkillsList />
-            </Suspense>
-            <pre className="max-w-full wrap-break-word whitespace-pre-wrap">
-              {JSON.stringify({ session, data }, null, 2)}
-            </pre>
+            <div>
+              <pre className="max-w-full wrap-break-word whitespace-pre-wrap">
+                {JSON.stringify(data, null, 2)}
+              </pre>
+            </div>
           </div>
         </div>
-      </div>
-    </SidebarLayout>
+      </SidebarLayout>
+    </ProfileProvider>
   );
 }

@@ -76,4 +76,14 @@ export default await Env.create(new URL("../", import.meta.url), {
   */
   DRIVE_DISK: Env.schema.enum(["s3"] as const),
   S3_BUCKET: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for Stripe integration
+  |----------------------------------------------------------
+  */
+  STRIPE_API_KEY: Env.schema.string(),
+  STRIPE_WEBHOOK_SECRET: Env.schema.string.optional(),
+  STRIPE_PRICE_ID_MONTHLY: Env.schema.string(),
+  STRIPE_PRICE_ID_YEARLY: Env.schema.string(),
 });

@@ -12,7 +12,7 @@ export function Subscribed() {
             backgroundImage: `url('https://marketing.studio2stadium.com/_astro/partners.DL9k8Vh1_1wBFw5.webp')`,
           }}
         />
-        <div className="from-background/90 via-background/70 to-background/50 absolute inset-0 bg-linear-to-r" />
+        <div className="absolute inset-0 bg-linear-to-r from-black/80 via-black/60 to-black/50 max-sm:backdrop-blur-sm" />
 
         <div className="relative flex flex-col gap-4 p-6 text-white sm:p-8 lg:p-10">
           <Badge variant="brand" className="w-fit">

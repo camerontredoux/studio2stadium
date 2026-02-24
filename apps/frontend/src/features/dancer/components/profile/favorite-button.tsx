@@ -3,15 +3,15 @@ import { Button } from "@/components/ui/button";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
 import { useFavoriteDancer, useUnfavoriteDancer } from "@/shared/api/mutations";
+import { useQuery } from "@tanstack/react-query";
 import { HeartIcon } from "lucide-react";
+import { dancerQueries } from "../../api/queries";
 
-export function FavoriteButton({
-  dancerId,
-  isFavorited,
-}: {
-  dancerId: string;
-  isFavorited: boolean;
-}) {
+export function FavoriteButton({ dancerId }: { dancerId: string }) {
+  const { data } = useQuery(dancerQueries.metadata(dancerId));
+
+  const isFavorited = data?.favorited ?? false;
+
   const { mutate: favorite } = useFavoriteDancer(dancerId);
   const { mutate: unfavorite } = useUnfavoriteDancer(dancerId);
 

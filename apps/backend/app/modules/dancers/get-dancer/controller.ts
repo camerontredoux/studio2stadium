@@ -1,5 +1,6 @@
 import { E_BAD_REQUEST } from "#exceptions/bad-request";
 import { E_FORBIDDEN } from "#exceptions/forbidden";
+import cache from "@adonisjs/cache/services/main";
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
 import { Service } from "./service.ts";
@@ -11,16 +12,30 @@ export default class GetDancerController {
     const { params } = await ctx.request.validateUsing(validator);
     const session = ctx.auth.getUserOrFail();
 
-    if (session.username !== params.username && session.type !== "school") {
-      if (session.role !== "admin") {
+    if (session.username !== params.username && session.role !== "admin") {
+      if (session.type !== "school") {
         throw new E_FORBIDDEN("You are not authorized to view this profile");
       }
+
+      const user = await cache.getOrSet({
+        key: `dancers:profile:${params.username}`,
+        factory: () => service.execute(params.username),
+        ttl: "10m",
+      });
+
+      if (!user) {
+        throw new E_BAD_REQUEST("Dancer profile not found", {
+          username: params.username,
+        });
+      }
+
+      return ctx.response.ok(user);
     }
 
     const user = await service.execute(params.username);
 
     if (!user) {
-      throw new E_BAD_REQUEST("Dancer not found", {
+      throw new E_BAD_REQUEST("Dancer profile not found", {
         username: params.username,
       });
     }

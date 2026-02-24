@@ -42,6 +42,7 @@ router.use([
  * the routes or the routes group.
  */
 export const middleware = router.named({
+  verifyStripeWebhook: () => import("#middleware/routes/verify-stripe-webhook"),
   auth: () => import("#middleware/routes/authenticated"),
   dancer: () => import("#middleware/routes/dancer"),
   school: () => import("#middleware/routes/school"),

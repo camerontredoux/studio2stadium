@@ -40,7 +40,8 @@
     "#tests/*": "./tests/*.js",
     "#config/*": "./config/*.js",
     "#auth/*": "./app/auth/*.js",
-    "#shared/*": "./app/shared/*.js"
+    "#shared/*": "./app/shared/*.js",
+    "#payments/*": "./app/payments/*.js"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^7.8.2",
@@ -83,13 +84,15 @@
     "@aws-sdk/s3-request-presigner": "^3.958.0",
     "@stos/openapi": "workspace:*",
     "@tuyau/core": "^0.4.2",
+    "@vbusatta/adonis-stripe": "^0.2.1",
     "@vinejs/vine": "^4.1.0",
     "argon2": "^0.43.0",
     "cron": "^4.4.0",
     "drizzle-orm": "1.0.0-beta.12-a5629fb",
     "luxon": "^3.7.2",
     "postgres": "^3.4.8",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "stripe": "^20.3.1"
   },
   "hotHook": {
     "boundaries": [

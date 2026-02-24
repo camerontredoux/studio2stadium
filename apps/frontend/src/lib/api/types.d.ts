@@ -653,6 +653,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/stripe/webhook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["StripeWebhookResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dancers": {
         parameters: {
             query?: never;
@@ -685,6 +720,58 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/checkout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a checkout session
+         * @description Creates a checkout session for the authenticated dancer
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersCheckoutRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersCheckoutResponse"];
+                    };
                 };
                 /** @description Unprocessable Entity */
                 422: {
@@ -2399,12 +2486,22 @@ export interface components {
             slug: string;
             category: string;
         }[];
+        StripeWebhookResponse: {
+            received: boolean;
+        };
         DancersRequest: {
             phoneNumber?: string | null;
             birthday: string | number;
             location: string;
             /** @enum {string} */
             platform: "prodigy" | "core";
+        };
+        DancersCheckoutRequest: {
+            /** @enum {string} */
+            type: "monthly" | "yearly";
+        };
+        DancersCheckoutResponse: {
+            clientSecret: string;
         };
         DancersFiltersResponse: {
             /** @enum {string} */
@@ -2466,6 +2563,18 @@ export interface components {
             youtubeId: string;
         };
         DancersIdResponse: {
+            events: {
+                /** @enum {string} */
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                id: string;
+                location: string;
+                title: string;
+                startDatetime: string;
+                endDatetime: string;
+                organizer: {
+                    name: string;
+                } | null;
+            }[];
             username: string;
             firstName: string;
             lastName: string;
@@ -2475,6 +2584,7 @@ export interface components {
             avatar: string | null;
             birthday: string;
             location: string;
+            biography: string | null;
             instagram: string | null;
             tiktok: string | null;
             youtube: string | null;
@@ -2515,6 +2625,16 @@ export interface components {
                 name: string;
                 slug: string;
             }[];
+            globalEvents: {
+                /** @enum {string} */
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                id: string;
+                location: string;
+                title: string;
+                startDatetime: string;
+                endDatetime: string;
+            }[];
+            subscribed: boolean;
         };
         DancersIdFavoriteResponse: {
             created: boolean;
