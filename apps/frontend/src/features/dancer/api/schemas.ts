@@ -37,4 +37,9 @@ export const schemas = {
     title: z.string().min(1, "Title is required").max(128),
     description: z.string().min(1, "Description is required").max(512),
   }),
+  createReference: z.object({
+    name: z.string().min(1, "Name is required").max(128),
+    title: z.string().min(1, "Title is required").max(128),
+    description: z.string().min(1, "Description is required").max(512),
+  }),
 } as const;

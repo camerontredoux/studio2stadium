@@ -81,7 +81,7 @@ export function DancerPage({ username }: DancerPageProps) {
                 achievements={data.achievements}
                 username={username}
               />
-              <References references={data.references} />
+              <References references={data.references} username={username} />
             </div>
             {data.subscribed ? (
               <>
