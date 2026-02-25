@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Frame,
   FrameHeader,
@@ -14,6 +13,7 @@ import {
 } from "react-icons/ai";
 import { type DancerProfile } from "../../../types";
 import { useProfile } from "../context/use-profile";
+import { ContactDialog } from "../edit/contact-dialog";
 
 interface ContactInfoProps {
   dancer: DancerProfile;
@@ -32,7 +32,7 @@ export function ContactInfo({ dancer }: ContactInfoProps) {
         <FrameTitle className="flex items-center justify-between gap-2">
           Contact Information
           {showOwnerControls ? (
-            <Button size="xs">Edit</Button>
+            <ContactDialog username={dancer.username} />
           ) : (
             <div className="h-6 w-fit" />
           )}

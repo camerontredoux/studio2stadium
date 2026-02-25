@@ -13,23 +13,21 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { useUpdateProfile } from "@/features/dancer/api/mutations";
-import { makeBirthday } from "@/utils/birthday";
 import * as React from "react";
-import { EditForm, type EditFormData } from "./edit-form";
+import { ContactForm, type ContactFormData } from "./contact-form";
 
-export function EditDialog({ username }: { username: string }) {
+export function ContactDialog({ username }: { username: string }) {
   const [open, setOpen] = React.useState(false);
   const { mutate, isPending } = useUpdateProfile(username);
 
-  const handleSubmit = (data: EditFormData) => {
-    const birthday = makeBirthday(data.birthday);
+  const handleSubmit = (data: ContactFormData) => {
     mutate(
-      { body: { ...data, birthday } },
+      { body: data },
       {
         onSuccess: () => {
           toastManager.add({
             title: "Success",
-            description: "Profile updated",
+            description: "Contact information updated",
             type: "success",
           });
           setOpen(false);
@@ -40,22 +38,22 @@ export function EditDialog({ username }: { username: string }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="xs" />}>Edit Profile</DialogTrigger>
+      <DialogTrigger render={<Button size="xs" />}>Edit</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Profile</DialogTitle>
+          <DialogTitle>Edit Contact Information</DialogTitle>
           <DialogDescription>
-            Make changes to your portfolio information here.
+            Update your social media links and contact details.
           </DialogDescription>
         </DialogHeader>
         <DialogPanel>
-          <EditForm username={username} onSubmit={handleSubmit} />
+          <ContactForm username={username} onSubmit={handleSubmit} />
         </DialogPanel>
         <DialogFooter>
           <DialogClose render={<Button variant="secondary" />}>
             Cancel
           </DialogClose>
-          <Button type="submit" form="edit-profile-form" disabled={isPending}>
+          <Button type="submit" form="edit-contact-form" disabled={isPending}>
             {isPending ? <Spinner label="Saving..." /> : "Save"}
           </Button>
         </DialogFooter>

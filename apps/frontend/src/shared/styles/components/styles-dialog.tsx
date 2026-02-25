@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
 import { useState } from "react";
 import { StylesList } from "./styles-list";
 
@@ -72,7 +73,7 @@ export function StylesDialog({
             Cancel
           </DialogClose>
           <Button onClick={handleSave} disabled={isPending}>
-            {isPending ? "Saving..." : "Save"}
+            {isPending ? <Spinner label="Saving..." /> : "Save"}
           </Button>
         </DialogFooter>
       </DialogContent>

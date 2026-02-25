@@ -40,6 +40,14 @@ const CreateSubmissionController = () =>
   import("./common-recruiting/create-submission/controller.ts");
 const GetChecklistController = () =>
   import("./profile/get-profile-checklist/controller.ts");
+const CreateReferenceController = () =>
+  import("./profile/create-reference/controller.ts");
+const CreateAchievementController = () =>
+  import("./profile/create-achievement/controller.ts");
+const DeleteAchievementController = () =>
+  import("./profile/delete-achievement/controller.ts");
+const DeleteReferenceController = () =>
+  import("./profile/delete-reference/controller.ts");
 
 router
   .group(() => {
@@ -100,6 +108,24 @@ router
           summary: "Get dancer profile checklist",
           description: "Returns the dancer's profile checklist",
         });
+        router.post("references", [CreateReferenceController]).openapi({
+          summary: "Create a reference",
+          description: "Creates a reference for the authenticated dancer",
+        });
+        router.delete("references/:id", [DeleteReferenceController]).openapi({
+          summary: "Delete a reference",
+          description: "Deletes a reference for the authenticated dancer",
+        });
+        router.post("achievements", [CreateAchievementController]).openapi({
+          summary: "Create an achievement",
+          description: "Creates an achievement for the authenticated dancer",
+        });
+        router
+          .delete("achievements/:id", [DeleteAchievementController])
+          .openapi({
+            summary: "Delete an achievement",
+            description: "Deletes an achievement for the authenticated dancer",
+          });
       })
       .prefix("me")
       .use(middleware.dancer());

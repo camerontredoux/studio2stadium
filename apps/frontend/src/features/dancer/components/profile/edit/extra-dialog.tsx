@@ -13,23 +13,21 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { useUpdateProfile } from "@/features/dancer/api/mutations";
-import { makeBirthday } from "@/utils/birthday";
 import * as React from "react";
-import { EditForm, type EditFormData } from "./edit-form";
+import { ExtraForm, type ExtraFormData } from "./extra-form";
 
-export function EditDialog({ username }: { username: string }) {
+export function ExtraDialog({ username }: { username: string }) {
   const [open, setOpen] = React.useState(false);
   const { mutate, isPending } = useUpdateProfile(username);
 
-  const handleSubmit = (data: EditFormData) => {
-    const birthday = makeBirthday(data.birthday);
+  const handleSubmit = (data: ExtraFormData) => {
     mutate(
-      { body: { ...data, birthday } },
+      { body: data },
       {
         onSuccess: () => {
           toastManager.add({
             title: "Success",
-            description: "Profile updated",
+            description: "Education & training updated",
             type: "success",
           });
           setOpen(false);
@@ -40,22 +38,22 @@ export function EditDialog({ username }: { username: string }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="xs" />}>Edit Profile</DialogTrigger>
+      <DialogTrigger render={<Button size="xs" />}>Edit</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Profile</DialogTitle>
+          <DialogTitle>Edit Education & Training</DialogTitle>
           <DialogDescription>
-            Make changes to your portfolio information here.
+            Update your education and training information.
           </DialogDescription>
         </DialogHeader>
         <DialogPanel>
-          <EditForm username={username} onSubmit={handleSubmit} />
+          <ExtraForm username={username} onSubmit={handleSubmit} />
         </DialogPanel>
         <DialogFooter>
           <DialogClose render={<Button variant="secondary" />}>
             Cancel
           </DialogClose>
-          <Button type="submit" form="edit-profile-form" disabled={isPending}>
+          <Button type="submit" form="edit-extra-form" disabled={isPending}>
             {isPending ? <Spinner label="Saving..." /> : "Save"}
           </Button>
         </DialogFooter>

@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Frame,
   FrameHeader,
@@ -15,6 +14,7 @@ import {
 } from "lucide-react";
 import { type DancerProfile } from "../../../types";
 import { useProfile } from "../context/use-profile";
+import { ExtraDialog } from "../edit/extra-dialog";
 
 interface ExtraInfoProps {
   dancer: DancerProfile;
@@ -36,7 +36,7 @@ export function ExtraInfo({ dancer }: ExtraInfoProps) {
         <FrameTitle className="flex items-center justify-between gap-2">
           Education & Training
           {showOwnerControls ? (
-            <Button size="xs">Edit</Button>
+            <ExtraDialog username={dancer.username} />
           ) : (
             <div className="h-6 w-fit" />
           )}
@@ -51,41 +51,41 @@ export function ExtraInfo({ dancer }: ExtraInfoProps) {
               value="No education or training information"
             />
           ) : null}
-          {dancer.trainingHours && (
+          {dancer.trainingHours ? (
             <ExtraInfoItem
               icon={<ClockIcon className="size-4 shrink-0" />}
               label="Training Hours"
               value={`${dancer.trainingHours.toString()} hours per week`}
             />
-          )}
-          {dancer.highSchool && (
+          ) : null}
+          {dancer.highSchool ? (
             <ExtraInfoItem
               icon={<GraduationCapIcon className="size-4 shrink-0" />}
               label="High School"
               value={dancer.highSchool}
             />
-          )}
-          {dancer.studio && (
+          ) : null}
+          {dancer.studio ? (
             <ExtraInfoItem
               icon={<School2Icon className="size-4 shrink-0" />}
               label="Dance Studio"
               value={dancer.studio}
             />
-          )}
-          {dancer.skillLevel && (
+          ) : null}
+          {dancer.skillLevel ? (
             <ExtraInfoItem
               icon={<StarIcon className="size-4 shrink-0" />}
               label="Skill Level"
               value={dancer.skillLevel}
             />
-          )}
-          {dancer.teamLevel && (
+          ) : null}
+          {dancer.teamLevel ? (
             <ExtraInfoItem
               icon={<TrophyIcon className="size-4 shrink-0" />}
               label="Team Level"
               value={dancer.teamLevel}
             />
-          )}
+          ) : null}
         </div>
       </FramePanel>
     </Frame>

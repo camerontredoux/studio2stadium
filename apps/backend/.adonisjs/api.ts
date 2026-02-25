@@ -143,6 +143,22 @@ type DancersMeChecklistGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/profile/get-profile-checklist/controller.ts').default['handle'], false>
 }
+type DancersMeReferencesPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/create-reference/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/create-reference/controller.ts').default['handle'], true>
+}
+type DancersMeReferencesIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/delete-reference/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/delete-reference/controller.ts').default['handle'], true>
+}
+type DancersMeAchievementsPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/create-achievement/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/create-achievement/controller.ts').default['handle'], true>
+}
+type DancersMeAchievementsIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/delete-achievement/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/delete-achievement/controller.ts').default['handle'], true>
+}
 type DancersSubmissionsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/common-recruiting/get-submissions/controller.ts').default['handle'], false>
@@ -436,6 +452,26 @@ export interface ApiDefinition {
         };
         '$get': DancersMeChecklistGetHead;
         '$head': DancersMeChecklistGetHead;
+      };
+      'references': {
+        '$url': {
+        };
+        '$post': DancersMeReferencesPost;
+        ':id': {
+          '$url': {
+          };
+          '$delete': DancersMeReferencesIdDelete;
+        };
+      };
+      'achievements': {
+        '$url': {
+        };
+        '$post': DancersMeAchievementsPost;
+        ':id': {
+          '$url': {
+          };
+          '$delete': DancersMeAchievementsIdDelete;
+        };
       };
     };
     'submissions': {

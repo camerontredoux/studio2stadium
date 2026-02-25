@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
 import type { ButtonProps } from "@base-ui/react";
 import { useState } from "react";
 import { SkillsList } from "./skills-list";
@@ -81,7 +82,7 @@ export function SkillsDialog({
             Cancel
           </DialogClose>
           <Button onClick={handleSave} disabled={isPending}>
-            {isPending ? "Saving..." : "Save"}
+            {isPending ? <Spinner label="Saving..." /> : "Save"}
           </Button>
         </DialogFooter>
       </DialogContent>
