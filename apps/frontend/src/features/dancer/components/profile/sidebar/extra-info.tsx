@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import {
   Frame,
   FrameHeader,
@@ -8,6 +9,7 @@ import {
   ClockIcon,
   GraduationCapIcon,
   InfoIcon,
+  MedalIcon,
   School2Icon,
   TrophyIcon,
 } from "lucide-react";
@@ -26,7 +28,8 @@ export function ExtraInfo({ dancer }: ExtraInfoProps) {
     !dancer.trainingHours &&
     !dancer.highSchool &&
     !dancer.studio &&
-    !dancer.teamLevel;
+    !dancer.teamLevel &&
+    (!dancer.sports || dancer.sports.length === 0);
 
   return (
     <Frame>
@@ -76,6 +79,27 @@ export function ExtraInfo({ dancer }: ExtraInfoProps) {
               label="Team Level"
               value={dancer.teamLevel}
             />
+          ) : null}
+          {dancer.sports && dancer.sports.length > 0 ? (
+            <div className="hover:bg-accent/50 flex flex-col gap-2 px-4 py-2">
+              <div className="flex items-center gap-2">
+                <span className="text-brand">
+                  <MedalIcon className="size-4 shrink-0" />
+                </span>
+                <span className="text-sm">Sports</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {dancer.sports.map((sport) => (
+                  <Badge
+                    key={sport.slug}
+                    variant="brand"
+                    className="rounded-full"
+                  >
+                    {sport.name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
           ) : null}
         </div>
       </FramePanel>

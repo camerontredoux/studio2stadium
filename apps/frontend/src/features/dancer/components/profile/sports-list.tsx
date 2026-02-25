@@ -5,9 +5,15 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useUpdateSports } from "../../api/mutations";
 import { dancerQueries } from "../../api/queries";
 
-export function SportsList({ render }: { render: React.ReactElement }) {
+export function SportsList({
+  render,
+  username,
+}: {
+  render: React.ReactElement;
+  username?: string;
+}) {
   const { data } = useSuspenseQuery(dancerQueries.sports());
-  const { mutateAsync, isPending } = useUpdateSports();
+  const { mutateAsync, isPending } = useUpdateSports(username);
 
   const selectedSportIds = data.map((sport) => sport.sportId);
 

@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,6 +14,7 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { dancerQueries } from "../../../api/queries";
 import { schemas } from "../../../api/schemas";
+import { SportsList } from "../sports-list";
 
 export type ExtraFormData = z.infer<typeof schemas.updateExtra>;
 
@@ -41,28 +43,45 @@ export function ExtraForm({ username, onSubmit }: ExtraFormProps) {
         className="flex w-full flex-col gap-3"
         onSubmit={(e) => form.handleSubmit(onSubmit)(e)}
       >
-        <Controller
-          control={form.control}
-          name="trainingHours"
-          render={({ field: { value, onChange, ...field }, fieldState }) => (
-            <Field name={field.name} invalid={fieldState.invalid}>
-              <FieldLabel>Training Hours (per week)</FieldLabel>
-              <NumberField
-                value={value as number | undefined}
-                onValueChange={(val) => onChange(val)}
-                min={0}
-                max={168}
-              >
-                <NumberFieldGroup>
-                  <NumberFieldDecrement />
-                  <NumberFieldInput />
-                  <NumberFieldIncrement />
-                </NumberFieldGroup>
-              </NumberField>
-              <FieldError error={fieldState.error} />
-            </Field>
-          )}
-        />
+        <div className="flex items-center gap-2">
+          <Controller
+            control={form.control}
+            name="trainingHours"
+            render={({ field: { value, onChange, ...field }, fieldState }) => (
+              <Field name={field.name} invalid={fieldState.invalid}>
+                <FieldLabel>Training Hours (per week)</FieldLabel>
+                <NumberField
+                  value={value as number | undefined}
+                  onValueChange={(val) => onChange(val)}
+                  min={0}
+                  max={168}
+                >
+                  <NumberFieldGroup>
+                    <NumberFieldDecrement />
+                    <NumberFieldInput />
+                    <NumberFieldIncrement />
+                  </NumberFieldGroup>
+                </NumberField>
+                <FieldError error={fieldState.error} />
+              </Field>
+            )}
+          />
+          <Field name="sports">
+            <FieldLabel>Sports</FieldLabel>
+            <SportsList
+              username={username}
+              render={
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start"
+                >
+                  Select your sports
+                </Button>
+              }
+            />
+          </Field>
+        </div>
         <Controller
           control={form.control}
           name="highSchool"

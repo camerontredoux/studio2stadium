@@ -53,6 +53,7 @@ export function ProfileChecklist() {
             }
           />
           <SportsList
+            username={session.username}
             render={
               <Button
                 disabled={data.sports}

@@ -35,6 +35,13 @@ export function SkillsList({ username, ...props }: SkillsListProps) {
               type: "error",
             });
           },
+          onValidation: (_, message) => {
+            toastManager.add({
+              title: "Error",
+              description: message,
+              type: "error",
+            });
+          },
         }),
       },
     );

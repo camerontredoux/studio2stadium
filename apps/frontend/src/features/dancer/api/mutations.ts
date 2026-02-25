@@ -26,10 +26,16 @@ export function useUpdateStyles() {
   });
 }
 
-export function useUpdateSports() {
+export function useUpdateSports(profileUsername?: string) {
   return $api.useMutation("patch", "/dancers/me/sports", {
     meta: {
-      invalidateQueries: [dancerQueries.sports().queryKey, checklistKey],
+      invalidateQueries: [
+        dancerQueries.sports().queryKey,
+        checklistKey,
+        ...(profileUsername
+          ? [dancerQueries.profile(profileUsername).queryKey]
+          : []),
+      ],
     },
   });
 }
