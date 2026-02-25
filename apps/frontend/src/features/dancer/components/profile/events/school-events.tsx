@@ -54,12 +54,12 @@ export function SchoolEvents({ events }: { events: Events }) {
               </span>
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-muted-foreground flex items-center gap-1 text-xs">
+              <span className="text-muted-foreground flex items-center gap-1 text-xs text-nowrap">
                 <CalendarIcon className="text-brand size-3 shrink-0" />
                 {formatDate(event.startDatetime)}
               </span>
               <span className="text-muted-foreground text-sm">&middot;</span>
-              <span className="text-muted-foreground flex items-center gap-1 text-xs">
+              <span className="text-muted-foreground flex items-center gap-1 truncate text-xs">
                 <MapPinIcon className="text-brand size-3 shrink-0" />
                 {event.location}
               </span>

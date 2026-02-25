@@ -72,7 +72,7 @@ export function DancerPage({ username }: DancerPageProps) {
         }
         tabs={{ contentLabel: "Profile", sidebarLabel: "Extra" }}
       >
-        <div className="mobile:pb-14 flex flex-col gap-3 lg:gap-4">
+        <div className="flex flex-col gap-3 lg:gap-4">
           <div className="flex flex-col gap-3 lg:gap-4">
             <DancerHero dancer={data} />
 
