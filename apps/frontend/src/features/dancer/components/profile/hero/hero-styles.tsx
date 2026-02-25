@@ -9,12 +9,14 @@ export function HeroStyles({ styles }: { styles: string[] }) {
     <div className="col-span-2 flex flex-wrap items-center gap-2 px-1">
       {styles.length > 0 ? (
         styles.map((style) => (
-          <Badge key={style} variant="brand">
+          <Badge key={style} variant="brand" className="rounded-full">
             {style}
           </Badge>
         ))
       ) : (
-        <Badge variant="brand">No styles</Badge>
+        <Badge variant="brand" className="rounded-full">
+          No styles
+        </Badge>
       )}
       {showOwnerControls && (
         <StylesList
@@ -23,7 +25,7 @@ export function HeroStyles({ styles }: { styles: string[] }) {
               role="button"
               aria-label="Edit styles"
               tabIndex={0}
-              className="cursor-pointer"
+              className="cursor-pointer rounded-full px-1"
             >
               Edit
             </Badge>

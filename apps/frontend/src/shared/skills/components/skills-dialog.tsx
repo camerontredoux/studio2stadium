@@ -54,7 +54,10 @@ export function SkillsDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger {...props} render={<Button variant="outline" />}>
+      <DialogTrigger
+        {...props}
+        render={props.render ?? <Button variant="outline" />}
+      >
         {props.children}
       </DialogTrigger>
       <DialogContent className="max-w-7xl max-sm:h-[calc(100svh-3rem)] sm:h-200 sm:max-h-[90svh]">

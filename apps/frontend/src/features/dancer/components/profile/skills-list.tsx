@@ -6,9 +6,13 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useUpdateSkills } from "../../api/mutations";
 import { dancerQueries } from "../../api/queries";
 
-export function SkillsList(props: ButtonProps) {
+interface SkillsListProps extends ButtonProps {
+  username?: string;
+}
+
+export function SkillsList({ username, ...props }: SkillsListProps) {
   const { data } = useSuspenseQuery(dancerQueries.skills());
-  const { mutateAsync, isPending } = useUpdateSkills();
+  const { mutateAsync, isPending } = useUpdateSkills(username);
 
   const selectedSkillIds = data.map((skill) => skill.skillId);
 

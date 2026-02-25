@@ -4,10 +4,16 @@ import { dancerQueries } from "./queries";
 
 const checklistKey = feedQueries.dancerChecklist().queryKey;
 
-export function useUpdateSkills() {
+export function useUpdateSkills(profileUsername?: string) {
   return $api.useMutation("patch", "/dancers/me/skills", {
     meta: {
-      invalidateQueries: [dancerQueries.skills().queryKey, checklistKey],
+      invalidateQueries: [
+        dancerQueries.skills().queryKey,
+        checklistKey,
+        ...(profileUsername
+          ? [dancerQueries.profile(profileUsername).queryKey]
+          : []),
+      ],
     },
   });
 }

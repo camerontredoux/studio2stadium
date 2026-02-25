@@ -39,7 +39,7 @@ export function EventHero({ event }: EventHeroProps) {
           <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/70 via-black/20 to-transparent" />
 
           <Button
-            className="absolute top-3 left-3"
+            className="absolute top-3 left-3 text-white"
             size="xs"
             variant="ghost"
             onClick={() => router.history.back()}

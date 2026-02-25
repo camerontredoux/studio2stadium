@@ -21,6 +21,7 @@ import { DancerHero } from "./components/profile/hero";
 import { References } from "./components/profile/references";
 import { ContactInfo } from "./components/profile/sidebar/contact-info";
 import { ExtraInfo } from "./components/profile/sidebar/extra-info";
+import { Skills } from "./components/profile/skills";
 import { Submission } from "./components/profile/submission";
 
 interface DancerPageProps {
@@ -76,6 +77,7 @@ export function DancerPage({ username }: DancerPageProps) {
             <DancerHero dancer={data} />
 
             <Biography description={data.biography} username={username} />
+
             <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
               <Achievements
                 achievements={data.achievements}
@@ -83,11 +85,13 @@ export function DancerPage({ username }: DancerPageProps) {
               />
               <References references={data.references} username={username} />
             </div>
+
+            {data.subscribed ? <Submission /> : null}
+
+            <Skills skills={data.skills} username={username} />
+
             {data.subscribed ? (
-              <>
-                <Submission />
-                <Events events={data.events} globalEvents={data.globalEvents} />
-              </>
+              <Events events={data.events} globalEvents={data.globalEvents} />
             ) : null}
           </div>
         </div>
