@@ -10,6 +10,8 @@ export default class UpdatePortfolioController {
 
     await service.execute(ctx.session.profileId, payload);
 
+    await ctx.auth.use("redis").bump();
+
     return ctx.response.noContent();
   }
 }
