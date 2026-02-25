@@ -20,7 +20,8 @@ export default class DeleteAccountController {
           code: "E_DELETE_ACCOUNT_FAILED",
         });
       }
-      return ctx.response.internalServerError();
     }
+
+    return ctx.response.badRequest("Failed to delete account");
   }
 }

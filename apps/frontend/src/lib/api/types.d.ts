@@ -4,3725 +4,3535 @@
  */
 
 export interface paths {
-  "/application": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/application": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get application status
+         * @description Returns the school's application details
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Submit application
+         * @description Submits the school's application
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update application
+         * @description Updates the school's application
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/auth/signup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create user account
+         * @description Creates a new base user account.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AuthSignupRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthSignupResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start user session
+         * @description Logs in a user and creates a session in Redis.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AuthLoginRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * End user session
+         * @description Logs out the current user and deletes their session from Redis.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthLogoutResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get user session
+         * @description Retrieves the current session's user information.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthSessionResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/password/change": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change password
+         * @description Changes the user's password
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AuthPasswordChangeRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/password/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reset password
+         * @description Resets the user's password
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AuthPasswordResetRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all posts
+         * @description Returns a list of all blog posts
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BlogResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get feed
+         * @description Returns the feed for the current user
+         */
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string | null;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FeedResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["HealthResponse"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["HealthResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List tap in videos
+         * @description Returns a list of all tap in videos with their category
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LibraryResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library/{category}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List videos by category
+         * @description Returns a list of videos by category, paginated with 6 results at a time
+         */
+        get: {
+            parameters: {
+                query: {
+                    page: string | number;
+                };
+                header?: never;
+                path: {
+                    category: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LibraryIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/skills": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all skills
+         * @description Returns a list of all skills
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SkillsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all sports
+         * @description Returns a list of all sports
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SportsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/styles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all styles
+         * @description Returns a list of all styles
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["StylesResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/subscriptions/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get subscription status
+         * @description Gets the authenticated dancer's subscription status
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubscriptionsStatusResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/subscriptions/checkout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a checkout session
+         * @description Creates a checkout session for the authenticated dancer
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SubscriptionsCheckoutRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubscriptionsCheckoutResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/subscriptions/manage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Manage a subscription
+         * @description Manages the authenticated dancer's subscription
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubscriptionsManageResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stripe/webhook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["StripeWebhookResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a dancer
+         * @description Populate account with personal information to finish dancer signup
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/filters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dancer filters
+         * @description Returns the filters to use when searching for dancers
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersFiltersResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/me/skills": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dancer skills
+         * @description Returns the dancer's skills
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersMeSkillsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update dancer skills
+         * @description Updates the dancer's skills
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersMeSkillsRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/dancers/me/styles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dancer styles
+         * @description Returns the dancer's styles
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersMeStylesResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update dancer styles
+         * @description Updates the dancer's styles
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersMeStylesRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/dancers/me/sports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dancer sports
+         * @description Returns the dancer's sports
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersMeSportsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update dancer sports
+         * @description Updates the dancer's sports
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersMeSportsRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/dancers/me/following": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get following list
+         * @description Returns the list of school's IDs I'm following
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersMeFollowingResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/me/following/ids": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get following list IDs
+         * @description Returns the list of school's IDs I'm following
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersMeFollowingIdsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/me/portfolio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update my portfolio
+         * @description Updates the authenticated dancer's portfolio
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersMePortfolioRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/dancers/me/followers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dancer followers
+         * @description Returns the schools that have favorited this dancer.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersMeFollowersResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/me/checklist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dancer profile checklist
+         * @description Returns the dancer's profile checklist
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersMeChecklistResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/me/references": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a reference
+         * @description Creates a reference for the authenticated dancer
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersMeReferencesRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/me/references/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a reference
+         * @description Deletes a reference for the authenticated dancer
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/me/achievements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create an achievement
+         * @description Creates an achievement for the authenticated dancer
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersMeAchievementsRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/me/achievements/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete an achievement
+         * @description Deletes an achievement for the authenticated dancer
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/submissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dancer's CRV submissions
+         * @description Returns the common recruiting video submissions for the authenticated dancer
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersSubmissionsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create a CRV submission
+         * @description Creates a common recruiting video submission for the authenticated dancer
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersSubmissionsRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/submissions/schools": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get schools that the dancer has not submitted to
+         * @description Returns the schools that the dancer has not submitted to
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersSubmissionsSchoolsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/submissions/video": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the dancer's submission video
+         * @description Returns the dancer's submission video
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersSubmissionsVideoResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a dancer
+         * @description Returns the dancer's public profile
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/{id}/favorite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Favorite a dancer
+         * @description Adds a dancer to the school's favorites list.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersIdFavoriteResponse"];
+                    };
+                };
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        /**
+         * Unfavorite a dancer
+         * @description Removes a dancer from the school's favorites list.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/{id}/metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dancer metadata
+         * @description Returns the dancer's metadata
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersIdMetadataResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all events
+         * @description Returns a list of all upcoming events
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/upcoming": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get upcoming events
+         * @description Returns a list of upcoming events
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventsUpcomingResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/global": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all global events
+         * @description Returns a list of all upcoming global events
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventsGlobalResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get event by id
+         * @description Returns details about a specific event
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventsIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}/save": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Save event
+         * @description Saves an event for the current user
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["EventsIdSaveRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}/unsave": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Unsave event
+         * @description Unsaves an event for the current user
+         */
+        delete: {
+            parameters: {
+                query?: {
+                    type?: string | null;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get schools
+         * @description Returns a list of schools
+         */
+        get: {
+            parameters: {
+                query?: {
+                    location?: ("OR" | "ID" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
+                    commonRecruiting?: (string | number | boolean) | null;
+                    division?: string | null;
+                    sports?: string | null;
+                    styles?: string | null;
+                    following?: (string | number | boolean) | null;
+                    upcomingEvents?: (string | number | boolean) | null;
+                    gpaRange?: Record<string, never>;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools/filters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get school filters
+         * @description Returns the filters to use when searching for schools
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsFiltersResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools/recommended": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get recommended programs
+         * @description Returns a list of recommended programs
+         */
+        get: {
+            parameters: {
+                query?: {
+                    limit?: (string | number) | null;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsRecommendedResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools/me/followers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get school followers
+         * @description Returns the dancers that have followed this school.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsMeFollowersResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools/me/following": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get following list
+         * @description Returns the list of dancers this school has favorited.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsMeFollowingResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a school
+         * @description Returns the school's public profile
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools/{id}/follow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Follow a school
+         * @description Follows the school's profile using the school ID
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsIdFollowResponse"];
+                    };
+                };
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        /**
+         * Unfollow a school
+         * @description Unfollows the school's profile using the school ID
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools/{id}/metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get school metadata
+         * @description Returns the school's metadata
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsIdMetadataResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools/{id}/interest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Show interest in a school
+         * @description A dancer can show interest in a school up to 3 times. This endpoint will increment the interest count for the school, and send a notification to the school.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsIdInterestResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/check-availability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Check username availability
+         * @description Checks if a username is available for registration.
+         */
+        get: {
+            parameters: {
+                query: {
+                    username: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UsersCheckavailabilityResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get account settings
+         * @description Returns the user's account settings
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UsersAccountResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Delete account
+         * @description Deletes the user's account
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update account settings
+         * @description Updates the user's account settings
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["UsersAccountRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/users/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get user activity
+         * @description Returns the user's activity
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UsersActivityResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get application status
-     * @description Returns the school's application details
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    put?: never;
-    /**
-     * Submit application
-     * @description Submits the school's application
-     */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    /**
-     * Update application
-     * @description Updates the school's application
-     */
-    patch: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    trace?: never;
-  };
-  "/auth/signup": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Create user account
-     * @description Creates a new base user account.
-     */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["AuthSignupRequest"];
-        };
-      };
-      responses: {
-        /** @description Created */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["AuthSignupResponse"];
-          };
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/auth/login": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Start user session
-     * @description Logs in a user and creates a session in Redis.
-     */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["AuthLoginRequest"];
-        };
-      };
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-        /** @description Too Many Requests */
-        429: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/auth/logout": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * End user session
-     * @description Logs out the current user and deletes their session from Redis.
-     */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["AuthLogoutResponse"];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/auth/session": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get user session
-     * @description Retrieves the current session's user information.
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["AuthSessionResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/auth/password/change": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Change password
-     * @description Changes the user's password
-     */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["AuthPasswordChangeRequest"];
-        };
-      };
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/auth/password/reset": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Reset password
-     * @description Resets the user's password
-     */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["AuthPasswordResetRequest"];
-        };
-      };
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/blog": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get all posts
-     * @description Returns a list of all blog posts
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["BlogResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/feed": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get feed
-     * @description Returns the feed for the current user
-     */
-    get: {
-      parameters: {
-        query?: {
-          cursor?: string | null;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["FeedResponse"];
-          };
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/health": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["HealthResponse"];
-          };
-        };
-        /** @description Service Unavailable */
-        503: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["HealthResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/library": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * List tap in videos
-     * @description Returns a list of all tap in videos with their category
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["LibraryResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/library/{category}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * List videos by category
-     * @description Returns a list of videos by category, paginated with 6 results at a time
-     */
-    get: {
-      parameters: {
-        query: {
-          page: string | number;
-        };
-        header?: never;
-        path: {
-          category: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["LibraryIdResponse"];
-          };
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/skills": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get all skills
-     * @description Returns a list of all skills
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["SkillsResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/sports": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get all sports
-     * @description Returns a list of all sports
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["SportsResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/styles": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get all styles
-     * @description Returns a list of all styles
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["StylesResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/subscriptions/status": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get subscription status
-     * @description Gets the authenticated dancer's subscription status
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["SubscriptionsStatusResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/subscriptions/checkout": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Create a checkout session
-     * @description Creates a checkout session for the authenticated dancer
-     */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["SubscriptionsCheckoutRequest"];
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["SubscriptionsCheckoutResponse"];
-          };
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/subscriptions/manage": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Manage a subscription
-     * @description Manages the authenticated dancer's subscription
-     */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["SubscriptionsManageResponse"];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/stripe/webhook": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["StripeWebhookResponse"];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/dancers": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Create a dancer
-     * @description Populate account with personal information to finish dancer signup
-     */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["DancersRequest"];
-        };
-      };
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/dancers/filters": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get dancer filters
-     * @description Returns the filters to use when searching for dancers
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["DancersFiltersResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/dancers/me/skills": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get dancer skills
-     * @description Returns the dancer's skills
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["DancersMeSkillsResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /**
-     * Update dancer skills
-     * @description Updates the dancer's skills
-     */
-    patch: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["DancersMeSkillsRequest"];
-        };
-      };
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    trace?: never;
-  };
-  "/dancers/me/styles": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get dancer styles
-     * @description Returns the dancer's styles
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["DancersMeStylesResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /**
-     * Update dancer styles
-     * @description Updates the dancer's styles
-     */
-    patch: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["DancersMeStylesRequest"];
-        };
-      };
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    trace?: never;
-  };
-  "/dancers/me/sports": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get dancer sports
-     * @description Returns the dancer's sports
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["DancersMeSportsResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /**
-     * Update dancer sports
-     * @description Updates the dancer's sports
-     */
-    patch: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["DancersMeSportsRequest"];
-        };
-      };
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    trace?: never;
-  };
-  "/dancers/me/following": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get following list
-     * @description Returns the list of school's IDs I'm following
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["DancersMeFollowingResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/dancers/me/following/ids": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get following list IDs
-     * @description Returns the list of school's IDs I'm following
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["DancersMeFollowingIdsResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/dancers/me/portfolio": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /**
-     * Update my portfolio
-     * @description Updates the authenticated dancer's portfolio
-     */
-    patch: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["DancersMePortfolioRequest"];
-        };
-      };
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    trace?: never;
-  };
-  "/dancers/me/followers": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get dancer followers
-     * @description Returns the schools that have favorited this dancer.
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["DancersMeFollowersResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/dancers/me/checklist": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get dancer profile checklist
-     * @description Returns the dancer's profile checklist
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["DancersMeChecklistResponse"];
-          };
-        };
-        /** @description Not Found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/dancers/me/references": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Create a reference
-     * @description Creates a reference for the authenticated dancer
-     */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["DancersMeReferencesRequest"];
-        };
-      };
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/dancers/me/references/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /**
-     * Delete a reference
-     * @description Deletes a reference for the authenticated dancer
-     */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/dancers/me/achievements": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Create an achievement
-     * @description Creates an achievement for the authenticated dancer
-     */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["DancersMeAchievementsRequest"];
-        };
-      };
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/dancers/me/achievements/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /**
-     * Delete an achievement
-     * @description Deletes an achievement for the authenticated dancer
-     */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/dancers/submissions": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get dancer's CRV submissions
-     * @description Returns the common recruiting video submissions for the authenticated dancer
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["DancersSubmissionsResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    /**
-     * Create a CRV submission
-     * @description Creates a common recruiting video submission for the authenticated dancer
-     */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["DancersSubmissionsRequest"];
-        };
-      };
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/dancers/submissions/schools": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get schools that the dancer has not submitted to
-     * @description Returns the schools that the dancer has not submitted to
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["DancersSubmissionsSchoolsResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/dancers/submissions/video": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get the dancer's submission video
-     * @description Returns the dancer's submission video
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["DancersSubmissionsVideoResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/dancers/{username}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get a dancer
-     * @description Returns the dancer's public profile
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          username: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["DancersIdResponse"];
-          };
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/dancers/{id}/favorite": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Favorite a dancer
-     * @description Adds a dancer to the school's favorites list.
-     */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Created */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["DancersIdFavoriteResponse"];
-          };
-        };
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    /**
-     * Unfavorite a dancer
-     * @description Removes a dancer from the school's favorites list.
-     */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/dancers/{id}/metadata": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get dancer metadata
-     * @description Returns the dancer's metadata
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["DancersIdMetadataResponse"];
-          };
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/events": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get all events
-     * @description Returns a list of all upcoming events
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["EventsResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/events/upcoming": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get upcoming events
-     * @description Returns a list of upcoming events
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["EventsUpcomingResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/events/global": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get all global events
-     * @description Returns a list of all upcoming global events
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["EventsGlobalResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/events/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get event by id
-     * @description Returns details about a specific event
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["EventsIdResponse"];
-          };
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/events/{id}/save": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Save event
-     * @description Saves an event for the current user
-     */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["EventsIdSaveRequest"];
-        };
-      };
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/events/{id}/unsave": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /**
-     * Unsave event
-     * @description Unsaves an event for the current user
-     */
-    delete: {
-      parameters: {
-        query?: {
-          type?: string | null;
-        };
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/schools": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get schools
-     * @description Returns a list of schools
-     */
-    get: {
-      parameters: {
-        query?: {
-          location?:
-            | (
-                | "OR"
-                | "ID"
-                | "AL"
-                | "AK"
-                | "AZ"
-                | "AR"
-                | "CA"
-                | "CO"
-                | "CT"
-                | "DE"
-                | "FL"
-                | "GA"
-                | "HI"
-                | "IL"
-                | "IN"
-                | "IA"
-                | "KS"
-                | "KY"
-                | "LA"
-                | "ME"
-                | "MD"
-                | "MA"
-                | "MI"
-                | "MN"
-                | "MS"
-                | "MO"
-                | "MT"
-                | "NE"
-                | "NV"
-                | "NH"
-                | "NJ"
-                | "NM"
-                | "NY"
-                | "NC"
-                | "ND"
-                | "OH"
-                | "OK"
-                | "PA"
-                | "RI"
-                | "SC"
-                | "SD"
-                | "TN"
-                | "TX"
-                | "UT"
-                | "VT"
-                | "VA"
-                | "WA"
-                | "WV"
-                | "WI"
-                | "WY"
-              )
-            | null;
-          commonRecruiting?: (string | number | boolean) | null;
-          division?: string | null;
-          sports?: string | null;
-          styles?: string | null;
-          following?: (string | number | boolean) | null;
-          upcomingEvents?: (string | number | boolean) | null;
-          gpaRange?: Record<string, never>;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["SchoolsResponse"];
-          };
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/schools/filters": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get school filters
-     * @description Returns the filters to use when searching for schools
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["SchoolsFiltersResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/schools/recommended": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get recommended programs
-     * @description Returns a list of recommended programs
-     */
-    get: {
-      parameters: {
-        query?: {
-          limit?: (string | number) | null;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["SchoolsRecommendedResponse"];
-          };
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/schools/me/followers": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get school followers
-     * @description Returns the dancers that have followed this school.
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["SchoolsMeFollowersResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/schools/me/following": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get following list
-     * @description Returns the list of dancers this school has favorited.
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["SchoolsMeFollowingResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/schools/{username}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get a school
-     * @description Returns the school's public profile
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          username: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["SchoolsIdResponse"];
-          };
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/schools/{id}/follow": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Follow a school
-     * @description Follows the school's profile using the school ID
-     */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Created */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["SchoolsIdFollowResponse"];
-          };
-        };
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    /**
-     * Unfollow a school
-     * @description Unfollows the school's profile using the school ID
-     */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/schools/{id}/metadata": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get school metadata
-     * @description Returns the school's metadata
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["SchoolsIdMetadataResponse"];
-          };
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/schools/{id}/interest": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Show interest in a school
-     * @description A dancer can show interest in a school up to 3 times. This endpoint will increment the interest count for the school, and send a notification to the school.
-     */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Created */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["SchoolsIdInterestResponse"];
-          };
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/users/check-availability": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Check username availability
-     * @description Checks if a username is available for registration.
-     */
-    get: {
-      parameters: {
-        query: {
-          username: string;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["UsersCheckavailabilityResponse"];
-          };
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/users/account": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get account settings
-     * @description Returns the user's account settings
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["UsersAccountResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    /**
-     * Delete account
-     * @description Deletes the user's account
-     */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unknown Response */
-        500: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    options?: never;
-    head?: never;
-    /**
-     * Update account settings
-     * @description Updates the user's account settings
-     */
-    patch: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["UsersAccountRequest"];
-        };
-      };
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["Error"];
-          };
-        };
-      };
-    };
-    trace?: never;
-  };
-  "/users/activity": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get user activity
-     * @description Returns the user's activity
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["UsersActivityResponse"];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: {
-    Error: {
-      /** @description Human-readable error message suitable for display */
-      message: string;
-      /**
-       * @description Machine-readable error code for programmatic handling
-       * @example E_BAD_REQUEST
-       */
-      code: string;
-      /**
-       * @description HTTP status code returned by the server
-       * @example 429
-       */
-      status: number;
-      /**
-       * @description Seconds until the request can be retried
-       * @example 60
-       */
-      retryAfter?: number;
-      /** @description Additional context specific to the validation error */
-      errors?: components["schemas"]["ValidationError"][];
-      /**
-       * @description Additional context specific to the error type
-       * @example {
-       *       "userId": "123"
-       *     }
-       */
-      meta?: {
-        [key: string]: unknown;
-      };
-    };
-    ValidationError: {
-      /**
-       * @description Validation error field name
-       * @example email
-       */
-      field: string;
-      /**
-       * @description Validation error message
-       * @example Email is required
-       */
-      message: string;
-    };
-    /** @enum {string} */
-    SchoolFilterParam:
-      | "name"
-      | "location"
-      | "commonRecruiting"
-      | "division"
-      | "sports"
-      | "styles"
-      | "following"
-      | "upcomingEvents"
-      | "gpaRange";
-    MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
-    AuthSignupRequest: {
-      phone?: string | null;
-      email: string;
-      password: string;
-      /** @enum {string} */
-      type: "dancer" | "school";
-      username: string;
-      firstName: string;
-      lastName: string;
-      termsChecked: boolean;
-    };
-    AuthSignupResponse: {
-      id: string;
-      displayEmail: string;
-      firstName: string;
-      lastName: string;
-    };
-    AuthLoginRequest: {
-      email: string;
-      password: string;
-    };
-    AuthLogoutResponse: {
-      message: string;
-    };
-    AuthSessionResponse: {
-      /** @enum {string} */
-      type: "dancer" | "school";
-      notifications: boolean;
-      username: string;
-      firstName: string;
-      lastName: string;
-      id: string;
-      /** @enum {string} */
-      role: "admin" | "user" | "prodigy_admin";
-      displayEmail: string;
-      avatar: string | null;
-      verified: boolean;
-      profileId: string;
-      platforms: ("prodigy" | "core")[];
-    };
-    AuthPasswordChangeRequest: {
-      currentPassword: string;
-      newPassword: string;
-    };
-    AuthPasswordResetRequest: {
-      currentPassword: string;
-      newPassword: string;
-    };
-    BlogResponse: {
-      id: string;
-      createdAt: string;
-      title: string;
-      description: string;
-      thumbnail: string;
-      slug: string;
-    }[];
-    FeedResponse: {
-      feed: {
-        id: string;
-        /** @enum {string} */
-        contentType:
-          | "profile"
-          | "image"
-          | "video"
-          | "reference"
-          | "achievement";
-        createdAt: string;
-        username: string;
-        avatar: string | null;
-        name: string | null;
-        caption: string | null;
-        content: string | null;
-      }[];
-      nextCursor: string;
-    };
-    HealthResponse: {
-      /** @enum {string} */
-      status: "error" | "ok" | "warning";
-      isHealthy: boolean;
-      finishedAt: string;
-      debugInfo: {
-        pid: number;
-        ppid?: number;
-        uptime: number;
-        version: string;
-        platform: string;
-      };
-      checks: {
-        name: string;
-        meta?: Record<string, never>;
-        /** @enum {string} */
-        status: "error" | "ok" | "warning";
-        message: string;
-        finishedAt: string;
-        isCached: boolean;
-      }[];
-    };
-    LibraryResponse: {
-      category: string;
-      videos: {
-        url: string;
-        id: string;
-        createdAt: string;
-        updatedAt: string;
-        title: string;
-        category: string;
-      }[];
-    }[];
-    LibraryIdResponse: {
-      url: string;
-      id: string;
-      createdAt: string;
-      updatedAt: string;
-      title: string;
-      category: string;
-    }[];
-    SkillsResponse: {
-      name: string;
-      slug: string;
-      category: string;
-    }[];
-    SportsResponse: {
-      name: string;
-      slug: string;
-    }[];
-    StylesResponse: {
-      name: string;
-      slug: string;
-    }[];
-    SubscriptionsStatusResponse: {
-      cancelAtPeriodEnd: boolean;
-      currentPeriodEnd: string | null;
-      subscribed: boolean;
-    };
-    SubscriptionsCheckoutRequest: {
-      /** @enum {string} */
-      type: "monthly" | "yearly";
-    };
-    SubscriptionsCheckoutResponse: {
-      clientSecret: string;
-    };
-    SubscriptionsManageResponse: {
-      url: string;
-    };
-    StripeWebhookResponse: {
-      received: boolean;
-    };
-    DancersRequest: {
-      phoneNumber?: string | null;
-      birthday: string | number;
-      location: string;
-      /** @enum {string} */
-      platform: "prodigy" | "core";
-    };
-    DancersFiltersResponse: {
-      /** @enum {string} */
-      type: "select" | "input" | "toggle" | "multi-select" | "range";
-      id: string;
-      options?: {
-        label: string;
-        value: string;
-      }[];
-      label: string;
-      paramKey: string;
-    }[];
-    DancersMeSkillsResponse: {
-      skillId: string;
-    }[];
-    DancersMeSkillsRequest: {
-      skills: string[];
-    };
-    DancersMeStylesResponse: {
-      styleId: string;
-    }[];
-    DancersMeStylesRequest: {
-      styles: string[];
-    };
-    DancersMeSportsResponse: {
-      sportId: string;
-    }[];
-    DancersMeSportsRequest: {
-      sports: string[];
-    };
-    DancersMeFollowingResponse: {
-      id: string;
-      username: string;
-      avatar: string | null;
-      name: string;
-    }[];
-    DancersMeFollowingIdsResponse: string[];
-    DancersMePortfolioRequest: {
-      birthday?: string | null;
-      location?: string | null;
-      biography?: string | null;
-      instagram?: string | null;
-      tiktok?: string | null;
-      youtube?: string | null;
-      skillLevel?: string | null;
-      teamLevel?: string | null;
-      highSchool?: string | null;
-      studio?: string | null;
-      gpa?: (string | number) | null;
-      gradYear?: (string | number) | null;
-      trainingHours?: (string | number) | null;
-    };
-    DancersMeFollowersResponse: {
-      id: string;
-      username: string;
-      avatar: string | null;
-      name: string;
-    }[];
-    DancersMeChecklistResponse: {
-      gpa: boolean;
-      location: boolean;
-      skills: boolean;
-      styles: boolean;
-      sports: boolean;
-    };
-    DancersMeReferencesRequest: {
-      name: string;
-      title: string;
-      description: string;
-    };
-    DancersMeAchievementsRequest: {
-      title: string;
-      description: string;
-    };
-    DancersSubmissionsResponse: {
-      school: {
-        username: string;
-        avatar: string | null;
-        name: string;
-        id: string;
-        location: string;
-      };
-      id: string;
-      updatedAt: string;
-      /** @enum {string} */
-      status: "pending" | "released" | "in_review" | "accepted";
-      watched: boolean;
-      watchedAt: string | null;
-    }[];
-    DancersSubmissionsRequest: {
-      schoolId: string[];
-      videoId: string;
-    };
-    DancersSubmissionsSchoolsResponse: {
-      username: string;
-      avatar: string | null;
-      id: string;
-      name: string;
-      location: string;
-    }[];
-    DancersSubmissionsVideoResponse: {
-      youtubeId: string;
-    };
-    DancersIdResponse: {
-      events: {
-        /** @enum {string} */
-        type:
-          | "recruitment"
-          | "audition"
-          | "other"
-          | "rehearsal"
-          | "recital"
-          | "showcase"
-          | "competition"
-          | "class"
-          | "intensive"
-          | "workshop"
-          | "fundraiser"
-          | "combine"
-          | "convention"
-          | "clinic"
-          | "deadline"
-          | "performance"
-          | "camp";
-        id: string;
-        location: string;
-        title: string;
-        startDatetime: string;
-        endDatetime: string;
-        organizer: {
-          name: string;
-        } | null;
-      }[];
-      username: string;
-      firstName: string;
-      lastName: string;
-      phone: string | null;
-      id: string;
-      displayEmail: string;
-      avatar: string | null;
-      birthday: string;
-      location: string;
-      biography: string | null;
-      instagram: string | null;
-      tiktok: string | null;
-      youtube: string | null;
-      skillLevel: string | null;
-      teamLevel: string | null;
-      highSchool: string | null;
-      studio: string | null;
-      gpa: number | null;
-      gradYear: number | null;
-      trainingHours: number | null;
-      achievements: {
-        id: string;
-        createdAt: string;
-        updatedAt: string;
-        profileId: string;
-        title: string;
-        description: string;
-      }[];
-      references: {
-        name: string;
-        id: string;
-        createdAt: string;
-        updatedAt: string;
-        profileId: string;
-        title: string;
-        description: string | null;
-      }[];
-      skills: {
-        name: string;
-        slug: string;
-        category: string;
-      }[];
-      sports: {
-        name: string;
-        slug: string;
-      }[];
-      styles: {
-        name: string;
-        slug: string;
-      }[];
-      globalEvents: {
-        /** @enum {string} */
-        type:
-          | "recruitment"
-          | "audition"
-          | "other"
-          | "rehearsal"
-          | "recital"
-          | "showcase"
-          | "competition"
-          | "class"
-          | "intensive"
-          | "workshop"
-          | "fundraiser"
-          | "combine"
-          | "convention"
-          | "clinic"
-          | "deadline"
-          | "performance"
-          | "camp";
-        id: string;
-        location: string;
-        title: string;
-        startDatetime: string;
-        endDatetime: string;
-      }[];
-      subscribed: boolean;
-    };
-    DancersIdFavoriteResponse: {
-      created: boolean;
-    };
-    DancersIdMetadataResponse: {
-      followers: number;
-      favorited: boolean;
-    };
-    EventsResponse: {
-      events: {
-        /** @enum {string} */
-        type:
-          | "recruitment"
-          | "audition"
-          | "other"
-          | "rehearsal"
-          | "recital"
-          | "showcase"
-          | "competition"
-          | "class"
-          | "intensive"
-          | "workshop"
-          | "fundraiser"
-          | "combine"
-          | "convention"
-          | "clinic"
-          | "deadline"
-          | "performance"
-          | "camp";
-        id: string;
-        date: string;
-        time: string;
-        location: string;
-        title: string;
-        organizer: {
-          name: string;
-          thumbnail: string | null;
+    schemas: {
+        Error: {
+            /** @description Human-readable error message suitable for display */
+            message: string;
+            /**
+             * @description Machine-readable error code for programmatic handling
+             * @example E_BAD_REQUEST
+             */
+            code: string;
+            /**
+             * @description HTTP status code returned by the server
+             * @example 429
+             */
+            status: number;
+            /**
+             * @description Seconds until the request can be retried
+             * @example 60
+             */
+            retryAfter?: number;
+            /** @description Additional context specific to the validation error */
+            errors?: components["schemas"]["ValidationError"][];
+            /**
+             * @description Additional context specific to the error type
+             * @example {
+             *       "userId": "123"
+             *     }
+             */
+            meta?: {
+                [key: string]: unknown;
+            };
         };
-        attendees: {
-          id: string;
-        }[];
-        saved: boolean;
-      }[];
-      month: string;
-    }[];
-    EventsUpcomingResponse: {
-      /** @enum {string} */
-      type:
-        | "recruitment"
-        | "audition"
-        | "other"
-        | "rehearsal"
-        | "recital"
-        | "showcase"
-        | "competition"
-        | "class"
-        | "intensive"
-        | "workshop"
-        | "fundraiser"
-        | "combine"
-        | "convention"
-        | "clinic"
-        | "deadline"
-        | "performance"
-        | "camp";
-      id: string;
-      date: string;
-      time: string;
-      location: string;
-      title: string;
-      organizer: {
-        name: string;
-        thumbnail: string | null;
-      };
-    }[];
-    EventsGlobalResponse: {
-      startTime: string;
-      endTime: string;
-      startDate: string;
-      endDate: string;
-      saved: boolean;
-      attendees: number;
-      /** @enum {string} */
-      type:
-        | "recruitment"
-        | "audition"
-        | "other"
-        | "rehearsal"
-        | "recital"
-        | "showcase"
-        | "competition"
-        | "class"
-        | "intensive"
-        | "workshop"
-        | "fundraiser"
-        | "combine"
-        | "convention"
-        | "clinic"
-        | "deadline"
-        | "performance"
-        | "camp";
-      id: string;
-      location: string;
-      website: string;
-      title: string;
-      description: string;
-      thumbnail: string;
-      organization: string;
-      eventAttendees: number;
-    }[];
-    EventsIdResponse: {
-      /** @enum {string} */
-      type:
-        | "recruitment"
-        | "audition"
-        | "other"
-        | "rehearsal"
-        | "recital"
-        | "showcase"
-        | "competition"
-        | "class"
-        | "intensive"
-        | "workshop"
-        | "fundraiser"
-        | "combine"
-        | "convention"
-        | "clinic"
-        | "deadline"
-        | "performance"
-        | "camp";
-      id: string;
-      createdAt: string;
-      updatedAt: string;
-      location: string;
-      website: string | null;
-      schoolId: string;
-      title: string;
-      description: string;
-      address: string | null;
-      tags: string[] | null;
-      cost: string | null;
-      timezone: string;
-      schedule?: {
-        time: string;
-        activity: string;
-        description?: string;
-      }[];
-      organizer: {
-        name: string;
-        username: string;
-        avatar: string | null;
-        events: number;
-      };
-      attendees: number;
-      saved: boolean;
-      eventAttendees: number;
-      startTime: string;
-      endTime: string;
-      startDate: string;
-      endDate: string;
-    };
-    EventsIdSaveRequest: {
-      type?: string | null;
-    };
-    SchoolsResponse: {
-      events: number;
-      username: string;
-      name: string;
-      id: string;
-      avatar: string | null;
-      createdAt: string;
-      location: string;
-      gpa: number | null;
-      division: string | null;
-      size: number | null;
-      followers: number;
-    }[];
-    SchoolsFiltersResponse: {
-      /** @enum {string} */
-      type: "select" | "input" | "toggle" | "multi-select" | "range";
-      id: string;
-      options?: {
-        label: string;
-        value: string;
-      }[];
-      label: string;
-      paramKey: components["schemas"]["SchoolFilterParam"];
-    }[];
-    SchoolsRecommendedResponse: {
-      about: string | null;
-      username: string;
-      name: string;
-      debug?: {
-        schoolSkills: {
-          skillId: string;
-          weight: number;
-          rarityBonus: number;
-        }[];
-        matchedSkills: {
-          skillId: string;
-          weight: number;
-          rarityBonus: number;
-        }[];
-      };
-      id: string;
-      avatar: string | null;
-      location: string;
-      gpa: number | null;
-      size: number | null;
-      locationScore: number;
-      matchScore: number;
-      top3Matches: string[];
-      matchTier: components["schemas"]["MatchTier"];
-      matchedSkillsCount: number;
-      totalSchoolSkills: number;
-      matchedStylesCount: number;
-      totalSchoolStyles: number;
-      matchedSportsCount: number;
-      totalSchoolSports: number;
-      sameState: boolean;
-      meetsGpaRequirement: boolean;
-    }[];
-    SchoolsMeFollowersResponse: {
-      id: string;
-      username: string;
-      avatar: string | null;
-      name: string;
-    }[];
-    SchoolsMeFollowingResponse: {
-      id: string;
-      username: string;
-      avatar: string | null;
-      name: string;
-    }[];
-    SchoolsIdResponse: {
-      events: {
+        ValidationError: {
+            /**
+             * @description Validation error field name
+             * @example email
+             */
+            field: string;
+            /**
+             * @description Validation error message
+             * @example Email is required
+             */
+            message: string;
+        };
         /** @enum {string} */
-        type:
-          | "recruitment"
-          | "audition"
-          | "other"
-          | "rehearsal"
-          | "recital"
-          | "showcase"
-          | "competition"
-          | "class"
-          | "intensive"
-          | "workshop"
-          | "fundraiser"
-          | "combine"
-          | "convention"
-          | "clinic"
-          | "deadline"
-          | "performance"
-          | "camp";
-        id: string;
-        createdAt: string;
-        updatedAt: string;
-        location: string;
-        website: string | null;
-        schoolId: string;
-        title: string;
-        description: string;
-        address: string | null;
-        tags: string[] | null;
-        cost: string | null;
-        startDatetime: string;
-        endDatetime: string;
-        timezone: string;
-      }[];
-      about: string | null;
-      images: {
-        id: string;
-        createdAt: string;
-        updatedAt: string;
-        userId: string;
-        caption: string | null;
-        mediaUrl: string;
-      }[];
-      username: string;
-      name: string;
-      id: string;
-      avatar: string | null;
-      createdAt: string;
-      updatedAt: string;
-      userId: string;
-      location: string;
-      instagram: string | null;
-      tiktok: string | null;
-      gpa: number | null;
-      commonRecruiting: boolean;
-      /** @enum {string} */
-      teamSelection: "recruitment" | "audition" | "hybrid";
-      /** @enum {string} */
-      competitiveCircuit:
-        | "other"
-        | "uda"
-        | "dtu"
-        | "nda"
-        | "usa"
-        | "non-competitive";
-      division: string | null;
-      benefits: string | null;
-      website: string | null;
-      timeCommitment: string | null;
-      headCoach: string | null;
-      assistantCoach: string | null;
-      missionStatement: string | null;
-      whatWeDo: string | null;
-      size: number | null;
-      videos: {
-        id: string;
-        createdAt: string;
-        updatedAt: string;
-        userId: string;
-        mediaId: string;
-        caption: string | null;
-      }[];
-      skills: {
-        name: string;
-        slug: string;
-        category: string;
-      }[];
-      sports: {
-        name: string;
-        slug: string;
-      }[];
-      styles: {
-        name: string;
-        slug: string;
-      }[];
+        SchoolFilterParam: "name" | "location" | "commonRecruiting" | "division" | "sports" | "styles" | "following" | "upcomingEvents" | "gpaRange";
+        MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
+        AuthSignupRequest: {
+            phone?: string | null;
+            email: string;
+            password: string;
+            /** @enum {string} */
+            type: "dancer" | "school";
+            username: string;
+            firstName: string;
+            lastName: string;
+            termsChecked: boolean;
+        };
+        AuthSignupResponse: {
+            id: string;
+            displayEmail: string;
+            firstName: string;
+            lastName: string;
+        };
+        AuthLoginRequest: {
+            email: string;
+            password: string;
+        };
+        AuthLogoutResponse: {
+            message: string;
+        };
+        AuthSessionResponse: {
+            /** @enum {string} */
+            type: "dancer" | "school";
+            notifications: boolean;
+            username: string;
+            firstName: string;
+            lastName: string;
+            id: string;
+            /** @enum {string} */
+            role: "admin" | "user" | "prodigy_admin";
+            displayEmail: string;
+            avatar: string | null;
+            verified: boolean;
+            profileId: string;
+            platforms: ("prodigy" | "core")[];
+        };
+        AuthPasswordChangeRequest: {
+            currentPassword: string;
+            newPassword: string;
+        };
+        AuthPasswordResetRequest: {
+            currentPassword: string;
+            newPassword: string;
+        };
+        BlogResponse: {
+            id: string;
+            createdAt: string;
+            title: string;
+            description: string;
+            thumbnail: string;
+            slug: string;
+        }[];
+        FeedResponse: {
+            feed: {
+                id: string;
+                /** @enum {string} */
+                contentType: "profile" | "image" | "video" | "reference" | "achievement";
+                createdAt: string;
+                username: string;
+                avatar: string | null;
+                name: string | null;
+                caption: string | null;
+                content: string | null;
+            }[];
+            nextCursor: string;
+        };
+        HealthResponse: {
+            /** @enum {string} */
+            status: "error" | "ok" | "warning";
+            isHealthy: boolean;
+            finishedAt: string;
+            debugInfo: {
+                pid: number;
+                ppid?: number;
+                uptime: number;
+                version: string;
+                platform: string;
+            };
+            checks: {
+                name: string;
+                meta?: Record<string, never>;
+                /** @enum {string} */
+                status: "error" | "ok" | "warning";
+                message: string;
+                finishedAt: string;
+                isCached: boolean;
+            }[];
+        };
+        LibraryResponse: {
+            category: string;
+            videos: {
+                url: string;
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                title: string;
+                category: string;
+            }[];
+        }[];
+        LibraryIdResponse: {
+            url: string;
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            title: string;
+            category: string;
+        }[];
+        SkillsResponse: {
+            name: string;
+            slug: string;
+            category: string;
+        }[];
+        SportsResponse: {
+            name: string;
+            slug: string;
+        }[];
+        StylesResponse: {
+            name: string;
+            slug: string;
+        }[];
+        SubscriptionsStatusResponse: {
+            cancelAtPeriodEnd: boolean;
+            currentPeriodEnd: string | null;
+            subscribed: boolean;
+        };
+        SubscriptionsCheckoutRequest: {
+            /** @enum {string} */
+            type: "monthly" | "yearly";
+        };
+        SubscriptionsCheckoutResponse: {
+            clientSecret: string;
+        };
+        SubscriptionsManageResponse: {
+            url: string;
+        };
+        StripeWebhookResponse: {
+            received: boolean;
+        };
+        DancersRequest: {
+            phoneNumber?: string | null;
+            birthday: string | number;
+            location: string;
+            /** @enum {string} */
+            platform: "prodigy" | "core";
+        };
+        DancersFiltersResponse: {
+            /** @enum {string} */
+            type: "select" | "input" | "toggle" | "multi-select" | "range";
+            id: string;
+            options?: {
+                label: string;
+                value: string;
+            }[];
+            label: string;
+            paramKey: string;
+        }[];
+        DancersMeSkillsResponse: {
+            skillId: string;
+        }[];
+        DancersMeSkillsRequest: {
+            skills: string[];
+        };
+        DancersMeStylesResponse: {
+            styleId: string;
+        }[];
+        DancersMeStylesRequest: {
+            styles: string[];
+        };
+        DancersMeSportsResponse: {
+            sportId: string;
+        }[];
+        DancersMeSportsRequest: {
+            sports: string[];
+        };
+        DancersMeFollowingResponse: {
+            id: string;
+            username: string;
+            avatar: string | null;
+            name: string;
+        }[];
+        DancersMeFollowingIdsResponse: string[];
+        DancersMePortfolioRequest: {
+            birthday?: string | null;
+            location?: string | null;
+            biography?: string | null;
+            instagram?: string | null;
+            tiktok?: string | null;
+            youtube?: string | null;
+            skillLevel?: string | null;
+            teamLevel?: string | null;
+            highSchool?: string | null;
+            studio?: string | null;
+            gpa?: (string | number) | null;
+            gradYear?: (string | number) | null;
+            trainingHours?: (string | number) | null;
+        };
+        DancersMeFollowersResponse: {
+            id: string;
+            username: string;
+            avatar: string | null;
+            name: string;
+        }[];
+        DancersMeChecklistResponse: {
+            gpa: boolean;
+            location: boolean;
+            skills: boolean;
+            styles: boolean;
+            sports: boolean;
+        };
+        DancersMeReferencesRequest: {
+            name: string;
+            title: string;
+            description: string;
+        };
+        DancersMeAchievementsRequest: {
+            title: string;
+            description: string;
+        };
+        DancersSubmissionsResponse: {
+            school: {
+                username: string;
+                avatar: string | null;
+                name: string;
+                id: string;
+                location: string;
+            };
+            id: string;
+            updatedAt: string;
+            /** @enum {string} */
+            status: "pending" | "released" | "in_review" | "accepted";
+            watched: boolean;
+            watchedAt: string | null;
+        }[];
+        DancersSubmissionsRequest: {
+            schoolId: string[];
+            videoId: string;
+        };
+        DancersSubmissionsSchoolsResponse: {
+            username: string;
+            avatar: string | null;
+            id: string;
+            name: string;
+            location: string;
+        }[];
+        DancersSubmissionsVideoResponse: {
+            youtubeId: string;
+        };
+        DancersIdResponse: {
+            events: {
+                /** @enum {string} */
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                id: string;
+                location: string;
+                title: string;
+                startDatetime: string;
+                endDatetime: string;
+                organizer: {
+                    name: string;
+                } | null;
+            }[];
+            username: string;
+            firstName: string;
+            lastName: string;
+            phone: string | null;
+            id: string;
+            displayEmail: string;
+            avatar: string | null;
+            birthday: string;
+            location: string;
+            biography: string | null;
+            instagram: string | null;
+            tiktok: string | null;
+            youtube: string | null;
+            skillLevel: string | null;
+            teamLevel: string | null;
+            highSchool: string | null;
+            studio: string | null;
+            gpa: number | null;
+            gradYear: number | null;
+            trainingHours: number | null;
+            achievements: {
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                profileId: string;
+                title: string;
+                description: string;
+            }[];
+            references: {
+                name: string;
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                profileId: string;
+                title: string;
+                description: string | null;
+            }[];
+            skills: {
+                name: string;
+                slug: string;
+                category: string;
+            }[];
+            sports: {
+                name: string;
+                slug: string;
+            }[];
+            styles: {
+                name: string;
+                slug: string;
+            }[];
+            globalEvents: {
+                /** @enum {string} */
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                id: string;
+                location: string;
+                title: string;
+                startDatetime: string;
+                endDatetime: string;
+            }[];
+            subscribed: boolean;
+        };
+        DancersIdFavoriteResponse: {
+            created: boolean;
+        };
+        DancersIdMetadataResponse: {
+            followers: number;
+            favorited: boolean;
+        };
+        EventsResponse: {
+            events: {
+                /** @enum {string} */
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                id: string;
+                date: string;
+                time: string;
+                location: string;
+                title: string;
+                organizer: {
+                    name: string;
+                    thumbnail: string | null;
+                };
+                attendees: {
+                    id: string;
+                }[];
+                saved: boolean;
+            }[];
+            month: string;
+        }[];
+        EventsUpcomingResponse: {
+            /** @enum {string} */
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+            id: string;
+            date: string;
+            time: string;
+            location: string;
+            title: string;
+            organizer: {
+                name: string;
+                thumbnail: string | null;
+            };
+        }[];
+        EventsGlobalResponse: {
+            startTime: string;
+            endTime: string;
+            startDate: string;
+            endDate: string;
+            saved: boolean;
+            attendees: number;
+            /** @enum {string} */
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+            id: string;
+            location: string;
+            website: string;
+            title: string;
+            description: string;
+            thumbnail: string;
+            organization: string;
+            eventAttendees: number;
+        }[];
+        EventsIdResponse: {
+            /** @enum {string} */
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            location: string;
+            website: string | null;
+            schoolId: string;
+            title: string;
+            description: string;
+            address: string | null;
+            tags: string[] | null;
+            cost: string | null;
+            timezone: string;
+            schedule?: {
+                time: string;
+                activity: string;
+                description?: string;
+            }[];
+            organizer: {
+                name: string;
+                username: string;
+                avatar: string | null;
+                events: number;
+            };
+            attendees: number;
+            saved: boolean;
+            eventAttendees: number;
+            startTime: string;
+            endTime: string;
+            startDate: string;
+            endDate: string;
+        };
+        EventsIdSaveRequest: {
+            type?: string | null;
+        };
+        SchoolsResponse: {
+            events: number;
+            username: string;
+            name: string;
+            id: string;
+            avatar: string | null;
+            createdAt: string;
+            location: string;
+            gpa: number | null;
+            division: string | null;
+            size: number | null;
+            followers: number;
+        }[];
+        SchoolsFiltersResponse: {
+            /** @enum {string} */
+            type: "select" | "input" | "toggle" | "multi-select" | "range";
+            id: string;
+            options?: {
+                label: string;
+                value: string;
+            }[];
+            label: string;
+            paramKey: components["schemas"]["SchoolFilterParam"];
+        }[];
+        SchoolsRecommendedResponse: {
+            about: string | null;
+            username: string;
+            name: string;
+            debug?: {
+                schoolSkills: {
+                    skillId: string;
+                    weight: number;
+                    rarityBonus: number;
+                }[];
+                matchedSkills: {
+                    skillId: string;
+                    weight: number;
+                    rarityBonus: number;
+                }[];
+            };
+            id: string;
+            avatar: string | null;
+            location: string;
+            gpa: number | null;
+            size: number | null;
+            locationScore: number;
+            matchScore: number;
+            top3Matches: string[];
+            matchTier: components["schemas"]["MatchTier"];
+            matchedSkillsCount: number;
+            totalSchoolSkills: number;
+            matchedStylesCount: number;
+            totalSchoolStyles: number;
+            matchedSportsCount: number;
+            totalSchoolSports: number;
+            sameState: boolean;
+            meetsGpaRequirement: boolean;
+        }[];
+        SchoolsMeFollowersResponse: {
+            id: string;
+            username: string;
+            avatar: string | null;
+            name: string;
+        }[];
+        SchoolsMeFollowingResponse: {
+            id: string;
+            username: string;
+            avatar: string | null;
+            name: string;
+        }[];
+        SchoolsIdResponse: {
+            events: {
+                /** @enum {string} */
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                location: string;
+                website: string | null;
+                schoolId: string;
+                title: string;
+                description: string;
+                address: string | null;
+                tags: string[] | null;
+                cost: string | null;
+                startDatetime: string;
+                endDatetime: string;
+                timezone: string;
+            }[];
+            about: string | null;
+            images: {
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                userId: string;
+                caption: string | null;
+                mediaUrl: string;
+            }[];
+            username: string;
+            name: string;
+            id: string;
+            avatar: string | null;
+            createdAt: string;
+            updatedAt: string;
+            userId: string;
+            location: string;
+            instagram: string | null;
+            tiktok: string | null;
+            gpa: number | null;
+            commonRecruiting: boolean;
+            /** @enum {string} */
+            teamSelection: "recruitment" | "audition" | "hybrid";
+            /** @enum {string} */
+            competitiveCircuit: "other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive";
+            division: string | null;
+            benefits: string | null;
+            website: string | null;
+            timeCommitment: string | null;
+            headCoach: string | null;
+            assistantCoach: string | null;
+            missionStatement: string | null;
+            whatWeDo: string | null;
+            size: number | null;
+            videos: {
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                userId: string;
+                mediaId: string;
+                caption: string | null;
+            }[];
+            skills: {
+                name: string;
+                slug: string;
+                category: string;
+            }[];
+            sports: {
+                name: string;
+                slug: string;
+            }[];
+            styles: {
+                name: string;
+                slug: string;
+            }[];
+        };
+        SchoolsIdFollowResponse: {
+            created: boolean;
+        };
+        SchoolsIdMetadataResponse: {
+            following: boolean;
+            followers: number;
+            interested: boolean;
+        };
+        SchoolsIdInterestResponse: {
+            created: boolean;
+        };
+        UsersCheckavailabilityResponse: {
+            available: boolean;
+        };
+        UsersAccountResponse: {
+            notifications: boolean;
+            firstName: string;
+            lastName: string;
+            phone: string | null;
+            displayEmail: string;
+        };
+        UsersAccountRequest: {
+            notifications?: (string | number | boolean) | null;
+            firstName?: string | null;
+            lastName?: string | null;
+            phone?: string | null;
+            displayEmail?: string | null;
+        };
+        UsersActivityResponse: {
+            images: number;
+            videos: number;
+            following: number;
+            followers: number;
+        };
     };
-    SchoolsIdFollowResponse: {
-      created: boolean;
-    };
-    SchoolsIdMetadataResponse: {
-      following: boolean;
-      followers: number;
-      interested: boolean;
-    };
-    SchoolsIdInterestResponse: {
-      created: boolean;
-    };
-    UsersCheckavailabilityResponse: {
-      available: boolean;
-    };
-    UsersAccountResponse: {
-      notifications: boolean;
-      firstName: string;
-      lastName: string;
-      phone: string | null;
-      displayEmail: string;
-    };
-    UsersAccountRequest: {
-      notifications?: (string | number | boolean) | null;
-      firstName?: string | null;
-      lastName?: string | null;
-      phone?: string | null;
-      displayEmail?: string | null;
-    };
-    UsersActivityResponse: {
-      images: number;
-      videos: number;
-      following: number;
-      followers: number;
-    };
-  };
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
 export type $defs = Record<string, never>;
 export type operations = Record<string, never>;
