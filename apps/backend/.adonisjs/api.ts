@@ -67,6 +67,14 @@ type SkillsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/skills/get-skills/controller.ts').default['handle'], false>
 }
+type SportsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/sports/get-sports/controller.ts').default['handle'], false>
+}
+type StylesGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/styles/get-styles/controller.ts').default['handle'], false>
+}
 type SubscriptionsStatusGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/subscriptions/status/controller.ts').default['handle'], false>
@@ -84,68 +92,88 @@ type StripeWebhookPost = {
   response: MakeTuyauResponse<import('../app/modules/webhooks/stripe/controller.ts').default['handle'], false>
 }
 type DancersPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/create-dancer/validator.ts')['validator']>>
-  response: MakeTuyauResponse<import('../app/modules/dancers/create-dancer/controller.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/create-dancer/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/create-dancer/controller.ts').default['handle'], true>
 }
 type DancersFiltersGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/get-filters/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/explore/get-filters/controller.ts').default['handle'], false>
 }
 type DancersMeSkillsGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/get-skills/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/get-skills/controller.ts').default['handle'], false>
 }
 type DancersMeSkillsPatch = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/update-skills/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/dancers/update-skills/controller.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/update-skills/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/update-skills/controller.ts').default['handle'], true>
+}
+type DancersMeStylesGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/get-styles/controller.ts').default['handle'], false>
+}
+type DancersMeStylesPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/update-styles/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/update-styles/controller.ts').default['handle'], true>
+}
+type DancersMeSportsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/get-sports/controller.ts').default['handle'], false>
+}
+type DancersMeSportsPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/update-sports/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/update-sports/controller.ts').default['handle'], true>
 }
 type DancersMeFollowingGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/get-following/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/engagement/get-following/controller.ts').default['handle'], false>
 }
 type DancersMeFollowingIdsGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/get-following-ids/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/engagement/get-following-ids/controller.ts').default['handle'], false>
 }
 type DancersMePortfolioPatch = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/update-portfolio/validator.ts')['validator']>>
-  response: MakeTuyauResponse<import('../app/modules/dancers/update-portfolio/controller.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/update-portfolio/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/update-portfolio/controller.ts').default['handle'], true>
 }
 type DancersMeFollowersGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/get-followers/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/engagement/get-followers/controller.ts').default['handle'], false>
+}
+type DancersMeChecklistGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/get-profile-checklist/controller.ts').default['handle'], false>
 }
 type DancersSubmissionsGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/get-submissions/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/common-recruiting/get-submissions/controller.ts').default['handle'], false>
 }
 type DancersSubmissionsPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/create-submission/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/dancers/create-submission/controller.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/common-recruiting/create-submission/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/common-recruiting/create-submission/controller.ts').default['handle'], true>
 }
 type DancersSubmissionsSchoolsGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/get-submission-schools/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/common-recruiting/get-submission-schools/controller.ts').default['handle'], false>
 }
 type DancersSubmissionsVideoGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/get-submission-video/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/common-recruiting/get-submission-video/controller.ts').default['handle'], false>
 }
 type DancersIdGetHead = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/get-dancer/validator.ts')['validator']>>
-  response: MakeTuyauResponse<import('../app/modules/dancers/get-dancer/controller.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/get-dancer/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/get-dancer/controller.ts').default['handle'], true>
 }
 type DancersIdFavoritePost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/favorite/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/dancers/favorite/controller.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/engagement/favorite/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/engagement/favorite/controller.ts').default['handle'], true>
 }
 type DancersIdFavoriteDelete = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/unfavorite/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/dancers/unfavorite/controller.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/engagement/unfavorite/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/engagement/unfavorite/controller.ts').default['handle'], true>
 }
 type DancersIdMetadataGetHead = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/get-dancer-metadata/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/dancers/get-dancer-metadata/controller.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/get-dancer-metadata/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/get-dancer-metadata/controller.ts').default['handle'], true>
 }
 type EventsGetHead = {
   request: unknown
@@ -185,11 +213,11 @@ type SchoolsRecommendedGetHead = {
 }
 type SchoolsMeFollowersGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/get-followers/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/schools/get-followers/controller.ts').default['handle'], false>
 }
 type SchoolsMeFollowingGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/get-following/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/schools/get-following/controller.ts').default['handle'], false>
 }
 type SchoolsIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school/validator.ts')['validator']>>
@@ -311,6 +339,18 @@ export interface ApiDefinition {
     '$get': SkillsGetHead;
     '$head': SkillsGetHead;
   };
+  'sports': {
+    '$url': {
+    };
+    '$get': SportsGetHead;
+    '$head': SportsGetHead;
+  };
+  'styles': {
+    '$url': {
+    };
+    '$get': StylesGetHead;
+    '$head': StylesGetHead;
+  };
   'subscriptions': {
     'status': {
       '$url': {
@@ -354,6 +394,20 @@ export interface ApiDefinition {
         '$head': DancersMeSkillsGetHead;
         '$patch': DancersMeSkillsPatch;
       };
+      'styles': {
+        '$url': {
+        };
+        '$get': DancersMeStylesGetHead;
+        '$head': DancersMeStylesGetHead;
+        '$patch': DancersMeStylesPatch;
+      };
+      'sports': {
+        '$url': {
+        };
+        '$get': DancersMeSportsGetHead;
+        '$head': DancersMeSportsGetHead;
+        '$patch': DancersMeSportsPatch;
+      };
       'following': {
         '$url': {
         };
@@ -376,6 +430,12 @@ export interface ApiDefinition {
         };
         '$get': DancersMeFollowersGetHead;
         '$head': DancersMeFollowersGetHead;
+      };
+      'checklist': {
+        '$url': {
+        };
+        '$get': DancersMeChecklistGetHead;
+        '$head': DancersMeChecklistGetHead;
       };
     };
     'submissions': {

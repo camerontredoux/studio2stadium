@@ -1,10 +1,18 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { SkillsList } from "@/features/dancer/components/profile/skills-list";
 import { US_STATES } from "@/utils/constants/states";
 import { STYLES } from "@/utils/constants/styles";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { MapPin, SparklesIcon, StarIcon, Users2Icon } from "lucide-react";
+import {
+  CheckIcon,
+  MapPin,
+  SparklesIcon,
+  StarIcon,
+  Users2Icon,
+  XIcon,
+} from "lucide-react";
 import { feedQueries } from "../api/queries";
 import type { RecommendedSchool } from "../types";
 
@@ -32,11 +40,91 @@ function MatchTierBadge({ matchTier }: { matchTier: MatchTier }) {
   );
 }
 
+function NoRecommendedPrograms() {
+  const { data } = useSuspenseQuery(feedQueries.checklist());
+
+  return (
+    <div className="overflow-clip rounded-2xl border">
+      <div className="from-brand/10 via-brand/5 to-background relative overflow-clip bg-linear-to-br p-4">
+        <div className="text-brand absolute -top-1 -left-2 -z-10 flex items-center gap-2 opacity-10">
+          <SparklesIcon className="size-24 rotate-6" />
+          <SparklesIcon className="size-16 rotate-186" />
+        </div>
+        <div className="flex justify-between gap-2">
+          <h2 className="font-semibold">Complete your profile</h2>
+        </div>
+        <p className="text-muted-foreground text-sm">
+          Add the following to see your recommended programs
+        </p>
+      </div>
+      <div className="from-brand/10 via-background to-background border-t bg-linear-to-tl p-4">
+        <h3 className="text-muted-foreground mb-2 text-sm">
+          Click each item to complete your profile
+        </h3>
+        <div className="w-full space-y-2">
+          <SkillsList disabled={data.skills} className="w-full justify-start">
+            {data.skills ? (
+              <CheckIcon className="text-brand size-4 shrink-0" />
+            ) : (
+              <XIcon className="text-destructive-foreground size-4 shrink-0" />
+            )}
+            <span>At least 10 skills</span>
+          </SkillsList>
+          <SkillsList disabled={data.styles} className="w-full justify-start">
+            {data.styles ? (
+              <CheckIcon className="text-brand size-4 shrink-0" />
+            ) : (
+              <XIcon className="text-destructive-foreground size-4 shrink-0" />
+            )}
+            <span>Maximum of 3 styles</span>
+          </SkillsList>
+          <Button
+            disabled={data.sports}
+            variant="outline"
+            className="w-full justify-start"
+          >
+            {data.sports ? (
+              <CheckIcon className="text-brand size-4 shrink-0" />
+            ) : (
+              <XIcon className="text-destructive-foreground size-4 shrink-0" />
+            )}
+            <span>Sports you compete in</span>
+          </Button>
+          <Button
+            disabled={data.location}
+            variant="outline"
+            className="w-full justify-start"
+          >
+            {data.location ? (
+              <CheckIcon className="text-brand size-4 shrink-0" />
+            ) : (
+              <XIcon className="text-destructive-foreground size-4 shrink-0" />
+            )}
+            <span>Current or desired location</span>
+          </Button>
+          <Button
+            disabled={data.gpa}
+            variant="outline"
+            className="w-full justify-start"
+          >
+            {data.gpa ? (
+              <CheckIcon className="text-brand size-4 shrink-0" />
+            ) : (
+              <XIcon className="text-destructive-foreground size-4 shrink-0" />
+            )}
+            <span>Current GPA</span>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ProgramSpotlight() {
   const { data } = useSuspenseQuery(feedQueries.recommended());
 
   if (data.length === 0) {
-    return <div>No recommended programs found</div>;
+    return <NoRecommendedPrograms />;
   }
 
   const recommended = data[0];

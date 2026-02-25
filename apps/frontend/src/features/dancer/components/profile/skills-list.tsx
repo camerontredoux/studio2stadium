@@ -1,11 +1,12 @@
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
 import { SkillsDialog } from "@/shared/skills/components/skills-dialog";
+import type { ButtonProps } from "@base-ui/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useUpdateSkills } from "../../api/mutations";
 import { dancerQueries } from "../../api/queries";
 
-export function SkillsList() {
+export function SkillsList(props: ButtonProps) {
   const { data } = useSuspenseQuery(dancerQueries.skills());
   const { mutateAsync, isPending } = useUpdateSkills();
 
@@ -40,6 +41,7 @@ export function SkillsList() {
       selectedSkillIds={selectedSkillIds}
       onSave={handleSave}
       isPending={isPending}
+      {...props}
     />
   );
 }

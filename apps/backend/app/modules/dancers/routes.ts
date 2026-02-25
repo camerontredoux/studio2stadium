@@ -2,29 +2,44 @@ import { middleware } from "#start/kernel";
 import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
 
+const GetSportsController = () => import("./profile/get-sports/controller.ts");
+const UpdateSportsController = () =>
+  import("./profile/update-sports/controller.ts");
+const GetStylesController = () => import("./profile/get-styles/controller.ts");
+const UpdateStylesController = () =>
+  import("./profile/update-styles/controller.ts");
 const GetSubmissionVideoController = () =>
-  import("./get-submission-video/controller.ts");
+  import("./common-recruiting/get-submission-video/controller.ts");
 const GetSubmissionSchoolsController = () =>
-  import("./get-submission-schools/controller.ts");
+  import("./common-recruiting/get-submission-schools/controller.ts");
 const GetSubmissionsController = () =>
-  import("./get-submissions/controller.ts");
-const GetDancerController = () => import("./get-dancer/controller.ts");
-const GetFiltersController = () => import("./get-filters/controller.ts");
-const CreateDancerController = () => import("./create-dancer/controller.ts");
-const GetFollowingController = () => import("./get-following/controller.ts");
+  import("./common-recruiting/get-submissions/controller.ts");
+const GetDancerController = () => import("./profile/get-dancer/controller.ts");
+const GetFiltersController = () =>
+  import("./explore/get-filters/controller.ts");
+const CreateDancerController = () =>
+  import("./profile/create-dancer/controller.ts");
+const GetFollowingController = () =>
+  import("./engagement/get-following/controller.ts");
 const UpdatePortfolioController = () =>
-  import("./update-portfolio/controller.ts");
-const GetFollowersController = () => import("./get-followers/controller.ts");
+  import("./profile/update-portfolio/controller.ts");
+const GetFollowersController = () =>
+  import("./engagement/get-followers/controller.ts");
 const GetFollowingIdsController = () =>
-  import("./get-following-ids/controller.ts");
-const FavoriteDancerController = () => import("./favorite/controller.ts");
-const UnfavoriteDancerController = () => import("./unfavorite/controller.ts");
+  import("./engagement/get-following-ids/controller.ts");
+const FavoriteDancerController = () =>
+  import("./engagement/favorite/controller.ts");
+const UnfavoriteDancerController = () =>
+  import("./engagement/unfavorite/controller.ts");
 const GetMetadataController = () =>
-  import("./get-dancer-metadata/controller.ts");
-const GetSkillsController = () => import("./get-skills/controller.ts");
-const UpdateSkillsController = () => import("./update-skills/controller.ts");
+  import("./profile/get-dancer-metadata/controller.ts");
+const GetSkillsController = () => import("./profile/get-skills/controller.ts");
+const UpdateSkillsController = () =>
+  import("./profile/update-skills/controller.ts");
 const CreateSubmissionController = () =>
-  import("./create-submission/controller.ts");
+  import("./common-recruiting/create-submission/controller.ts");
+const GetChecklistController = () =>
+  import("./profile/get-profile-checklist/controller.ts");
 
 router
   .group(() => {
@@ -49,6 +64,22 @@ router
           summary: "Update dancer skills",
           description: "Updates the dancer's skills",
         });
+        router.get("styles", [GetStylesController]).openapi({
+          summary: "Get dancer styles",
+          description: "Returns the dancer's styles",
+        });
+        router.patch("styles", [UpdateStylesController]).openapi({
+          summary: "Update dancer styles",
+          description: "Updates the dancer's styles",
+        });
+        router.get("sports", [GetSportsController]).openapi({
+          summary: "Get dancer sports",
+          description: "Returns the dancer's sports",
+        });
+        router.patch("sports", [UpdateSportsController]).openapi({
+          summary: "Update dancer sports",
+          description: "Updates the dancer's sports",
+        });
         router.get("following", [GetFollowingController]).openapi({
           summary: "Get following list",
           description: "Returns the list of school's IDs I'm following",
@@ -64,6 +95,10 @@ router
         router.get("followers", [GetFollowersController]).openapi({
           summary: "Get dancer followers",
           description: "Returns the schools that have favorited this dancer.",
+        });
+        router.get("checklist", [GetChecklistController]).openapi({
+          summary: "Get dancer profile checklist",
+          description: "Returns the dancer's profile checklist",
         });
       })
       .prefix("me")

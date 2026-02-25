@@ -24,9 +24,19 @@ export function ProgramsSection() {
         </FrameTitle>
       </FrameHeader>
       <FramePanel className="divide-y">
-        {recommended.slice(1).map((school) => (
-          <RecommendedSchool key={school.id} school={school} />
-        ))}
+        {recommended.length > 1 ? (
+          recommended
+            .slice(1)
+            .map((school) => (
+              <RecommendedSchool key={school.id} school={school} />
+            ))
+        ) : (
+          <div className="flex items-center justify-center px-5 py-4">
+            <p className="text-muted-foreground text-sm">
+              No recommended programs found.
+            </p>
+          </div>
+        )}
       </FramePanel>
     </Frame>
   );

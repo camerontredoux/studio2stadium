@@ -10,13 +10,11 @@ export function ProgramSpotlightSkeleton() {
           <SparklesIcon className="size-24 rotate-6" />
           <SparklesIcon className="size-16 rotate-186" />
         </div>
-        <div className="flex justify-between gap-2">
-          <h2 className="font-semibold">Program Spotlight</h2>
+        <div className="mb-1 flex justify-between gap-2">
+          <Skeleton className="h-5 w-40 rounded-full" />
           <Skeleton className="h-4 w-24 rounded-full" />
         </div>
-        <p className="text-muted-foreground text-sm">
-          Based on your profile and preferences
-        </p>
+        <Skeleton className="mb-1 h-4 w-64 rounded-full" />
       </div>
       <div className="from-brand/10 via-background to-background grid grid-cols-1 gap-2 border-t bg-linear-to-tl p-2 sm:grid-cols-2 sm:gap-4 sm:p-4">
         <Skeleton className="aspect-video rounded-2xl" />

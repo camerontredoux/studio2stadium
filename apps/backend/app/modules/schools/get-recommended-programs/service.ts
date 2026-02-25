@@ -54,7 +54,13 @@ export class Service {
     options: { debug?: boolean; limit?: number } = {}
   ): Promise<RecommendedProgram[]> {
     const dancer = await this.getDancerProfile(profileId);
-    if (!dancer || dancer.skills.length < 10) {
+    if (
+      !dancer ||
+      dancer.skills.length < 10 ||
+      dancer.styles.length < 1 ||
+      dancer.sports.length < 1 ||
+      dancer.gpa === null
+    ) {
       return [];
     }
 

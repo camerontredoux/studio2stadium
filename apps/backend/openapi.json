@@ -459,6 +459,50 @@
         "description": "Returns a list of all skills"
       }
     },
+    "/sports": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SportsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Sports"
+        ],
+        "summary": "Get all sports",
+        "description": "Returns a list of all sports"
+      }
+    },
+    "/styles": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StylesResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Styles"
+        ],
+        "summary": "Get all styles",
+        "description": "Returns a list of all styles"
+      }
+    },
     "/subscriptions/status": {
       "get": {
         "parameters": [],
@@ -666,6 +710,112 @@
         "description": "Updates the dancer's skills"
       }
     },
+    "/dancers/me/styles": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersMeStylesResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Get dancer styles",
+        "description": "Returns the dancer's styles"
+      },
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DancersMeStylesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Update dancer styles",
+        "description": "Updates the dancer's styles"
+      }
+    },
+    "/dancers/me/sports": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersMeSportsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Get dancer sports",
+        "description": "Returns the dancer's sports"
+      },
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DancersMeSportsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Update dancer sports",
+        "description": "Updates the dancer's sports"
+      }
+    },
     "/dancers/me/following": {
       "get": {
         "parameters": [],
@@ -754,6 +904,38 @@
         ],
         "summary": "Get dancer followers",
         "description": "Returns the schools that have favorited this dancer."
+      }
+    },
+    "/dancers/me/checklist": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersMeChecklistResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Get dancer profile checklist",
+        "description": "Returns the dancer's profile checklist"
       }
     },
     "/dancers/submissions": {
@@ -1835,6 +2017,9 @@
         "responses": {
           "204": {
             "description": "No Content"
+          },
+          "500": {
+            "description": "Unknown Response"
           }
         },
         "tags": [
@@ -2485,6 +2670,42 @@
           ]
         }
       },
+      "SportsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "slug": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "slug"
+          ]
+        }
+      },
+      "StylesResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "slug": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "slug"
+          ]
+        }
+      },
       "SubscriptionsStatusResponse": {
         "type": "object",
         "properties": {
@@ -2674,6 +2895,62 @@
           "skills"
         ]
       },
+      "DancersMeStylesResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "styleId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "styleId"
+          ]
+        }
+      },
+      "DancersMeStylesRequest": {
+        "type": "object",
+        "properties": {
+          "styles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "styles"
+        ]
+      },
+      "DancersMeSportsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "sportId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "sportId"
+          ]
+        }
+      },
+      "DancersMeSportsRequest": {
+        "type": "object",
+        "properties": {
+          "sports": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "sports"
+        ]
+      },
       "DancersMeFollowingResponse": {
         "type": "array",
         "items": {
@@ -2745,6 +3022,33 @@
             "name"
           ]
         }
+      },
+      "DancersMeChecklistResponse": {
+        "type": "object",
+        "properties": {
+          "gpa": {
+            "type": "boolean"
+          },
+          "location": {
+            "type": "boolean"
+          },
+          "skills": {
+            "type": "boolean"
+          },
+          "styles": {
+            "type": "boolean"
+          },
+          "sports": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "gpa",
+          "location",
+          "skills",
+          "styles",
+          "sports"
+        ]
       },
       "DancersSubmissionsResponse": {
         "type": "array",

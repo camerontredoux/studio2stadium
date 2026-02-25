@@ -18,4 +18,5 @@ export const feedQueries = {
     $api.queryOptions("get", "/schools/recommended", {
       params: { query: { limit: 4 } },
     }),
+  checklist: () => $api.queryOptions("get", "/dancers/me/checklist"),
 };

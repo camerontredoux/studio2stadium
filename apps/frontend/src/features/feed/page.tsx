@@ -6,7 +6,6 @@ import { Suspense } from "react";
 import { Feed } from "./components/feed";
 import { FeedSkeleton } from "./components/feed-skeleton";
 import { ProgramSpotlight } from "./components/program-spotlight";
-import { ProgramSpotlightSkeleton } from "./components/program-spotlight-skeleton";
 
 export function FeedPage() {
   const session = useSession();
@@ -26,9 +25,7 @@ export function FeedPage() {
           </p>
         </div>
 
-        <Suspense fallback={<ProgramSpotlightSkeleton />}>
-          <ProgramSpotlight />
-        </Suspense>
+        <ProgramSpotlight />
 
         <Suspense fallback={<FeedSkeleton />}>
           <Feed />

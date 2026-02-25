@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import type { ButtonProps } from "@base-ui/react";
 import { useState } from "react";
 import { useSkillsByCategory } from "../hooks/use-skills-by-category";
 import { SkillsList } from "./skills-list";
@@ -25,7 +26,8 @@ export function SkillsDialog({
   selectedSkillIds,
   onSave,
   isPending,
-}: SkillsDialogProps) {
+  ...props
+}: SkillsDialogProps & ButtonProps) {
   const skillsByCategory = useSkillsByCategory();
   const [open, setOpen] = useState(false);
   const [localSelectedSkillIds, setLocalSelectedSkillIds] =
@@ -53,8 +55,8 @@ export function SkillsDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger render={<Button variant="outline" />}>
-        Skills
+      <DialogTrigger {...props} render={<Button variant="outline" />}>
+        {props.children}
       </DialogTrigger>
       <DialogContent className="max-w-7xl max-sm:h-[calc(100svh-3rem)] sm:h-200 sm:max-h-[90svh]">
         <DialogHeader>
