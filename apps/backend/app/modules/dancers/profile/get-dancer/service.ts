@@ -79,7 +79,6 @@ export class Service {
               biography: true,
               birthday: true,
               location: true,
-              skillLevel: true,
               teamLevel: true,
               highSchool: true,
               studio: true,

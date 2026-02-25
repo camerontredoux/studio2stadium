@@ -1,0 +1,1 @@
+ALTER TABLE "dancer_profiles" DROP COLUMN "skill_level";

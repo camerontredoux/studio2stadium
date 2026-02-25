@@ -10,7 +10,6 @@ export const validator = vine.create(
     trainingHours: vine.number().nullable().optional(),
     highSchool: vine.string().nullable().optional(),
     studio: vine.string().nullable().optional(),
-    skillLevel: vine.string().nullable().optional(),
     teamLevel: vine.string().nullable().optional(),
     instagram: vine.string().nullable().optional(),
     tiktok: vine.string().nullable().optional(),

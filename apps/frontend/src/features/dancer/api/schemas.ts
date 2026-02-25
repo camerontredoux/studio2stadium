@@ -30,7 +30,6 @@ export const schemas = {
     trainingHours: z.coerce.number().optional(),
     highSchool: z.string().optional(),
     studio: z.string().optional(),
-    skillLevel: z.string().optional(),
     teamLevel: z.string().optional(),
   }),
   createAchievement: z.object({

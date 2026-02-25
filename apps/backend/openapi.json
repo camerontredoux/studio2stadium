@@ -2161,8 +2161,15 @@
           "204": {
             "description": "No Content"
           },
-          "500": {
-            "description": "Unknown Response"
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -3196,16 +3203,6 @@
               }
             ]
           },
-          "skillLevel": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "teamLevel": {
             "oneOf": [
               {
@@ -3671,16 +3668,6 @@
               }
             ]
           },
-          "skillLevel": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "teamLevel": {
             "oneOf": [
               {
@@ -3950,7 +3937,6 @@
           "instagram",
           "tiktok",
           "youtube",
-          "skillLevel",
           "teamLevel",
           "highSchool",
           "studio",

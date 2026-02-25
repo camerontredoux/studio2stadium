@@ -30,7 +30,6 @@ export function ExtraForm({ username, onSubmit }: ExtraFormProps) {
       trainingHours: data.trainingHours ?? undefined,
       highSchool: data.highSchool ?? "",
       studio: data.studio ?? "",
-      skillLevel: data.skillLevel ?? "",
       teamLevel: data.teamLevel ?? "",
     },
   });
@@ -81,17 +80,6 @@ export function ExtraForm({ username, onSubmit }: ExtraFormProps) {
           render={({ field: { value, ...field }, fieldState }) => (
             <Field name={field.name} invalid={fieldState.invalid}>
               <FieldLabel>Studio</FieldLabel>
-              <Input type="text" value={value as string} {...field} />
-              <FieldError error={fieldState.error} />
-            </Field>
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="skillLevel"
-          render={({ field: { value, ...field }, fieldState }) => (
-            <Field name={field.name} invalid={fieldState.invalid}>
-              <FieldLabel>Skill Level</FieldLabel>
               <Input type="text" value={value as string} {...field} />
               <FieldError error={fieldState.error} />
             </Field>

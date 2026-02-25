@@ -157,7 +157,6 @@ async function importDancerProfiles() {
     instagram: string | null;
     tiktok: string | null;
     youtube: string | null;
-    skillLevel: string | null;
     teamLevel: string | null;
     highSchool: string | null;
     studio: string | null;
@@ -179,7 +178,6 @@ async function importDancerProfiles() {
     instagram: p.instagram,
     tiktok: p.tiktok,
     youtube: p.youtube,
-    skillLevel: p.skillLevel,
     teamLevel: p.teamLevel,
     highSchool: p.highSchool,
     studio: p.studio,

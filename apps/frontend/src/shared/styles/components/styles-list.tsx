@@ -11,7 +11,7 @@ interface StylesListProps {
 export function StylesList({ selectedStyleIds, onToggle }: StylesListProps) {
   const { data } = useQuery(styleQueries.all());
 
-  const max = selectedStyleIds.length === 3;
+  const max = selectedStyleIds.length >= 3;
 
   return (
     <div className="flex h-full flex-col gap-4 md:flex-row md:gap-6">

@@ -9,7 +9,6 @@ import {
   GraduationCapIcon,
   InfoIcon,
   School2Icon,
-  StarIcon,
   TrophyIcon,
 } from "lucide-react";
 import { type DancerProfile } from "../../../types";
@@ -27,7 +26,6 @@ export function ExtraInfo({ dancer }: ExtraInfoProps) {
     !dancer.trainingHours &&
     !dancer.highSchool &&
     !dancer.studio &&
-    !dancer.skillLevel &&
     !dancer.teamLevel;
 
   return (
@@ -70,13 +68,6 @@ export function ExtraInfo({ dancer }: ExtraInfoProps) {
               icon={<School2Icon className="size-4 shrink-0" />}
               label="Dance Studio"
               value={dancer.studio}
-            />
-          ) : null}
-          {dancer.skillLevel ? (
-            <ExtraInfoItem
-              icon={<StarIcon className="size-4 shrink-0" />}
-              label="Skill Level"
-              value={dancer.skillLevel}
             />
           ) : null}
           {dancer.teamLevel ? (

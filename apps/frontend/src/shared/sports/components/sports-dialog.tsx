@@ -58,7 +58,7 @@ export function SportsDialog({
         <DialogHeader>
           <DialogTitle>Sports</DialogTitle>
           <DialogDescription>
-            Choose the sports you want to compete in
+            Select the sports you are most interested in supporting
           </DialogDescription>
         </DialogHeader>
         <DialogPanel className="h-full">

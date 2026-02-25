@@ -3120,7 +3120,6 @@ export interface components {
             instagram?: string | null;
             tiktok?: string | null;
             youtube?: string | null;
-            skillLevel?: string | null;
             teamLevel?: string | null;
             highSchool?: string | null;
             studio?: string | null;
@@ -3205,7 +3204,6 @@ export interface components {
             instagram: string | null;
             tiktok: string | null;
             youtube: string | null;
-            skillLevel: string | null;
             teamLevel: string | null;
             highSchool: string | null;
             studio: string | null;

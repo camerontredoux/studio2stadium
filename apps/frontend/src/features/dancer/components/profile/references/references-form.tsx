@@ -64,8 +64,8 @@ export function ReferencesForm({ onSubmit }: ReferencesFormProps) {
           name="description"
           render={({ field, fieldState }) => (
             <Field name={field.name} invalid={fieldState.invalid}>
-              <FieldLabel>Description</FieldLabel>
-              <Textarea placeholder="How do you know this person?" {...field} />
+              <FieldLabel>Contact Info</FieldLabel>
+              <Textarea placeholder="Email, phone number, etc." {...field} />
               <FieldError error={fieldState.error} />
             </Field>
           )}

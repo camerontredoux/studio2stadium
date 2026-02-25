@@ -19,7 +19,6 @@ export const dancerProfiles = pg.pgTable(
     instagram: pg.text(),
     tiktok: pg.text(),
     youtube: pg.text(),
-    skillLevel: pg.text(),
     teamLevel: pg.text(),
     highSchool: pg.text(),
     studio: pg.text(),
