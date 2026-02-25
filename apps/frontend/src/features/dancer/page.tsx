@@ -75,7 +75,7 @@ export function DancerPage({ username }: DancerPageProps) {
           <div className="flex flex-col gap-3 lg:gap-4">
             <DancerHero dancer={data} />
 
-            <Biography description={data.biography} />
+            <Biography description={data.biography} username={username} />
             <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
               <Achievements achievements={data.achievements} />
               <References references={data.references} />
@@ -86,12 +86,6 @@ export function DancerPage({ username }: DancerPageProps) {
                 <Events events={data.events} />
               </>
             ) : null}
-
-            <div>
-              <pre className="max-w-full wrap-break-word whitespace-pre-wrap">
-                {JSON.stringify({ session, data }, null, 2)}
-              </pre>
-            </div>
           </div>
         </div>
       </SidebarLayout>

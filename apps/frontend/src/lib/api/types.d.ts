@@ -1306,7 +1306,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersMePortfolioRequest"];
+                };
+            };
             responses: {
                 /** @description No Content */
                 204: {
@@ -2911,6 +2915,21 @@ export interface components {
             name: string;
         }[];
         DancersMeFollowingIdsResponse: string[];
+        DancersMePortfolioRequest: {
+            birthday?: string | null;
+            location?: string | null;
+            biography?: string | null;
+            instagram?: string | null;
+            tiktok?: string | null;
+            youtube?: string | null;
+            skillLevel?: string | null;
+            teamLevel?: string | null;
+            highSchool?: string | null;
+            studio?: string | null;
+            gpa?: (string | number) | null;
+            gradYear?: (string | number) | null;
+            trainingHours?: (string | number) | null;
+        };
         DancersMeFollowersResponse: {
             id: string;
             username: string;

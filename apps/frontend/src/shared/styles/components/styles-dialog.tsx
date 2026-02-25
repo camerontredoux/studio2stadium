@@ -10,39 +10,38 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import type { ButtonProps } from "@base-ui/react";
 import { useState } from "react";
-import { SkillsList } from "./skills-list";
-import { SkillsSummary } from "./skills-summary";
+import { StylesList } from "./styles-list";
 
 interface SkillsDialogProps {
-  selectedSkillIds: string[];
+  selectedStyleIds: string[];
   onSave: (skillIds: string[]) => Promise<void>;
   isPending?: boolean;
+  render: React.ReactElement;
 }
 
-export function SkillsDialog({
-  selectedSkillIds,
+export function StylesDialog({
+  selectedStyleIds,
   onSave,
   isPending,
-  ...props
-}: SkillsDialogProps & ButtonProps) {
+  render,
+}: SkillsDialogProps) {
   const [open, setOpen] = useState(false);
   const [localSelectedSkillIds, setLocalSelectedSkillIds] =
-    useState<string[]>(selectedSkillIds);
+    useState<string[]>(selectedStyleIds);
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (nextOpen) {
-      setLocalSelectedSkillIds(selectedSkillIds);
+      setLocalSelectedSkillIds(selectedStyleIds);
     }
     setOpen(nextOpen);
   };
 
-  const handleToggle = (skillId: string) => {
+  const handleToggle = (styleId: string) => {
     setLocalSelectedSkillIds((prev) =>
-      prev.includes(skillId)
-        ? prev.filter((id) => id !== skillId)
-        : [...prev, skillId],
+      prev.includes(styleId)
+        ? prev.filter((id) => id !== styleId)
+        : [...prev, styleId],
     );
   };
 
@@ -53,28 +52,20 @@ export function SkillsDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger {...props} render={<Button variant="outline" />}>
-        {props.children}
-      </DialogTrigger>
-      <DialogContent className="max-w-7xl max-sm:h-[calc(100svh-3rem)] sm:h-200 sm:max-h-[90svh]">
+      <DialogTrigger nativeButton={false} render={render} />
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Dance Skills</DialogTitle>
+          <DialogTitle>Dance Styles</DialogTitle>
           <DialogDescription>
-            Skills help us connect you with the right programs
+            Select your top 3 styles to help us recommend the right programs
           </DialogDescription>
         </DialogHeader>
         <DialogPanel className="h-full">
-          <SkillsList
-            selectedSkillIds={localSelectedSkillIds}
+          <StylesList
             onToggle={handleToggle}
+            selectedStyleIds={localSelectedSkillIds}
           />
         </DialogPanel>
-
-        <SkillsSummary
-          className="mx-6 mb-2 md:hidden"
-          selectedSkillIds={localSelectedSkillIds}
-          onRemove={handleToggle}
-        />
 
         <DialogFooter>
           <DialogClose render={<Button variant="secondary" />}>

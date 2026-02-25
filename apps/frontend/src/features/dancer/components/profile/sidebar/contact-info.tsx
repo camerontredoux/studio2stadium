@@ -6,7 +6,7 @@ import {
   FrameTitle,
 } from "@/components/ui/frame";
 import { formatPhoneNumber } from "@/utils/format-phone";
-import { PhoneIcon } from "lucide-react";
+import { InfoIcon, PhoneIcon } from "lucide-react";
 import {
   AiOutlineInstagram,
   AiOutlineTikTok,
@@ -21,6 +21,9 @@ interface ContactInfoProps {
 
 export function ContactInfo({ dancer }: ContactInfoProps) {
   const { showOwnerControls } = useProfile();
+
+  const noInfo =
+    !dancer.phone && !dancer.instagram && !dancer.youtube && !dancer.tiktok;
 
   const phone = dancer.phone ? formatPhoneNumber(dancer.phone) : null;
   return (
@@ -37,6 +40,12 @@ export function ContactInfo({ dancer }: ContactInfoProps) {
       </FrameHeader>
       <FramePanel side="bottom">
         <div className="flex min-w-0 flex-col gap-2 p-4">
+          {noInfo ? (
+            <ContactInfoItem
+              icon={<InfoIcon className="size-4" />}
+              value="No contact information"
+            />
+          ) : null}
           {phone && (
             <ContactInfoItem
               icon={<PhoneIcon className="size-4" />}

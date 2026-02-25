@@ -3,7 +3,7 @@ import { DancerFollowingDialog } from "@/features/dancer/components/following-di
 import { SchoolFollowersDialog } from "@/features/school/components/followers-dialog";
 import { SchoolFollowingDialog } from "@/features/school/components/following-dialog";
 import { useSession } from "@/lib/session";
-import { queries } from "@/shared/api/queries";
+import { queries } from "@/shared/engagement/api/queries";
 import { useQuery } from "@tanstack/react-query";
 
 export function Activity() {

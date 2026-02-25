@@ -1,7 +1,7 @@
 import { exploreQueries } from "@/features/explore/api/queries";
 import type { SearchFilter } from "@/features/explore/components/filters/types";
 import { ExplorePage } from "@/features/explore/page";
-import { queries } from "@/shared/api/queries";
+import { queries } from "@/shared/engagement/api/queries";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/explore/")({

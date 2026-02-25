@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
-import { useUnfollowSchool } from "@/shared/api/mutations";
+import { useUnfollowSchool } from "@/shared/engagement/api/mutations";
 import { type FollowedSchool } from "@/shared/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";

@@ -13,7 +13,10 @@ import {
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { type ApiSchemas } from "@/lib/api/client";
-import { useFavoriteDancer, useUnfavoriteDancer } from "@/shared/api/mutations";
+import {
+  useFavoriteDancer,
+  useUnfavoriteDancer,
+} from "@/shared/engagement/api/mutations";
 import { type FavoritedDancer } from "@/shared/types";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";

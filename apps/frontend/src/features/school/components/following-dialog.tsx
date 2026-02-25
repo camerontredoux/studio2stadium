@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
-import { useUnfavoriteDancer } from "@/shared/api/mutations";
+import { useUnfavoriteDancer } from "@/shared/engagement/api/mutations";
 import { type FavoritedDancer } from "@/shared/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";

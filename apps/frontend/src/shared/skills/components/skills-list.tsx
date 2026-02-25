@@ -63,7 +63,6 @@ export function SkillsList({ selectedSkillIds, onToggle }: SkillsListProps) {
       </div>
       <SkillsSummary
         className="hidden md:flex"
-        skillsByCategory={skillsByCategory}
         selectedSkillIds={selectedSkillIds}
         onRemove={onToggle}
       />

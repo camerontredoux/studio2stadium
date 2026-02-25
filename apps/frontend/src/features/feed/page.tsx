@@ -5,7 +5,7 @@ import { useSession } from "@/lib/session";
 import { Suspense } from "react";
 import { Feed } from "./components/feed";
 import { FeedSkeleton } from "./components/feed-skeleton";
-import { ProgramSpotlight } from "./components/program-spotlight";
+import { ProgramSpotlight } from "./components/spotlight/program-spotlight";
 
 export function FeedPage() {
   const session = useSession();

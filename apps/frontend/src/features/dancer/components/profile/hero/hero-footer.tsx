@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { dancerQueries } from "@/features/dancer/api/queries";
-import { queries } from "@/shared/api/queries";
+import { queries } from "@/shared/engagement/api/queries";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { EyeIcon, EyeOffIcon, Share2Icon } from "lucide-react";

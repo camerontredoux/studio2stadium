@@ -2,7 +2,10 @@ import { useCountdown } from "@/components/hooks/use-countdown";
 import { Button } from "@/components/ui/button";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
-import { useFollowSchool, useUnfollowSchool } from "@/shared/api/mutations";
+import {
+  useFollowSchool,
+  useUnfollowSchool,
+} from "@/shared/engagement/api/mutations";
 import type { FollowedSchool } from "@/shared/types";
 import { HeartIcon } from "lucide-react";
 

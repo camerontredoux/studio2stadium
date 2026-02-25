@@ -10,21 +10,22 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/components/utils/cn";
 import { ChevronUpIcon, XIcon } from "lucide-react";
 import { useState } from "react";
+import { useSkillsByCategory } from "../hooks/use-skills-by-category";
 import type { Skill } from "../types";
 
 interface SkillsSummaryProps {
   className?: string;
-  skillsByCategory: Record<string, Skill[]>;
   selectedSkillIds: string[];
   onRemove: (skillId: string) => void;
 }
 
 export function SkillsSummary({
   className,
-  skillsByCategory,
   selectedSkillIds,
   onRemove,
 }: SkillsSummaryProps) {
+  const skillsByCategory = useSkillsByCategory();
+
   const [isExpanded, setIsExpanded] = useState(false);
 
   const selectedByCategory: Record<string, Skill[]> = {};

@@ -1,5 +1,5 @@
 import { Spinner } from "@/components/ui/spinner";
-import { queries } from "@/shared/api/queries";
+import { queries } from "@/shared/engagement/api/queries";
 import { useQuery } from "@tanstack/react-query";
 import { useElementScrollRestoration, useSearch } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";

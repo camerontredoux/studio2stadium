@@ -16,8 +16,11 @@ import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { type ApiSchemas } from "@/lib/api/client";
 import { handleApiError } from "@/lib/api/errors";
-import { useFollowSchool, useUnfollowSchool } from "@/shared/api/mutations";
-import { queries } from "@/shared/api/queries";
+import {
+  useFollowSchool,
+  useUnfollowSchool,
+} from "@/shared/engagement/api/mutations";
+import { queries } from "@/shared/engagement/api/queries";
 import { type FollowedSchool } from "@/shared/types";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";

@@ -7,9 +7,8 @@ export default class UpdatePortfolioController {
   @inject()
   async handle(ctx: HttpContext, service: Service) {
     const payload = await ctx.request.validateUsing(validator);
-    const session = ctx.auth.getUserOrFail();
 
-    await service.execute(session.id, payload);
+    await service.execute(ctx.session.profileId, payload);
 
     return ctx.response.noContent();
   }

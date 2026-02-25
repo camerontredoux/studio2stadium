@@ -2,7 +2,10 @@ import { useCountdown } from "@/components/hooks/use-countdown";
 import { Button } from "@/components/ui/button";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
-import { useFavoriteDancer, useUnfavoriteDancer } from "@/shared/api/mutations";
+import {
+  useFavoriteDancer,
+  useUnfavoriteDancer,
+} from "@/shared/engagement/api/mutations";
 import { useQuery } from "@tanstack/react-query";
 import { HeartIcon } from "lucide-react";
 import { dancerQueries } from "../../api/queries";
