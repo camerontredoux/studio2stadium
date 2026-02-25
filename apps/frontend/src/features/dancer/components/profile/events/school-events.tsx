@@ -67,7 +67,7 @@ export function SchoolEvents({ events }: { events: Events }) {
           </div>
           <Button
             variant="outline"
-            size="sm"
+            size="xs"
             render={
               <Link to={"/events/$eventId"} params={{ eventId: event.id }} />
             }
