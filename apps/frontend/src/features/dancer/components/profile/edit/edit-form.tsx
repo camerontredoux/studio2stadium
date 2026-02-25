@@ -1,6 +1,6 @@
 import { BirthdayField } from "@/components/shared/birthday-field";
+import LocationSelect from "@/components/shared/location-select";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import {
   NumberField,
   NumberFieldDecrement,
@@ -118,10 +118,10 @@ export function EditForm({ username, onSubmit }: EditFormProps) {
         <Controller
           control={form.control}
           name="location"
-          render={({ field: { value, ...field }, fieldState }) => (
+          render={({ field, fieldState }) => (
             <Field name={field.name} invalid={fieldState.invalid}>
               <FieldLabel>Location</FieldLabel>
-              <Input type="text" value={value as string} {...field} />
+              <LocationSelect value={field.value} onChange={field.onChange} />
               <FieldError error={fieldState.error} />
             </Field>
           )}
