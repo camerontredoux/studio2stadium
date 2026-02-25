@@ -1,3 +1,9 @@
+import {
+  Accordion,
+  AccordionItem,
+  AccordionPanel,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,28 +63,34 @@ export function Skills({
       </FrameHeader>
       <FramePanel className="p-4">
         {skills.length > 0 ? (
-          <div className="flex flex-col gap-4">
-            {groups.map(({ category, skills: groupSkills }) => (
-              <div key={category ?? "_"} className="flex flex-col gap-2">
-                {category ? (
-                  <span className="text-muted-foreground text-sm font-medium">
-                    {category}
-                  </span>
-                ) : null}
-                <div className="flex flex-wrap gap-2">
-                  {groupSkills.map((skill) => (
-                    <Badge
-                      key={skill.slug}
-                      variant="brand"
-                      className="rounded-full"
-                    >
-                      {skill.name}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          <Accordion
+            defaultValue={groups.length > 0 ? [groups[0].category ?? "_"] : []}
+            className="w-full"
+          >
+            {groups.map(({ category, skills: groupSkills }) => {
+              const value = category ?? "_";
+              return (
+                <AccordionItem key={value} value={value} className="border-0">
+                  <AccordionTrigger className="py-2 text-muted-foreground text-sm font-medium hover:no-underline">
+                    {category ?? "Skills"}
+                  </AccordionTrigger>
+                  <AccordionPanel className="pb-2 pt-0">
+                    <div className="flex flex-wrap gap-2">
+                      {groupSkills.map((skill) => (
+                        <Badge
+                          key={skill.slug}
+                          variant="brand"
+                          className="rounded-full"
+                        >
+                          {skill.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </AccordionPanel>
+                </AccordionItem>
+              );
+            })}
+          </Accordion>
         ) : (
           <span className="text-muted-foreground text-sm">
             No skills selected
