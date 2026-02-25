@@ -3,7 +3,7 @@ import { schoolProfiles } from "#database/schema/schools";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
-import { eq, notInArray } from "drizzle-orm";
+import { and, eq, not, notInArray } from "drizzle-orm";
 
 @inject()
 export class Service {
@@ -21,12 +21,15 @@ export class Service {
         })
         .from(schoolProfiles)
         .where(
-          notInArray(
-            schoolProfiles.id,
-            db
-              .select({ id: crvSubmissions.schoolId })
-              .from(crvSubmissions)
-              .where(eq(crvSubmissions.dancerId, profileId))
+          and(
+            notInArray(
+              schoolProfiles.id,
+              db
+                .select({ id: crvSubmissions.schoolId })
+                .from(crvSubmissions)
+                .where(eq(crvSubmissions.dancerId, profileId))
+            ),
+            not(eq(users.role, "admin"))
           )
         )
         .leftJoin(users, eq(schoolProfiles.userId, users.id))
