@@ -76,16 +76,28 @@ export function ProfileChecklist() {
               label="Choose current or desired location"
             />
           </Button>
-          <Button
-            disabled={data.gpa}
-            variant="outline"
-            className="w-full justify-start"
-            render={
-              <Link to="/$username" params={{ username: session.username }} />
-            }
-          >
-            <ChecklistItem checked={data.gpa} label="Enter your current GPA" />
-          </Button>
+          {data.gpa ? (
+            <Button
+              disabled
+              variant="outline"
+              className="w-full justify-start"
+            >
+              <ChecklistItem checked label="Enter your current GPA" />
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              render={
+                <Link
+                  to="/$username"
+                  params={{ username: session.username }}
+                />
+              }
+            >
+              <ChecklistItem checked={false} label="Enter your current GPA" />
+            </Button>
+          )}
         </div>
       </div>
     </div>
