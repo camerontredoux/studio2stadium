@@ -27,7 +27,7 @@ export function ContactInfo({ dancer }: ContactInfoProps) {
 
   const phone = dancer.phone ? formatPhoneNumber(dancer.phone) : null;
   return (
-    <Frame compact>
+    <Frame>
       <FrameHeader>
         <FrameTitle className="flex items-center justify-between gap-2">
           Contact Information
@@ -39,7 +39,7 @@ export function ContactInfo({ dancer }: ContactInfoProps) {
         </FrameTitle>
       </FrameHeader>
       <FramePanel side="bottom">
-        <div className="flex min-w-0 flex-col gap-2 p-4">
+        <div className="flex min-w-0 flex-col gap-2">
           {noInfo ? (
             <ContactInfoItem
               icon={<InfoIcon className="size-4" />}

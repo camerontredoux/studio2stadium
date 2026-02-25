@@ -31,7 +31,7 @@ export function ExtraInfo({ dancer }: ExtraInfoProps) {
     !dancer.teamLevel;
 
   return (
-    <Frame compact>
+    <Frame>
       <FrameHeader>
         <FrameTitle className="flex items-center justify-between gap-2">
           Education & Training
@@ -42,7 +42,7 @@ export function ExtraInfo({ dancer }: ExtraInfoProps) {
           )}
         </FrameTitle>
       </FrameHeader>
-      <FramePanel side="bottom">
+      <FramePanel className="p-0!">
         <div className="flex min-w-0 flex-col divide-y">
           {noInfo ? (
             <ExtraInfoItem
