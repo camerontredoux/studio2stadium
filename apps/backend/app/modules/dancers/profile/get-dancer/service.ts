@@ -42,6 +42,14 @@ export class Service {
         },
         with: {
           events: {
+            orderBy: {
+              startDatetime: "asc",
+            },
+            where: {
+              startDatetime: {
+                gte: new Date(),
+              },
+            },
             columns: {
               id: true,
               title: true,
@@ -59,6 +67,14 @@ export class Service {
             },
           },
           globalEvents: {
+            orderBy: {
+              startDatetime: "asc",
+            },
+            where: {
+              startDatetime: {
+                gte: new Date(),
+              },
+            },
             columns: {
               id: true,
               title: true,

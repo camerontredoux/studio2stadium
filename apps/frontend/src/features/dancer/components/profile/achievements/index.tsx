@@ -50,7 +50,7 @@ function AchievementItem({
       <div className="flex items-center gap-2">
         <TrophyIcon className="text-brand size-4 shrink-0" />
         <span className="flex-1 text-sm">{achievement.title}</span>
-        {showOwnerControls && (
+        {showOwnerControls ? (
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger
               render={
@@ -87,6 +87,8 @@ function AchievementItem({
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+        ) : (
+          <div className="h-7 w-fit sm:h-6" />
         )}
       </div>
       <span className="text-muted-foreground text-sm">

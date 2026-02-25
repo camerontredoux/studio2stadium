@@ -83,30 +83,43 @@ export function ProgramSpotlight() {
           </div>
         </div>
         <div className="flex flex-col gap-2 sm:gap-4">
-          <p className="line-clamp-4 text-sm">{recommended.about}</p>
+          <p className="line-clamp-4 text-sm">
+            {recommended.about ??
+              "No description available. Check out their profile for more information."}
+          </p>
           <div className="flex flex-col gap-3">
             <div className="space-y-1">
               <h3 className="text-muted-foreground text-sm">
                 Program Strengths
               </h3>
               <div className="flex gap-2">
-                {recommended.top3Matches.map((style) => (
-                  <Badge
-                    key={style}
-                    className="rounded-full"
-                    size="lg"
-                    variant="secondary"
-                  >
-                    <StarIcon className="text-brand" />{" "}
-                    {STYLES[style as keyof typeof STYLES]}
+                {recommended.top3Matches.length > 0 ? (
+                  recommended.top3Matches.map((style) => (
+                    <Badge
+                      key={style}
+                      className="rounded-full"
+                      size="lg"
+                      variant="secondary"
+                    >
+                      <StarIcon className="text-brand" />{" "}
+                      {STYLES[style as keyof typeof STYLES]}
+                    </Badge>
+                  ))
+                ) : (
+                  <Badge className="rounded-full" size="lg" variant="secondary">
+                    <StarIcon className="text-brand" /> None
                   </Badge>
-                ))}
+                )}
               </div>
             </div>
-            {recommended.size && recommended.size > 0 && (
+            {recommended.size && recommended.size > 0 ? (
               <div className="text-muted-foreground flex items-center gap-2 text-sm">
                 <Users2Icon className="size-4" />{" "}
                 {recommended.size.toLocaleString() ?? "Unknown"} Students
+              </div>
+            ) : (
+              <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                <Users2Icon className="size-4" /> Unknown Students
               </div>
             )}
             <div className="flex flex-1 items-center gap-2">

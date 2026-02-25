@@ -86,7 +86,7 @@ export function DancerPage({ username }: DancerPageProps) {
             {data.subscribed ? (
               <>
                 <Submission />
-                <Events events={data.events} />
+                <Events events={data.events} globalEvents={data.globalEvents} />
               </>
             ) : null}
           </div>

@@ -23,7 +23,7 @@ export function Biography({ description, username }: BiographyProps) {
           {showOwnerControls ? (
             <EditDialog username={username} />
           ) : (
-            <div className="h-6 w-fit" />
+            <div className="h-7 w-fit sm:h-6" />
           )}
         </FrameTitle>
       </FrameHeader>

@@ -51,7 +51,7 @@ function ReferenceItem({
         <span className="flex-1 text-sm">
           {reference.name} &middot; {reference.title}
         </span>
-        {showOwnerControls && (
+        {showOwnerControls ? (
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger
               render={
@@ -88,6 +88,8 @@ function ReferenceItem({
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+        ) : (
+          <div className="h-7 w-fit sm:h-6" />
         )}
       </div>
       <span className="text-muted-foreground text-sm">

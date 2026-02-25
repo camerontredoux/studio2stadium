@@ -74,7 +74,7 @@ export function HeroContent({ dancer }: { dancer: DancerProfile }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 max-sm:flex-1">
+      <div className="flex items-center gap-2 max-sm:col-span-2 max-sm:flex-1">
         <HeroBadge
           className="border-brand/50 tracking-tight"
           label="GPA"
