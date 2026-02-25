@@ -1,11 +1,7 @@
 import { EyeIcon, EyeOffIcon, LockIcon } from "lucide-react";
 import { useReducer } from "react";
 import type { InputProps } from "./input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "./input-group";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "./input-group";
 import { Toggle } from "./toggle";
 
 export function PasswordInput(props: Omit<InputProps, "type">) {

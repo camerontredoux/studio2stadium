@@ -62,34 +62,34 @@ export function SettingsPage() {
       </div>
       <div className="divide-y overflow-hidden">
         {settingsItems.map((item, index) => (
-        <Link
-          key={item.href}
-          to={item.href}
-          className="hover:bg-muted/50 active:bg-muted flex items-center gap-4 px-4 py-3.5 transition-colors duration-75"
-          style={
-            index < settingsItems.length - 1
-              ? { borderBottom: "1px solid var(--color-border)" }
-              : undefined
-          }
-        >
-          <div
-            className={`bg-muted ${item.label === "Danger" ? "text-destructive-foreground" : "text-brand"} flex size-9 shrink-0 items-center justify-center rounded-lg`}
+          <Link
+            key={item.href}
+            to={item.href}
+            className="hover:bg-muted/50 active:bg-muted flex items-center gap-4 px-4 py-3.5 transition-colors duration-75"
+            style={
+              index < settingsItems.length - 1
+                ? { borderBottom: "1px solid var(--color-border)" }
+                : undefined
+            }
           >
-            <item.icon className="size-4.5" />
-          </div>
-          <div className="flex min-w-0 flex-1 flex-col">
-            <span
-              className={`text-sm font-medium ${item.label === "Danger" ? "text-destructive-foreground" : "text-brand"}`}
+            <div
+              className={`bg-muted ${item.label === "Danger" ? "text-destructive-foreground" : "text-brand"} flex size-9 shrink-0 items-center justify-center rounded-lg`}
             >
-              {item.label}
-            </span>
-            <span className="text-muted-foreground text-xs">
-              {item.description}
-            </span>
-          </div>
-          <ChevronRight className="text-muted-foreground size-4 shrink-0" />
-        </Link>
-      ))}
+              <item.icon className="size-4.5" />
+            </div>
+            <div className="flex min-w-0 flex-1 flex-col">
+              <span
+                className={`text-sm font-medium ${item.label === "Danger" ? "text-destructive-foreground" : "text-brand"}`}
+              >
+                {item.label}
+              </span>
+              <span className="text-muted-foreground text-xs">
+                {item.description}
+              </span>
+            </div>
+            <ChevronRight className="text-muted-foreground size-4 shrink-0" />
+          </Link>
+        ))}
       </div>
     </div>
   );

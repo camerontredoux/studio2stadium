@@ -15,7 +15,7 @@ export function References({ references }: { references: Reference[] }) {
   const { showOwnerControls } = useProfile();
 
   return (
-    <Frame>
+    <Frame className="h-fit">
       <FrameHeader>
         <FrameTitle className="flex items-center justify-between gap-2">
           References

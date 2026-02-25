@@ -21,13 +21,10 @@ export function VideoPreview({ videoId, videoUrl, onEdit }: VideoPreviewProps) {
       </div>
       <div className="flex items-center gap-2 px-3 py-2 text-sm">
         <LinkIcon className="text-brand size-3.5 shrink-0" />
-        <span className="text-muted-foreground flex-1 truncate">{videoUrl}</span>
-        <Button
-          variant="ghost"
-          size="xs"
-          className="shrink-0"
-          onClick={onEdit}
-        >
+        <span className="text-muted-foreground flex-1 truncate">
+          {videoUrl}
+        </span>
+        <Button variant="ghost" size="xs" className="shrink-0" onClick={onEdit}>
           Edit
         </Button>
       </div>

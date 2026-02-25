@@ -31,8 +31,7 @@ export function MultiSelectFilter({
     }
 
     const firstLabel = optionsByValue.get(values[0]!) ?? values[0];
-    const additional =
-      values.length > 1 ? ` (+${values.length - 1} more)` : "";
+    const additional = values.length > 1 ? ` (+${values.length - 1} more)` : "";
     return firstLabel + additional;
   }
 

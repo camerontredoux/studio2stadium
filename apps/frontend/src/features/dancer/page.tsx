@@ -77,7 +77,10 @@ export function DancerPage({ username }: DancerPageProps) {
 
             <Biography description={data.biography} username={username} />
             <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
-              <Achievements achievements={data.achievements} />
+              <Achievements
+                achievements={data.achievements}
+                username={username}
+              />
               <References references={data.references} />
             </div>
             {data.subscribed ? (

@@ -107,7 +107,9 @@ export function MatchFactorsComparison({
                               className="inline-block size-2.5 rounded-full"
                               style={{ backgroundColor: entry.color as string }}
                             />
-                            <span className="capitalize">{entry.dataKey as string}</span>
+                            <span className="capitalize">
+                              {entry.dataKey as string}
+                            </span>
                           </div>
                           <span className="font-medium tabular-nums">
                             {Math.round(entry.value as number)}%

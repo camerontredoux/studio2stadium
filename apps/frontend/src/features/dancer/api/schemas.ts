@@ -33,4 +33,8 @@ export const schemas = {
     skillLevel: z.string().optional(),
     teamLevel: z.string().optional(),
   }),
+  createAchievement: z.object({
+    title: z.string().min(1, "Title is required").max(128),
+    description: z.string().min(1, "Description is required").max(512),
+  }),
 } as const;

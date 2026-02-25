@@ -159,9 +159,8 @@ export function MatchScatterPlot({
                         className="mt-2 rounded px-2 py-1 text-center text-xs font-medium capitalize"
                         style={{
                           backgroundColor:
-                            TIER_COLORS[
-                              data.tier as keyof typeof TIER_COLORS
-                            ] + "20",
+                            TIER_COLORS[data.tier as keyof typeof TIER_COLORS] +
+                            "20",
                           color:
                             TIER_COLORS[data.tier as keyof typeof TIER_COLORS],
                         }}

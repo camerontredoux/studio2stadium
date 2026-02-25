@@ -12,7 +12,10 @@ interface StepIndicatorProps {
   onStepClick: (step: Step) => void;
 }
 
-export function StepIndicator({ currentStep, onStepClick }: StepIndicatorProps) {
+export function StepIndicator({
+  currentStep,
+  onStepClick,
+}: StepIndicatorProps) {
   const currentIndex = STEPS.findIndex((s) => s.key === currentStep);
 
   return (

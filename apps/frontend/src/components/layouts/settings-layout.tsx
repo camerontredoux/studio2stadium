@@ -62,7 +62,9 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
           </TabsTab>
         </TabsList>
       )}
-      <div className={`mobile:pb-14 ${isSubroute ? "pt-4" : ""}`}>{children}</div>
+      <div className={`mobile:pb-14 ${isSubroute ? "pt-4" : ""}`}>
+        {children}
+      </div>
     </Tabs>
   );
 }

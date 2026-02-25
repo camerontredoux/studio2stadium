@@ -45,9 +45,7 @@ function StatCard({
     >
       <div className="flex items-start justify-between">
         <div className="text-muted-foreground">{icon}</div>
-        {trend === "up" && (
-          <LuArrowUpRight className="text-success size-4" />
-        )}
+        {trend === "up" && <LuArrowUpRight className="text-success size-4" />}
       </div>
       <div className="mt-3">
         <div className="text-2xl font-bold tabular-nums">{value}</div>
@@ -65,7 +63,9 @@ export function MatchSummaryStats({
   className,
 }: MatchSummaryStatsProps) {
   const totalSchools = schools.length;
-  const excellentCount = schools.filter((s) => s.matchTier === "excellent").length;
+  const excellentCount = schools.filter(
+    (s) => s.matchTier === "excellent",
+  ).length;
   const goodCount = schools.filter((s) => s.matchTier === "good").length;
   const sameStateCount = schools.filter((s) => s.sameState).length;
   const meetsGpaCount = schools.filter((s) => s.meetsGpaRequirement).length;

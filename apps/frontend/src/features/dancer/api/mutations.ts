@@ -38,3 +38,35 @@ export function useUpdateProfile(username: string) {
     },
   });
 }
+
+export function useCreateAchievement(username: string) {
+  return $api.useMutation("post", "/dancers/me/achievements", {
+    meta: {
+      invalidateQueries: [dancerQueries.profile(username).queryKey],
+    },
+  });
+}
+
+export function useDeleteAchievement(username: string) {
+  return $api.useMutation("delete", "/dancers/me/achievements/{id}", {
+    meta: {
+      invalidateQueries: [dancerQueries.profile(username).queryKey],
+    },
+  });
+}
+
+export function useCreateReference(username: string) {
+  return $api.useMutation("post", "/dancers/me/references", {
+    meta: {
+      invalidateQueries: [dancerQueries.profile(username).queryKey],
+    },
+  });
+}
+
+export function useDeleteReference(username: string) {
+  return $api.useMutation("delete", "/dancers/me/references/{id}", {
+    meta: {
+      invalidateQueries: [dancerQueries.profile(username).queryKey],
+    },
+  });
+}
