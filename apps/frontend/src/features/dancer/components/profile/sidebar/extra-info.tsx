@@ -88,7 +88,7 @@ export function ExtraInfo({ dancer }: ExtraInfoProps) {
                 </span>
                 <span className="text-sm">Sports</span>
               </div>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="ml-6 flex flex-wrap gap-1.5">
                 {dancer.sports.map((sport) => (
                   <Badge
                     key={sport.slug}
@@ -122,7 +122,7 @@ function ExtraInfoItem({
         <span className="text-brand">{icon}</span>
         <span className="text-sm">{label}</span>
       </div>
-      <span className="text-muted-foreground text-sm">{value}</span>
+      <span className="text-muted-foreground ml-6 text-sm">{value}</span>
     </div>
   );
 }

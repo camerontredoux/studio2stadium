@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/frame";
 import { recruitingQueries } from "@/features/recruiting/api/queries";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { useProfile } from "./context/use-profile";
 
 export function Submission() {
@@ -22,11 +23,18 @@ export function Submission() {
         <FrameTitle className="flex items-center justify-between gap-2">
           Common Recruiting
           {showOwnerControls ? (
-            data?.youtubeId ? (
-              <Button size="xs">Edit</Button>
-            ) : (
-              <Button size="xs">Submit</Button>
-            )
+            <Button
+              size="xs"
+              render={
+                <Link
+                  to={
+                    data?.youtubeId ? "/recruiting/edit" : "/recruiting/submit"
+                  }
+                />
+              }
+            >
+              {data?.youtubeId ? "Edit" : "Submit"}
+            </Button>
           ) : (
             <Button
               disabled

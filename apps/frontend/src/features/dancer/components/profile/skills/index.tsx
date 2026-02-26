@@ -17,8 +17,7 @@ import { type ApiSchemas } from "@/lib/api/client";
 import { PlusIcon } from "lucide-react";
 import { useProfile } from "../context/use-profile";
 
-type ProfileSkill =
-  ApiSchemas["DancersIdResponse"]["skills"][number];
+type ProfileSkill = ApiSchemas["DancersIdResponse"]["skills"][number];
 
 function groupByCategory(skills: ProfileSkill[]) {
   const hasCategory = skills.some((s) => s.category?.trim());
@@ -53,7 +52,10 @@ export function Skills({
         <FrameTitle className="flex items-center justify-between gap-2">
           Skills
           {showOwnerControls ? (
-            <SkillsList username={username} render={<Button size="icon-xs" variant="ghost" />}>
+            <SkillsList
+              username={username}
+              render={<Button size="icon-xs" variant="ghost" />}
+            >
               <PlusIcon />
             </SkillsList>
           ) : (
@@ -61,7 +63,7 @@ export function Skills({
           )}
         </FrameTitle>
       </FrameHeader>
-      <FramePanel className="p-4">
+      <FramePanel className="p-0!">
         {skills.length > 0 ? (
           <Accordion
             defaultValue={groups.length > 0 ? [groups[0].category ?? "_"] : []}
@@ -70,11 +72,11 @@ export function Skills({
             {groups.map(({ category, skills: groupSkills }) => {
               const value = category ?? "_";
               return (
-                <AccordionItem key={value} value={value} className="border-0">
-                  <AccordionTrigger className="py-2 text-muted-foreground text-sm font-medium hover:no-underline">
+                <AccordionItem key={value} value={value}>
+                  <AccordionTrigger className="text-muted-foreground rounded-none px-4 text-sm font-medium hover:no-underline">
                     {category ?? "Skills"}
                   </AccordionTrigger>
-                  <AccordionPanel className="pb-2 pt-0">
+                  <AccordionPanel className="px-4 pb-4">
                     <div className="flex flex-wrap gap-2">
                       {groupSkills.map((skill) => (
                         <Badge

@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/frame";
 import { recruitingQueries } from "@/features/recruiting/api/queries";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 
 export function VideoSection() {
   const { data } = useQuery(recruitingQueries.submission());
@@ -16,7 +17,11 @@ export function VideoSection() {
       <FrameHeader>
         <FrameTitle className="flex items-center justify-between gap-2">
           Your Video
-          <Button size="xs" disabled={!data}>
+          <Button
+            size="xs"
+            disabled={!data}
+            render={<Link to="/recruiting/edit" />}
+          >
             Edit
           </Button>
         </FrameTitle>

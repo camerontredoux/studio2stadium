@@ -42,7 +42,7 @@ export function SkillsSummary({
     <Frame
       compact
       className={cn(
-        "flex min-h-10 flex-col overflow-hidden bg-[#222224]",
+        "flex min-h-10 flex-col overflow-hidden",
         "md:w-80",
         className,
       )}

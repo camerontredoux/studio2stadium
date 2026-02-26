@@ -1,10 +1,16 @@
+import { useSession } from "@/lib/session";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useSwipeable } from "react-swipeable";
 import { Tabs, TabsList, TabsTab } from "../ui/tabs";
 
-const resourceTabs = ["/resources/library", "/resources/blog"] as const;
-
 export function ResourcesLayout({ children }: { children: React.ReactNode }) {
+  const session = useSession();
+
+  const resourceTabs = [
+    session.type === "dancer" ? "/resources/library" : "/resources/favorites",
+    "/resources/blog",
+  ] as const;
+
   const pathname = useLocation({ select: (location) => location.pathname });
   const navigate = useNavigate();
 
@@ -35,17 +41,17 @@ export function ResourcesLayout({ children }: { children: React.ReactNode }) {
       >
         <TabsTab
           nativeButton={false}
-          value="/resources/library"
+          value={resourceTabs[0]}
           className="text-brand data-active:text-brand max-sm:text-sm"
-          render={<Link to="/resources/library" />}
+          render={<Link to={resourceTabs[0]} />}
         >
-          Tap In
+          {session.type === "dancer" ? "Tap In" : "Favorites"}
         </TabsTab>
         <TabsTab
           nativeButton={false}
-          value="/resources/blog"
+          value={resourceTabs[1]}
           className="text-brand data-active:text-brand max-sm:text-sm"
-          render={<Link to="/resources/blog" />}
+          render={<Link to={resourceTabs[1]} />}
         >
           Blog
         </TabsTab>

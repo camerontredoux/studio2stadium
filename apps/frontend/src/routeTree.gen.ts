@@ -41,6 +41,7 @@ import { Route as ApproutesSettingsDeleteRouteImport } from './routes/_app/(rout
 import { Route as ApproutesSettingsApplicationRouteImport } from './routes/_app/(routes)/settings/application'
 import { Route as ApproutesSettingsAccountRouteImport } from './routes/_app/(routes)/settings/account'
 import { Route as ApproutesResourcesLibraryRouteImport } from './routes/_app/(routes)/resources/library'
+import { Route as ApproutesResourcesFavoritesRouteImport } from './routes/_app/(routes)/resources/favorites'
 import { Route as ApproutesResourcesBlogRouteImport } from './routes/_app/(routes)/resources/blog'
 import { Route as ApproutesRecruitingSubmitRouteImport } from './routes/_app/(routes)/recruiting/submit'
 import { Route as ApproutesRecruitingEditRouteImport } from './routes/_app/(routes)/recruiting/edit'
@@ -213,6 +214,12 @@ const ApproutesResourcesLibraryRoute =
     path: '/library',
     getParentRoute: () => ApproutesResourcesRouteRoute,
   } as any)
+const ApproutesResourcesFavoritesRoute =
+  ApproutesResourcesFavoritesRouteImport.update({
+    id: '/favorites',
+    path: '/favorites',
+    getParentRoute: () => ApproutesResourcesRouteRoute,
+  } as any)
 const ApproutesResourcesBlogRoute = ApproutesResourcesBlogRouteImport.update({
   id: '/blog',
   path: '/blog',
@@ -273,6 +280,7 @@ export interface FileRoutesByFullPath {
   '/recruiting/edit': typeof ApproutesRecruitingEditRoute
   '/recruiting/submit': typeof ApproutesRecruitingSubmitRoute
   '/resources/blog': typeof ApproutesResourcesBlogRoute
+  '/resources/favorites': typeof ApproutesResourcesFavoritesRoute
   '/resources/library': typeof ApproutesResourcesLibraryRoute
   '/settings/account': typeof ApproutesSettingsAccountRoute
   '/settings/application': typeof ApproutesSettingsApplicationRoute
@@ -307,6 +315,7 @@ export interface FileRoutesByTo {
   '/recruiting/edit': typeof ApproutesRecruitingEditRoute
   '/recruiting/submit': typeof ApproutesRecruitingSubmitRoute
   '/resources/blog': typeof ApproutesResourcesBlogRoute
+  '/resources/favorites': typeof ApproutesResourcesFavoritesRoute
   '/resources/library': typeof ApproutesResourcesLibraryRoute
   '/settings/account': typeof ApproutesSettingsAccountRoute
   '/settings/application': typeof ApproutesSettingsApplicationRoute
@@ -349,6 +358,7 @@ export interface FileRoutesById {
   '/_app/(routes)/recruiting/edit': typeof ApproutesRecruitingEditRoute
   '/_app/(routes)/recruiting/submit': typeof ApproutesRecruitingSubmitRoute
   '/_app/(routes)/resources/blog': typeof ApproutesResourcesBlogRoute
+  '/_app/(routes)/resources/favorites': typeof ApproutesResourcesFavoritesRoute
   '/_app/(routes)/resources/library': typeof ApproutesResourcesLibraryRoute
   '/_app/(routes)/settings/account': typeof ApproutesSettingsAccountRoute
   '/_app/(routes)/settings/application': typeof ApproutesSettingsApplicationRoute
@@ -388,6 +398,7 @@ export interface FileRouteTypes {
     | '/recruiting/edit'
     | '/recruiting/submit'
     | '/resources/blog'
+    | '/resources/favorites'
     | '/resources/library'
     | '/settings/account'
     | '/settings/application'
@@ -422,6 +433,7 @@ export interface FileRouteTypes {
     | '/recruiting/edit'
     | '/recruiting/submit'
     | '/resources/blog'
+    | '/resources/favorites'
     | '/resources/library'
     | '/settings/account'
     | '/settings/application'
@@ -463,6 +475,7 @@ export interface FileRouteTypes {
     | '/_app/(routes)/recruiting/edit'
     | '/_app/(routes)/recruiting/submit'
     | '/_app/(routes)/resources/blog'
+    | '/_app/(routes)/resources/favorites'
     | '/_app/(routes)/resources/library'
     | '/_app/(routes)/settings/account'
     | '/_app/(routes)/settings/application'
@@ -714,6 +727,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApproutesResourcesLibraryRouteImport
       parentRoute: typeof ApproutesResourcesRouteRoute
     }
+    '/_app/(routes)/resources/favorites': {
+      id: '/_app/(routes)/resources/favorites'
+      path: '/favorites'
+      fullPath: '/resources/favorites'
+      preLoaderRoute: typeof ApproutesResourcesFavoritesRouteImport
+      parentRoute: typeof ApproutesResourcesRouteRoute
+    }
     '/_app/(routes)/resources/blog': {
       id: '/_app/(routes)/resources/blog'
       path: '/blog'
@@ -811,6 +831,7 @@ const ApproutesRecruitingRouteRouteWithChildren =
 
 interface ApproutesResourcesRouteRouteChildren {
   ApproutesResourcesBlogRoute: typeof ApproutesResourcesBlogRoute
+  ApproutesResourcesFavoritesRoute: typeof ApproutesResourcesFavoritesRoute
   ApproutesResourcesLibraryRoute: typeof ApproutesResourcesLibraryRoute
   ApproutesResourcesIndexRoute: typeof ApproutesResourcesIndexRoute
 }
@@ -818,6 +839,7 @@ interface ApproutesResourcesRouteRouteChildren {
 const ApproutesResourcesRouteRouteChildren: ApproutesResourcesRouteRouteChildren =
   {
     ApproutesResourcesBlogRoute: ApproutesResourcesBlogRoute,
+    ApproutesResourcesFavoritesRoute: ApproutesResourcesFavoritesRoute,
     ApproutesResourcesLibraryRoute: ApproutesResourcesLibraryRoute,
     ApproutesResourcesIndexRoute: ApproutesResourcesIndexRoute,
   }
