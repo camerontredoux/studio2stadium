@@ -2448,6 +2448,97 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/schools/me/favorites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get favorites data
+         * @description Returns the data for the school's favorites
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsMeFavoritesResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools/me/favorites/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update a favorite
+         * @description Updates a favorite for the school
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SchoolsMeFavoritesIdRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/schools/{username}": {
         parameters: {
             query?: never;
@@ -3416,6 +3507,20 @@ export interface components {
             avatar: string | null;
             name: string;
         }[];
+        SchoolsMeFavoritesResponse: {
+            username: string;
+            id: string;
+            createdAt: string;
+            /** @enum {string} */
+            platformName: "prodigy" | "core";
+            comment: string | null;
+            rating: number | null;
+            lastContacted: string | null;
+        }[];
+        SchoolsMeFavoritesIdRequest: {
+            comment?: string | null;
+            rating?: (string | number) | null;
+        };
         SchoolsIdResponse: {
             events: {
                 /** @enum {string} */

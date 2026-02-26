@@ -1863,6 +1863,71 @@
         "description": "Returns the list of dancers this school has favorited."
       }
     },
+    "/schools/me/favorites": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsMeFavoritesResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Get favorites data",
+        "description": "Returns the data for the school's favorites"
+      }
+    },
+    "/schools/me/favorites/{id}": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolsMeFavoritesIdRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Update a favorite",
+        "description": "Updates a favorite for the school"
+      }
+    },
     "/schools/{username}": {
       "get": {
         "parameters": [
@@ -4828,6 +4893,97 @@
             "avatar",
             "name"
           ]
+        }
+      },
+      "SchoolsMeFavoritesResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "platformName": {
+              "type": "string",
+              "enum": [
+                "prodigy",
+                "core"
+              ]
+            },
+            "comment": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rating": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lastContacted": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "username",
+            "id",
+            "createdAt",
+            "platformName",
+            "comment",
+            "rating",
+            "lastContacted"
+          ]
+        }
+      },
+      "SchoolsMeFavoritesIdRequest": {
+        "type": "object",
+        "properties": {
+          "comment": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rating": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
         }
       },
       "SchoolsIdResponse": {

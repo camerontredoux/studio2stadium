@@ -235,6 +235,14 @@ type SchoolsMeFollowingGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/schools/get-following/controller.ts').default['handle'], false>
 }
+type SchoolsMeFavoritesGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/schools/get-favorites-data/controller.ts').default['handle'], false>
+}
+type SchoolsMeFavoritesIdPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/update-favorite/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/update-favorite/controller.ts').default['handle'], true>
+}
 type SchoolsIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/schools/get-school/controller.ts').default['handle'], true>
@@ -577,6 +585,17 @@ export interface ApiDefinition {
         };
         '$get': SchoolsMeFollowingGetHead;
         '$head': SchoolsMeFollowingGetHead;
+      };
+      'favorites': {
+        '$url': {
+        };
+        '$get': SchoolsMeFavoritesGetHead;
+        '$head': SchoolsMeFavoritesGetHead;
+        ':id': {
+          '$url': {
+          };
+          '$patch': SchoolsMeFavoritesIdPatch;
+        };
       };
     };
     ':username': {
