@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import type { ButtonProps } from "@base-ui/react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { SkillsList } from "./skills-list";
 import { SkillsSummary } from "./skills-summary";
 
@@ -20,6 +20,38 @@ interface SkillsDialogProps {
   selectedSkillIds: string[];
   onSave: (skillIds: string[]) => Promise<void>;
   isPending?: boolean;
+}
+
+function SkillsDialogContentFallback() {
+  return (
+    <div className="flex h-full items-center justify-center">
+      <Spinner label="Loading skills..." />
+    </div>
+  );
+}
+
+interface SkillsDialogContentProps {
+  selectedSkillIds: string[];
+  onToggle: (skillId: string) => void;
+}
+
+function SkillsDialogContent({
+  selectedSkillIds,
+  onToggle,
+}: SkillsDialogContentProps) {
+  return (
+    <>
+      <DialogPanel className="h-full">
+        <SkillsList selectedSkillIds={selectedSkillIds} onToggle={onToggle} />
+      </DialogPanel>
+
+      <SkillsSummary
+        className="mx-6 mb-2 md:hidden"
+        selectedSkillIds={selectedSkillIds}
+        onRemove={onToggle}
+      />
+    </>
+  );
 }
 
 export function SkillsDialog({
@@ -67,18 +99,13 @@ export function SkillsDialog({
             Skills help us connect you with the right programs
           </DialogDescription>
         </DialogHeader>
-        <DialogPanel className="h-full">
-          <SkillsList
+
+        <Suspense fallback={<SkillsDialogContentFallback />}>
+          <SkillsDialogContent
             selectedSkillIds={localSelectedSkillIds}
             onToggle={handleToggle}
           />
-        </DialogPanel>
-
-        <SkillsSummary
-          className="mx-6 mb-2 md:hidden"
-          selectedSkillIds={localSelectedSkillIds}
-          onRemove={handleToggle}
-        />
+        </Suspense>
 
         <DialogFooter>
           <DialogClose render={<Button variant="secondary" />}>

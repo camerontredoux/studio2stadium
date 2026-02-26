@@ -8,7 +8,7 @@ export function SavedToggle({
 }) {
   return (
     <Label className="text-muted-foreground">
-      Saved
+      Attending
       <Switch onCheckedChange={onChange} />
     </Label>
   );

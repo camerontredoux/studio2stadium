@@ -1,15 +1,15 @@
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
 import { StylesDialog } from "@/shared/styles/components/styles-dialog";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useUpdateStyles } from "../../api/mutations";
 import { dancerQueries } from "../../api/queries";
 
 export function StylesList({ render }: { render: React.ReactElement }) {
-  const { data } = useSuspenseQuery(dancerQueries.styles());
+  const { data } = useQuery(dancerQueries.styles());
   const { mutateAsync, isPending } = useUpdateStyles();
 
-  const selectedStyleIds = data.map((style) => style.styleId);
+  const selectedStyleIds = (data ?? []).map((style) => style.styleId);
 
   const handleSave = async (styleIds: string[]) => {
     await mutateAsync(

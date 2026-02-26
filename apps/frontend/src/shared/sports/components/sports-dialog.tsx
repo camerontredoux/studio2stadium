@@ -10,8 +10,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { SportsList } from "./sports-list";
 
 interface SportsDialogProps {
@@ -19,6 +20,28 @@ interface SportsDialogProps {
   onSave: (sportIds: string[]) => Promise<void>;
   isPending?: boolean;
   render: React.ReactElement;
+}
+
+function SportsDialogContentFallbackItem() {
+  const [width] = useState(() => Math.floor(Math.random() * 80) + 50);
+  return (
+    <Skeleton
+      style={{ width: `${width}px` }}
+      className={`h-9 rounded-full sm:h-8`}
+    />
+  );
+}
+
+function SportsDialogContentFallback() {
+  return (
+    <DialogPanel className="h-full">
+      <div className="flex flex-wrap gap-2">
+        {Array.from({ length: 15 }).map((_, index) => {
+          return <SportsDialogContentFallbackItem key={index} />;
+        })}
+      </div>
+    </DialogPanel>
+  );
 }
 
 export function SportsDialog({
@@ -61,12 +84,14 @@ export function SportsDialog({
             Select the sports you are most interested in supporting
           </DialogDescription>
         </DialogHeader>
-        <DialogPanel className="h-full">
-          <SportsList
-            onToggle={handleToggle}
-            selectedSportIds={localSelectedSportIds}
-          />
-        </DialogPanel>
+        <Suspense fallback={<SportsDialogContentFallback />}>
+          <DialogPanel className="h-full">
+            <SportsList
+              onToggle={handleToggle}
+              selectedSportIds={localSelectedSportIds}
+            />
+          </DialogPanel>
+        </Suspense>
 
         <DialogFooter>
           <DialogClose render={<Button variant="secondary" />}>

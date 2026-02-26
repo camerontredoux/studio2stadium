@@ -75,6 +75,7 @@ export function SchoolList() {
               <Spinner />
             </div>
           )}
+
           {virtualItems.map((row) => {
             const school = rows[row.index];
 

@@ -10,15 +10,37 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { StylesList } from "./styles-list";
 
-interface SkillsDialogProps {
+interface StylesDialogProps {
   selectedStyleIds: string[];
-  onSave: (skillIds: string[]) => Promise<void>;
+  onSave: (styleIds: string[]) => Promise<void>;
   isPending?: boolean;
   render: React.ReactElement;
+}
+
+function StylesDialogContentFallbackItem() {
+  const [width] = useState(() => Math.floor(Math.random() * 80) + 50);
+  return (
+    <Skeleton
+      style={{ width: `${width}px` }}
+      className={`h-9 rounded-full sm:h-8`}
+    />
+  );
+}
+function StylesDialogContentFallback() {
+  return (
+    <DialogPanel className="h-full">
+      <div className="flex flex-wrap gap-2">
+        {Array.from({ length: 15 }).map((_, index) => {
+          return <StylesDialogContentFallbackItem key={index} />;
+        })}
+      </div>
+    </DialogPanel>
+  );
 }
 
 export function StylesDialog({
@@ -26,20 +48,20 @@ export function StylesDialog({
   onSave,
   isPending,
   render,
-}: SkillsDialogProps) {
+}: StylesDialogProps) {
   const [open, setOpen] = useState(false);
-  const [localSelectedSkillIds, setLocalSelectedSkillIds] =
+  const [localSelectedStyleIds, setLocalSelectedStyleIds] =
     useState<string[]>(selectedStyleIds);
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (nextOpen) {
-      setLocalSelectedSkillIds(selectedStyleIds);
+      setLocalSelectedStyleIds(selectedStyleIds);
     }
     setOpen(nextOpen);
   };
 
   const handleToggle = (styleId: string) => {
-    setLocalSelectedSkillIds((prev) =>
+    setLocalSelectedStyleIds((prev) =>
       prev.includes(styleId)
         ? prev.filter((id) => id !== styleId)
         : [...prev, styleId],
@@ -47,7 +69,7 @@ export function StylesDialog({
   };
 
   const handleSave = async () => {
-    await onSave(localSelectedSkillIds);
+    await onSave(localSelectedStyleIds);
     setOpen(false);
   };
 
@@ -61,12 +83,14 @@ export function StylesDialog({
             Select your top 3 styles to help us recommend the right programs
           </DialogDescription>
         </DialogHeader>
-        <DialogPanel className="h-full">
-          <StylesList
-            onToggle={handleToggle}
-            selectedStyleIds={localSelectedSkillIds}
-          />
-        </DialogPanel>
+        <Suspense fallback={<StylesDialogContentFallback />}>
+          <DialogPanel className="h-full">
+            <StylesList
+              onToggle={handleToggle}
+              selectedStyleIds={localSelectedStyleIds}
+            />
+          </DialogPanel>
+        </Suspense>
 
         <DialogFooter>
           <DialogClose render={<Button variant="secondary" />}>

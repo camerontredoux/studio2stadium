@@ -1,7 +1,7 @@
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
 import { SportsDialog } from "@/shared/sports/components/sports-dialog";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useUpdateSports } from "../../api/mutations";
 import { dancerQueries } from "../../api/queries";
 
@@ -12,10 +12,10 @@ export function SportsList({
   render: React.ReactElement;
   username?: string;
 }) {
-  const { data } = useSuspenseQuery(dancerQueries.sports());
+  const { data } = useQuery(dancerQueries.sports());
   const { mutateAsync, isPending } = useUpdateSports(username);
 
-  const selectedSportIds = data.map((sport) => sport.sportId);
+  const selectedSportIds = (data ?? []).map((sport) => sport.sportId);
 
   const handleSave = async (sportIds: string[]) => {
     await mutateAsync(
