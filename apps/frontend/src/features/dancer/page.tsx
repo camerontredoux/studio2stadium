@@ -22,7 +22,7 @@ import { References } from "./components/profile/references";
 import { ContactInfo } from "./components/profile/sidebar/contact-info";
 import { ExtraInfo } from "./components/profile/sidebar/extra-info";
 import { Skills } from "./components/profile/skills";
-import { MediaGallery } from "./components/profile/media-gallery";
+import { MediaGallery } from "@/components/shared/media-gallery";
 import { Submission } from "./components/profile/submission";
 
 interface DancerPageProps {

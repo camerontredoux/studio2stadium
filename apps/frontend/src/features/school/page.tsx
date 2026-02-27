@@ -18,7 +18,7 @@ import { EventsAttending } from "./components/profile/events-attending";
 import { SchoolHero } from "./components/profile/hero";
 import { AboutSection } from "./components/profile/sections/about-section";
 import { EventsSection } from "./components/profile/sections/events-section";
-import { MediaGallery } from "./components/profile/sections/media-gallery";
+import { MediaGallery } from "@/components/shared/media-gallery";
 import { ProgramDetails } from "./components/profile/sections/program-details";
 import { SkillsSection } from "./components/profile/sections/skills-section";
 import { ContactInfo } from "./components/profile/sidebar/contact-info";
