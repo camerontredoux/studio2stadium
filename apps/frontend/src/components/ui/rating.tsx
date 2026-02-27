@@ -1,7 +1,7 @@
-import { VisuallyHiddenInput } from "@/components/ui/visually-hidden-input";
 import { useAsRef } from "@/components/hooks/use-as-ref";
 import { useIsomorphicLayoutEffect } from "@/components/hooks/use-isomorphic-layout-effect";
 import { useLazyRef } from "@/components/hooks/use-lazy-ref";
+import { VisuallyHiddenInput } from "@/components/ui/visually-hidden-input";
 import { cn } from "@/components/utils/cn";
 import { useComposedRefs } from "@/components/utils/compose-refs";
 import { useDirection } from "@radix-ui/react-direction";
@@ -906,7 +906,7 @@ function RatingItem(props: RatingItemProps) {
       }}
       className={cn(
         "focus-visible:ring-ring/50 inline-flex items-center justify-center rounded transition-colors focus:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50",
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:transition-colors [&_svg]:duration-200 data-[state=empty]:[&_svg]:fill-transparent data-[state=full]:[&_svg]:fill-current data-[state=partial]:[&_svg]:fill-(--partial-fill) [&_svg:not([class*='size-'])]:size-full",
+        "shrink-0 [&_svg]:pointer-events-none [&_svg]:transition-colors [&_svg]:duration-200 data-[state=empty]:[&_svg]:fill-transparent data-[state=full]:[&_svg]:fill-current data-[state=partial]:[&_svg]:fill-(--partial-fill) [&_svg:not([class*='size-'])]:size-full",
         context.size === "sm"
           ? "size-4"
           : context.size === "lg"

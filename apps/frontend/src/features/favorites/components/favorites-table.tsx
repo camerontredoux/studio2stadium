@@ -1,6 +1,15 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogPanel,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Frame, FrameFooter } from "@/components/ui/frame";
 import {
   Pagination,
@@ -9,6 +18,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Rating, RatingItem } from "@/components/ui/rating";
 import {
   Select,
   SelectItem,
@@ -16,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Table,
   TableBody,
@@ -24,10 +35,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/components/utils/cn";
+import { Textarea } from "@/components/ui/textarea";
+import { toastManager } from "@/components/ui/toast-manager";
 import { formatDate } from "@/components/utils/format";
 import type { ApiSchemas } from "@/lib/api/client";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   type ColumnDef,
   flexRender,
@@ -38,49 +50,26 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon, Loader2Icon } from "lucide-react";
 import { useState } from "react";
+import { useUpdateFavorite } from "../api/mutations";
 import { favoritesQueries } from "../api/queries";
 
 type Favorite = ApiSchemas["SchoolsMeFavoritesResponse"][number];
 
 const getStatusColor = (rating: Favorite["rating"]) => {
-  if (!rating) return "bg-muted-foreground/64";
+  if (!rating) return "text-muted-foreground/64";
 
-  if (rating >= 5) {
-    return "bg-emerald-500";
-  } else if (rating >= 3) {
-    return "bg-amber-500";
+  if (rating === 5) {
+    return "text-emerald-500";
+  } else if (rating >= 2 && rating <= 4) {
+    return "text-amber-500";
   } else {
-    return "bg-red-500";
+    return "text-red-500";
   }
 };
 
 const columns: ColumnDef<Favorite>[] = [
-  {
-    cell: ({ row }) => (
-      <Checkbox
-        aria-label="Select row"
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-      />
-    ),
-    enableSorting: false,
-    header: ({ table }) => {
-      const isAllSelected = table.getIsAllPageRowsSelected();
-      const isSomeSelected = table.getIsSomePageRowsSelected();
-      return (
-        <Checkbox
-          aria-label="Select all rows"
-          checked={isAllSelected}
-          indeterminate={isSomeSelected && !isAllSelected}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        />
-      );
-    },
-    id: "select",
-    size: 28,
-  },
   {
     accessorKey: "username",
     cell: ({ row }) => (
@@ -89,24 +78,27 @@ const columns: ColumnDef<Favorite>[] = [
       </div>
     ),
     header: "Username",
-    size: 100,
   },
   {
     accessorKey: "rating",
     cell: ({ row }) => {
       const rating = row.getValue("rating") as Favorite["rating"];
       return (
-        <Badge variant="outline">
-          <span
-            aria-hidden="true"
-            className={cn("size-1.5 rounded-full", getStatusColor(rating))}
-          />
-          {rating ?? "N/A"}
-        </Badge>
+        <Rating disabled size="sm" value={rating ?? 0}>
+          {Array.from({ length: 5 }, (_, i) => (
+            <RatingItem className={getStatusColor(rating)} key={i} index={i} />
+          ))}
+        </Rating>
       );
     },
     header: "Rating",
-    size: 70,
+  },
+  {
+    accessorKey: "comment",
+    cell: ({ row }) => (
+      <div className="font-medium">{row.getValue("comment")}</div>
+    ),
+    header: "Comment",
   },
   {
     accessorKey: "createdAt",
@@ -119,19 +111,13 @@ const columns: ColumnDef<Favorite>[] = [
         </div>
       );
     },
-    size: 140,
-  },
-  {
-    accessorKey: "comment",
-    cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("comment")}</div>
-    ),
-    header: "Comment",
   },
 ];
 
 export function FavoritesTable() {
-  const { data } = useSuspenseQuery(favoritesQueries.favorites());
+  const queryClient = useQueryClient();
+  const { data, isPending } = useQuery(favoritesQueries.favorites());
+  const { mutate: updateFavorite, isPending: isUpdating } = useUpdateFavorite();
 
   const pageSize = 10;
 
@@ -142,14 +128,65 @@ export function FavoritesTable() {
 
   const [sorting, setSorting] = useState<SortingState>([
     {
-      desc: false,
+      desc: true,
       id: "rating",
     },
   ]);
 
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedFavorite, setSelectedFavorite] = useState<Favorite | null>(
+    null,
+  );
+  const [editRating, setEditRating] = useState<number>(0);
+  const [editComment, setEditComment] = useState<string>("");
+
+  const handleRowClick = (favorite: Favorite) => {
+    setSelectedFavorite(favorite);
+    setEditRating(favorite.rating ?? 0);
+    setEditComment(favorite.comment ?? "");
+    setDialogOpen(true);
+  };
+
+  const handleSave = () => {
+    if (!selectedFavorite) return;
+
+    const newRating = editRating || null;
+    const newComment = editComment || null;
+
+    updateFavorite(
+      {
+        params: { path: { id: selectedFavorite.id } },
+        body: {
+          rating: newRating,
+          comment: newComment,
+        },
+      },
+      {
+        onSuccess: () => {
+          // Update cache directly to avoid refetching
+          queryClient.setQueryData(
+            favoritesQueries.favorites().queryKey,
+            (old: Favorite[] | undefined) =>
+              old?.map((f) =>
+                f.id === selectedFavorite.id
+                  ? { ...f, rating: newRating, comment: newComment }
+                  : f,
+              ),
+          );
+          toastManager.add({
+            title: "Success",
+            description: "Favorite updated",
+            type: "success",
+          });
+          setDialogOpen(false);
+        },
+      },
+    );
+  };
+
   const table = useReactTable({
     columns,
-    data,
+    data: data ?? [],
     enableSortingRemoval: false,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -222,11 +259,27 @@ export function FavoritesTable() {
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows.length ? (
+          {isPending ? (
+            <TableRow>
+              <TableCell className="h-24 text-center" colSpan={columns.length}>
+                <div className="flex h-full items-center justify-center gap-2">
+                  <Loader2Icon
+                    aria-hidden="true"
+                    className="size-4 animate-spin"
+                  />
+                  <p className="text-muted-foreground text-sm">
+                    Loading favorites...
+                  </p>
+                </div>
+              </TableCell>
+            </TableRow>
+          ) : table.getRowModel().rows.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
+                className="cursor-pointer"
                 data-state={row.getIsSelected() ? "selected" : undefined}
                 key={row.id}
+                onClick={() => handleRowClick(row.original)}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
@@ -328,6 +381,49 @@ export function FavoritesTable() {
           </Pagination>
         </div>
       </FrameFooter>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Favorite</DialogTitle>
+            <DialogDescription>
+              Update the rating and comment for {selectedFavorite?.username}.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogPanel>
+            <div className="flex flex-col gap-4">
+              <Field>
+                <FieldLabel>Rating</FieldLabel>
+                <Rating value={editRating} onValueChange={setEditRating}>
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <RatingItem
+                      className={getStatusColor(editRating)}
+                      key={i}
+                      index={i}
+                    />
+                  ))}
+                </Rating>
+              </Field>
+              <Field>
+                <FieldLabel>Comment</FieldLabel>
+                <Textarea
+                  value={editComment}
+                  onChange={(e) => setEditComment(e.target.value)}
+                  placeholder="Add a comment..."
+                />
+              </Field>
+            </div>
+          </DialogPanel>
+          <DialogFooter>
+            <DialogClose render={<Button variant="secondary" />}>
+              Cancel
+            </DialogClose>
+            <Button onClick={handleSave} disabled={isUpdating}>
+              {isUpdating ? <Spinner label="Saving..." /> : "Save"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Frame>
   );
 }
