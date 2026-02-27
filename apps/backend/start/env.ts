@@ -74,8 +74,11 @@ export default await Env.create(new URL("../", import.meta.url), {
   | Variables for configuring the drive package
   |----------------------------------------------------------
   */
-  DRIVE_DISK: Env.schema.enum(["s3"] as const),
-  S3_BUCKET: Env.schema.string(),
+  DRIVE_DISK: Env.schema.enum(["r2"] as const),
+  R2_BUCKET: Env.schema.string(),
+  R2_KEY: Env.schema.string(),
+  R2_SECRET: Env.schema.string(),
+  R2_ENDPOINT: Env.schema.string(),
 
   /*
   |----------------------------------------------------------
@@ -86,4 +89,12 @@ export default await Env.create(new URL("../", import.meta.url), {
   STRIPE_WEBHOOK_SECRET: Env.schema.string.optional(),
   STRIPE_PRICE_ID_MONTHLY: Env.schema.string(),
   STRIPE_PRICE_ID_YEARLY: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for Cloudflare Stream/Images integration
+  |----------------------------------------------------------
+  */
+  CLOUDFLARE_API_TOKEN: Env.schema.string(),
+  CLOUDFLARE_ACCOUNT_ID: Env.schema.string(),
 });

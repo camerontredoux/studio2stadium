@@ -1,5 +1,7 @@
 import { Frame, FrameFooter, FramePanel } from "@/components/ui/frame";
 import type { SchoolProfile } from "@/features/school/types";
+import { AvatarUploadDialog } from "@/shared/images/components/avatar-upload/avatar-upload-dialog";
+import { useProfile } from "../context/use-profile";
 import { HeroBackground } from "./hero-background";
 import { HeroContent } from "./hero-content";
 import { HeroFooter } from "./hero-footer";
@@ -10,6 +12,7 @@ interface SchoolHeroProps {
 }
 
 export function SchoolHero({ school }: SchoolHeroProps) {
+  const { showOwnerControls } = useProfile();
   const initials = school.name
     .split(" ")
     .map((word) => word[0])
@@ -23,10 +26,14 @@ export function SchoolHero({ school }: SchoolHeroProps) {
         <HeroBackground />
 
         <div className="hidden sm:block">
-          <ProfilePicture fallback={initials} avatar={school.avatar} />
+          {showOwnerControls ? (
+            <AvatarUploadDialog avatar={school.avatar} fallback={initials} />
+          ) : (
+            <ProfilePicture fallback={initials} avatar={school.avatar} />
+          )}
         </div>
 
-        <HeroContent school={school} />
+        <HeroContent school={school} showOwnerControls={showOwnerControls} />
       </FramePanel>
 
       <FrameFooter>

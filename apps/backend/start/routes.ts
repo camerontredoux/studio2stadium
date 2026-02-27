@@ -5,6 +5,7 @@ import "#modules/dancers/routes";
 import "#modules/events/routes";
 import "#modules/feed/routes";
 import "#modules/health/routes";
+import "#modules/images/routes";
 import "#modules/library/routes";
 import "#modules/schools/routes";
 import "#modules/skills/routes";

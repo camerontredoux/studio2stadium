@@ -29,7 +29,9 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ApplicationResponse"];
+                    };
                 };
             };
         };
@@ -1880,7 +1882,11 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersIdFavoriteRequest"];
+                };
+            };
             responses: {
                 /** @description Created */
                 201: {
@@ -2261,6 +2267,58 @@ export interface paths {
                 };
             };
         };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/images": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request one-time upload URL
+         * @description Makes a request to Cloudflare to create a one-time signed upload URL for the user's image
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ImagesRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ImagesResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -2692,7 +2750,11 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SchoolsIdFollowRequest"];
+                };
+            };
             responses: {
                 /** @description Created */
                 201: {
@@ -2831,7 +2893,11 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SchoolsIdInterestRequest"];
+                };
+            };
             responses: {
                 /** @description Created */
                 201: {
@@ -3012,6 +3078,65 @@ export interface paths {
         };
         trace?: never;
     };
+    "/users/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Update user avatar
+         * @description Updates the image ID for the user's avatar from Cloudflare
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["UsersAvatarRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/activity": {
         parameters: {
             query?: never;
@@ -3102,6 +3227,7 @@ export interface components {
         /** @enum {string} */
         SchoolFilterParam: "name" | "location" | "sports" | "styles" | "following" | "gpaRange" | "commonRecruiting" | "division" | "upcomingEvents";
         MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
+        ApplicationResponse: Record<string, never>;
         AuthSignupRequest: {
             phone?: string | null;
             email: string;
@@ -3455,6 +3581,11 @@ export interface components {
             } | null;
             subscribed: boolean;
         };
+        DancersIdFavoriteRequest: {
+            params: {
+                id: string;
+            };
+        };
         DancersIdFavoriteResponse: {
             created: boolean;
         };
@@ -3549,6 +3680,18 @@ export interface components {
         };
         EventsIdSaveRequest: {
             type?: string | null;
+            params: {
+                id: string;
+            };
+        };
+        ImagesRequest: {
+            /** @enum {string} */
+            type: "feed" | "avatar";
+            contentType: string;
+        };
+        ImagesResponse: {
+            key: string;
+            url: string;
         };
         SchoolsResponse: {
             events: number;
@@ -3635,6 +3778,9 @@ export interface components {
         SchoolsMeFavoritesIdRequest: {
             comment?: string | null;
             rating?: (string | number) | null;
+            params: {
+                id: string;
+            };
         };
         SchoolsIdResponse: {
             events: {
@@ -3733,6 +3879,11 @@ export interface components {
                 } | null;
             }[];
         };
+        SchoolsIdFollowRequest: {
+            params: {
+                id: string;
+            };
+        };
         SchoolsIdFollowResponse: {
             created: boolean;
         };
@@ -3740,6 +3891,11 @@ export interface components {
             following: boolean;
             followers: number;
             interested: boolean;
+        };
+        SchoolsIdInterestRequest: {
+            params: {
+                id: string;
+            };
         };
         SchoolsIdInterestResponse: {
             created: boolean;
@@ -3760,6 +3916,9 @@ export interface components {
             lastName?: string | null;
             phone?: string | null;
             displayEmail?: string | null;
+        };
+        UsersAvatarRequest: {
+            key: string;
         };
         UsersActivityResponse: {
             images: number;

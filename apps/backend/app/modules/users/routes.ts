@@ -2,6 +2,7 @@ import { middleware } from "#start/kernel";
 import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
 
+const UpdateAvatarController = () => import("./update-avatar/controller.ts");
 const DeleteAccountController = () => import("./delete-account/controller.ts");
 const CheckAvailabilityController = () =>
   import("./check-availability/controller.ts");
@@ -34,6 +35,12 @@ router
         router.delete("account", [DeleteAccountController]).openapi({
           summary: "Delete account",
           description: "Deletes the user's account",
+        });
+
+        router.post("avatar", [UpdateAvatarController]).openapi({
+          summary: "Update user avatar",
+          description:
+            "Updates the image ID for the user's avatar from Cloudflare",
         });
       })
       .use(middleware.auth());

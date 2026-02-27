@@ -42,7 +42,7 @@ export function Topbar() {
           <Menu>
             <MenuTrigger className="cursor-pointer">
               <Avatar className="mobile:size-9 border transition-colors duration-100 hover:border-white/20">
-                <AvatarImage src={session.avatar ?? undefined} />
+                <AvatarImage src={session.avatar || undefined} />
                 <AvatarFallback>
                   {session.username.slice(0, 2).toUpperCase()}
                 </AvatarFallback>

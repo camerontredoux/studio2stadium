@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import type { SchoolProfile } from "@/features/school/types";
+import { AvatarUploadDialog } from "@/shared/images/components/avatar-upload/avatar-upload-dialog";
 import { DIVISIONS } from "@/utils/constants/divisions";
 import { US_STATES } from "@/utils/constants/states";
 import { GlobeIcon, MapPinIcon } from "lucide-react";
@@ -21,7 +22,13 @@ const SELECTION_LABELS: Record<SchoolProfile["teamSelection"], string> = {
   hybrid: "Hybrid",
 };
 
-export function HeroContent({ school }: { school: SchoolProfile }) {
+export function HeroContent({
+  school,
+  showOwnerControls,
+}: {
+  school: SchoolProfile;
+  showOwnerControls: boolean;
+}) {
   const initials = school.name
     .split(" ")
     .map((word) => word[0])
@@ -33,7 +40,11 @@ export function HeroContent({ school }: { school: SchoolProfile }) {
     <div className="from-brand/10 via-brand/5 to-background relative grid grid-cols-2 gap-4 bg-linear-to-br p-4 max-sm:grid-cols-1">
       <div className="flex items-center gap-4">
         <div className="block shrink-0 sm:hidden">
-          <ProfilePicture fallback={initials} avatar={school.avatar} />
+          {showOwnerControls ? (
+            <AvatarUploadDialog avatar={school.avatar} fallback={initials} />
+          ) : (
+            <ProfilePicture fallback={initials} avatar={school.avatar} />
+          )}
         </div>
 
         <div className="flex min-w-0 flex-col gap-1">

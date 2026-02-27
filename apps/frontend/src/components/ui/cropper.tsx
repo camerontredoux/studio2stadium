@@ -1000,6 +1000,7 @@ function CropperImpl(props: CropperImplProps) {
       "gesturechange",
       onGestureChange as EventListener,
     );
+    // eslint-disable-next-line react-hooks/immutability
     document.removeEventListener("gestureend", onGestureEnd as EventListener);
   }, [onGestureChange]);
 
@@ -1036,6 +1037,7 @@ function CropperImpl(props: CropperImplProps) {
     isTouchingRef.current = false;
     store.setState("isDragging", false);
     onRefsCleanup();
+    // eslint-disable-next-line react-hooks/immutability
     document.removeEventListener("mouseup", onDragStopped);
     document.removeEventListener("touchend", onDragStopped);
     onEventsCleanup();
@@ -1322,6 +1324,7 @@ function useMediaComputation<T extends HTMLImageElement | HTMLVideoElement>({
   rotation,
   getNaturalDimensions,
 }: UseMediaComputationProps<T>) {
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const computeSizes = React.useCallback(() => {
     const media = mediaRef.current;
     const content = context.rootRef?.current;

@@ -5,6 +5,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { DancerProfile } from "@/features/dancer/types";
+import { AvatarUploadDialog } from "@/shared/images/components/avatar-upload/avatar-upload-dialog";
 import { calculateAge } from "@/utils/calculate-age";
 import { US_STATES } from "@/utils/constants/states";
 import {
@@ -17,15 +18,24 @@ import { HeroBadge } from "./hero-badge";
 import { HeroStyles } from "./hero-styles";
 import { ProfilePicture } from "./profile-picture";
 
-export function HeroContent({ dancer }: { dancer: DancerProfile }) {
+export function HeroContent({
+  dancer,
+  showOwnerControls,
+}: {
+  dancer: DancerProfile;
+  showOwnerControls: boolean;
+}) {
+  const initials = dancer.firstName[0] + dancer.lastName[0];
+
   return (
     <div className="from-brand/10 via-brand/5 to-background relative grid grid-cols-2 gap-4 bg-linear-to-br p-4 max-sm:grid-cols-1">
       <div className="flex items-center gap-4">
         <div className="block shrink-0 sm:hidden">
-          <ProfilePicture
-            fallback={dancer.firstName[0] + dancer.lastName[0]}
-            avatar={dancer.avatar}
-          />
+          {showOwnerControls ? (
+            <AvatarUploadDialog avatar={dancer.avatar} fallback={initials} />
+          ) : (
+            <ProfilePicture fallback={initials} avatar={dancer.avatar} />
+          )}
         </div>
 
         <div className="flex min-w-0 flex-col gap-1">

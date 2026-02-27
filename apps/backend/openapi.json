@@ -20,7 +20,14 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationResponse"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -606,6 +613,21 @@
       "get": {
         "parameters": [
           {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
             "name": "location",
             "in": "query",
             "required": false,
@@ -664,25 +686,6 @@
                     "WV",
                     "WI",
                     "WY"
-                  ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          {
-            "name": "commonRecruiting",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": [
-                    "string",
-                    "number",
-                    "boolean"
                   ]
                 },
                 {
@@ -768,6 +771,25 @@
                   "type": [
                     "string",
                     "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "premium",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
                   ]
                 },
                 {
@@ -1432,6 +1454,15 @@
     },
     "/dancers/{id}/favorite": {
       "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DancersIdFavoriteRequest"
+              }
+            }
+          }
+        },
         "parameters": [
           {
             "name": "id",
@@ -1744,6 +1775,46 @@
         ],
         "summary": "Unsave event",
         "description": "Unsaves an event for the current user"
+      }
+    },
+    "/images": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImagesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImagesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Images"
+        ],
+        "summary": "Request one-time upload URL",
+        "description": "Makes a request to Cloudflare to create a one-time signed upload URL for the user's image"
       }
     },
     "/schools": {
@@ -2204,6 +2275,15 @@
     },
     "/schools/{id}/follow": {
       "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolsIdFollowRequest"
+              }
+            }
+          }
+        },
         "parameters": [
           {
             "name": "id",
@@ -2321,6 +2401,15 @@
     },
     "/schools/{id}/interest": {
       "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolsIdInterestRequest"
+              }
+            }
+          }
+        },
         "parameters": [
           {
             "name": "id",
@@ -2477,6 +2566,49 @@
         "description": "Deletes the user's account"
       }
     },
+    "/users/avatar": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsersAvatarRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update user avatar",
+        "description": "Updates the image ID for the user's avatar from Cloudflare"
+      }
+    },
     "/users/activity": {
       "get": {
         "parameters": [],
@@ -2568,10 +2700,10 @@
         "enum": [
           "name",
           "location",
-          "commonRecruiting",
           "sports",
           "styles",
           "following",
+          "premium",
           "gpaRange"
         ]
       },
@@ -2580,11 +2712,11 @@
         "enum": [
           "name",
           "location",
-          "commonRecruiting",
           "sports",
           "styles",
           "following",
           "gpaRange",
+          "commonRecruiting",
           "division",
           "upcomingEvents"
         ]
@@ -2604,6 +2736,10 @@
             "type": "null"
           }
         ]
+      },
+      "ApplicationResponse": {
+        "type": "object",
+        "properties": {}
       },
       "AuthSignupRequest": {
         "type": "object",
@@ -3241,75 +3377,119 @@
         ]
       },
       "DancersResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "username": {
-              "type": "string"
-            },
-            "name": {
-              "type": "string"
-            },
-            "id": {
-              "type": "string"
-            },
-            "avatar": {
-              "oneOf": [
-                {
+        "type": "object",
+        "properties": {
+          "dancers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "username": {
                   "type": "string"
                 },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "createdAt": {
-              "type": "string"
-            },
-            "birthday": {
-              "type": "string"
-            },
-            "location": {
-              "type": "string"
-            },
-            "gpa": {
-              "oneOf": [
-                {
+                "name": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "avatar": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "birthday": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "gpa": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "gradYear": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "followers": {
                   "type": "number"
                 },
-                {
-                  "type": "null"
+                "subscribed": {
+                  "type": "boolean"
                 }
+              },
+              "required": [
+                "username",
+                "name",
+                "id",
+                "avatar",
+                "createdAt",
+                "birthday",
+                "location",
+                "gpa",
+                "gradYear",
+                "followers",
+                "subscribed"
               ]
-            },
-            "gradYear": {
-              "oneOf": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "followers": {
-              "type": "number"
             }
           },
-          "required": [
-            "username",
-            "name",
-            "id",
-            "avatar",
-            "createdAt",
-            "birthday",
-            "location",
-            "gpa",
-            "gradYear",
-            "followers"
-          ]
-        }
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "number"
+              },
+              "page": {
+                "type": "number"
+              },
+              "limit": {
+                "type": "number"
+              },
+              "totalPages": {
+                "type": "number"
+              },
+              "hasNextPage": {
+                "type": "boolean"
+              },
+              "hasPreviousPage": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "total",
+              "page",
+              "limit",
+              "totalPages",
+              "hasNextPage",
+              "hasPreviousPage"
+            ]
+          }
+        },
+        "required": [
+          "dancers",
+          "pagination"
+        ]
       },
       "DancersRequest": {
         "type": "object",
@@ -4299,6 +4479,40 @@
               ]
             }
           },
+          "submission": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "createdAt": {
+                    "type": "string"
+                  },
+                  "updatedAt": {
+                    "type": "string"
+                  },
+                  "dancerId": {
+                    "type": "string"
+                  },
+                  "youtubeId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "createdAt",
+                  "updatedAt",
+                  "dancerId",
+                  "youtubeId"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "subscribed": {
             "type": "boolean"
           }
@@ -4330,7 +4544,27 @@
           "sports",
           "styles",
           "globalEvents",
+          "submission",
           "subscribed"
+        ]
+      },
+      "DancersIdFavoriteRequest": {
+        "type": "object",
+        "properties": {
+          "params": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          }
+        },
+        "required": [
+          "params"
         ]
       },
       "DancersIdFavoriteResponse": {
@@ -4835,8 +5069,56 @@
                 "type": "null"
               }
             ]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
           }
-        }
+        },
+        "required": [
+          "params"
+        ]
+      },
+      "ImagesRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "feed",
+              "avatar"
+            ]
+          },
+          "contentType": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "contentType"
+        ]
+      },
+      "ImagesResponse": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "url"
+        ]
       },
       "SchoolsResponse": {
         "type": "array",
@@ -5225,6 +5507,9 @@
             "username": {
               "type": "string"
             },
+            "name": {
+              "type": "string"
+            },
             "id": {
               "type": "string"
             },
@@ -5271,6 +5556,7 @@
           },
           "required": [
             "username",
+            "name",
             "id",
             "createdAt",
             "platformName",
@@ -5305,8 +5591,22 @@
                 "type": "null"
               }
             ]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
           }
-        }
+        },
+        "required": [
+          "params"
+        ]
       },
       "SchoolsIdResponse": {
         "type": "object",
@@ -5489,6 +5789,9 @@
             "type": "string"
           },
           "id": {
+            "type": "string"
+          },
+          "displayEmail": {
             "type": "string"
           },
           "avatar": {
@@ -5753,6 +6056,131 @@
                 "slug"
               ]
             }
+          },
+          "globalEvents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "recruitment",
+                    "audition",
+                    "other",
+                    "rehearsal",
+                    "recital",
+                    "showcase",
+                    "competition",
+                    "class",
+                    "intensive",
+                    "workshop",
+                    "fundraiser",
+                    "combine",
+                    "convention",
+                    "clinic",
+                    "deadline",
+                    "performance",
+                    "camp"
+                  ]
+                },
+                "id": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "startDatetime": {
+                  "type": "string"
+                },
+                "endDatetime": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "id",
+                "location",
+                "title",
+                "startDatetime",
+                "endDatetime"
+              ]
+            }
+          },
+          "attendingEvents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "recruitment",
+                    "audition",
+                    "other",
+                    "rehearsal",
+                    "recital",
+                    "showcase",
+                    "competition",
+                    "class",
+                    "intensive",
+                    "workshop",
+                    "fundraiser",
+                    "combine",
+                    "convention",
+                    "clinic",
+                    "deadline",
+                    "performance",
+                    "camp"
+                  ]
+                },
+                "id": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "startDatetime": {
+                  "type": "string"
+                },
+                "endDatetime": {
+                  "type": "string"
+                },
+                "organizer": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "type",
+                "id",
+                "location",
+                "title",
+                "startDatetime",
+                "endDatetime",
+                "organizer"
+              ]
+            }
           }
         },
         "required": [
@@ -5762,6 +6190,7 @@
           "username",
           "name",
           "id",
+          "displayEmail",
           "avatar",
           "createdAt",
           "updatedAt",
@@ -5785,7 +6214,28 @@
           "videos",
           "skills",
           "sports",
-          "styles"
+          "styles",
+          "globalEvents",
+          "attendingEvents"
+        ]
+      },
+      "SchoolsIdFollowRequest": {
+        "type": "object",
+        "properties": {
+          "params": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          }
+        },
+        "required": [
+          "params"
         ]
       },
       "SchoolsIdFollowResponse": {
@@ -5816,6 +6266,25 @@
           "following",
           "followers",
           "interested"
+        ]
+      },
+      "SchoolsIdInterestRequest": {
+        "type": "object",
+        "properties": {
+          "params": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          }
+        },
+        "required": [
+          "params"
         ]
       },
       "SchoolsIdInterestResponse": {
@@ -5932,6 +6401,17 @@
             ]
           }
         }
+      },
+      "UsersAvatarRequest": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key"
+        ]
       },
       "UsersActivityResponse": {
         "type": "object",

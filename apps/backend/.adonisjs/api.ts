@@ -219,6 +219,10 @@ type EventsIdUnsaveDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/unsave-event/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/events/unsave-event/controller.ts').default['handle'], true>
 }
+type ImagesPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/images/upload-image/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/images/upload-image/controller.ts').default['handle'], true>
+}
 type SchoolsFiltersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/schools/get-school-filters/controller.ts').default['handle'], false>
@@ -252,7 +256,7 @@ type SchoolsMeFavoritesIdPatch = {
   response: MakeTuyauResponse<import('../app/modules/schools/update-favorite/controller.ts').default['handle'], true>
 }
 type SchoolsIdGetHead = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school/validator.ts')['validator']>>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/schools/get-school/controller.ts').default['handle'], true>
 }
 type SchoolsIdFollowPost = {
@@ -286,6 +290,10 @@ type UsersAccountPatch = {
 type UsersAccountDelete = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/users/delete-account/controller.ts').default['handle'], false>
+}
+type UsersAvatarPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/update-avatar/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/users/update-avatar/controller.ts').default['handle'], true>
 }
 type UsersActivityGetHead = {
   request: unknown
@@ -566,6 +574,11 @@ export interface ApiDefinition {
       };
     };
   };
+  'images': {
+    '$url': {
+    };
+    '$post': ImagesPost;
+  };
   'schools': {
     'filters': {
       '$url': {
@@ -654,6 +667,11 @@ export interface ApiDefinition {
       '$head': UsersAccountGetHead;
       '$patch': UsersAccountPatch;
       '$delete': UsersAccountDelete;
+    };
+    'avatar': {
+      '$url': {
+      };
+      '$post': UsersAvatarPost;
     };
     'activity': {
       '$url': {
