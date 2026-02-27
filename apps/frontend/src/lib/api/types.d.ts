@@ -3514,6 +3514,14 @@ export interface components {
                     name: string;
                 } | null;
             }[];
+            images: {
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                userId: string;
+                caption: string | null;
+                mediaUrl: string;
+            }[];
             username: string;
             firstName: string;
             lastName: string;
@@ -3549,6 +3557,14 @@ export interface components {
                 profileId: string;
                 title: string;
                 description: string | null;
+            }[];
+            videos: {
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                userId: string;
+                mediaId: string;
+                caption: string | null;
             }[];
             skills: {
                 name: string;

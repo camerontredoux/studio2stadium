@@ -41,6 +41,8 @@ export class Service {
           lastName: true,
         },
         with: {
+          images: true,
+          videos: true,
           events: {
             orderBy: {
               startDatetime: "asc",
