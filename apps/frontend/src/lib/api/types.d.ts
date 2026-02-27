@@ -3623,6 +3623,7 @@ export interface components {
         SchoolsMeFollowingIdsResponse: string[];
         SchoolsMeFavoritesResponse: {
             username: string;
+            name: string;
             id: string;
             createdAt: string;
             /** @enum {string} */

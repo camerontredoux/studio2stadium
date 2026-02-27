@@ -1,5 +1,12 @@
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardPanel,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Dialog,
   DialogClose,
   DialogContent,
@@ -39,7 +46,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { toastManager } from "@/components/ui/toast-manager";
 import { formatDate } from "@/components/utils/format";
 import type { ApiSchemas } from "@/lib/api/client";
+import { dateToRelativeTime } from "@/utils/date";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import {
   type ColumnDef,
   flexRender,
@@ -50,7 +59,12 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDownIcon, ChevronUpIcon, Loader2Icon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ExternalLinkIcon,
+  Loader2Icon,
+} from "lucide-react";
 import { useState } from "react";
 import { useUpdateFavorite } from "../api/mutations";
 import { favoritesQueries } from "../api/queries";
@@ -69,15 +83,76 @@ const getStatusColor = (rating: Favorite["rating"]) => {
   }
 };
 
+function FavoriteCard({
+  favorite,
+  onClick,
+}: {
+  favorite: Favorite;
+  onClick: () => void;
+}) {
+  return (
+    <Card
+      className="hover:bg-muted/50 cursor-pointer py-3 transition-colors"
+      onClick={onClick}
+    >
+      <CardHeader className="gap-2 pb-0">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex flex-col text-base">
+            {favorite.name}
+            <Link
+              to={"/$username"}
+              params={{ username: favorite.username }}
+              className="text-muted-foreground flex items-center gap-1 text-sm hover:underline"
+            >
+              {favorite.username}{" "}
+              <ExternalLinkIcon className="size-3 shrink-0" />
+            </Link>
+          </CardTitle>
+          <CardDescription title={formatDate(favorite.createdAt)}>
+            {dateToRelativeTime(favorite.createdAt)}
+          </CardDescription>
+        </div>
+        <Rating disabled size="sm" value={favorite.rating ?? 0}>
+          {Array.from({ length: 5 }, (_, i) => (
+            <RatingItem
+              className={getStatusColor(favorite.rating)}
+              key={i}
+              index={i}
+            />
+          ))}
+        </Rating>
+      </CardHeader>
+      <CardPanel className="pt-0">
+        <p className="text-sm">
+          {favorite.comment || (
+            <span className="text-muted-foreground text-sm">
+              Leave a comment...
+            </span>
+          )}
+        </p>
+      </CardPanel>
+    </Card>
+  );
+}
+
 const columns: ColumnDef<Favorite>[] = [
   {
     accessorKey: "username",
     cell: ({ row }) => (
-      <div className="text-muted-foreground truncate font-mono font-medium">
-        {row.getValue("username")}
+      <div className="flex flex-col">
+        <span className="truncate font-medium">{row.original.name}</span>
+        <Link
+          to={"/$username"}
+          params={{ username: row.original.username }}
+          className="text-muted-foreground flex items-center gap-1 truncate text-sm hover:underline"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {row.original.username}
+          <ExternalLinkIcon className="size-3 shrink-0" />
+        </Link>
       </div>
     ),
-    header: "Username",
+    header: "Dancer",
   },
   {
     accessorKey: "rating",
@@ -96,7 +171,13 @@ const columns: ColumnDef<Favorite>[] = [
   {
     accessorKey: "comment",
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("comment")}</div>
+      <div className="font-medium">
+        {row.getValue("comment") || (
+          <span className="text-muted-foreground text-sm">
+            Leave a comment...
+          </span>
+        )}
+      </div>
     ),
     header: "Comment",
   },
@@ -106,8 +187,11 @@ const columns: ColumnDef<Favorite>[] = [
     cell: ({ row }) => {
       const createdAt = row.getValue("createdAt") as Favorite["createdAt"];
       return (
-        <div className="text-muted-foreground text-sm">
-          {formatDate(createdAt)}
+        <div
+          title={formatDate(createdAt)}
+          className="text-muted-foreground text-sm"
+        >
+          {dateToRelativeTime(createdAt, { strict: true })}
         </div>
       );
     },
@@ -199,188 +283,260 @@ export function FavoritesTable() {
     },
   });
 
+  const paginatedData = table.getRowModel().rows.map((row) => row.original);
+
   return (
-    <Frame className="w-full">
-      <Table className="table-fixed">
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow className="hover:bg-transparent" key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                const columnSize = header.column.getSize();
-                return (
-                  <TableHead
-                    key={header.id}
-                    style={
-                      columnSize ? { width: `${columnSize}px` } : undefined
-                    }
-                  >
-                    {header.isPlaceholder ? null : header.column.getCanSort() ? (
-                      <div
-                        className="flex h-full cursor-pointer items-center justify-between gap-2 select-none"
-                        onClick={header.column.getToggleSortingHandler()}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            header.column.getToggleSortingHandler()?.(e);
-                          }
-                        }}
-                        role="button"
-                        tabIndex={0}
-                      >
-                        {flexRender(
+    <>
+      {/* Mobile Card View */}
+      <div className="flex flex-col gap-3 sm:hidden">
+        {isPending ? (
+          <div className="flex h-24 items-center justify-center gap-2">
+            <Loader2Icon aria-hidden="true" className="size-4 animate-spin" />
+            <p className="text-muted-foreground text-sm">
+              Loading favorites...
+            </p>
+          </div>
+        ) : paginatedData.length ? (
+          <>
+            {paginatedData.map((favorite) => (
+              <FavoriteCard
+                key={favorite.id}
+                favorite={favorite}
+                onClick={() => handleRowClick(favorite)}
+              />
+            ))}
+            <div className="flex items-center justify-between gap-2 pt-2">
+              <p className="text-muted-foreground text-sm">
+                {table.getState().pagination.pageIndex *
+                  table.getState().pagination.pageSize +
+                  1}
+                -
+                {Math.min(
+                  (table.getState().pagination.pageIndex + 1) *
+                    table.getState().pagination.pageSize,
+                  table.getRowCount(),
+                )}{" "}
+                of {table.getRowCount()}
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!table.getCanPreviousPage()}
+                  onClick={() => table.previousPage()}
+                >
+                  Previous
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!table.getCanNextPage()}
+                  onClick={() => table.nextPage()}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="flex h-24 items-center justify-center">
+            <p className="text-muted-foreground text-sm">No results.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <Frame className="hidden w-full sm:block">
+        <Table className="table-fixed">
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow className="hover:bg-transparent" key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  const columnSize = header.column.getSize();
+                  return (
+                    <TableHead
+                      key={header.id}
+                      style={
+                        columnSize ? { width: `${columnSize}px` } : undefined
+                      }
+                    >
+                      {header.isPlaceholder ? null : header.column.getCanSort() ? (
+                        <div
+                          className="flex h-full cursor-pointer items-center justify-between gap-2 select-none"
+                          onClick={header.column.getToggleSortingHandler()}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              header.column.getToggleSortingHandler()?.(e);
+                            }
+                          }}
+                          role="button"
+                          tabIndex={0}
+                        >
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                          {{
+                            asc: (
+                              <ChevronUpIcon
+                                aria-hidden="true"
+                                className="size-4 shrink-0 opacity-80"
+                              />
+                            ),
+                            desc: (
+                              <ChevronDownIcon
+                                aria-hidden="true"
+                                className="size-4 shrink-0 opacity-80"
+                              />
+                            ),
+                          }[header.column.getIsSorted() as string] ?? null}
+                        </div>
+                      ) : (
+                        flexRender(
                           header.column.columnDef.header,
                           header.getContext(),
-                        )}
-                        {{
-                          asc: (
-                            <ChevronUpIcon
-                              aria-hidden="true"
-                              className="size-4 shrink-0 opacity-80"
-                            />
-                          ),
-                          desc: (
-                            <ChevronDownIcon
-                              aria-hidden="true"
-                              className="size-4 shrink-0 opacity-80"
-                            />
-                          ),
-                        }[header.column.getIsSorted() as string] ?? null}
-                      </div>
-                    ) : (
-                      flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )
-                    )}
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {isPending ? (
-            <TableRow>
-              <TableCell className="h-24 text-center" colSpan={columns.length}>
-                <div className="flex h-full items-center justify-center gap-2">
-                  <Loader2Icon
-                    aria-hidden="true"
-                    className="size-4 animate-spin"
-                  />
-                  <p className="text-muted-foreground text-sm">
-                    Loading favorites...
-                  </p>
-                </div>
-              </TableCell>
-            </TableRow>
-          ) : table.getRowModel().rows.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                className="cursor-pointer"
-                data-state={row.getIsSelected() ? "selected" : undefined}
-                key={row.id}
-                onClick={() => handleRowClick(row.original)}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+                        )
+                      )}
+                    </TableHead>
+                  );
+                })}
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell className="h-24 text-center" colSpan={columns.length}>
-                No results.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-      <FrameFooter className="p-2">
-        <div className="flex items-center justify-between gap-2">
-          {/* Results range selector */}
-          <div className="flex items-center gap-2 whitespace-nowrap">
-            <p className="text-muted-foreground text-sm">Viewing</p>
-            <Select
-              items={Array.from({ length: table.getPageCount() }, (_, i) => {
-                const start = i * table.getState().pagination.pageSize + 1;
-                const end = Math.min(
-                  (i + 1) * table.getState().pagination.pageSize,
-                  table.getRowCount(),
-                );
-                const pageNum = i + 1;
-                return { label: `${start}-${end}`, value: pageNum };
-              })}
-              onValueChange={(value) => {
-                table.setPageIndex((value as number) - 1);
-              }}
-              value={table.getState().pagination.pageIndex + 1}
-            >
-              <SelectTrigger
-                aria-label="Select result range"
-                className="min-w-none w-fit"
-                size="sm"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectPopup>
-                {Array.from({ length: table.getPageCount() }, (_, i) => {
+            ))}
+          </TableHeader>
+          <TableBody>
+            {isPending ? (
+              <TableRow>
+                <TableCell
+                  className="h-24 text-center"
+                  colSpan={columns.length}
+                >
+                  <div className="flex h-full items-center justify-center gap-2">
+                    <Loader2Icon
+                      aria-hidden="true"
+                      className="size-4 animate-spin"
+                    />
+                    <p className="text-muted-foreground text-sm">
+                      Loading favorites...
+                    </p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  className="cursor-pointer"
+                  data-state={row.getIsSelected() ? "selected" : undefined}
+                  key={row.id}
+                  onClick={() => handleRowClick(row.original)}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  className="h-24 text-center"
+                  colSpan={columns.length}
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+        <FrameFooter className="p-2">
+          <div className="flex items-center justify-between gap-2">
+            {/* Results range selector */}
+            <div className="flex items-center gap-2 whitespace-nowrap">
+              <p className="text-muted-foreground text-sm">Viewing</p>
+              <Select
+                items={Array.from({ length: table.getPageCount() }, (_, i) => {
                   const start = i * table.getState().pagination.pageSize + 1;
                   const end = Math.min(
                     (i + 1) * table.getState().pagination.pageSize,
                     table.getRowCount(),
                   );
                   const pageNum = i + 1;
-                  return (
-                    <SelectItem key={pageNum} value={pageNum}>
-                      {`${start}-${end}`}
-                    </SelectItem>
-                  );
+                  return { label: `${start}-${end}`, value: pageNum };
                 })}
-              </SelectPopup>
-            </Select>
-            <p className="text-muted-foreground text-sm">
-              of{" "}
-              <strong className="text-foreground font-medium">
-                {table.getRowCount()}
-              </strong>{" "}
-              results
-            </p>
+                onValueChange={(value) => {
+                  table.setPageIndex((value as number) - 1);
+                }}
+                value={table.getState().pagination.pageIndex + 1}
+              >
+                <SelectTrigger
+                  aria-label="Select result range"
+                  className="min-w-none w-fit"
+                  size="sm"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectPopup>
+                  {Array.from({ length: table.getPageCount() }, (_, i) => {
+                    const start = i * table.getState().pagination.pageSize + 1;
+                    const end = Math.min(
+                      (i + 1) * table.getState().pagination.pageSize,
+                      table.getRowCount(),
+                    );
+                    const pageNum = i + 1;
+                    return (
+                      <SelectItem key={pageNum} value={pageNum}>
+                        {`${start}-${end}`}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectPopup>
+              </Select>
+              <p className="text-muted-foreground text-sm">
+                of{" "}
+                <strong className="text-foreground font-medium">
+                  {table.getRowCount()}
+                </strong>{" "}
+                results
+              </p>
+            </div>
+            {/* Pagination */}
+            <Pagination className="justify-end">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    className="sm:*:[svg]:hidden"
+                    render={
+                      <Button
+                        disabled={!table.getCanPreviousPage()}
+                        onClick={() => table.previousPage()}
+                        size="sm"
+                        variant="outline"
+                      />
+                    }
+                  />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationNext
+                    className="sm:*:[svg]:hidden"
+                    render={
+                      <Button
+                        disabled={!table.getCanNextPage()}
+                        onClick={() => table.nextPage()}
+                        size="sm"
+                        variant="outline"
+                      />
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
-          {/* Pagination */}
-          <Pagination className="justify-end">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  className="sm:*:[svg]:hidden"
-                  render={
-                    <Button
-                      disabled={!table.getCanPreviousPage()}
-                      onClick={() => table.previousPage()}
-                      size="sm"
-                      variant="outline"
-                    />
-                  }
-                />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext
-                  className="sm:*:[svg]:hidden"
-                  render={
-                    <Button
-                      disabled={!table.getCanNextPage()}
-                      onClick={() => table.nextPage()}
-                      size="sm"
-                      variant="outline"
-                    />
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      </FrameFooter>
+        </FrameFooter>
+      </Frame>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
@@ -424,6 +580,6 @@ export function FavoritesTable() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Frame>
+    </>
   );
 }

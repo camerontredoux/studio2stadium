@@ -24,6 +24,8 @@ export class Service {
               user: {
                 columns: {
                   username: true,
+                  firstName: true,
+                  lastName: true,
                 },
               },
             },
@@ -44,6 +46,7 @@ export class Service {
           lastContacted: f.lastContacted,
           createdAt: f.createdAt,
           username: f.dancer.user.username,
+          name: `${f.dancer.user.firstName} ${f.dancer.user.lastName}`,
         },
       ];
     });
