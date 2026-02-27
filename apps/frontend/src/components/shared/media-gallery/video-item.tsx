@@ -6,7 +6,7 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { PlayIcon } from "lucide-react";
+import { VideoIcon } from "lucide-react";
 import type { Video } from "./types";
 
 export function VideoItem({ video }: { video: Video }) {
@@ -20,7 +20,7 @@ export function VideoItem({ video }: { video: Video }) {
             className="size-full object-cover"
           />
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-linear-to-t from-black/80 to-transparent">
-            <PlayIcon className="group-hover:text-brand size-10 text-white transition-all duration-150 group-hover:scale-105" />
+            <VideoIcon className="group-hover:text-brand size-8 text-white transition-all duration-150" />
           </div>
         </div>
       </DialogTrigger>
