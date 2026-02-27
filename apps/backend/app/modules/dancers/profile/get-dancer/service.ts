@@ -1,4 +1,5 @@
 import { DatabaseService } from "#database/service";
+import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
 
 @inject()
@@ -12,13 +13,21 @@ export class Service {
 
     const { dancerProfile, ...user } = dancer;
 
-    const { subscription, ...rest } = user;
+    const { subscription, images, ...rest } = user;
 
     if (!dancerProfile) return null;
+
+    const profileImages = images.map((image) => ({
+      ...image,
+      mediaUrl: image.mediaUrl.startsWith("feed")
+        ? imageUrl(image.mediaUrl, { fit: "scale-down", width: 1080 })
+        : image.mediaUrl,
+    }));
 
     return {
       ...rest,
       ...dancerProfile,
+      images: profileImages,
       subscribed: !!subscription,
     };
   }

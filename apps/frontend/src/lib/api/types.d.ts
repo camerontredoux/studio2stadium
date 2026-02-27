@@ -2282,8 +2282,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Request one-time upload URL
-         * @description Makes a request to Cloudflare to create a one-time signed upload URL for the user's image
+         * Upload media to user's profile
+         * @description Posts an image to the user's profile and adds it to their followers' feeds
          */
         post: {
             parameters: {
@@ -2298,13 +2298,63 @@ export interface paths {
                 };
             };
             responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/images/presign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request one-time upload URL
+         * @description Makes a request to Cloudflare to create a one-time signed upload URL for the user's image
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ImagesPresignRequest"];
+                };
+            };
+            responses: {
                 /** @description OK */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ImagesResponse"];
+                        "application/json": components["schemas"]["ImagesPresignResponse"];
                     };
                 };
                 /** @description Unprocessable Entity */
@@ -3701,11 +3751,14 @@ export interface components {
             };
         };
         ImagesRequest: {
+            key: string;
+        };
+        ImagesPresignRequest: {
             /** @enum {string} */
             type: "feed" | "avatar";
             contentType: string;
         };
-        ImagesResponse: {
+        ImagesPresignResponse: {
             key: string;
             url: string;
         };

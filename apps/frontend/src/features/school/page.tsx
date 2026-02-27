@@ -1,4 +1,5 @@
 import { SidebarLayout } from "@/components/layouts/sidebar-layout";
+import { MediaGallery } from "@/components/shared/media-gallery";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -18,7 +19,6 @@ import { EventsAttending } from "./components/profile/events-attending";
 import { SchoolHero } from "./components/profile/hero";
 import { AboutSection } from "./components/profile/sections/about-section";
 import { EventsSection } from "./components/profile/sections/events-section";
-import { MediaGallery } from "@/components/shared/media-gallery";
 import { ProgramDetails } from "./components/profile/sections/program-details";
 import { SkillsSection } from "./components/profile/sections/skills-section";
 import { ContactInfo } from "./components/profile/sidebar/contact-info";
@@ -78,7 +78,11 @@ export function SchoolPage({ username }: SchoolPageProps) {
 
           <ProgramDetails school={data} />
 
-          <MediaGallery images={data.images} videos={data.videos} />
+          <MediaGallery
+            images={data.images}
+            videos={data.videos}
+            showOwnerControls={isOwner && !isPreview}
+          />
 
           <SkillsSection skills={data.skills} />
 

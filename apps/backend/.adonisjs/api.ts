@@ -219,9 +219,13 @@ type EventsIdUnsaveDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/unsave-event/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/events/unsave-event/controller.ts').default['handle'], true>
 }
-type ImagesPost = {
+type ImagesPresignPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/images/upload-image/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/images/upload-image/controller.ts').default['handle'], true>
+}
+type ImagesPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/images/upload-profile-image/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/images/upload-profile-image/controller.ts').default['handle'], true>
 }
 type SchoolsFiltersGetHead = {
   request: unknown
@@ -575,6 +579,11 @@ export interface ApiDefinition {
     };
   };
   'images': {
+    'presign': {
+      '$url': {
+      };
+      '$post': ImagesPresignPost;
+    };
     '$url': {
     };
     '$post': ImagesPost;

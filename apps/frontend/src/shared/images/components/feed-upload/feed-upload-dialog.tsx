@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,20 +15,15 @@ import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
 import { useSession } from "@/lib/session";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
-import { CameraIcon } from "lucide-react";
+import { ImageIcon } from "lucide-react";
 import { useState } from "react";
-import { useRequestUpload, useUpdateAvatar } from "../../api/mutations";
-import { AvatarUploadForm, type FormValues } from "./avatar-upload-form";
+import { useRequestUpload, useUploadImage } from "../../api/mutations";
+import { FeedUploadForm, type FormValues } from "./feed-upload-form";
 
-interface AvatarUploadProps {
-  avatar: string | null;
-  fallback: string;
-}
-
-export function AvatarUploadDialog({ avatar, fallback }: AvatarUploadProps) {
+export function FeedUploadDialog() {
   const session = useSession();
   const { mutate, isPending, data } = useRequestUpload();
-  const { mutate: updateAvatar, isPending: isUpdatingAvatar } = useUpdateAvatar(
+  const { mutate: uploadImage, isPending: isUpdatingAvatar } = useUploadImage(
     session.type,
     session.username,
   );
@@ -43,7 +37,7 @@ export function AvatarUploadDialog({ avatar, fallback }: AvatarUploadProps) {
   const onSubmit = (files: FormValues) => {
     const file = files.files[0];
     mutate(
-      { body: { contentType: file.type, type: "avatar" } },
+      { body: { contentType: file.type, type: "feed" } },
       {
         onError: handleApiError({
           onError: (error) => {
@@ -62,13 +56,13 @@ export function AvatarUploadDialog({ avatar, fallback }: AvatarUploadProps) {
               setProgress(percent);
             })
               .then(() => {
-                updateAvatar(
+                uploadImage(
                   { body: { key: data.key } },
                   {
                     onSuccess: () => {
                       toastManager.add({
                         title: "Success",
-                        description: "Avatar updated successfully",
+                        description: "Image posted successfully!",
                         type: "success",
                       });
                       setIsOpen(false);
@@ -80,7 +74,7 @@ export function AvatarUploadDialog({ avatar, fallback }: AvatarUploadProps) {
                 console.log(e);
                 toastManager.add({
                   title: "Error",
-                  description: "Failed to upload avatar",
+                  description: "Failed to upload image",
                   type: "error",
                 });
               })
@@ -95,28 +89,28 @@ export function AvatarUploadDialog({ avatar, fallback }: AvatarUploadProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger className="bg-background relative z-20 rounded-full sm:absolute sm:top-28 sm:left-4">
-        <div className="group absolute inset-0 flex cursor-pointer items-center justify-center rounded-full hover:bg-black/50">
-          <CameraIcon className="opacity-0 group-hover:opacity-100" />
-        </div>
-        <Avatar className="size-20 rounded-full border object-cover sm:size-24">
-          <AvatarImage
-            src={avatar || undefined}
-            alt="Profile picture"
-            className="size-full object-cover"
+      <DialogTrigger
+        render={
+          <button
+            type="button"
+            className="border-border hover:border-primary/50 hover:bg-primary/5 group flex aspect-square flex-1 cursor-pointer flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed transition-colors"
           />
-          <AvatarFallback className="text-primary flex items-center justify-center text-lg">
-            {fallback}
-          </AvatarFallback>
-        </Avatar>
+        }
+      >
+        <div className="bg-muted group-hover:bg-primary/10 rounded-full p-3 transition-colors">
+          <ImageIcon className="text-muted-foreground group-hover:text-primary size-6 transition-colors" />
+        </div>
+        <span className="text-muted-foreground group-hover:text-foreground text-sm font-medium transition-colors">
+          Image
+        </span>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Upload Avatar</DialogTitle>
-          <DialogDescription>Change your profile picture</DialogDescription>
+          <DialogTitle>Upload</DialogTitle>
+          <DialogDescription>Add an image to your account.</DialogDescription>
         </DialogHeader>
         <DialogPanel>
-          <AvatarUploadForm
+          <FeedUploadForm
             isLoading={isLoading}
             progress={progress}
             onSubmit={onSubmit}
@@ -126,7 +120,7 @@ export function AvatarUploadDialog({ avatar, fallback }: AvatarUploadProps) {
           <DialogClose render={<Button variant="secondary" />}>
             Cancel
           </DialogClose>
-          <Button disabled={isLoading} type="submit" form="avatar-upload-form">
+          <Button disabled={isLoading} type="submit" form="feed-upload-form">
             {isLoading ? <Spinner label="Uploading..." /> : "Upload"}
           </Button>
         </DialogFooter>

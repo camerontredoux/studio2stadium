@@ -1789,12 +1789,45 @@
           }
         },
         "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Images"
+        ],
+        "summary": "Upload media to user's profile",
+        "description": "Posts an image to the user's profile and adds it to their followers' feeds"
+      }
+    },
+    "/images/presign": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImagesPresignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ImagesResponse"
+                  "$ref": "#/components/schemas/ImagesPresignResponse"
                 }
               }
             }
@@ -4148,6 +4181,47 @@
               ]
             }
           },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "userId": {
+                  "type": "string"
+                },
+                "caption": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "mediaUrl": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "createdAt",
+                "updatedAt",
+                "userId",
+                "caption",
+                "mediaUrl"
+              ]
+            }
+          },
           "username": {
             "type": "string"
           },
@@ -4368,6 +4442,47 @@
               ]
             }
           },
+          "videos": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "userId": {
+                  "type": "string"
+                },
+                "mediaId": {
+                  "type": "string"
+                },
+                "caption": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "createdAt",
+                "updatedAt",
+                "userId",
+                "mediaId",
+                "caption"
+              ]
+            }
+          },
           "skills": {
             "type": "array",
             "items": {
@@ -4519,6 +4634,7 @@
         },
         "required": [
           "events",
+          "images",
           "username",
           "firstName",
           "lastName",
@@ -4540,6 +4656,7 @@
           "trainingHours",
           "achievements",
           "references",
+          "videos",
           "skills",
           "sports",
           "styles",
@@ -5089,6 +5206,17 @@
       "ImagesRequest": {
         "type": "object",
         "properties": {
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key"
+        ]
+      },
+      "ImagesPresignRequest": {
+        "type": "object",
+        "properties": {
           "type": {
             "type": "string",
             "enum": [
@@ -5105,7 +5233,7 @@
           "contentType"
         ]
       },
-      "ImagesResponse": {
+      "ImagesPresignResponse": {
         "type": "object",
         "properties": {
           "key": {

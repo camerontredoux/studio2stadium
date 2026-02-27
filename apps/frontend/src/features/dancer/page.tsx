@@ -1,4 +1,5 @@
 import { SidebarLayout } from "@/components/layouts/sidebar-layout";
+import { MediaGallery } from "@/components/shared/media-gallery";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -22,7 +23,6 @@ import { References } from "./components/profile/references";
 import { ContactInfo } from "./components/profile/sidebar/contact-info";
 import { ExtraInfo } from "./components/profile/sidebar/extra-info";
 import { Skills } from "./components/profile/skills";
-import { MediaGallery } from "@/components/shared/media-gallery";
 import { Submission } from "./components/profile/submission";
 
 interface DancerPageProps {
@@ -89,7 +89,11 @@ export function DancerPage({ username }: DancerPageProps) {
 
             {data.subscribed ? <Submission data={data.submission} /> : null}
 
-            <MediaGallery images={data.images} videos={data.videos} />
+            <MediaGallery
+              images={data.images}
+              videos={data.videos}
+              showOwnerControls={isOwner && !isPreview}
+            />
 
             <Skills skills={data.skills} username={username} />
 

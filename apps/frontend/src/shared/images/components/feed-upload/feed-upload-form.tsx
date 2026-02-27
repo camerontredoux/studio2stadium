@@ -21,7 +21,6 @@ import {
   type FieldErrors,
 } from "react-hook-form";
 import { z } from "zod";
-import { AvatarUploadCropper } from "./avatar-upload-cropper";
 
 const schema = z.object({
   files: z
@@ -35,7 +34,7 @@ const schema = z.object({
 
 export type FormValues = z.infer<typeof schema>;
 
-export function AvatarUploadForm({
+export function FeedUploadForm({
   onSubmit,
   progress,
   isLoading,
@@ -70,7 +69,7 @@ export function AvatarUploadForm({
   return (
     <FormProvider {...form}>
       <form
-        id="avatar-upload-form"
+        id="feed-upload-form"
         onSubmit={(e) => form.handleSubmit(onSubmit, onError)(e)}
       >
         <Controller
@@ -103,20 +102,12 @@ export function AvatarUploadForm({
                         <div className="flex w-full items-center gap-2">
                           <FileUploadItemPreview className="size-12 rounded-full object-cover max-sm:size-13" />
                           <FileUploadItemMetadata />
-                          <div className="flex items-center gap-1">
-                            <AvatarUploadCropper
-                              image={file}
-                              onCrop={(croppedFile) =>
-                                field.onChange([croppedFile])
-                              }
-                            />
-                            <FileUploadItemDelete asChild>
-                              <Button variant="ghost" size="icon">
-                                <TrashIcon className="text-destructive-foreground size-4" />
-                                <span className="sr-only">Delete</span>
-                              </Button>
-                            </FileUploadItemDelete>
-                          </div>
+                          <FileUploadItemDelete asChild>
+                            <Button variant="ghost" size="icon">
+                              <TrashIcon className="text-destructive-foreground size-4" />
+                              <span className="sr-only">Delete</span>
+                            </Button>
+                          </FileUploadItemDelete>
                         </div>
                         {isLoading && (
                           <Progress value={progress} className="w-full" />
