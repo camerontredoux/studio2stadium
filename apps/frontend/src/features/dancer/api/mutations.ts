@@ -52,7 +52,7 @@ export function useUpdateProfile(username: string) {
 }
 
 export function useCreateAchievement(username: string) {
-  return $api.useMutation("post", "/dancers/me/achievements", {
+  return $api.useMutation("post", "/dancers/achievements/achievements", {
     meta: {
       invalidateQueries: [dancerQueries.profile(username).queryKey],
     },
@@ -60,7 +60,15 @@ export function useCreateAchievement(username: string) {
 }
 
 export function useDeleteAchievement(username: string) {
-  return $api.useMutation("delete", "/dancers/me/achievements/{id}", {
+  return $api.useMutation("delete", "/dancers/achievements/achievements/{id}", {
+    meta: {
+      invalidateQueries: [dancerQueries.profile(username).queryKey],
+    },
+  });
+}
+
+export function useUpdateAchievement(username: string) {
+  return $api.useMutation("patch", "/dancers/achievements/achievements/{id}", {
     meta: {
       invalidateQueries: [dancerQueries.profile(username).queryKey],
     },

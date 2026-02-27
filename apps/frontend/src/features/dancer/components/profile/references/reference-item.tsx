@@ -46,7 +46,7 @@ export function ReferenceItem({
           <span className="truncate">{reference.title}</span>
         </span>
         {showOwnerControls ? (
-          <div className="mobile:opacity-100 flex gap-1 opacity-0 group-hover:opacity-100">
+          <div className="flex gap-1">
             <Button
               size="icon-xs"
               variant="ghost"

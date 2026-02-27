@@ -10,12 +10,18 @@ export type AchievementFormData = z.infer<typeof schemas.createAchievement>;
 
 interface AchievementsFormProps {
   onSubmit: (data: AchievementFormData) => void;
+  defaultValues?: AchievementFormData;
+  formId?: string;
 }
 
-export function AchievementsForm({ onSubmit }: AchievementsFormProps) {
+export function AchievementsForm({
+  onSubmit,
+  defaultValues,
+  formId = "achievement-form",
+}: AchievementsFormProps) {
   const form = useForm({
     resolver: zodResolver(schemas.createAchievement),
-    defaultValues: {
+    defaultValues: defaultValues ?? {
       title: "",
       description: "",
     },
@@ -24,7 +30,7 @@ export function AchievementsForm({ onSubmit }: AchievementsFormProps) {
   return (
     <FormProvider {...form}>
       <form
-        id="create-achievement-form"
+        id={formId}
         className="flex w-full flex-col gap-3"
         onSubmit={(e) => form.handleSubmit(onSubmit)(e)}
       >

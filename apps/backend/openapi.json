@@ -1173,73 +1173,6 @@
         "description": "Returns the dancer's profile checklist"
       }
     },
-    "/dancers/me/achievements": {
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DancersMeAchievementsRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Dancers"
-        ],
-        "summary": "Create an achievement",
-        "description": "Creates an achievement for the authenticated dancer"
-      }
-    },
-    "/dancers/me/achievements/{id}": {
-      "delete": {
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Dancers"
-        ],
-        "summary": "Delete an achievement",
-        "description": "Deletes an achievement for the authenticated dancer"
-      }
-    },
     "/dancers/submissions": {
       "get": {
         "parameters": [],
@@ -1603,6 +1536,114 @@
         "description": "Deletes a reference for the authenticated dancer"
       }
     },
+    "/dancers/achievements/achievements": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DancersAchievementsAchievementsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Achievements"
+        ],
+        "summary": "Create an achievement",
+        "description": "Creates an achievement for the authenticated dancer"
+      }
+    },
+    "/dancers/achievements/achievements/{id}": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DancersAchievementsAchievementsIdRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Achievements"
+        ],
+        "summary": "Update an achievement",
+        "description": "Updates an achievement for the authenticated dancer"
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Achievements"
+        ],
+        "summary": "Delete an achievement",
+        "description": "Deletes an achievement for the authenticated dancer"
+      }
+    },
     "/events": {
       "get": {
         "parameters": [],
@@ -1873,6 +1914,40 @@
         ],
         "summary": "Request one-time upload URL",
         "description": "Makes a request to Cloudflare to create a one-time signed upload URL for the user's image"
+      }
+    },
+    "/images/{key}": {
+      "delete": {
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Images"
+        ],
+        "summary": "Delete an image",
+        "description": "Deletes an image from the user's profile and feed"
       }
     },
     "/schools": {
@@ -3931,21 +4006,6 @@
           "sports"
         ]
       },
-      "DancersMeAchievementsRequest": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "title",
-          "description"
-        ]
-      },
       "DancersSubmissionsResponse": {
         "type": "array",
         "items": {
@@ -4714,6 +4774,46 @@
               }
             ]
           },
+          "title": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "DancersAchievementsAchievementsRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "description"
+        ]
+      },
+      "DancersAchievementsAchievementsIdRequest": {
+        "type": "object",
+        "properties": {
           "title": {
             "oneOf": [
               {

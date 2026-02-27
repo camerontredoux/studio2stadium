@@ -147,14 +147,6 @@ type DancersMeChecklistGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/profile/get-profile-checklist/controller.ts').default['handle'], false>
 }
-type DancersMeAchievementsPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/create-achievement/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/dancers/profile/create-achievement/controller.ts').default['handle'], true>
-}
-type DancersMeAchievementsIdDelete = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/delete-achievement/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/dancers/profile/delete-achievement/controller.ts').default['handle'], true>
-}
 type DancersSubmissionsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/common-recruiting/get-submissions/controller.ts').default['handle'], false>
@@ -199,6 +191,18 @@ type DancersReferencesIdPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/update-reference/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/profile/update-reference/controller.ts').default['handle'], true>
 }
+type DancersAchievementsAchievementsPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/create-achievement/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/create-achievement/controller.ts').default['handle'], true>
+}
+type DancersAchievementsAchievementsIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/delete-achievement/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/delete-achievement/controller.ts').default['handle'], true>
+}
+type DancersAchievementsAchievementsIdPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/update-achievement/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/update-achievement/controller.ts').default['handle'], true>
+}
 type EventsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/events/get-events/controller.ts').default['handle'], false>
@@ -226,6 +230,10 @@ type EventsIdUnsaveDelete = {
 type ImagesPresignPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/images/upload-image/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/images/upload-image/controller.ts').default['handle'], true>
+}
+type ImagesIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/images/delete-image/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/images/delete-image/controller.ts').default['handle'], true>
 }
 type ImagesPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/images/upload-profile-image/validator.ts')['schema']>>
@@ -487,16 +495,6 @@ export interface ApiDefinition {
         '$get': DancersMeChecklistGetHead;
         '$head': DancersMeChecklistGetHead;
       };
-      'achievements': {
-        '$url': {
-        };
-        '$post': DancersMeAchievementsPost;
-        ':id': {
-          '$url': {
-          };
-          '$delete': DancersMeAchievementsIdDelete;
-        };
-      };
     };
     'submissions': {
       '$url': {
@@ -548,6 +546,19 @@ export interface ApiDefinition {
         '$patch': DancersReferencesIdPatch;
       };
     };
+    'achievements': {
+      'achievements': {
+        '$url': {
+        };
+        '$post': DancersAchievementsAchievementsPost;
+        ':id': {
+          '$url': {
+          };
+          '$delete': DancersAchievementsAchievementsIdDelete;
+          '$patch': DancersAchievementsAchievementsIdPatch;
+        };
+      };
+    };
   };
   'events': {
     '$url': {
@@ -588,6 +599,11 @@ export interface ApiDefinition {
       '$url': {
       };
       '$post': ImagesPresignPost;
+    };
+    ':key': {
+      '$url': {
+      };
+      '$delete': ImagesIdDelete;
     };
     '$url': {
     };
