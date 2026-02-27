@@ -1,4 +1,5 @@
 import { db } from "#database/connection";
+import { imageUrl } from "#utils/image-url";
 
 /**
  * Find user by email for login verification
@@ -44,7 +45,7 @@ export async function getUserSession(id: string) {
 
   if (!session) return null;
 
-  const { platforms, ...user } = session;
+  const { platforms, avatar, ...user } = session;
 
   let profileId: string | undefined;
   if (user.type === "dancer") {
@@ -72,6 +73,13 @@ export async function getUserSession(id: string) {
   return {
     ...user,
     profileId,
+    avatar: avatar?.startsWith("avatar")
+      ? imageUrl(avatar, {
+          fit: "cover",
+          width: 320,
+          height: 320,
+        })
+      : avatar,
     platforms: platforms.map((platform) => platform.platformName),
   };
 }
