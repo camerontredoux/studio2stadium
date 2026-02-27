@@ -1,7 +1,7 @@
 export interface Image {
   id: string;
   createdAt: string;
-  mediaUrl: string;
+  mediaUrl: string | null;
   caption: string | null;
 }
 
