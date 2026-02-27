@@ -3667,6 +3667,7 @@ export interface components {
             username: string;
             name: string;
             id: string;
+            displayEmail: string;
             avatar: string | null;
             createdAt: string;
             updatedAt: string;
@@ -3709,6 +3710,27 @@ export interface components {
             styles: {
                 name: string;
                 slug: string;
+            }[];
+            globalEvents: {
+                /** @enum {string} */
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                id: string;
+                location: string;
+                title: string;
+                startDatetime: string;
+                endDatetime: string;
+            }[];
+            attendingEvents: {
+                /** @enum {string} */
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                id: string;
+                location: string;
+                title: string;
+                startDatetime: string;
+                endDatetime: string;
+                organizer: {
+                    name: string;
+                } | null;
             }[];
         };
         SchoolsIdFollowResponse: {

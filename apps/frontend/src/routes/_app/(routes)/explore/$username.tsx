@@ -3,6 +3,8 @@ import { SchoolProfile } from "@/features/school/components/school-profile";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/explore/$username")({
+  validateSearch: (search: Record<string, unknown>) =>
+    search as { mode?: "preview" | undefined },
   beforeLoad: ({ context: { access }, params }) => {
     access.guard(access.is("core", "dancer"), access.self(params.username));
   },

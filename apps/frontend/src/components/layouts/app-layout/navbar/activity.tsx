@@ -54,7 +54,14 @@ export function Activity() {
                 <p className="ml-auto">{followers}</p>
               </div>
             </SchoolFollowersDialog>
-            <SchoolFollowingDialog count={following} />
+            <SchoolFollowingDialog>
+              <div className="group flex items-center gap-2">
+                <p className="text-muted-foreground group-hover:text-foreground">
+                  Favorites
+                </p>
+                <p className="ml-auto">{following}</p>
+              </div>
+            </SchoolFollowingDialog>
           </>
         )}
       </div>

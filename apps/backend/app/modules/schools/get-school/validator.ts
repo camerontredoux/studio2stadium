@@ -1,7 +1,7 @@
 import vine from "@vinejs/vine";
 import { type Infer } from "@vinejs/vine/types";
 
-export const validator = vine.create(
+export const schema = vine.create(
   vine.object({
     params: vine.object({
       username: vine.string(),
@@ -9,4 +9,4 @@ export const validator = vine.create(
   })
 );
 
-export type Validator = Infer<typeof validator>;
+export type Validator = Infer<typeof schema>;

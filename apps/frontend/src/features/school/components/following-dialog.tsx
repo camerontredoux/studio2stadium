@@ -74,17 +74,14 @@ function FollowingList() {
   );
 }
 
-export function SchoolFollowingDialog({ count }: { count: number }) {
+export function SchoolFollowingDialog({
+  children,
+}: {
+  children: React.ReactElement;
+}) {
   return (
     <Dialog>
-      <DialogTrigger className="cursor-pointer">
-        <div className="group flex items-center gap-2">
-          <p className="text-muted-foreground group-hover:text-foreground">
-            Favorites
-          </p>
-          <p className="ml-auto">{count}</p>
-        </div>
-      </DialogTrigger>
+      <DialogTrigger render={children} className="cursor-pointer" />
       <DialogContent showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>Favorites</DialogTitle>

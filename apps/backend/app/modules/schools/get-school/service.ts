@@ -10,12 +10,13 @@ export class Service {
 
     if (!school) return null;
 
-    const { schoolProfile, ...user } = school;
+    const { schoolProfile, events, ...user } = school;
 
     if (!schoolProfile) return null;
 
     return {
       ...user,
+      attendingEvents: events,
       ...schoolProfile,
     };
   }
@@ -29,8 +30,52 @@ export class Service {
         columns: {
           username: true,
           avatar: true,
+          displayEmail: true,
         },
         with: {
+          events: {
+            orderBy: {
+              startDatetime: "asc",
+            },
+            where: {
+              startDatetime: {
+                gte: new Date(),
+              },
+            },
+            columns: {
+              id: true,
+              title: true,
+              startDatetime: true,
+              endDatetime: true,
+              location: true,
+              type: true,
+            },
+            with: {
+              organizer: {
+                columns: {
+                  name: true,
+                },
+              },
+            },
+          },
+          globalEvents: {
+            orderBy: {
+              startDatetime: "asc",
+            },
+            where: {
+              startDatetime: {
+                gte: new Date(),
+              },
+            },
+            columns: {
+              id: true,
+              title: true,
+              startDatetime: true,
+              endDatetime: true,
+              location: true,
+              type: true,
+            },
+          },
           images: true,
           videos: true,
           schoolProfile: {

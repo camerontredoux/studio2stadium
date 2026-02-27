@@ -4,18 +4,29 @@ import cache from "@adonisjs/cache/services/main";
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
 import { Service } from "./service.ts";
-import { validator } from "./validator.ts";
+import { schema } from "./validator.ts";
 
 export default class GetSchoolController {
   @inject()
   async handle(ctx: HttpContext, service: Service) {
-    const { params } = await ctx.request.validateUsing(validator);
     const session = ctx.auth.getUserOrFail();
+    const { params } = await ctx.request.validateUsing(schema);
 
-    if (session.username !== params.username && session.type !== "dancer") {
-      if (session.role !== "admin") {
-        throw new E_FORBIDDEN("You are not authorized to view this profile");
-      }
+    const isOwner = session.username === params.username;
+    const isDancer = session.type === "dancer";
+    const isAdmin = session.role === "admin";
+
+    if (!isOwner && !isDancer && !isAdmin) {
+      throw new E_FORBIDDEN("You are not authorized to view this profile");
+    }
+
+    if (isOwner) {
+      const school = await service.execute(params.username);
+      if (!school)
+        throw new E_BAD_REQUEST("School not found", {
+          username: params.username,
+        });
+      return ctx.response.ok(school);
     }
 
     const school = await cache.getOrSet({
@@ -24,12 +35,10 @@ export default class GetSchoolController {
       ttl: "10m",
     });
 
-    if (!school) {
+    if (!school)
       throw new E_BAD_REQUEST("School not found", {
         username: params.username,
       });
-    }
-
     return ctx.response.ok(school);
   }
 }

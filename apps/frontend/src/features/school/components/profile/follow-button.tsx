@@ -12,9 +12,11 @@ import { HeartIcon } from "lucide-react";
 export function FollowButton({
   school,
   isFollowing,
+  size = "default",
 }: {
   school: FollowedSchool;
   isFollowing: boolean;
+  size?: "default" | "sm";
 }) {
   const { mutate: follow } = useFollowSchool(school);
   const { mutate: unfollow } = useUnfollowSchool(school);
@@ -44,9 +46,11 @@ export function FollowButton({
 
   return (
     <Button
+      size={size}
       variant={isFollowing ? "destructive-outline" : "outline"}
       disabled={!!retryAfter}
       onClick={handleClick}
+      className="flex-1"
     >
       <HeartIcon className={isFollowing ? "fill-current" : undefined} />
       {retryAfter
