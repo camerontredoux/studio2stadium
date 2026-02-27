@@ -1,6 +1,3 @@
-export const CLOUDFLARE_IMAGE_URL = import.meta.env
-  .VITE_CLOUDFLARE_IMAGE_DELIVERY_URL;
-
 export function imageUrl(
   key: string | null | undefined,
   // opts: { width?: number; height?: number; quality?: number } = {},

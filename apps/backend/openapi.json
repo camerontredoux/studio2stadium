@@ -20,14 +20,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApplicationResponse"
-                }
-              }
-            }
+            "description": "OK"
           }
         },
         "tags": [
@@ -1454,15 +1447,6 @@
     },
     "/dancers/{id}/favorite": {
       "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DancersIdFavoriteRequest"
-              }
-            }
-          }
-        },
         "parameters": [
           {
             "name": "id",
@@ -2308,15 +2292,6 @@
     },
     "/schools/{id}/follow": {
       "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SchoolsIdFollowRequest"
-              }
-            }
-          }
-        },
         "parameters": [
           {
             "name": "id",
@@ -2434,15 +2409,6 @@
     },
     "/schools/{id}/interest": {
       "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SchoolsIdInterestRequest"
-              }
-            }
-          }
-        },
         "parameters": [
           {
             "name": "id",
@@ -2769,10 +2735,6 @@
             "type": "null"
           }
         ]
-      },
-      "ApplicationResponse": {
-        "type": "object",
-        "properties": {}
       },
       "AuthSignupRequest": {
         "type": "object",
@@ -4665,25 +4627,6 @@
           "subscribed"
         ]
       },
-      "DancersIdFavoriteRequest": {
-        "type": "object",
-        "properties": {
-          "params": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "id"
-            ]
-          }
-        },
-        "required": [
-          "params"
-        ]
-      },
       "DancersIdFavoriteResponse": {
         "type": "object",
         "properties": {
@@ -5186,22 +5129,8 @@
                 "type": "null"
               }
             ]
-          },
-          "params": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "id"
-            ]
           }
-        },
-        "required": [
-          "params"
-        ]
+        }
       },
       "ImagesRequest": {
         "type": "object",
@@ -5719,22 +5648,8 @@
                 "type": "null"
               }
             ]
-          },
-          "params": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "id"
-            ]
           }
-        },
-        "required": [
-          "params"
-        ]
+        }
       },
       "SchoolsIdResponse": {
         "type": "object",
@@ -6347,25 +6262,6 @@
           "attendingEvents"
         ]
       },
-      "SchoolsIdFollowRequest": {
-        "type": "object",
-        "properties": {
-          "params": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "id"
-            ]
-          }
-        },
-        "required": [
-          "params"
-        ]
-      },
       "SchoolsIdFollowResponse": {
         "type": "object",
         "properties": {
@@ -6394,25 +6290,6 @@
           "following",
           "followers",
           "interested"
-        ]
-      },
-      "SchoolsIdInterestRequest": {
-        "type": "object",
-        "properties": {
-          "params": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "id"
-            ]
-          }
-        },
-        "required": [
-          "params"
         ]
       },
       "SchoolsIdInterestResponse": {

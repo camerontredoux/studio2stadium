@@ -29,9 +29,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "application/json": components["schemas"]["ApplicationResponse"];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -1882,11 +1880,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["DancersIdFavoriteRequest"];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description Created */
                 201: {
@@ -2800,11 +2794,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SchoolsIdFollowRequest"];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description Created */
                 201: {
@@ -2943,11 +2933,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SchoolsIdInterestRequest"];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description Created */
                 201: {
@@ -3277,7 +3263,6 @@ export interface components {
         /** @enum {string} */
         SchoolFilterParam: "name" | "location" | "sports" | "styles" | "following" | "gpaRange" | "commonRecruiting" | "division" | "upcomingEvents";
         MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
-        ApplicationResponse: Record<string, never>;
         AuthSignupRequest: {
             phone?: string | null;
             email: string;
@@ -3647,11 +3632,6 @@ export interface components {
             } | null;
             subscribed: boolean;
         };
-        DancersIdFavoriteRequest: {
-            params: {
-                id: string;
-            };
-        };
         DancersIdFavoriteResponse: {
             created: boolean;
         };
@@ -3746,9 +3726,6 @@ export interface components {
         };
         EventsIdSaveRequest: {
             type?: string | null;
-            params: {
-                id: string;
-            };
         };
         ImagesRequest: {
             key: string;
@@ -3847,9 +3824,6 @@ export interface components {
         SchoolsMeFavoritesIdRequest: {
             comment?: string | null;
             rating?: (string | number) | null;
-            params: {
-                id: string;
-            };
         };
         SchoolsIdResponse: {
             events: {
@@ -3948,11 +3922,6 @@ export interface components {
                 } | null;
             }[];
         };
-        SchoolsIdFollowRequest: {
-            params: {
-                id: string;
-            };
-        };
         SchoolsIdFollowResponse: {
             created: boolean;
         };
@@ -3960,11 +3929,6 @@ export interface components {
             following: boolean;
             followers: number;
             interested: boolean;
-        };
-        SchoolsIdInterestRequest: {
-            params: {
-                id: string;
-            };
         };
         SchoolsIdInterestResponse: {
             created: boolean;
