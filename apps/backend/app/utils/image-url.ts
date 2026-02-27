@@ -2,7 +2,7 @@ export function imageUrl(
   key: string | null | undefined,
   opts: { fit?: string; width?: number; height?: number; quality?: number } = {}
 ) {
-  if (!key) return undefined;
+  if (!key) return null;
 
   const transforms = [
     opts.width && `width=${opts.width}`,
