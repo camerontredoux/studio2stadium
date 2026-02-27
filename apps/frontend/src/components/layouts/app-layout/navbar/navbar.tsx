@@ -35,7 +35,7 @@ export function Navbar() {
             inactiveIcon={HiOutlineHome}
           />
           <NavLink
-            to="/explore"
+            to={session.type === "dancer" ? "/explore" : "/dancers"}
             label="Explore"
             activeIcon={HiSearchCircle}
             inactiveIcon={HiOutlineSearchCircle}

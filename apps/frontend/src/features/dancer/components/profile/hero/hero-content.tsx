@@ -60,7 +60,7 @@ export function HeroContent({ dancer }: { dancer: DancerProfile }) {
           <div className="text-muted-foreground flex gap-x-2 gap-y-1 text-sm max-sm:flex-col sm:gap-y-2">
             <div className="flex items-center gap-1.5">
               <MapPinIcon className="text-brand size-3.5 shrink-0" />
-              <span>
+              <span className="text-nowrap">
                 {US_STATES[dancer.location as keyof typeof US_STATES] ||
                   "Unknown"}
               </span>
