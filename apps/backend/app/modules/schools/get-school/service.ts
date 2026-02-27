@@ -11,7 +11,7 @@ export class Service {
 
     if (!school) return null;
 
-    const { schoolProfile, events, images, ...user } = school;
+    const { schoolProfile, events, images, avatar, ...user } = school;
 
     if (!schoolProfile) return null;
 
@@ -22,9 +22,14 @@ export class Service {
         : image.mediaUrl,
     }));
 
+    const profilePicture = avatar?.startsWith("avatar")
+      ? imageUrl(avatar, { fit: "cover", width: 320, height: 320 })
+      : avatar;
+
     return {
       ...user,
       images: profileImages,
+      avatar: profilePicture,
       attendingEvents: events,
       ...schoolProfile,
     };

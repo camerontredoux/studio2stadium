@@ -1,11 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import type { SchoolProfile } from "@/features/school/types";
 import { AvatarUploadDialog } from "@/shared/images/components/avatar-upload/avatar-upload-dialog";
+import { ProfilePicture } from "@/shared/images/components/profile-picture";
 import { DIVISIONS } from "@/utils/constants/divisions";
 import { US_STATES } from "@/utils/constants/states";
 import { GlobeIcon, MapPinIcon } from "lucide-react";
 import { HeroBadge } from "./hero-badge";
-import { ProfilePicture } from "./profile-picture";
 
 const CIRCUIT_LABELS: Record<SchoolProfile["competitiveCircuit"], string> = {
   uda: "UDA",

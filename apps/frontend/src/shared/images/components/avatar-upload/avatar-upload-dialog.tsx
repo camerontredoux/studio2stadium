@@ -96,8 +96,8 @@ export function AvatarUploadDialog({ avatar, fallback }: AvatarUploadProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger className="bg-background relative z-20 rounded-full sm:absolute sm:top-28 sm:left-4">
-        <div className="group absolute inset-0 flex cursor-pointer items-center justify-center rounded-full hover:bg-black/50">
-          <CameraIcon className="opacity-0 group-hover:opacity-100" />
+        <div className="group absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/50 hover:bg-black/60">
+          <CameraIcon className="opacity-100" />
         </div>
         <Avatar className="size-20 rounded-full border object-cover sm:size-24">
           <AvatarImage

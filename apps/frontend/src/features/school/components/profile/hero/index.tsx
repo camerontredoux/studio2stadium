@@ -1,11 +1,11 @@
 import { Frame, FrameFooter, FramePanel } from "@/components/ui/frame";
 import type { SchoolProfile } from "@/features/school/types";
 import { AvatarUploadDialog } from "@/shared/images/components/avatar-upload/avatar-upload-dialog";
+import { ProfilePicture } from "@/shared/images/components/profile-picture";
 import { useProfile } from "../context/use-profile";
 import { HeroBackground } from "./hero-background";
 import { HeroContent } from "./hero-content";
 import { HeroFooter } from "./hero-footer";
-import { ProfilePicture } from "./profile-picture";
 
 interface SchoolHeroProps {
   school: SchoolProfile;

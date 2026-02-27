@@ -1,7 +1,6 @@
 import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
 
 import { cn } from "@/components/utils/cn";
-import { imageUrl } from "@/utils/constants/urls";
 
 function Avatar({ className, ...props }: AvatarPrimitive.Root.Props) {
   return (
@@ -16,16 +15,11 @@ function Avatar({ className, ...props }: AvatarPrimitive.Root.Props) {
   );
 }
 
-function AvatarImage({
-  className,
-  src,
-  ...props
-}: AvatarPrimitive.Image.Props) {
+function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
   return (
     <AvatarPrimitive.Image
       className={cn("size-full object-cover", className)}
       data-slot="avatar-image"
-      src={src?.startsWith("avatar") ? imageUrl(src) : src}
       {...props}
     />
   );

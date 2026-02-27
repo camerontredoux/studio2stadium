@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/tooltip";
 import type { DancerProfile } from "@/features/dancer/types";
 import { AvatarUploadDialog } from "@/shared/images/components/avatar-upload/avatar-upload-dialog";
+import { ProfilePicture } from "@/shared/images/components/profile-picture";
 import { calculateAge } from "@/utils/calculate-age";
 import { US_STATES } from "@/utils/constants/states";
 import {
@@ -16,7 +17,6 @@ import {
 } from "lucide-react";
 import { HeroBadge } from "./hero-badge";
 import { HeroStyles } from "./hero-styles";
-import { ProfilePicture } from "./profile-picture";
 
 export function HeroContent({
   dancer,

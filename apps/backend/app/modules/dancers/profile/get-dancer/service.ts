@@ -13,7 +13,7 @@ export class Service {
 
     const { dancerProfile, ...user } = dancer;
 
-    const { subscription, images, ...rest } = user;
+    const { subscription, images, avatar, ...rest } = user;
 
     if (!dancerProfile) return null;
 
@@ -24,9 +24,14 @@ export class Service {
         : image.mediaUrl,
     }));
 
+    const profilePicture = user.avatar?.startsWith("avatar")
+      ? imageUrl(user.avatar, { fit: "cover", width: 320, height: 320 })
+      : user.avatar;
+
     return {
       ...rest,
       ...dancerProfile,
+      avatar: profilePicture,
       images: profileImages,
       subscribed: !!subscription,
     };
