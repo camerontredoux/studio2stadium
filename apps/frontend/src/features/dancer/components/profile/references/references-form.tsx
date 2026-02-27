@@ -10,12 +10,18 @@ export type ReferenceFormData = z.infer<typeof schemas.createReference>;
 
 interface ReferencesFormProps {
   onSubmit: (data: ReferenceFormData) => void;
+  defaultValues?: ReferenceFormData;
+  formId?: string;
 }
 
-export function ReferencesForm({ onSubmit }: ReferencesFormProps) {
+export function ReferencesForm({
+  onSubmit,
+  defaultValues,
+  formId = "reference-form",
+}: ReferencesFormProps) {
   const form = useForm({
     resolver: zodResolver(schemas.createReference),
-    defaultValues: {
+    defaultValues: defaultValues ?? {
       name: "",
       title: "",
       description: "",
@@ -25,7 +31,7 @@ export function ReferencesForm({ onSubmit }: ReferencesFormProps) {
   return (
     <FormProvider {...form}>
       <form
-        id="create-reference-form"
+        id={formId}
         className="flex w-full flex-col gap-3"
         onSubmit={(e) => form.handleSubmit(onSubmit)(e)}
       >
