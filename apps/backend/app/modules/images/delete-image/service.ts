@@ -12,23 +12,40 @@ export class DeleteProfileImageService {
   async execute({ params }: Validator) {
     const disk = drive.use("r2");
 
-    const exists = await disk.exists(params.key);
+    const image = await this.db.use((db) =>
+      db.query.images.findFirst({
+        where: {
+          id: params.id,
+        },
+        columns: {
+          mediaUrl: true,
+        },
+      })
+    );
 
-    if (!exists) {
-      return { error: "File not found" };
+    if (!image) {
+      return { error: "Image not found" };
     }
 
-    try {
-      await disk.delete(params.key);
-    } catch (e) {
-      if (e instanceof Error) {
-        throw new Error(e.message);
+    if (image.mediaUrl.startsWith("feed")) {
+      const exists = await disk.exists(image.mediaUrl);
+
+      if (!exists) {
+        return { error: "File not found" };
       }
-      throw new Error("Failed to delete file");
+
+      try {
+        await disk.delete(image.mediaUrl);
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new Error(e.message);
+        }
+        throw new Error("Failed to delete file");
+      }
     }
 
     await this.db.use((db) =>
-      db.delete(images).where(eq(images.mediaUrl, params.key))
+      db.delete(images).where(eq(images.mediaUrl, image.mediaUrl))
     );
   }
 }

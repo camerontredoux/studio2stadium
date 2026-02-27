@@ -1916,11 +1916,11 @@
         "description": "Makes a request to Cloudflare to create a one-time signed upload URL for the user's image"
       }
     },
-    "/images/{key}": {
+    "/images/{id}": {
       "delete": {
         "parameters": [
           {
-            "name": "key",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {

@@ -2440,7 +2440,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/images/{key}": {
+    "/images/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2459,7 +2459,7 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    key: string;
+                    id: string;
                 };
                 cookie?: never;
             };

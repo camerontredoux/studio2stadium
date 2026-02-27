@@ -5,7 +5,7 @@ import {
   FrameTitle,
 } from "@/components/ui/frame";
 import { useMemo } from "react";
-import { ImageItem } from "./image-item";
+import { ImageItem } from "./image/image-item";
 import { MediaDialog } from "./media-dialog";
 import type { Image, MediaItem, Video } from "./types";
 import { VideoItem } from "./video-item";
@@ -50,9 +50,17 @@ export function MediaGallery({
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {items.map((item) =>
               item.type === "image" ? (
-                <ImageItem key={item.data.id} image={item.data} />
+                <ImageItem
+                  showOwnerControls={showOwnerControls}
+                  key={item.data.id}
+                  image={item.data}
+                />
               ) : (
-                <VideoItem key={item.data.id} video={item.data} />
+                <VideoItem
+                  showOwnerControls={showOwnerControls}
+                  key={item.data.id}
+                  video={item.data}
+                />
               ),
             )}
           </div>

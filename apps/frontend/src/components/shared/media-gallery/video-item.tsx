@@ -6,10 +6,16 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { VideoIcon } from "lucide-react";
+import { TrashIcon, VideoIcon } from "lucide-react";
 import type { Video } from "./types";
 
-export function VideoItem({ video }: { video: Video }) {
+export function VideoItem({
+  video,
+  showOwnerControls,
+}: {
+  video: Video;
+  showOwnerControls: boolean;
+}) {
   return (
     <Dialog>
       <DialogTrigger className="block w-full">
@@ -36,6 +42,11 @@ export function VideoItem({ video }: { video: Video }) {
           className="aspect-video h-full w-full"
         />
         <DialogFooter>
+          {showOwnerControls ? (
+            <Button variant="destructive">
+              <TrashIcon /> Delete
+            </Button>
+          ) : null}
           <DialogClose render={<Button variant="secondary">Close</Button>}>
             Close
           </DialogClose>

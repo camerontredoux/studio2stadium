@@ -7,9 +7,16 @@ import {
   DialogPanel,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import type { Image } from "./types";
+import type { Image } from "../types";
+import { ImageDelete } from "./image-delete";
 
-export function ImageItem({ image }: { image: Image }) {
+export function ImageItem({
+  image,
+  showOwnerControls,
+}: {
+  image: Image;
+  showOwnerControls: boolean;
+}) {
   return (
     <Dialog>
       <DialogTrigger>
@@ -39,6 +46,9 @@ export function ImageItem({ image }: { image: Image }) {
           />
         </DialogPanel>
         <DialogFooter>
+          {showOwnerControls ? (
+            <ImageDelete key={image.id} id={image.id} />
+          ) : null}
           <DialogClose render={<Button variant="secondary">Close</Button>}>
             Close
           </DialogClose>

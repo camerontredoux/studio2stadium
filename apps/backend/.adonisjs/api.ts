@@ -231,13 +231,13 @@ type ImagesPresignPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/images/upload-image/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/images/upload-image/controller.ts').default['handle'], true>
 }
-type ImagesIdDelete = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/images/delete-image/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/images/delete-image/controller.ts').default['handle'], true>
-}
 type ImagesPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/images/upload-profile-image/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/images/upload-profile-image/controller.ts').default['handle'], true>
+}
+type ImagesIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/images/delete-image/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/images/delete-image/controller.ts').default['handle'], true>
 }
 type SchoolsFiltersGetHead = {
   request: unknown
@@ -600,14 +600,14 @@ export interface ApiDefinition {
       };
       '$post': ImagesPresignPost;
     };
-    ':key': {
+    '$url': {
+    };
+    '$post': ImagesPost;
+    ':id': {
       '$url': {
       };
       '$delete': ImagesIdDelete;
     };
-    '$url': {
-    };
-    '$post': ImagesPost;
   };
   'schools': {
     'filters': {

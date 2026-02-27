@@ -4,7 +4,7 @@ import { type Infer } from "@vinejs/vine/types";
 export const schema = vine.create(
   vine.object({
     params: vine.object({
-      key: vine.string(),
+      id: vine.string(),
     }),
   })
 );

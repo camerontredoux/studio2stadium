@@ -29,3 +29,15 @@ export function useUploadImage(type: "dancer" | "school", username: string) {
     },
   });
 }
+
+export function useDeleteImage(type: "dancer" | "school", username: string) {
+  return $api.useMutation("delete", "/images/{id}", {
+    meta: {
+      invalidateQueries: [
+        type === "dancer"
+          ? dancerQueries.profile(username).queryKey
+          : schoolQueries.profile(username).queryKey,
+      ],
+    },
+  });
+}
