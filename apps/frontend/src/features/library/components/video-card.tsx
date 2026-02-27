@@ -44,6 +44,8 @@ export function VideoCard({ video }: VideoCardProps) {
             <div className="flex justify-center sm:max-h-[calc(100dvh-8rem)]">
               <iframe
                 src={video.url}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
                 className="aspect-video max-h-full max-w-full"
               />
             </div>

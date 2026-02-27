@@ -4,13 +4,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import type { Filter } from "@/features/explore/components/filters/types";
+import type { DancerFilter } from "@/features/explore/components/dancers/filters/types";
 import { InputFilter } from "./items/input-filter";
 import { MultiSelectFilter } from "./items/multi-select-filter";
 import { RangeFilter } from "./items/range-filter";
 import { SelectFilter } from "./items/select-filter";
 import { SwitchFilter } from "./items/switch-filter";
-import type { FilterValue } from "./types";
+import type { Filter, FilterValue } from "./types";
 
 export type OnFilterChange = (
   value: FilterValue,
@@ -28,7 +28,7 @@ export function FilterItem({
 }) {
   const filtered = Array.isArray(value) ? value.length > 0 : Boolean(value);
 
-  const item = (type: Filter["type"]) => {
+  const item = (type: DancerFilter["type"]) => {
     switch (type) {
       case "select":
         return (

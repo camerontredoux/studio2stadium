@@ -97,7 +97,11 @@ type DancersPost = {
 }
 type DancersFiltersGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/explore/get-filters/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/dancers/explore/get-dancer-filters/controller.ts').default['handle'], false>
+}
+type DancersGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/explore/get-dancers/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/explore/get-dancers/controller.ts').default['handle'], true>
 }
 type DancersMeSkillsGetHead = {
   request: unknown
@@ -230,6 +234,10 @@ type SchoolsRecommendedGetHead = {
 type SchoolsMeFollowersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/schools/get-followers/controller.ts').default['handle'], false>
+}
+type SchoolsMeFollowingIdsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/schools/get-following-ids/controller.ts').default['handle'], false>
 }
 type SchoolsMeFollowingGetHead = {
   request: unknown
@@ -410,6 +418,8 @@ export interface ApiDefinition {
       '$get': DancersFiltersGetHead;
       '$head': DancersFiltersGetHead;
     };
+    '$get': DancersGetHead;
+    '$head': DancersGetHead;
     'me': {
       'skills': {
         '$url': {
@@ -581,6 +591,12 @@ export interface ApiDefinition {
         '$head': SchoolsMeFollowersGetHead;
       };
       'following': {
+        'ids': {
+          '$url': {
+          };
+          '$get': SchoolsMeFollowingIdsGetHead;
+          '$head': SchoolsMeFollowingIdsGetHead;
+        };
         '$url': {
         };
         '$get': SchoolsMeFollowingGetHead;

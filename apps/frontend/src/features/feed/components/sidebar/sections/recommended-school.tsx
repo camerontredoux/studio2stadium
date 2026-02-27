@@ -11,7 +11,7 @@ import { Link } from "@tanstack/react-router";
 import { MapPinIcon, Users2Icon } from "lucide-react";
 
 export function RecommendedSchool({ school }: { school: RecommendedSchool }) {
-  const { data } = useSuspenseQuery(queries.followingIds());
+  const { data } = useSuspenseQuery(queries.followingIds("dancer"));
   const { mutate } = useFollowSchool(school);
 
   const [retryAfter, startCountdown] = useCountdown();

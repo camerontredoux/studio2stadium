@@ -5,11 +5,10 @@ import { FeedPage } from "@/features/feed/page";
 import { feedQueries as sharedFeedQueries } from "@/shared/feed/api/queries";
 
 export const Route = createFileRoute("/_app/(routes)/feed")({
-  loader: async ({ context: { queryClient } }) => {
-    const recommended = await queryClient.ensureQueryData(
-      feedQueries.recommended(),
-    );
-    if (recommended.length === 0) {
+  loader: async ({ context: { queryClient, session } }) => {
+    if (session.type === "dancer") {
+      queryClient.ensureQueryData(feedQueries.recommended());
+
       queryClient.ensureQueryData(sharedFeedQueries.dancerChecklist());
     }
     queryClient.ensureInfiniteQueryData(feedQueries.feed());

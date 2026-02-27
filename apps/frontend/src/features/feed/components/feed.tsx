@@ -5,6 +5,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { useSession } from "@/lib/session";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { GraduationCapIcon, XIcon } from "lucide-react";
@@ -14,6 +15,8 @@ import { FeedItem } from "./content/feed-item";
 import { FeedItemSkeleton, FeedSkeleton } from "./feed-skeleton";
 
 export function Feed() {
+  const session = useSession();
+
   const { status, data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery(feedQueries.feed());
 
@@ -116,7 +119,11 @@ export function Feed() {
                 data-index={row.index}
                 ref={rowVirtualizer.measureElement}
               >
-                {isLoaderRow ? <FeedItemSkeleton /> : <FeedItem item={item} />}
+                {isLoaderRow ? (
+                  <FeedItemSkeleton />
+                ) : (
+                  <FeedItem type={session.type} item={item} />
+                )}
               </div>
             );
           })}

@@ -19,6 +19,7 @@ import { Route as ApproutesUnauthorizedRouteImport } from './routes/_app/(routes
 import { Route as ApproutesRecommendedRouteImport } from './routes/_app/(routes)/recommended'
 import { Route as ApproutesLogoutRouteImport } from './routes/_app/(routes)/logout'
 import { Route as ApproutesFeedRouteImport } from './routes/_app/(routes)/feed'
+import { Route as ApproutesDancersRouteImport } from './routes/_app/(routes)/dancers'
 import { Route as ApproutesCheckoutRouteImport } from './routes/_app/(routes)/checkout'
 import { Route as ApproutesUsernameRouteImport } from './routes/_app/(routes)/$username'
 import { Route as AdminroutesDashboardRouteImport } from './routes/_admin/(routes)/dashboard'
@@ -94,6 +95,11 @@ const ApproutesLogoutRoute = ApproutesLogoutRouteImport.update({
 const ApproutesFeedRoute = ApproutesFeedRouteImport.update({
   id: '/(routes)/feed',
   path: '/feed',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const ApproutesDancersRoute = ApproutesDancersRouteImport.update({
+  id: '/(routes)/dancers',
+  path: '/dancers',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const ApproutesCheckoutRoute = ApproutesCheckoutRouteImport.update({
@@ -268,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AdminroutesDashboardRouteWithChildren
   '/$username': typeof ApproutesUsernameRoute
   '/checkout': typeof ApproutesCheckoutRoute
+  '/dancers': typeof ApproutesDancersRoute
   '/feed': typeof ApproutesFeedRoute
   '/logout': typeof ApproutesLogoutRoute
   '/recommended': typeof ApproutesRecommendedRoute
@@ -303,6 +310,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AdminroutesDashboardRouteWithChildren
   '/$username': typeof ApproutesUsernameRoute
   '/checkout': typeof ApproutesCheckoutRoute
+  '/dancers': typeof ApproutesDancersRoute
   '/feed': typeof ApproutesFeedRoute
   '/logout': typeof ApproutesLogoutRoute
   '/recommended': typeof ApproutesRecommendedRoute
@@ -345,6 +353,7 @@ export interface FileRoutesById {
   '/_admin/(routes)/dashboard': typeof AdminroutesDashboardRouteWithChildren
   '/_app/(routes)/$username': typeof ApproutesUsernameRoute
   '/_app/(routes)/checkout': typeof ApproutesCheckoutRoute
+  '/_app/(routes)/dancers': typeof ApproutesDancersRoute
   '/_app/(routes)/feed': typeof ApproutesFeedRoute
   '/_app/(routes)/logout': typeof ApproutesLogoutRoute
   '/_app/(routes)/recommended': typeof ApproutesRecommendedRoute
@@ -386,6 +395,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/$username'
     | '/checkout'
+    | '/dancers'
     | '/feed'
     | '/logout'
     | '/recommended'
@@ -421,6 +431,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/$username'
     | '/checkout'
+    | '/dancers'
     | '/feed'
     | '/logout'
     | '/recommended'
@@ -462,6 +473,7 @@ export interface FileRouteTypes {
     | '/_admin/(routes)/dashboard'
     | '/_app/(routes)/$username'
     | '/_app/(routes)/checkout'
+    | '/_app/(routes)/dancers'
     | '/_app/(routes)/feed'
     | '/_app/(routes)/logout'
     | '/_app/(routes)/recommended'
@@ -571,6 +583,13 @@ declare module '@tanstack/react-router' {
       path: '/feed'
       fullPath: '/feed'
       preLoaderRoute: typeof ApproutesFeedRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/(routes)/dancers': {
+      id: '/_app/(routes)/dancers'
+      path: '/dancers'
+      fullPath: '/dancers'
+      preLoaderRoute: typeof ApproutesDancersRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/(routes)/checkout': {
@@ -879,6 +898,7 @@ interface AppRouteRouteChildren {
   ApproutesSettingsRouteRoute: typeof ApproutesSettingsRouteRouteWithChildren
   ApproutesUsernameRoute: typeof ApproutesUsernameRoute
   ApproutesCheckoutRoute: typeof ApproutesCheckoutRoute
+  ApproutesDancersRoute: typeof ApproutesDancersRoute
   ApproutesFeedRoute: typeof ApproutesFeedRoute
   ApproutesLogoutRoute: typeof ApproutesLogoutRoute
   ApproutesRecommendedRoute: typeof ApproutesRecommendedRoute
@@ -896,6 +916,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   ApproutesSettingsRouteRoute: ApproutesSettingsRouteRouteWithChildren,
   ApproutesUsernameRoute: ApproutesUsernameRoute,
   ApproutesCheckoutRoute: ApproutesCheckoutRoute,
+  ApproutesDancersRoute: ApproutesDancersRoute,
   ApproutesFeedRoute: ApproutesFeedRoute,
   ApproutesLogoutRoute: ApproutesLogoutRoute,
   ApproutesRecommendedRoute: ApproutesRecommendedRoute,

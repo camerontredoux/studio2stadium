@@ -17,17 +17,17 @@ import {
 } from "@/components/ui/frame";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { Filters } from "./filters/filters";
+import { Filters } from "./filters";
 
-export function FilterSidebar() {
+export function DancerFiltersSidebar() {
   const navigate = useNavigate();
   const filtering = useSearch({
-    from: "/_app/(routes)/explore/",
+    from: "/_app/(routes)/dancers",
     select: (search) => Object.keys(search).length > 0,
   });
 
   const clearFilters = () => {
-    navigate({ to: "/explore" });
+    navigate({ to: "/dancers" });
   };
 
   return (

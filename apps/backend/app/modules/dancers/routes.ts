@@ -2,6 +2,8 @@ import { middleware } from "#start/kernel";
 import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
 
+const GetDancersController = () =>
+  import("./explore/get-dancers/controller.ts");
 const GetSportsController = () => import("./profile/get-sports/controller.ts");
 const UpdateSportsController = () =>
   import("./profile/update-sports/controller.ts");
@@ -16,7 +18,7 @@ const GetSubmissionsController = () =>
   import("./common-recruiting/get-submissions/controller.ts");
 const GetDancerController = () => import("./profile/get-dancer/controller.ts");
 const GetFiltersController = () =>
-  import("./explore/get-filters/controller.ts");
+  import("./explore/get-dancer-filters/controller.ts");
 const CreateDancerController = () =>
   import("./profile/create-dancer/controller.ts");
 const GetFollowingController = () =>
@@ -60,6 +62,11 @@ router
     router.get("filters", [GetFiltersController]).openapi({
       summary: "Get dancer filters",
       description: "Returns the filters to use when searching for dancers",
+    });
+
+    router.get("", [GetDancersController]).openapi({
+      summary: "Get dancers",
+      description: "Returns a list of dancers",
     });
 
     router

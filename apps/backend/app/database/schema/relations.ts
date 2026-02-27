@@ -78,6 +78,10 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.dancerProfiles.id.through(r.favorites.dancerId),
       to: r.schoolProfiles.id.through(r.favorites.schoolId),
     }),
+    submission: r.one.crvVideos({
+      from: r.dancerProfiles.id,
+      to: r.crvVideos.dancerId,
+    }),
   },
   schoolProfiles: {
     user: r.one.users({

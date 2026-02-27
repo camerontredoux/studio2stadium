@@ -7,10 +7,11 @@ import { FeedContent } from "./feed-content";
 import { FeedDescription } from "./feed-description";
 
 interface FeedItemProps {
+  type: "dancer" | "school";
   item: FeedItem;
 }
 
-export function FeedItem({ item }: FeedItemProps) {
+export function FeedItem({ type, item }: FeedItemProps) {
   return (
     <div className="overflow-clip sm:rounded-2xl sm:border">
       <FeedContent item={item} />
@@ -25,7 +26,7 @@ export function FeedItem({ item }: FeedItemProps) {
           <div className="flex min-w-0 flex-col">
             <Link
               className="flex items-center gap-1 text-sm leading-none font-semibold hover:opacity-90 sm:text-base"
-              to={`/explore/$username`}
+              to={type === "school" ? "/$username" : "/explore/$username"}
               params={{ username: item.username }}
             >
               <span className="truncate">{item.name}</span>

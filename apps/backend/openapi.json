@@ -603,6 +603,217 @@
       }
     },
     "/dancers": {
+      "get": {
+        "parameters": [
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "OR",
+                    "AL",
+                    "AK",
+                    "AZ",
+                    "AR",
+                    "CA",
+                    "CO",
+                    "CT",
+                    "DE",
+                    "FL",
+                    "GA",
+                    "HI",
+                    "ID",
+                    "IL",
+                    "IN",
+                    "IA",
+                    "KS",
+                    "KY",
+                    "LA",
+                    "ME",
+                    "MD",
+                    "MA",
+                    "MI",
+                    "MN",
+                    "MS",
+                    "MO",
+                    "MT",
+                    "NE",
+                    "NV",
+                    "NH",
+                    "NJ",
+                    "NM",
+                    "NY",
+                    "NC",
+                    "ND",
+                    "OH",
+                    "OK",
+                    "PA",
+                    "RI",
+                    "SC",
+                    "SD",
+                    "TN",
+                    "TX",
+                    "UT",
+                    "VT",
+                    "VA",
+                    "WA",
+                    "WV",
+                    "WI",
+                    "WY"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "commonRecruiting",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "sports",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "styles",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "following",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "gpaRange",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Get dancers",
+        "description": "Returns a list of dancers"
+      },
       "post": {
         "requestBody": {
           "content": {
@@ -1548,7 +1759,6 @@
                   "type": "string",
                   "enum": [
                     "OR",
-                    "ID",
                     "AL",
                     "AK",
                     "AZ",
@@ -1560,6 +1770,7 @@
                     "FL",
                     "GA",
                     "HI",
+                    "ID",
                     "IL",
                     "IN",
                     "IA",
@@ -1689,6 +1900,15 @@
             }
           },
           {
+            "name": "gpaRange",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          {
             "name": "upcomingEvents",
             "in": "query",
             "required": false,
@@ -1705,15 +1925,6 @@
                   "type": "null"
                 }
               ]
-            }
-          },
-          {
-            "name": "gpaRange",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "object",
-              "properties": {}
             }
           }
         ],
@@ -1861,6 +2072,28 @@
         ],
         "summary": "Get following list",
         "description": "Returns the list of dancers this school has favorited."
+      }
+    },
+    "/schools/me/following/ids": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsMeFollowingIdsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Get following list IDs",
+        "description": "Returns the list of dancer's IDs this school has favorited"
       }
     },
     "/schools/me/favorites": {
@@ -2330,18 +2563,30 @@
           "message"
         ]
       },
+      "DancerFilterParam": {
+        "type": "string",
+        "enum": [
+          "name",
+          "location",
+          "commonRecruiting",
+          "sports",
+          "styles",
+          "following",
+          "gpaRange"
+        ]
+      },
       "SchoolFilterParam": {
         "type": "string",
         "enum": [
           "name",
           "location",
           "commonRecruiting",
-          "division",
           "sports",
           "styles",
           "following",
-          "upcomingEvents",
-          "gpaRange"
+          "gpaRange",
+          "division",
+          "upcomingEvents"
         ]
       },
       "MatchTier": {
@@ -2995,6 +3240,77 @@
           "received"
         ]
       },
+      "DancersResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "avatar": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "birthday": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "gpa": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "gradYear": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "followers": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "username",
+            "name",
+            "id",
+            "avatar",
+            "createdAt",
+            "birthday",
+            "location",
+            "gpa",
+            "gradYear",
+            "followers"
+          ]
+        }
+      },
       "DancersRequest": {
         "type": "object",
         "properties": {
@@ -3071,7 +3387,7 @@
               "type": "string"
             },
             "paramKey": {
-              "type": "string"
+              "$ref": "#/components/schemas/DancerFilterParam"
             }
           },
           "required": [
@@ -4893,6 +5209,12 @@
             "avatar",
             "name"
           ]
+        }
+      },
+      "SchoolsMeFollowingIdsResponse": {
+        "type": "array",
+        "items": {
+          "type": "string"
         }
       },
       "SchoolsMeFavoritesResponse": {

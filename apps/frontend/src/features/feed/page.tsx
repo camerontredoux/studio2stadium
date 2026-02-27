@@ -12,7 +12,7 @@ export function FeedPage() {
 
   return (
     <SidebarLayout
-      sidebar={<FeedSidebar />}
+      sidebar={<FeedSidebar type={session.type} />}
       tabs={{ contentLabel: "Feed", sidebarLabel: "Discover" }}
     >
       <div className="flex flex-col gap-2 lg:gap-4">
@@ -25,7 +25,7 @@ export function FeedPage() {
           </p>
         </div>
 
-        <ProgramSpotlight />
+        {session.type === "dancer" && <ProgramSpotlight />}
 
         <Suspense fallback={<FeedSkeleton />}>
           <Feed />

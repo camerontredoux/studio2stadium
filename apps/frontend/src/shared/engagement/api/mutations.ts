@@ -20,7 +20,7 @@ const dancerFollowingKey = $api.queryOptions(
 export function useFollowSchool(school: FollowedSchool) {
   const queryClient = useQueryClient();
 
-  const followingIdsQueryKey = queries.followingIds().queryKey;
+  const followingIdsQueryKey = queries.followingIds("dancer").queryKey;
   const followingQueryKey = dancerFollowingKey;
   const activityQueryKey = queries.activity().queryKey;
   const metadataQueryKey = schoolMetadataKey(school.id);
@@ -107,7 +107,7 @@ export function useFollowSchool(school: FollowedSchool) {
 export function useUnfollowSchool(school: FollowedSchool) {
   const queryClient = useQueryClient();
 
-  const followingIdsQueryKey = queries.followingIds().queryKey;
+  const followingIdsQueryKey = queries.followingIds("dancer").queryKey;
   const followingQueryKey = dancerFollowingKey;
   const activityQueryKey = queries.activity().queryKey;
   const metadataQueryKey = schoolMetadataKey(school.id);

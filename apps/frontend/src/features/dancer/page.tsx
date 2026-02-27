@@ -86,7 +86,7 @@ export function DancerPage({ username }: DancerPageProps) {
               <References references={data.references} username={username} />
             </div>
 
-            {data.subscribed ? <Submission /> : null}
+            {data.subscribed ? <Submission data={data.submission} /> : null}
 
             <Skills skills={data.skills} username={username} />
 

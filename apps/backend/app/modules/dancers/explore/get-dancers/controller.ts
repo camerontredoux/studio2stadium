@@ -7,21 +7,20 @@ import { validator } from "./validator.ts";
 export default class GetDancersController {
   @inject()
   async handle(ctx: HttpContext, service: Service) {
+    const user = ctx.auth.getUserOrFail();
+    const override = user.role === "admin";
+
     const payload = await ctx.request.validateUsing(validator);
 
-    if (Object.keys(payload).length > 0) {
-      const schools = await service.execute(payload);
-      return ctx.response.ok(schools);
+    if (Object.keys(payload).length || override) {
+      const dancers = await service.execute(payload, override, user.id);
+      return ctx.response.ok(dancers);
     }
 
     const dancers = await cache.getOrSet({
-      key: `dancers:list`,
-      factory: async () => {
-        return await service.execute(payload);
-      },
-      tags: ["dancers:list"],
-      ttl: "1h",
-      grace: "24h",
+      key: "dancers:list",
+      factory: () => service.execute(payload, override, user.id),
+      ttl: "10m",
     });
 
     return ctx.response.ok(dancers);

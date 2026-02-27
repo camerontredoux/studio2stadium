@@ -80,7 +80,7 @@ function FollowToggleButton({
 
 function FollowersList() {
   const { data: followers } = useSuspenseQuery(dancerQueries.followers());
-  const { data: followingIds } = useQuery(queries.followingIds());
+  const { data: followingIds } = useQuery(queries.followingIds("dancer"));
 
   return followers.length > 0 ? (
     <div className="flex flex-col gap-4 pb-4">

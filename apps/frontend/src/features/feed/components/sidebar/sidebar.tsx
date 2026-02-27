@@ -6,16 +6,21 @@ import { ConsultationsSection } from "./sections/consultations-section";
 import { EventsSection } from "./sections/events-section";
 import { ProgramsSection } from "./sections/programs-section";
 
-export function FeedSidebar() {
+export function FeedSidebar({ type }: { type: "dancer" | "school" }) {
   return (
     <Fragment>
       <Suspense fallback={<UpcomingEventsSkeleton />}>
         <EventsSection />
       </Suspense>
-      <Suspense fallback={<SuggestedProgramsSkeleton />}>
-        <ProgramsSection />
-      </Suspense>
-      <ConsultationsSection />
+
+      {type === "dancer" && (
+        <Fragment>
+          <Suspense fallback={<SuggestedProgramsSkeleton />}>
+            <ProgramsSection />
+          </Suspense>
+          <ConsultationsSection />
+        </Fragment>
+      )}
     </Fragment>
   );
 }

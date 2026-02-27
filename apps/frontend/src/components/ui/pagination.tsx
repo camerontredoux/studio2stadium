@@ -52,15 +52,13 @@ function PaginationLink({
 }: PaginationLinkProps) {
   const defaultProps = {
     "aria-current": isActive ? ("page" as const) : undefined,
-    className: render
-      ? className
-      : cn(
-          buttonVariants({
-            size,
-            variant: isActive ? "outline" : "ghost",
-          }),
-          className,
-        ),
+    className: cn(
+      buttonVariants({
+        size,
+        variant: isActive ? "outline" : "ghost",
+      }),
+      className,
+    ),
     "data-active": isActive,
     "data-slot": "pagination-link",
   };

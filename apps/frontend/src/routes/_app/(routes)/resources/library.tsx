@@ -1,11 +1,12 @@
 import { AccessDenied } from "@/components/shared/access-denied";
-import type { SearchFilter } from "@/features/explore/components/filters/types";
+import type { SchoolSearchFilter } from "@/features/explore/components/schools/filters/types";
 import { queries } from "@/features/library/api/queries";
 import { LibraryPage } from "@/features/library/page";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/resources/library")({
-  validateSearch: (search: Record<string, unknown>) => search as SearchFilter,
+  validateSearch: (search: Record<string, unknown>) =>
+    search as SchoolSearchFilter,
   beforeLoad: ({ context: { session } }) => {
     if (session.type === "school") {
       throw redirect({ to: "/resources/favorites" });

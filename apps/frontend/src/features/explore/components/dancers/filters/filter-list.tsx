@@ -5,16 +5,16 @@ import type { ApiSchemas } from "@/lib/api/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useTransition } from "react";
-import { exploreQueries } from "../../api/queries";
+import { exploreQueries } from "../../../api/queries";
 
-type Filter = ApiSchemas["SchoolsFiltersResponse"][number];
+type Filter = ApiSchemas["DancersFiltersResponse"][number];
 
 function ConnectedFilterItem({ filter }: { filter: Filter }) {
   const value = useSearch({
-    from: "/_app/(routes)/explore/",
+    from: "/_app/(routes)/dancers",
     select: (search) => search[filter.paramKey],
   });
-  const navigate = useNavigate({ from: "/explore/" });
+  const navigate = useNavigate({ from: "/dancers" });
 
   const [, startTransition] = useTransition();
 
@@ -25,7 +25,11 @@ function ConnectedFilterItem({ filter }: { filter: Filter }) {
     startTransition(() => {
       navigate({
         replace: options?.replace,
-        search: (prev) => ({ ...prev, [filter.paramKey]: value }),
+        search: (prev) => ({
+          ...prev,
+          [filter.paramKey]: value,
+          page: undefined,
+        }),
       });
     });
   };
@@ -36,7 +40,7 @@ function ConnectedFilterItem({ filter }: { filter: Filter }) {
 }
 
 export function FilterList() {
-  const { data } = useSuspenseQuery(exploreQueries.filters());
+  const { data } = useSuspenseQuery(exploreQueries.dancersFilters());
 
   return (
     <Accordion defaultValue={[data[0].id]}>

@@ -903,7 +903,49 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Get dancers
+         * @description Returns a list of dancers
+         */
+        get: {
+            parameters: {
+                query?: {
+                    name?: string | null;
+                    location?: ("OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "ID" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
+                    sports?: string | null;
+                    styles?: string | null;
+                    following?: (string | number | boolean) | null;
+                    limit?: (string | number) | null;
+                    page?: (string | number) | null;
+                    premium?: (string | number | boolean) | null;
+                    gpaRange?: Record<string, never>;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         put?: never;
         /**
          * Create a dancer
@@ -2238,14 +2280,14 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    location?: ("OR" | "ID" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
+                    location?: ("OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "ID" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
                     commonRecruiting?: (string | number | boolean) | null;
                     division?: string | null;
                     sports?: string | null;
                     styles?: string | null;
                     following?: (string | number | boolean) | null;
-                    upcomingEvents?: (string | number | boolean) | null;
                     gpaRange?: Record<string, never>;
+                    upcomingEvents?: (string | number | boolean) | null;
                 };
                 header?: never;
                 path?: never;
@@ -2436,6 +2478,45 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["SchoolsMeFollowingResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools/me/following/ids": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get following list IDs
+         * @description Returns the list of dancer's IDs this school has favorited
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsMeFollowingIdsResponse"];
                     };
                 };
             };
@@ -3017,7 +3098,9 @@ export interface components {
             message: string;
         };
         /** @enum {string} */
-        SchoolFilterParam: "name" | "location" | "commonRecruiting" | "division" | "sports" | "styles" | "following" | "upcomingEvents" | "gpaRange";
+        DancerFilterParam: "name" | "location" | "sports" | "styles" | "following" | "premium" | "gpaRange";
+        /** @enum {string} */
+        SchoolFilterParam: "name" | "location" | "sports" | "styles" | "following" | "gpaRange" | "commonRecruiting" | "division" | "upcomingEvents";
         MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
         AuthSignupRequest: {
             phone?: string | null;
@@ -3161,6 +3244,29 @@ export interface components {
         StripeWebhookResponse: {
             received: boolean;
         };
+        DancersResponse: {
+            dancers: {
+                username: string;
+                name: string;
+                id: string;
+                avatar: string | null;
+                createdAt: string;
+                birthday: string;
+                location: string;
+                gpa: number | null;
+                gradYear: number | null;
+                followers: number;
+                subscribed: boolean;
+            }[];
+            pagination: {
+                total: number;
+                page: number;
+                limit: number;
+                totalPages: number;
+                hasNextPage: boolean;
+                hasPreviousPage: boolean;
+            };
+        };
         DancersRequest: {
             phoneNumber?: string | null;
             birthday: string | number;
@@ -3177,7 +3283,7 @@ export interface components {
                 value: string;
             }[];
             label: string;
-            paramKey: string;
+            paramKey: components["schemas"]["DancerFilterParam"];
         }[];
         DancersMeSkillsResponse: {
             skillId: string;
@@ -3340,6 +3446,13 @@ export interface components {
                 startDatetime: string;
                 endDatetime: string;
             }[];
+            submission: {
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                dancerId: string;
+                youtubeId: string;
+            } | null;
             subscribed: boolean;
         };
         DancersIdFavoriteResponse: {
@@ -3507,6 +3620,7 @@ export interface components {
             avatar: string | null;
             name: string;
         }[];
+        SchoolsMeFollowingIdsResponse: string[];
         SchoolsMeFavoritesResponse: {
             username: string;
             id: string;

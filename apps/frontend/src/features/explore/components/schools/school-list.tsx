@@ -16,7 +16,7 @@ export function SchoolList() {
     exploreQueries.schools(search),
   );
 
-  const { data: following } = useQuery(queries.followingIds());
+  const { data: following } = useQuery(queries.followingIds("dancer"));
 
   const deferredName = useDeferredValue(name as string | undefined);
 

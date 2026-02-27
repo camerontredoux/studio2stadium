@@ -1,6 +1,7 @@
 import type { School } from "@/shared/types";
 import { ProfileCard } from "../../../../components/shared/profile-card/profile-card";
 
+import { CardInfo } from "@/components/shared/profile-card/card-info";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -19,7 +20,6 @@ import {
   TargetIcon,
   VerifiedIcon,
 } from "lucide-react";
-import { CardInfo } from "../../../../components/shared/profile-card/card-info";
 
 interface SchoolCardProps {
   school: School;

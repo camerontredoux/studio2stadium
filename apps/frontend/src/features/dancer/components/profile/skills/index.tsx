@@ -94,9 +94,9 @@ export function Skills({
             })}
           </Accordion>
         ) : (
-          <span className="text-muted-foreground text-sm">
+          <div className="text-muted-foreground p-4 text-sm">
             No skills selected
-          </span>
+          </div>
         )}
       </FramePanel>
     </Frame>

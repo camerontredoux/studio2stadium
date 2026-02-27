@@ -21,7 +21,7 @@ export function InputFilter({
     (v: string) => {
       onFilterChange(v || undefined, { replace: true });
     },
-    { wait: 100 },
+    { wait: 200 },
   );
 
   const handleSearch = (value: string) => {

@@ -25,10 +25,10 @@ import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Settings2Icon } from "lucide-react";
 import { Filters } from "./filters";
 
-export function ExploreFilterSheet() {
-  const navigate = useNavigate({ from: "/explore/" });
+export function DancersFilterSheet() {
+  const navigate = useNavigate({ from: "/dancers" });
   const filters = useSearch({
-    from: "/_app/(routes)/explore/",
+    from: "/_app/(routes)/dancers",
     select: (search) =>
       Object.keys(search).filter(
         (k) => search[k as keyof typeof search] !== undefined,
@@ -36,7 +36,7 @@ export function ExploreFilterSheet() {
   });
 
   const clearFilters = () => {
-    navigate({ to: "/explore" });
+    navigate({ to: "/dancers" });
   };
 
   return (

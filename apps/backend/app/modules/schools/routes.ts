@@ -18,6 +18,8 @@ const GetFollowersController = () => import("./get-followers/controller.ts");
 const GetFollowingController = () => import("./get-following/controller.ts");
 const GetRecommendedProgramsController = () =>
   import("./get-recommended-programs/controller.ts");
+const GetFollowingIdsController = () =>
+  import("./get-following-ids/controller.ts");
 
 router
   .group(() => {
@@ -47,6 +49,11 @@ router
         router.get("followers", [GetFollowersController]).openapi({
           summary: "Get school followers",
           description: "Returns the dancers that have followed this school.",
+        });
+        router.get("following/ids", [GetFollowingIdsController]).openapi({
+          summary: "Get following list IDs",
+          description:
+            "Returns the list of dancer's IDs this school has favorited",
         });
         router.get("following", [GetFollowingController]).openapi({
           summary: "Get following list",

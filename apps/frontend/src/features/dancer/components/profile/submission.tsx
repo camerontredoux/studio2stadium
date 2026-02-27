@@ -5,15 +5,16 @@ import {
   FramePanel,
   FrameTitle,
 } from "@/components/ui/frame";
-import { recruitingQueries } from "@/features/recruiting/api/queries";
-import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import type { DancerProfile } from "../../types";
 import { useProfile } from "./context/use-profile";
 
-export function Submission() {
-  const { showOwnerControls } = useProfile();
+interface SubmissionProps {
+  data: DancerProfile["submission"];
+}
 
-  const { data } = useQuery(recruitingQueries.submission());
+export function Submission({ data }: SubmissionProps) {
+  const { showOwnerControls } = useProfile();
 
   if (!showOwnerControls && !data?.youtubeId) return null;
 
@@ -52,6 +53,8 @@ export function Submission() {
           <iframe
             src={`https://www.youtube.com/embed/${data?.youtubeId}`}
             title="Common Recruiting"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
             className="h-full w-full"
           />
         ) : (
