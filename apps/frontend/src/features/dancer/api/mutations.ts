@@ -68,7 +68,7 @@ export function useDeleteAchievement(username: string) {
 }
 
 export function useCreateReference(username: string) {
-  return $api.useMutation("post", "/dancers/me/references", {
+  return $api.useMutation("post", "/dancers/references", {
     meta: {
       invalidateQueries: [dancerQueries.profile(username).queryKey],
     },
@@ -76,7 +76,15 @@ export function useCreateReference(username: string) {
 }
 
 export function useDeleteReference(username: string) {
-  return $api.useMutation("delete", "/dancers/me/references/{id}", {
+  return $api.useMutation("delete", "/dancers/references/{id}", {
+    meta: {
+      invalidateQueries: [dancerQueries.profile(username).queryKey],
+    },
+  });
+}
+
+export function useUpdateReference(username: string) {
+  return $api.useMutation("patch", "/dancers/references/{id}", {
     meta: {
       invalidateQueries: [dancerQueries.profile(username).queryKey],
     },

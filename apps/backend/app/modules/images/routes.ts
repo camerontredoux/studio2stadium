@@ -1,6 +1,8 @@
 import { middleware } from "#start/kernel";
 import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
+const DeleteProfileImageController = () =>
+  import("./delete-image/controller.ts");
 const UploadProfileImageController = () =>
   import("./upload-profile-image/controller.ts");
 const UploadImageController = () => import("./upload-image/controller.ts");
@@ -15,6 +17,11 @@ router
           "Makes a request to Cloudflare to create a one-time signed upload URL for the user's image",
       })
       .use(throttle("image-upload", 10));
+
+    router.delete(":key", [DeleteProfileImageController]).openapi({
+      summary: "Delete an image",
+      description: "Deletes an image from the user's profile and feed",
+    });
 
     router
       .post("", [UploadProfileImageController])

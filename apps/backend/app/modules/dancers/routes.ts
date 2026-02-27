@@ -1,7 +1,8 @@
 import { middleware } from "#start/kernel";
 import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
-
+const UpdateReferenceController = () =>
+  import("./profile/update-reference/controller.ts");
 const GetDancersController = () =>
   import("./explore/get-dancers/controller.ts");
 const GetSportsController = () => import("./profile/get-sports/controller.ts");
@@ -115,14 +116,6 @@ router
           summary: "Get dancer profile checklist",
           description: "Returns the dancer's profile checklist",
         });
-        router.post("references", [CreateReferenceController]).openapi({
-          summary: "Create a reference",
-          description: "Creates a reference for the authenticated dancer",
-        });
-        router.delete("references/:id", [DeleteReferenceController]).openapi({
-          summary: "Delete a reference",
-          description: "Deletes a reference for the authenticated dancer",
-        });
         router.post("achievements", [CreateAchievementController]).openapi({
           summary: "Create an achievement",
           description: "Creates an achievement for the authenticated dancer",
@@ -194,3 +187,22 @@ router
   .use(middleware.auth())
   .prefix("dancers")
   .openapi({ tags: ["Dancers"] });
+
+router
+  .group(() => {
+    router.post("", [CreateReferenceController]).openapi({
+      summary: "Create a reference",
+      description: "Creates a reference for the authenticated dancer",
+    });
+    router.delete(":id", [DeleteReferenceController]).openapi({
+      summary: "Delete a reference",
+      description: "Deletes a reference for the authenticated dancer",
+    });
+    router.patch(":id", [UpdateReferenceController]).openapi({
+      summary: "Update a reference",
+      description: "Updates a reference for the authenticated dancer",
+    });
+  })
+  .use([middleware.auth(), middleware.dancer()])
+  .prefix("dancers/references")
+  .openapi({ tags: ["References"] });

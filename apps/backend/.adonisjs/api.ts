@@ -147,14 +147,6 @@ type DancersMeChecklistGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/profile/get-profile-checklist/controller.ts').default['handle'], false>
 }
-type DancersMeReferencesPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/create-reference/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/dancers/profile/create-reference/controller.ts').default['handle'], true>
-}
-type DancersMeReferencesIdDelete = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/delete-reference/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/dancers/profile/delete-reference/controller.ts').default['handle'], true>
-}
 type DancersMeAchievementsPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/create-achievement/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/profile/create-achievement/controller.ts').default['handle'], true>
@@ -194,6 +186,18 @@ type DancersIdFavoriteDelete = {
 type DancersIdMetadataGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/get-dancer-metadata/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/profile/get-dancer-metadata/controller.ts').default['handle'], true>
+}
+type DancersReferencesPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/create-reference/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/create-reference/controller.ts').default['handle'], true>
+}
+type DancersReferencesIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/delete-reference/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/delete-reference/controller.ts').default['handle'], true>
+}
+type DancersReferencesIdPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/update-reference/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/update-reference/controller.ts').default['handle'], true>
 }
 type EventsGetHead = {
   request: unknown
@@ -483,16 +487,6 @@ export interface ApiDefinition {
         '$get': DancersMeChecklistGetHead;
         '$head': DancersMeChecklistGetHead;
       };
-      'references': {
-        '$url': {
-        };
-        '$post': DancersMeReferencesPost;
-        ':id': {
-          '$url': {
-          };
-          '$delete': DancersMeReferencesIdDelete;
-        };
-      };
       'achievements': {
         '$url': {
         };
@@ -541,6 +535,17 @@ export interface ApiDefinition {
         };
         '$get': DancersIdMetadataGetHead;
         '$head': DancersIdMetadataGetHead;
+      };
+    };
+    'references': {
+      '$url': {
+      };
+      '$post': DancersReferencesPost;
+      ':id': {
+        '$url': {
+        };
+        '$delete': DancersReferencesIdDelete;
+        '$patch': DancersReferencesIdPatch;
       };
     };
   };
