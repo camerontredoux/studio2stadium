@@ -2,6 +2,7 @@ import { crvSubmissions } from "#database/schema/crv";
 import { schoolProfiles } from "#database/schema/schools";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
+import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
 import { and, eq, not, notInArray } from "drizzle-orm";
 
@@ -42,7 +43,11 @@ export class Service {
         {
           ...school,
           username: school.username,
-          avatar: school.avatar,
+          avatar: imageUrl(school.avatar, {
+            fit: "cover",
+            width: 320,
+            height: 320,
+          }),
         },
       ];
     });

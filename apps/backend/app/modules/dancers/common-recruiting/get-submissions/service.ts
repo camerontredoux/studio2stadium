@@ -1,4 +1,5 @@
 import { DatabaseService } from "#database/service";
+import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
 
 @inject()
@@ -49,6 +50,11 @@ export class Service {
           school: {
             ...school,
             ...user,
+            avatar: imageUrl(user.avatar, {
+              fit: "cover",
+              width: 320,
+              height: 320,
+            }),
           },
         },
       ];

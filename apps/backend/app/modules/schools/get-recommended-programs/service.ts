@@ -1,5 +1,6 @@
 import { DatabaseService } from "#database/service";
 import { StateCode } from "#shared/constants/states";
+import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
 import { stateAdjacencies, stateRegions } from "./constants.ts";
 
@@ -250,7 +251,11 @@ export class Service {
         top3Matches,
         locationScore,
         username: school.user.username,
-        avatar: school.user.avatar,
+        avatar: imageUrl(school.user.avatar, {
+          fit: "cover",
+          width: 320,
+          height: 320,
+        }),
         matchScore: Math.round(matchScore),
         matchTier,
         matchedSkillsCount: matchedSkills.length,

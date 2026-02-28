@@ -1,6 +1,7 @@
 import { globalDanceEventAttendees } from "#database/schema/events";
 import { DatabaseService } from "#database/service";
 import { getDateAndTime } from "#utils/date";
+import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
 import { eq } from "drizzle-orm";
 
@@ -22,6 +23,11 @@ export class Service {
 
     return {
       ...event,
+      thumbnail: imageUrl(event.thumbnail, {
+        fit: "cover",
+        width: 320,
+        height: 320,
+      }),
       startTime,
       endTime,
       startDate,
