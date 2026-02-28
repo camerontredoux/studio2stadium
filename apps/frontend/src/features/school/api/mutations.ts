@@ -37,3 +37,11 @@ export function useUpdateSkills(profileUsername?: string) {
     },
   });
 }
+
+export function useUpdateProgram(username: string) {
+  return $api.useMutation("patch", "/schools/me", {
+    meta: {
+      invalidateQueries: [schoolQueries.profile(username).queryKey],
+    },
+  });
+}

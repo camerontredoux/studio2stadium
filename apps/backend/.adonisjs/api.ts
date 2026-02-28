@@ -103,6 +103,10 @@ type DancersGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/explore/get-dancers/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/explore/get-dancers/controller.ts').default['handle'], true>
 }
+type DancersMePatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/update-portfolio/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/update-portfolio/controller.ts').default['handle'], true>
+}
 type DancersMeSkillsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/profile/get-skills/controller.ts').default['handle'], false>
@@ -134,10 +138,6 @@ type DancersMeFollowingGetHead = {
 type DancersMeFollowingIdsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/engagement/get-following-ids/controller.ts').default['handle'], false>
-}
-type DancersMePortfolioPatch = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/update-portfolio/validator.ts')['validator']>>
-  response: MakeTuyauResponse<import('../app/modules/dancers/profile/update-portfolio/controller.ts').default['handle'], true>
 }
 type DancersMeFollowersGetHead = {
   request: unknown
@@ -259,6 +259,10 @@ type SchoolsRecommendedGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-recommended-programs/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/schools/get-recommended-programs/controller.ts').default['handle'], true>
 }
+type SchoolsMePatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/update-program/validator.ts')['updateProgramSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/update-program/controller.ts').default['handle'], true>
+}
 type SchoolsMeFollowersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/schools/get-followers/controller.ts').default['handle'], false>
@@ -278,6 +282,14 @@ type SchoolsMeFavoritesGetHead = {
 type SchoolsMeFavoritesIdPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/update-favorite/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/schools/update-favorite/controller.ts').default['handle'], true>
+}
+type SchoolsMeSkillsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/schools/get-skills/controller.ts').default['handle'], false>
+}
+type SchoolsMeSkillsPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/update-skills/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/update-skills/controller.ts').default['handle'], true>
 }
 type SchoolsIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school/validator.ts')['schema']>>
@@ -453,6 +465,9 @@ export interface ApiDefinition {
     '$get': DancersGetHead;
     '$head': DancersGetHead;
     'me': {
+      '$url': {
+      };
+      '$patch': DancersMePatch;
       'skills': {
         '$url': {
         };
@@ -485,11 +500,6 @@ export interface ApiDefinition {
           '$get': DancersMeFollowingIdsGetHead;
           '$head': DancersMeFollowingIdsGetHead;
         };
-      };
-      'portfolio': {
-        '$url': {
-        };
-        '$patch': DancersMePortfolioPatch;
       };
       'followers': {
         '$url': {
@@ -637,6 +647,9 @@ export interface ApiDefinition {
       '$head': SchoolsRecommendedGetHead;
     };
     'me': {
+      '$url': {
+      };
+      '$patch': SchoolsMePatch;
       'followers': {
         '$url': {
         };
@@ -665,6 +678,13 @@ export interface ApiDefinition {
           };
           '$patch': SchoolsMeFavoritesIdPatch;
         };
+      };
+      'skills': {
+        '$url': {
+        };
+        '$get': SchoolsMeSkillsGetHead;
+        '$head': SchoolsMeSkillsGetHead;
+        '$patch': SchoolsMeSkillsPatch;
       };
     };
     ':username': {

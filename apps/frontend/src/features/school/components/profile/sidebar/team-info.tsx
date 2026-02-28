@@ -18,12 +18,15 @@ import {
   UserIcon,
   UsersIcon,
 } from "lucide-react";
+import { useProfile } from "../context/use-profile";
+import { TeamDialog } from "../edit/team-dialog";
 
 interface TeamInfoProps {
   school: SchoolProfile;
 }
 
 export function TeamInfo({ school }: TeamInfoProps) {
+  const { username, showOwnerControls } = useProfile();
   const noInfo =
     !school.size &&
     !school.timeCommitment &&
@@ -36,7 +39,11 @@ export function TeamInfo({ school }: TeamInfoProps) {
       <FrameHeader>
         <FrameTitle className="flex items-center justify-between gap-2">
           Team Information
-          <div className="h-6 w-fit" />
+          {showOwnerControls ? (
+            <TeamDialog username={username} />
+          ) : (
+            <div className="h-6 w-fit" />
+          )}
         </FrameTitle>
       </FrameHeader>
       <FramePanel className="p-0!">

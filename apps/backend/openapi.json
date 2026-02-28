@@ -883,6 +883,39 @@
         "description": "Returns the filters to use when searching for dancers"
       }
     },
+    "/dancers/me": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DancersMeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Update my portfolio",
+        "description": "Updates the authenticated dancer's portfolio"
+      }
+    },
     "/dancers/me/skills": {
       "get": {
         "parameters": [],
@@ -1084,39 +1117,6 @@
         ],
         "summary": "Get following list IDs",
         "description": "Returns the list of school's IDs I'm following"
-      }
-    },
-    "/dancers/me/portfolio": {
-      "patch": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DancersMePortfolioRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Dancers"
-        ],
-        "summary": "Update my portfolio",
-        "description": "Updates the authenticated dancer's portfolio"
       }
     },
     "/dancers/me/followers": {
@@ -2306,6 +2306,39 @@
         "description": "Returns a list of recommended programs"
       }
     },
+    "/schools/me": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolsMeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Update my school",
+        "description": "Updates the authenticated school's program information"
+      }
+    },
     "/schools/me/followers": {
       "get": {
         "parameters": [],
@@ -2435,6 +2468,59 @@
         ],
         "summary": "Update a favorite",
         "description": "Updates a favorite for the school"
+      }
+    },
+    "/schools/me/skills": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsMeSkillsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Get school skills",
+        "description": "Returns the school's skills"
+      },
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolsMeSkillsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Update school skills",
+        "description": "Updates the school's skills"
       }
     },
     "/schools/{username}": {
@@ -3761,130 +3847,7 @@
           ]
         }
       },
-      "DancersMeSkillsResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "skillId": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "skillId"
-          ]
-        }
-      },
-      "DancersMeSkillsRequest": {
-        "type": "object",
-        "properties": {
-          "skills": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "skills"
-        ]
-      },
-      "DancersMeStylesResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "styleId": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "styleId"
-          ]
-        }
-      },
-      "DancersMeStylesRequest": {
-        "type": "object",
-        "properties": {
-          "styles": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "styles"
-        ]
-      },
-      "DancersMeSportsResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "sportId": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "sportId"
-          ]
-        }
-      },
-      "DancersMeSportsRequest": {
-        "type": "object",
-        "properties": {
-          "sports": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "sports"
-        ]
-      },
-      "DancersMeFollowingResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "username": {
-              "type": "string"
-            },
-            "avatar": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "name": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "id",
-            "username",
-            "avatar",
-            "name"
-          ]
-        }
-      },
-      "DancersMeFollowingIdsResponse": {
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
-      },
-      "DancersMePortfolioRequest": {
+      "DancersMeRequest": {
         "type": "object",
         "properties": {
           "birthday": {
@@ -4016,6 +3979,129 @@
               }
             ]
           }
+        }
+      },
+      "DancersMeSkillsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "skillId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "skillId"
+          ]
+        }
+      },
+      "DancersMeSkillsRequest": {
+        "type": "object",
+        "properties": {
+          "skills": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "skills"
+        ]
+      },
+      "DancersMeStylesResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "styleId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "styleId"
+          ]
+        }
+      },
+      "DancersMeStylesRequest": {
+        "type": "object",
+        "properties": {
+          "styles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "styles"
+        ]
+      },
+      "DancersMeSportsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "sportId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "sportId"
+          ]
+        }
+      },
+      "DancersMeSportsRequest": {
+        "type": "object",
+        "properties": {
+          "sports": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "sports"
+        ]
+      },
+      "DancersMeFollowingResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "username": {
+              "type": "string"
+            },
+            "avatar": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "username",
+            "avatar",
+            "name"
+          ]
+        }
+      },
+      "DancersMeFollowingIdsResponse": {
+        "type": "array",
+        "items": {
+          "type": "string"
         }
       },
       "DancersMeFollowersResponse": {
@@ -4314,6 +4400,16 @@
                 "userId": {
                   "type": "string"
                 },
+                "thumbnail": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "caption": {
                   "oneOf": [
                     {
@@ -4340,6 +4436,7 @@
                 "createdAt",
                 "updatedAt",
                 "userId",
+                "thumbnail",
                 "caption",
                 "mediaUrl"
               ]
@@ -5048,16 +5145,6 @@
                 "items": {
                   "type": "string"
                 }
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "cost": {
-            "oneOf": [
-              {
-                "type": "string"
               },
               {
                 "type": "null"
@@ -5973,6 +6060,214 @@
           ]
         }
       },
+      "SchoolsMeRequest": {
+        "type": "object",
+        "properties": {
+          "about": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "location": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "instagram": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tiktok": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "gpa": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "commonRecruiting": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "teamSelection": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "recruitment",
+                  "audition",
+                  "hybrid"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "competitiveCircuit": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "other",
+                  "uda",
+                  "dtu",
+                  "nda",
+                  "usa",
+                  "non-competitive"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "division": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "benefits": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "website": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timeCommitment": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "headCoach": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "assistantCoach": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "missionStatement": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "whatWeDo": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "size": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "schoolName": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
       "SchoolsMeFollowersResponse": {
         "type": "array",
         "items": {
@@ -6140,6 +6435,34 @@
           }
         }
       },
+      "SchoolsMeSkillsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "skillId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "skillId"
+          ]
+        }
+      },
+      "SchoolsMeSkillsRequest": {
+        "type": "object",
+        "properties": {
+          "skills": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "skills"
+        ]
+      },
       "SchoolsIdResponse": {
         "type": "object",
         "properties": {
@@ -6290,6 +6613,16 @@
                 "userId": {
                   "type": "string"
                 },
+                "thumbnail": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "caption": {
                   "oneOf": [
                     {
@@ -6316,6 +6649,7 @@
                 "createdAt",
                 "updatedAt",
                 "userId",
+                "thumbnail",
                 "caption",
                 "mediaUrl"
               ]

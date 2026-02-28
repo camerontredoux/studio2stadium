@@ -11,6 +11,34 @@ export const schemas = {
     phone: z.string().nullable(),
   }),
 
+  updateAbout: z.object({
+    about: z.string().optional(),
+    missionStatement: z.string().optional(),
+    whatWeDo: z.string().optional(),
+    benefits: z.string().optional(),
+    teamSelection: z.enum(["recruitment", "audition", "hybrid"]).optional(),
+    competitiveCircuit: z
+      .enum(["uda", "dtu", "nda", "usa", "non-competitive", "other"])
+      .optional(),
+    division: z.string().nullable().optional(),
+  }),
+
+  updateContact: z.object({
+    displayEmail: z.string().email("Must be a valid email").optional().or(z.literal("")),
+    website: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+    instagram: z.string().optional(),
+    tiktok: z.string().optional(),
+  }),
+
+  updateTeam: z.object({
+    size: z.coerce.number().optional(),
+    gpa: z.coerce.number().optional(),
+    timeCommitment: z.string().optional(),
+    headCoach: z.string().optional(),
+    assistantCoach: z.string().optional(),
+    commonRecruiting: z.boolean().optional(),
+  }),
+
   createEvent: z
     .object({
       type: z.enum(EVENT_TYPES, { message: "Event type is required" }),

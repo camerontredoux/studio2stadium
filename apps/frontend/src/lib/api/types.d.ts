@@ -1027,6 +1027,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dancers/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update my portfolio
+         * @description Updates the authenticated dancer's portfolio
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersMeRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/dancers/me/skills": {
         parameters: {
             query?: never;
@@ -1322,52 +1372,6 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
-        trace?: never;
-    };
-    "/dancers/me/portfolio": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["DancersMePortfolioRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
         trace?: never;
     };
     "/dancers/me/followers": {
@@ -2700,6 +2704,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/schools/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update my school
+         * @description Updates the authenticated school's program information
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SchoolsMeRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/schools/me/followers": {
         parameters: {
             query?: never;
@@ -2885,6 +2939,79 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": components["schemas"]["SchoolsMeFavoritesIdRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/schools/me/skills": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get school skills
+         * @description Returns the school's skills
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsMeSkillsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update school skills
+         * @description Updates the school's skills
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SchoolsMeSkillsRequest"];
                 };
             };
             responses: {
@@ -3632,6 +3759,20 @@ export interface components {
             label: string;
             paramKey: components["schemas"]["DancerFilterParam"];
         }[];
+        DancersMeRequest: {
+            birthday?: string | null;
+            location?: string | null;
+            biography?: string | null;
+            instagram?: string | null;
+            tiktok?: string | null;
+            youtube?: string | null;
+            teamLevel?: string | null;
+            highSchool?: string | null;
+            studio?: string | null;
+            gpa?: (string | number) | null;
+            gradYear?: (string | number) | null;
+            trainingHours?: (string | number) | null;
+        };
         DancersMeSkillsResponse: {
             skillId: string;
         }[];
@@ -3657,20 +3798,6 @@ export interface components {
             name: string;
         }[];
         DancersMeFollowingIdsResponse: string[];
-        DancersMePortfolioRequest: {
-            birthday?: string | null;
-            location?: string | null;
-            biography?: string | null;
-            instagram?: string | null;
-            tiktok?: string | null;
-            youtube?: string | null;
-            teamLevel?: string | null;
-            highSchool?: string | null;
-            studio?: string | null;
-            gpa?: (string | number) | null;
-            gradYear?: (string | number) | null;
-            trainingHours?: (string | number) | null;
-        };
         DancersMeFollowersResponse: {
             id: string;
             username: string;
@@ -4019,6 +4146,26 @@ export interface components {
             sameState: boolean;
             meetsGpaRequirement: boolean;
         }[];
+        SchoolsMeRequest: {
+            about?: string | null;
+            location?: string | null;
+            instagram?: string | null;
+            tiktok?: string | null;
+            gpa?: (string | number) | null;
+            commonRecruiting?: (string | number | boolean) | null;
+            teamSelection?: ("recruitment" | "audition" | "hybrid") | null;
+            competitiveCircuit?: ("other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive") | null;
+            division?: string | null;
+            benefits?: string | null;
+            website?: string | null;
+            timeCommitment?: string | null;
+            headCoach?: string | null;
+            assistantCoach?: string | null;
+            missionStatement?: string | null;
+            whatWeDo?: string | null;
+            size?: (string | number) | null;
+            schoolName?: string | null;
+        };
         SchoolsMeFollowersResponse: {
             id: string;
             username: string;
@@ -4046,6 +4193,12 @@ export interface components {
         SchoolsMeFavoritesIdRequest: {
             comment?: string | null;
             rating?: (string | number) | null;
+        };
+        SchoolsMeSkillsResponse: {
+            skillId: string;
+        }[];
+        SchoolsMeSkillsRequest: {
+            skills: string[];
         };
         SchoolsIdResponse: {
             events: {

@@ -7,12 +7,15 @@ import {
 import type { SchoolProfile } from "@/features/school/types";
 import { InfoIcon, MailIcon } from "lucide-react";
 import { AiOutlineInstagram, AiOutlineTikTok } from "react-icons/ai";
+import { useProfile } from "../context/use-profile";
+import { ContactDialog } from "../edit/contact-dialog";
 
 interface ContactInfoProps {
   school: SchoolProfile;
 }
 
 export function ContactInfo({ school }: ContactInfoProps) {
+  const { username, showOwnerControls } = useProfile();
   const noInfo =
     !school.displayEmail && !school.instagram && !school.tiktok;
 
@@ -21,7 +24,11 @@ export function ContactInfo({ school }: ContactInfoProps) {
       <FrameHeader>
         <FrameTitle className="flex items-center justify-between gap-2">
           Contact Information
-          <div className="h-6 w-fit" />
+          {showOwnerControls ? (
+            <ContactDialog username={username} />
+          ) : (
+            <div className="h-6 w-fit" />
+          )}
         </FrameTitle>
       </FrameHeader>
       <FramePanel side="bottom">

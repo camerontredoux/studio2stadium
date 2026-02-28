@@ -41,7 +41,7 @@ export function useUpdateSports(profileUsername?: string) {
 }
 
 export function useUpdateProfile(username: string) {
-  return $api.useMutation("patch", "/dancers/me/portfolio", {
+  return $api.useMutation("patch", "/dancers/me", {
     meta: {
       invalidateQueries: [
         dancerQueries.profile(username).queryKey,
