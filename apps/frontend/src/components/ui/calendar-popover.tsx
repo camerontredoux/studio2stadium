@@ -13,15 +13,17 @@ import { cn } from "@/components/utils/cn";
 
 import { Calendar } from "@/components/ui/calendar";
 import type { ButtonHTMLAttributes } from "react";
+import type { Matcher } from "react-day-picker";
 
 type TProps = Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
-  "onSelect" | "value"
+  "onSelect" | "value" | "disabled"
 > & {
   onSelect: (value: Date | undefined) => void;
   value?: Date | undefined;
   placeholder: string;
   labelVariant?: "P" | "PP" | "PPP";
+  disabled?: Matcher | Matcher[];
 };
 
 function CalendarPopover({
@@ -31,6 +33,7 @@ function CalendarPopover({
   placeholder,
   labelVariant = "PPP",
   value,
+  disabled,
 }: TProps) {
   const { isOpen, onClose, onToggle } = useDisclosure();
 
@@ -65,6 +68,7 @@ function CalendarPopover({
           mode="single"
           selected={value}
           onSelect={handleSelect}
+          disabled={disabled}
           autoFocus
         />
       </PopoverContent>

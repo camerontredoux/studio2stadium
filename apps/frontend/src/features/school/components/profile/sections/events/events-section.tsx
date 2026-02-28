@@ -19,6 +19,8 @@ import { formatDate } from "@/components/utils/format";
 import type { SchoolProfile } from "@/features/school/types";
 import { Link } from "@tanstack/react-router";
 import { CalendarIcon, MapPinIcon } from "lucide-react";
+import { useProfile } from "../../context/use-profile";
+import { EventDialog } from "./event-dialog";
 
 const PAGE_SIZE = 3;
 
@@ -27,6 +29,8 @@ interface EventsSectionProps {
 }
 
 export function EventsSection({ events }: EventsSectionProps) {
+  const { showOwnerControls } = useProfile();
+
   const [page, setPage] = useState(1);
 
   const upcomingEvents = events
@@ -49,8 +53,12 @@ export function EventsSection({ events }: EventsSectionProps) {
     <Frame className="h-fit w-full">
       <FrameHeader>
         <FrameTitle className="flex items-center justify-between gap-2">
-          Upcoming Events
-          <div className="h-7 w-fit sm:h-6" />
+          Hosting Events
+          {showOwnerControls ? (
+            <EventDialog />
+          ) : (
+            <div className="h-7 w-fit sm:h-6" />
+          )}
         </FrameTitle>
       </FrameHeader>
       <FramePanel className="p-0!">
@@ -84,18 +92,21 @@ export function EventsSection({ events }: EventsSectionProps) {
                     </span>
                   </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="xs"
-                  render={
-                    <Link
-                      to={"/events/$eventId"}
-                      params={{ eventId: event.id }}
-                    />
-                  }
-                >
-                  View
-                </Button>
+                <div className="flex items-center gap-1">
+                  {showOwnerControls && <EventDialog event={event} />}
+                  <Button
+                    variant="outline"
+                    size="xs"
+                    render={
+                      <Link
+                        to={"/events/$eventId"}
+                        params={{ eventId: event.id }}
+                      />
+                    }
+                  >
+                    View
+                  </Button>
+                </div>
               </div>
             ))}
 
@@ -147,6 +158,7 @@ export function EventsSection({ events }: EventsSectionProps) {
           </div>
         )}
       </FramePanel>
+
     </Frame>
   );
 }

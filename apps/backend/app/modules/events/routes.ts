@@ -1,6 +1,8 @@
 import { middleware } from "#start/kernel";
 import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
+const EditEventController = () => import("./edit-event/controller.ts");
+const CreateEventController = () => import("./create-event/controller.ts");
 
 const GetEventByIdController = () => import("./get-event-by-id/controller.ts");
 const GetEventsController = () => import("./get-events/controller.ts");
@@ -13,28 +15,41 @@ const GetUpcomingEventsController = () =>
 
 router
   .group(() => {
-    router.get("/", [GetEventsController]).openapi({
+    router.get("", [GetEventsController]).openapi({
       summary: "Get all events",
       description: "Returns a list of all upcoming events",
     });
 
-    router.get("/upcoming", [GetUpcomingEventsController]).openapi({
+    router
+      .post("", [CreateEventController])
+      .openapi({
+        summary: "Create event",
+        description: "Creates a new school hosted event",
+      })
+      .use(middleware.school());
+
+    router.get("upcoming", [GetUpcomingEventsController]).openapi({
       summary: "Get upcoming events",
       description: "Returns a list of upcoming events",
     });
 
-    router.get("/global", [GetGlobalEventsController]).openapi({
+    router.get("global", [GetGlobalEventsController]).openapi({
       summary: "Get all global events",
       description: "Returns a list of all upcoming global events",
     });
 
-    router.get("/:id", [GetEventByIdController]).openapi({
+    router.patch(":id", [EditEventController]).openapi({
+      summary: "Edit event",
+      description: "Edits a school hosted event",
+    });
+
+    router.get(":id", [GetEventByIdController]).openapi({
       summary: "Get event by id",
       description: "Returns details about a specific event",
     });
 
     router
-      .post("/:id/save", [SaveEventController])
+      .post(":id/save", [SaveEventController])
       .openapi({
         summary: "Save event",
         description: "Saves an event for the current user",
@@ -42,7 +57,7 @@ router
       .use(throttle("save-event", 30));
 
     router
-      .delete("/:id/unsave", [UnsaveEventController])
+      .delete(":id/unsave", [UnsaveEventController])
       .openapi({
         summary: "Unsave event",
         description: "Unsaves an event for the current user",

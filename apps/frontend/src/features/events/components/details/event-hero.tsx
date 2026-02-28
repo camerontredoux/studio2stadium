@@ -8,12 +8,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { ApiSchemas } from "@/lib/api/client";
+import { TIMEZONE_LABELS } from "@/utils/constants/timezones";
 import { useRouter } from "@tanstack/react-router";
 import {
   CalendarIcon,
   ChevronLeftIcon,
   ExternalLinkIcon,
-  TicketIcon,
   UsersIcon,
 } from "lucide-react";
 import { SaveEventButton } from "./save-event";
@@ -71,8 +71,18 @@ export function EventHero({ event }: EventHeroProps) {
             <div className="flex items-center gap-1.5">
               <CalendarIcon className="text-brand size-3.5 shrink-0" />
               <span>
-                {event.startDate} &middot; {event.startTime} - {event.endDate}{" "}
-                &middot; {event.endTime}
+                {event.startDate} &middot; {event.startTime} -{" "}
+                {event.endDate !== event.startDate ? (
+                  <>{event.endDate} &middot; </>
+                ) : (
+                  ""
+                )}{" "}
+                {event.endTime}{" "}
+                {
+                  TIMEZONE_LABELS[
+                    event.timezone as keyof typeof TIMEZONE_LABELS
+                  ]
+                }
               </span>
             </div>
             <TooltipProvider delay={0}>
@@ -90,10 +100,6 @@ export function EventHero({ event }: EventHeroProps) {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <div className="flex items-center gap-1.5">
-              <TicketIcon className="text-brand size-3.5 shrink-0" />
-              <span>{event.cost || "Free"}</span>
-            </div>
           </div>
         </div>
       </FramePanel>

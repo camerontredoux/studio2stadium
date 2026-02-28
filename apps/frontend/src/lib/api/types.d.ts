@@ -2101,7 +2101,41 @@ export interface paths {
             };
         };
         put?: never;
-        post?: never;
+        /**
+         * Create event
+         * @description Creates a new school hosted event
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["EventsRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -2233,7 +2267,43 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Edit event
+         * @description Edits a school hosted event
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["EventsIdRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/events/{id}/save": {
@@ -3788,6 +3858,20 @@ export interface components {
             }[];
             month: string;
         }[];
+        EventsRequest: {
+            website?: string | null;
+            address?: string | null;
+            tags?: string[] | null;
+            cost?: string | null;
+            /** @enum {string} */
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+            location: string;
+            title: string;
+            description: string;
+            startDatetime: string;
+            endDatetime: string;
+            timezone: string;
+        };
         EventsUpcomingResponse: {
             /** @enum {string} */
             type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
@@ -3852,6 +3936,19 @@ export interface components {
             endTime: string;
             startDate: string;
             endDate: string;
+        };
+        EventsIdRequest: {
+            type?: ("recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp") | null;
+            location?: string | null;
+            website?: string | null;
+            title?: string | null;
+            description?: string | null;
+            address?: string | null;
+            tags?: string[] | null;
+            cost?: string | null;
+            startDatetime?: string | null;
+            endDatetime?: string | null;
+            timezone?: string | null;
         };
         EventsIdSaveRequest: {
             type?: string | null;

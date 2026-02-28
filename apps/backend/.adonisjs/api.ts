@@ -207,6 +207,10 @@ type EventsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/events/get-events/controller.ts').default['handle'], false>
 }
+type EventsPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/create-event/schema.ts')['createEventSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/events/create-event/controller.ts').default['handle'], true>
+}
 type EventsUpcomingGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/events/get-upcoming-events/controller.ts').default['handle'], false>
@@ -214,6 +218,10 @@ type EventsUpcomingGetHead = {
 type EventsGlobalGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/events/get-global-events/controller.ts').default['handle'], false>
+}
+type EventsIdPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/edit-event/schema.ts')['editEventSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/events/edit-event/controller.ts').default['handle'], true>
 }
 type EventsIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/get-event-by-id/validator.ts')['validator']>>
@@ -565,6 +573,7 @@ export interface ApiDefinition {
     };
     '$get': EventsGetHead;
     '$head': EventsGetHead;
+    '$post': EventsPost;
     'upcoming': {
       '$url': {
       };
@@ -580,6 +589,7 @@ export interface ApiDefinition {
     ':id': {
       '$url': {
       };
+      '$patch': EventsIdPatch;
       '$get': EventsIdGetHead;
       '$head': EventsIdGetHead;
       'save': {

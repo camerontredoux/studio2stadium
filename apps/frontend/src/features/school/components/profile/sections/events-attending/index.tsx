@@ -22,7 +22,7 @@ export function EventsAttending({
   return (
     <Frame>
       <FrameHeader>
-        <FrameTitle>Events Attending</FrameTitle>
+        <FrameTitle>Attending Events</FrameTitle>
       </FrameHeader>
       <FramePanel className="p-0!">
         <Tabs defaultValue="schools">

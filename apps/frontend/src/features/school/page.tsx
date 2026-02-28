@@ -15,10 +15,10 @@ import { Link, useSearch } from "@tanstack/react-router";
 import { School2Icon } from "lucide-react";
 import { schoolQueries } from "./api/queries";
 import { ProfileProvider } from "./components/profile/context/profile-provider";
-import { EventsAttending } from "./components/profile/events-attending";
 import { SchoolHero } from "./components/profile/hero";
 import { AboutSection } from "./components/profile/sections/about-section";
-import { EventsSection } from "./components/profile/sections/events-section";
+import { EventsAttending } from "./components/profile/sections/events-attending";
+import { EventsSection } from "./components/profile/sections/events/events-section";
 import { ProgramDetails } from "./components/profile/sections/program-details";
 import { SkillsSection } from "./components/profile/sections/skills-section";
 import { ContactInfo } from "./components/profile/sidebar/contact-info";
@@ -61,7 +61,7 @@ export function SchoolPage({ username }: SchoolPageProps) {
   const isPreview = mode === "preview";
 
   return (
-    <ProfileProvider isOwner={isOwner} isPreview={isPreview}>
+    <ProfileProvider username={username} isOwner={isOwner} isPreview={isPreview}>
       <SidebarLayout
         sidebar={
           <>

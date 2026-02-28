@@ -2,6 +2,7 @@ import { danceEventAttendees, danceEvents } from "#database/schema/events";
 import { DatabaseService } from "#database/service";
 import { E_BAD_REQUEST } from "#exceptions/bad-request";
 import { getDateAndTime } from "#utils/date";
+import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
 import { eq } from "drizzle-orm";
 import { Validator } from "./validator.ts";
@@ -89,7 +90,13 @@ export class Service {
       organizer: {
         name: organizer.name,
         username: organizer.user.username,
-        avatar: organizer.user.avatar,
+        avatar: organizer.user.avatar?.startsWith("avatar")
+          ? imageUrl(organizer.user.avatar, {
+              fit: "cover",
+              width: 320,
+              height: 320,
+            })
+          : organizer.user.avatar,
         events: organizer.otherEvents,
       },
       ...(schedule?.schedule && {

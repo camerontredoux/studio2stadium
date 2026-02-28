@@ -1664,6 +1664,37 @@
         ],
         "summary": "Get all events",
         "description": "Returns a list of all upcoming events"
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Events"
+        ],
+        "summary": "Create event",
+        "description": "Creates a new school hosted event"
       }
     },
     "/events/upcoming": {
@@ -1749,6 +1780,47 @@
         ],
         "summary": "Get event by id",
         "description": "Returns details about a specific event"
+      },
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventsIdRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Events"
+        ],
+        "summary": "Edit event",
+        "description": "Edits a school hosted event"
       }
     },
     "/events/{id}/save": {
@@ -4946,6 +5018,103 @@
           ]
         }
       },
+      "EventsRequest": {
+        "type": "object",
+        "properties": {
+          "website": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "address": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tags": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cost": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "recruitment",
+              "audition",
+              "other",
+              "rehearsal",
+              "recital",
+              "showcase",
+              "competition",
+              "class",
+              "intensive",
+              "workshop",
+              "fundraiser",
+              "combine",
+              "convention",
+              "clinic",
+              "deadline",
+              "performance",
+              "camp"
+            ]
+          },
+          "location": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "startDatetime": {
+            "type": "string"
+          },
+          "endDatetime": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "location",
+          "title",
+          "description",
+          "startDatetime",
+          "endDatetime",
+          "timezone"
+        ]
+      },
       "EventsUpcomingResponse": {
         "type": "array",
         "items": {
@@ -5299,6 +5468,143 @@
           "startDate",
           "endDate"
         ]
+      },
+      "EventsIdRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "recruitment",
+                  "audition",
+                  "other",
+                  "rehearsal",
+                  "recital",
+                  "showcase",
+                  "competition",
+                  "class",
+                  "intensive",
+                  "workshop",
+                  "fundraiser",
+                  "combine",
+                  "convention",
+                  "clinic",
+                  "deadline",
+                  "performance",
+                  "camp"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "location": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "website": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "address": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tags": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cost": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "startDatetime": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "endDatetime": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timezone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
       },
       "EventsIdSaveRequest": {
         "type": "object",

@@ -1,6 +1,8 @@
 import * as React from "react";
 
 export type ProfileContextValue = {
+  /** The username of the profile being viewed */
+  username: string;
   /** True if viewing your own profile */
   isOwner: boolean;
   /** True when in preview mode (seeing profile as others see it) */

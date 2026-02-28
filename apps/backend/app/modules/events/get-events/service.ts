@@ -1,5 +1,6 @@
 import { DatabaseService } from "#database/service";
 import { getDateAndTime } from "#utils/date";
+import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
 
 type Event = Awaited<ReturnType<Service["findEvents"]>>[number];
@@ -43,7 +44,13 @@ export class Service {
       time,
       organizer: {
         name: organizer?.name,
-        thumbnail: organizer?.user?.avatar,
+        thumbnail: organizer?.user?.avatar?.startsWith("avatar")
+          ? imageUrl(organizer?.user?.avatar, {
+              fit: "cover",
+              width: 320,
+              height: 320,
+            })
+          : organizer?.user?.avatar,
       },
       saved: event.attendees.length > 0,
     };
