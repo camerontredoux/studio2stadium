@@ -90,13 +90,11 @@ export class Service {
       organizer: {
         name: organizer.name,
         username: organizer.user.username,
-        avatar: organizer.user.avatar?.startsWith("avatar")
-          ? imageUrl(organizer.user.avatar, {
-              fit: "cover",
-              width: 320,
-              height: 320,
-            })
-          : organizer.user.avatar,
+        avatar: imageUrl(organizer.user.avatar, {
+          fit: "cover",
+          width: 320,
+          height: 320,
+        }),
         events: organizer.otherEvents,
       },
       ...(schedule?.schedule && {

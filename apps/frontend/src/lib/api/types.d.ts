@@ -3735,6 +3735,7 @@ export interface components {
                 createdAt: string;
                 updatedAt: string;
                 userId: string;
+                thumbnail: string | null;
                 caption: string | null;
                 mediaUrl: string | null;
             }[];
@@ -3862,7 +3863,6 @@ export interface components {
             website?: string | null;
             address?: string | null;
             tags?: string[] | null;
-            cost?: string | null;
             /** @enum {string} */
             type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             location: string;
@@ -4076,6 +4076,7 @@ export interface components {
                 createdAt: string;
                 updatedAt: string;
                 userId: string;
+                thumbnail: string | null;
                 caption: string | null;
                 mediaUrl: string | null;
             }[];

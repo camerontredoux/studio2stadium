@@ -44,13 +44,11 @@ export class Service {
       time,
       organizer: {
         name: organizer?.name,
-        thumbnail: organizer?.user?.avatar?.startsWith("avatar")
-          ? imageUrl(organizer?.user?.avatar, {
-              fit: "cover",
-              width: 320,
-              height: 320,
-            })
-          : organizer?.user?.avatar,
+        thumbnail: imageUrl(organizer?.user?.avatar, {
+          fit: "cover",
+          width: 320,
+          height: 320,
+        }),
       },
       saved: event.attendees.length > 0,
     };

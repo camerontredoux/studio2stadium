@@ -1,16 +1,8 @@
-export interface Image {
-  id: string;
-  createdAt: string;
-  mediaUrl: string | null;
-  caption: string | null;
-}
+import type { ApiSchemas } from "@/lib/api/client";
 
-export interface Video {
-  id: string;
-  createdAt: string;
-  mediaId: string;
-  caption: string | null;
-}
+export type Image = ApiSchemas["DancersIdResponse"]["images"][number];
+
+export type Video = ApiSchemas["DancersIdResponse"]["videos"][number];
 
 export type MediaItem =
   | { type: "image"; data: Image }

@@ -14,5 +14,5 @@ export function imageUrl(
     .filter(Boolean)
     .join(",");
 
-  return `https://studio2stadium.com/cdn-cgi/image/${transforms}/https://images.studio2stadium.com/${key}`;
+  return `https://studio2stadium.com/cdn-cgi/image/${transforms}/https://userdata.studio2stadium.com/${key}`;
 }

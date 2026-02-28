@@ -73,13 +73,11 @@ export async function getUserSession(id: string) {
   return {
     ...user,
     profileId,
-    avatar: avatar?.startsWith("avatar")
-      ? imageUrl(avatar, {
-          fit: "cover",
-          width: 320,
-          height: 320,
-        })
-      : avatar,
+    avatar: imageUrl(avatar, {
+      fit: "cover",
+      width: 320,
+      height: 320,
+    }),
     platforms: platforms.map((platform) => platform.platformName),
   };
 }

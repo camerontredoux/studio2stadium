@@ -17,14 +17,19 @@ export class Service {
 
     const profileImages = images.map((image) => ({
       ...image,
-      mediaUrl: image.mediaUrl.startsWith("feed")
-        ? imageUrl(image.mediaUrl, { fit: "scale-down", width: 1080 })
-        : image.mediaUrl,
+      mediaUrl: imageUrl(image.mediaUrl, { fit: "scale-down", width: 1080 }),
+      thumbnail: imageUrl(image.mediaUrl, {
+        fit: "cover",
+        width: 320,
+        height: 320,
+      }),
     }));
 
-    const profilePicture = avatar?.startsWith("avatar")
-      ? imageUrl(avatar, { fit: "cover", width: 320, height: 320 })
-      : avatar;
+    const profilePicture = imageUrl(avatar, {
+      fit: "cover",
+      width: 320,
+      height: 320,
+    });
 
     return {
       ...user,

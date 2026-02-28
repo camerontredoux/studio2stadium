@@ -103,14 +103,13 @@ export class Service {
       contentType: row.content_type,
       createdAt: row.created_at,
       username: row.username,
-      avatar: row.avatar?.startsWith("avatar")
-        ? imageUrl(row.avatar, { fit: "cover", width: 100, height: 100 })
-        : row.avatar,
+      avatar: imageUrl(row.avatar, { fit: "cover", width: 100, height: 100 }),
       name: this.getDisplayName(row, type),
       caption: row.caption,
-      content: row.content?.startsWith("feed")
-        ? imageUrl(row.content, { fit: "scale-down", width: 1080 })
-        : row.content,
+      content:
+        row.content_type === "image"
+          ? imageUrl(row.content, { fit: "scale-down", width: 1080 })
+          : row.content,
     }));
   }
 

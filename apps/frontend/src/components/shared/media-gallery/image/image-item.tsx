@@ -22,7 +22,7 @@ export function ImageItem({
       <DialogTrigger>
         <div className="bg-muted group relative aspect-square cursor-pointer overflow-hidden rounded-lg">
           <img
-            src={image.mediaUrl ?? undefined}
+            src={image.thumbnail ?? undefined}
             alt={image.caption || "Gallery image"}
             className="size-full object-cover"
           />

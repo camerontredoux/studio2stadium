@@ -42,13 +42,11 @@ export class Service {
       .map((f) => ({
         id: f.dancer!.id,
         username: f.dancer!.user!.username,
-        avatar: f.dancer!.user!.avatar?.startsWith("avatar")
-          ? imageUrl(f.dancer!.user!.avatar, {
-              fit: "cover",
-              width: 100,
-              height: 100,
-            })
-          : f.dancer!.user!.avatar,
+        avatar: imageUrl(f.dancer!.user!.avatar, {
+          fit: "cover",
+          width: 100,
+          height: 100,
+        }),
         name: `${f.dancer!.user!.firstName} ${f.dancer!.user!.lastName}`,
       }));
   }
