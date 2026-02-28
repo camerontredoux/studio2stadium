@@ -1,9 +1,11 @@
 import { middleware } from "#start/kernel";
 import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
-
+const UpdateProgramController = () => import("./update-program/controller.ts");
 const UpdateFavoriteController = () =>
   import("./update-favorite/controller.ts");
+const GetSkillsController = () => import("./get-skills/controller.ts");
+const UpdateSkillsController = () => import("./update-skills/controller.ts");
 const GetFavoritesDataController = () =>
   import("./get-favorites-data/controller.ts");
 const GetFiltersController = () => import("./get-school-filters/controller.ts");
@@ -46,6 +48,10 @@ router
 
     router
       .group(() => {
+        router.patch("", [UpdateProgramController]).openapi({
+          summary: "Update my school",
+          description: "Updates the authenticated school's program information",
+        });
         router.get("followers", [GetFollowersController]).openapi({
           summary: "Get school followers",
           description: "Returns the dancers that have followed this school.",
@@ -66,6 +72,14 @@ router
         router.patch("favorites/:id", [UpdateFavoriteController]).openapi({
           summary: "Update a favorite",
           description: "Updates a favorite for the school",
+        });
+        router.get("skills", [GetSkillsController]).openapi({
+          summary: "Get school skills",
+          description: "Returns the school's skills",
+        });
+        router.patch("skills", [UpdateSkillsController]).openapi({
+          summary: "Update school skills",
+          description: "Updates the school's skills",
         });
       })
       .prefix("me")

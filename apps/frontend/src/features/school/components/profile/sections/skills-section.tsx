@@ -5,6 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Frame,
   FrameHeader,
@@ -12,6 +13,9 @@ import {
   FrameTitle,
 } from "@/components/ui/frame";
 import type { SchoolProfile } from "@/features/school/types";
+import { PlusIcon } from "lucide-react";
+import { useProfile } from "../context/use-profile";
+import { SkillsList } from "./skills-list";
 
 type Skill = SchoolProfile["skills"][number];
 
@@ -37,6 +41,7 @@ function groupByCategory(skills: Skill[]) {
 }
 
 export function SkillsSection({ skills }: SkillsSectionProps) {
+  const { showOwnerControls, username } = useProfile();
   const groups = groupByCategory(skills);
 
   return (
@@ -44,7 +49,16 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
       <FrameHeader>
         <FrameTitle className="flex items-center justify-between gap-2">
           Skills
-          <div className="h-7 w-fit sm:h-6" />
+          {showOwnerControls ? (
+            <SkillsList
+              username={username}
+              render={<Button size="icon-xs" variant="ghost" />}
+            >
+              <PlusIcon />
+            </SkillsList>
+          ) : (
+            <div className="h-7 w-fit sm:h-6" />
+          )}
         </FrameTitle>
       </FrameHeader>
       <FramePanel className="p-0!">

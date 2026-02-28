@@ -24,3 +24,16 @@ export function useUpdateEvent(username: string) {
     },
   });
 }
+
+export function useUpdateSkills(profileUsername?: string) {
+  return $api.useMutation("patch", "/schools/me/skills", {
+    meta: {
+      invalidateQueries: [
+        schoolQueries.skills().queryKey,
+        ...(profileUsername
+          ? [schoolQueries.profile(profileUsername).queryKey]
+          : []),
+      ],
+    },
+  });
+}

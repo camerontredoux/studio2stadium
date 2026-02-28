@@ -74,6 +74,10 @@ router
 
     router
       .group(() => {
+        router.patch("", [UpdatePortfolioController]).openapi({
+          summary: "Update my portfolio",
+          description: "Updates the authenticated dancer's portfolio",
+        });
         router.get("skills", [GetSkillsController]).openapi({
           summary: "Get dancer skills",
           description: "Returns the dancer's skills",
@@ -105,10 +109,6 @@ router
         router.get("following/ids", [GetFollowingIdsController]).openapi({
           summary: "Get following list IDs",
           description: "Returns the list of school's IDs I'm following",
-        });
-        router.patch("portfolio", [UpdatePortfolioController]).openapi({
-          summary: "Update my portfolio",
-          description: "Updates the authenticated dancer's portfolio",
         });
         router.get("followers", [GetFollowersController]).openapi({
           summary: "Get dancer followers",

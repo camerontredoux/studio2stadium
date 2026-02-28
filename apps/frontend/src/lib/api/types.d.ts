@@ -1337,10 +1337,6 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /**
-         * Update my portfolio
-         * @description Updates the authenticated dancer's portfolio
-         */
         patch: {
             parameters: {
                 query?: never;
