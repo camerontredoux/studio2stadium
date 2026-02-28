@@ -5,6 +5,7 @@ import { dancerStyles } from "#database/schema/styles";
 import { subscriptions } from "#database/schema/subscriptions";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
+import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
 import { and, asc, eq, exists, gte, lte, sql } from "drizzle-orm";
 import { Validator } from "./validator.ts";
@@ -79,7 +80,11 @@ export class Service {
       birthday: dancer.birthday,
       createdAt: dancer.createdAt,
       username: dancer.username,
-      avatar: dancer.avatar,
+      avatar: imageUrl(dancer.avatar, {
+        fit: "cover",
+        width: 320,
+        height: 320,
+      }),
       name: `${dancer.firstName} ${dancer.lastName}`,
       subscribed: dancer.subscribed,
       followers: dancer.followers,

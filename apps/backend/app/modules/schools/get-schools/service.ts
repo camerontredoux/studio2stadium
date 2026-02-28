@@ -2,6 +2,7 @@ import { db } from "#database/connection";
 import { danceEvents } from "#database/schema/events";
 import { follows } from "#database/schema/profiles";
 import { DatabaseService } from "#database/service";
+import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
 import { eq } from "drizzle-orm";
 import { Validator } from "./validator.ts";
@@ -63,7 +64,11 @@ export class Service {
         {
           ...schoolProfile,
           username: user.username,
-          avatar: user.avatar,
+          avatar: imageUrl(user.avatar, {
+            fit: "cover",
+            width: 320,
+            height: 320,
+          }),
         },
       ];
     });
