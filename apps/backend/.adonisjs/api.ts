@@ -227,6 +227,10 @@ type EventsIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/get-event-by-id/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/events/get-event-by-id/controller.ts').default['handle'], true>
 }
+type EventsIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/delete-event/schema.ts')['deleteEventSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/events/delete-event/controller.ts').default['handle'], true>
+}
 type EventsIdSavePost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/save-event/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/events/save-event/controller.ts').default['handle'], true>
@@ -618,6 +622,7 @@ export interface ApiDefinition {
       '$patch': EventsIdPatch;
       '$get': EventsIdGetHead;
       '$head': EventsIdGetHead;
+      '$delete': EventsIdDelete;
       'save': {
         '$url': {
         };

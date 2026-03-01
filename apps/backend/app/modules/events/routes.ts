@@ -1,9 +1,9 @@
 import { middleware } from "#start/kernel";
 import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
+const DeleteEventController = () => import("./delete-event/controller.ts");
 const EditEventController = () => import("./edit-event/controller.ts");
 const CreateEventController = () => import("./create-event/controller.ts");
-
 const GetEventByIdController = () => import("./get-event-by-id/controller.ts");
 const GetEventsController = () => import("./get-events/controller.ts");
 const GetGlobalEventsController = () =>
@@ -46,6 +46,11 @@ router
     router.get(":id", [GetEventByIdController]).openapi({
       summary: "Get event by id",
       description: "Returns details about a specific event",
+    });
+
+    router.delete(":id", [DeleteEventController]).openapi({
+      summary: "Delete event",
+      description: "Deletes a school hosted event",
     });
 
     router

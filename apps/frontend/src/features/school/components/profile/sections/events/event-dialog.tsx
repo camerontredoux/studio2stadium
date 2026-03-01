@@ -20,6 +20,7 @@ import type { SchoolEvent } from "@/features/school/types";
 import { PencilIcon, PlusIcon } from "lucide-react";
 import * as React from "react";
 import { useProfile } from "../../context/use-profile";
+import { EventDelete } from "./event-delete";
 import { EventForm, type EventFormData } from "./event-form";
 
 interface EventDialogProps {
@@ -185,6 +186,13 @@ export function EventDialog({
           />
         </DialogPanel>
         <DialogFooter>
+          {isEditMode && (
+            <EventDelete
+              eventId={event.id}
+              username={username}
+              onDeleted={() => setOpen(false)}
+            />
+          )}
           <DialogClose render={<Button variant="secondary" />}>
             Cancel
           </DialogClose>

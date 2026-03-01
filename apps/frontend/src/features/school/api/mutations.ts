@@ -25,6 +25,14 @@ export function useUpdateEvent(username: string) {
   });
 }
 
+export function useDeleteEvent(username: string) {
+  return $api.useMutation("delete", "/events/{id}", {
+    meta: {
+      invalidateQueries: [schoolQueries.profile(username).queryKey],
+    },
+  });
+}
+
 export function useUpdateSkills(profileUsername?: string) {
   return $api.useMutation("patch", "/schools/me/skills", {
     meta: {

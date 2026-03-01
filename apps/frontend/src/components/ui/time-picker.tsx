@@ -1,10 +1,10 @@
-import * as PopoverPrimitive from "@radix-ui/react-popover";
-import { VisuallyHiddenInput } from "@/components/ui/visually-hidden-input";
 import { useAsRef } from "@/components/hooks/use-as-ref";
 import { useIsomorphicLayoutEffect } from "@/components/hooks/use-isomorphic-layout-effect";
 import { useLazyRef } from "@/components/hooks/use-lazy-ref";
+import { VisuallyHiddenInput } from "@/components/ui/visually-hidden-input";
 import { cn } from "@/components/utils/cn";
 import { useComposedRefs } from "@/components/utils/compose-refs";
+import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { Slot } from "@radix-ui/react-slot";
 import { Clock } from "lucide-react";
 import * as React from "react";
@@ -713,7 +713,7 @@ function TimePickerInputGroup(props: DivProps) {
           className={
             cn(
               !unstyled &&
-                "border-input bg-background ring-ring/24 has-focus-visible:has-aria-invalid:border-destructive/64 has-focus-visible:has-aria-invalid:ring-destructive/16 has-aria-invalid:border-destructive/36 has-focus-visible:border-ring dark:bg-input/32 dark:has-aria-invalid:ring-destructive/24 relative inline-flex w-full cursor-pointer rounded-lg border bg-clip-padding text-base shadow-xs transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] has-focus-visible:ring-[3px] has-disabled:cursor-not-allowed has-disabled:opacity-64 has-[:disabled,:focus-visible,[aria-invalid]]:shadow-none sm:text-sm dark:not-in-data-[slot=group]:bg-clip-border dark:not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/8%)]",
+                "border-input bg-background ring-ring/24 has-focus-visible:has-aria-invalid:border-destructive/64 has-focus-visible:has-aria-invalid:ring-destructive/16 has-aria-invalid:border-destructive/36 has-focus-visible:border-ring dark:bg-input/32 dark:has-aria-invalid:ring-destructive/24 relative inline-flex w-full cursor-pointer rounded-lg border bg-clip-padding text-base shadow-xs transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] has-focus-visible:ring-[3px] has-disabled:cursor-not-allowed has-disabled:opacity-64 has-[:disabled,:focus-visible,[aria-invalid]]:shadow-none dark:not-in-data-[slot=group]:bg-clip-border dark:not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/8%)]",
               className,
             ) || undefined
           }
@@ -1424,7 +1424,7 @@ function TimePickerInput(props: TimePickerInputProps) {
       disabled={isDisabled}
       readOnly={isReadOnly}
       className={cn(
-        "inline-flex h-full items-center justify-center border-0 bg-transparent text-center text-sm tabular-nums transition-colors outline-none focus:bg-transparent disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex h-full items-center justify-center border-0 bg-transparent text-center tabular-nums transition-colors outline-none focus:bg-transparent disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm",
         className,
       )}
       style={{ width: segmentWidth, ...style }}
