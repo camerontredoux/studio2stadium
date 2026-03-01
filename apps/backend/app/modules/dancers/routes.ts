@@ -43,6 +43,8 @@ const UpdateSkillsController = () =>
   import("./profile/update-skills/controller.ts");
 const CreateSubmissionController = () =>
   import("./common-recruiting/create-submission/controller.ts");
+const EditSubmissionController = () =>
+  import("./common-recruiting/edit-submission/controller.ts");
 const GetChecklistController = () =>
   import("./profile/get-profile-checklist/controller.ts");
 const CreateReferenceController = () =>
@@ -133,6 +135,11 @@ router
           summary: "Create a CRV submission",
           description:
             "Creates a common recruiting video submission for the authenticated dancer",
+        });
+        router.patch("video", [EditSubmissionController]).openapi({
+          summary: "Edit the dancer's submission video",
+          description:
+            "Updates the YouTube URL for the dancer's common recruiting video",
         });
         router.get("schools", [GetSubmissionSchoolsController]).openapi({
           summary: "Get schools that the dancer has not submitted to",

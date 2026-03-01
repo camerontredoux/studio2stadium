@@ -1251,28 +1251,6 @@
         "description": "Creates a common recruiting video submission for the authenticated dancer"
       }
     },
-    "/dancers/submissions/schools": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DancersSubmissionsSchoolsResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Dancers"
-        ],
-        "summary": "Get schools that the dancer has not submitted to",
-        "description": "Returns the schools that the dancer has not submitted to"
-      }
-    },
     "/dancers/submissions/video": {
       "get": {
         "parameters": [],
@@ -1293,6 +1271,59 @@
         ],
         "summary": "Get the dancer's submission video",
         "description": "Returns the dancer's submission video"
+      },
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DancersSubmissionsVideoRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Edit the dancer's submission video",
+        "description": "Updates the YouTube URL for the dancer's common recruiting video"
+      }
+    },
+    "/dancers/submissions/schools": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersSubmissionsSchoolsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Get schools that the dancer has not submitted to",
+        "description": "Returns the schools that the dancer has not submitted to"
       }
     },
     "/dancers/{username}": {
@@ -4550,6 +4581,28 @@
           "videoId"
         ]
       },
+      "DancersSubmissionsVideoResponse": {
+        "type": "object",
+        "properties": {
+          "youtubeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "youtubeId"
+        ]
+      },
+      "DancersSubmissionsVideoRequest": {
+        "type": "object",
+        "properties": {
+          "videoId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "videoId"
+        ]
+      },
       "DancersSubmissionsSchoolsResponse": {
         "type": "array",
         "items": {
@@ -4586,17 +4639,6 @@
             "location"
           ]
         }
-      },
-      "DancersSubmissionsVideoResponse": {
-        "type": "object",
-        "properties": {
-          "youtubeId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "youtubeId"
-        ]
       },
       "DancersIdResponse": {
         "type": "object",

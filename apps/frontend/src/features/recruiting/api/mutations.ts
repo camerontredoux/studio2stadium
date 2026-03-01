@@ -11,3 +11,11 @@ export function useSubmitVideo() {
     },
   });
 }
+
+export function useEditSubmission() {
+  return $api.useMutation("patch", "/dancers/submissions/video", {
+    meta: {
+      invalidateQueries: [recruitingQueries.submission().queryKey],
+    },
+  });
+}

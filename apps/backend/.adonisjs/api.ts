@@ -155,6 +155,10 @@ type DancersSubmissionsPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/common-recruiting/create-submission/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/common-recruiting/create-submission/controller.ts').default['handle'], true>
 }
+type DancersSubmissionsVideoPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/common-recruiting/edit-submission/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/common-recruiting/edit-submission/controller.ts').default['handle'], true>
+}
 type DancersSubmissionsSchoolsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/common-recruiting/get-submission-schools/controller.ts').default['handle'], false>
@@ -544,17 +548,18 @@ export interface ApiDefinition {
       '$get': DancersSubmissionsGetHead;
       '$head': DancersSubmissionsGetHead;
       '$post': DancersSubmissionsPost;
+      'video': {
+        '$url': {
+        };
+        '$patch': DancersSubmissionsVideoPatch;
+        '$get': DancersSubmissionsVideoGetHead;
+        '$head': DancersSubmissionsVideoGetHead;
+      };
       'schools': {
         '$url': {
         };
         '$get': DancersSubmissionsSchoolsGetHead;
         '$head': DancersSubmissionsSchoolsGetHead;
-      };
-      'video': {
-        '$url': {
-        };
-        '$get': DancersSubmissionsVideoGetHead;
-        '$head': DancersSubmissionsVideoGetHead;
       };
     };
     ':username': {
