@@ -3,9 +3,8 @@ import { type Infer } from "@vinejs/vine/types";
 
 export const submitApplicationSchema = vine.create(
   vine.object({
-    idType: vine.string(),
     mediaId: vine.string(),
-    location: vine.string(),
+    phone: vine.string(),
   })
 );
 

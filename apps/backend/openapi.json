@@ -3226,9 +3226,6 @@
           "updatedAt": {
             "type": "string"
           },
-          "location": {
-            "type": "string"
-          },
           "schoolId": {
             "type": "string"
           },
@@ -3241,9 +3238,6 @@
             ]
           },
           "mediaId": {
-            "type": "string"
-          },
-          "idType": {
             "type": "string"
           },
           "notes": {
@@ -3261,37 +3255,51 @@
           "id",
           "createdAt",
           "updatedAt",
-          "location",
           "schoolId",
           "status",
           "mediaId",
-          "idType",
           "notes"
         ]
       },
       "ApplicationRequest": {
         "type": "object",
         "properties": {
-          "location": {
+          "phone": {
             "type": "string"
           },
           "mediaId": {
             "type": "string"
-          },
-          "idType": {
-            "type": "string"
           }
         },
         "required": [
-          "location",
-          "mediaId",
-          "idType"
+          "phone",
+          "mediaId"
         ]
       },
       "AuthSignupRequest": {
         "type": "object",
         "properties": {
           "phone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "location": {
             "oneOf": [
               {
                 "type": "string"
@@ -6010,6 +6018,7 @@
           "type": {
             "type": "string",
             "enum": [
+              "id",
               "avatar",
               "feed"
             ]

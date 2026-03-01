@@ -1,5 +1,6 @@
 import { useAnchoredErrorToast } from "@/components/hooks/use-anchored-error-toast";
 import { useCountdown } from "@/components/hooks/use-countdown";
+import LocationSelect from "@/components/shared/location-select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -9,20 +10,22 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { handleApiError } from "@/lib/api/errors";
+import { MAX_PASSWORD_LENGTH } from "@/lib/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useParams, useSearch } from "@tanstack/react-router";
 import { useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { useSignup } from "../api/mutations";
-import { MAX_PASSWORD_LENGTH } from "@/lib/schemas";
 import { MAX_NAME_LENGTH, schemas } from "../api/schemas";
 
 type SignupSchema = z.infer<typeof schemas.signup>;
 
 export function SignupForm() {
   const { type } = useParams({ from: "/_auth/(routes)/signup/$type" });
-  const { username } = useSearch({ from: "/_auth/(routes)/signup/$type" });
+  const { username, schoolName } = useSearch({
+    from: "/_auth/(routes)/signup/$type",
+  });
 
   const { mutate, isPending } = useSignup();
 
@@ -41,17 +44,20 @@ export function SignupForm() {
       username,
       phone: "",
       password: "",
+      name: schoolName,
+      location: "",
       termsChecked: false,
     },
   });
 
   const termsChecked = useWatch({ control, name: "termsChecked" });
+  const name = useWatch({ control, name: "name" });
 
   const onSubmit = async (data: SignupSchema) => {
     if (!submitRef.current || isPending) return;
 
     mutate(
-      { body: data },
+      { body: { ...data, name } },
       {
         onError: handleApiError({
           onRateLimit(retryAfter) {
@@ -78,16 +84,28 @@ export function SignupForm() {
     >
       <Frame className="gap-2">
         <FramePanel className="flex flex-col gap-3">
-          <div className="bg-accent/30 hover:bg-accent/50 border-border flex items-center justify-between rounded-lg border px-3 py-2 transition-colors">
-            <span className="text-muted-foreground text-xs">Signing up as</span>
-            <Badge
-              variant="brand"
-              size="sm"
-              className="rounded-full"
-              render={<Link to="/signup" />}
-            >
-              @{username}
-            </Badge>
+          <div className="bg-accent/30 hover:bg-accent/50 border-border min-x-0 flex items-center justify-between rounded-lg border px-3 py-2 transition-colors">
+            <span className="text-muted-foreground truncate text-xs">
+              {type === "school" ? (
+                <Controller
+                  control={control}
+                  name="name"
+                  render={({ field }) => <span>{field.value}</span>}
+                />
+              ) : (
+                <>
+                  <span>Signing up as</span>
+                  <Badge
+                    variant="brand"
+                    size="sm"
+                    className="rounded-full"
+                    render={<Link to="/signup" />}
+                  >
+                    @{username}
+                  </Badge>
+                </>
+              )}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <Controller
@@ -124,6 +142,23 @@ export function SignupForm() {
               </Field>
             )}
           />
+
+          {type === "school" && (
+            <Controller
+              control={control}
+              name="location"
+              render={({ field, fieldState }) => (
+                <Field name={field.name} invalid={fieldState.invalid}>
+                  <FieldLabel>Location</FieldLabel>
+                  <LocationSelect
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                  <FieldError error={fieldState.error} />
+                </Field>
+              )}
+            />
+          )}
 
           <Controller
             control={control}

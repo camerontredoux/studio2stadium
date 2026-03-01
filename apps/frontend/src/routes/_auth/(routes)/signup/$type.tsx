@@ -15,8 +15,11 @@ export const Route = createFileRoute("/_auth/(routes)/signup/$type")({
     },
     stringify: ({ type }) => ({ type }),
   },
-  beforeLoad: ({ search }) => {
+  beforeLoad: ({ search, params }) => {
     if (!search.username) {
+      throw redirect({ to: "/signup" });
+    }
+    if (params.type === "school" && !search.schoolName) {
       throw redirect({ to: "/signup" });
     }
   },

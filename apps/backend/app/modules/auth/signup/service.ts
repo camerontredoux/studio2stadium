@@ -1,3 +1,4 @@
+import { schoolProfiles } from "#database/schema/schools";
 import { platforms, users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
 import { normalizeEmail } from "#utils/normalize-email";
@@ -49,6 +50,18 @@ export class Service {
         platformName: "core",
         userId: user.id,
       });
+
+      if (input.type === "school") {
+        if (!input.name || !input.location) {
+          throw new Error("Cannot create school without name or location");
+        }
+
+        await tx.insert(schoolProfiles).values({
+          userId: user.id,
+          name: input.name,
+          location: input.location,
+        });
+      }
 
       return user;
     });

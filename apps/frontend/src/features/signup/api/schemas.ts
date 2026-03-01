@@ -18,6 +18,7 @@ export const schemas = {
     redirect: z.string().optional(),
     reason: z.string().optional(),
     username: z.string(),
+    schoolName: z.string().optional(),
   }),
 
   signup: z.object({
@@ -29,6 +30,8 @@ export const schemas = {
     phone: z.string().optional(),
     password: passwordSchema,
     termsChecked: z.boolean(),
+    name: z.string().optional(),
+    location: z.string().optional(),
   }),
 
   available: z.object({

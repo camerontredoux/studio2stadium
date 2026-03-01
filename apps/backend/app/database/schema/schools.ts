@@ -55,10 +55,8 @@ export const schoolApplications = pg.pgTable("school_applications", {
     .notNull()
     .unique()
     .references(() => schoolProfiles.id, { onDelete: "cascade" }),
-  idType: pg.text().notNull(),
   mediaId: pg.text().notNull(),
   status: schoolApplicationStatus().notNull().default("pending"),
-  location: pg.text().notNull(),
   notes: pg.text(),
   ...timestamps,
 });

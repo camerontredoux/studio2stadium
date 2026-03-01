@@ -8,7 +8,7 @@ export default class SubmitApplicationController {
   async handle(ctx: HttpContext, service: SubmitApplicationService) {
     const payload = await ctx.request.validateUsing(submitApplicationSchema);
 
-    await service.execute(ctx.session.profileId, payload);
+    await service.execute(ctx.session.profileId, ctx.session.id, payload);
 
     return ctx.response.noContent();
   }

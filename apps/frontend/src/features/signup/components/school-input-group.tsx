@@ -54,7 +54,7 @@ export function SchoolInputGroup() {
     navigate({
       to: "/signup/$type",
       params: { type: "school" },
-      search: { username: slugify(schoolName) },
+      search: { username: slugify(schoolName), schoolName },
     });
   };
 

@@ -3818,21 +3818,20 @@ export interface components {
             id: string;
             createdAt: string;
             updatedAt: string;
-            location: string;
             schoolId: string;
             /** @enum {string} */
             status: "pending" | "accepted" | "rejected";
             mediaId: string;
-            idType: string;
             notes: string | null;
         };
         ApplicationRequest: {
-            location: string;
+            phone: string;
             mediaId: string;
-            idType: string;
         };
         AuthSignupRequest: {
             phone?: string | null;
+            name?: string | null;
+            location?: string | null;
             email: string;
             username: string;
             /** @enum {string} */

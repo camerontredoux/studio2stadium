@@ -2,7 +2,7 @@ import { accountType } from "#database/schema/enums";
 import vine, { SimpleMessagesProvider } from "@vinejs/vine";
 import { type Infer } from "@vinejs/vine/types";
 
-const blacklist = [
+export const blacklist = [
   // Roles & access levels
   "admin",
   "administrator",
@@ -100,6 +100,8 @@ export const validator = vine.create(
     lastName: vine.string().trim().minLength(2).maxLength(64),
     phone: vine.string().mobile().optional(),
     termsChecked: vine.literal(true),
+    name: vine.string().minLength(2).maxLength(100).trim().optional(),
+    location: vine.string().optional(),
   })
 );
 
