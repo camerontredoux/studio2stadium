@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -97,16 +98,24 @@ function FavoriteCard({
     >
       <CardHeader className="gap-2 pb-0">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex flex-col text-base">
-            {favorite.name}
-            <Link
-              to={"/$username"}
-              params={{ username: favorite.username }}
-              className="text-muted-foreground flex items-center gap-1 text-sm hover:underline"
-            >
-              {favorite.username}{" "}
-              <ExternalLinkIcon className="size-3 shrink-0" />
-            </Link>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Avatar className="size-9">
+              <AvatarImage src={favorite.avatar ?? undefined} />
+              <AvatarFallback>
+                {favorite.name.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              {favorite.name}
+              <Link
+                to={"/$username"}
+                params={{ username: favorite.username }}
+                className="text-muted-foreground flex items-center gap-1 text-sm hover:underline"
+              >
+                {favorite.username}{" "}
+                <ExternalLinkIcon className="size-3 shrink-0" />
+              </Link>
+            </div>
           </CardTitle>
           <CardDescription title={formatDate(favorite.createdAt)}>
             {dateToRelativeTime(favorite.createdAt)}
@@ -139,17 +148,25 @@ const columns: ColumnDef<Favorite>[] = [
   {
     accessorKey: "username",
     cell: ({ row }) => (
-      <div className="flex flex-col">
-        <span className="truncate font-medium">{row.original.name}</span>
-        <Link
-          to={"/$username"}
-          params={{ username: row.original.username }}
-          className="text-muted-foreground flex items-center gap-1 truncate text-sm hover:underline"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {row.original.username}
-          <ExternalLinkIcon className="size-3 shrink-0" />
-        </Link>
+      <div className="flex items-center gap-2">
+        <Avatar>
+          <AvatarImage src={row.original.avatar ?? undefined} />
+          <AvatarFallback>
+            {row.original.username.slice(0, 2).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col">
+          <span className="truncate font-medium">{row.original.name}</span>
+          <Link
+            to={"/$username"}
+            params={{ username: row.original.username }}
+            className="text-muted-foreground flex items-center gap-1 truncate text-sm hover:underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {row.original.username}
+            <ExternalLinkIcon className="size-3 shrink-0" />
+          </Link>
+        </div>
       </div>
     ),
     header: "Dancer",
@@ -305,37 +322,92 @@ export function FavoritesTable() {
                 onClick={() => handleRowClick(favorite)}
               />
             ))}
-            <div className="flex items-center justify-between gap-2 pt-2">
-              <p className="text-muted-foreground text-sm">
-                {table.getState().pagination.pageIndex *
-                  table.getState().pagination.pageSize +
-                  1}
-                -
-                {Math.min(
-                  (table.getState().pagination.pageIndex + 1) *
-                    table.getState().pagination.pageSize,
-                  table.getRowCount(),
-                )}{" "}
-                of {table.getRowCount()}
-              </p>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={!table.getCanPreviousPage()}
-                  onClick={() => table.previousPage()}
+            <div className="flex items-center justify-between gap-2">
+              {/* Results range selector */}
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <p className="text-muted-foreground text-sm">Viewing</p>
+                <Select
+                  items={Array.from(
+                    { length: table.getPageCount() },
+                    (_, i) => {
+                      const start =
+                        i * table.getState().pagination.pageSize + 1;
+                      const end = Math.min(
+                        (i + 1) * table.getState().pagination.pageSize,
+                        table.getRowCount(),
+                      );
+                      const pageNum = i + 1;
+                      return { label: `${start}-${end}`, value: pageNum };
+                    },
+                  )}
+                  onValueChange={(value) => {
+                    table.setPageIndex((value as number) - 1);
+                  }}
+                  value={table.getState().pagination.pageIndex + 1}
                 >
-                  Previous
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={!table.getCanNextPage()}
-                  onClick={() => table.nextPage()}
-                >
-                  Next
-                </Button>
+                  <SelectTrigger
+                    aria-label="Select result range"
+                    className="min-w-none w-fit"
+                    size="sm"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectPopup>
+                    {Array.from({ length: table.getPageCount() }, (_, i) => {
+                      const start =
+                        i * table.getState().pagination.pageSize + 1;
+                      const end = Math.min(
+                        (i + 1) * table.getState().pagination.pageSize,
+                        table.getRowCount(),
+                      );
+                      const pageNum = i + 1;
+                      return (
+                        <SelectItem key={pageNum} value={pageNum}>
+                          {`${start}-${end}`}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectPopup>
+                </Select>
+                <p className="text-muted-foreground text-sm">
+                  of{" "}
+                  <strong className="text-foreground font-medium">
+                    {table.getRowCount()}
+                  </strong>{" "}
+                  results
+                </p>
               </div>
+              {/* Pagination */}
+              <Pagination className="justify-end">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      className="sm:*:[svg]:hidden"
+                      render={
+                        <Button
+                          disabled={!table.getCanPreviousPage()}
+                          onClick={() => table.previousPage()}
+                          size="sm"
+                          variant="outline"
+                        />
+                      }
+                    />
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationNext
+                      className="sm:*:[svg]:hidden"
+                      render={
+                        <Button
+                          disabled={!table.getCanNextPage()}
+                          onClick={() => table.nextPage()}
+                          size="sm"
+                          variant="outline"
+                        />
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </div>
           </>
         ) : (
@@ -347,7 +419,7 @@ export function FavoritesTable() {
 
       {/* Desktop Table View */}
       <Frame className="hidden w-full sm:block">
-        <Table className="table-fixed">
+        <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow className="hover:bg-transparent" key={headerGroup.id}>

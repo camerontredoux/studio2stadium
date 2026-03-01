@@ -1,4 +1,5 @@
 import { DatabaseService } from "#database/service";
+import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
 
 @inject()
@@ -23,6 +24,7 @@ export class Service {
             with: {
               user: {
                 columns: {
+                  avatar: true,
                   username: true,
                   firstName: true,
                   lastName: true,
@@ -46,6 +48,11 @@ export class Service {
           lastContacted: f.lastContacted,
           createdAt: f.createdAt,
           username: f.dancer.user.username,
+          avatar: imageUrl(f.dancer.user.avatar, {
+            fit: "cover",
+            width: 100,
+            height: 100,
+          }),
           name: `${f.dancer.user.firstName} ${f.dancer.user.lastName}`,
         },
       ];

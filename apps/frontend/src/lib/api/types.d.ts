@@ -4361,6 +4361,7 @@ export interface components {
             username: string;
             name: string;
             id: string;
+            avatar: string | null;
             createdAt: string;
             /** @enum {string} */
             platformName: "prodigy" | "core";
