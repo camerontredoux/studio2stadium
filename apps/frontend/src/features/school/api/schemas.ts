@@ -16,11 +16,6 @@ export const schemas = {
     missionStatement: z.string().optional(),
     whatWeDo: z.string().optional(),
     benefits: z.string().optional(),
-    teamSelection: z.enum(["recruitment", "audition", "hybrid"]).optional(),
-    competitiveCircuit: z
-      .enum(["uda", "dtu", "nda", "usa", "non-competitive", "other"])
-      .optional(),
-    division: z.string().nullable().optional(),
   }),
 
   updateContact: z.object({
@@ -37,6 +32,11 @@ export const schemas = {
     headCoach: z.string().optional(),
     assistantCoach: z.string().optional(),
     commonRecruiting: z.boolean().optional(),
+    teamSelection: z.enum(["recruitment", "audition", "hybrid"]).optional(),
+    competitiveCircuit: z
+      .enum(["uda", "dtu", "nda", "usa", "non-competitive", "other"])
+      .optional(),
+    division: z.string().nullable().optional(),
   }),
 
   createEvent: z
