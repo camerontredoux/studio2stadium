@@ -4,6 +4,7 @@ import { z } from "zod";
 
 export const MAX_NAME_LENGTH = 64;
 export const MAX_USERNAME_LENGTH = 32;
+export const MAX_SCHOOL_NAME_LENGTH = 100;
 
 export const accountTypeSchema = z.enum([
   "dancer",
@@ -34,5 +35,14 @@ export const schemas = {
     username: z.string().regex(/^[a-zA-Z0-9_]+$/, {
       error: "Username must be alphanumeric",
     }),
+  }),
+
+  schoolAvailable: z.object({
+    schoolName: z
+      .string()
+      .max(MAX_SCHOOL_NAME_LENGTH)
+      .regex(/^[a-zA-Z][a-zA-Z -]*[a-zA-Z]$/, {
+        error: "Only letters and hyphens allowed",
+      }),
   }),
 } as const;

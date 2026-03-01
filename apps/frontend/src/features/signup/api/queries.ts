@@ -14,4 +14,18 @@ export const queries = {
       },
     );
   },
+
+  schoolAvailable: (schoolName: string) => {
+    return $api.queryOptions(
+      "get",
+      "/schools/check-availability",
+      {
+        params: { query: { schoolName } },
+      },
+      {
+        enabled: schoolName.length >= 2,
+        staleTime: 1000 * 10,
+      },
+    );
+  },
 };

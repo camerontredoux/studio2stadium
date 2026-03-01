@@ -1,8 +1,6 @@
 import { middleware } from "#start/kernel";
 import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
-const SubmitApplicationController = () =>
-  import("../applications/submit-application/controller.ts");
 const UpdateProgramController = () => import("./update-program/controller.ts");
 const UpdateFavoriteController = () =>
   import("./update-favorite/controller.ts");
@@ -28,6 +26,21 @@ const GetRecommendedProgramsController = () =>
   import("./get-recommended-programs/controller.ts");
 const GetFollowingIdsController = () =>
   import("./get-following-ids/controller.ts");
+const CheckSchoolAvailabilityController = () =>
+  import("./check-name-availability/controller.ts");
+
+router
+  .group(() => {
+    router
+      .get("check-availability", [CheckSchoolAvailabilityController])
+      .openapi({
+        summary: "Check school name availability",
+        description: "Checks if a school name is available for registration.",
+      })
+      .use(throttle("check-school-availability", 20));
+  })
+  .prefix("schools")
+  .openapi({ tags: ["Schools"] });
 
 router
   .group(() => {

@@ -2657,6 +2657,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/schools/check-availability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Check school name availability
+         * @description Checks if a school name is available for registration.
+         */
+        get: {
+            parameters: {
+                query: {
+                    schoolName: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsCheckavailabilityResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/schools/filters": {
         parameters: {
             query?: never;
@@ -4306,6 +4356,9 @@ export interface components {
             events: number;
             followers: number;
         }[];
+        SchoolsCheckavailabilityResponse: {
+            available: boolean;
+        };
         SchoolsFiltersResponse: {
             id: string;
             /** @enum {string} */

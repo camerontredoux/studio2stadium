@@ -251,6 +251,10 @@ type ImagesIdDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/images/delete-image/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/images/delete-image/controller.ts').default['handle'], true>
 }
+type SchoolsCheckavailabilityGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/check-name-availability/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/check-name-availability/controller.ts').default['handle'], true>
+}
 type SchoolsFiltersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/schools/get-school-filters/controller.ts').default['handle'], false>
@@ -651,6 +655,12 @@ export interface ApiDefinition {
     };
   };
   'schools': {
+    'check-availability': {
+      '$url': {
+      };
+      '$get': SchoolsCheckavailabilityGetHead;
+      '$head': SchoolsCheckavailabilityGetHead;
+    };
     'filters': {
       '$url': {
       };

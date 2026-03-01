@@ -2290,6 +2290,47 @@
         "description": "Returns a list of schools"
       }
     },
+    "/schools/check-availability": {
+      "get": {
+        "parameters": [
+          {
+            "name": "schoolName",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsCheckavailabilityResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Check school name availability",
+        "description": "Checks if a school name is available for registration."
+      }
+    },
     "/schools/filters": {
       "get": {
         "parameters": [],
@@ -6078,6 +6119,17 @@
             "followers"
           ]
         }
+      },
+      "SchoolsCheckavailabilityResponse": {
+        "type": "object",
+        "properties": {
+          "available": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "available"
+        ]
       },
       "SchoolsFiltersResponse": {
         "type": "array",
