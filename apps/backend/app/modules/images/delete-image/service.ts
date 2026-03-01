@@ -27,13 +27,9 @@ export class DeleteProfileImageService {
       return { error: "Image not found" };
     }
 
-    if (image.mediaUrl.startsWith("feed")) {
-      const exists = await disk.exists(image.mediaUrl);
+    const exists = await disk.exists(image.mediaUrl);
 
-      if (!exists) {
-        return { error: "File not found" };
-      }
-
+    if (exists) {
       try {
         await disk.delete(image.mediaUrl);
       } catch (e) {
