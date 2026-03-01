@@ -45,3 +45,29 @@ export function useUpdateProgram(username: string) {
     },
   });
 }
+
+export function useUpdateStyles(profileUsername?: string) {
+  return $api.useMutation("patch", "/schools/me/styles", {
+    meta: {
+      invalidateQueries: [
+        schoolQueries.styles().queryKey,
+        ...(profileUsername
+          ? [schoolQueries.profile(profileUsername).queryKey]
+          : []),
+      ],
+    },
+  });
+}
+
+export function useUpdateSports(profileUsername?: string) {
+  return $api.useMutation("patch", "/schools/me/sports", {
+    meta: {
+      invalidateQueries: [
+        schoolQueries.sports().queryKey,
+        ...(profileUsername
+          ? [schoolQueries.profile(profileUsername).queryKey]
+          : []),
+      ],
+    },
+  });
+}

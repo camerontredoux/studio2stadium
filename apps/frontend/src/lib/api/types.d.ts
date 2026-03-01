@@ -3035,6 +3035,152 @@ export interface paths {
         };
         trace?: never;
     };
+    "/schools/me/styles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get school styles
+         * @description Returns the school's styles
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsMeStylesResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update school styles
+         * @description Updates the school's styles
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SchoolsMeStylesRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/schools/me/sports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get school sports
+         * @description Returns the school's sports
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsMeSportsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update school sports
+         * @description Updates the school's sports
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SchoolsMeSportsRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/schools/{username}": {
         parameters: {
             query?: never;
@@ -3813,8 +3959,8 @@ export interface components {
         };
         DancersSubmissionsResponse: {
             school: {
-                username: string;
                 avatar: string | null;
+                username: string;
                 name: string;
                 id: string;
                 location: string;
@@ -4009,6 +4155,7 @@ export interface components {
             };
         }[];
         EventsGlobalResponse: {
+            thumbnail: string | null;
             startTime: string;
             endTime: string;
             startDate: string;
@@ -4022,7 +4169,6 @@ export interface components {
             website: string;
             title: string;
             description: string;
-            thumbnail: string;
             organization: string;
             eventAttendees: number;
         }[];
@@ -4199,6 +4345,18 @@ export interface components {
         }[];
         SchoolsMeSkillsRequest: {
             skills: string[];
+        };
+        SchoolsMeStylesResponse: {
+            styleId: string;
+        }[];
+        SchoolsMeStylesRequest: {
+            styles: string[];
+        };
+        SchoolsMeSportsResponse: {
+            sportId: string;
+        }[];
+        SchoolsMeSportsRequest: {
+            sports: string[];
         };
         SchoolsIdResponse: {
             events: {

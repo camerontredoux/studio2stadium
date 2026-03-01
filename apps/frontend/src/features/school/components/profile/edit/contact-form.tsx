@@ -20,7 +20,6 @@ export function ContactForm({ username, onSubmit }: ContactFormProps) {
   const form = useForm<ContactFormData>({
     resolver: zodResolver(schemas.updateContact),
     defaultValues: {
-      displayEmail: data.displayEmail ?? "",
       website: data.website ?? "",
       instagram: data.instagram ?? "",
       tiktok: data.tiktok ?? "",
@@ -36,22 +35,15 @@ export function ContactForm({ username, onSubmit }: ContactFormProps) {
       >
         <Controller
           control={form.control}
-          name="displayEmail"
-          render={({ field, fieldState }) => (
-            <Field name={field.name} invalid={fieldState.invalid}>
-              <FieldLabel>Email</FieldLabel>
-              <Input type="email" placeholder="contact@school.edu" {...field} />
-              <FieldError error={fieldState.error} />
-            </Field>
-          )}
-        />
-        <Controller
-          control={form.control}
           name="website"
           render={({ field, fieldState }) => (
             <Field name={field.name} invalid={fieldState.invalid}>
               <FieldLabel>Website</FieldLabel>
-              <Input type="url" placeholder="https://school.edu/dance" {...field} />
+              <Input
+                type="url"
+                placeholder="https://school.edu/dance"
+                {...field}
+              />
               <FieldError error={fieldState.error} />
             </Field>
           )}

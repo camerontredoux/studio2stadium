@@ -2523,6 +2523,112 @@
         "description": "Updates the school's skills"
       }
     },
+    "/schools/me/styles": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsMeStylesResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Get school styles",
+        "description": "Returns the school's styles"
+      },
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolsMeStylesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Update school styles",
+        "description": "Updates the school's styles"
+      }
+    },
+    "/schools/me/sports": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsMeSportsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Get school sports",
+        "description": "Returns the school's sports"
+      },
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolsMeSportsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Update school sports",
+        "description": "Updates the school's sports"
+      }
+    },
     "/schools/{username}": {
       "get": {
         "parameters": [
@@ -4172,9 +4278,6 @@
             "school": {
               "type": "object",
               "properties": {
-                "username": {
-                  "type": "string"
-                },
                 "avatar": {
                   "oneOf": [
                     {
@@ -4184,6 +4287,9 @@
                       "type": "null"
                     }
                   ]
+                },
+                "username": {
+                  "type": "string"
                 },
                 "name": {
                   "type": "string"
@@ -4196,8 +4302,8 @@
                 }
               },
               "required": [
-                "username",
                 "avatar",
+                "username",
                 "name",
                 "id",
                 "location"
@@ -5283,6 +5389,16 @@
         "items": {
           "type": "object",
           "properties": {
+            "thumbnail": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "startTime": {
               "type": "string"
             },
@@ -5338,9 +5454,6 @@
             "description": {
               "type": "string"
             },
-            "thumbnail": {
-              "type": "string"
-            },
             "organization": {
               "type": "string"
             },
@@ -5349,6 +5462,7 @@
             }
           },
           "required": [
+            "thumbnail",
             "startTime",
             "endTime",
             "startDate",
@@ -5361,7 +5475,6 @@
             "website",
             "title",
             "description",
-            "thumbnail",
             "organization",
             "eventAttendees"
           ]
@@ -6461,6 +6574,62 @@
         },
         "required": [
           "skills"
+        ]
+      },
+      "SchoolsMeStylesResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "styleId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "styleId"
+          ]
+        }
+      },
+      "SchoolsMeStylesRequest": {
+        "type": "object",
+        "properties": {
+          "styles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "styles"
+        ]
+      },
+      "SchoolsMeSportsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "sportId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "sportId"
+          ]
+        }
+      },
+      "SchoolsMeSportsRequest": {
+        "type": "object",
+        "properties": {
+          "sports": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "sports"
         ]
       },
       "SchoolsIdResponse": {

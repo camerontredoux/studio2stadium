@@ -17,4 +17,6 @@ export const schoolQueries = {
   followers: () => $api.queryOptions("get", "/schools/me/followers"),
   following: () => $api.queryOptions("get", "/schools/me/following"),
   skills: () => $api.queryOptions("get", "/schools/me/skills"),
+  styles: () => $api.queryOptions("get", "/schools/me/styles"),
+  sports: () => $api.queryOptions("get", "/schools/me/sports"),
 };

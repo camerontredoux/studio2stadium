@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,8 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { schoolQueries } from "../../../api/queries";
 import { schemas } from "../../../api/schemas";
+import { SportsList } from "../sports-list";
+import { StylesList } from "../styles-list";
 
 export type TeamFormData = z.infer<typeof schemas.updateTeam>;
 
@@ -267,6 +270,38 @@ export function TeamForm({ username, onSubmit }: TeamFormProps) {
             </Field>
           )}
         />
+        <div className="grid grid-cols-2 gap-3">
+          <Field name="styles">
+            <FieldLabel>Styles</FieldLabel>
+            <StylesList
+              username={username}
+              render={
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start"
+                >
+                  Select styles
+                </Button>
+              }
+            />
+          </Field>
+          <Field name="sports">
+            <FieldLabel>Sports</FieldLabel>
+            <SportsList
+              username={username}
+              render={
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start"
+                >
+                  Select sports
+                </Button>
+              }
+            />
+          </Field>
+        </div>
       </form>
     </FormProvider>
   );

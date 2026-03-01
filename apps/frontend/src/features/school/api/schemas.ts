@@ -19,8 +19,7 @@ export const schemas = {
   }),
 
   updateContact: z.object({
-    displayEmail: z.string().email("Must be a valid email").optional().or(z.literal("")),
-    website: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+    website: z.url("Must be a valid URL").optional().or(z.literal("")),
     instagram: z.string().optional(),
     tiktok: z.string().optional(),
   }),

@@ -291,6 +291,22 @@ type SchoolsMeSkillsPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/update-skills/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/schools/update-skills/controller.ts').default['handle'], true>
 }
+type SchoolsMeStylesGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/schools/get-styles/controller.ts').default['handle'], false>
+}
+type SchoolsMeStylesPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/update-styles/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/update-styles/controller.ts').default['handle'], true>
+}
+type SchoolsMeSportsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/schools/get-sports/controller.ts').default['handle'], false>
+}
+type SchoolsMeSportsPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/update-sports/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/update-sports/controller.ts').default['handle'], true>
+}
 type SchoolsIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/schools/get-school/controller.ts').default['handle'], true>
@@ -685,6 +701,20 @@ export interface ApiDefinition {
         '$get': SchoolsMeSkillsGetHead;
         '$head': SchoolsMeSkillsGetHead;
         '$patch': SchoolsMeSkillsPatch;
+      };
+      'styles': {
+        '$url': {
+        };
+        '$get': SchoolsMeStylesGetHead;
+        '$head': SchoolsMeStylesGetHead;
+        '$patch': SchoolsMeStylesPatch;
+      };
+      'sports': {
+        '$url': {
+        };
+        '$get': SchoolsMeSportsGetHead;
+        '$head': SchoolsMeSportsGetHead;
+        '$patch': SchoolsMeSportsPatch;
       };
     };
     ':username': {

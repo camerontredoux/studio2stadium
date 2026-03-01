@@ -6,6 +6,10 @@ const UpdateFavoriteController = () =>
   import("./update-favorite/controller.ts");
 const GetSkillsController = () => import("./get-skills/controller.ts");
 const UpdateSkillsController = () => import("./update-skills/controller.ts");
+const GetStylesController = () => import("./get-styles/controller.ts");
+const UpdateStylesController = () => import("./update-styles/controller.ts");
+const GetSportsController = () => import("./get-sports/controller.ts");
+const UpdateSportsController = () => import("./update-sports/controller.ts");
 const GetFavoritesDataController = () =>
   import("./get-favorites-data/controller.ts");
 const GetFiltersController = () => import("./get-school-filters/controller.ts");
@@ -80,6 +84,22 @@ router
         router.patch("skills", [UpdateSkillsController]).openapi({
           summary: "Update school skills",
           description: "Updates the school's skills",
+        });
+        router.get("styles", [GetStylesController]).openapi({
+          summary: "Get school styles",
+          description: "Returns the school's styles",
+        });
+        router.patch("styles", [UpdateStylesController]).openapi({
+          summary: "Update school styles",
+          description: "Updates the school's styles",
+        });
+        router.get("sports", [GetSportsController]).openapi({
+          summary: "Get school sports",
+          description: "Returns the school's sports",
+        });
+        router.patch("sports", [UpdateSportsController]).openapi({
+          summary: "Update school sports",
+          description: "Updates the school's sports",
         });
       })
       .prefix("me")
