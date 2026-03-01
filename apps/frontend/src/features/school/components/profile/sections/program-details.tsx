@@ -11,31 +11,36 @@ import {
   FrameTitle,
 } from "@/components/ui/frame";
 import type { SchoolProfile } from "@/features/school/types";
+import { useProfile } from "../context/use-profile";
+import { EditDialog } from "../edit/edit-dialog";
 
 interface ProgramDetailsProps {
   school: SchoolProfile;
 }
 
 export function ProgramDetails({ school }: ProgramDetailsProps) {
-  const hasMission = !!school.missionStatement;
-  const hasWhatWeDo = !!school.whatWeDo;
-  const hasBenefits = !!school.benefits;
-  const hasContent = hasMission || hasWhatWeDo || hasBenefits;
+  const { username, showOwnerControls } = useProfile();
 
   const sections = [
+    { id: "about", label: "About", content: school.about },
     { id: "mission", label: "Mission Statement", content: school.missionStatement },
     { id: "whatWeDo", label: "What We Do", content: school.whatWeDo },
     { id: "benefits", label: "Benefits", content: school.benefits },
   ].filter((s) => s.content);
 
-  const defaultValue = sections.length > 0 ? [sections[0].id] : [];
+  const hasContent = sections.length > 0;
+  const defaultValue = hasContent ? [sections[0].id] : [];
 
   return (
     <Frame className="h-fit w-full">
       <FrameHeader>
         <FrameTitle className="flex items-center justify-between gap-2">
           Program Details
-          <div className="h-7 w-fit sm:h-6" />
+          {showOwnerControls ? (
+            <EditDialog username={username} />
+          ) : (
+            <div className="h-7 w-fit sm:h-6" />
+          )}
         </FrameTitle>
       </FrameHeader>
       <FramePanel className="p-0!">

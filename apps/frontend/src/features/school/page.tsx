@@ -16,7 +16,6 @@ import { School2Icon } from "lucide-react";
 import { schoolQueries } from "./api/queries";
 import { ProfileProvider } from "./components/profile/context/profile-provider";
 import { SchoolHero } from "./components/profile/hero";
-import { AboutSection } from "./components/profile/sections/about-section";
 import { EventsAttending } from "./components/profile/sections/events-attending";
 import { EventsSection } from "./components/profile/sections/events/events-section";
 import { ProgramDetails } from "./components/profile/sections/program-details";
@@ -73,8 +72,6 @@ export function SchoolPage({ username }: SchoolPageProps) {
       >
         <div className="flex flex-col gap-3 lg:gap-4">
           <SchoolHero school={data} />
-
-          <AboutSection about={data.about} />
 
           <ProgramDetails school={data} />
 
