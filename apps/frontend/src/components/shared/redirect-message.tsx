@@ -17,6 +17,30 @@ export function RedirectMessage() {
     );
   }
 
+  if (reason === "password_forgot") {
+    return (
+      <Alert variant="success">
+        <CircleCheckIcon />
+        <AlertTitle>Email Sent</AlertTitle>
+        <AlertDescription>
+          Please check your email for a link to reset your password.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (reason === "password_reset") {
+    return (
+      <Alert variant="success">
+        <CircleCheckIcon />
+        <AlertTitle>Password Reset</AlertTitle>
+        <AlertDescription>
+          Your password has been reset. Please sign in to continue.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   if (reason === "network_error") {
     return (
       <Alert variant="error">

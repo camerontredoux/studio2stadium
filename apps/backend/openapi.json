@@ -258,6 +258,39 @@
         "description": "Changes the user's password"
       }
     },
+    "/auth/password/forgot": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthPasswordForgotRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Forgot password",
+        "description": "Sends a password reset email to the user"
+      }
+    },
     "/auth/password/reset": {
       "post": {
         "requestBody": {
@@ -3522,19 +3555,34 @@
           "newPassword"
         ]
       },
-      "AuthPasswordResetRequest": {
+      "AuthPasswordForgotRequest": {
         "type": "object",
         "properties": {
-          "currentPassword": {
-            "type": "string"
-          },
-          "newPassword": {
+          "email": {
             "type": "string"
           }
         },
         "required": [
-          "currentPassword",
-          "newPassword"
+          "email"
+        ]
+      },
+      "AuthPasswordResetRequest": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "password",
+          "userId",
+          "token"
         ]
       },
       "BlogResponse": {

@@ -2,13 +2,12 @@ import { useAnchoredErrorToast } from "@/components/hooks/use-anchored-error-toa
 import { useCountdown } from "@/components/hooks/use-countdown";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Frame, FrameFooter, FramePanel } from "@/components/ui/frame";
+import { Frame, FramePanel } from "@/components/ui/frame";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { handleApiError } from "@/lib/api/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,28 +16,27 @@ import { MailIcon } from "lucide-react";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useLogin } from "../api/mutations";
-import { schemas } from "../api/schemas";
+import { useForgotPassword } from "./api/mutations";
+import { forgotSchemas } from "./api/schemas";
 
-type LoginSchema = z.infer<typeof schemas.login>;
+type ForgotPasswordSchema = z.infer<typeof forgotSchemas.forgot>;
 
-export function LoginForm() {
-  const { mutate, isPending } = useLogin();
+export function ForgotPasswordForm() {
+  const { mutate, isPending } = useForgotPassword();
 
   const [retryAfter, startCountdown] = useCountdown();
 
   const submitRef = useRef<HTMLButtonElement>(null);
   const errorToast = useAnchoredErrorToast(submitRef);
 
-  const { control, handleSubmit, setError } = useForm<LoginSchema>({
-    resolver: zodResolver(schemas.login),
+  const { control, handleSubmit, setError } = useForm<ForgotPasswordSchema>({
+    resolver: zodResolver(forgotSchemas.forgot),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
-  const onSubmit = async (data: LoginSchema) => {
+  const onSubmit = async (data: ForgotPasswordSchema) => {
     if (!submitRef.current || isPending) return;
 
     mutate(
@@ -49,7 +47,7 @@ export function LoginForm() {
             startCountdown(retryAfter);
           },
           onValidation(field, message) {
-            setError(field as keyof LoginSchema, {
+            setError(field as keyof ForgotPasswordSchema, {
               message,
             });
           },
@@ -88,29 +86,7 @@ export function LoginForm() {
               </Field>
             )}
           />
-
-          <Controller
-            control={control}
-            name="password"
-            render={({ field, fieldState }) => (
-              <Field name={field.name} invalid={fieldState.invalid}>
-                <FieldLabel>Password</FieldLabel>
-                <PasswordInput autoComplete="off" {...field} />
-                <FieldError error={fieldState.error} />
-              </Field>
-            )}
-          />
         </FramePanel>
-        <FrameFooter>
-          <Button
-            type="button"
-            variant="link"
-            className="text-muted-foreground ml-auto p-0 text-sm"
-            render={<Link to="/forgot" />}
-          >
-            Forgot password?
-          </Button>
-        </FrameFooter>
       </Frame>
 
       <Button
@@ -120,23 +96,23 @@ export function LoginForm() {
         type="submit"
       >
         {isPending ? (
-          <Spinner label="Logging in..." />
+          <Spinner label="Resetting..." />
         ) : retryAfter ? (
           `Retry in ${retryAfter} seconds`
         ) : (
-          "Login"
+          "Reset"
         )}
       </Button>
 
       <p className="text-muted-foreground text-center text-sm">
-        Don&apos;t have an account?{" "}
+        Remember your password?{" "}
         <Button
           type="button"
           variant="link"
           className="text-brand p-0 text-sm font-medium"
-          render={<Link to="/signup" replace={true} />}
+          render={<Link to="/login" replace={true} />}
         >
-          Sign up
+          Login
         </Button>
       </p>
     </form>

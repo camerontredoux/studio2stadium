@@ -1,7 +1,9 @@
 import { middleware } from "#start/kernel";
 import { tooManyRequests } from "#utils/responses";
 import router from "@adonisjs/core/services/router";
-
+const ResetPasswordController = () => import("./reset-password/controller.ts");
+const ForgotPasswordController = () =>
+  import("./forgot-password/controller.ts");
 const ChangePasswordController = () =>
   import("./change-password/controller.ts");
 const GetSessionController = () => import("./get-session/controller.ts");
@@ -11,24 +13,24 @@ const SignupController = () => import("./signup/controller.ts");
 
 router
   .group(() => {
-    router.post("/signup", [SignupController]).openapi({
+    router.post("signup", [SignupController]).openapi({
       summary: "Create user account",
       description: "Creates a new base user account.",
     });
-    router.post("/login", [LoginController]).openapi({
+    router.post("login", [LoginController]).openapi({
       summary: "Start user session",
       description: "Logs in a user and creates a session in Redis.",
       responses: {
         ...tooManyRequests,
       },
     });
-    router.post("/logout", [LogoutController]).openapi({
+    router.post("logout", [LogoutController]).openapi({
       summary: "End user session",
       description:
         "Logs out the current user and deletes their session from Redis.",
     });
     router
-      .get("/session", [GetSessionController])
+      .get("session", [GetSessionController])
       .openapi({
         summary: "Get user session",
         description: "Retrieves the current session's user information.",
@@ -45,7 +47,12 @@ router
           })
           .use(middleware.auth());
 
-        router.post("reset", [ChangePasswordController]).openapi({
+        router.post("forgot", [ForgotPasswordController]).openapi({
+          summary: "Forgot password",
+          description: "Sends a password reset email to the user",
+        });
+
+        router.post("reset", [ResetPasswordController]).openapi({
           summary: "Reset password",
           description: "Resets the user's password",
         });

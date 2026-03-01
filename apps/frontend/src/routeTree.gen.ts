@@ -14,7 +14,9 @@ import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AdminRouteRouteImport } from './routes/_admin/route'
 import { Route as ApproutesIndexRouteImport } from './routes/_app/(routes)/index'
+import { Route as AuthroutesResetRouteImport } from './routes/_auth/(routes)/reset'
 import { Route as AuthroutesLoginRouteImport } from './routes/_auth/(routes)/login'
+import { Route as AuthroutesForgotRouteImport } from './routes/_auth/(routes)/forgot'
 import { Route as ApproutesUnauthorizedRouteImport } from './routes/_app/(routes)/unauthorized'
 import { Route as ApproutesRecommendedRouteImport } from './routes/_app/(routes)/recommended'
 import { Route as ApproutesLogoutRouteImport } from './routes/_app/(routes)/logout'
@@ -28,14 +30,12 @@ import { Route as ApproutesResourcesRouteRouteImport } from './routes/_app/(rout
 import { Route as ApproutesRecruitingRouteRouteImport } from './routes/_app/(routes)/recruiting/route'
 import { Route as OnboardingroutesOnboardingIndexRouteImport } from './routes/_onboarding/(routes)/onboarding/index'
 import { Route as AuthroutesSignupIndexRouteImport } from './routes/_auth/(routes)/signup/index'
-import { Route as AuthroutesResetIndexRouteImport } from './routes/_auth/(routes)/reset/index'
 import { Route as ApproutesSettingsIndexRouteImport } from './routes/_app/(routes)/settings/index'
 import { Route as ApproutesResourcesIndexRouteImport } from './routes/_app/(routes)/resources/index'
 import { Route as ApproutesRecruitingIndexRouteImport } from './routes/_app/(routes)/recruiting/index'
 import { Route as ApproutesExploreIndexRouteImport } from './routes/_app/(routes)/explore/index'
 import { Route as ApproutesEventsIndexRouteImport } from './routes/_app/(routes)/events/index'
 import { Route as AuthroutesSignupTypeRouteImport } from './routes/_auth/(routes)/signup/$type'
-import { Route as AuthroutesResetTokenIdRouteImport } from './routes/_auth/(routes)/reset/$tokenId'
 import { Route as ApproutesSettingsPasswordRouteImport } from './routes/_app/(routes)/settings/password'
 import { Route as ApproutesSettingsMembershipRouteImport } from './routes/_app/(routes)/settings/membership'
 import { Route as ApproutesSettingsDeleteRouteImport } from './routes/_app/(routes)/settings/delete'
@@ -72,9 +72,19 @@ const ApproutesIndexRoute = ApproutesIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AuthroutesResetRoute = AuthroutesResetRouteImport.update({
+  id: '/(routes)/reset',
+  path: '/reset',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
 const AuthroutesLoginRoute = AuthroutesLoginRouteImport.update({
   id: '/(routes)/login',
   path: '/login',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthroutesForgotRoute = AuthroutesForgotRouteImport.update({
+  id: '/(routes)/forgot',
+  path: '/forgot',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 const ApproutesUnauthorizedRoute = ApproutesUnauthorizedRouteImport.update({
@@ -144,11 +154,6 @@ const AuthroutesSignupIndexRoute = AuthroutesSignupIndexRouteImport.update({
   path: '/signup/',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const AuthroutesResetIndexRoute = AuthroutesResetIndexRouteImport.update({
-  id: '/(routes)/reset/',
-  path: '/reset/',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
 const ApproutesSettingsIndexRoute = ApproutesSettingsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -178,11 +183,6 @@ const ApproutesEventsIndexRoute = ApproutesEventsIndexRouteImport.update({
 const AuthroutesSignupTypeRoute = AuthroutesSignupTypeRouteImport.update({
   id: '/(routes)/signup/$type',
   path: '/signup/$type',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-const AuthroutesResetTokenIdRoute = AuthroutesResetTokenIdRouteImport.update({
-  id: '/(routes)/reset/$tokenId',
-  path: '/reset/$tokenId',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 const ApproutesSettingsPasswordRoute =
@@ -279,7 +279,9 @@ export interface FileRoutesByFullPath {
   '/logout': typeof ApproutesLogoutRoute
   '/recommended': typeof ApproutesRecommendedRoute
   '/unauthorized': typeof ApproutesUnauthorizedRoute
+  '/forgot': typeof AuthroutesForgotRoute
   '/login': typeof AuthroutesLoginRoute
+  '/reset': typeof AuthroutesResetRoute
   '/dashboard/assets': typeof AdminroutesDashboardAssetsRoute
   '/dashboard/metrics': typeof AdminroutesDashboardMetricsRoute
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
@@ -294,14 +296,12 @@ export interface FileRoutesByFullPath {
   '/settings/delete': typeof ApproutesSettingsDeleteRoute
   '/settings/membership': typeof ApproutesSettingsMembershipRoute
   '/settings/password': typeof ApproutesSettingsPasswordRoute
-  '/reset/$tokenId': typeof AuthroutesResetTokenIdRoute
   '/signup/$type': typeof AuthroutesSignupTypeRoute
   '/events/': typeof ApproutesEventsIndexRoute
   '/explore/': typeof ApproutesExploreIndexRoute
   '/recruiting/': typeof ApproutesRecruitingIndexRoute
   '/resources/': typeof ApproutesResourcesIndexRoute
   '/settings/': typeof ApproutesSettingsIndexRoute
-  '/reset/': typeof AuthroutesResetIndexRoute
   '/signup/': typeof AuthroutesSignupIndexRoute
   '/onboarding/': typeof OnboardingroutesOnboardingIndexRoute
 }
@@ -315,7 +315,9 @@ export interface FileRoutesByTo {
   '/logout': typeof ApproutesLogoutRoute
   '/recommended': typeof ApproutesRecommendedRoute
   '/unauthorized': typeof ApproutesUnauthorizedRoute
+  '/forgot': typeof AuthroutesForgotRoute
   '/login': typeof AuthroutesLoginRoute
+  '/reset': typeof AuthroutesResetRoute
   '/dashboard/assets': typeof AdminroutesDashboardAssetsRoute
   '/dashboard/metrics': typeof AdminroutesDashboardMetricsRoute
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
@@ -330,14 +332,12 @@ export interface FileRoutesByTo {
   '/settings/delete': typeof ApproutesSettingsDeleteRoute
   '/settings/membership': typeof ApproutesSettingsMembershipRoute
   '/settings/password': typeof ApproutesSettingsPasswordRoute
-  '/reset/$tokenId': typeof AuthroutesResetTokenIdRoute
   '/signup/$type': typeof AuthroutesSignupTypeRoute
   '/events': typeof ApproutesEventsIndexRoute
   '/explore': typeof ApproutesExploreIndexRoute
   '/recruiting': typeof ApproutesRecruitingIndexRoute
   '/resources': typeof ApproutesResourcesIndexRoute
   '/settings': typeof ApproutesSettingsIndexRoute
-  '/reset': typeof AuthroutesResetIndexRoute
   '/signup': typeof AuthroutesSignupIndexRoute
   '/onboarding': typeof OnboardingroutesOnboardingIndexRoute
 }
@@ -358,7 +358,9 @@ export interface FileRoutesById {
   '/_app/(routes)/logout': typeof ApproutesLogoutRoute
   '/_app/(routes)/recommended': typeof ApproutesRecommendedRoute
   '/_app/(routes)/unauthorized': typeof ApproutesUnauthorizedRoute
+  '/_auth/(routes)/forgot': typeof AuthroutesForgotRoute
   '/_auth/(routes)/login': typeof AuthroutesLoginRoute
+  '/_auth/(routes)/reset': typeof AuthroutesResetRoute
   '/_app/(routes)/': typeof ApproutesIndexRoute
   '/_admin/(routes)/dashboard/assets': typeof AdminroutesDashboardAssetsRoute
   '/_admin/(routes)/dashboard/metrics': typeof AdminroutesDashboardMetricsRoute
@@ -374,14 +376,12 @@ export interface FileRoutesById {
   '/_app/(routes)/settings/delete': typeof ApproutesSettingsDeleteRoute
   '/_app/(routes)/settings/membership': typeof ApproutesSettingsMembershipRoute
   '/_app/(routes)/settings/password': typeof ApproutesSettingsPasswordRoute
-  '/_auth/(routes)/reset/$tokenId': typeof AuthroutesResetTokenIdRoute
   '/_auth/(routes)/signup/$type': typeof AuthroutesSignupTypeRoute
   '/_app/(routes)/events/': typeof ApproutesEventsIndexRoute
   '/_app/(routes)/explore/': typeof ApproutesExploreIndexRoute
   '/_app/(routes)/recruiting/': typeof ApproutesRecruitingIndexRoute
   '/_app/(routes)/resources/': typeof ApproutesResourcesIndexRoute
   '/_app/(routes)/settings/': typeof ApproutesSettingsIndexRoute
-  '/_auth/(routes)/reset/': typeof AuthroutesResetIndexRoute
   '/_auth/(routes)/signup/': typeof AuthroutesSignupIndexRoute
   '/_onboarding/(routes)/onboarding/': typeof OnboardingroutesOnboardingIndexRoute
 }
@@ -400,7 +400,9 @@ export interface FileRouteTypes {
     | '/logout'
     | '/recommended'
     | '/unauthorized'
+    | '/forgot'
     | '/login'
+    | '/reset'
     | '/dashboard/assets'
     | '/dashboard/metrics'
     | '/events/$eventId'
@@ -415,14 +417,12 @@ export interface FileRouteTypes {
     | '/settings/delete'
     | '/settings/membership'
     | '/settings/password'
-    | '/reset/$tokenId'
     | '/signup/$type'
     | '/events/'
     | '/explore/'
     | '/recruiting/'
     | '/resources/'
     | '/settings/'
-    | '/reset/'
     | '/signup/'
     | '/onboarding/'
   fileRoutesByTo: FileRoutesByTo
@@ -436,7 +436,9 @@ export interface FileRouteTypes {
     | '/logout'
     | '/recommended'
     | '/unauthorized'
+    | '/forgot'
     | '/login'
+    | '/reset'
     | '/dashboard/assets'
     | '/dashboard/metrics'
     | '/events/$eventId'
@@ -451,14 +453,12 @@ export interface FileRouteTypes {
     | '/settings/delete'
     | '/settings/membership'
     | '/settings/password'
-    | '/reset/$tokenId'
     | '/signup/$type'
     | '/events'
     | '/explore'
     | '/recruiting'
     | '/resources'
     | '/settings'
-    | '/reset'
     | '/signup'
     | '/onboarding'
   id:
@@ -478,7 +478,9 @@ export interface FileRouteTypes {
     | '/_app/(routes)/logout'
     | '/_app/(routes)/recommended'
     | '/_app/(routes)/unauthorized'
+    | '/_auth/(routes)/forgot'
     | '/_auth/(routes)/login'
+    | '/_auth/(routes)/reset'
     | '/_app/(routes)/'
     | '/_admin/(routes)/dashboard/assets'
     | '/_admin/(routes)/dashboard/metrics'
@@ -494,14 +496,12 @@ export interface FileRouteTypes {
     | '/_app/(routes)/settings/delete'
     | '/_app/(routes)/settings/membership'
     | '/_app/(routes)/settings/password'
-    | '/_auth/(routes)/reset/$tokenId'
     | '/_auth/(routes)/signup/$type'
     | '/_app/(routes)/events/'
     | '/_app/(routes)/explore/'
     | '/_app/(routes)/recruiting/'
     | '/_app/(routes)/resources/'
     | '/_app/(routes)/settings/'
-    | '/_auth/(routes)/reset/'
     | '/_auth/(routes)/signup/'
     | '/_onboarding/(routes)/onboarding/'
   fileRoutesById: FileRoutesById
@@ -550,11 +550,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApproutesIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_auth/(routes)/reset': {
+      id: '/_auth/(routes)/reset'
+      path: '/reset'
+      fullPath: '/reset'
+      preLoaderRoute: typeof AuthroutesResetRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
     '/_auth/(routes)/login': {
       id: '/_auth/(routes)/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof AuthroutesLoginRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/(routes)/forgot': {
+      id: '/_auth/(routes)/forgot'
+      path: '/forgot'
+      fullPath: '/forgot'
+      preLoaderRoute: typeof AuthroutesForgotRouteImport
       parentRoute: typeof AuthRouteRoute
     }
     '/_app/(routes)/unauthorized': {
@@ -648,13 +662,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthroutesSignupIndexRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/_auth/(routes)/reset/': {
-      id: '/_auth/(routes)/reset/'
-      path: '/reset'
-      fullPath: '/reset/'
-      preLoaderRoute: typeof AuthroutesResetIndexRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
     '/_app/(routes)/settings/': {
       id: '/_app/(routes)/settings/'
       path: '/'
@@ -695,13 +702,6 @@ declare module '@tanstack/react-router' {
       path: '/signup/$type'
       fullPath: '/signup/$type'
       preLoaderRoute: typeof AuthroutesSignupTypeRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/_auth/(routes)/reset/$tokenId': {
-      id: '/_auth/(routes)/reset/$tokenId'
-      path: '/reset/$tokenId'
-      fullPath: '/reset/$tokenId'
-      preLoaderRoute: typeof AuthroutesResetTokenIdRouteImport
       parentRoute: typeof AuthRouteRoute
     }
     '/_app/(routes)/settings/password': {
@@ -933,18 +933,18 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 )
 
 interface AuthRouteRouteChildren {
+  AuthroutesForgotRoute: typeof AuthroutesForgotRoute
   AuthroutesLoginRoute: typeof AuthroutesLoginRoute
-  AuthroutesResetTokenIdRoute: typeof AuthroutesResetTokenIdRoute
+  AuthroutesResetRoute: typeof AuthroutesResetRoute
   AuthroutesSignupTypeRoute: typeof AuthroutesSignupTypeRoute
-  AuthroutesResetIndexRoute: typeof AuthroutesResetIndexRoute
   AuthroutesSignupIndexRoute: typeof AuthroutesSignupIndexRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
+  AuthroutesForgotRoute: AuthroutesForgotRoute,
   AuthroutesLoginRoute: AuthroutesLoginRoute,
-  AuthroutesResetTokenIdRoute: AuthroutesResetTokenIdRoute,
+  AuthroutesResetRoute: AuthroutesResetRoute,
   AuthroutesSignupTypeRoute: AuthroutesSignupTypeRoute,
-  AuthroutesResetIndexRoute: AuthroutesResetIndexRoute,
   AuthroutesSignupIndexRoute: AuthroutesSignupIndexRoute,
 }
 

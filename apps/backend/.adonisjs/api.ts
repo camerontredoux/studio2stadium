@@ -39,9 +39,13 @@ type AuthPasswordChangePost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/auth/change-password/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/auth/change-password/controller.ts').default['handle'], true>
 }
+type AuthPasswordForgotPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/auth/forgot-password/schema.ts')['forgotPasswordSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/auth/forgot-password/controller.ts').default['handle'], true>
+}
 type AuthPasswordResetPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/auth/change-password/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/auth/change-password/controller.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/auth/reset-password/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/auth/reset-password/controller.ts').default['handle'], true>
 }
 type BlogGetHead = {
   request: unknown
@@ -399,6 +403,11 @@ export interface ApiDefinition {
         '$url': {
         };
         '$post': AuthPasswordChangePost;
+      };
+      'forgot': {
+        '$url': {
+        };
+        '$post': AuthPasswordForgotPost;
       };
       'reset': {
         '$url': {

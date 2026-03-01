@@ -350,6 +350,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/password/forgot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Forgot password
+         * @description Sends a password reset email to the user
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AuthPasswordForgotRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/password/reset": {
         parameters: {
             query?: never;
@@ -3909,9 +3959,13 @@ export interface components {
             currentPassword: string;
             newPassword: string;
         };
+        AuthPasswordForgotRequest: {
+            email: string;
+        };
         AuthPasswordResetRequest: {
-            currentPassword: string;
-            newPassword: string;
+            password: string;
+            userId: string;
+            token: string;
         };
         BlogResponse: {
             id: string;
