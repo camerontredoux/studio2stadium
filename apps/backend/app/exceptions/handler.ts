@@ -5,6 +5,7 @@ import { errors } from "@adonisjs/limiter";
 import { ValidationError } from "@vinejs/vine";
 import { type SimpleError } from "@vinejs/vine/types";
 import { E_BAD_REQUEST } from "./bad-request.ts";
+import { E_NOT_FOUND } from "./not-found.ts";
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -19,6 +20,14 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    */
   async handle(error: unknown, ctx: HttpContext) {
     if (error instanceof E_BAD_REQUEST) {
+      return ctx.response.status(error.status).send({
+        message: error.message,
+        code: error.code,
+        status: error.status,
+        meta: error.meta,
+      });
+    }
+    if (error instanceof E_NOT_FOUND) {
       return ctx.response.status(error.status).send({
         message: error.message,
         code: error.code,

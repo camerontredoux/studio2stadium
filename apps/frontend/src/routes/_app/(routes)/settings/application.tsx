@@ -1,5 +1,5 @@
 import { accountQueries } from "@/features/settings/api/queries";
-import { AccountSettings } from "@/features/settings/components/account-settings";
+import { ApplicationSettings } from "@/features/settings/components/application-settings";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/settings/application")({
@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_app/(routes)/settings/application")({
     access.guard(access.is("core", "school"));
   },
   loader: async ({ context: { queryClient } }) => {
-    await queryClient.ensureQueryData(accountQueries.account());
+    await queryClient.ensureQueryData(accountQueries.application());
   },
-  component: AccountSettings,
+  component: ApplicationSettings,
 });

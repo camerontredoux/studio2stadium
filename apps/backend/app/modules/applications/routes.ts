@@ -23,5 +23,5 @@ router
       description: "Updates the school's application",
     });
   })
-  .use(middleware.auth())
+  .use([middleware.auth(), middleware.school()])
   .openapi({ tags: ["Applications"] });

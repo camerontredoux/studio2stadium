@@ -1,5 +1,9 @@
 import * as pg from "drizzle-orm/pg-core";
-import { competitiveCircuitType, teamSelectionType } from "./enums.ts";
+import {
+  competitiveCircuitType,
+  schoolApplicationStatus,
+  teamSelectionType,
+} from "./enums.ts";
 import { timestamps } from "./helpers/columns.ts";
 import { users } from "./users.ts";
 
@@ -10,6 +14,7 @@ export const schoolProfiles = pg.pgTable(
     userId: pg
       .uuid()
       .notNull()
+      .unique()
       .references(() => users.id, { onDelete: "cascade" }),
     name: pg.text().notNull().unique(),
     location: pg.text().notNull(),
@@ -42,3 +47,18 @@ export const schoolProfiles = pg.pgTable(
     pg.index().on(table.competitiveCircuit),
   ]
 );
+
+export const schoolApplications = pg.pgTable("school_applications", {
+  id: pg.uuid().primaryKey().defaultRandom(),
+  schoolId: pg
+    .uuid()
+    .notNull()
+    .unique()
+    .references(() => schoolProfiles.id, { onDelete: "cascade" }),
+  idType: pg.text().notNull(),
+  mediaId: pg.text().notNull(),
+  status: schoolApplicationStatus().notNull().default("pending"),
+  location: pg.text().notNull(),
+  notes: pg.text(),
+  ...timestamps,
+});

@@ -12,11 +12,11 @@ type ApplicationGetHead = {
   response: MakeTuyauResponse<import('../app/modules/applications/get-application/controller.ts').default['handle'], false>
 }
 type ApplicationPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/applications/submit-application/validator.ts')['validator']>>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/applications/submit-application/schema.ts')['submitApplicationSchema']>>
   response: MakeTuyauResponse<import('../app/modules/applications/submit-application/controller.ts').default['handle'], true>
 }
 type ApplicationPatch = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/applications/update-application/validator.ts')['validator']>>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/applications/update-application/validator.ts')['updateApplicationSchema']>>
   response: MakeTuyauResponse<import('../app/modules/applications/update-application/controller.ts').default['handle'], true>
 }
 type AuthSignupPost = {

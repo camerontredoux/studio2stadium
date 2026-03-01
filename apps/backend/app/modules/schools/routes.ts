@@ -1,6 +1,8 @@
 import { middleware } from "#start/kernel";
 import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
+const SubmitApplicationController = () =>
+  import("../applications/submit-application/controller.ts");
 const UpdateProgramController = () => import("./update-program/controller.ts");
 const UpdateFavoriteController = () =>
   import("./update-favorite/controller.ts");

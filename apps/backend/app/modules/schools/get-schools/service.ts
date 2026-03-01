@@ -24,6 +24,7 @@ export class Service {
           ...wheres,
           user: {
             role: override ? undefined : "user",
+            verified: true,
           },
         },
         columns: {

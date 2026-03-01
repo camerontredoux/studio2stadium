@@ -11,6 +11,7 @@ export const dancerProfiles = pg.pgTable(
     userId: pg
       .uuid()
       .notNull()
+      .unique()
       .references(() => users.id, { onDelete: "cascade" }),
     birthday: pg.date({ mode: "string" }).notNull(),
     location: pg.text().notNull(),

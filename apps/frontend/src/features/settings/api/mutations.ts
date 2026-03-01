@@ -24,3 +24,11 @@ export function useDeleteAccount() {
 export function useManage() {
   return $api.useMutation("post", "/subscriptions/manage");
 }
+
+export function useSubmitApplication() {
+  return $api.useMutation("post", "/application");
+}
+
+export function useUpdateApplication() {
+  return $api.useMutation("patch", "/application");
+}

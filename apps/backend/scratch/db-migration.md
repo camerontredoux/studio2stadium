@@ -12,8 +12,8 @@ Dancers
 
 - [x] Dancer **(DancerAccounts)**
 - [ ] DancerPin **(DancerPins)**
-- [ ] ProspectStatus **(ProspectStatuses)**
-- [ ] CrvSubmission **(CommonRecruitingSubmissions)**
+- [x] ProspectStatus **(ProspectStatuses)**
+- [x] CrvSubmission **(CommonRecruitingSubmissions)**
 - [x] Awards **(AwardsHistory)**
 - [x] References **(ReferencesHistory)**
 

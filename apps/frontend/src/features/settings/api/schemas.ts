@@ -20,4 +20,9 @@ export const accountSchemas = {
       message: "New password must be different from current password",
       path: ["newPassword"],
     }),
+  submitApplication: z.object({
+    idType: z.string(),
+    mediaId: z.string(),
+    location: z.string(),
+  }),
 } as const;

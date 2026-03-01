@@ -62,3 +62,9 @@ export const competitiveCircuitType = pgEnum("competitive_circuit_type", [
   "non-competitive",
   "other",
 ]);
+
+export const schoolApplicationStatus = pgEnum("school_application_status", [
+  "pending",
+  "accepted",
+  "rejected",
+]);

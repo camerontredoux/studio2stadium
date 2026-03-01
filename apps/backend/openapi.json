@@ -20,7 +20,14 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationResponse"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -30,6 +37,15 @@
         "description": "Returns the school's application details"
       },
       "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": "No Content"
@@ -52,6 +68,15 @@
         "description": "Submits the school's application"
       },
       "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": "No Content"
@@ -3148,6 +3173,80 @@
           }
         ]
       },
+      "ApplicationResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "schoolId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "accepted",
+              "rejected"
+            ]
+          },
+          "mediaId": {
+            "type": "string"
+          },
+          "idType": {
+            "type": "string"
+          },
+          "notes": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "location",
+          "schoolId",
+          "status",
+          "mediaId",
+          "idType",
+          "notes"
+        ]
+      },
+      "ApplicationRequest": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string"
+          },
+          "mediaId": {
+            "type": "string"
+          },
+          "idType": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "location",
+          "mediaId",
+          "idType"
+        ]
+      },
       "AuthSignupRequest": {
         "type": "object",
         "properties": {
@@ -3164,7 +3263,7 @@
           "email": {
             "type": "string"
           },
-          "password": {
+          "username": {
             "type": "string"
           },
           "type": {
@@ -3174,13 +3273,13 @@
               "school"
             ]
           },
-          "username": {
-            "type": "string"
-          },
           "firstName": {
             "type": "string"
           },
           "lastName": {
+            "type": "string"
+          },
+          "password": {
             "type": "string"
           },
           "termsChecked": {
@@ -3189,11 +3288,11 @@
         },
         "required": [
           "email",
-          "password",
-          "type",
           "username",
+          "type",
           "firstName",
           "lastName",
+          "password",
           "termsChecked"
         ]
       },
@@ -3249,6 +3348,20 @@
       "AuthSessionResponse": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "admin",
+              "prodigy_admin"
+            ]
+          },
           "type": {
             "type": "string",
             "enum": [
@@ -3256,30 +3369,13 @@
               "school"
             ]
           },
-          "notifications": {
-            "type": "boolean"
-          },
-          "username": {
+          "displayEmail": {
             "type": "string"
           },
           "firstName": {
             "type": "string"
           },
           "lastName": {
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
-          },
-          "role": {
-            "type": "string",
-            "enum": [
-              "admin",
-              "user",
-              "prodigy_admin"
-            ]
-          },
-          "displayEmail": {
             "type": "string"
           },
           "avatar": {
@@ -3295,6 +3391,9 @@
           "verified": {
             "type": "boolean"
           },
+          "notifications": {
+            "type": "boolean"
+          },
           "profileId": {
             "type": "string"
           },
@@ -3303,23 +3402,23 @@
             "items": {
               "type": "string",
               "enum": [
-                "prodigy",
-                "core"
+                "core",
+                "prodigy"
               ]
             }
           }
         },
         "required": [
-          "type",
-          "notifications",
+          "id",
           "username",
+          "role",
+          "type",
+          "displayEmail",
           "firstName",
           "lastName",
-          "id",
-          "role",
-          "displayEmail",
           "avatar",
           "verified",
+          "notifications",
           "profileId",
           "platforms"
         ]
@@ -3402,9 +3501,9 @@
                 "contentType": {
                   "type": "string",
                   "enum": [
-                    "profile",
                     "image",
                     "video",
+                    "profile",
                     "reference",
                     "achievement"
                   ]
@@ -3528,10 +3627,6 @@
                 "name": {
                   "type": "string"
                 },
-                "meta": {
-                  "type": "object",
-                  "properties": {}
-                },
                 "status": {
                   "type": "string",
                   "enum": [
@@ -3539,6 +3634,10 @@
                     "ok",
                     "warning"
                   ]
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {}
                 },
                 "message": {
                   "type": "string"
@@ -3791,13 +3890,10 @@
             "items": {
               "type": "object",
               "properties": {
-                "username": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                },
                 "id": {
+                  "type": "string"
+                },
+                "username": {
                   "type": "string"
                 },
                 "avatar": {
@@ -3811,6 +3907,9 @@
                   ]
                 },
                 "createdAt": {
+                  "type": "string"
+                },
+                "name": {
                   "type": "string"
                 },
                 "birthday": {
@@ -3847,11 +3946,11 @@
                 }
               },
               "required": [
-                "username",
-                "name",
                 "id",
+                "username",
                 "avatar",
                 "createdAt",
+                "name",
                 "birthday",
                 "location",
                 "gpa",
@@ -3923,8 +4022,8 @@
           "platform": {
             "type": "string",
             "enum": [
-              "prodigy",
-              "core"
+              "core",
+              "prodigy"
             ]
           }
         },
@@ -3939,6 +4038,9 @@
         "items": {
           "type": "object",
           "properties": {
+            "id": {
+              "type": "string"
+            },
             "type": {
               "type": "string",
               "enum": [
@@ -3948,9 +4050,6 @@
                 "multi-select",
                 "range"
               ]
-            },
-            "id": {
-              "type": "string"
             },
             "options": {
               "type": "array",
@@ -3978,8 +4077,8 @@
             }
           },
           "required": [
-            "type",
             "id",
+            "type",
             "label",
             "paramKey"
           ]
@@ -4307,6 +4406,9 @@
         "items": {
           "type": "object",
           "properties": {
+            "id": {
+              "type": "string"
+            },
             "school": {
               "type": "object",
               "properties": {
@@ -4323,10 +4425,10 @@
                 "username": {
                   "type": "string"
                 },
-                "name": {
+                "id": {
                   "type": "string"
                 },
-                "id": {
+                "name": {
                   "type": "string"
                 },
                 "location": {
@@ -4336,13 +4438,10 @@
               "required": [
                 "avatar",
                 "username",
-                "name",
                 "id",
+                "name",
                 "location"
               ]
-            },
-            "id": {
-              "type": "string"
             },
             "updatedAt": {
               "type": "string"
@@ -4351,9 +4450,9 @@
               "type": "string",
               "enum": [
                 "pending",
+                "accepted",
                 "released",
-                "in_review",
-                "accepted"
+                "in_review"
               ]
             },
             "watched": {
@@ -4371,8 +4470,8 @@
             }
           },
           "required": [
-            "school",
             "id",
+            "school",
             "updatedAt",
             "status",
             "watched",
@@ -4449,138 +4548,13 @@
       "DancersIdResponse": {
         "type": "object",
         "properties": {
-          "events": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": [
-                    "recruitment",
-                    "audition",
-                    "other",
-                    "rehearsal",
-                    "recital",
-                    "showcase",
-                    "competition",
-                    "class",
-                    "intensive",
-                    "workshop",
-                    "fundraiser",
-                    "combine",
-                    "convention",
-                    "clinic",
-                    "deadline",
-                    "performance",
-                    "camp"
-                  ]
-                },
-                "id": {
-                  "type": "string"
-                },
-                "location": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "startDatetime": {
-                  "type": "string"
-                },
-                "endDatetime": {
-                  "type": "string"
-                },
-                "organizer": {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "name"
-                      ]
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                }
-              },
-              "required": [
-                "type",
-                "id",
-                "location",
-                "title",
-                "startDatetime",
-                "endDatetime",
-                "organizer"
-              ]
-            }
-          },
-          "images": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "updatedAt": {
-                  "type": "string"
-                },
-                "userId": {
-                  "type": "string"
-                },
-                "thumbnail": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "caption": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "mediaUrl": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                }
-              },
-              "required": [
-                "id",
-                "createdAt",
-                "updatedAt",
-                "userId",
-                "thumbnail",
-                "caption",
-                "mediaUrl"
-              ]
-            }
+          "id": {
+            "type": "string"
           },
           "username": {
+            "type": "string"
+          },
+          "displayEmail": {
             "type": "string"
           },
           "firstName": {
@@ -4589,7 +4563,7 @@
           "lastName": {
             "type": "string"
           },
-          "phone": {
+          "avatar": {
             "oneOf": [
               {
                 "type": "string"
@@ -4599,13 +4573,7 @@
               }
             ]
           },
-          "id": {
-            "type": "string"
-          },
-          "displayEmail": {
-            "type": "string"
-          },
-          "avatar": {
+          "phone": {
             "oneOf": [
               {
                 "type": "string"
@@ -4760,9 +4728,6 @@
             "items": {
               "type": "object",
               "properties": {
-                "name": {
-                  "type": "string"
-                },
                 "id": {
                   "type": "string"
                 },
@@ -4770,6 +4735,9 @@
                   "type": "string"
                 },
                 "updatedAt": {
+                  "type": "string"
+                },
+                "name": {
                   "type": "string"
                 },
                 "profileId": {
@@ -4790,10 +4758,10 @@
                 }
               },
               "required": [
-                "name",
                 "id",
                 "createdAt",
                 "updatedAt",
+                "name",
                 "profileId",
                 "title",
                 "description"
@@ -4838,6 +4806,65 @@
                 "userId",
                 "mediaId",
                 "caption"
+              ]
+            }
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "userId": {
+                  "type": "string"
+                },
+                "thumbnail": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "caption": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "mediaUrl": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "createdAt",
+                "updatedAt",
+                "userId",
+                "thumbnail",
+                "caption",
+                "mediaUrl"
               ]
             }
           },
@@ -4899,11 +4926,14 @@
               ]
             }
           },
-          "globalEvents": {
+          "events": {
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
+                "id": {
+                  "type": "string"
+                },
                 "type": {
                   "type": "string",
                   "enum": [
@@ -4926,8 +4956,77 @@
                     "camp"
                   ]
                 },
+                "location": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "startDatetime": {
+                  "type": "string"
+                },
+                "endDatetime": {
+                  "type": "string"
+                },
+                "organizer": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "type",
+                "location",
+                "title",
+                "startDatetime",
+                "endDatetime",
+                "organizer"
+              ]
+            }
+          },
+          "globalEvents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
                 "id": {
                   "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "recruitment",
+                    "audition",
+                    "other",
+                    "rehearsal",
+                    "recital",
+                    "showcase",
+                    "competition",
+                    "class",
+                    "intensive",
+                    "workshop",
+                    "fundraiser",
+                    "combine",
+                    "convention",
+                    "clinic",
+                    "deadline",
+                    "performance",
+                    "camp"
+                  ]
                 },
                 "location": {
                   "type": "string"
@@ -4943,8 +5042,8 @@
                 }
               },
               "required": [
-                "type",
                 "id",
+                "type",
                 "location",
                 "title",
                 "startDatetime",
@@ -4991,15 +5090,13 @@
           }
         },
         "required": [
-          "events",
-          "images",
+          "id",
           "username",
+          "displayEmail",
           "firstName",
           "lastName",
-          "phone",
-          "id",
-          "displayEmail",
           "avatar",
+          "phone",
           "birthday",
           "location",
           "biography",
@@ -5015,9 +5112,11 @@
           "achievements",
           "references",
           "videos",
+          "images",
           "skills",
           "sports",
           "styles",
+          "events",
           "globalEvents",
           "submission",
           "subscribed"
@@ -5153,6 +5252,9 @@
               "items": {
                 "type": "object",
                 "properties": {
+                  "id": {
+                    "type": "string"
+                  },
                   "type": {
                     "type": "string",
                     "enum": [
@@ -5174,9 +5276,6 @@
                       "performance",
                       "camp"
                     ]
-                  },
-                  "id": {
-                    "type": "string"
                   },
                   "date": {
                     "type": "string"
@@ -5231,8 +5330,8 @@
                   }
                 },
                 "required": [
-                  "type",
                   "id",
+                  "type",
                   "date",
                   "time",
                   "location",
@@ -5345,6 +5444,9 @@
         "items": {
           "type": "object",
           "properties": {
+            "id": {
+              "type": "string"
+            },
             "type": {
               "type": "string",
               "enum": [
@@ -5366,9 +5468,6 @@
                 "performance",
                 "camp"
               ]
-            },
-            "id": {
-              "type": "string"
             },
             "date": {
               "type": "string"
@@ -5406,8 +5505,8 @@
             }
           },
           "required": [
-            "type",
             "id",
+            "type",
             "date",
             "time",
             "location",
@@ -5449,6 +5548,9 @@
             "attendees": {
               "type": "number"
             },
+            "id": {
+              "type": "string"
+            },
             "type": {
               "type": "string",
               "enum": [
@@ -5470,9 +5572,6 @@
                 "performance",
                 "camp"
               ]
-            },
-            "id": {
-              "type": "string"
             },
             "location": {
               "type": "string"
@@ -5501,8 +5600,8 @@
             "endDate",
             "saved",
             "attendees",
-            "type",
             "id",
+            "type",
             "location",
             "website",
             "title",
@@ -5515,6 +5614,9 @@
       "EventsIdResponse": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string"
+          },
           "type": {
             "type": "string",
             "enum": [
@@ -5536,9 +5638,6 @@
               "performance",
               "camp"
             ]
-          },
-          "id": {
-            "type": "string"
           },
           "createdAt": {
             "type": "string"
@@ -5678,8 +5777,8 @@
           }
         },
         "required": [
-          "type",
           "id",
+          "type",
           "createdAt",
           "updatedAt",
           "location",
@@ -5870,8 +5969,8 @@
           "type": {
             "type": "string",
             "enum": [
-              "feed",
-              "avatar"
+              "avatar",
+              "feed"
             ]
           },
           "contentType": {
@@ -5903,16 +6002,10 @@
         "items": {
           "type": "object",
           "properties": {
-            "events": {
-              "type": "number"
+            "id": {
+              "type": "string"
             },
             "username": {
-              "type": "string"
-            },
-            "name": {
-              "type": "string"
-            },
-            "id": {
               "type": "string"
             },
             "avatar": {
@@ -5926,6 +6019,9 @@
               ]
             },
             "createdAt": {
+              "type": "string"
+            },
+            "name": {
               "type": "string"
             },
             "location": {
@@ -5961,21 +6057,24 @@
                 }
               ]
             },
+            "events": {
+              "type": "number"
+            },
             "followers": {
               "type": "number"
             }
           },
           "required": [
-            "events",
-            "username",
-            "name",
             "id",
+            "username",
             "avatar",
             "createdAt",
+            "name",
             "location",
             "gpa",
             "division",
             "size",
+            "events",
             "followers"
           ]
         }
@@ -5985,6 +6084,9 @@
         "items": {
           "type": "object",
           "properties": {
+            "id": {
+              "type": "string"
+            },
             "type": {
               "type": "string",
               "enum": [
@@ -5994,9 +6096,6 @@
                 "multi-select",
                 "range"
               ]
-            },
-            "id": {
-              "type": "string"
             },
             "options": {
               "type": "array",
@@ -6024,8 +6123,8 @@
             }
           },
           "required": [
-            "type",
             "id",
+            "type",
             "label",
             "paramKey"
           ]
@@ -6036,22 +6135,6 @@
         "items": {
           "type": "object",
           "properties": {
-            "about": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "username": {
-              "type": "string"
-            },
-            "name": {
-              "type": "string"
-            },
             "debug": {
               "type": "object",
               "properties": {
@@ -6108,6 +6191,9 @@
             "id": {
               "type": "string"
             },
+            "username": {
+              "type": "string"
+            },
             "avatar": {
               "oneOf": [
                 {
@@ -6118,6 +6204,9 @@
                 }
               ]
             },
+            "name": {
+              "type": "string"
+            },
             "location": {
               "type": "string"
             },
@@ -6125,6 +6214,16 @@
               "oneOf": [
                 {
                   "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "about": {
+              "oneOf": [
+                {
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -6182,13 +6281,13 @@
             }
           },
           "required": [
-            "about",
-            "username",
-            "name",
             "id",
+            "username",
             "avatar",
+            "name",
             "location",
             "gpa",
+            "about",
             "size",
             "locationScore",
             "matchScore",
@@ -6208,16 +6307,6 @@
       "SchoolsMeRequest": {
         "type": "object",
         "properties": {
-          "about": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "location": {
             "oneOf": [
               {
@@ -6319,6 +6408,16 @@
             ]
           },
           "benefits": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "about": {
             "oneOf": [
               {
                 "type": "string"
@@ -6490,23 +6589,33 @@
         "items": {
           "type": "object",
           "properties": {
+            "id": {
+              "type": "string"
+            },
             "username": {
+              "type": "string"
+            },
+            "avatar": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "createdAt": {
               "type": "string"
             },
             "name": {
               "type": "string"
             },
-            "id": {
-              "type": "string"
-            },
-            "createdAt": {
-              "type": "string"
-            },
             "platformName": {
               "type": "string",
               "enum": [
-                "prodigy",
-                "core"
+                "core",
+                "prodigy"
               ]
             },
             "comment": {
@@ -6541,10 +6650,11 @@
             }
           },
           "required": [
-            "username",
-            "name",
             "id",
+            "username",
+            "avatar",
             "createdAt",
+            "name",
             "platformName",
             "comment",
             "rating",
@@ -6667,202 +6777,10 @@
       "SchoolsIdResponse": {
         "type": "object",
         "properties": {
-          "events": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": [
-                    "recruitment",
-                    "audition",
-                    "other",
-                    "rehearsal",
-                    "recital",
-                    "showcase",
-                    "competition",
-                    "class",
-                    "intensive",
-                    "workshop",
-                    "fundraiser",
-                    "combine",
-                    "convention",
-                    "clinic",
-                    "deadline",
-                    "performance",
-                    "camp"
-                  ]
-                },
-                "id": {
-                  "type": "string"
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "updatedAt": {
-                  "type": "string"
-                },
-                "location": {
-                  "type": "string"
-                },
-                "website": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "schoolId": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "address": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "tags": {
-                  "oneOf": [
-                    {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "cost": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "startDatetime": {
-                  "type": "string"
-                },
-                "endDatetime": {
-                  "type": "string"
-                },
-                "timezone": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "type",
-                "id",
-                "createdAt",
-                "updatedAt",
-                "location",
-                "website",
-                "schoolId",
-                "title",
-                "description",
-                "address",
-                "tags",
-                "cost",
-                "startDatetime",
-                "endDatetime",
-                "timezone"
-              ]
-            }
-          },
-          "about": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "images": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "updatedAt": {
-                  "type": "string"
-                },
-                "userId": {
-                  "type": "string"
-                },
-                "thumbnail": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "caption": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "mediaUrl": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                }
-              },
-              "required": [
-                "id",
-                "createdAt",
-                "updatedAt",
-                "userId",
-                "thumbnail",
-                "caption",
-                "mediaUrl"
-              ]
-            }
+          "id": {
+            "type": "string"
           },
           "username": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "id": {
             "type": "string"
           },
           "displayEmail": {
@@ -6882,6 +6800,9 @@
             "type": "string"
           },
           "updatedAt": {
+            "type": "string"
+          },
+          "name": {
             "type": "string"
           },
           "userId": {
@@ -6953,6 +6874,16 @@
             ]
           },
           "benefits": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "about": {
             "oneOf": [
               {
                 "type": "string"
@@ -7073,6 +7004,65 @@
               ]
             }
           },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "userId": {
+                  "type": "string"
+                },
+                "thumbnail": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "caption": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "mediaUrl": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "createdAt",
+                "updatedAt",
+                "userId",
+                "thumbnail",
+                "caption",
+                "mediaUrl"
+              ]
+            }
+          },
           "skills": {
             "type": "array",
             "items": {
@@ -7131,11 +7121,14 @@
               ]
             }
           },
-          "globalEvents": {
+          "events": {
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
+                "id": {
+                  "type": "string"
+                },
                 "type": {
                   "type": "string",
                   "enum": [
@@ -7158,8 +7151,125 @@
                     "camp"
                   ]
                 },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "website": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "schoolId": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "address": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "tags": {
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "cost": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "startDatetime": {
+                  "type": "string"
+                },
+                "endDatetime": {
+                  "type": "string"
+                },
+                "timezone": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "type",
+                "createdAt",
+                "updatedAt",
+                "location",
+                "website",
+                "schoolId",
+                "title",
+                "description",
+                "address",
+                "tags",
+                "cost",
+                "startDatetime",
+                "endDatetime",
+                "timezone"
+              ]
+            }
+          },
+          "globalEvents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
                 "id": {
                   "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "recruitment",
+                    "audition",
+                    "other",
+                    "rehearsal",
+                    "recital",
+                    "showcase",
+                    "competition",
+                    "class",
+                    "intensive",
+                    "workshop",
+                    "fundraiser",
+                    "combine",
+                    "convention",
+                    "clinic",
+                    "deadline",
+                    "performance",
+                    "camp"
+                  ]
                 },
                 "location": {
                   "type": "string"
@@ -7175,8 +7285,8 @@
                 }
               },
               "required": [
-                "type",
                 "id",
+                "type",
                 "location",
                 "title",
                 "startDatetime",
@@ -7189,6 +7299,9 @@
             "items": {
               "type": "object",
               "properties": {
+                "id": {
+                  "type": "string"
+                },
                 "type": {
                   "type": "string",
                   "enum": [
@@ -7210,9 +7323,6 @@
                     "performance",
                     "camp"
                   ]
-                },
-                "id": {
-                  "type": "string"
                 },
                 "location": {
                   "type": "string"
@@ -7246,8 +7356,8 @@
                 }
               },
               "required": [
-                "type",
                 "id",
+                "type",
                 "location",
                 "title",
                 "startDatetime",
@@ -7258,16 +7368,13 @@
           }
         },
         "required": [
-          "events",
-          "about",
-          "images",
-          "username",
-          "name",
           "id",
+          "username",
           "displayEmail",
           "avatar",
           "createdAt",
           "updatedAt",
+          "name",
           "userId",
           "location",
           "instagram",
@@ -7278,6 +7385,7 @@
           "competitiveCircuit",
           "division",
           "benefits",
+          "about",
           "website",
           "timeCommitment",
           "headCoach",
@@ -7286,9 +7394,11 @@
           "whatWeDo",
           "size",
           "videos",
+          "images",
           "skills",
           "sports",
           "styles",
+          "events",
           "globalEvents",
           "attendingEvents"
         ]
@@ -7314,7 +7424,7 @@
             "type": "number"
           },
           "interested": {
-            "type": "boolean"
+            "type": "number"
           }
         },
         "required": [
@@ -7348,8 +7458,8 @@
       "UsersAccountResponse": {
         "type": "object",
         "properties": {
-          "notifications": {
-            "type": "boolean"
+          "displayEmail": {
+            "type": "string"
           },
           "firstName": {
             "type": "string"
@@ -7367,21 +7477,61 @@
               }
             ]
           },
-          "displayEmail": {
-            "type": "string"
+          "notifications": {
+            "type": "boolean"
           }
         },
         "required": [
-          "notifications",
+          "displayEmail",
           "firstName",
           "lastName",
           "phone",
-          "displayEmail"
+          "notifications"
         ]
       },
       "UsersAccountRequest": {
         "type": "object",
         "properties": {
+          "displayEmail": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "firstName": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lastName": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "phone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "notifications": {
             "oneOf": [
               {
@@ -7390,46 +7540,6 @@
                   "number",
                   "boolean"
                 ]
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "firstName": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "lastName": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "phone": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "displayEmail": {
-            "oneOf": [
-              {
-                "type": "string"
               },
               {
                 "type": "null"
@@ -7452,10 +7562,10 @@
       "UsersActivityResponse": {
         "type": "object",
         "properties": {
-          "images": {
+          "videos": {
             "type": "number"
           },
-          "videos": {
+          "images": {
             "type": "number"
           },
           "following": {
@@ -7466,8 +7576,8 @@
           }
         },
         "required": [
-          "images",
           "videos",
+          "images",
           "following",
           "followers"
         ]

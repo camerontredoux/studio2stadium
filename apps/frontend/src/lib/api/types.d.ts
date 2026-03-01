@@ -29,7 +29,9 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ApplicationResponse"];
+                    };
                 };
             };
         };
@@ -45,7 +47,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ApplicationRequest"];
+                };
+            };
             responses: {
                 /** @description No Content */
                 204: {
@@ -79,7 +85,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ApplicationRequest"];
+                };
+            };
             responses: {
                 /** @description No Content */
                 204: {
@@ -3754,15 +3764,32 @@ export interface components {
         /** @enum {string} */
         SchoolFilterParam: "name" | "location" | "sports" | "styles" | "following" | "gpaRange" | "commonRecruiting" | "division" | "upcomingEvents";
         MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
+        ApplicationResponse: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            location: string;
+            schoolId: string;
+            /** @enum {string} */
+            status: "pending" | "accepted" | "rejected";
+            mediaId: string;
+            idType: string;
+            notes: string | null;
+        };
+        ApplicationRequest: {
+            location: string;
+            mediaId: string;
+            idType: string;
+        };
         AuthSignupRequest: {
             phone?: string | null;
             email: string;
-            password: string;
+            username: string;
             /** @enum {string} */
             type: "dancer" | "school";
-            username: string;
             firstName: string;
             lastName: string;
+            password: string;
             termsChecked: boolean;
         };
         AuthSignupResponse: {
@@ -3779,20 +3806,20 @@ export interface components {
             message: string;
         };
         AuthSessionResponse: {
+            id: string;
+            username: string;
+            /** @enum {string} */
+            role: "user" | "admin" | "prodigy_admin";
             /** @enum {string} */
             type: "dancer" | "school";
-            notifications: boolean;
-            username: string;
+            displayEmail: string;
             firstName: string;
             lastName: string;
-            id: string;
-            /** @enum {string} */
-            role: "admin" | "user" | "prodigy_admin";
-            displayEmail: string;
             avatar: string | null;
             verified: boolean;
+            notifications: boolean;
             profileId: string;
-            platforms: ("prodigy" | "core")[];
+            platforms: ("core" | "prodigy")[];
         };
         AuthPasswordChangeRequest: {
             currentPassword: string;
@@ -3814,7 +3841,7 @@ export interface components {
             feed: {
                 id: string;
                 /** @enum {string} */
-                contentType: "profile" | "image" | "video" | "reference" | "achievement";
+                contentType: "image" | "video" | "profile" | "reference" | "achievement";
                 createdAt: string;
                 username: string;
                 avatar: string | null;
@@ -3838,9 +3865,9 @@ export interface components {
             };
             checks: {
                 name: string;
-                meta?: Record<string, never>;
                 /** @enum {string} */
                 status: "error" | "ok" | "warning";
+                meta?: Record<string, never>;
                 message: string;
                 finishedAt: string;
                 isCached: boolean;
@@ -3898,11 +3925,11 @@ export interface components {
         };
         DancersResponse: {
             dancers: {
-                username: string;
-                name: string;
                 id: string;
+                username: string;
                 avatar: string | null;
                 createdAt: string;
+                name: string;
                 birthday: string;
                 location: string;
                 gpa: number | null;
@@ -3924,12 +3951,12 @@ export interface components {
             birthday: string | number;
             location: string;
             /** @enum {string} */
-            platform: "prodigy" | "core";
+            platform: "core" | "prodigy";
         };
         DancersFiltersResponse: {
+            id: string;
             /** @enum {string} */
             type: "select" | "input" | "toggle" | "multi-select" | "range";
-            id: string;
             options?: {
                 label: string;
                 value: string;
@@ -3990,17 +4017,17 @@ export interface components {
             sports: boolean;
         };
         DancersSubmissionsResponse: {
+            id: string;
             school: {
                 avatar: string | null;
                 username: string;
-                name: string;
                 id: string;
+                name: string;
                 location: string;
             };
-            id: string;
             updatedAt: string;
             /** @enum {string} */
-            status: "pending" | "released" | "in_review" | "accepted";
+            status: "pending" | "accepted" | "released" | "in_review";
             watched: boolean;
             watchedAt: string | null;
         }[];
@@ -4019,34 +4046,13 @@ export interface components {
             youtubeId: string;
         };
         DancersIdResponse: {
-            events: {
-                /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-                id: string;
-                location: string;
-                title: string;
-                startDatetime: string;
-                endDatetime: string;
-                organizer: {
-                    name: string;
-                } | null;
-            }[];
-            images: {
-                id: string;
-                createdAt: string;
-                updatedAt: string;
-                userId: string;
-                thumbnail: string | null;
-                caption: string | null;
-                mediaUrl: string | null;
-            }[];
+            id: string;
             username: string;
+            displayEmail: string;
             firstName: string;
             lastName: string;
-            phone: string | null;
-            id: string;
-            displayEmail: string;
             avatar: string | null;
+            phone: string | null;
             birthday: string;
             location: string;
             biography: string | null;
@@ -4068,10 +4074,10 @@ export interface components {
                 description: string;
             }[];
             references: {
-                name: string;
                 id: string;
                 createdAt: string;
                 updatedAt: string;
+                name: string;
                 profileId: string;
                 title: string;
                 description: string | null;
@@ -4083,6 +4089,15 @@ export interface components {
                 userId: string;
                 mediaId: string;
                 caption: string | null;
+            }[];
+            images: {
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                userId: string;
+                thumbnail: string | null;
+                caption: string | null;
+                mediaUrl: string | null;
             }[];
             skills: {
                 name: string;
@@ -4097,10 +4112,22 @@ export interface components {
                 name: string;
                 slug: string;
             }[];
-            globalEvents: {
+            events: {
+                id: string;
                 /** @enum {string} */
                 type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                location: string;
+                title: string;
+                startDatetime: string;
+                endDatetime: string;
+                organizer: {
+                    name: string;
+                } | null;
+            }[];
+            globalEvents: {
                 id: string;
+                /** @enum {string} */
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 location: string;
                 title: string;
                 startDatetime: string;
@@ -4142,9 +4169,9 @@ export interface components {
         };
         EventsResponse: {
             events: {
+                id: string;
                 /** @enum {string} */
                 type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-                id: string;
                 date: string;
                 time: string;
                 location: string;
@@ -4174,9 +4201,9 @@ export interface components {
             timezone: string;
         };
         EventsUpcomingResponse: {
+            id: string;
             /** @enum {string} */
             type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-            id: string;
             date: string;
             time: string;
             location: string;
@@ -4194,9 +4221,9 @@ export interface components {
             endDate: string;
             saved: boolean;
             attendees: number;
+            id: string;
             /** @enum {string} */
             type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-            id: string;
             location: string;
             website: string;
             title: string;
@@ -4205,9 +4232,9 @@ export interface components {
             eventAttendees: number;
         }[];
         EventsIdResponse: {
+            id: string;
             /** @enum {string} */
             type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-            id: string;
             createdAt: string;
             updatedAt: string;
             location: string;
@@ -4259,7 +4286,7 @@ export interface components {
         };
         ImagesPresignRequest: {
             /** @enum {string} */
-            type: "feed" | "avatar";
+            type: "avatar" | "feed";
             contentType: string;
         };
         ImagesPresignResponse: {
@@ -4267,22 +4294,22 @@ export interface components {
             url: string;
         };
         SchoolsResponse: {
-            events: number;
-            username: string;
-            name: string;
             id: string;
+            username: string;
             avatar: string | null;
             createdAt: string;
+            name: string;
             location: string;
             gpa: number | null;
             division: string | null;
             size: number | null;
+            events: number;
             followers: number;
         }[];
         SchoolsFiltersResponse: {
+            id: string;
             /** @enum {string} */
             type: "select" | "input" | "toggle" | "multi-select" | "range";
-            id: string;
             options?: {
                 label: string;
                 value: string;
@@ -4291,9 +4318,6 @@ export interface components {
             paramKey: components["schemas"]["SchoolFilterParam"];
         }[];
         SchoolsRecommendedResponse: {
-            about: string | null;
-            username: string;
-            name: string;
             debug?: {
                 schoolSkills: {
                     skillId: string;
@@ -4307,9 +4331,12 @@ export interface components {
                 }[];
             };
             id: string;
+            username: string;
             avatar: string | null;
+            name: string;
             location: string;
             gpa: number | null;
+            about: string | null;
             size: number | null;
             locationScore: number;
             matchScore: number;
@@ -4325,7 +4352,6 @@ export interface components {
             meetsGpaRequirement: boolean;
         }[];
         SchoolsMeRequest: {
-            about?: string | null;
             location?: string | null;
             instagram?: string | null;
             tiktok?: string | null;
@@ -4335,6 +4361,7 @@ export interface components {
             competitiveCircuit?: ("other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive") | null;
             division?: string | null;
             benefits?: string | null;
+            about?: string | null;
             website?: string | null;
             timeCommitment?: string | null;
             headCoach?: string | null;
@@ -4358,13 +4385,13 @@ export interface components {
         }[];
         SchoolsMeFollowingIdsResponse: string[];
         SchoolsMeFavoritesResponse: {
-            username: string;
-            name: string;
             id: string;
+            username: string;
             avatar: string | null;
             createdAt: string;
+            name: string;
             /** @enum {string} */
-            platformName: "prodigy" | "core";
+            platformName: "core" | "prodigy";
             comment: string | null;
             rating: number | null;
             lastContacted: string | null;
@@ -4392,41 +4419,13 @@ export interface components {
             sports: string[];
         };
         SchoolsIdResponse: {
-            events: {
-                /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-                id: string;
-                createdAt: string;
-                updatedAt: string;
-                location: string;
-                website: string | null;
-                schoolId: string;
-                title: string;
-                description: string;
-                address: string | null;
-                tags: string[] | null;
-                cost: string | null;
-                startDatetime: string;
-                endDatetime: string;
-                timezone: string;
-            }[];
-            about: string | null;
-            images: {
-                id: string;
-                createdAt: string;
-                updatedAt: string;
-                userId: string;
-                thumbnail: string | null;
-                caption: string | null;
-                mediaUrl: string | null;
-            }[];
-            username: string;
-            name: string;
             id: string;
+            username: string;
             displayEmail: string;
             avatar: string | null;
             createdAt: string;
             updatedAt: string;
+            name: string;
             userId: string;
             location: string;
             instagram: string | null;
@@ -4439,6 +4438,7 @@ export interface components {
             competitiveCircuit: "other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive";
             division: string | null;
             benefits: string | null;
+            about: string | null;
             website: string | null;
             timeCommitment: string | null;
             headCoach: string | null;
@@ -4454,6 +4454,15 @@ export interface components {
                 mediaId: string;
                 caption: string | null;
             }[];
+            images: {
+                id: string;
+                createdAt: string;
+                updatedAt: string;
+                userId: string;
+                thumbnail: string | null;
+                caption: string | null;
+                mediaUrl: string | null;
+            }[];
             skills: {
                 name: string;
                 slug: string;
@@ -4467,19 +4476,37 @@ export interface components {
                 name: string;
                 slug: string;
             }[];
-            globalEvents: {
+            events: {
+                id: string;
                 /** @enum {string} */
                 type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                createdAt: string;
+                updatedAt: string;
+                location: string;
+                website: string | null;
+                schoolId: string;
+                title: string;
+                description: string;
+                address: string | null;
+                tags: string[] | null;
+                cost: string | null;
+                startDatetime: string;
+                endDatetime: string;
+                timezone: string;
+            }[];
+            globalEvents: {
                 id: string;
+                /** @enum {string} */
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 location: string;
                 title: string;
                 startDatetime: string;
                 endDatetime: string;
             }[];
             attendingEvents: {
+                id: string;
                 /** @enum {string} */
                 type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-                id: string;
                 location: string;
                 title: string;
                 startDatetime: string;
@@ -4504,25 +4531,25 @@ export interface components {
             available: boolean;
         };
         UsersAccountResponse: {
-            notifications: boolean;
+            displayEmail: string;
             firstName: string;
             lastName: string;
             phone: string | null;
-            displayEmail: string;
+            notifications: boolean;
         };
         UsersAccountRequest: {
-            notifications?: (string | number | boolean) | null;
+            displayEmail?: string | null;
             firstName?: string | null;
             lastName?: string | null;
             phone?: string | null;
-            displayEmail?: string | null;
+            notifications?: (string | number | boolean) | null;
         };
         UsersAvatarRequest: {
             key: string;
         };
         UsersActivityResponse: {
-            images: number;
             videos: number;
+            images: number;
             following: number;
             followers: number;
         };

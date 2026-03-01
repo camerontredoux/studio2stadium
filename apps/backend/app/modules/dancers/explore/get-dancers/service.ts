@@ -113,6 +113,8 @@ export class Service {
   ) {
     const conditions = [];
 
+    conditions.push(eq(users.verified, true));
+
     if (!override) {
       conditions.push(eq(users.role, "user"));
     }
