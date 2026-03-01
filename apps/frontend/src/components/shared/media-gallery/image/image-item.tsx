@@ -7,6 +7,7 @@ import {
   DialogPanel,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
 import type { Image } from "../types";
 import { ImageDelete } from "./image-delete";
 
@@ -17,12 +18,26 @@ export function ImageItem({
   image: Image;
   showOwnerControls: boolean;
 }) {
+  const [isFullLoaded, setIsFullLoaded] = useState(false);
+
+  useEffect(() => {
+    if (image.mediaUrl) {
+      const img = new Image();
+      img.src = image.mediaUrl;
+      img.onload = () => setIsFullLoaded(true);
+    }
+  }, [image.mediaUrl]);
+
+  if (!image.mediaUrl || !image.thumbnail) {
+    return null;
+  }
+
   return (
     <Dialog>
       <DialogTrigger>
         <div className="bg-muted group relative aspect-square cursor-pointer overflow-hidden rounded-lg">
           <img
-            src={image.thumbnail ?? undefined}
+            src={isFullLoaded ? image.mediaUrl : image.thumbnail}
             alt={image.caption || "Gallery image"}
             className="size-full object-cover"
           />
