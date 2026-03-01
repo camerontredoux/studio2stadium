@@ -1,3 +1,4 @@
+import LocationSelect from "@/components/shared/location-select";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -69,6 +70,7 @@ export function TeamForm({ username, onSubmit }: TeamFormProps) {
       teamSelection: data.teamSelection,
       competitiveCircuit: data.competitiveCircuit,
       division: data.division ?? undefined,
+      location: data.location ?? undefined,
     },
   });
 
@@ -179,32 +181,48 @@ export function TeamForm({ username, onSubmit }: TeamFormProps) {
             )}
           />
         </div>
-        <Controller
-          control={form.control}
-          name="division"
-          render={({ field: { value, onChange }, fieldState }) => (
-            <Field name="division" invalid={fieldState.invalid}>
-              <FieldLabel>Division</FieldLabel>
-              <Select
-                value={value ?? undefined}
-                onValueChange={onChange}
-                items={DIVISION_OPTIONS}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select division..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {DIVISION_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FieldError error={fieldState.error} />
-            </Field>
-          )}
-        />
+        <div className="grid grid-cols-2 gap-3">
+          <Controller
+            control={form.control}
+            name="division"
+            render={({ field: { value, onChange }, fieldState }) => (
+              <Field name="division" invalid={fieldState.invalid}>
+                <FieldLabel>Division</FieldLabel>
+                <Select
+                  value={value ?? undefined}
+                  onValueChange={onChange}
+                  items={DIVISION_OPTIONS}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select division..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DIVISION_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FieldError error={fieldState.error} />
+              </Field>
+            )}
+          />
+          <Controller
+            control={form.control}
+            name="location"
+            render={({ field, fieldState }) => (
+              <Field name="location" invalid={fieldState.invalid}>
+                <FieldLabel>Location</FieldLabel>
+                <LocationSelect
+                  value={field.value ?? undefined}
+                  onChange={field.onChange}
+                />
+                <FieldError error={fieldState.error} />
+              </Field>
+            )}
+          />
+        </div>
         <Controller
           control={form.control}
           name="headCoach"

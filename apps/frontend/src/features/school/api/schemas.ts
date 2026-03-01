@@ -36,6 +36,7 @@ export const schemas = {
       .enum(["uda", "dtu", "nda", "usa", "non-competitive", "other"])
       .optional(),
     division: z.string().nullable().optional(),
+    location: z.string().nullable().optional(),
   }),
 
   createEvent: z

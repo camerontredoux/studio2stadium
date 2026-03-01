@@ -7,7 +7,10 @@ export const Route = createFileRoute("/_app/(routes)/settings/application")({
     access.guard(access.is("core", "school"));
   },
   loader: async ({ context: { queryClient } }) => {
-    await queryClient.ensureQueryData(accountQueries.application());
+    await Promise.all([
+      queryClient.ensureQueryData(accountQueries.application()),
+      queryClient.ensureQueryData(accountQueries.account()),
+    ]);
   },
   component: ApplicationSettings,
 });

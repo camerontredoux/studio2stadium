@@ -1,203 +1,173 @@
+import { useAnchoredErrorToast } from "@/components/hooks/use-anchored-error-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
-import { MaskInput } from "@/components/ui/mask-input";
+import { Field, FieldError } from "@/components/ui/field";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
-import { Switch } from "@/components/ui/switch";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
+import { useRequestUpload } from "@/shared/images/api/mutations";
+import { ImageUploadField } from "@/shared/images/components/image-upload-field";
+import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { MailIcon, PhoneIcon } from "lucide-react";
+import { InfoIcon } from "lucide-react";
+import { useRef, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useUpdateAccount } from "../api/mutations";
+import { useUpdateApplication } from "../api/mutations";
 import { accountQueries } from "../api/queries";
-import { accountSchemas } from "../api/schemas";
 
-type ApplicationSettingsSchema = z.infer<
-  typeof accountSchemas.updateAccount
->;
+const formSchema = z.object({
+  files: z.array(z.custom<File>()).min(1, "Please upload an ID image").max(1),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+const statusVariant = {
+  pending: "warning",
+  accepted: "success",
+  rejected: "error",
+} as const;
 
 export function ApplicationSettings() {
-  const { data } = useSuspenseQuery(accountQueries.account());
-  const { mutate, isPending } = useUpdateAccount();
+  const { data: application } = useSuspenseQuery(
+    accountQueries.application(),
+  );
+  const { data: account } = useSuspenseQuery(accountQueries.account());
 
-  const form = useForm<ApplicationSettingsSchema>({
-    resolver: zodResolver(accountSchemas.updateAccount),
+  const { mutateAsync: requestUpload, isPending } = useRequestUpload();
+  const { mutate: updateApplication, isPending: isUpdating } =
+    useUpdateApplication();
+
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const isLoading = isPending || uploading || isUpdating;
+  const canReupload =
+    application.status === "pending" || application.status === "rejected";
+
+  const submitRef = useRef<HTMLButtonElement>(null);
+  const errorToast = useAnchoredErrorToast(submitRef);
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: data.firstName ?? "",
-      lastName: data.lastName ?? "",
-      displayEmail: data.displayEmail ?? "",
-      phone: data.phone ?? "",
-      notifications: data.notifications ?? false,
+      files: [],
     },
   });
 
-  const { isDirty, isValid } = form.formState;
+  const onSubmit = async (data: FormValues) => {
+    const file = data.files[0];
 
-  const onSubmit = (body: ApplicationSettingsSchema) => {
-    mutate(
-      { body },
-      {
-        onSuccess: () => {
-          toastManager.add({
-            title: "Success",
-            description: "Profile updated",
-            type: "success",
-          });
-          form.reset(form.getValues());
+    try {
+      const { key, url } = await requestUpload({
+        body: {
+          contentType: file.type,
+          type: "id",
         },
-        onError: handleApiError({
-          onError: (error) => {
+      });
+
+      setUploading(true);
+      await uploadToCloudflare(url, file, setProgress);
+      setUploading(false);
+
+      updateApplication(
+        {
+          body: { phone: account.phone ?? "", mediaId: key },
+        },
+        {
+          onSuccess: () => {
             toastManager.add({
-              title: "Error",
-              description: error.message,
-              type: "error",
+              title: "Success",
+              description: "ID re-uploaded successfully",
+              type: "success",
             });
+            form.reset();
           },
-          onValidation: (field, message) => {
-            form.setError(field as keyof ApplicationSettingsSchema, {
-              message,
-            });
-          },
-        }),
-      },
-    );
+          onError: handleApiError({
+            onValidation(field, message) {
+              form.setError(field as keyof FormValues, { message });
+            },
+            onError(error) {
+              errorToast.show(error.message);
+            },
+          }),
+        },
+      );
+    } catch {
+      setUploading(false);
+      errorToast.show("Failed to upload image. Please try again.");
+    }
   };
 
   return (
-    <FormProvider {...form}>
-      <form
-        onSubmit={(e) => form.handleSubmit(onSubmit)(e)}
-        className="flex flex-col gap-4 px-2 lg:gap-6"
+    <div className="flex flex-col gap-4 px-2 lg:gap-6">
+      <Section
+        title="Application Status"
+        description="Your current application status."
       >
-        <Section
-          title="Name"
-          description="Used for your profile and in emails."
-        >
-          <Controller
-            control={form.control}
-            name="firstName"
-            render={({ field, fieldState }) => (
-              <Field name={field.name} invalid={fieldState.invalid}>
-                <FieldLabel>First Name</FieldLabel>
-                <Input
-                  placeholder="First name"
-                  value={field.value}
-                  onChange={field.onChange}
-                />
-                <FieldError error={fieldState.error} />
-              </Field>
-            )}
-          />
-          <Controller
-            control={form.control}
-            name="lastName"
-            render={({ field, fieldState }) => (
-              <Field name={field.name} invalid={fieldState.invalid}>
-                <FieldLabel>Last Name</FieldLabel>
-                <Input
-                  placeholder="Last name"
-                  value={field.value}
-                  onChange={field.onChange}
-                />
-                <FieldError error={fieldState.error} />
-              </Field>
-            )}
-          />
-        </Section>
+        <Badge className="w-fit capitalize" variant={statusVariant[application.status]}>
+          {application.status}
+        </Badge>
 
-        <Separator />
+        {application.notes && (
+          <Alert variant="default">
+            <InfoIcon />
+            <AlertTitle>Admin Notes</AlertTitle>
+            <AlertDescription>{application.notes}</AlertDescription>
+          </Alert>
+        )}
+      </Section>
 
-        <Section
-          title="Contact Preferences"
-          description="Used for communication and identification."
-        >
-          <Controller
-            control={form.control}
-            name="displayEmail"
-            render={({ field, fieldState }) => (
-              <Field name={field.name} invalid={fieldState.invalid}>
-                <FieldLabel>Email</FieldLabel>
-                <InputGroup>
-                  <InputGroupAddon align="inline-start">
-                    <MailIcon className="size-3.5" />
-                  </InputGroupAddon>
-                  <Input
-                    unstyled
-                    type="email"
-                    placeholder="Email address"
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                </InputGroup>
-                <FieldError error={fieldState.error} />
-              </Field>
-            )}
-          />
-          <Controller
-            control={form.control}
-            name="phone"
-            render={({ field, fieldState }) => (
-              <Field
-                className="sm:w-fit"
-                name={field.name}
-                invalid={fieldState.invalid}
-              >
-                <FieldLabel>Phone Number</FieldLabel>
-                <InputGroup>
-                  <InputGroupAddon align="inline-start">
-                    <PhoneIcon className="size-3.5" />
-                  </InputGroupAddon>
-                  <MaskInput
-                    unstyled
-                    type="tel"
-                    mask="phone"
-                    value={field.value ?? ""}
-                    onValueChange={(_, unmaskedValue) => {
-                      field.onChange(unmaskedValue);
-                    }}
-                  />
-                </InputGroup>
-                <FieldError error={fieldState.error} />
-              </Field>
-            )}
-          />
-          <Controller
-            control={form.control}
-            name="notifications"
-            render={({ field, fieldState }) => (
-              <Field name={field.name} invalid={fieldState.invalid}>
-                <FieldLabel className="flex flex-col items-start">
-                  Notifications
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FieldLabel>
-              </Field>
-            )}
-          />
-        </Section>
+      {canReupload && (
+        <>
+          <Separator />
 
-        <div className="flex justify-end">
-          <Button
-            disabled={isPending || !isDirty || !isValid}
-            type="submit"
-            className="w-fit max-sm:w-full"
+          <Section
+            title="Re-upload ID"
+            description="Upload a new identification image for review."
           >
-            {isPending ? (
-              <Spinner label="Updating profile..." />
-            ) : (
-              "Update Profile"
-            )}
-          </Button>
-        </div>
-      </form>
-    </FormProvider>
+            <FormProvider {...form}>
+              <form
+                className="flex flex-col gap-3"
+                onSubmit={(e) => form.handleSubmit(onSubmit)(e)}
+              >
+                <Controller
+                  control={form.control}
+                  name="files"
+                  render={({ field, fieldState }) => (
+                    <Field invalid={fieldState.invalid}>
+                      <ImageUploadField
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        isLoading={isLoading}
+                        progress={progress}
+                      />
+                      <FieldError error={fieldState.error} />
+                    </Field>
+                  )}
+                />
+
+                <Button
+                  disabled={isLoading}
+                  ref={submitRef}
+                  type="submit"
+                  className="w-fit max-sm:w-full"
+                >
+                  {isLoading ? (
+                    <Spinner label="Uploading..." />
+                  ) : (
+                    "Re-upload ID"
+                  )}
+                </Button>
+              </form>
+            </FormProvider>
+          </Section>
+        </>
+      )}
+    </div>
   );
 }
 
