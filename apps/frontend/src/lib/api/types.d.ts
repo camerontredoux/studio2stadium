@@ -4494,7 +4494,7 @@ export interface components {
         SchoolsIdMetadataResponse: {
             following: boolean;
             followers: number;
-            interested: boolean;
+            interested: number;
         };
         SchoolsIdInterestResponse: {
             created: boolean;

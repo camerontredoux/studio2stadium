@@ -13,7 +13,11 @@ export class Service {
           id: params.id,
         },
         with: {
-          followers: true,
+          followers: {
+            columns: {
+              id: true,
+            },
+          },
           interested: {
             where: {
               id: profileId,
