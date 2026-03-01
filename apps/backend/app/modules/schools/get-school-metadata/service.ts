@@ -14,7 +14,23 @@ export class Service {
         },
         with: {
           followers: true,
-          interested: true,
+          interested: {
+            where: {
+              id: profileId,
+            },
+          },
+        },
+      })
+    );
+
+    const interested = await this.db.use((db) =>
+      db.query.interests.findFirst({
+        where: {
+          dancerId: profileId,
+          schoolId: params.id,
+        },
+        columns: {
+          count: true,
         },
       })
     );
@@ -23,8 +39,7 @@ export class Service {
     const following = metadata?.followers.some(
       (follower) => follower.id === profileId
     );
-    const interested = metadata?.interested.some((i) => i.id === profileId);
 
-    return { followers, following, interested };
+    return { followers, following, interested: interested?.count };
   }
 }

@@ -1,18 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { toastManager } from "@/components/ui/toast-manager";
 import { schoolQueries } from "@/features/school/api/queries";
 import type { SchoolProfile } from "@/features/school/types";
-import { handleApiError } from "@/lib/api/errors";
 import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { queries } from "@/shared/engagement/api/queries";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { EyeIcon, EyeOffIcon, HeartIcon, Share2Icon } from "lucide-react";
-import { useShowInterest } from "../../../api/mutations";
 import { SchoolFollowersDialog } from "../../followers-dialog";
 import { SchoolFollowingDialog } from "../../following-dialog";
 import { useProfile } from "../context/use-profile";
 import { FollowButton } from "../follow-button";
+import { ShowInterestDialog } from "./interest-dialog";
 
 export function HeroFooter({ school }: { school: SchoolProfile }) {
   const { isOwner, isPreview, showOwnerControls } = useProfile();
@@ -25,9 +23,7 @@ export function HeroFooter({ school }: { school: SchoolProfile }) {
   );
 
   const isFollowing = metadata?.following ?? false;
-  const isInterested = metadata?.interested ?? false;
-
-  const { mutate: showInterest } = useShowInterest(school.id);
+  const isInterested = (metadata?.interested ?? 0) >= 3;
 
   const handlePreview = () => {
     navigate({
@@ -35,23 +31,6 @@ export function HeroFooter({ school }: { school: SchoolProfile }) {
         mode: isPreview ? undefined : "preview",
       },
     });
-  };
-
-  const handleShowInterest = () => {
-    showInterest(
-      { params: { path: { id: school.id } } },
-      {
-        onError: handleApiError({
-          onError: (error) => {
-            toastManager.add({
-              title: "Error",
-              description: error.message,
-              type: "error",
-            });
-          },
-        }),
-      },
-    );
   };
 
   return (
@@ -87,14 +66,10 @@ export function HeroFooter({ school }: { school: SchoolProfile }) {
           <>
             <FollowButton school={school} isFollowing={isFollowing} size="sm" />
             {isFollowing && subscribed && !isInterested && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleShowInterest}
-                className="flex-1"
-              >
-                <HeartIcon className="size-4" /> Show Interest
-              </Button>
+              <ShowInterestDialog
+                schoolId={school.id}
+                count={metadata?.interested ?? 0}
+              />
             )}
             {isInterested && (
               <Button size="sm" variant="ghost" disabled className="flex-1">
