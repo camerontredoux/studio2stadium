@@ -10,15 +10,7 @@ import {
   NumberFieldIncrement,
   NumberFieldInput,
 } from "@/components/ui/number-field";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { DIVISIONS } from "@/utils/constants/divisions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Controller, FormProvider, useForm } from "react-hook-form";
@@ -29,26 +21,6 @@ import { SportsList } from "../sports-list";
 import { StylesList } from "../styles-list";
 
 export type TeamFormData = z.infer<typeof schemas.updateTeam>;
-
-const CIRCUIT_OPTIONS = [
-  { value: "uda", label: "UDA" },
-  { value: "dtu", label: "DTU" },
-  { value: "nda", label: "NDA" },
-  { value: "usa", label: "USA" },
-  { value: "non-competitive", label: "Non-Competitive" },
-  { value: "other", label: "Other" },
-] as const;
-
-const SELECTION_OPTIONS = [
-  { value: "recruitment", label: "Recruitment" },
-  { value: "audition", label: "Audition" },
-  { value: "hybrid", label: "Hybrid" },
-] as const;
-
-const DIVISION_OPTIONS = Object.entries(DIVISIONS).map(([value, label]) => ({
-  value,
-  label,
-}));
 
 interface TeamFormProps {
   username: string;
@@ -62,14 +34,10 @@ export function TeamForm({ username, onSubmit }: TeamFormProps) {
     resolver: zodResolver(schemas.updateTeam),
     defaultValues: {
       size: data.size ?? undefined,
-      gpa: data.gpa ?? undefined,
       timeCommitment: data.timeCommitment ?? "",
       headCoach: data.headCoach ?? "",
       assistantCoach: data.assistantCoach ?? "",
       commonRecruiting: data.commonRecruiting ?? false,
-      teamSelection: data.teamSelection,
-      competitiveCircuit: data.competitiveCircuit,
-      division: data.division ?? undefined,
       location: data.location ?? undefined,
     },
   });
@@ -99,111 +67,6 @@ export function TeamForm({ username, onSubmit }: TeamFormProps) {
                     <NumberFieldIncrement />
                   </NumberFieldGroup>
                 </NumberField>
-                <FieldError error={fieldState.error} />
-              </Field>
-            )}
-          />
-          <Controller
-            control={form.control}
-            name="gpa"
-            render={({ field: { value, onChange }, fieldState }) => (
-              <Field name="gpa" invalid={fieldState.invalid}>
-                <FieldLabel>GPA Requirement</FieldLabel>
-                <NumberField
-                  value={value as number | undefined}
-                  onValueChange={(val) => onChange(val)}
-                  min={0}
-                  max={5}
-                  step={0.1}
-                >
-                  <NumberFieldGroup>
-                    <NumberFieldDecrement />
-                    <NumberFieldInput placeholder="GPA" />
-                    <NumberFieldIncrement />
-                  </NumberFieldGroup>
-                </NumberField>
-                <FieldError error={fieldState.error} />
-              </Field>
-            )}
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Controller
-            control={form.control}
-            name="teamSelection"
-            render={({ field: { value, onChange }, fieldState }) => (
-              <Field name="teamSelection" invalid={fieldState.invalid}>
-                <FieldLabel>Team Selection</FieldLabel>
-                <Select
-                  value={value}
-                  onValueChange={onChange}
-                  items={SELECTION_OPTIONS}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SELECTION_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FieldError error={fieldState.error} />
-              </Field>
-            )}
-          />
-          <Controller
-            control={form.control}
-            name="competitiveCircuit"
-            render={({ field: { value, onChange }, fieldState }) => (
-              <Field name="competitiveCircuit" invalid={fieldState.invalid}>
-                <FieldLabel>Competitive Circuit</FieldLabel>
-                <Select
-                  value={value}
-                  onValueChange={onChange}
-                  items={CIRCUIT_OPTIONS}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CIRCUIT_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FieldError error={fieldState.error} />
-              </Field>
-            )}
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Controller
-            control={form.control}
-            name="division"
-            render={({ field: { value, onChange }, fieldState }) => (
-              <Field name="division" invalid={fieldState.invalid}>
-                <FieldLabel>Division</FieldLabel>
-                <Select
-                  value={value ?? undefined}
-                  onValueChange={onChange}
-                  items={DIVISION_OPTIONS}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select division..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DIVISION_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
                 <FieldError error={fieldState.error} />
               </Field>
             )}

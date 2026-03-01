@@ -5,7 +5,8 @@ import { ProfilePicture } from "@/shared/images/components/profile-picture";
 import { DIVISIONS } from "@/utils/constants/divisions";
 import { US_STATES } from "@/utils/constants/states";
 import { GlobeIcon, MapPinIcon } from "lucide-react";
-import { HeroBadge } from "./hero-badge";
+import { useProfile } from "../context/use-profile";
+import { ProgramDetailsDialog } from "../edit/program-details-dialog";
 
 const CIRCUIT_LABELS: Record<SchoolProfile["competitiveCircuit"], string> = {
   uda: "UDA",
@@ -29,6 +30,7 @@ export function HeroContent({
   school: SchoolProfile;
   showOwnerControls: boolean;
 }) {
+  const { username } = useProfile();
   const initials = school.name
     .split(" ")
     .map((word) => word[0])
@@ -75,13 +77,6 @@ export function HeroContent({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 max-sm:col-span-2 max-sm:flex-1">
-        <HeroBadge
-          className="border-brand/50 tracking-tight"
-          label="GPA"
-          value={school.gpa}
-        />
-      </div>
       <div className="col-span-2 flex flex-wrap items-center gap-2 px-1">
         <Badge variant="outline">
           {CIRCUIT_LABELS[school.competitiveCircuit]}
@@ -95,6 +90,10 @@ export function HeroContent({
               school.division}
           </Badge>
         )}
+        {school.gpa && (
+          <Badge variant="outline">{school.gpa} GPA</Badge>
+        )}
+        {showOwnerControls && <ProgramDetailsDialog username={username} />}
       </div>
     </div>
   );

@@ -26,17 +26,20 @@ export const schemas = {
 
   updateTeam: z.object({
     size: z.coerce.number().optional(),
-    gpa: z.coerce.number().optional(),
     timeCommitment: z.string().optional(),
     headCoach: z.string().optional(),
     assistantCoach: z.string().optional(),
     commonRecruiting: z.boolean().optional(),
+    location: z.string().nullable().optional(),
+  }),
+
+  updateProgramDetails: z.object({
+    gpa: z.coerce.number().optional(),
     teamSelection: z.enum(["recruitment", "audition", "hybrid"]).optional(),
     competitiveCircuit: z
       .enum(["uda", "dtu", "nda", "usa", "non-competitive", "other"])
       .optional(),
     division: z.string().nullable().optional(),
-    location: z.string().nullable().optional(),
   }),
 
   createEvent: z
