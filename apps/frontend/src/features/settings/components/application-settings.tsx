@@ -3,13 +3,6 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
 import { MaskInput } from "@/components/ui/mask-input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
@@ -20,24 +13,26 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { MailIcon, PhoneIcon } from "lucide-react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useSubmitApplication } from "../api/mutations";
+import { useUpdateAccount } from "../api/mutations";
 import { accountQueries } from "../api/queries";
 import { accountSchemas } from "../api/schemas";
 
 type ApplicationSettingsSchema = z.infer<
-  typeof accountSchemas.submitApplication
+  typeof accountSchemas.updateAccount
 >;
 
 export function ApplicationSettings() {
-  const { data, error } = useSuspenseQuery(accountQueries.application());
-  const { mutate, isPending } = useSubmitApplication();
+  const { data } = useSuspenseQuery(accountQueries.account());
+  const { mutate, isPending } = useUpdateAccount();
 
   const form = useForm<ApplicationSettingsSchema>({
-    resolver: zodResolver(accountSchemas.submitApplication),
+    resolver: zodResolver(accountSchemas.updateAccount),
     defaultValues: {
-      idType: data.idType,
-      mediaId: data.mediaId,
-      location: data.location,
+      firstName: data.firstName ?? "",
+      lastName: data.lastName ?? "",
+      displayEmail: data.displayEmail ?? "",
+      phone: data.phone ?? "",
+      notifications: data.notifications ?? false,
     },
   });
 
@@ -50,7 +45,7 @@ export function ApplicationSettings() {
         onSuccess: () => {
           toastManager.add({
             title: "Success",
-            description: "Application submitted",
+            description: "Profile updated",
             type: "success",
           });
           form.reset(form.getValues());
@@ -85,22 +80,15 @@ export function ApplicationSettings() {
         >
           <Controller
             control={form.control}
-            name="idType"
+            name="firstName"
             render={({ field, fieldState }) => (
               <Field name={field.name} invalid={fieldState.invalid}>
-                <FieldLabel>ID Type</FieldLabel>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an ID type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="passport">Passport</SelectItem>
-                    <SelectItem value="driver's license">
-                      Driver's License
-                    </SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
+                <FieldLabel>First Name</FieldLabel>
+                <Input
+                  placeholder="First name"
+                  value={field.value}
+                  onChange={field.onChange}
+                />
                 <FieldError error={fieldState.error} />
               </Field>
             )}

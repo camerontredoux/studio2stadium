@@ -1,19 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { Field, FieldDescription } from "@/components/ui/field";
-import {
-  FileUpload,
-  FileUploadDropzone,
-  FileUploadItem,
-  FileUploadItemDelete,
-  FileUploadItemMetadata,
-  FileUploadItemPreview,
-  FileUploadList,
-  FileUploadTrigger,
-} from "@/components/ui/file-upload";
-import { Progress } from "@/components/ui/progress";
+import { Field } from "@/components/ui/field";
 import { toastManager } from "@/components/ui/toast-manager";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CloudUploadIcon, TrashIcon } from "lucide-react";
 import {
   Controller,
   FormProvider,
@@ -21,6 +8,7 @@ import {
   type FieldErrors,
 } from "react-hook-form";
 import { z } from "zod";
+import { ImageUploadField } from "../image-upload-field";
 
 const schema = z.object({
   files: z
@@ -77,58 +65,12 @@ export function FeedUploadForm({
           name="files"
           render={({ field }) => (
             <Field>
-              <FileUpload
+              <ImageUploadField
                 value={field.value}
                 onValueChange={field.onChange}
-                accept="image/*"
-                maxFiles={1}
-                maxSize={10 * 1024 * 1024}
-                onFileReject={(_, message) => {
-                  toastManager.add({
-                    title: "Error",
-                    description: message,
-                    type: "error",
-                  });
-                }}
-              >
-                {field.value?.length > 0 ? (
-                  <FileUploadList>
-                    {field.value?.map((file, index) => (
-                      <FileUploadItem
-                        key={index}
-                        value={file}
-                        className="flex-col"
-                      >
-                        <div className="flex w-full items-center gap-2">
-                          <FileUploadItemPreview className="size-12 rounded-full object-cover max-sm:size-13" />
-                          <FileUploadItemMetadata />
-                          <FileUploadItemDelete asChild>
-                            <Button variant="ghost" size="icon">
-                              <TrashIcon className="text-destructive-foreground size-4" />
-                              <span className="sr-only">Delete</span>
-                            </Button>
-                          </FileUploadItemDelete>
-                        </div>
-                        {isLoading && (
-                          <Progress value={progress} className="w-full" />
-                        )}
-                      </FileUploadItem>
-                    ))}
-                  </FileUploadList>
-                ) : (
-                  <FileUploadDropzone className="flex-row flex-wrap border-dashed text-center text-sm">
-                    <CloudUploadIcon className="size-4" />
-                    Drag and drop or{" "}
-                    <FileUploadTrigger asChild>
-                      <Button variant="secondary" size="xs">
-                        Browse
-                      </Button>
-                    </FileUploadTrigger>
-                    to upload
-                  </FileUploadDropzone>
-                )}
-              </FileUpload>
-              <FieldDescription>Max image size is 10MB.</FieldDescription>
+                isLoading={isLoading}
+                progress={progress}
+              />
             </Field>
           )}
         />

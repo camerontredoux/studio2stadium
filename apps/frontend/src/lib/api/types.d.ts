@@ -3869,6 +3869,7 @@ export interface components {
             notifications: boolean;
             profileId: string;
             platforms: ("core" | "prodigy")[];
+            applied: boolean;
         };
         AuthPasswordChangeRequest: {
             currentPassword: string;
@@ -4335,7 +4336,7 @@ export interface components {
         };
         ImagesPresignRequest: {
             /** @enum {string} */
-            type: "avatar" | "feed";
+            type: "id" | "avatar" | "feed";
             contentType: string;
         };
         ImagesPresignResponse: {

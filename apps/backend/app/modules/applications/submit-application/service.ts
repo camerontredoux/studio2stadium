@@ -15,8 +15,13 @@ export class SubmitApplicationService {
     data: SubmitApplicationSchema
   ) {
     await this.db.tx(async (tx) => {
-      tx.update(users).set({ phone: data.phone }).where(eq(users.id, userId));
-      tx.insert(schoolApplications).values({ mediaId: data.mediaId, schoolId });
+      await tx
+        .update(users)
+        .set({ phone: data.phone })
+        .where(eq(users.id, userId));
+      await tx
+        .insert(schoolApplications)
+        .values({ mediaId: data.mediaId, schoolId });
     });
   }
 }

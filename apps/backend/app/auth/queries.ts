@@ -48,6 +48,8 @@ export async function getUserSession(id: string) {
   const { platforms, avatar, ...user } = session;
 
   let profileId: string | undefined;
+  let applied = false;
+
   if (user.type === "dancer") {
     const profile = await db.query.dancerProfiles.findFirst({
       where: {
@@ -63,10 +65,20 @@ export async function getUserSession(id: string) {
       where: {
         userId: user.id,
       },
+      with: {
+        application: {
+          columns: {
+            id: true,
+          },
+        },
+      },
     });
 
     if (profile) {
       profileId = profile.id;
+      if (profile.application?.id) {
+        applied = true;
+      }
     }
   }
 
@@ -78,6 +90,7 @@ export async function getUserSession(id: string) {
       width: 320,
       height: 320,
     }),
+    applied,
     platforms: platforms.map((platform) => platform.platformName),
   };
 }

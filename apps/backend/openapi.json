@@ -3455,6 +3455,9 @@
                 "prodigy"
               ]
             }
+          },
+          "applied": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -3469,7 +3472,8 @@
           "verified",
           "notifications",
           "profileId",
-          "platforms"
+          "platforms",
+          "applied"
         ]
       },
       "AuthPasswordChangeRequest": {

@@ -61,6 +61,11 @@ export class Service {
           startDatetime: {
             gt: new Date(),
           },
+          organizer: {
+            user: {
+              verified: true,
+            },
+          },
         },
         columns: {
           id: true,

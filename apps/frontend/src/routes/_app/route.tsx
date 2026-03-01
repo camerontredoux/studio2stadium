@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_app")({
         });
       }
 
-      if (!session.verified) {
+      if (!session.verified && session.type !== "school") {
         throw redirect({
           to: "/onboarding",
           replace: true,

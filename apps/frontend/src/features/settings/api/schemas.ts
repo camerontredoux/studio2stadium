@@ -21,8 +21,7 @@ export const accountSchemas = {
       path: ["newPassword"],
     }),
   submitApplication: z.object({
-    idType: z.string(),
+    phone: z.string(),
     mediaId: z.string(),
-    location: z.string(),
   }),
 } as const;

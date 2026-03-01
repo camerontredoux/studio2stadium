@@ -124,6 +124,10 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.schoolProfiles.id.through(r.favorites.schoolId),
       to: r.dancerProfiles.id.through(r.favorites.dancerId),
     }),
+    application: r.one.schoolApplications({
+      from: r.schoolProfiles.id,
+      to: r.schoolApplications.schoolId,
+    }),
   },
   danceEvents: {
     organizer: r.one.schoolProfiles({

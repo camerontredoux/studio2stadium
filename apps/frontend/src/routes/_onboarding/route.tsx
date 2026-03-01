@@ -22,6 +22,13 @@ export const Route = createFileRoute("/_onboarding")({
         });
       }
 
+      if (session.applied) {
+        throw redirect({
+          to: "/settings/application",
+          replace: true,
+        });
+      }
+
       if (session.verified) {
         throw redirect({
           to: "/feed",
