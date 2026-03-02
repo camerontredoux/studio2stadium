@@ -37,11 +37,7 @@ export class Service {
       .map((f) => ({
         id: f.school!.id,
         username: f.school!.user!.username,
-        avatar: imageUrl(f.school!.user!.avatar, {
-          fit: "cover",
-          width: 100,
-          height: 100,
-        }),
+        avatar: imageUrl(f.school!.user!.avatar, "avatar"),
         name: f.school!.name,
       }));
   }

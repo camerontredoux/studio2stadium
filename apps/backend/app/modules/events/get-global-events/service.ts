@@ -23,11 +23,7 @@ export class Service {
 
     return {
       ...event,
-      thumbnail: imageUrl(event.thumbnail, {
-        fit: "cover",
-        width: 320,
-        height: 320,
-      }),
+      thumbnail: imageUrl(event.thumbnail, "thumbnail"),
       startTime,
       endTime,
       startDate,

@@ -48,11 +48,7 @@ export class Service {
           lastContacted: f.lastContacted,
           createdAt: f.createdAt,
           username: f.dancer.user.username,
-          avatar: imageUrl(f.dancer.user.avatar, {
-            fit: "cover",
-            width: 100,
-            height: 100,
-          }),
+          avatar: imageUrl(f.dancer.user.avatar, "avatar"),
           name: `${f.dancer.user.firstName} ${f.dancer.user.lastName}`,
         },
       ];

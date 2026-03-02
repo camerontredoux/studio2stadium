@@ -80,11 +80,7 @@ export class Service {
       birthday: dancer.birthday,
       createdAt: dancer.createdAt,
       username: dancer.username,
-      avatar: imageUrl(dancer.avatar, {
-        fit: "cover",
-        width: 320,
-        height: 320,
-      }),
+      avatar: imageUrl(dancer.avatar, "avatar"),
       name: `${dancer.firstName} ${dancer.lastName}`,
       subscribed: dancer.subscribed,
       followers: dancer.followers,

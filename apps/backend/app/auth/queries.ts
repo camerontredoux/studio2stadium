@@ -85,11 +85,7 @@ export async function getUserSession(id: string) {
   return {
     ...user,
     profileId,
-    avatar: imageUrl(avatar, {
-      fit: "cover",
-      width: 320,
-      height: 320,
-    }),
+    avatar: imageUrl(avatar, "avatar"),
     applied,
     platforms: platforms.map((platform) => platform.platformName),
   };

@@ -19,19 +19,11 @@ export class Service {
 
     const profileImages = images.map((image) => ({
       ...image,
-      mediaUrl: imageUrl(image.mediaUrl, { fit: "scale-down", width: 1080 }),
-      thumbnail: imageUrl(image.mediaUrl, {
-        fit: "cover",
-        width: 320,
-        height: 320,
-      }),
+      mediaUrl: imageUrl(image.mediaUrl, "feed"),
+      thumbnail: imageUrl(image.mediaUrl, "thumbnail"),
     }));
 
-    const profilePicture = imageUrl(user.avatar, {
-      fit: "cover",
-      width: 320,
-      height: 320,
-    });
+    const profilePicture = imageUrl(user.avatar, "avatar");
 
     return {
       ...rest,

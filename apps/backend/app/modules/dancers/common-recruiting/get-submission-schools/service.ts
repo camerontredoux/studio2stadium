@@ -43,11 +43,7 @@ export class Service {
         {
           ...school,
           username: school.username,
-          avatar: imageUrl(school.avatar, {
-            fit: "cover",
-            width: 320,
-            height: 320,
-          }),
+          avatar: imageUrl(school.avatar, "avatar"),
         },
       ];
     });

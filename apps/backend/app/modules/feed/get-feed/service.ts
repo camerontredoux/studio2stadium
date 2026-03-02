@@ -103,12 +103,12 @@ export class Service {
       contentType: row.content_type,
       createdAt: row.created_at,
       username: row.username,
-      avatar: imageUrl(row.avatar, { fit: "cover", width: 100, height: 100 }),
+      avatar: imageUrl(row.avatar, "avatar"),
       name: this.getDisplayName(row, type),
       caption: row.caption,
       content:
         row.content_type === "image"
-          ? imageUrl(row.content, { fit: "scale-down", width: 1080 })
+          ? imageUrl(row.content, "feed")
           : row.content,
     }));
   }

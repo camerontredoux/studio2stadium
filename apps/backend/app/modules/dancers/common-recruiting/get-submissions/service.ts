@@ -50,11 +50,7 @@ export class Service {
           school: {
             ...school,
             ...user,
-            avatar: imageUrl(user.avatar, {
-              fit: "cover",
-              width: 320,
-              height: 320,
-            }),
+            avatar: imageUrl(user.avatar, "avatar"),
           },
         },
       ];

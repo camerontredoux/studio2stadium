@@ -24,11 +24,7 @@ export class Service {
       time,
       organizer: {
         name: organizer?.name,
-        thumbnail: imageUrl(organizer?.user?.avatar, {
-          fit: "cover",
-          width: 320,
-          height: 320,
-        }),
+        thumbnail: imageUrl(organizer?.user?.avatar, "thumbnail"),
       },
     };
   }

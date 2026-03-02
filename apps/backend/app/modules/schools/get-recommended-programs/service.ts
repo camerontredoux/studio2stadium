@@ -251,11 +251,7 @@ export class Service {
         top3Matches,
         locationScore,
         username: school.user.username,
-        avatar: imageUrl(school.user.avatar, {
-          fit: "cover",
-          width: 320,
-          height: 320,
-        }),
+        avatar: imageUrl(school.user.avatar, "avatar"),
         matchScore: Math.round(matchScore),
         matchTier,
         matchedSkillsCount: matchedSkills.length,

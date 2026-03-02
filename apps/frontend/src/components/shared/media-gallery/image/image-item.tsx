@@ -37,7 +37,7 @@ export function ImageItem({
       <DialogTrigger>
         <div className="bg-muted group relative aspect-square cursor-pointer overflow-hidden rounded-lg">
           <img
-            src={isFullLoaded ? image.mediaUrl : image.thumbnail}
+            src={image.thumbnail}
             alt={image.caption || "Gallery image"}
             className="size-full object-cover"
           />
@@ -50,12 +50,12 @@ export function ImageItem({
       >
         <DialogPanel className="h-full p-0">
           <img
-            src={image.mediaUrl ?? undefined}
+            src={isFullLoaded ? image.mediaUrl : image.thumbnail}
             alt={image.caption || "Gallery image"}
             className="absolute z-10 flex h-full w-full items-center justify-center object-contain"
           />
           <img
-            src={image.mediaUrl ?? undefined}
+            src={isFullLoaded ? image.mediaUrl : image.thumbnail}
             alt={image.caption || "Gallery image"}
             className="h-full w-full object-cover opacity-20 blur-md"
           />

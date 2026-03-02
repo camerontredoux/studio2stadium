@@ -65,11 +65,7 @@ export class Service {
         {
           ...schoolProfile,
           username: user.username,
-          avatar: imageUrl(user.avatar, {
-            fit: "cover",
-            width: 320,
-            height: 320,
-          }),
+          avatar: imageUrl(user.avatar, "avatar"),
         },
       ];
     });
