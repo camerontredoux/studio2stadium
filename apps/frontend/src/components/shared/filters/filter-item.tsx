@@ -4,7 +4,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import type { DancerFilter } from "@/features/explore/components/dancers/filters/types";
 import { DateFilter } from "./items/date-filter";
 import { InputFilter } from "./items/input-filter";
 import { MultiSelectFilter } from "./items/multi-select-filter";
@@ -29,7 +28,7 @@ export function FilterItem({
 }) {
   const filtered = Array.isArray(value) ? value.length > 0 : Boolean(value);
 
-  const item = (type: DancerFilter["type"]) => {
+  const item = (type: Filter["type"]) => {
     switch (type) {
       case "select":
         return (
