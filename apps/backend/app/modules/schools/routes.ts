@@ -28,6 +28,10 @@ const GetFollowingIdsController = () =>
   import("./get-following-ids/controller.ts");
 const CheckSchoolAvailabilityController = () =>
   import("./check-name-availability/controller.ts");
+const GetSubmissionsController = () =>
+  import("./get-submissions/controller.ts");
+const UpdateSubmissionController = () =>
+  import("./update-submission/controller.ts");
 
 router
   .group(() => {
@@ -115,6 +119,14 @@ router
         router.patch("sports", [UpdateSportsController]).openapi({
           summary: "Update school sports",
           description: "Updates the school's sports",
+        });
+        router.get("submissions", [GetSubmissionsController]).openapi({
+          summary: "Get CRV submissions",
+          description: "Returns dancer submissions to this school",
+        });
+        router.patch("submissions/:id", [UpdateSubmissionController]).openapi({
+          summary: "Update CRV submission",
+          description: "Updates status or watched state of a submission",
         });
       })
       .prefix("me")

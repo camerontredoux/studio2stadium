@@ -323,6 +323,14 @@ type SchoolsMeSportsPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/update-sports/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/schools/update-sports/controller.ts').default['handle'], true>
 }
+type SchoolsMeSubmissionsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/schools/get-submissions/controller.ts').default['handle'], false>
+}
+type SchoolsMeSubmissionsIdPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/update-submission/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/update-submission/controller.ts').default['handle'], true>
+}
 type SchoolsIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/schools/get-school/controller.ts').default['handle'], true>
@@ -744,6 +752,17 @@ export interface ApiDefinition {
         '$get': SchoolsMeSportsGetHead;
         '$head': SchoolsMeSportsGetHead;
         '$patch': SchoolsMeSportsPatch;
+      };
+      'submissions': {
+        '$url': {
+        };
+        '$get': SchoolsMeSubmissionsGetHead;
+        '$head': SchoolsMeSubmissionsGetHead;
+        ':id': {
+          '$url': {
+          };
+          '$patch': SchoolsMeSubmissionsIdPatch;
+        };
       };
     };
     ':username': {

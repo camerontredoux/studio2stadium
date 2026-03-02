@@ -19,3 +19,11 @@ export function useEditSubmission() {
     },
   });
 }
+
+export function useUpdateSubmissionStatus() {
+  return $api.useMutation("patch", "/schools/me/submissions/{id}", {
+    meta: {
+      invalidateQueries: [recruitingQueries.schoolSubmissions().queryKey],
+    },
+  });
+}

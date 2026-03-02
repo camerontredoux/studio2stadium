@@ -303,8 +303,15 @@
           }
         },
         "responses": {
-          "204": {
-            "description": "No Content"
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthPasswordResetResponse"
+                }
+              }
+            }
           },
           "422": {
             "description": "Unprocessable Entity",
@@ -2791,6 +2798,71 @@
         "description": "Updates the school's sports"
       }
     },
+    "/schools/me/submissions": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsMeSubmissionsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Get CRV submissions",
+        "description": "Returns dancer submissions to this school"
+      }
+    },
+    "/schools/me/submissions/{id}": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolsMeSubmissionsIdRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Update CRV submission",
+        "description": "Updates status or watched state of a submission"
+      }
+    },
     "/schools/{username}": {
       "get": {
         "parameters": [
@@ -3519,9 +3591,6 @@
                 "prodigy"
               ]
             }
-          },
-          "applied": {
-            "type": "boolean"
           }
         },
         "required": [
@@ -3536,8 +3605,7 @@
           "verified",
           "notifications",
           "profileId",
-          "platforms",
-          "applied"
+          "platforms"
         ]
       },
       "AuthPasswordChangeRequest": {
@@ -3583,6 +3651,17 @@
           "password",
           "userId",
           "token"
+        ]
+      },
+      "AuthPasswordResetResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
         ]
       },
       "BlogResponse": {
@@ -6928,6 +7007,145 @@
         "required": [
           "sports"
         ]
+      },
+      "SchoolsMeSubmissionsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "dancer": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "avatar": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "name": {
+                  "type": "string"
+                },
+                "gradYear": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "location": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "username",
+                "avatar",
+                "name",
+                "gradYear",
+                "location"
+              ]
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "updatedAt": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "accepted",
+                "released",
+                "in_review"
+              ]
+            },
+            "watched": {
+              "type": "boolean"
+            },
+            "watchedAt": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "youtubeId": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "dancer",
+            "createdAt",
+            "updatedAt",
+            "status",
+            "watched",
+            "watchedAt",
+            "youtubeId"
+          ]
+        }
+      },
+      "SchoolsMeSubmissionsIdRequest": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "accepted",
+                  "released",
+                  "in_review"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "watched": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
       },
       "SchoolsIdResponse": {
         "type": "object",

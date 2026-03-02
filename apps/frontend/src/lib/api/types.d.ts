@@ -426,12 +426,14 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description No Content */
-                204: {
+                /** @description OK */
+                200: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["AuthPasswordResetResponse"];
+                    };
                 };
                 /** @description Unprocessable Entity */
                 422: {
@@ -3357,6 +3359,97 @@ export interface paths {
         };
         trace?: never;
     };
+    "/schools/me/submissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get CRV submissions
+         * @description Returns dancer submissions to this school
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsMeSubmissionsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schools/me/submissions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update CRV submission
+         * @description Updates status or watched state of a submission
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SchoolsMeSubmissionsIdRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/schools/{username}": {
         parameters: {
             query?: never;
@@ -3953,7 +4046,6 @@ export interface components {
             notifications: boolean;
             profileId: string;
             platforms: ("core" | "prodigy")[];
-            applied: boolean;
         };
         AuthPasswordChangeRequest: {
             currentPassword: string;
@@ -3966,6 +4058,9 @@ export interface components {
             password: string;
             userId: string;
             token: string;
+        };
+        AuthPasswordResetResponse: {
+            message: string;
         };
         BlogResponse: {
             id: string;
@@ -4561,6 +4656,28 @@ export interface components {
         }[];
         SchoolsMeSportsRequest: {
             sports: string[];
+        };
+        SchoolsMeSubmissionsResponse: {
+            id: string;
+            dancer: {
+                id: string;
+                username: string;
+                avatar: string | null;
+                name: string;
+                gradYear: number | null;
+                location: string;
+            };
+            createdAt: string;
+            updatedAt: string;
+            /** @enum {string} */
+            status: "pending" | "accepted" | "released" | "in_review";
+            watched: boolean;
+            watchedAt: string | null;
+            youtubeId: string | null;
+        }[];
+        SchoolsMeSubmissionsIdRequest: {
+            status?: ("pending" | "accepted" | "released" | "in_review") | null;
+            watched?: (string | number | boolean) | null;
         };
         SchoolsIdResponse: {
             id: string;
