@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
+import { useApplication } from "@/lib/session/hooks/use-application";
 import { useRequestUpload } from "@/shared/images/api/mutations";
 import { ImageUploadField } from "@/shared/images/components/image-upload-field";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
@@ -32,9 +33,7 @@ const statusVariant = {
 } as const;
 
 export function ApplicationSettings() {
-  const { data: application } = useSuspenseQuery(
-    accountQueries.application(),
-  );
+  const application = useApplication();
   const { data: account } = useSuspenseQuery(accountQueries.account());
 
   const { mutateAsync: requestUpload, isPending } = useRequestUpload();
@@ -108,7 +107,10 @@ export function ApplicationSettings() {
         title="Application Status"
         description="Your current application status."
       >
-        <Badge className="w-fit capitalize" variant={statusVariant[application.status]}>
+        <Badge
+          className="w-fit capitalize"
+          variant={statusVariant[application.status]}
+        >
           {application.status}
         </Badge>
 

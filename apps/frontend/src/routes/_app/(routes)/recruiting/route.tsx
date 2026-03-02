@@ -1,14 +1,20 @@
 import { AccessDenied } from "@/components/shared/access-denied";
 import { useSession } from "@/lib/session";
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/recruiting")({
+  beforeLoad: ({ context: { session } }) => {
+    if (!session.verified) {
+      throw redirect({ to: "/settings/application" });
+    }
+  },
   component: RouteComponent,
 });
 
 function RouteComponent() {
   const session = useSession();
-  const { subscription } = Route.useRouteContext();
+  const subscription = useSubscribed();
 
   if (!subscription.subscribed && session.type === "dancer") {
     return (

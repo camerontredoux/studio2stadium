@@ -1,11 +1,16 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { sessionQueries } from "../queries";
+import { useSession } from "./use-session";
 
 /**
  * Hook to get the user subscription status.
  */
-export function useSubscribed() {
-  const { data } = useSuspenseQuery(sessionQueries.subscribed());
+export const useSubscribed = () => {
+  const session = useSession();
+
+  const { data } = useSuspenseQuery(
+    sessionQueries.subscribed(session.type === "dancer"),
+  );
 
   return data;
-}
+};

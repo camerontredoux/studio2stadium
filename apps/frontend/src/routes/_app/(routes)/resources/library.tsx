@@ -2,6 +2,7 @@ import { AccessDenied } from "@/components/shared/access-denied";
 import type { SchoolSearchFilter } from "@/features/explore/components/schools/filters/types";
 import { queries } from "@/features/library/api/queries";
 import { LibraryPage } from "@/features/library/page";
+import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/resources/library")({
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/_app/(routes)/resources/library")({
 });
 
 function RouteComponent() {
-  const { subscription } = Route.useRouteContext();
+  const subscription = useSubscribed();
 
   if (!subscription.subscribed) {
     return (

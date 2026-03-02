@@ -13,3 +13,15 @@ export const useCreateDancer = () => {
     },
   });
 };
+
+export const useSubmitApplication = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  return $api.useMutation("post", "/application", {
+    onSuccess: async () => {
+      await queryClient.resetQueries({ queryKey: ["application"] });
+      navigate({ to: "/settings/application", replace: true });
+    },
+  });
+};

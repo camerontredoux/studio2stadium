@@ -6,7 +6,6 @@ import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
 import { MaskInput } from "@/components/ui/mask-input";
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
-import { useSubmitApplication } from "@/features/settings/api/mutations";
 import { handleApiError } from "@/lib/api/errors";
 import { useRequestUpload } from "@/shared/images/api/mutations";
 import { ImageUploadField } from "@/shared/images/components/image-upload-field";
@@ -18,6 +17,7 @@ import { PhoneIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
+import { useSubmitApplication } from "../api/mutations";
 
 const formSchema = z.object({
   phone: z.string().min(1, "Phone number is required"),

@@ -32,12 +32,33 @@ export const sessionQueries = {
       gcTime: Infinity,
     });
   },
-  subscribed: () => {
+  subscribed: (enabled?: boolean) => {
     return $api.queryOptions(
       "get",
       "/subscriptions/status",
-      {},
+      { enabled },
       { staleTime: Infinity, gcTime: Infinity },
     );
+  },
+  application: (enabled?: boolean) => {
+    return queryOptions({
+      queryKey: ["application"],
+      queryFn: async () => {
+        try {
+          const { data, error, response } = await client.GET("/application");
+
+          if (error || response?.status >= 500) {
+            return null;
+          }
+
+          return data;
+        } catch {
+          return null;
+        }
+      },
+      enabled,
+      staleTime: Infinity,
+      gcTime: Infinity,
+    });
   },
 };

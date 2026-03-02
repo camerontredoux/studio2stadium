@@ -1,6 +1,5 @@
 import { $api } from "@/lib/api/client";
 import { sessionQueries } from "@/lib/session/queries";
-import { redirect } from "@tanstack/react-router";
 import { accountQueries } from "./queries";
 
 export function useUpdateAccount() {
@@ -24,14 +23,6 @@ export function useDeleteAccount() {
 
 export function useManage() {
   return $api.useMutation("post", "/subscriptions/manage");
-}
-
-export function useSubmitApplication() {
-  return $api.useMutation("post", "/application", {
-    onSuccess: () => {
-      redirect({ to: "/feed" });
-    },
-  });
 }
 
 export function useUpdateApplication() {

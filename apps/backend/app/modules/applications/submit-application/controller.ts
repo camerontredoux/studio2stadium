@@ -10,6 +10,8 @@ export default class SubmitApplicationController {
 
     await service.execute(ctx.session.profileId, ctx.session.id, payload);
 
+    await ctx.auth.use("redis").bump();
+
     return ctx.response.noContent();
   }
 }

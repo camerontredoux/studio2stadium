@@ -13,10 +13,6 @@ export const Route = createFileRoute("/_app")({
         queries.session(),
       );
 
-      const subscription = await context.queryClient.ensureQueryData(
-        queries.subscribed(),
-      );
-
       if (!session) {
         throw redirect({
           to: "/login",
@@ -24,14 +20,30 @@ export const Route = createFileRoute("/_app")({
         });
       }
 
-      if (!session.verified && session.type !== "school") {
+      if (session.type === "school") {
+        const application = await context.queryClient.ensureQueryData(
+          queries.application(session.type === "school"),
+        );
+
+        if (!application) {
+          throw redirect({
+            to: "/onboarding",
+            replace: true,
+          });
+        }
+      }
+
+      if (!session.verified && session.type === "dancer") {
         throw redirect({
           to: "/onboarding",
           replace: true,
         });
       }
 
-      return { session, access: createAccess(session), subscription };
+      return {
+        session,
+        access: createAccess(session),
+      };
     } catch (error) {
       if (error instanceof SessionNetworkError) {
         throw redirect({
