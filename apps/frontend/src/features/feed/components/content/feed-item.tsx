@@ -15,7 +15,7 @@ export function FeedItem({ type, item }: FeedItemProps) {
   return (
     <div className="overflow-clip sm:rounded-2xl sm:border">
       <FeedContent item={item} />
-      <div className="flex flex-col gap-2 py-2 sm:gap-4 sm:p-4">
+      <div className="flex flex-col py-2 sm:p-4">
         <div className="flex items-start gap-2">
           <Avatar className="size-8 rounded-full sm:size-9">
             <AvatarImage src={item.avatar ?? ""} />

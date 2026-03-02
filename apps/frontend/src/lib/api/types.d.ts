@@ -2178,7 +2178,11 @@ export interface paths {
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    date?: string | null;
+                    location?: ("OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "ID" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
+                    schoolName?: string | null;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -2192,6 +2196,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["EventsResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -2232,6 +2245,45 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/filters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get event filters
+         * @description Returns the filters to use when searching for events
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventsFiltersResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3989,6 +4041,8 @@ export interface components {
         /** @enum {string} */
         DancerFilterParam: "name" | "location" | "sports" | "styles" | "following" | "premium" | "gpaRange";
         /** @enum {string} */
+        EventFilterParam: "location" | "date" | "schoolName";
+        /** @enum {string} */
         SchoolFilterParam: "name" | "location" | "sports" | "styles" | "following" | "gpaRange" | "commonRecruiting" | "division" | "upcomingEvents";
         MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
         ApplicationResponse: {
@@ -4436,6 +4490,17 @@ export interface components {
             endDatetime: string;
             timezone: string;
         };
+        EventsFiltersResponse: {
+            id: string;
+            /** @enum {string} */
+            type: "date" | "select" | "input" | "toggle" | "multi-select" | "range";
+            options?: {
+                label: string;
+                value: string;
+            }[];
+            label: string;
+            paramKey: components["schemas"]["EventFilterParam"];
+        }[];
         EventsUpcomingResponse: {
             id: string;
             /** @enum {string} */

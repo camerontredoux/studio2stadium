@@ -211,9 +211,13 @@ type DancersAchievementsAchievementsIdPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/update-achievement/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/profile/update-achievement/controller.ts').default['handle'], true>
 }
-type EventsGetHead = {
+type EventsFiltersGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/events/get-events/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/events/get-event-filters/controller.ts').default['handle'], false>
+}
+type EventsGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/get-events/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/events/get-events/controller.ts').default['handle'], true>
 }
 type EventsPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/create-event/schema.ts')['createEventSchema']>>
@@ -625,6 +629,12 @@ export interface ApiDefinition {
     };
   };
   'events': {
+    'filters': {
+      '$url': {
+      };
+      '$get': EventsFiltersGetHead;
+      '$head': EventsFiltersGetHead;
+    };
     '$url': {
     };
     '$get': EventsGetHead;

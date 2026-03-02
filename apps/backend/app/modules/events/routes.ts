@@ -12,9 +12,16 @@ const SaveEventController = () => import("./save-event/controller.ts");
 const UnsaveEventController = () => import("./unsave-event/controller.ts");
 const GetUpcomingEventsController = () =>
   import("./get-upcoming-events/controller.ts");
+const GetEventFiltersController = () =>
+  import("./get-event-filters/controller.ts");
 
 router
   .group(() => {
+    router.get("filters", [GetEventFiltersController]).openapi({
+      summary: "Get event filters",
+      description: "Returns the filters to use when searching for events",
+    });
+
     router.get("", [GetEventsController]).openapi({
       summary: "Get all events",
       description: "Returns a list of all upcoming events",

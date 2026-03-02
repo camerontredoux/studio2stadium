@@ -1,6 +1,6 @@
 import type { ApiSchemas } from "@/lib/api/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useElementScrollRestoration } from "@tanstack/react-router";
+import { useElementScrollRestoration, useSearch } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { CalendarIcon } from "lucide-react";
 import { useMemo, useRef } from "react";
@@ -8,6 +8,7 @@ import { useResizeObserver, useToggle } from "usehooks-ts";
 import { eventQueries } from "../../api/queries";
 import { EventsFilterSheet } from "../filters/filter-sheet";
 import { EventCard } from "./event-card";
+import { EventEmpty } from "./event-empty";
 import { SavedToggle } from "./saved-toggle";
 
 type Events = ApiSchemas["EventsResponse"][number]["events"];
@@ -21,7 +22,9 @@ function getColumns(width: number) {
 }
 
 export function EventList() {
-  const { data } = useSuspenseQuery(eventQueries.events());
+  const search = useSearch({ from: "/_app/(routes)/events/" });
+
+  const { data } = useSuspenseQuery(eventQueries.events(search));
   const parentRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -35,6 +38,7 @@ export function EventList() {
   const columns = getColumns(measured ? containerWidth : 0);
 
   const virtualRows = useMemo(() => {
+    if (!data) return [];
     const allEvents = data.flatMap((category) =>
       category.events.map((event) => ({ month: category.month, event })),
     );
@@ -81,7 +85,7 @@ export function EventList() {
           <div className="border-brand/20 bg-background/90 flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-1 backdrop-blur-sm">
             <CalendarIcon className="text-brand size-3.5" />
             <span className="text-brand text-sm font-semibold">
-              {activeMonth}
+              {activeMonth || "Empty"}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -93,45 +97,49 @@ export function EventList() {
         </div>
       </div>
 
-      <div
-        ref={listRef}
-        style={{
-          height: measured ? rowVirtualizer.getTotalSize() : undefined,
-          position: "relative",
-          visibility: measured ? undefined : "hidden",
-        }}
-      >
+      {virtualRows.length === 0 ? (
+        <EventEmpty />
+      ) : (
         <div
+          ref={listRef}
           style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            transform: `translateY(${(virtualItems[0]?.start ?? 0) - rowVirtualizer.options.scrollMargin}px)`,
+            height: measured ? rowVirtualizer.getTotalSize() : undefined,
+            position: "relative",
+            visibility: measured ? undefined : "hidden",
           }}
-          className="flex flex-col gap-2"
         >
-          {virtualItems.map((virtualItem) => {
-            const row = virtualRows[virtualItem.index];
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              transform: `translateY(${(virtualItems[0]?.start ?? 0) - rowVirtualizer.options.scrollMargin}px)`,
+            }}
+            className="flex flex-col gap-2"
+          >
+            {virtualItems.map((virtualItem) => {
+              const row = virtualRows[virtualItem.index];
 
-            return (
-              <div
-                key={virtualItem.key}
-                data-index={virtualItem.index}
-                ref={rowVirtualizer.measureElement}
-                className="grid gap-2"
-                style={{
-                  gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-                }}
-              >
-                {row.events.map((event) => (
-                  <EventCard key={event.id} event={event} />
-                ))}
-              </div>
-            );
-          })}
+              return (
+                <div
+                  key={virtualItem.key}
+                  data-index={virtualItem.index}
+                  ref={rowVirtualizer.measureElement}
+                  className="grid gap-2"
+                  style={{
+                    gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+                  }}
+                >
+                  {row.events.map((event) => (
+                    <EventCard key={event.id} event={event} />
+                  ))}
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

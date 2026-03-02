@@ -1742,7 +1742,105 @@
     },
     "/events": {
       "get": {
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "OR",
+                    "AL",
+                    "AK",
+                    "AZ",
+                    "AR",
+                    "CA",
+                    "CO",
+                    "CT",
+                    "DE",
+                    "FL",
+                    "GA",
+                    "HI",
+                    "ID",
+                    "IL",
+                    "IN",
+                    "IA",
+                    "KS",
+                    "KY",
+                    "LA",
+                    "ME",
+                    "MD",
+                    "MA",
+                    "MI",
+                    "MN",
+                    "MS",
+                    "MO",
+                    "MT",
+                    "NE",
+                    "NV",
+                    "NH",
+                    "NJ",
+                    "NM",
+                    "NY",
+                    "NC",
+                    "ND",
+                    "OH",
+                    "OK",
+                    "PA",
+                    "RI",
+                    "SC",
+                    "SD",
+                    "TN",
+                    "TX",
+                    "UT",
+                    "VT",
+                    "VA",
+                    "WA",
+                    "WV",
+                    "WI",
+                    "WY"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "schoolName",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -1750,6 +1848,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/EventsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -1791,6 +1899,28 @@
         ],
         "summary": "Create event",
         "description": "Creates a new school hosted event"
+      }
+    },
+    "/events/filters": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventsFiltersResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Events"
+        ],
+        "summary": "Get event filters",
+        "description": "Returns the filters to use when searching for events"
       }
     },
     "/events/upcoming": {
@@ -3318,6 +3448,14 @@
           "following",
           "premium",
           "gpaRange"
+        ]
+      },
+      "EventFilterParam": {
+        "type": "string",
+        "enum": [
+          "location",
+          "date",
+          "schoolName"
         ]
       },
       "SchoolFilterParam": {
@@ -5660,6 +5798,58 @@
           "endDatetime",
           "timezone"
         ]
+      },
+      "EventsFiltersResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "date",
+                "select",
+                "input",
+                "toggle",
+                "multi-select",
+                "range"
+              ]
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "label",
+                  "value"
+                ]
+              }
+            },
+            "label": {
+              "type": "string"
+            },
+            "paramKey": {
+              "$ref": "#/components/schemas/EventFilterParam"
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "label",
+            "paramKey"
+          ]
+        }
       },
       "EventsUpcomingResponse": {
         "type": "array",

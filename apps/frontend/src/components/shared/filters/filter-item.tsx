@@ -5,6 +5,7 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import type { DancerFilter } from "@/features/explore/components/dancers/filters/types";
+import { DateFilter } from "./items/date-filter";
 import { InputFilter } from "./items/input-filter";
 import { MultiSelectFilter } from "./items/multi-select-filter";
 import { RangeFilter } from "./items/range-filter";
@@ -52,6 +53,8 @@ export function FilterItem({
         );
       case "range":
         return <RangeFilter value={value} onFilterChange={onFilterChange} />;
+      case "date":
+        return <DateFilter value={value} onFilterChange={onFilterChange} />;
     }
   };
 

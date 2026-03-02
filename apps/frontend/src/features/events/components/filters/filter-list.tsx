@@ -1,15 +1,13 @@
 import { FilterItem } from "@/components/shared/filters/filter-item";
 import type { FilterValue } from "@/components/shared/filters/types";
 import { Accordion } from "@/components/ui/accordion";
-import type { ApiSchemas } from "@/lib/api/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useCallback } from "react";
 import { eventQueries } from "../../api/queries";
+import type { EventFilter } from "./types";
 
-type Filter = ApiSchemas["SchoolsFiltersResponse"][number];
-
-function ConnectedFilterItem({ filter }: { filter: Filter }) {
+function ConnectedFilterItem({ filter }: { filter: EventFilter }) {
   const value = useSearch({
     from: "/_app/(routes)/events/",
     select: (search) => search[filter.paramKey],

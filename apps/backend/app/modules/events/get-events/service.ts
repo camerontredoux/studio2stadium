@@ -1,17 +1,29 @@
+import { db } from "#database/connection";
 import { DatabaseService } from "#database/service";
 import { getDateAndTime } from "#utils/date";
 import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
+import { type Validator } from "./validator.ts";
 
 type Event = Awaited<ReturnType<Service["findEvents"]>>[number];
 type FormattedEvent = Awaited<ReturnType<Service["formatEvent"]>>;
+
+type DanceEventWhere = NonNullable<
+  Parameters<typeof db.query.danceEvents.findMany>[0]
+>["where"];
+
+type OrganizerWhere = NonNullable<
+  NonNullable<
+    Extract<DanceEventWhere, { organizer?: unknown }>
+  >["organizer"]
+>;
 
 @inject()
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute(userId: string) {
-    const events = await this.findEvents(userId);
+  async execute(userId: string, filters: Validator) {
+    const events = await this.findEvents(userId, filters);
 
     const groupedEvents = events.reduce((acc, event) => {
       const month = event.startDatetime.toLocaleString("en-US", {
@@ -50,14 +62,15 @@ export class Service {
     };
   }
 
-  async findEvents(userId: string) {
+  async findEvents(userId: string, filters: Validator) {
+    const { eventWhere, organizerWhere } = this.buildFilters(filters);
+
     return await this.db.use((db) =>
       db.query.danceEvents.findMany({
         where: {
-          startDatetime: {
-            gt: new Date(),
-          },
+          ...eventWhere,
           organizer: {
+            ...organizerWhere,
             user: {
               verified: true,
             },
@@ -97,5 +110,38 @@ export class Service {
         },
       })
     );
+  }
+
+  buildFilters(filters: Validator) {
+    const eventWhere: DanceEventWhere = {
+      startDatetime: {
+        gt: new Date(),
+      },
+    };
+
+    if (filters.date) {
+      const filterDate = new Date(filters.date);
+      const nextDay = new Date(filters.date);
+      nextDay.setDate(nextDay.getDate() + 1);
+
+      eventWhere.startDatetime = {
+        gte: filterDate,
+        lt: nextDay,
+      };
+    }
+
+    const organizerWhere: OrganizerWhere = {};
+
+    if (filters.location) {
+      organizerWhere.location = filters.location;
+    }
+
+    if (filters.schoolName) {
+      organizerWhere.name = {
+        ilike: `%${filters.schoolName}%`,
+      };
+    }
+
+    return { eventWhere, organizerWhere };
   }
 }

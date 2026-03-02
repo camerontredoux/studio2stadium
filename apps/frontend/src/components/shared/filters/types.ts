@@ -1,3 +1,4 @@
+import type { EventFilter } from "@/features/events/components/filters/types";
 import type { DancerFilter } from "@/features/explore/components/dancers/filters/types";
 import type { SchoolFilter } from "@/features/explore/components/schools/filters/types";
 
@@ -7,5 +8,6 @@ export type FilterType =
   | "input"
   | "toggle"
   | "multi-select"
-  | "range";
-export type Filter = DancerFilter | SchoolFilter;
+  | "range"
+  | "date";
+export type Filter = DancerFilter | SchoolFilter | EventFilter;
