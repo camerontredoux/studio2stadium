@@ -84,8 +84,8 @@ export function SignupForm() {
     >
       <Frame className="gap-2">
         <FramePanel className="flex flex-col gap-3">
-          <div className="bg-accent/30 hover:bg-accent/50 border-border min-x-0 flex items-center justify-between rounded-lg border px-3 py-2 transition-colors">
-            <span className="text-muted-foreground truncate text-xs">
+          <div className="bg-accent/30 hover:bg-accent/50 border-border min-x-0 flex w-full items-center justify-between rounded-lg border px-3 py-2 transition-colors">
+            <span className="text-muted-foreground flex w-full items-center justify-between truncate text-xs">
               {type === "school" ? (
                 <Controller
                   control={control}
