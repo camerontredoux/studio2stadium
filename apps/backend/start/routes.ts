@@ -1,6 +1,8 @@
+import "#modules/admin/routes";
 import "#modules/applications/routes";
 import "#modules/auth/routes";
 import "#modules/blog/routes";
+import "#modules/contact/routes";
 import "#modules/dancers/routes";
 import "#modules/events/routes";
 import "#modules/feed/routes";
@@ -13,4 +15,5 @@ import "#modules/sports/routes";
 import "#modules/styles/routes";
 import "#modules/subscriptions/routes";
 import "#modules/users/routes";
+import "#modules/videos/routes";
 import "#modules/webhooks/routes";

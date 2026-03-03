@@ -20,6 +20,7 @@ pnpm db:migrate       # Run migrations
 pnpm db:push          # Push schema directly (no migration)
 pnpm db:reset         # Reset database
 pnpm db:studio        # Open Drizzle Studio
+pnpm db:seed          # Seed database with test data
 
 # Code Quality
 pnpm lint             # ESLint
@@ -118,6 +119,7 @@ Use import aliases defined in `package.json`:
 - `#middleware/*` - `app/middleware/*.ts`
 - `#auth/*` - `app/auth/*.ts`
 - `#shared/*` - `app/shared/*.ts`
+- `#payments/*` - `app/payments/*.ts`
 - `#start/*` - `start/*.ts`
 - `#config/*` - `config/*.ts`
 

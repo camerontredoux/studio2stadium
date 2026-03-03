@@ -1,6 +1,7 @@
 import { crvSubmissions, crvVideos } from "#database/schema/crv";
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
+import { CrvSubmissionEvent } from "./event.ts";
 import { Validator } from "./validator.ts";
 
 @inject()
@@ -30,5 +31,14 @@ export class Service {
         }))
       );
     });
+
+    // Dispatch event for each school
+    for (const schoolId of data.schoolId) {
+      CrvSubmissionEvent.dispatch({
+        dancerId: profileId,
+        schoolId,
+        videoId: data.videoId,
+      });
+    }
   }
 }

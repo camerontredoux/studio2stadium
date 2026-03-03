@@ -3,16 +3,25 @@ import { DatabaseService } from "#database/service";
 import stripe from "#payments/stripe/main";
 import { inject } from "@adonisjs/core";
 import { eq } from "drizzle-orm";
+import { DeleteAccountEvent } from "./event.ts";
+import { Validator } from "./validator.ts";
+
+interface UserInfo {
+  id: string;
+  displayEmail: string;
+  firstName: string;
+  role: string;
+}
 
 @inject()
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute(userId: string) {
+  async execute(user: UserInfo, data?: Validator) {
     const subscription = await this.db.use((db) =>
       db.query.subscriptions.findFirst({
         where: {
-          userId,
+          userId: user.id,
         },
       })
     );
@@ -33,18 +42,28 @@ export class Service {
 
     // Only reach here if Stripe succeeded or there was no subscription
     try {
-      await this.db.use((db) => db.delete(users).where(eq(users.id, userId)));
+      await this.db.use((db) => db.delete(users).where(eq(users.id, user.id)));
     } catch (err) {
       // Stripe subscription was canceled but user deletion failed
       // This is the dangerous case — log it loudly for manual intervention
       console.error(
         "CRITICAL: Stripe subscription canceled but user deletion failed",
         {
-          userId,
+          userId: user.id,
           subscriptionId: subscription?.subscriptionId,
         }
       );
       throw new Error("Failed to delete account. Please contact support.");
     }
+
+    // Dispatch event after successful deletion
+    const isAdmin = user.role === "admin" || user.role === "prodigy_admin";
+    DeleteAccountEvent.dispatch({
+      userId: user.id,
+      userEmail: user.displayEmail,
+      userName: user.firstName,
+      feedback: data?.feedback,
+      isAdmin,
+    });
   }
 }

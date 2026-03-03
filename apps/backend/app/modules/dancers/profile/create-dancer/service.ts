@@ -3,13 +3,14 @@ import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { eq } from "drizzle-orm";
+import { DancerCreatedEvent } from "./event.ts";
 import { type Validator } from "./validator.ts";
 
 @inject()
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async createDancer(userId: string, data: Validator) {
+  async createDancer(userId: string, data: Validator, isAdmin?: boolean) {
     await this.db.tx(async (tx) => {
       await tx
         .update(users)
@@ -25,5 +26,7 @@ export class Service {
         location: data.location,
       });
     });
+
+    DancerCreatedEvent.dispatch({ userId, isAdmin });
   }
 }

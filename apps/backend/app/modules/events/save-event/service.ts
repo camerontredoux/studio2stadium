@@ -4,6 +4,7 @@ import {
 } from "#database/schema/events";
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
+import { EventAttendedEvent } from "./event.ts";
 import { Validator } from "./validator.ts";
 
 @inject()
@@ -20,5 +21,10 @@ export class Service {
         userId,
       })
     );
+
+    EventAttendedEvent.dispatch({
+      userId,
+      eventId: params.id,
+    });
   }
 }

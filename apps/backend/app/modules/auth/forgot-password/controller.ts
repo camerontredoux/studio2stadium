@@ -1,7 +1,7 @@
 import env from "#start/env";
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
-import mail from "@adonisjs/mail/services/main";
+import { ForgotPasswordEvent } from "./event.ts";
 import { forgotPasswordSchema } from "./schema.ts";
 import { ForgotPasswordService } from "./service.ts";
 
@@ -10,24 +10,18 @@ export default class ForgotPasswordController {
   async handle(ctx: HttpContext, service: ForgotPasswordService) {
     const payload = await ctx.request.validateUsing(forgotPasswordSchema);
 
-    const { token, userId } = await service.execute(payload);
+    const { token, userId, isAdmin } = await service.execute(payload);
 
     if (!token) {
       return ctx.response.noContent();
     }
 
-    const resetPasswordUrl = `${env.get("SITE_URL")}/reset?token=${token}&userId=${userId}`;
+    const resetUrl = `${env.get("SITE_URL")}/reset?token=${token}&userId=${userId}`;
 
-    await mail.send((message) => {
-      message
-        .to(payload.email)
-        .subject("Reset Password")
-        .html(
-          `<p>You requested a password reset. Visit <a href="${resetPasswordUrl}">this link</a> to reset your password.</p>`
-        )
-        .text(
-          `You requested a password reset. Visit ${resetPasswordUrl} to reset your password.`
-        );
+    ForgotPasswordEvent.dispatch({
+      email: payload.email,
+      resetUrl,
+      isAdmin,
     });
 
     return ctx.response.noContent();

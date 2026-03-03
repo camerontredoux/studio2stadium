@@ -32,6 +32,7 @@ const GetSubmissionsController = () =>
   import("./get-submissions/controller.ts");
 const UpdateSubmissionController = () =>
   import("./update-submission/controller.ts");
+const ViewDancerController = () => import("./view-dancer/controller.ts");
 
 router
   .group(() => {
@@ -127,6 +128,10 @@ router
         router.patch("submissions/:id", [UpdateSubmissionController]).openapi({
           summary: "Update CRV submission",
           description: "Updates status or watched state of a submission",
+        });
+        router.post("view-dancer/:id", [ViewDancerController]).openapi({
+          summary: "Record profile view",
+          description: "Records that the school viewed a dancer's profile",
         });
       })
       .prefix("me")

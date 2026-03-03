@@ -44,6 +44,7 @@ export class Service {
           displayEmail: users.displayEmail,
           firstName: users.firstName,
           lastName: users.lastName,
+          type: users.type,
         });
 
       await tx.insert(platforms).values({

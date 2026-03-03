@@ -1,6 +1,7 @@
 import { achievements } from "#database/schema/dancers";
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
+import { DancerAchievementEvent } from "./event.ts";
 import { Validator } from "./validator.ts";
 
 @inject()
@@ -15,5 +16,7 @@ export class Service {
         title: data.title,
       })
     );
+
+    DancerAchievementEvent.dispatch({ dancerId: profileId });
   }
 }

@@ -2,13 +2,18 @@ import { crvSubmissions } from "#database/schema/crv";
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { and, eq } from "drizzle-orm";
+import { ProspectStatusEvent } from "./event.ts";
 import { Validator } from "./validator.ts";
 
 @inject()
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute(profileId: string, { params, ...data }: Validator) {
+  async execute(
+    profileId: string,
+    { params, ...data }: Validator,
+    isAdmin?: boolean
+  ) {
     const updateData: Record<string, unknown> = {};
 
     if (data.status !== undefined) {
@@ -26,7 +31,7 @@ export class Service {
       return;
     }
 
-    await this.db.use((db) =>
+    const [updated] = await this.db.use((db) =>
       db
         .update(crvSubmissions)
         .set(updateData)
@@ -36,6 +41,17 @@ export class Service {
             eq(crvSubmissions.schoolId, profileId)
           )
         )
+        .returning({ dancerId: crvSubmissions.dancerId })
     );
+
+    // Only dispatch event when status changes (not watched)
+    if (data.status !== undefined && updated) {
+      ProspectStatusEvent.dispatch({
+        dancerId: updated.dancerId,
+        schoolId: profileId,
+        status: data.status,
+        isAdmin,
+      });
+    }
   }
 }

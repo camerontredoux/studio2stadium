@@ -3,6 +3,7 @@ import { favorites } from "#database/schema/profiles";
 import { DatabaseService } from "#database/service";
 import { E_DATABASE_ERROR } from "#exceptions/database";
 import { inject } from "@adonisjs/core";
+import { FavoriteEvent } from "./event.ts";
 import { Validator } from "./validator.ts";
 
 @inject()
@@ -30,6 +31,12 @@ export class Service {
       }
       throw error;
     }
+
+    FavoriteEvent.dispatch({
+      schoolId: profileId,
+      dancerId: params.id,
+      platform,
+    });
 
     return { created: true };
   }

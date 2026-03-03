@@ -28,34 +28,150 @@ func (Notification) TableName() string {
 	return "notifications"
 }
 
-type FavoriteNotificationPayload struct {
-	FavoriterId string `json:"favoriterId"`
-	FavoritedId string `json:"favoritedId"`
-}
+// Event payload types matching TypeScript outbox-service.ts
 
-type CRVSubmissionNotificationPayload struct {
-	DancerId  string   `json:"dancerId"`
-	SchoolIds []string `json:"schoolIds"`
-}
-
-type SchoolJoinedNotificationPayload struct {
+// school.interest - dancer shows interest in a school
+type SchoolInterestPayload struct {
+	DancerId string `json:"dancerId"`
 	SchoolId string `json:"schoolId"`
 }
 
-// TODO: maybe nuke?
-type BlogPostNotificationPayload struct {
-	PostId string `json:"postId"`
+// dancer.favorite - school favorites a dancer
+type DancerFavoritePayload struct {
+	SchoolId string `json:"schoolId"`
+	DancerId string `json:"dancerId"`
+	Platform string `json:"platform"`
 }
 
-type DancerProfileUpdate string
+// school.followed - dancer follows a school
+type SchoolFollowedPayload struct {
+	DancerId string `json:"dancerId"`
+	SchoolId string `json:"schoolId"`
+}
 
-const (
-	DancerProfileUpdateAward     = "award"
-	DancerProfileUpdateReference = "reference"
-	DancerProfileUpdateAll       = "all"
-)
+// crv.submission - dancer submits CRV to a school
+type CRVSubmissionPayload struct {
+	DancerId string `json:"dancerId"`
+	SchoolId string `json:"schoolId"`
+	VideoId  string `json:"videoId"`
+}
 
-type DancerProfileUpdatedNotificationPayload struct {
-	DancerId   string              `json:"dancerId"`
-	UpdateType DancerProfileUpdate `json:"updateType"`
+// dancer.profile-viewed - school views dancer profile
+type DancerProfileViewedPayload struct {
+	DancerId string `json:"dancerId"`
+	SchoolId string `json:"schoolId"`
+}
+
+// dancer.prospect-status - school updates dancer's prospect status
+type DancerProspectStatusPayload struct {
+	DancerId string `json:"dancerId"`
+	SchoolId string `json:"schoolId"`
+	Status   string `json:"status"`
+}
+
+// dancer.image-uploaded - dancer uploads profile image
+type DancerImageUploadedPayload struct {
+	DancerId string `json:"dancerId"`
+}
+
+// dancer.video-uploaded - dancer uploads video
+type DancerVideoUploadedPayload struct {
+	DancerId string `json:"dancerId"`
+}
+
+// dancer.reference-added - dancer adds reference
+type DancerReferenceAddedPayload struct {
+	DancerId string `json:"dancerId"`
+}
+
+// dancer.achievement-added - dancer adds achievement
+type DancerAchievementAddedPayload struct {
+	DancerId string `json:"dancerId"`
+}
+
+// school.event-created - school creates an event
+type SchoolEventCreatedPayload struct {
+	SchoolId string `json:"schoolId"`
+	EventId  string `json:"eventId"`
+}
+
+// school.image-uploaded - school uploads image
+type SchoolImageUploadedPayload struct {
+	SchoolId string `json:"schoolId"`
+}
+
+// school.video-uploaded - school uploads video
+type SchoolVideoUploadedPayload struct {
+	SchoolId string `json:"schoolId"`
+}
+
+// event.attended - user attends event
+type EventAttendedPayload struct {
+	UserId  string `json:"userId"`
+	EventId string `json:"eventId"`
+}
+
+// school.approved - school is approved (global notification)
+type SchoolApprovedPayload struct {
+	SchoolId string `json:"schoolId"`
+}
+
+// Notification content types (stored in notifications.content)
+// Each includes a "type" field so frontend can identify the notification type
+// Additional fields contain minimal reference data for rendering
+
+type SchoolInterestContent struct {
+	Type     string `json:"type"`
+	DancerId string `json:"dancerId"`
+}
+
+type DancerFavoriteContent struct {
+	Type     string `json:"type"`
+	SchoolId string `json:"schoolId"`
+	Platform string `json:"platform"`
+}
+
+type SchoolFollowedContent struct {
+	Type     string `json:"type"`
+	DancerId string `json:"dancerId"`
+}
+
+type CRVSubmissionContent struct {
+	Type     string `json:"type"`
+	DancerId string `json:"dancerId"`
+	VideoId  string `json:"videoId"`
+}
+
+type DancerProfileViewedContent struct {
+	Type     string `json:"type"`
+	SchoolId string `json:"schoolId"`
+}
+
+type DancerProspectStatusContent struct {
+	Type     string `json:"type"`
+	SchoolId string `json:"schoolId"`
+	Status   string `json:"status"`
+}
+
+type DancerProfileUpdateContent struct {
+	Type       string `json:"type"`
+	DancerId   string `json:"dancerId"`
+	UpdateType string `json:"updateType"` // "image", "video", "reference", "achievement"
+}
+
+type SchoolEventCreatedContent struct {
+	Type     string `json:"type"`
+	SchoolId string `json:"schoolId"`
+	EventId  string `json:"eventId"`
+}
+
+type SchoolContentUpdateContent struct {
+	Type       string `json:"type"`
+	SchoolId   string `json:"schoolId"`
+	UpdateType string `json:"updateType"` // "image", "video"
+}
+
+type SchoolApprovedContent struct {
+	Type     string `json:"type"`
+	SchoolId string `json:"schoolId"`
 }

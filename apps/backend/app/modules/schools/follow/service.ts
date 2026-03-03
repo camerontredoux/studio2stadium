@@ -2,6 +2,7 @@ import { follows } from "#database/schema/profiles";
 import { DatabaseService } from "#database/service";
 import { E_DATABASE_ERROR } from "#exceptions/database";
 import { inject } from "@adonisjs/core";
+import { FollowSchoolEvent } from "./event.ts";
 import { Validator } from "./validator.ts";
 
 @inject()
@@ -25,6 +26,11 @@ export class Service {
       }
       throw error;
     }
+
+    FollowSchoolEvent.dispatch({
+      dancerId: profileId,
+      schoolId: params.id,
+    });
 
     return { created: true };
   }

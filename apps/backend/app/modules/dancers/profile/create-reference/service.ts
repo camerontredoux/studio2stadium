@@ -1,6 +1,7 @@
 import { references } from "#database/schema/dancers";
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
+import { DancerReferenceEvent } from "./event.ts";
 import { Validator } from "./validator.ts";
 
 @inject()
@@ -16,5 +17,7 @@ export class Service {
         description: data.description,
       })
     );
+
+    DancerReferenceEvent.dispatch({ dancerId: profileId });
   }
 }

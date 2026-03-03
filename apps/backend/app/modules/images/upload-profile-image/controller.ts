@@ -9,7 +9,14 @@ export default class UploadProfileImageController {
     const user = ctx.auth.getUserOrFail();
     const payload = await ctx.request.validateUsing(schema);
 
-    await service.execute(user.id, payload);
+    await service.execute(
+      {
+        id: user.id,
+        type: user.type,
+        profileId: ctx.session.profileId,
+      },
+      payload
+    );
 
     return ctx.response.noContent();
   }

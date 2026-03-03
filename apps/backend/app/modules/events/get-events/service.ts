@@ -13,9 +13,7 @@ type DanceEventWhere = NonNullable<
 >["where"];
 
 type OrganizerWhere = NonNullable<
-  NonNullable<
-    Extract<DanceEventWhere, { organizer?: unknown }>
-  >["organizer"]
+  NonNullable<Extract<DanceEventWhere, { organizer?: unknown }>>["organizer"]
 >;
 
 @inject()

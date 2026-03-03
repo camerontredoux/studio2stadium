@@ -6,5 +6,5 @@ type School struct {
 }
 
 func (School) TableName() string {
-	return "school_accounts"
+	return "school_profiles"
 }

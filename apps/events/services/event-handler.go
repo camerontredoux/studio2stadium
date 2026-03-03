@@ -1,70 +1,507 @@
 package services
 
 import (
-	pr "github.com/StudioToStadium/event-server/presenters"
+	"encoding/json"
+
 	t "github.com/StudioToStadium/event-server/types"
 )
 
-func (s *EventService) HandleFavoriteEvent(
+// HandleSchoolInterest - dancer shows interest in a school
+// Notifies the school's user
+func (s *EventService) HandleSchoolInterest(
 	outboxEvent *t.OutboxEvent,
 	notifications *[]*t.Notification,
 ) error {
-	var fnPayload t.FavoriteNotificationPayload
-	err := outboxEvent.GetPayload(&fnPayload)
+	var payload t.SchoolInterestPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	// Get school profile to find user ID
+	school, err := s.store.GetSchoolProfile(payload.SchoolId)
 	if err != nil {
 		return err
 	}
-	favoriter, err := s.store.GetUser(fnPayload.FavoriterId)
+
+	content := t.SchoolInterestContent{
+		Type:     "school.interest",
+		DancerId: payload.DancerId,
+	}
+	contentJson, err := json.Marshal(content)
 	if err != nil {
 		return err
 	}
-	notif, err := pr.FavoritePayloadToNotification(fnPayload, favoriter)
-	if err != nil {
-		return err
-	}
-	*notifications = []*t.Notification{notif}
+
+	*notifications = []*t.Notification{{
+		UserId:  school.UserId,
+		Content: contentJson,
+	}}
 	return nil
 }
 
-func (s *EventService) HandleCRVSubmissionEvent(
+// HandleDancerFavorite - school favorites a dancer
+// Notifies the dancer
+func (s *EventService) HandleDancerFavorite(
 	outboxEvent *t.OutboxEvent,
 	notifications *[]*t.Notification,
 ) error {
-	var crvSubmissionPayload t.CRVSubmissionNotificationPayload
-	err := outboxEvent.GetPayload(&crvSubmissionPayload)
+	var payload t.DancerFavoritePayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	// Get dancer profile to find user ID
+	dancer, err := s.store.GetDancerProfile(payload.DancerId)
 	if err != nil {
 		return err
 	}
 
-	dancer, err := s.store.GetUser(crvSubmissionPayload.DancerId)
+	content := t.DancerFavoriteContent{
+		Type:     "dancer.favorite",
+		SchoolId: payload.SchoolId,
+		Platform: payload.Platform,
+	}
+	contentJson, err := json.Marshal(content)
 	if err != nil {
 		return err
 	}
-	crvNotifications, err := pr.CrvSubmissionPayloadToNotification(crvSubmissionPayload, dancer)
-	if err != nil {
-		return err
-	}
-	*notifications = crvNotifications
+
+	*notifications = []*t.Notification{{
+		UserId:  dancer.UserId,
+		Content: contentJson,
+	}}
 	return nil
 }
 
-func (s *EventService) HandleSchoolJoinedEvent(
+// HandleSchoolFollowed - dancer follows a school
+// Notifies the school's user
+func (s *EventService) HandleSchoolFollowed(
+	outboxEvent *t.OutboxEvent,
+	notifications *[]*t.Notification,
+) error {
+	var payload t.SchoolFollowedPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	// Get school profile to find user ID
+	school, err := s.store.GetSchoolProfile(payload.SchoolId)
+	if err != nil {
+		return err
+	}
+
+	content := t.SchoolFollowedContent{
+		Type:     "school.followed",
+		DancerId: payload.DancerId,
+	}
+	contentJson, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+
+	*notifications = []*t.Notification{{
+		UserId:  school.UserId,
+		Content: contentJson,
+	}}
+	return nil
+}
+
+// HandleCRVSubmission - dancer submits CRV to a school
+// Notifies the school's user
+func (s *EventService) HandleCRVSubmission(
+	outboxEvent *t.OutboxEvent,
+	notifications *[]*t.Notification,
+) error {
+	var payload t.CRVSubmissionPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	// Get school profile to find user ID
+	school, err := s.store.GetSchoolProfile(payload.SchoolId)
+	if err != nil {
+		return err
+	}
+
+	content := t.CRVSubmissionContent{
+		Type:     "crv.submission",
+		DancerId: payload.DancerId,
+		VideoId:  payload.VideoId,
+	}
+	contentJson, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+
+	*notifications = []*t.Notification{{
+		UserId:  school.UserId,
+		Content: contentJson,
+	}}
+	return nil
+}
+
+// HandleDancerProfileViewed - school views dancer profile
+// Notifies the dancer
+func (s *EventService) HandleDancerProfileViewed(
+	outboxEvent *t.OutboxEvent,
+	notifications *[]*t.Notification,
+) error {
+	var payload t.DancerProfileViewedPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	// Get dancer profile to find user ID
+	dancer, err := s.store.GetDancerProfile(payload.DancerId)
+	if err != nil {
+		return err
+	}
+
+	content := t.DancerProfileViewedContent{
+		Type:     "dancer.profile-viewed",
+		SchoolId: payload.SchoolId,
+	}
+	contentJson, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+
+	*notifications = []*t.Notification{{
+		UserId:  dancer.UserId,
+		Content: contentJson,
+	}}
+	return nil
+}
+
+// HandleDancerProspectStatus - school updates dancer's prospect status
+// Notifies the dancer
+func (s *EventService) HandleDancerProspectStatus(
+	outboxEvent *t.OutboxEvent,
+	notifications *[]*t.Notification,
+) error {
+	var payload t.DancerProspectStatusPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	// Get dancer profile to find user ID
+	dancer, err := s.store.GetDancerProfile(payload.DancerId)
+	if err != nil {
+		return err
+	}
+
+	content := t.DancerProspectStatusContent{
+		Type:     "dancer.prospect-status",
+		SchoolId: payload.SchoolId,
+		Status:   payload.Status,
+	}
+	contentJson, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+
+	*notifications = []*t.Notification{{
+		UserId:  dancer.UserId,
+		Content: contentJson,
+	}}
+	return nil
+}
+
+// HandleDancerImageUploaded - dancer uploads profile image
+// Notifies all schools that favorited this dancer
+func (s *EventService) HandleDancerImageUploaded(
+	outboxEvent *t.OutboxEvent,
+	notifications *[]*t.Notification,
+) error {
+	var payload t.DancerImageUploadedPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	// Get all school users that favorited this dancer
+	userIds, err := s.store.GetDancerFavoriters(payload.DancerId)
+	if err != nil {
+		return err
+	}
+
+	content := t.DancerProfileUpdateContent{
+		Type:       "dancer.image-uploaded",
+		DancerId:   payload.DancerId,
+		UpdateType: "image",
+	}
+	contentJson, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+
+	notifs := make([]*t.Notification, 0, len(userIds))
+	for _, userId := range userIds {
+		notifs = append(notifs, &t.Notification{
+			UserId:  userId,
+			Content: contentJson,
+		})
+	}
+
+	*notifications = notifs
+	return nil
+}
+
+// HandleDancerVideoUploaded - dancer uploads video
+// Notifies all schools that favorited this dancer
+func (s *EventService) HandleDancerVideoUploaded(
+	outboxEvent *t.OutboxEvent,
+	notifications *[]*t.Notification,
+) error {
+	var payload t.DancerVideoUploadedPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	// Get all school users that favorited this dancer
+	userIds, err := s.store.GetDancerFavoriters(payload.DancerId)
+	if err != nil {
+		return err
+	}
+
+	content := t.DancerProfileUpdateContent{
+		Type:       "dancer.video-uploaded",
+		DancerId:   payload.DancerId,
+		UpdateType: "video",
+	}
+	contentJson, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+
+	notifs := make([]*t.Notification, 0, len(userIds))
+	for _, userId := range userIds {
+		notifs = append(notifs, &t.Notification{
+			UserId:  userId,
+			Content: contentJson,
+		})
+	}
+
+	*notifications = notifs
+	return nil
+}
+
+// HandleDancerReferenceAdded - dancer adds reference
+// Notifies all schools that favorited this dancer
+func (s *EventService) HandleDancerReferenceAdded(
+	outboxEvent *t.OutboxEvent,
+	notifications *[]*t.Notification,
+) error {
+	var payload t.DancerReferenceAddedPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	// Get all school users that favorited this dancer
+	userIds, err := s.store.GetDancerFavoriters(payload.DancerId)
+	if err != nil {
+		return err
+	}
+
+	content := t.DancerProfileUpdateContent{
+		Type:       "dancer.reference-added",
+		DancerId:   payload.DancerId,
+		UpdateType: "reference",
+	}
+	contentJson, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+
+	notifs := make([]*t.Notification, 0, len(userIds))
+	for _, userId := range userIds {
+		notifs = append(notifs, &t.Notification{
+			UserId:  userId,
+			Content: contentJson,
+		})
+	}
+
+	*notifications = notifs
+	return nil
+}
+
+// HandleDancerAchievementAdded - dancer adds achievement
+// Notifies all schools that favorited this dancer
+func (s *EventService) HandleDancerAchievementAdded(
+	outboxEvent *t.OutboxEvent,
+	notifications *[]*t.Notification,
+) error {
+	var payload t.DancerAchievementAddedPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	// Get all school users that favorited this dancer
+	userIds, err := s.store.GetDancerFavoriters(payload.DancerId)
+	if err != nil {
+		return err
+	}
+
+	content := t.DancerProfileUpdateContent{
+		Type:       "dancer.achievement-added",
+		DancerId:   payload.DancerId,
+		UpdateType: "achievement",
+	}
+	contentJson, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+
+	notifs := make([]*t.Notification, 0, len(userIds))
+	for _, userId := range userIds {
+		notifs = append(notifs, &t.Notification{
+			UserId:  userId,
+			Content: contentJson,
+		})
+	}
+
+	*notifications = notifs
+	return nil
+}
+
+// HandleSchoolEventCreated - school creates an event
+// Notifies all dancers that follow this school
+func (s *EventService) HandleSchoolEventCreated(
+	outboxEvent *t.OutboxEvent,
+	notifications *[]*t.Notification,
+) error {
+	var payload t.SchoolEventCreatedPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	// Get all dancer users that follow this school
+	userIds, err := s.store.GetSchoolFollowers(payload.SchoolId)
+	if err != nil {
+		return err
+	}
+
+	content := t.SchoolEventCreatedContent{
+		Type:     "school.event-created",
+		SchoolId: payload.SchoolId,
+		EventId:  payload.EventId,
+	}
+	contentJson, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+
+	notifs := make([]*t.Notification, 0, len(userIds))
+	for _, userId := range userIds {
+		notifs = append(notifs, &t.Notification{
+			UserId:  userId,
+			Content: contentJson,
+		})
+	}
+
+	*notifications = notifs
+	return nil
+}
+
+// HandleSchoolImageUploaded - school uploads image
+// Notifies all dancers that follow this school
+func (s *EventService) HandleSchoolImageUploaded(
+	outboxEvent *t.OutboxEvent,
+	notifications *[]*t.Notification,
+) error {
+	var payload t.SchoolImageUploadedPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	// Get all dancer users that follow this school
+	userIds, err := s.store.GetSchoolFollowers(payload.SchoolId)
+	if err != nil {
+		return err
+	}
+
+	content := t.SchoolContentUpdateContent{
+		Type:       "school.image-uploaded",
+		SchoolId:   payload.SchoolId,
+		UpdateType: "image",
+	}
+	contentJson, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+
+	notifs := make([]*t.Notification, 0, len(userIds))
+	for _, userId := range userIds {
+		notifs = append(notifs, &t.Notification{
+			UserId:  userId,
+			Content: contentJson,
+		})
+	}
+
+	*notifications = notifs
+	return nil
+}
+
+// HandleSchoolVideoUploaded - school uploads video
+// Notifies all dancers that follow this school
+func (s *EventService) HandleSchoolVideoUploaded(
+	outboxEvent *t.OutboxEvent,
+	notifications *[]*t.Notification,
+) error {
+	var payload t.SchoolVideoUploadedPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	// Get all dancer users that follow this school
+	userIds, err := s.store.GetSchoolFollowers(payload.SchoolId)
+	if err != nil {
+		return err
+	}
+
+	content := t.SchoolContentUpdateContent{
+		Type:       "school.video-uploaded",
+		SchoolId:   payload.SchoolId,
+		UpdateType: "video",
+	}
+	contentJson, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+
+	notifs := make([]*t.Notification, 0, len(userIds))
+	for _, userId := range userIds {
+		notifs = append(notifs, &t.Notification{
+			UserId:  userId,
+			Content: contentJson,
+		})
+	}
+
+	*notifications = notifs
+	return nil
+}
+
+// HandleSchoolApproved - school is approved
+// Creates a global notification
+func (s *EventService) HandleSchoolApproved(
 	outboxEvent *t.OutboxEvent,
 	globalNotification **t.GlobalNotification,
 ) error {
-	var schoolJoinedPayload t.SchoolJoinedNotificationPayload
-	err := outboxEvent.GetPayload(&schoolJoinedPayload)
+	var payload t.SchoolApprovedPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	content := t.SchoolApprovedContent{
+		Type:     "school.approved",
+		SchoolId: payload.SchoolId,
+	}
+	contentJson, err := json.Marshal(content)
 	if err != nil {
 		return err
 	}
-	school, err := s.store.GetSchool(schoolJoinedPayload.SchoolId)
-	if err != nil {
-		return err
+
+	*globalNotification = &t.GlobalNotification{
+		Content: contentJson,
 	}
-	notification, err := pr.SchoolJoinedPayloadToNotification(schoolJoinedPayload, school)
-	if err != nil {
-		return err
-	}
-	*globalNotification = notification
 	return nil
 }

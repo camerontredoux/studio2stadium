@@ -2,28 +2,16 @@
   "version": "8",
   "dialect": "postgres",
   "id": "cfb7e382-611a-4810-b16b-d7c875e0aaa1",
-  "prevIds": [
-    "4d7012a7-a193-4813-aca5-c6bc5232e137"
-  ],
+  "prevIds": ["4d7012a7-a193-4813-aca5-c6bc5232e137"],
   "ddl": [
     {
-      "values": [
-        "dancer",
-        "school"
-      ],
+      "values": ["dancer", "school"],
       "name": "account_type",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "uda",
-        "dtu",
-        "nda",
-        "usa",
-        "non-competitive",
-        "other"
-      ],
+      "values": ["uda", "dtu", "nda", "usa", "non-competitive", "other"],
       "name": "competitive_circuit_type",
       "entityType": "enums",
       "schema": "public"
@@ -53,81 +41,49 @@
       "schema": "public"
     },
     {
-      "values": [
-        "image",
-        "video",
-        "profile",
-        "reference",
-        "achievement"
-      ],
+      "values": ["image", "video", "profile", "reference", "achievement"],
       "name": "feed_item_type",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "image",
-        "video"
-      ],
+      "values": ["image", "video"],
       "name": "media_type",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "core",
-        "prodigy"
-      ],
+      "values": ["core", "prodigy"],
       "name": "platform_name",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "pending",
-        "released",
-        "in_review",
-        "accepted"
-      ],
+      "values": ["pending", "released", "in_review", "accepted"],
       "name": "prospect_status",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "admin",
-        "prodigy_admin",
-        "user"
-      ],
+      "values": ["admin", "prodigy_admin", "user"],
       "name": "role",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "pending",
-        "accepted",
-        "rejected"
-      ],
+      "values": ["pending", "accepted", "rejected"],
       "name": "school_application_status",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "stripe",
-        "revenuecat"
-      ],
+      "values": ["stripe", "revenuecat"],
       "name": "subscription_source",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "recruitment",
-        "audition",
-        "hybrid"
-      ],
+      "values": ["recruitment", "audition", "hybrid"],
       "name": "team_selection_type",
       "entityType": "enums",
       "schema": "public"
@@ -4929,14 +4885,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "dancer_id"
-      ],
+      "columns": ["dancer_id"],
       "schemaTo": "public",
       "tableTo": "dancer_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "crv_submissions_dancer_id_dancer_profiles_id_fkey",
@@ -4946,14 +4898,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "school_id"
-      ],
+      "columns": ["school_id"],
       "schemaTo": "public",
       "tableTo": "school_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "crv_submissions_school_id_school_profiles_id_fkey",
@@ -4963,14 +4911,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "dancer_id"
-      ],
+      "columns": ["dancer_id"],
       "schemaTo": "public",
       "tableTo": "dancer_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "crv_videos_dancer_id_dancer_profiles_id_fkey",
@@ -4980,14 +4924,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "profile_id"
-      ],
+      "columns": ["profile_id"],
       "schemaTo": "public",
       "tableTo": "dancer_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "dancer_achievements_profile_id_dancer_profiles_id_fkey",
@@ -4997,14 +4937,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "dancer_profiles_user_id_users_id_fkey",
@@ -5014,14 +4950,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "dancer_id"
-      ],
+      "columns": ["dancer_id"],
       "schemaTo": "public",
       "tableTo": "dancer_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "dancer_interests_dancer_id_dancer_profiles_id_fkey",
@@ -5031,14 +4963,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "school_id"
-      ],
+      "columns": ["school_id"],
       "schemaTo": "public",
       "tableTo": "school_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "dancer_interests_school_id_school_profiles_id_fkey",
@@ -5048,14 +4976,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "profile_id"
-      ],
+      "columns": ["profile_id"],
       "schemaTo": "public",
       "tableTo": "dancer_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "dancer_references_profile_id_dancer_profiles_id_fkey",
@@ -5065,14 +4989,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "event_id"
-      ],
+      "columns": ["event_id"],
       "schemaTo": "public",
       "tableTo": "dance_events",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "dance_event_attendees_event_id_dance_events_id_fkey",
@@ -5082,14 +5002,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "dance_event_attendees_user_id_users_id_fkey",
@@ -5099,14 +5015,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "event_id"
-      ],
+      "columns": ["event_id"],
       "schemaTo": "public",
       "tableTo": "dance_events",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "dance_event_schedules_event_id_dance_events_id_fkey",
@@ -5116,14 +5028,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "school_id"
-      ],
+      "columns": ["school_id"],
       "schemaTo": "public",
       "tableTo": "school_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "dance_events_school_id_school_profiles_id_fkey",
@@ -5133,14 +5041,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "event_id"
-      ],
+      "columns": ["event_id"],
       "schemaTo": "public",
       "tableTo": "global_dance_events",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "global_dance_event_attendees_VAnWZ7akpnDz_fkey",
@@ -5150,14 +5054,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "global_dance_event_attendees_user_id_users_id_fkey",
@@ -5167,14 +5067,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "feed_user_id_users_id_fkey",
@@ -5184,14 +5080,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "profile_images_user_id_users_id_fkey",
@@ -5201,14 +5093,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "profile_videos_user_id_users_id_fkey",
@@ -5218,14 +5106,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "CASCADE",
       "onDelete": "CASCADE",
       "name": "notifications_user_id_users_id_fkey",
@@ -5235,14 +5119,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "school_id"
-      ],
+      "columns": ["school_id"],
       "schemaTo": "public",
       "tableTo": "school_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "school_favorites_school_id_school_profiles_id_fkey",
@@ -5252,14 +5132,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "dancer_id"
-      ],
+      "columns": ["dancer_id"],
       "schemaTo": "public",
       "tableTo": "dancer_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "school_favorites_dancer_id_dancer_profiles_id_fkey",
@@ -5269,14 +5145,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "dancer_id"
-      ],
+      "columns": ["dancer_id"],
       "schemaTo": "public",
       "tableTo": "dancer_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "dancer_follows_dancer_id_dancer_profiles_id_fkey",
@@ -5286,14 +5158,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "school_id"
-      ],
+      "columns": ["school_id"],
       "schemaTo": "public",
       "tableTo": "school_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "dancer_follows_school_id_school_profiles_id_fkey",
@@ -5303,14 +5171,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "school_id"
-      ],
+      "columns": ["school_id"],
       "schemaTo": "public",
       "tableTo": "school_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "school_applications_school_id_school_profiles_id_fkey",
@@ -5320,14 +5184,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "school_profiles_user_id_users_id_fkey",
@@ -5337,14 +5197,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "dancer_id"
-      ],
+      "columns": ["dancer_id"],
       "schemaTo": "public",
       "tableTo": "dancer_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "dancers_to_skills_dancer_id_dancer_profiles_id_fkey",
@@ -5354,14 +5210,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "skill_id"
-      ],
+      "columns": ["skill_id"],
       "schemaTo": "public",
       "tableTo": "profile_skills",
-      "columnsTo": [
-        "slug"
-      ],
+      "columnsTo": ["slug"],
       "onUpdate": "CASCADE",
       "onDelete": "CASCADE",
       "name": "dancer_skills_skill_id_profile_skills_slug_fkey",
@@ -5371,14 +5223,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "school_id"
-      ],
+      "columns": ["school_id"],
       "schemaTo": "public",
       "tableTo": "school_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "schools_to_skills_school_id_school_profiles_id_fkey",
@@ -5388,14 +5236,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "skill_id"
-      ],
+      "columns": ["skill_id"],
       "schemaTo": "public",
       "tableTo": "profile_skills",
-      "columnsTo": [
-        "slug"
-      ],
+      "columnsTo": ["slug"],
       "onUpdate": "CASCADE",
       "onDelete": "CASCADE",
       "name": "school_skills_skill_id_profile_skills_slug_fkey",
@@ -5405,14 +5249,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "skill_id"
-      ],
+      "columns": ["skill_id"],
       "schemaTo": "public",
       "tableTo": "profile_skills",
-      "columnsTo": [
-        "slug"
-      ],
+      "columnsTo": ["slug"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "skill_rarity_skill_id_profile_skills_slug_fkey",
@@ -5422,14 +5262,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "dancer_id"
-      ],
+      "columns": ["dancer_id"],
       "schemaTo": "public",
       "tableTo": "dancer_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "dancer_sports_dancer_id_dancer_profiles_id_fkey",
@@ -5439,14 +5275,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "sport_id"
-      ],
+      "columns": ["sport_id"],
       "schemaTo": "public",
       "tableTo": "profile_sports",
-      "columnsTo": [
-        "slug"
-      ],
+      "columnsTo": ["slug"],
       "onUpdate": "CASCADE",
       "onDelete": "CASCADE",
       "name": "dancer_sports_sport_id_profile_sports_slug_fkey",
@@ -5456,14 +5288,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "school_id"
-      ],
+      "columns": ["school_id"],
       "schemaTo": "public",
       "tableTo": "school_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "school_sports_school_id_school_profiles_id_fkey",
@@ -5473,14 +5301,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "sport_id"
-      ],
+      "columns": ["sport_id"],
       "schemaTo": "public",
       "tableTo": "profile_sports",
-      "columnsTo": [
-        "slug"
-      ],
+      "columnsTo": ["slug"],
       "onUpdate": "CASCADE",
       "onDelete": "CASCADE",
       "name": "school_sports_sport_id_profile_sports_slug_fkey",
@@ -5490,14 +5314,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "dancer_id"
-      ],
+      "columns": ["dancer_id"],
       "schemaTo": "public",
       "tableTo": "dancer_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "dancers_to_styles_dancer_id_dancer_profiles_id_fkey",
@@ -5507,14 +5327,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "style_id"
-      ],
+      "columns": ["style_id"],
       "schemaTo": "public",
       "tableTo": "profile_styles",
-      "columnsTo": [
-        "slug"
-      ],
+      "columnsTo": ["slug"],
       "onUpdate": "CASCADE",
       "onDelete": "CASCADE",
       "name": "dancer_styles_style_id_profile_styles_slug_fkey",
@@ -5524,14 +5340,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "school_id"
-      ],
+      "columns": ["school_id"],
       "schemaTo": "public",
       "tableTo": "school_profiles",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "schools_to_styles_school_id_school_profiles_id_fkey",
@@ -5541,14 +5353,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "style_id"
-      ],
+      "columns": ["style_id"],
       "schemaTo": "public",
       "tableTo": "profile_styles",
-      "columnsTo": [
-        "slug"
-      ],
+      "columnsTo": ["slug"],
       "onUpdate": "CASCADE",
       "onDelete": "CASCADE",
       "name": "school_styles_style_id_profile_styles_slug_fkey",
@@ -5558,14 +5366,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "user_subscriptions_user_id_users_id_fkey",
@@ -5575,14 +5379,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "user_platforms_user_id_users_id_fkey",
@@ -5592,14 +5392,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "user_activities_user_id_users_id_fkey",
@@ -5608,10 +5404,7 @@
       "table": "user_activities"
     },
     {
-      "columns": [
-        "dancer_id",
-        "school_id"
-      ],
+      "columns": ["dancer_id", "school_id"],
       "nameExplicit": false,
       "name": "dancer_interests_pkey",
       "entityType": "pks",
@@ -5619,10 +5412,7 @@
       "table": "dancer_interests"
     },
     {
-      "columns": [
-        "user_id",
-        "event_id"
-      ],
+      "columns": ["user_id", "event_id"],
       "nameExplicit": false,
       "name": "dance_event_attendees_pkey",
       "entityType": "pks",
@@ -5630,10 +5420,7 @@
       "table": "dance_event_attendees"
     },
     {
-      "columns": [
-        "user_id",
-        "event_id"
-      ],
+      "columns": ["user_id", "event_id"],
       "nameExplicit": false,
       "name": "global_dance_event_attendees_pkey",
       "entityType": "pks",
@@ -5641,10 +5428,7 @@
       "table": "global_dance_event_attendees"
     },
     {
-      "columns": [
-        "dancer_id",
-        "skill_id"
-      ],
+      "columns": ["dancer_id", "skill_id"],
       "nameExplicit": false,
       "name": "dancers_to_skills_pkey",
       "entityType": "pks",
@@ -5652,10 +5436,7 @@
       "table": "dancer_skills"
     },
     {
-      "columns": [
-        "school_id",
-        "skill_id"
-      ],
+      "columns": ["school_id", "skill_id"],
       "nameExplicit": false,
       "name": "schools_to_skills_pkey",
       "entityType": "pks",
@@ -5663,10 +5444,7 @@
       "table": "school_skills"
     },
     {
-      "columns": [
-        "dancer_id",
-        "sport_id"
-      ],
+      "columns": ["dancer_id", "sport_id"],
       "nameExplicit": false,
       "name": "dancer_sports_pkey",
       "entityType": "pks",
@@ -5674,10 +5452,7 @@
       "table": "dancer_sports"
     },
     {
-      "columns": [
-        "school_id",
-        "sport_id"
-      ],
+      "columns": ["school_id", "sport_id"],
       "nameExplicit": false,
       "name": "school_sports_pkey",
       "entityType": "pks",
@@ -5685,10 +5460,7 @@
       "table": "school_sports"
     },
     {
-      "columns": [
-        "dancer_id",
-        "style_id"
-      ],
+      "columns": ["dancer_id", "style_id"],
       "nameExplicit": false,
       "name": "dancers_to_styles_pkey",
       "entityType": "pks",
@@ -5696,10 +5468,7 @@
       "table": "dancer_styles"
     },
     {
-      "columns": [
-        "school_id",
-        "style_id"
-      ],
+      "columns": ["school_id", "style_id"],
       "nameExplicit": false,
       "name": "schools_to_styles_pkey",
       "entityType": "pks",
@@ -5707,10 +5476,7 @@
       "table": "school_styles"
     },
     {
-      "columns": [
-        "user_id",
-        "platform_name"
-      ],
+      "columns": ["user_id", "platform_name"],
       "nameExplicit": false,
       "name": "user_platforms_pkey",
       "entityType": "pks",
@@ -5718,9 +5484,7 @@
       "table": "user_platforms"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "crv_submissions_pkey",
       "schema": "public",
@@ -5728,9 +5492,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "crv_videos_pkey",
       "schema": "public",
@@ -5738,9 +5500,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "dancer_achievements_pkey",
       "schema": "public",
@@ -5748,9 +5508,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "dancer_profiles_pkey",
       "schema": "public",
@@ -5758,9 +5516,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "dancer_references_pkey",
       "schema": "public",
@@ -5768,9 +5524,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "dance_event_schedules_pkey",
       "schema": "public",
@@ -5778,9 +5532,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "dance_events_pkey",
       "schema": "public",
@@ -5788,9 +5540,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "global_dance_events_pkey",
       "schema": "public",
@@ -5798,9 +5548,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "feed_pkey",
       "schema": "public",
@@ -5808,9 +5556,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "video_library_pkey",
       "schema": "public",
@@ -5818,9 +5564,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "posts_pkey",
       "schema": "public",
@@ -5828,9 +5572,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "profile_images_pkey",
       "schema": "public",
@@ -5838,9 +5580,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "profile_videos_pkey",
       "schema": "public",
@@ -5848,9 +5588,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "global_notifications_pkey",
       "schema": "public",
@@ -5858,9 +5596,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "notifications_pkey",
       "schema": "public",
@@ -5868,9 +5604,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "outbox_pkey",
       "schema": "public",
@@ -5878,9 +5612,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "event_id"
-      ],
+      "columns": ["event_id"],
       "nameExplicit": false,
       "name": "processed_events_pkey",
       "schema": "public",
@@ -5888,9 +5620,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "school_favorites_pkey",
       "schema": "public",
@@ -5898,9 +5628,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "dancer_follows_pkey",
       "schema": "public",
@@ -5908,9 +5636,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "school_applications_pkey",
       "schema": "public",
@@ -5918,9 +5644,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "school_profiles_pkey",
       "schema": "public",
@@ -5928,9 +5652,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "skill_id"
-      ],
+      "columns": ["skill_id"],
       "nameExplicit": false,
       "name": "skill_rarity_pkey",
       "schema": "public",
@@ -5938,9 +5660,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "slug"
-      ],
+      "columns": ["slug"],
       "nameExplicit": false,
       "name": "profile_skills_pkey",
       "schema": "public",
@@ -5948,9 +5668,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "slug"
-      ],
+      "columns": ["slug"],
       "nameExplicit": false,
       "name": "profile_sports_pkey",
       "schema": "public",
@@ -5958,9 +5676,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "slug"
-      ],
+      "columns": ["slug"],
       "nameExplicit": false,
       "name": "profile_styles_pkey",
       "schema": "public",
@@ -5968,9 +5684,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "user_subscriptions_pkey",
       "schema": "public",
@@ -5978,9 +5692,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "user_activities_pkey",
       "schema": "public",
@@ -5988,9 +5700,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "users_pkey",
       "schema": "public",
@@ -5999,9 +5709,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "dancer_id"
-      ],
+      "columns": ["dancer_id"],
       "nullsNotDistinct": false,
       "name": "crv_videos_dancer_id_key",
       "schema": "public",
@@ -6010,9 +5718,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "nullsNotDistinct": false,
       "name": "dancer_profiles_user_id_key",
       "schema": "public",
@@ -6021,9 +5727,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "url"
-      ],
+      "columns": ["url"],
       "nullsNotDistinct": false,
       "name": "video_library_url_key",
       "schema": "public",
@@ -6032,9 +5736,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "slug"
-      ],
+      "columns": ["slug"],
       "nullsNotDistinct": false,
       "name": "posts_slug_key",
       "schema": "public",
@@ -6043,9 +5745,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "media_url"
-      ],
+      "columns": ["media_url"],
       "nullsNotDistinct": false,
       "name": "profile_images_media_url_key",
       "schema": "public",
@@ -6054,9 +5754,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "media_id"
-      ],
+      "columns": ["media_id"],
       "nullsNotDistinct": false,
       "name": "profile_videos_media_id_key",
       "schema": "public",
@@ -6065,9 +5763,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "school_id"
-      ],
+      "columns": ["school_id"],
       "nullsNotDistinct": false,
       "name": "school_applications_school_id_key",
       "schema": "public",
@@ -6076,9 +5772,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "nullsNotDistinct": false,
       "name": "school_profiles_user_id_key",
       "schema": "public",
@@ -6087,9 +5781,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "name"
-      ],
+      "columns": ["name"],
       "nullsNotDistinct": false,
       "name": "school_profiles_name_key",
       "schema": "public",
@@ -6098,9 +5790,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "name"
-      ],
+      "columns": ["name"],
       "nullsNotDistinct": false,
       "name": "profile_skills_name_key",
       "schema": "public",
@@ -6109,9 +5799,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "name"
-      ],
+      "columns": ["name"],
       "nullsNotDistinct": false,
       "name": "profile_sports_name_key",
       "schema": "public",
@@ -6120,9 +5808,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "name"
-      ],
+      "columns": ["name"],
       "nullsNotDistinct": false,
       "name": "profile_styles_name_key",
       "schema": "public",
@@ -6131,9 +5817,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "nullsNotDistinct": false,
       "name": "user_subscriptions_user_id_key",
       "schema": "public",
@@ -6142,9 +5826,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "subscription_id"
-      ],
+      "columns": ["subscription_id"],
       "nullsNotDistinct": false,
       "name": "user_subscriptions_subscription_id_key",
       "schema": "public",
@@ -6153,9 +5835,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "username"
-      ],
+      "columns": ["username"],
       "nullsNotDistinct": false,
       "name": "users_username_key",
       "schema": "public",
@@ -6164,9 +5844,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "email"
-      ],
+      "columns": ["email"],
       "nullsNotDistinct": false,
       "name": "users_email_key",
       "schema": "public",

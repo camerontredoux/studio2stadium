@@ -25,12 +25,16 @@ router
         description:
           "Posts an image to the user's profile and adds it to their followers' feeds",
       })
+      .use(middleware.profile())
       .use(throttle("profile-image-upload", 10));
 
-    router.delete(":id", [DeleteProfileImageController]).openapi({
-      summary: "Delete an image",
-      description: "Deletes an image from the user's profile and feed",
-    });
+    router
+      .delete(":id", [DeleteProfileImageController])
+      .openapi({
+        summary: "Delete an image",
+        description: "Deletes an image from the user's profile and feed",
+      })
+      .use(middleware.profile());
   })
   .use(middleware.auth())
   .prefix("images")

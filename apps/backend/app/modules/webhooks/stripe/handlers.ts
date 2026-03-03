@@ -4,6 +4,7 @@ import stripe from "#payments/stripe/main";
 import { inject } from "@adonisjs/core";
 import { eq } from "drizzle-orm";
 import { type Stripe } from "stripe";
+import { SubscriptionCreatedEvent, SubscriptionDeletedEvent } from "./event.ts";
 
 @inject()
 export default class WebhookHandlers {
@@ -68,7 +69,9 @@ export default class WebhookHandlers {
         })
     );
 
-    console.log(user);
+    if (user) {
+      SubscriptionCreatedEvent.dispatch({ userId: user.id });
+    }
   }
 
   // Handles everything after initial creation — renewals, cancellations, plan changes, payment failures
@@ -112,5 +115,19 @@ export default class WebhookHandlers {
         })
         .where(eq(subscriptions.subscriptionId, subscription.id))
     );
+
+    // Get customer email from Stripe (user may already be deleted from DB)
+    const customer = await stripe.api.customers.retrieve(
+      subscription.customer as string
+    );
+
+    if (!customer.deleted && customer.email) {
+      // Webhook events aren't triggered by admin users directly
+      SubscriptionDeletedEvent.dispatch({
+        email: customer.email,
+        name: customer.name || "there",
+        isAdmin: false,
+      });
+    }
   }
 }

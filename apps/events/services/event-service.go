@@ -101,31 +101,56 @@ func (s *EventService) ProcessQueueMessage(message *sqsT.Message) (*t.QueueMessa
 	var globalNotification *t.GlobalNotification
 
 	switch outboxEvent.Type {
-	case "favorite":
-		err := s.HandleFavoriteEvent(outboxEvent, &notifications)
-		if err != nil {
-			return nil, err
-		}
-	case "crv-submission":
-		err := s.HandleCRVSubmissionEvent(outboxEvent, &notifications)
-		if err != nil {
-			return nil, err
-		}
-	case "school-joined": // TODO: global event
-		err := s.HandleSchoolJoinedEvent(outboxEvent, &globalNotification)
-		if err != nil {
-			return nil, err
-		}
-	case "coach-attending": // when a coach clicks "attending" button on event (global dance event), send to all dancers following this coach
-	case "crv-viewed": // when a coach views a CRV (common recruiting video), send to submitter
-	case "video-comment": // coach comments on dancer video, send to dancer
-	case "dancer-profile-updated": // alerts all schools following a dancer that a profile was updated
-		// json payload of event to contain what was updated (award, reference, video, etc.)
-	case "school-viewed-profile": // alerts a dancer that a school viewed their profile
-	case "school-added-event": // alerts all dancers following a school that a new event was added
-	case "tap-in-video-uploaded": // TODO: global event, to all dancers (paying)
+	// Dancer engagement events
+	case "school.interest":
+		err = s.HandleSchoolInterest(outboxEvent, &notifications)
+	case "dancer.favorite":
+		err = s.HandleDancerFavorite(outboxEvent, &notifications)
+	case "school.followed":
+		err = s.HandleSchoolFollowed(outboxEvent, &notifications)
+
+	// Recruiting events
+	case "crv.submission":
+		err = s.HandleCRVSubmission(outboxEvent, &notifications)
+	case "dancer.profile-viewed":
+		err = s.HandleDancerProfileViewed(outboxEvent, &notifications)
+	case "dancer.prospect-status":
+		err = s.HandleDancerProspectStatus(outboxEvent, &notifications)
+
+	// Dancer profile update events (notify favoriters)
+	case "dancer.image-uploaded":
+		err = s.HandleDancerImageUploaded(outboxEvent, &notifications)
+	case "dancer.video-uploaded":
+		err = s.HandleDancerVideoUploaded(outboxEvent, &notifications)
+	case "dancer.reference-added":
+		err = s.HandleDancerReferenceAdded(outboxEvent, &notifications)
+	case "dancer.achievement-added":
+		err = s.HandleDancerAchievementAdded(outboxEvent, &notifications)
+
+	// School content events (notify followers)
+	case "school.event-created":
+		err = s.HandleSchoolEventCreated(outboxEvent, &notifications)
+	case "school.image-uploaded":
+		err = s.HandleSchoolImageUploaded(outboxEvent, &notifications)
+	case "school.video-uploaded":
+		err = s.HandleSchoolVideoUploaded(outboxEvent, &notifications)
+
+	// Global notification events
+	case "school.approved":
+		err = s.HandleSchoolApproved(outboxEvent, &globalNotification)
+
+	// Events that don't generate notifications
+	case "user.signup":
+		// No notification needed
+	case "event.attended":
+		// No notification needed for now
+
 	default:
 		log.Println("Unhandled event type:", outboxEvent.Type)
+	}
+
+	if err != nil {
+		return nil, err
 	}
 
 	if len(notifications) > 0 {
@@ -138,14 +163,19 @@ func (s *EventService) ProcessQueueMessage(message *sqsT.Message) (*t.QueueMessa
 		if err != nil {
 			return nil, err
 		}
-	}
-	if globalNotification != nil {
+	} else if globalNotification != nil {
 		log.Printf(
 			"Creating global notification and processed event\nGlobalNotification: %s\nProcessedEvent: %s\n",
 			spew.Sdump(globalNotification),
 			spew.Sdump(processedEvent),
 		)
 		err = s.store.CreateGlobalNotificationAndEvent(globalNotification, processedEvent)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// Mark event as processed even if no notifications were generated
+		_, err = s.store.CreateProcessedEvent(processedEvent)
 		if err != nil {
 			return nil, err
 		}

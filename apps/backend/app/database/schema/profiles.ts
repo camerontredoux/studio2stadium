@@ -50,3 +50,20 @@ export const follows = pg.pgTable(
     pg.index().on(table.dancerId),
   ]
 );
+
+export const profileViews = pg.pgTable(
+  "profile_views",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    dancer_id: pg
+      .uuid()
+      .notNull()
+      .references(() => dancerProfiles.id, { onDelete: "cascade" }),
+    school_id: pg
+      .uuid()
+      .notNull()
+      .references(() => schoolProfiles.id, { onDelete: "cascade" }),
+    ...timestamps,
+  },
+  (table) => [pg.uniqueIndex().on(table.dancer_id, table.school_id)]
+);
