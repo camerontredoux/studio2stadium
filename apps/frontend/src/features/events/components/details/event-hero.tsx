@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { ApiSchemas } from "@/lib/api/client";
+import { useSession } from "@/lib/session";
 import { TIMEZONE_LABELS } from "@/utils/constants/timezones";
 import { useRouter } from "@tanstack/react-router";
 import {
@@ -26,6 +27,8 @@ interface EventHeroProps {
 
 export function EventHero({ event }: EventHeroProps) {
   const router = useRouter();
+  const session = useSession();
+  const isOrganizer = session.username === event.organizer.username;
 
   return (
     <Frame compact>
@@ -105,7 +108,7 @@ export function EventHero({ event }: EventHeroProps) {
       </FramePanel>
 
       <FrameFooter className="flex w-fit items-center gap-2 px-4 py-3 max-sm:w-full sm:px-5">
-        <SaveEventButton size="sm" id={event.id} isSaved={event.saved} />
+        <SaveEventButton size="sm" id={event.id} isSaved={event.saved} disabled={isOrganizer} />
         {event.website && (
           <Button
             size="sm"

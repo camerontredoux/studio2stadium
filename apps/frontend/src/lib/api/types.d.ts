@@ -4,6 +4,54 @@
  */
 
 export interface paths {
+    "/admin/schools/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Approve school application
+         * @description Approves a school application, setting verified=true and status=accepted
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/application": {
         parameters: {
             query?: never;
@@ -676,6 +724,173 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get notifications
+         * @description Returns the user's notifications with enriched data
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NotificationsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get notification count
+         * @description Returns the count of unread notifications
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NotificationsCountResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark all notifications as read
+         * @description Marks all notifications as read by setting seenAt
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NotificationsReadallResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark notification as read
+         * @description Marks a notification as read by setting seenAt
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NotificationsIdResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/skills": {
         parameters: {
             query?: never;
@@ -958,6 +1173,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Contact us
+         * @description Sends a contact form message to the team
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ContactRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit feedback
+         * @description Submits user feedback to the team
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["FeedbackRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dancers": {
         parameters: {
             query?: never;
@@ -973,7 +1288,7 @@ export interface paths {
             parameters: {
                 query?: {
                     name?: string | null;
-                    location?: ("OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "ID" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
+                    location?: ("ID" | "OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
                     sports?: string | null;
                     styles?: string | null;
                     following?: (string | number | boolean) | null;
@@ -2180,7 +2495,7 @@ export interface paths {
             parameters: {
                 query?: {
                     date?: string | null;
-                    location?: ("OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "ID" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
+                    location?: ("ID" | "OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
                     schoolName?: string | null;
                 };
                 header?: never;
@@ -2752,7 +3067,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    location?: ("OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "ID" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
+                    location?: ("ID" | "OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
                     commonRecruiting?: (string | number | boolean) | null;
                     division?: string | null;
                     sports?: string | null;
@@ -3502,6 +3817,54 @@ export interface paths {
         };
         trace?: never;
     };
+    "/schools/me/view-dancer/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record profile view
+         * @description Records that the school viewed a dancer's profile
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/schools/{username}": {
         parameters: {
             query?: never;
@@ -3830,7 +4193,9 @@ export interface paths {
          */
         delete: {
             parameters: {
-                query?: never;
+                query?: {
+                    feedback?: string | null;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -3846,6 +4211,15 @@ export interface paths {
                 };
                 /** @description Bad Request */
                 400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -3992,6 +4366,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/videos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload video to profile
+         * @description Posts a video to the user's profile
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["VideosRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -4077,6 +4501,8 @@ export interface components {
             displayEmail: string;
             firstName: string;
             lastName: string;
+            /** @enum {string} */
+            type: "dancer" | "school";
         };
         AuthLoginRequest: {
             email: string;
@@ -4163,8 +4589,8 @@ export interface components {
         LibraryResponse: {
             category: string;
             videos: {
-                url: string;
                 id: string;
+                url: string;
                 createdAt: string;
                 updatedAt: string;
                 title: string;
@@ -4172,13 +4598,37 @@ export interface components {
             }[];
         }[];
         LibraryIdResponse: {
-            url: string;
             id: string;
+            url: string;
             createdAt: string;
             updatedAt: string;
             title: string;
             category: string;
         }[];
+        NotificationsResponse: {
+            link: string | null;
+            id: string;
+            type: string;
+            createdAt: string;
+            message: string;
+            read: boolean;
+            actor: {
+                name: string;
+                username: string;
+                avatar: string | null;
+                profileUrl: string;
+            } | null;
+            metadata?: Record<string, never>;
+        }[];
+        NotificationsCountResponse: {
+            count: number;
+        };
+        NotificationsReadallResponse: {
+            success: boolean;
+        };
+        NotificationsIdResponse: {
+            id: string;
+        };
         SkillsResponse: {
             name: string;
             slug: string;
@@ -4209,6 +4659,18 @@ export interface components {
         };
         StripeWebhookResponse: {
             received: boolean;
+        };
+        ContactRequest: {
+            email: string;
+            name: string;
+            message: string;
+            subject: string;
+        };
+        FeedbackRequest: {
+            page?: string | null;
+            /** @enum {string} */
+            type: "other" | "bug" | "feature" | "improvement";
+            message: string;
         };
         DancersResponse: {
             dancers: {
@@ -4405,7 +4867,7 @@ export interface components {
             events: {
                 id: string;
                 /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                type: "other" | "recruitment" | "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 location: string;
                 title: string;
                 startDatetime: string;
@@ -4417,7 +4879,7 @@ export interface components {
             globalEvents: {
                 id: string;
                 /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                type: "other" | "recruitment" | "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 location: string;
                 title: string;
                 startDatetime: string;
@@ -4461,7 +4923,7 @@ export interface components {
             events: {
                 id: string;
                 /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                type: "other" | "recruitment" | "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 date: string;
                 time: string;
                 location: string;
@@ -4482,7 +4944,7 @@ export interface components {
             address?: string | null;
             tags?: string[] | null;
             /** @enum {string} */
-            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+            type: "other" | "recruitment" | "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             location: string;
             title: string;
             description: string;
@@ -4504,7 +4966,7 @@ export interface components {
         EventsUpcomingResponse: {
             id: string;
             /** @enum {string} */
-            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+            type: "other" | "recruitment" | "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             date: string;
             time: string;
             location: string;
@@ -4524,7 +4986,7 @@ export interface components {
             attendees: number;
             id: string;
             /** @enum {string} */
-            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+            type: "other" | "recruitment" | "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             location: string;
             website: string;
             title: string;
@@ -4535,7 +4997,7 @@ export interface components {
         EventsIdResponse: {
             id: string;
             /** @enum {string} */
-            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+            type: "other" | "recruitment" | "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             createdAt: string;
             updatedAt: string;
             location: string;
@@ -4567,7 +5029,7 @@ export interface components {
             endDate: string;
         };
         EventsIdRequest: {
-            type?: ("recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp") | null;
+            type?: ("other" | "recruitment" | "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp") | null;
             location?: string | null;
             website?: string | null;
             title?: string | null;
@@ -4622,6 +5084,7 @@ export interface components {
             paramKey: components["schemas"]["SchoolFilterParam"];
         }[];
         SchoolsRecommendedResponse: {
+            id: string;
             debug?: {
                 schoolSkills: {
                     skillId: string;
@@ -4634,7 +5097,6 @@ export interface components {
                     rarityBonus: number;
                 }[];
             };
-            id: string;
             username: string;
             avatar: string | null;
             name: string;
@@ -4805,7 +5267,7 @@ export interface components {
             events: {
                 id: string;
                 /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                type: "other" | "recruitment" | "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 createdAt: string;
                 updatedAt: string;
                 location: string;
@@ -4823,7 +5285,7 @@ export interface components {
             globalEvents: {
                 id: string;
                 /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                type: "other" | "recruitment" | "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 location: string;
                 title: string;
                 startDatetime: string;
@@ -4832,7 +5294,7 @@ export interface components {
             attendingEvents: {
                 id: string;
                 /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                type: "other" | "recruitment" | "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 location: string;
                 title: string;
                 startDatetime: string;
@@ -4878,6 +5340,10 @@ export interface components {
             images: number;
             following: number;
             followers: number;
+        };
+        VideosRequest: {
+            caption?: string | null;
+            mediaId: string;
         };
     };
     responses: never;

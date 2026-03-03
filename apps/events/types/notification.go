@@ -175,3 +175,9 @@ type SchoolApprovedContent struct {
 	Type     string `json:"type"`
 	SchoolId string `json:"schoolId"`
 }
+
+type EventAttendedContent struct {
+	Type    string `json:"type"`
+	UserId  string `json:"userId"`
+	EventId string `json:"eventId"`
+}

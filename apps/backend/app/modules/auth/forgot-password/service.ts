@@ -21,7 +21,7 @@ export class ForgotPasswordService {
     );
 
     if (!user) {
-      return { token: null, userId: null, isAdmin: false };
+      return { token: null, userId: null };
     }
 
     const token = randomBytes(32).toString("hex");
@@ -29,8 +29,6 @@ export class ForgotPasswordService {
 
     await redis.setex(`forgot-password:${user.id}`, 900, hashedToken);
 
-    const isAdmin = user.role === "admin" || user.role === "prodigy_admin";
-
-    return { token, userId: user.id, isAdmin };
+    return { token, userId: user.id };
   }
 }

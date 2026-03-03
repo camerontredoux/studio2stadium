@@ -12,7 +12,6 @@ interface SubscriptionCreatedEventData {
 interface SubscriptionDeletedEventData {
   email: string;
   name: string;
-  isAdmin?: boolean;
 }
 
 export class SubscriptionCreatedEvent extends BaseEvent {
@@ -39,10 +38,6 @@ class SubscriptionCreatedHandler {
       return;
     }
 
-    // Skip email for admin users
-    const isAdmin = user.role === "admin" || user.role === "prodigy_admin";
-    if (isAdmin) return;
-
     await mail.send(
       new PremiumWelcomeEmail({
         email: user.displayEmail,
@@ -54,8 +49,6 @@ class SubscriptionCreatedHandler {
 
 class SubscriptionDeletedHandler {
   async handle(event: SubscriptionDeletedEvent) {
-    if (event.data.isAdmin) return;
-
     const { email, name } = event.data;
 
     await mail.send(

@@ -33,6 +33,7 @@ import { Route as AuthroutesSignupIndexRouteImport } from './routes/_auth/(route
 import { Route as ApproutesSettingsIndexRouteImport } from './routes/_app/(routes)/settings/index'
 import { Route as ApproutesResourcesIndexRouteImport } from './routes/_app/(routes)/resources/index'
 import { Route as ApproutesRecruitingIndexRouteImport } from './routes/_app/(routes)/recruiting/index'
+import { Route as ApproutesNotificationsIndexRouteImport } from './routes/_app/(routes)/notifications/index'
 import { Route as ApproutesExploreIndexRouteImport } from './routes/_app/(routes)/explore/index'
 import { Route as ApproutesEventsIndexRouteImport } from './routes/_app/(routes)/events/index'
 import { Route as AuthroutesSignupTypeRouteImport } from './routes/_auth/(routes)/signup/$type'
@@ -170,6 +171,12 @@ const ApproutesRecruitingIndexRoute =
     path: '/',
     getParentRoute: () => ApproutesRecruitingRouteRoute,
   } as any)
+const ApproutesNotificationsIndexRoute =
+  ApproutesNotificationsIndexRouteImport.update({
+    id: '/(routes)/notifications/',
+    path: '/notifications/',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
 const ApproutesExploreIndexRoute = ApproutesExploreIndexRouteImport.update({
   id: '/(routes)/explore/',
   path: '/explore/',
@@ -299,6 +306,7 @@ export interface FileRoutesByFullPath {
   '/signup/$type': typeof AuthroutesSignupTypeRoute
   '/events/': typeof ApproutesEventsIndexRoute
   '/explore/': typeof ApproutesExploreIndexRoute
+  '/notifications/': typeof ApproutesNotificationsIndexRoute
   '/recruiting/': typeof ApproutesRecruitingIndexRoute
   '/resources/': typeof ApproutesResourcesIndexRoute
   '/settings/': typeof ApproutesSettingsIndexRoute
@@ -335,6 +343,7 @@ export interface FileRoutesByTo {
   '/signup/$type': typeof AuthroutesSignupTypeRoute
   '/events': typeof ApproutesEventsIndexRoute
   '/explore': typeof ApproutesExploreIndexRoute
+  '/notifications': typeof ApproutesNotificationsIndexRoute
   '/recruiting': typeof ApproutesRecruitingIndexRoute
   '/resources': typeof ApproutesResourcesIndexRoute
   '/settings': typeof ApproutesSettingsIndexRoute
@@ -379,6 +388,7 @@ export interface FileRoutesById {
   '/_auth/(routes)/signup/$type': typeof AuthroutesSignupTypeRoute
   '/_app/(routes)/events/': typeof ApproutesEventsIndexRoute
   '/_app/(routes)/explore/': typeof ApproutesExploreIndexRoute
+  '/_app/(routes)/notifications/': typeof ApproutesNotificationsIndexRoute
   '/_app/(routes)/recruiting/': typeof ApproutesRecruitingIndexRoute
   '/_app/(routes)/resources/': typeof ApproutesResourcesIndexRoute
   '/_app/(routes)/settings/': typeof ApproutesSettingsIndexRoute
@@ -420,6 +430,7 @@ export interface FileRouteTypes {
     | '/signup/$type'
     | '/events/'
     | '/explore/'
+    | '/notifications/'
     | '/recruiting/'
     | '/resources/'
     | '/settings/'
@@ -456,6 +467,7 @@ export interface FileRouteTypes {
     | '/signup/$type'
     | '/events'
     | '/explore'
+    | '/notifications'
     | '/recruiting'
     | '/resources'
     | '/settings'
@@ -499,6 +511,7 @@ export interface FileRouteTypes {
     | '/_auth/(routes)/signup/$type'
     | '/_app/(routes)/events/'
     | '/_app/(routes)/explore/'
+    | '/_app/(routes)/notifications/'
     | '/_app/(routes)/recruiting/'
     | '/_app/(routes)/resources/'
     | '/_app/(routes)/settings/'
@@ -682,6 +695,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/recruiting/'
       preLoaderRoute: typeof ApproutesRecruitingIndexRouteImport
       parentRoute: typeof ApproutesRecruitingRouteRoute
+    }
+    '/_app/(routes)/notifications/': {
+      id: '/_app/(routes)/notifications/'
+      path: '/notifications'
+      fullPath: '/notifications/'
+      preLoaderRoute: typeof ApproutesNotificationsIndexRouteImport
+      parentRoute: typeof AppRouteRoute
     }
     '/_app/(routes)/explore/': {
       id: '/_app/(routes)/explore/'
@@ -908,6 +928,7 @@ interface AppRouteRouteChildren {
   ApproutesExploreUsernameRoute: typeof ApproutesExploreUsernameRoute
   ApproutesEventsIndexRoute: typeof ApproutesEventsIndexRoute
   ApproutesExploreIndexRoute: typeof ApproutesExploreIndexRoute
+  ApproutesNotificationsIndexRoute: typeof ApproutesNotificationsIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
@@ -926,6 +947,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   ApproutesExploreUsernameRoute: ApproutesExploreUsernameRoute,
   ApproutesEventsIndexRoute: ApproutesEventsIndexRoute,
   ApproutesExploreIndexRoute: ApproutesExploreIndexRoute,
+  ApproutesNotificationsIndexRoute: ApproutesNotificationsIndexRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(

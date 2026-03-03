@@ -12,13 +12,16 @@ import {
   MenuSeparator,
   MenuTrigger,
 } from "@/components/ui/menu";
+import { notificationQueries } from "@/features/notifications/api/queries";
 import { useSession } from "@/lib/session";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { HiCog } from "react-icons/hi";
+import { HiBell, HiCog } from "react-icons/hi";
 import { useTernaryDarkMode, type TernaryDarkMode } from "usehooks-ts";
 
 export function Topbar() {
   const session = useSession();
+  const { data: notificationCount } = useQuery(notificationQueries.count());
 
   const { ternaryDarkMode, setTernaryDarkMode } = useTernaryDarkMode({
     localStorageKey: "theme",
@@ -39,6 +42,19 @@ export function Topbar() {
           <MainLogo className="h-5 dark:invert" />
         </div>
         <div className="flex w-full items-center justify-end gap-2">
+          <Button
+            variant="secondary"
+            size="icon"
+            className="relative rounded-full"
+            render={<Link to="/notifications" />}
+          >
+            <HiBell className="size-5" />
+            {notificationCount?.count ? (
+              <span className="bg-brand absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-xs font-medium text-white">
+                {notificationCount.count > 99 ? "99+" : notificationCount.count}
+              </span>
+            ) : null}
+          </Button>
           <Menu>
             <MenuTrigger className="cursor-pointer">
               <Avatar className="mobile:size-9 border transition-colors duration-100 hover:border-white/20">

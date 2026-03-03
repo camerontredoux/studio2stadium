@@ -1,7 +1,7 @@
 import { db } from "#database/connection";
 import { outboxService } from "#database/outbox-service";
+import { AppEvent } from "#shared/event";
 import env from "#start/env";
-import { BaseEvent } from "@adonisjs/core/events";
 import emitter from "@adonisjs/core/services/emitter";
 import mail from "@adonisjs/mail/services/main";
 import ProfileViewedEmail from "./email.ts";
@@ -9,10 +9,9 @@ import ProfileViewedEmail from "./email.ts";
 interface ProfileViewedEventData {
   dancerId: string;
   schoolId: string;
-  isAdmin?: boolean;
 }
 
-export class ProfileViewedEvent extends BaseEvent {
+export class ProfileViewedEvent extends AppEvent {
   constructor(public data: ProfileViewedEventData) {
     super();
   }
@@ -20,16 +19,12 @@ export class ProfileViewedEvent extends BaseEvent {
 
 class ProfileViewedHandler {
   async handle(event: ProfileViewedEvent) {
-    const { dancerId, schoolId, isAdmin } = event.data;
+    const { dancerId, schoolId } = event.data;
 
-    // Outbox entry - simple, just IDs
     await outboxService.publish({
       type: "dancer.profile-viewed",
       payload: { dancerId, schoolId },
     });
-
-    // Skip email for admin users
-    if (isAdmin) return;
 
     // Email still needs details - fetch them
     const [dancer, school] = await Promise.all([
@@ -47,7 +42,7 @@ class ProfileViewedHandler {
       return;
     }
 
-    const schoolProfileUrl = `${env.get("SITE_URL")}/school/${school.user.username}`;
+    const schoolProfileUrl = `${env.get("SITE_URL")}/explore/${school.user.username}`;
 
     await mail.send(
       new ProfileViewedEmail({

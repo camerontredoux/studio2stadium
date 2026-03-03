@@ -69,6 +69,11 @@ export default await Env.create(new URL("../", import.meta.url), {
   MAIL_FROM_ADDRESS: Env.schema.string({ format: "email" }),
   MAIL_FROM_NAME: Env.schema.string(),
 
+  SQS_ACCESS_KEY_ID: Env.schema.string(),
+  SQS_SECRET_ACCESS_KEY: Env.schema.string(),
+  SQS_QUEUE_URL: Env.schema.string(),
+  SQS_DEAD_LETTER_QUEUE_URL: Env.schema.string(),
+
   /*
   |----------------------------------------------------------
   | Variables for configuring the drive package

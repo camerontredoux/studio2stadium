@@ -1,4 +1,4 @@
-import { BaseEvent } from "@adonisjs/core/events";
+import { AppEvent } from "#shared/event";
 import emitter from "@adonisjs/core/services/emitter";
 import mail from "@adonisjs/mail/services/main";
 import DeleteFeedbackEmail from "./email.ts";
@@ -9,10 +9,9 @@ interface DeleteAccountEventData {
   userEmail: string;
   userName: string;
   feedback?: string;
-  isAdmin?: boolean;
 }
 
-export class DeleteAccountEvent extends BaseEvent {
+export class DeleteAccountEvent extends AppEvent {
   constructor(public data: DeleteAccountEventData) {
     super();
   }
@@ -20,8 +19,6 @@ export class DeleteAccountEvent extends BaseEvent {
 
 class DeleteAccountHandler {
   async handle(event: DeleteAccountEvent) {
-    if (event.data.isAdmin) return;
-
     const { userEmail, userName } = event.data;
 
     await Promise.all([

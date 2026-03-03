@@ -6,7 +6,6 @@ import ForgotPasswordEmail from "./email.ts";
 interface ForgotPasswordEventData {
   email: string;
   resetUrl: string;
-  isAdmin?: boolean;
 }
 
 export class ForgotPasswordEvent extends BaseEvent {
@@ -17,7 +16,6 @@ export class ForgotPasswordEvent extends BaseEvent {
 
 class ForgotPasswordHandler {
   async handle(event: ForgotPasswordEvent) {
-    if (event.data.isAdmin) return;
     await mail.send(new ForgotPasswordEmail(event.data));
   }
 }

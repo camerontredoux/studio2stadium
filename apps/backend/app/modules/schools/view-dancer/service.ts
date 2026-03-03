@@ -8,7 +8,7 @@ import { Validator } from "./validator.ts";
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute(schoolId: string, { params }: Validator, isAdmin?: boolean) {
+  async execute(schoolId: string, { params }: Validator) {
     const [result] = await this.db.use((db) =>
       db
         .insert(profileViews)
@@ -25,7 +25,6 @@ export class Service {
       ProfileViewedEvent.dispatch({
         dancerId: params.id,
         schoolId,
-        isAdmin,
       });
     }
   }

@@ -15,8 +15,11 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load("cmd/.env"); err != nil {
-		log.Println("No .env file found, using environment variables")
+	// Try loading .env from current directory, then from parent (when running from cmd/)
+	if err := godotenv.Load(); err != nil {
+		if err := godotenv.Load("../.env"); err != nil {
+			log.Println("No .env file found, using environment variables")
+		}
 	}
 
 	pgDSN := os.Getenv("POSTGRES_DSN")

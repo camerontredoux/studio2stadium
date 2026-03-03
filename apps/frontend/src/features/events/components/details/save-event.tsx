@@ -9,10 +9,12 @@ export function SaveEventButton({
   id,
   isSaved,
   size = "xs",
+  disabled = false,
 }: {
   id: string;
   isSaved: boolean;
   size?: "xs" | "sm";
+  disabled?: boolean;
 }) {
   const { mutate: save } = useSaveEvent(id);
   const { mutate: unsave } = useUnsaveEvent(id);
@@ -43,7 +45,7 @@ export function SaveEventButton({
   return (
     <Button
       variant={isSaved ? "destructive-outline" : "default"}
-      disabled={!!retryAfter}
+      disabled={disabled || !!retryAfter}
       size={size}
       onClick={handleClick}
       className="flex-1 gap-1.5"

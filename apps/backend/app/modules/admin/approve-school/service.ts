@@ -46,12 +46,10 @@ export class Service {
         .where(eq(schoolApplications.id, params.id));
     });
 
-    // Admin endpoint - always set isAdmin to skip emails
     SchoolApprovedEvent.dispatch({
       userId: school.userId,
       schoolId: school.id,
       schoolName: school.name,
-      isAdmin: true,
     });
 
     return { success: true };

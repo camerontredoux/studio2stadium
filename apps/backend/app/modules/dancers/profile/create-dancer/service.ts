@@ -10,7 +10,7 @@ import { type Validator } from "./validator.ts";
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async createDancer(userId: string, data: Validator, isAdmin?: boolean) {
+  async createDancer(userId: string, data: Validator) {
     await this.db.tx(async (tx) => {
       await tx
         .update(users)
@@ -27,6 +27,6 @@ export class Service {
       });
     });
 
-    DancerCreatedEvent.dispatch({ userId, isAdmin });
+    DancerCreatedEvent.dispatch({ userId });
   }
 }

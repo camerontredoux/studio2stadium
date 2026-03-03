@@ -57,13 +57,11 @@ export class Service {
     }
 
     // Dispatch event after successful deletion
-    const isAdmin = user.role === "admin" || user.role === "prodigy_admin";
     DeleteAccountEvent.dispatch({
       userId: user.id,
       userEmail: user.displayEmail,
       userName: user.firstName,
       feedback: data?.feedback,
-      isAdmin,
     });
   }
 }

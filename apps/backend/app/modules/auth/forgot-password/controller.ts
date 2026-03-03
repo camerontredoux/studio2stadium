@@ -10,7 +10,7 @@ export default class ForgotPasswordController {
   async handle(ctx: HttpContext, service: ForgotPasswordService) {
     const payload = await ctx.request.validateUsing(forgotPasswordSchema);
 
-    const { token, userId, isAdmin } = await service.execute(payload);
+    const { token, userId } = await service.execute(payload);
 
     if (!token) {
       return ctx.response.noContent();
@@ -21,7 +21,6 @@ export default class ForgotPasswordController {
     ForgotPasswordEvent.dispatch({
       email: payload.email,
       resetUrl,
-      isAdmin,
     });
 
     return ctx.response.noContent();

@@ -122,11 +122,9 @@ export default class WebhookHandlers {
     );
 
     if (!customer.deleted && customer.email) {
-      // Webhook events aren't triggered by admin users directly
       SubscriptionDeletedEvent.dispatch({
         email: customer.email,
         name: customer.name || "there",
-        isAdmin: false,
       });
     }
   }

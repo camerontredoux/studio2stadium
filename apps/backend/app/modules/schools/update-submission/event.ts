@@ -1,6 +1,6 @@
 import { db } from "#database/connection";
 import { outboxService } from "#database/outbox-service";
-import { BaseEvent } from "@adonisjs/core/events";
+import { AppEvent } from "#shared/event";
 import emitter from "@adonisjs/core/services/emitter";
 import mail from "@adonisjs/mail/services/main";
 import ProspectStatusEmail from "./email.ts";
@@ -9,10 +9,9 @@ interface ProspectStatusEventData {
   dancerId: string;
   schoolId: string;
   status: string;
-  isAdmin?: boolean;
 }
 
-export class ProspectStatusEvent extends BaseEvent {
+export class ProspectStatusEvent extends AppEvent {
   constructor(public data: ProspectStatusEventData) {
     super();
   }
@@ -20,16 +19,12 @@ export class ProspectStatusEvent extends BaseEvent {
 
 class ProspectStatusHandler {
   async handle(event: ProspectStatusEvent) {
-    const { dancerId, schoolId, status, isAdmin } = event.data;
+    const { dancerId, schoolId, status } = event.data;
 
-    // Outbox entry - simple, just IDs and status
     await outboxService.publish({
       type: "dancer.prospect-status",
       payload: { dancerId, schoolId, status },
     });
-
-    // Skip email for admin users
-    if (isAdmin) return;
 
     // Email still needs details - fetch them
     const [dancer, school] = await Promise.all([

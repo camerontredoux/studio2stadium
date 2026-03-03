@@ -139,11 +139,13 @@ func (s *EventService) ProcessQueueMessage(message *sqsT.Message) (*t.QueueMessa
 	case "school.approved":
 		err = s.HandleSchoolApproved(outboxEvent, &globalNotification)
 
+	// Event attendance
+	case "event.attended":
+		err = s.HandleEventAttended(outboxEvent, &notifications)
+
 	// Events that don't generate notifications
 	case "user.signup":
 		// No notification needed
-	case "event.attended":
-		// No notification needed for now
 
 	default:
 		log.Println("Unhandled event type:", outboxEvent.Type)

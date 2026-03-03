@@ -505,3 +505,43 @@ func (s *EventService) HandleSchoolApproved(
 	}
 	return nil
 }
+
+// HandleEventAttended - user attends an event
+// Notifies the school that created the event
+func (s *EventService) HandleEventAttended(
+	outboxEvent *t.OutboxEvent,
+	notifications *[]*t.Notification,
+) error {
+	var payload t.EventAttendedPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	// Get the event to find the school
+	event, err := s.store.GetDanceEvent(payload.EventId)
+	if err != nil {
+		return err
+	}
+
+	// Get school profile to find user ID
+	school, err := s.store.GetSchoolProfile(event.SchoolId)
+	if err != nil {
+		return err
+	}
+
+	content := t.EventAttendedContent{
+		Type:    "event.attended",
+		UserId:  payload.UserId,
+		EventId: payload.EventId,
+	}
+	contentJson, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+
+	*notifications = []*t.Notification{{
+		UserId:  school.UserId,
+		Content: contentJson,
+	}}
+	return nil
+}

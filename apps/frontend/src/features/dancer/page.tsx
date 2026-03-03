@@ -9,10 +9,12 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { useViewDancer } from "@/features/school/api/mutations";
 import { useSession } from "@/lib/session";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useSearch } from "@tanstack/react-router";
 import { CalendarIcon } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { dancerQueries } from "./api/queries";
 import { Achievements } from "./components/profile/achievements";
 import { Biography } from "./components/profile/biography";
@@ -37,6 +39,16 @@ export function DancerPage({ username }: DancerPageProps) {
   });
 
   const { data } = useSuspenseQuery(dancerQueries.profile(username));
+  const { mutate: viewDancer } = useViewDancer();
+
+  const hasNotified = useRef(false)
+
+  useEffect(() => {
+    if (!hasNotified.current) {
+      hasNotified.current = true;
+      viewDancer({ params: { path: { id: data.id } } });
+    }
+  }, [data.id]);
 
   const visible = session.username === username;
 

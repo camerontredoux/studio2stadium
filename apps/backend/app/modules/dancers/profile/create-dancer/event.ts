@@ -1,15 +1,14 @@
 import { db } from "#database/connection";
-import { BaseEvent } from "@adonisjs/core/events";
+import { AppEvent } from "#shared/event";
 import emitter from "@adonisjs/core/services/emitter";
 import mail from "@adonisjs/mail/services/main";
 import DancerWelcomeEmail from "./email.ts";
 
 interface DancerCreatedEventData {
   userId: string;
-  isAdmin?: boolean;
 }
 
-export class DancerCreatedEvent extends BaseEvent {
+export class DancerCreatedEvent extends AppEvent {
   constructor(public data: DancerCreatedEventData) {
     super();
   }
@@ -17,9 +16,7 @@ export class DancerCreatedEvent extends BaseEvent {
 
 class DancerCreatedHandler {
   async handle(event: DancerCreatedEvent) {
-    const { userId, isAdmin } = event.data;
-
-    if (isAdmin) return;
+    const { userId } = event.data;
 
     const user = await db.query.users.findFirst({
       where: { id: userId },

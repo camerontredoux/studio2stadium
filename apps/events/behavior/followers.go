@@ -132,3 +132,24 @@ func (s *BehaviorStore) GetDancerFavoriters(dancerId string) ([]string, error) {
 	return userIds, nil
 }
 
+// DanceEvent for lookups
+type DanceEvent struct {
+	Id       string `gorm:"primaryKey"`
+	SchoolId string `gorm:"column:school_id"`
+	Title    string `gorm:"column:title"`
+}
+
+func (DanceEvent) TableName() string {
+	return "dance_events"
+}
+
+// GetDanceEvent gets a dance event by ID
+func (s *BehaviorStore) GetDanceEvent(eventId string) (*DanceEvent, error) {
+	res := DanceEvent{}
+	err := s.db.Postgres.GetDB().Where("id = ?", eventId).First(&res).Error
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+

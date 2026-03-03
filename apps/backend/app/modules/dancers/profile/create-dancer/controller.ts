@@ -8,9 +8,8 @@ export default class CreateDancerController {
   async handle(ctx: HttpContext, service: Service) {
     const payload = await ctx.request.validateUsing(validator);
     const user = ctx.auth.getUserOrFail();
-    const isAdmin = user.role === "admin" || user.role === "prodigy_admin";
 
-    await service.createDancer(user.id, payload, isAdmin);
+    await service.createDancer(user.id, payload);
     await ctx.auth.use("redis").bump();
 
     return ctx.response.noContent();

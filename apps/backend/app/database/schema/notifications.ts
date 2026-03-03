@@ -1,3 +1,4 @@
+import { isNull } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { timestamps } from "./helpers/columns.ts";
 import { users } from "./users.ts";
@@ -11,7 +12,10 @@ export const outbox = pg.pgTable(
     publishedAt: pg.timestamp({ withTimezone: true }),
     createdAt: timestamps.createdAt,
   },
-  (table) => [pg.index().on(table.type), pg.index().on(table.publishedAt)]
+  (table) => [
+    pg.index().on(table.type),
+    pg.index().on(table.publishedAt).where(isNull(table.publishedAt)),
+  ]
 );
 
 export const notifications = pg.pgTable(
@@ -23,9 +27,14 @@ export const notifications = pg.pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
     content: pg.jsonb().notNull(),
+    seenAt: pg.timestamp({ withTimezone: true }),
     ...timestamps,
   },
-  (table) => [pg.index().on(table.userId, table.createdAt)]
+  (table) => [
+    pg.index().on(table.userId, table.createdAt),
+    pg.index().on(table.createdAt),
+    pg.index().on(table.seenAt).where(isNull(table.seenAt)),
+  ]
 );
 
 export const processedEvents = pg.pgTable("processed_events", {

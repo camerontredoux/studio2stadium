@@ -9,11 +9,7 @@ import { Validator } from "./validator.ts";
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute(
-    profileId: string,
-    { params, ...data }: Validator,
-    isAdmin?: boolean
-  ) {
+  async execute(profileId: string, { params, ...data }: Validator) {
     const updateData: Record<string, unknown> = {};
 
     if (data.status !== undefined) {
@@ -50,7 +46,6 @@ export class Service {
         dancerId: updated.dancerId,
         schoolId: profileId,
         status: data.status,
-        isAdmin,
       });
     }
   }

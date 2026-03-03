@@ -10,7 +10,7 @@ import { Validator } from "./validator.ts";
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute({ params }: Validator, profileId: string, isAdmin?: boolean) {
+  async execute({ params }: Validator, profileId: string) {
     let interestCount = 1;
 
     try {
@@ -43,7 +43,6 @@ export class Service {
       dancerId: profileId,
       schoolId: params.id,
       interestCount,
-      isAdmin,
     });
 
     return { created: true };
