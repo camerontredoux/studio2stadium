@@ -15,9 +15,8 @@ import (
 )
 
 func main() {
-	err := godotenv.Load("cmd/.env")
-	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
+	if err := godotenv.Load("cmd/.env"); err != nil {
+		log.Println("No .env file found, using environment variables")
 	}
 
 	pgDSN := os.Getenv("POSTGRES_DSN")
@@ -81,7 +80,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error adding cron job: %v", err)
 	}
-	c.Run()
+	c.Start()
+	defer c.Stop()
 
 	for {
 		err := eventService.ProcessEvents()

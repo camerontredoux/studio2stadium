@@ -1,0 +1,12 @@
+app = 'studio2stadium-events-dev'
+primary_region = 'iad'
+
+[build]
+
+[processes]
+  worker = '/event-server'
+
+[[vm]]
+  memory = '256mb'
+  cpus = 1
+  processes = ['worker']

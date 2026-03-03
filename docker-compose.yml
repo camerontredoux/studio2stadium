@@ -22,7 +22,7 @@ services:
   event-server:
     build:
       context: ./apps/events
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     volumes:
       - ./apps/events:/app
       - ./apps/events/cmd/.env:/app/cmd/.env
