@@ -55,15 +55,15 @@ export const profileViews = pg.pgTable(
   "profile_views",
   {
     id: pg.uuid().primaryKey().defaultRandom(),
-    dancer_id: pg
+    dancerId: pg
       .uuid()
       .notNull()
       .references(() => dancerProfiles.id, { onDelete: "cascade" }),
-    school_id: pg
+    schoolId: pg
       .uuid()
       .notNull()
       .references(() => schoolProfiles.id, { onDelete: "cascade" }),
     ...timestamps,
   },
-  (table) => [pg.uniqueIndex().on(table.dancer_id, table.school_id)]
+  (table) => [pg.uniqueIndex().on(table.dancerId, table.schoolId)]
 );
