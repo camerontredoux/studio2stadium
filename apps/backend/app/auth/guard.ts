@@ -110,9 +110,6 @@ export class RedisSessionGuard<
     } else {
       const bearerToken = this.#extractBearerToken();
       if (bearerToken) {
-        this.#ctx.logger.info("[RedisGuard]: Authenticating via bearer token", {
-          bearerToken,
-        });
         this.#sessionId = bearerToken;
         this.authenticatedViaBearer = true;
       }

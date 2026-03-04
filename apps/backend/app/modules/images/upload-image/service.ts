@@ -1,3 +1,4 @@
+import { dancerProfiles } from "#database/schema/dancers";
 import { images } from "#database/schema/media";
 import { subscriptions } from "#database/schema/subscriptions";
 import { DatabaseService } from "#database/service";
@@ -15,12 +16,20 @@ export class UploadImageService {
 
   async execute(userId: string, { contentType, type }: Validator) {
     if (type === "feed") {
-      const [[imageCount], subscription] = await Promise.all([
+      const [[imageCount], dancerProfile, subscription] = await Promise.all([
         this.db.use((db) =>
           db
             .select({ count: count() })
             .from(images)
             .where(eq(images.userId, userId))
+        ),
+        this.db.use((db) =>
+          db
+            .select({ id: dancerProfiles.id })
+            .from(dancerProfiles)
+            .where(eq(dancerProfiles.userId, userId))
+            .limit(1)
+            .then((rows) => rows[0])
         ),
         this.db.use((db) =>
           db
@@ -37,7 +46,12 @@ export class UploadImageService {
         ),
       ]);
 
-      if (!subscription && imageCount.count >= FREE_TIER_IMAGE_LIMIT) {
+      // Only dancers have the free tier image limit
+      if (
+        dancerProfile &&
+        !subscription &&
+        imageCount.count >= FREE_TIER_IMAGE_LIMIT
+      ) {
         return {
           error: "limit_exceeded",
           message:

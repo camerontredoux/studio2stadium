@@ -64,7 +64,9 @@ export class DeleteProfileVideoService {
 
     // 404 is fine - video already deleted from Cloudflare
     if (!response.ok && response.status !== 404) {
-      throw new Error(`Failed to delete video from Cloudflare: ${response.status}`);
+      throw new Error(
+        `Failed to delete video from Cloudflare: ${response.status}`
+      );
     }
   }
 }

@@ -1,3 +1,4 @@
+import { dancerProfiles } from "#database/schema/dancers";
 import { videos, videoUploads } from "#database/schema/media";
 import { subscriptions } from "#database/schema/subscriptions";
 import { DatabaseService } from "#database/service";
@@ -26,41 +27,53 @@ export class Service {
   ): Promise<InitiateUploadResult> {
     const { userId, uploadLength, uploadMetadata } = params;
 
-    const [[completedCount], [pendingCount], subscription] = await Promise.all([
-      this.db.use((db) =>
-        db
-          .select({ count: count() })
-          .from(videos)
-          .where(and(eq(videos.userId, userId), eq(videos.type, "cloudflare")))
-      ),
-      this.db.use((db) =>
-        db
-          .select({ count: count() })
-          .from(videoUploads)
-          .where(
-            and(
-              eq(videoUploads.userId, userId),
-              isNull(videoUploads.videoId),
-              ne(videoUploads.status, "failed")
+    const [[completedCount], [pendingCount], dancerProfile, subscription] =
+      await Promise.all([
+        this.db.use((db) =>
+          db
+            .select({ count: count() })
+            .from(videos)
+            .where(
+              and(eq(videos.userId, userId), eq(videos.type, "cloudflare"))
             )
-          )
-      ),
-      this.db.use((db) =>
-        db
-          .select({ id: subscriptions.id })
-          .from(subscriptions)
-          .where(
-            and(
-              eq(subscriptions.userId, userId),
-              eq(subscriptions.status, "active")
+        ),
+        this.db.use((db) =>
+          db
+            .select({ count: count() })
+            .from(videoUploads)
+            .where(
+              and(
+                eq(videoUploads.userId, userId),
+                isNull(videoUploads.videoId),
+                ne(videoUploads.status, "failed")
+              )
             )
-          )
-          .limit(1)
-          .then((rows) => rows[0])
-      ),
-    ]);
+        ),
+        this.db.use((db) =>
+          db
+            .select({ id: dancerProfiles.id })
+            .from(dancerProfiles)
+            .where(eq(dancerProfiles.userId, userId))
+            .limit(1)
+            .then((rows) => rows[0])
+        ),
+        this.db.use((db) =>
+          db
+            .select({ id: subscriptions.id })
+            .from(subscriptions)
+            .where(
+              and(
+                eq(subscriptions.userId, userId),
+                eq(subscriptions.status, "active")
+              )
+            )
+            .limit(1)
+            .then((rows) => rows[0])
+        ),
+      ]);
 
-    if (!subscription) {
+    // Only dancers require premium subscription for video uploads
+    if (dancerProfile && !subscription) {
       return {
         error: "limit_exceeded",
         message:
