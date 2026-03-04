@@ -22,7 +22,7 @@ import { FeedUploadForm, type FormValues } from "./feed-upload-form";
 
 export function FeedUploadDialog() {
   const session = useSession();
-  const { mutate, isPending, data } = useRequestUpload();
+  const { mutate, isPending } = useRequestUpload();
   const { mutate: uploadImage, isPending: isUpdatingAvatar } = useUploadImage(
     session.type,
     session.username,
@@ -36,6 +36,7 @@ export function FeedUploadDialog() {
 
   const onSubmit = (files: FormValues) => {
     const file = files.files[0];
+    setProgress(0);
     mutate(
       { body: { contentType: file.type, type: "feed" } },
       {
@@ -48,40 +49,36 @@ export function FeedUploadDialog() {
             });
           },
         }),
-        onSuccess: async () => {
-          if (data) {
-            setUploading(true);
-            setProgress(0);
-            uploadToCloudflare(data.url, file, (percent) => {
-              setProgress(percent);
-            })
-              .then(() => {
-                uploadImage(
-                  { body: { key: data.key } },
-                  {
-                    onSuccess: () => {
-                      toastManager.add({
-                        title: "Success",
-                        description: "Image posted successfully!",
-                        type: "success",
-                      });
-                      setIsOpen(false);
-                    },
+        onSuccess: async (response) => {
+          setUploading(true);
+          uploadToCloudflare(response.url, file, (percent) => {
+            setProgress(percent);
+          })
+            .then(() => {
+              uploadImage(
+                { body: { key: response.key } },
+                {
+                  onSuccess: () => {
+                    toastManager.add({
+                      title: "Success",
+                      description: "Image posted successfully!",
+                      type: "success",
+                    });
+                    setIsOpen(false);
                   },
-                );
-              })
-              .catch((e) => {
-                console.log(e);
-                toastManager.add({
-                  title: "Error",
-                  description: "Failed to upload image",
-                  type: "error",
-                });
-              })
-              .finally(() => {
-                setUploading(false);
+                },
+              );
+            })
+            .catch(() => {
+              toastManager.add({
+                title: "Error",
+                description: "Failed to upload image",
+                type: "error",
               });
-          }
+            })
+            .finally(() => {
+              setUploading(false);
+            });
         },
       },
     );
