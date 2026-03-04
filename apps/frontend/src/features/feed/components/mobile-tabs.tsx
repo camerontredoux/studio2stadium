@@ -1,6 +1,6 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { type ReactNode } from "react";
-import { EventsSection } from "./sidebar/sections/events-section";
+import { EventsSection } from "./sidebar/sections/events/upcoming-events-section";
 import { ProgramsSection } from "./sidebar/sections/programs-section";
 import { StatsSection } from "./sidebar/sections/stats-section";
 

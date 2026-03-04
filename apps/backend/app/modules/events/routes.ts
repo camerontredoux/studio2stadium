@@ -8,6 +8,8 @@ const GetEventByIdController = () => import("./get-event-by-id/controller.ts");
 const GetEventsController = () => import("./get-events/controller.ts");
 const GetGlobalEventsController = () =>
   import("./get-global-events/controller.ts");
+const GetUpcomingGlobalEventsController = () =>
+  import("./get-upcoming-global-events/controller.ts");
 const SaveEventController = () => import("./save-event/controller.ts");
 const UnsaveEventController = () => import("./unsave-event/controller.ts");
 const GetUpcomingEventsController = () =>
@@ -43,6 +45,11 @@ router
     router.get("global", [GetGlobalEventsController]).openapi({
       summary: "Get all global events",
       description: "Returns a list of all upcoming global events",
+    });
+
+    router.get("global/upcoming", [GetUpcomingGlobalEventsController]).openapi({
+      summary: "Get upcoming global events",
+      description: "Returns a list of upcoming global events",
     });
 
     router.patch(":id", [EditEventController]).openapi({

@@ -26,5 +26,9 @@ export function useManage() {
 }
 
 export function useUpdateApplication() {
-  return $api.useMutation("patch", "/application");
+  return $api.useMutation("patch", "/application", {
+    meta: {
+      invalidateQueries: [sessionQueries.application().queryKey],
+    },
+  });
 }

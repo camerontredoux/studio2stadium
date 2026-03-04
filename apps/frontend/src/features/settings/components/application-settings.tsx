@@ -12,13 +12,11 @@ import { useRequestUpload } from "@/shared/images/api/mutations";
 import { ImageUploadField } from "@/shared/images/components/image-upload-field";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { InfoIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useUpdateApplication } from "../api/mutations";
-import { accountQueries } from "../api/queries";
 
 const formSchema = z.object({
   files: z.array(z.custom<File>()).min(1, "Please upload an ID image").max(1),
@@ -34,7 +32,6 @@ const statusVariant = {
 
 export function ApplicationSettings() {
   const application = useApplication();
-  const { data: account } = useSuspenseQuery(accountQueries.account());
 
   const { mutateAsync: requestUpload, isPending } = useRequestUpload();
   const { mutate: updateApplication, isPending: isUpdating } =
@@ -74,7 +71,7 @@ export function ApplicationSettings() {
 
       updateApplication(
         {
-          body: { phone: account.phone ?? "", mediaId: key },
+          body: { mediaId: key },
         },
         {
           onSuccess: () => {
@@ -113,6 +110,14 @@ export function ApplicationSettings() {
         >
           {application.status}
         </Badge>
+
+        <p className="text-muted-foreground text-sm">
+          You will not have access to the platform until your application is
+          approved. Please give us 24-48 hours to review your application.
+          <br />
+          <br />
+          You can setup your profile in the meantime.
+        </p>
 
         {application.notes && (
           <Alert variant="default">
@@ -166,6 +171,7 @@ export function ApplicationSettings() {
                 </Button>
               </form>
             </FormProvider>
+            <img className="rounded-lg" src={application.thumbnail} />
           </Section>
         </>
       )}

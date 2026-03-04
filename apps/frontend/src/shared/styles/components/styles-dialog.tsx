@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+import { useSession } from "@/lib/session";
 import { Suspense, useState } from "react";
 import { StylesList } from "./styles-list";
 
@@ -49,6 +50,8 @@ export function StylesDialog({
   isPending,
   render,
 }: StylesDialogProps) {
+  const session = useSession();
+
   const [open, setOpen] = useState(false);
   const [localSelectedStyleIds, setLocalSelectedStyleIds] =
     useState<string[]>(selectedStyleIds);
@@ -80,7 +83,8 @@ export function StylesDialog({
         <DialogHeader>
           <DialogTitle>Dance Styles</DialogTitle>
           <DialogDescription>
-            Select your top 3 styles to help us recommend the right programs
+            Select your top 3 styles to help us recommend the right{" "}
+            {session.type === "dancer" ? "programs" : "schools"}
           </DialogDescription>
         </DialogHeader>
         <Suspense fallback={<StylesDialogContentFallback />}>

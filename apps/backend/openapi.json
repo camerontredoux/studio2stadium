@@ -2199,6 +2199,28 @@
         "description": "Returns a list of all upcoming global events"
       }
     },
+    "/events/global/upcoming": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventsGlobalUpcomingResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Events"
+        ],
+        "summary": "Get upcoming global events",
+        "description": "Returns a list of upcoming global events"
+      }
+    },
     "/events/{id}": {
       "get": {
         "parameters": [
@@ -3870,6 +3892,16 @@
               "rejected"
             ]
           },
+          "thumbnail": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "mediaId": {
             "type": "string"
           },
@@ -3885,13 +3917,7 @@
           }
         },
         "required": [
-          "id",
-          "createdAt",
-          "updatedAt",
-          "schoolId",
-          "status",
-          "mediaId",
-          "notes"
+          "thumbnail"
         ]
       },
       "ApplicationRequest": {
@@ -6576,6 +6602,70 @@
             "description",
             "organization",
             "eventAttendees"
+          ]
+        }
+      },
+      "EventsGlobalUpcomingResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "thumbnail": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "date": {
+              "type": "string"
+            },
+            "time": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "other",
+                "recruitment",
+                "audition",
+                "rehearsal",
+                "recital",
+                "showcase",
+                "competition",
+                "class",
+                "intensive",
+                "workshop",
+                "fundraiser",
+                "combine",
+                "convention",
+                "clinic",
+                "deadline",
+                "performance",
+                "camp"
+              ]
+            },
+            "location": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "thumbnail",
+            "date",
+            "time",
+            "id",
+            "type",
+            "location",
+            "title"
           ]
         }
       },

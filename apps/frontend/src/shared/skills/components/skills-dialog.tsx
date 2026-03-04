@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
+import { useSession } from "@/lib/session";
 import type { ButtonProps } from "@base-ui/react";
 import { Suspense, useState } from "react";
 import { SkillsList } from "./skills-list";
@@ -60,6 +61,8 @@ export function SkillsDialog({
   isPending,
   ...props
 }: SkillsDialogProps & ButtonProps) {
+  const session = useSession();
+
   const [open, setOpen] = useState(false);
   const [localSelectedSkillIds, setLocalSelectedSkillIds] =
     useState<string[]>(selectedSkillIds);
@@ -96,7 +99,8 @@ export function SkillsDialog({
         <DialogHeader>
           <DialogTitle>Dance Skills</DialogTitle>
           <DialogDescription>
-            Skills help us connect you with the right programs
+            Skills help us connect you with the right{" "}
+            {session.type === "dancer" ? "programs" : "dancers"}
           </DialogDescription>
         </DialogHeader>
 

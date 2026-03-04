@@ -259,6 +259,10 @@ type EventsGlobalGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/events/get-global-events/controller.ts').default['handle'], false>
 }
+type EventsGlobalUpcomingGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/events/get-upcoming-global-events/controller.ts').default['handle'], false>
+}
 type EventsIdPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/events/edit-event/schema.ts')['editEventSchema']>>
   response: MakeTuyauResponse<import('../app/modules/events/edit-event/controller.ts').default['handle'], true>
@@ -734,6 +738,12 @@ export interface ApiDefinition {
       };
       '$get': EventsGlobalGetHead;
       '$head': EventsGlobalGetHead;
+      'upcoming': {
+        '$url': {
+        };
+        '$get': EventsGlobalUpcomingGetHead;
+        '$head': EventsGlobalUpcomingGetHead;
+      };
     };
     ':id': {
       '$url': {

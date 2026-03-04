@@ -55,7 +55,7 @@ export function TeamForm({ username, onSubmit }: TeamFormProps) {
             name="size"
             render={({ field: { value, onChange }, fieldState }) => (
               <Field name="size" invalid={fieldState.invalid}>
-                <FieldLabel>Students</FieldLabel>
+                <FieldLabel>Enrolled Students</FieldLabel>
                 <NumberField
                   value={value as number | undefined}
                   onValueChange={(val) => onChange(val)}
@@ -63,7 +63,7 @@ export function TeamForm({ username, onSubmit }: TeamFormProps) {
                 >
                   <NumberFieldGroup>
                     <NumberFieldDecrement />
-                    <NumberFieldInput placeholder="Number of students" />
+                    <NumberFieldInput placeholder="Enrollment" />
                     <NumberFieldIncrement />
                   </NumberFieldGroup>
                 </NumberField>

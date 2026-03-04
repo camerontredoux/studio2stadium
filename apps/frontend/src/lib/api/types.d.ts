@@ -2694,6 +2694,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/events/global/upcoming": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get upcoming global events
+         * @description Returns a list of upcoming global events
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventsGlobalUpcomingResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/events/{id}": {
         parameters: {
             query?: never;
@@ -4529,14 +4568,15 @@ export interface components {
         SchoolFilterParam: "name" | "location" | "sports" | "styles" | "following" | "gpaRange" | "commonRecruiting" | "division" | "upcomingEvents";
         MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
         ApplicationResponse: {
-            id: string;
-            createdAt: string;
-            updatedAt: string;
-            schoolId: string;
+            id?: string;
+            createdAt?: string;
+            updatedAt?: string;
+            schoolId?: string;
             /** @enum {string} */
-            status: "pending" | "accepted" | "rejected";
-            mediaId: string;
-            notes: string | null;
+            status?: "pending" | "accepted" | "rejected";
+            thumbnail: string | null;
+            mediaId?: string;
+            notes?: string | null;
         };
         ApplicationRequest: {
             phone: string;
@@ -5055,6 +5095,16 @@ export interface components {
             description: string;
             organization: string;
             eventAttendees: number;
+        }[];
+        EventsGlobalUpcomingResponse: {
+            thumbnail: string | null;
+            date: string;
+            time: string;
+            id: string;
+            /** @enum {string} */
+            type: "other" | "recruitment" | "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+            location: string;
+            title: string;
         }[];
         EventsIdResponse: {
             id: string;

@@ -28,7 +28,7 @@ interface AvatarUploadProps {
 
 export function AvatarUploadDialog({ avatar, fallback }: AvatarUploadProps) {
   const session = useSession();
-  const { mutate, isPending, data } = useRequestUpload();
+  const { mutate, isPending } = useRequestUpload();
   const { mutate: updateAvatar, isPending: isUpdatingAvatar } = useUpdateAvatar(
     session.type,
     session.username,
@@ -42,6 +42,7 @@ export function AvatarUploadDialog({ avatar, fallback }: AvatarUploadProps) {
 
   const onSubmit = (files: FormValues) => {
     const file = files.files[0];
+    setProgress(0);
     mutate(
       { body: { contentType: file.type, type: "avatar" } },
       {
@@ -54,40 +55,37 @@ export function AvatarUploadDialog({ avatar, fallback }: AvatarUploadProps) {
             });
           },
         }),
-        onSuccess: async () => {
-          if (data) {
-            setUploading(true);
-            setProgress(0);
-            uploadToCloudflare(data.url, file, (percent) => {
-              setProgress(percent);
-            })
-              .then(() => {
-                updateAvatar(
-                  { body: { key: data.key } },
-                  {
-                    onSuccess: () => {
-                      toastManager.add({
-                        title: "Success",
-                        description: "Avatar updated successfully",
-                        type: "success",
-                      });
-                      setIsOpen(false);
-                    },
+        onSuccess: async (response) => {
+          setUploading(true);
+          uploadToCloudflare(response.url, file, (percent) => {
+            setProgress(percent);
+          })
+            .then(() => {
+              updateAvatar(
+                { body: { key: response.key } },
+                {
+                  onSuccess: () => {
+                    toastManager.add({
+                      title: "Success",
+                      description: "Avatar updated successfully",
+                      type: "success",
+                    });
+                    setIsOpen(false);
                   },
-                );
-              })
-              .catch((e) => {
-                console.log(e);
-                toastManager.add({
-                  title: "Error",
-                  description: "Failed to upload avatar",
-                  type: "error",
-                });
-              })
-              .finally(() => {
-                setUploading(false);
+                },
+              );
+            })
+            .catch((e) => {
+              console.log(e);
+              toastManager.add({
+                title: "Error",
+                description: "Failed to upload avatar",
+                type: "error",
               });
-          }
+            })
+            .finally(() => {
+              setUploading(false);
+            });
         },
       },
     );
@@ -112,8 +110,13 @@ export function AvatarUploadDialog({ avatar, fallback }: AvatarUploadProps) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Upload Avatar</DialogTitle>
-          <DialogDescription>Change your profile picture</DialogDescription>
+          <DialogTitle>
+            Upload {session.type === "dancer" ? "Avatar" : "School Logo"}
+          </DialogTitle>
+          <DialogDescription>
+            Change your{" "}
+            {session.type === "dancer" ? "profile picture" : "school logo"}
+          </DialogDescription>
         </DialogHeader>
         <DialogPanel>
           <AvatarUploadForm

@@ -135,7 +135,7 @@ function FavoriteCard({
         <p className="text-sm">
           {favorite.comment || (
             <span className="text-muted-foreground text-sm">
-              Leave a comment...
+              Leave a note...
             </span>
           )}
         </p>
@@ -190,13 +190,11 @@ const columns: ColumnDef<Favorite>[] = [
     cell: ({ row }) => (
       <div className="font-medium">
         {row.getValue("comment") || (
-          <span className="text-muted-foreground text-sm">
-            Leave a comment...
-          </span>
+          <span className="text-muted-foreground text-sm">Leave a note...</span>
         )}
       </div>
     ),
-    header: "Comment",
+    header: "Notes",
   },
   {
     accessorKey: "createdAt",

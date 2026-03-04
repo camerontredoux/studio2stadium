@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+import { useSession } from "@/lib/session";
 import { Suspense, useState } from "react";
 import { SportsList } from "./sports-list";
 
@@ -50,6 +51,8 @@ export function SportsDialog({
   isPending,
   render,
 }: SportsDialogProps) {
+  const session = useSession();
+
   const [open, setOpen] = useState(false);
   const [localSelectedSportIds, setLocalSelectedSportIds] =
     useState<string[]>(selectedSportIds);
@@ -81,7 +84,10 @@ export function SportsDialog({
         <DialogHeader>
           <DialogTitle>Sports</DialogTitle>
           <DialogDescription>
-            Select the sports you are most interested in supporting
+            Select the sports{" "}
+            {session.type === "dancer"
+              ? "you are most interested in supporting"
+              : "your team supports"}
           </DialogDescription>
         </DialogHeader>
         <Suspense fallback={<SportsDialogContentFallback />}>
