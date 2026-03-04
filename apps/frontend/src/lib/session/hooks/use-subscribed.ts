@@ -11,5 +11,11 @@ export const useSubscribed = () => {
 
   const { data } = useQuery(sessionQueries.subscribed(isDancer));
 
-  return data ?? { subscribed: !isDancer };
+  return (
+    data ?? {
+      subscribed: !isDancer,
+      cancelAtPeriodEnd: false,
+      currentPeriodEnd: null,
+    }
+  );
 };
