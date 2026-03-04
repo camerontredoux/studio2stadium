@@ -22,6 +22,10 @@ export function uploadVideoTus({
   onError,
 }: TusUploadOptions): tus.Upload {
   const upload = new tus.Upload(file, {
+    onBeforeRequest: (request) => {
+      const xhr = request.getUnderlyingObject();
+      xhr.withCredentials = true;
+    },
     endpoint: getTusEndpoint(),
     retryDelays: [0, 1000, 3000, 5000],
     metadata: {

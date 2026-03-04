@@ -22,8 +22,15 @@ const corsConfig = defineConfig({
         "Upload-Length",
         "Upload-Metadata",
         "Tus-Resumable",
+        "Tus-Version",
+        "Tus-Extension",
+        "Tus-Max-Size",
         "Upload-Offset",
         "Upload-Creator",
+        "Upload-Checksum",
+        "Upload-Defer-Length",
+        "X-HTTP-Method-Override",
+        "X-Requested-With",
       ]
     : true,
   exposeHeaders: [
@@ -31,6 +38,11 @@ const corsConfig = defineConfig({
     // TUS response headers
     "Location",
     "Tus-Resumable",
+    "Tus-Version",
+    "Tus-Extension",
+    "Tus-Max-Size",
+    "Upload-Offset",
+    "Upload-Length",
     "stream-media-id",
   ],
   credentials: true,
