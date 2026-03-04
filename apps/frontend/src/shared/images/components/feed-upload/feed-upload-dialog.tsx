@@ -14,14 +14,25 @@ import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
 import { useSession } from "@/lib/session";
+import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
-import { ImageIcon } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { CrownIcon, ImageIcon } from "lucide-react";
 import { useState } from "react";
 import { useRequestUpload, useUploadImage } from "../../api/mutations";
 import { FeedUploadForm, type FormValues } from "./feed-upload-form";
 
-export function FeedUploadDialog() {
+const FREE_TIER_IMAGE_LIMIT = 4;
+
+interface FeedUploadDialogProps {
+  imageCount: number;
+}
+
+export function FeedUploadDialog({ imageCount }: FeedUploadDialogProps) {
   const session = useSession();
+  const {
+    data: { subscribed },
+  } = useSubscribed();
   const { mutate, isPending } = useRequestUpload();
   const { mutate: uploadImage, isPending: isUpdatingAvatar } = useUploadImage(
     session.type,
@@ -83,6 +94,30 @@ export function FeedUploadDialog() {
       },
     );
   };
+
+  const isFreeTier = !subscribed && session.type === "dancer";
+  const hasReachedLimit = imageCount >= FREE_TIER_IMAGE_LIMIT;
+
+  if (isFreeTier && hasReachedLimit) {
+    return (
+      <div className="border-border group flex aspect-square flex-1 flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed opacity-60">
+        <div className="bg-muted rounded-full p-3">
+          <ImageIcon className="text-muted-foreground size-6" />
+        </div>
+        <span className="text-muted-foreground text-sm font-medium">
+          Limit {FREE_TIER_IMAGE_LIMIT}/{FREE_TIER_IMAGE_LIMIT}
+        </span>
+        <Button
+          className="hover:text-brand gap-2"
+          variant="link"
+          size="xs"
+          render={<Link to="/checkout" />}
+        >
+          <CrownIcon className="text-brand size-3" /> Premium Only
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

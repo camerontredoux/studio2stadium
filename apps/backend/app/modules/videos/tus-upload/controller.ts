@@ -1,3 +1,4 @@
+import { E_FORBIDDEN } from "#exceptions/forbidden";
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
 import { Service } from "./service.ts";
@@ -37,15 +38,19 @@ export default class TusUploadController {
       return ctx.response.badRequest({ error: "Missing Upload-Length header" });
     }
 
-    const { location, streamMediaId } = await service.initiateUpload({
+    const result = await service.initiateUpload({
       userId: user.id,
       uploadLength,
       uploadMetadata,
     });
 
-    ctx.response.header("Location", location);
+    if ("error" in result) {
+      throw new E_FORBIDDEN(result.message);
+    }
+
+    ctx.response.header("Location", result.location);
     ctx.response.header("Tus-Resumable", "1.0.0");
-    ctx.response.header("stream-media-id", streamMediaId);
+    ctx.response.header("stream-media-id", result.streamMediaId);
     ctx.response.header(
       "Access-Control-Expose-Headers",
       "Location, Tus-Resumable, stream-media-id"

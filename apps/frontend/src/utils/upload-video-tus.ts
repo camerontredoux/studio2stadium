@@ -7,6 +7,20 @@ interface TusUploadOptions {
   onError: (error: Error) => void;
 }
 
+function extractTusErrorMessage(error: Error | tus.DetailedError): string {
+  if ("originalResponse" in error && error.originalResponse) {
+    try {
+      const body = error.originalResponse.getBody();
+      const parsed = JSON.parse(body);
+      if (parsed.message) return parsed.message;
+      if (parsed.error) return parsed.error;
+    } catch {
+      // Response wasn't JSON, fall through to default
+    }
+  }
+  return error.message;
+}
+
 // Use proxy in development to avoid cross-origin cookie issues
 const getTusEndpoint = () => {
   if (import.meta.env.DEV) {
@@ -35,7 +49,10 @@ export function uploadVideoTus({
       filetype: file.type,
     },
     onError: (error) => {
-      onError(error instanceof Error ? error : new Error(String(error)));
+      const message = extractTusErrorMessage(
+        error instanceof Error ? error : new Error(String(error)),
+      );
+      onError(new Error(message));
     },
     onProgress: (bytesUploaded, bytesTotal) => {
       const percentage = Math.round((bytesUploaded / bytesTotal) * 100);

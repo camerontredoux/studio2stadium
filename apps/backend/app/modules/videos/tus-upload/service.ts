@@ -1,7 +1,11 @@
-import { videoUploads } from "#database/schema/media";
+import { videos, videoUploads } from "#database/schema/media";
+import { subscriptions } from "#database/schema/subscriptions";
 import { DatabaseService } from "#database/service";
 import env from "#start/env";
 import { inject } from "@adonisjs/core";
+import { and, count, eq, isNull, ne } from "drizzle-orm";
+
+const VIDEO_LIMIT = 3;
 
 interface InitiateUploadParams {
   userId: string;
@@ -9,10 +13,9 @@ interface InitiateUploadParams {
   uploadMetadata: string;
 }
 
-interface InitiateUploadResult {
-  location: string;
-  streamMediaId: string;
-}
+type InitiateUploadResult =
+  | { location: string; streamMediaId: string }
+  | { error: "limit_exceeded"; message: string };
 
 @inject()
 export class Service {
@@ -22,6 +25,56 @@ export class Service {
     params: InitiateUploadParams
   ): Promise<InitiateUploadResult> {
     const { userId, uploadLength, uploadMetadata } = params;
+
+    const [[completedCount], [pendingCount], subscription] = await Promise.all([
+      this.db.use((db) =>
+        db
+          .select({ count: count() })
+          .from(videos)
+          .where(eq(videos.userId, userId))
+      ),
+      this.db.use((db) =>
+        db
+          .select({ count: count() })
+          .from(videoUploads)
+          .where(
+            and(
+              eq(videoUploads.userId, userId),
+              isNull(videoUploads.videoId),
+              ne(videoUploads.status, "failed")
+            )
+          )
+      ),
+      this.db.use((db) =>
+        db
+          .select({ id: subscriptions.id })
+          .from(subscriptions)
+          .where(
+            and(
+              eq(subscriptions.userId, userId),
+              eq(subscriptions.status, "active")
+            )
+          )
+          .limit(1)
+          .then((rows) => rows[0])
+      ),
+    ]);
+
+    if (!subscription) {
+      return {
+        error: "limit_exceeded",
+        message:
+          "Video uploads require a premium subscription. Upgrade to premium to upload videos.",
+      };
+    }
+
+    const totalVideos = completedCount.count + pendingCount.count;
+    if (totalVideos >= VIDEO_LIMIT) {
+      return {
+        error: "limit_exceeded",
+        message: `You can only upload ${VIDEO_LIMIT} videos. Delete an existing video to upload a new one.`,
+      };
+    }
 
     // Append maxDurationSeconds to metadata
     const maxDurationMetadata = `maxDurationSeconds ${Buffer.from("120").toString("base64")}`;

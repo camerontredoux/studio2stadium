@@ -39,7 +39,7 @@ export function MediaGallery({
         <FrameTitle className="flex items-center justify-between gap-2">
           Media Gallery
           {showOwnerControls ? (
-            <MediaDialog />
+            <MediaDialog imageCount={images.length} />
           ) : (
             <div className="h-7 w-fit sm:h-6" />
           )}
