@@ -10,6 +10,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Separator } from "@/components/ui/separator";
+import { useSession } from "@/lib/session";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { CalendarIcon } from "lucide-react";
@@ -27,6 +28,7 @@ interface EventDetailProps {
 }
 
 export function EventDetail({ eventId }: EventDetailProps) {
+  const session = useSession();
   const { data: event, error } = useSuspenseQuery(eventQueries.event(eventId));
 
   if (error?.errors) {
@@ -68,11 +70,15 @@ export function EventDetail({ eventId }: EventDetailProps) {
           <EventAbout description={event.description} />
           <EventSchedule schedule={event.schedule} />
 
-          <Separator className="my-2" />
+          {session.type === "dancer" && (
+            <>
+              <Separator className="my-2" />
 
-          <Suspense fallback={<UpcomingEventsSkeleton />}>
-            <MoreEvents />
-          </Suspense>
+              <Suspense fallback={<UpcomingEventsSkeleton />}>
+                <MoreEvents />
+              </Suspense>
+            </>
+          )}
         </div>
       </div>
     </SidebarLayout>

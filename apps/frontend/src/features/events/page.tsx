@@ -1,4 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTab } from "@/components/ui/tabs";
+import { useSession } from "@/lib/session";
 import { Suspense, useState } from "react";
 import { flushSync } from "react-dom";
 import { useSwipeable } from "react-swipeable";
@@ -10,6 +11,7 @@ import { GlobalEventListSkeleton } from "./components/global-events/global-event
 const eventTabs = ["school", "global"] as const;
 
 export function Page() {
+  const session = useSession();
   const [activeTab, setActiveTab] =
     useState<(typeof eventTabs)[number]>("school");
 
@@ -34,6 +36,26 @@ export function Page() {
     preventScrollOnSwipe: true,
     trackTouch: true,
   });
+
+  if (session.type === "school") {
+    return (
+      <div className="mobile:pb-14 flex flex-col gap-2 pt-1 sm:pt-0">
+        <div className="mb-2 flex flex-col gap-2 sm:mb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <div className="flex flex-col max-sm:pl-1">
+            <h1 className="text-2xl leading-none font-bold tracking-tight">
+              Global Events
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              Events from organizations partnered with us
+            </p>
+          </div>
+        </div>
+        <Suspense fallback={<GlobalEventListSkeleton />}>
+          <GlobalEventList />
+        </Suspense>
+      </div>
+    );
+  }
 
   return (
     <div className="mobile:pb-14 flex flex-col gap-2 pt-1 sm:pt-0">
