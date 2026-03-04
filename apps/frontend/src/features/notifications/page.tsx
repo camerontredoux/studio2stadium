@@ -1,4 +1,7 @@
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { useVideoProcessing } from "@/lib/video-processing";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMarkAllNotificationsRead } from "./api/mutations";
 import { notificationQueries } from "./api/queries";
@@ -7,6 +10,7 @@ import { NotificationList } from "./components/notification-list";
 export function Page() {
   const { data: countData } = useSuspenseQuery(notificationQueries.count());
   const markAllRead = useMarkAllNotificationsRead();
+  const { isProcessing } = useVideoProcessing();
 
   const hasUnread = countData.count > 0;
 
@@ -31,6 +35,17 @@ export function Page() {
           </Button>
         )}
       </div>
+
+      {isProcessing && (
+        <Alert>
+          <Spinner className="size-4" />
+          <AlertTitle>Processing video</AlertTitle>
+          <AlertDescription>
+            Your video is being processed. You&apos;ll be notified when
+            it&apos;s ready.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <NotificationList />
     </div>

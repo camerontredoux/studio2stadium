@@ -12,16 +12,20 @@ import {
   MenuSeparator,
   MenuTrigger,
 } from "@/components/ui/menu";
+import { Spinner } from "@/components/ui/spinner";
 import { notificationQueries } from "@/features/notifications/api/queries";
 import { useSession } from "@/lib/session";
+import { useVideoProcessing } from "@/lib/video-processing";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { HiBell, HiCog } from "react-icons/hi";
 import { useTernaryDarkMode, type TernaryDarkMode } from "usehooks-ts";
+import { VideoProcessingIndicator } from "./video-processing-indicator";
 
 export function Topbar() {
   const session = useSession();
   const { data: notificationCount } = useQuery(notificationQueries.count());
+  const { isProcessing } = useVideoProcessing();
 
   const { ternaryDarkMode, setTernaryDarkMode } = useTernaryDarkMode({
     localStorageKey: "theme",
@@ -42,13 +46,21 @@ export function Topbar() {
           <MainLogo className="h-5 dark:invert" />
         </div>
         <div className="flex w-full items-center justify-end gap-2">
+          <VideoProcessingIndicator />
           <Button
             variant="secondary"
             size="icon"
             className="relative rounded-full"
             render={<Link to="/notifications" />}
           >
-            <HiBell className="size-5" />
+            {isProcessing ? (
+              <>
+                <Spinner className="size-5 sm:hidden" />
+                <HiBell className="hidden size-5 sm:block" />
+              </>
+            ) : (
+              <HiBell className="size-5" />
+            )}
             {notificationCount?.count ? (
               <span className="bg-brand absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-xs font-medium text-white">
                 {notificationCount.count > 99 ? "99+" : notificationCount.count}

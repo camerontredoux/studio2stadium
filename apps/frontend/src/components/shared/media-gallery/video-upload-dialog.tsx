@@ -14,6 +14,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { useSession } from "@/lib/session";
 import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
+import { useVideoProcessing } from "@/lib/video-processing";
 import {
   VideoUploadForm,
   type FormValues,
@@ -36,6 +37,7 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
     data: { subscribed },
   } = useSubscribed();
   const { type } = useSession();
+  const { setIsProcessing } = useVideoProcessing();
 
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -62,6 +64,7 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
       file,
       onProgress: setProgress,
       onSuccess: () => {
+        setIsProcessing(true);
         toastManager.add({
           title: "Upload complete",
           description:

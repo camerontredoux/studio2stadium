@@ -12,12 +12,11 @@ export const useSubscribed = () => {
   const { data, isPending } = useQuery(sessionQueries.subscribed(isDancer));
 
   return {
-    data:
-      data ?? {
-        subscribed: !isDancer,
-        cancelAtPeriodEnd: false,
-        currentPeriodEnd: null,
-      },
+    data: data ?? {
+      subscribed: !isDancer,
+      cancelAtPeriodEnd: false,
+      currentPeriodEnd: null,
+    },
     isPending,
   };
 };

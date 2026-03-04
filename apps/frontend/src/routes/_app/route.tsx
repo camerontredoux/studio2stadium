@@ -6,6 +6,7 @@ import { notificationQueries } from "@/features/notifications/api/queries";
 import { createAccess } from "@/lib/access/access";
 import { queries, SessionNetworkError } from "@/lib/session";
 import { useRealtime } from "@/lib/session/hooks/use-realtime";
+import { VideoProcessingProvider } from "@/lib/video-processing";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app")({
@@ -65,13 +66,21 @@ export const Route = createFileRoute("/_app")({
 });
 
 function RouteComponent() {
+  return (
+    <VideoProcessingProvider>
+      <ToastProvider position="top-center">
+        <RealtimeWrapper />
+      </ToastProvider>
+    </VideoProcessingProvider>
+  );
+}
+
+function RealtimeWrapper() {
   useRealtime();
 
   return (
-    <ToastProvider position="top-center">
-      <AppLayout>
-        <Outlet />
-      </AppLayout>
-    </ToastProvider>
+    <AppLayout>
+      <Outlet />
+    </AppLayout>
   );
 }
