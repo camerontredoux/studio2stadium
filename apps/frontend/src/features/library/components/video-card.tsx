@@ -1,9 +1,10 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
+  DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Frame, FramePanel } from "@/components/ui/frame";
@@ -37,10 +38,10 @@ export function VideoCard({ video }: VideoCardProps) {
               )}
             </div>
           </DialogTrigger>
-          <DialogContent className="max-w-7xl overflow-clip">
-            <DialogHeader>
-              <DialogTitle>Watch Video</DialogTitle>
-            </DialogHeader>
+          <DialogContent
+            showCloseButton={false}
+            className="max-w-7xl overflow-clip"
+          >
             <div className="flex justify-center sm:max-h-[calc(100dvh-8rem)]">
               <iframe
                 src={video.url}
@@ -49,6 +50,11 @@ export function VideoCard({ video }: VideoCardProps) {
                 className="aspect-video max-h-full max-w-full"
               />
             </div>
+            <DialogFooter>
+              <DialogClose render={<Button variant="secondary" />}>
+                Close
+              </DialogClose>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
 
