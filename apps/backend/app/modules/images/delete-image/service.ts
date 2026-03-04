@@ -1,8 +1,9 @@
+import { feed } from "#database/schema/feed";
 import { images } from "#database/schema/media";
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import drive from "@adonisjs/drive/services/main";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { Validator } from "./validator.ts";
 
 @inject()
@@ -18,6 +19,7 @@ export class DeleteProfileImageService {
           id: params.id,
         },
         columns: {
+          id: true,
           mediaUrl: true,
         },
       })
@@ -40,8 +42,11 @@ export class DeleteProfileImageService {
       }
     }
 
-    await this.db.use((db) =>
-      db.delete(images).where(eq(images.mediaUrl, image.mediaUrl))
-    );
+    await this.db.tx(async (tx) => {
+      await tx.delete(images).where(eq(images.id, image.id));
+      await tx
+        .delete(feed)
+        .where(and(eq(feed.contentId, image.id), eq(feed.contentType, "image")));
+    });
   }
 }
