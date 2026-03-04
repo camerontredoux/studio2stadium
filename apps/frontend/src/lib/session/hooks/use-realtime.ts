@@ -15,9 +15,9 @@ type BroadcastMessage =
   | { type: "leader-exists" }
   | { type: "event"; event: RealtimeEvent };
 
-const CHANNEL_NAME = "s2s-realtime";
 const LEADER_ELECTION_DELAY = 100;
 const HEARTBEAT_INTERVAL = 5000;
+const SSE_RECONNECT_DELAY = 1000;
 
 /**
  * Hook that connects to the SSE endpoint for realtime notifications.
@@ -27,10 +27,11 @@ const HEARTBEAT_INTERVAL = 5000;
 export function useRealtime() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { username, type } = useSession();
+  const { id, username, type } = useSession();
 
   useEffect(() => {
-    const bc = new BroadcastChannel(CHANNEL_NAME);
+    // User-specific channel so each user's tabs manage their own leader election
+    const bc = new BroadcastChannel(`s2s-realtime:${id}`);
     let isLeader = false;
     let eventSource: EventSource | null = null;
     let electionTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -96,7 +97,14 @@ export function useRealtime() {
       });
 
       eventSource.onerror = () => {
-        console.log("[Realtime] Leader: SSE error, will retry...");
+        console.log("[Realtime] Leader: SSE error, reconnecting...");
+        eventSource?.close();
+        eventSource = null;
+        setTimeout(() => {
+          if (isLeader) {
+            setupSSE();
+          }
+        }, SSE_RECONNECT_DELAY);
       };
     };
 
@@ -162,5 +170,5 @@ export function useRealtime() {
       if (eventSource) eventSource.close();
       bc.close();
     };
-  }, [queryClient, navigate, username, type]);
+  }, [queryClient, navigate, id, username, type]);
 }
