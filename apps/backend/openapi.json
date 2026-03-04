@@ -3704,39 +3704,6 @@
         "description": "Returns the user's activity"
       }
     },
-    "/videos": {
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/VideosRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Videos"
-        ],
-        "summary": "Upload video to profile",
-        "description": "Posts a video to the user's profile"
-      }
-    },
     "/videos/{id}": {
       "delete": {
         "parameters": [
@@ -4338,6 +4305,16 @@
                       "type": "null"
                     }
                   ]
+                },
+                "thumbnail": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 }
               },
               "required": [
@@ -4348,7 +4325,8 @@
                 "avatar",
                 "name",
                 "caption",
-                "content"
+                "content",
+                "thumbnail"
               ]
             }
           },
@@ -5788,10 +5766,30 @@
                 "userId": {
                   "type": "string"
                 },
+                "thumbnail": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "mediaId": {
                   "type": "string"
                 },
                 "caption": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "mediaUrl": {
                   "oneOf": [
                     {
                       "type": "string"
@@ -5808,8 +5806,10 @@
                 "createdAt",
                 "updatedAt",
                 "userId",
+                "thumbnail",
                 "mediaId",
-                "caption"
+                "caption",
+                "mediaUrl"
               ]
             }
           },
@@ -8258,10 +8258,30 @@
                 "userId": {
                   "type": "string"
                 },
+                "thumbnail": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "mediaId": {
                   "type": "string"
                 },
                 "caption": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "mediaUrl": {
                   "oneOf": [
                     {
                       "type": "string"
@@ -8278,8 +8298,10 @@
                 "createdAt",
                 "updatedAt",
                 "userId",
+                "thumbnail",
                 "mediaId",
-                "caption"
+                "caption",
+                "mediaUrl"
               ]
             }
           },
@@ -8859,27 +8881,6 @@
           "images",
           "following",
           "followers"
-        ]
-      },
-      "VideosRequest": {
-        "type": "object",
-        "properties": {
-          "caption": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "mediaId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "mediaId"
         ]
       }
     }

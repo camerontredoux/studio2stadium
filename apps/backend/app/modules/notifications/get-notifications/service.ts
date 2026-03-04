@@ -27,7 +27,9 @@ type NotificationContent =
       schoolId: string;
       updateType: string;
     }
-  | { type: "event.attended"; userId: string; eventId: string };
+  | { type: "event.attended"; userId: string; eventId: string }
+  | { type: "video.ready"; videoId: string }
+  | { type: "video.failed"; errorMessage: string };
 
 type EnrichedNotification = {
   id: string;
@@ -232,6 +234,24 @@ export class Service {
           content.type,
           content.userId,
           content.eventId,
+          createdAt,
+          read
+        );
+
+      case "video.ready":
+        return this.enrichVideoReadyNotification(
+          id,
+          content.type,
+          content.videoId,
+          createdAt,
+          read
+        );
+
+      case "video.failed":
+        return this.enrichVideoFailedNotification(
+          id,
+          content.type,
+          content.errorMessage,
           createdAt,
           read
         );
@@ -441,5 +461,43 @@ export class Service {
       default:
         return "updated their profile";
     }
+  }
+
+  private async enrichVideoReadyNotification(
+    id: string,
+    type: string,
+    videoId: string,
+    createdAt: Date,
+    read: boolean
+  ): Promise<EnrichedNotification> {
+    return {
+      id,
+      type,
+      createdAt,
+      read,
+      actor: null,
+      message: "Your video has finished processing and is now live",
+      link: null,
+      metadata: { videoId },
+    };
+  }
+
+  private async enrichVideoFailedNotification(
+    id: string,
+    type: string,
+    errorMessage: string,
+    createdAt: Date,
+    read: boolean
+  ): Promise<EnrichedNotification> {
+    return {
+      id,
+      type,
+      createdAt,
+      read,
+      actor: null,
+      message: `Your video failed to process: ${errorMessage}`,
+      link: null,
+      metadata: { errorMessage },
+    };
   }
 }

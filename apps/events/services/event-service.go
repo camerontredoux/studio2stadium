@@ -143,6 +143,12 @@ func (s *EventService) ProcessQueueMessage(message *sqsT.Message) (*t.QueueMessa
 	case "event.attended":
 		err = s.HandleEventAttended(outboxEvent, &notifications)
 
+	// Video processing events
+	case "video.ready":
+		err = s.HandleVideoReady(outboxEvent, &notifications)
+	case "video.failed":
+		err = s.HandleVideoFailed(outboxEvent, &notifications)
+
 	// Events that don't generate notifications
 	case "user.signup":
 		// No notification needed

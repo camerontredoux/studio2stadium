@@ -19,7 +19,7 @@ export function FeedVideo({ item }: FeedVideoProps) {
       <DialogTrigger className="block w-full">
         <div className="group relative aspect-video cursor-pointer overflow-hidden">
           <img
-            src={`https://img.youtube.com/vi/${item.content}/hqdefault.jpg`}
+            src={item.thumbnail ?? ""}
             alt="Feed Item"
             className="h-full w-full object-cover"
           />
@@ -33,7 +33,7 @@ export function FeedVideo({ item }: FeedVideoProps) {
         className="max-w-7xl overflow-clip"
       >
         <iframe
-          src={`https://www.youtube.com/embed/${item.content}`}
+          src={item.content ?? ""}
           title="Feed Item"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen

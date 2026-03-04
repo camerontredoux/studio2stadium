@@ -6,8 +6,9 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { TrashIcon, VideoIcon } from "lucide-react";
+import { VideoIcon } from "lucide-react";
 import type { Video } from "./types";
+import { VideoDelete } from "./video-delete";
 
 export function VideoItem({
   video,
@@ -16,12 +17,16 @@ export function VideoItem({
   video: Video;
   showOwnerControls: boolean;
 }) {
+  if (!video.thumbnail || !video.mediaUrl) {
+    return null;
+  }
+
   return (
     <Dialog>
       <DialogTrigger className="block w-full">
         <div className="group relative aspect-square cursor-pointer overflow-hidden rounded-lg">
           <img
-            src={`https://img.youtube.com/vi/${video.mediaId}/hqdefault.jpg`}
+            src={video.thumbnail}
             alt={video.caption || "Video thumbnail"}
             className="size-full object-cover"
           />
@@ -35,7 +40,7 @@ export function VideoItem({
         className="max-w-7xl overflow-clip"
       >
         <iframe
-          src={`https://www.youtube.com/embed/${video.mediaId}`}
+          src={video.mediaUrl}
           title={video.caption || "Video"}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
@@ -43,9 +48,7 @@ export function VideoItem({
         />
         <DialogFooter>
           {showOwnerControls ? (
-            <Button variant="destructive">
-              <TrashIcon /> Delete
-            </Button>
+            <VideoDelete key={video.id} id={video.id} />
           ) : null}
           <DialogClose render={<Button variant="secondary">Close</Button>}>
             Close

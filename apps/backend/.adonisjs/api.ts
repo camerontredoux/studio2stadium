@@ -419,10 +419,6 @@ type UsersActivityGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/users/get-activity/controller.ts').default['handle'], false>
 }
-type VideosPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/videos/upload-profile-video/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/videos/upload-profile-video/controller.ts').default['handle'], true>
-}
 type VideosIdDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/videos/delete-video/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/videos/delete-video/controller.ts').default['handle'], true>
@@ -946,9 +942,6 @@ export interface ApiDefinition {
     };
   };
   'videos': {
-    '$url': {
-    };
-    '$post': VideosPost;
     ':id': {
       '$url': {
       };

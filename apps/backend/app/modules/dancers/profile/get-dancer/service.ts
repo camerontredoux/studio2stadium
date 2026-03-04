@@ -1,5 +1,6 @@
 import { DatabaseService } from "#database/service";
 import { imageUrl } from "#utils/image-url";
+import { videoThumbnailUrl, videoUrl } from "#utils/video-url";
 import { inject } from "@adonisjs/core";
 
 @inject()
@@ -13,7 +14,7 @@ export class Service {
 
     const { dancerProfile, ...user } = dancer;
 
-    const { subscription, images, avatar, ...rest } = user;
+    const { subscription, images, avatar, videos, ...rest } = user;
 
     if (!dancerProfile) return null;
 
@@ -25,11 +26,18 @@ export class Service {
 
     const profilePicture = imageUrl(user.avatar, "avatar");
 
+    const profileVideos = videos.map((video) => ({
+      ...video,
+      mediaUrl: videoUrl(video.mediaId, video.type),
+      thumbnail: videoThumbnailUrl(video.mediaId, video.type),
+    }));
+
     return {
       ...rest,
       ...dancerProfile,
       avatar: profilePicture,
       images: profileImages,
+      videos: profileVideos,
       subscribed: !!subscription,
     };
   }

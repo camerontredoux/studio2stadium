@@ -12,11 +12,27 @@ const corsConfig = defineConfig({
   origin: app.inProduction
     ? ["https://api.studio2stadium.com", "https://app.studio2stadium.com"]
     : true,
-  methods: ["GET", "HEAD", "POST", "PATCH", "DELETE"],
+  methods: ["GET", "HEAD", "POST", "PATCH", "DELETE", "OPTIONS"],
   headers: app.inProduction
-    ? ["Content-Type", "Authorization", "Accept"]
+    ? [
+        "Content-Type",
+        "Authorization",
+        "Accept",
+        // TUS upload headers
+        "Upload-Length",
+        "Upload-Metadata",
+        "Tus-Resumable",
+        "Upload-Offset",
+        "Upload-Creator",
+      ]
     : true,
-  exposeHeaders: ["Retry-After"],
+  exposeHeaders: [
+    "Retry-After",
+    // TUS response headers
+    "Location",
+    "Tus-Resumable",
+    "stream-media-id",
+  ],
   credentials: true,
   maxAge: 90,
 });

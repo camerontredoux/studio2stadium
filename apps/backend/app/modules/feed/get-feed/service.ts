@@ -1,5 +1,6 @@
 import { DatabaseService } from "#database/service";
 import { imageUrl } from "#utils/image-url";
+import { videoThumbnailUrl, videoUrl } from "#utils/video-url";
 import { inject } from "@adonisjs/core";
 import { sql } from "drizzle-orm";
 
@@ -16,6 +17,7 @@ type FeedRow = {
   school_name: string | null;
   caption: string | null;
   content: string | null;
+  video_type: "youtube" | "cloudflare" | null;
 };
 
 type FeedItemResponse = {
@@ -27,6 +29,7 @@ type FeedItemResponse = {
   name: string | null;
   caption: string | null;
   content: string | null;
+  thumbnail: string | null;
 };
 
 @inject()
@@ -75,7 +78,8 @@ export class Service {
             a.description,
             r.description,
             'Updated profile'
-          ) AS content
+          ) AS content,
+          v.type AS video_type
         FROM feed f
         JOIN users u ON f.user_id = u.id
         LEFT JOIN school_profiles sp ON u.id = sp.user_id
@@ -106,11 +110,29 @@ export class Service {
       avatar: imageUrl(row.avatar, "avatar"),
       name: this.getDisplayName(row, type),
       caption: row.caption,
-      content:
-        row.content_type === "image"
-          ? imageUrl(row.content, "feed")
-          : row.content,
+      content: this.getContent(row),
+      thumbnail: this.getThumbnail(row),
     }));
+  }
+
+  getContent(row: FeedRow): string | null {
+    if (row.content_type === "image") {
+      return imageUrl(row.content, "feed");
+    }
+    if (row.content_type === "video" && row.video_type) {
+      return videoUrl(row.content, row.video_type);
+    }
+    return row.content;
+  }
+
+  getThumbnail(row: FeedRow): string | null {
+    if (row.content_type === "image") {
+      return imageUrl(row.content, "thumbnail");
+    }
+    if (row.content_type === "video" && row.video_type) {
+      return videoThumbnailUrl(row.content, row.video_type);
+    }
+    return null;
   }
 
   getDisplayName(row: FeedRow, type: "dancer" | "school"): string | null {
@@ -150,14 +172,27 @@ export class Service {
     const profile = await this.db.use((db) =>
       db.query.schoolProfiles.findFirst({
         where: { userId },
+        columns: { id: true },
+      })
+    );
+
+    if (!profile) return [];
+
+    // Query favorites directly to get dancer user IDs
+    const favorited = await this.db.use((db) =>
+      db.query.favorites.findMany({
+        where: { schoolId: profile.id },
         columns: {},
         with: {
-          favorites: {
+          dancer: {
             columns: { userId: true },
           },
         },
       })
     );
-    return profile?.favorites.map((f) => f.userId) ?? [];
+
+    return favorited
+      .filter((f) => f.dancer !== null)
+      .map((f) => f.dancer!.userId);
   }
 }

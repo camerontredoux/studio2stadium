@@ -1,6 +1,11 @@
 import { db } from "#database/connection";
+import { dancerProfiles } from "#database/schema/dancers";
+import { feed } from "#database/schema/feed";
 import { videoUploads, videos } from "#database/schema/media";
+import { schoolProfiles } from "#database/schema/schools";
+import { users } from "#database/schema/users";
 import { eq } from "drizzle-orm";
+import { VideoUploadEvent } from "#modules/videos/upload-profile-video/event";
 import { VideoFailedEvent, VideoReadyEvent } from "./event.ts";
 
 export interface StreamWebhookPayload {
@@ -45,6 +50,13 @@ export async function handleStreamWebhook(payload: StreamWebhookPayload) {
         })
         .returning();
 
+      // Add to feed
+      await db.insert(feed).values({
+        userId: upload.userId,
+        contentId: video.id,
+        contentType: "video",
+      });
+
       // Update upload record
       await db
         .update(videoUploads)
@@ -56,6 +68,40 @@ export async function handleStreamWebhook(payload: StreamWebhookPayload) {
           updatedAt: new Date(),
         })
         .where(eq(videoUploads.id, upload.id));
+
+      // Get user type and profile ID for outbox event
+      const [user] = await db
+        .select({ type: users.type })
+        .from(users)
+        .where(eq(users.id, upload.userId))
+        .limit(1);
+
+      if (user) {
+        let profileId: string | null = null;
+
+        if (user.type === "dancer") {
+          const [dancer] = await db
+            .select({ id: dancerProfiles.id })
+            .from(dancerProfiles)
+            .where(eq(dancerProfiles.userId, upload.userId))
+            .limit(1);
+          profileId = dancer?.id ?? null;
+        } else if (user.type === "school") {
+          const [school] = await db
+            .select({ id: schoolProfiles.id })
+            .from(schoolProfiles)
+            .where(eq(schoolProfiles.userId, upload.userId))
+            .limit(1);
+          profileId = school?.id ?? null;
+        }
+
+        if (profileId) {
+          VideoUploadEvent.dispatch({
+            profileId,
+            userType: user.type,
+          });
+        }
+      }
 
       // Dispatch notification event
       VideoReadyEvent.dispatch({

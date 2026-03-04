@@ -116,6 +116,18 @@ type SchoolApprovedPayload struct {
 	SchoolId string `json:"schoolId"`
 }
 
+// video.ready - video upload finished processing
+type VideoReadyPayload struct {
+	UserId  string `json:"userId"`
+	VideoId string `json:"videoId"`
+}
+
+// video.failed - video upload failed processing
+type VideoFailedPayload struct {
+	UserId       string `json:"userId"`
+	ErrorMessage string `json:"errorMessage"`
+}
+
 // Notification content types (stored in notifications.content)
 // Each includes a "type" field so frontend can identify the notification type
 // Additional fields contain minimal reference data for rendering
@@ -180,4 +192,14 @@ type EventAttendedContent struct {
 	Type    string `json:"type"`
 	UserId  string `json:"userId"`
 	EventId string `json:"eventId"`
+}
+
+type VideoReadyContent struct {
+	Type    string `json:"type"`
+	VideoId string `json:"videoId"`
+}
+
+type VideoFailedContent struct {
+	Type         string `json:"type"`
+	ErrorMessage string `json:"errorMessage"`
 }

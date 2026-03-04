@@ -545,3 +545,57 @@ func (s *EventService) HandleEventAttended(
 	}}
 	return nil
 }
+
+// HandleVideoReady - video upload finished processing
+// Notifies the user who uploaded the video
+func (s *EventService) HandleVideoReady(
+	outboxEvent *t.OutboxEvent,
+	notifications *[]*t.Notification,
+) error {
+	var payload t.VideoReadyPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	content := t.VideoReadyContent{
+		Type:    "video.ready",
+		VideoId: payload.VideoId,
+	}
+	contentJson, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+
+	*notifications = []*t.Notification{{
+		UserId:  payload.UserId,
+		Content: contentJson,
+	}}
+	return nil
+}
+
+// HandleVideoFailed - video upload failed processing
+// Notifies the user who uploaded the video
+func (s *EventService) HandleVideoFailed(
+	outboxEvent *t.OutboxEvent,
+	notifications *[]*t.Notification,
+) error {
+	var payload t.VideoFailedPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	content := t.VideoFailedContent{
+		Type:         "video.failed",
+		ErrorMessage: payload.ErrorMessage,
+	}
+	contentJson, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+
+	*notifications = []*t.Notification{{
+		UserId:  payload.UserId,
+		Content: contentJson,
+	}}
+	return nil
+}

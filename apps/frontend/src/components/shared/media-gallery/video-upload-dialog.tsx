@@ -10,16 +10,75 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
+import { toastManager } from "@/components/ui/toast-manager";
 import { useSession } from "@/lib/session";
 import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
+import {
+  VideoUploadForm,
+  type FormValues,
+} from "@/shared/videos/components/video-upload-form";
+import { uploadVideoTus } from "@/utils/upload-video-tus";
 import { Link } from "@tanstack/react-router";
 import { CrownIcon, VideoIcon } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import type * as tus from "tus-js-client";
 
 export function VideoUploadDialog() {
   const [open, setOpen] = useState(false);
   const { subscribed } = useSubscribed();
   const { type } = useSession();
+
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const uploadRef = useRef<tus.Upload | null>(null);
+
+  const handleClose = (isOpen: boolean) => {
+    if (!isOpen && uploadRef.current) {
+      uploadRef.current.abort();
+      uploadRef.current = null;
+    }
+    setOpen(isOpen);
+    if (!isOpen) {
+      setUploading(false);
+      setProgress(0);
+    }
+  };
+
+  const onSubmit = (data: FormValues) => {
+    const file = data.files[0];
+    setProgress(0);
+    setUploading(true);
+
+    const upload = uploadVideoTus({
+      file,
+      onProgress: setProgress,
+      onSuccess: () => {
+        toastManager.add({
+          title: "Upload complete",
+          description:
+            "Your video is being processed. You'll be notified when it's ready.",
+          type: "success",
+        });
+        setOpen(false);
+        setUploading(false);
+        setProgress(0);
+        uploadRef.current = null;
+      },
+      onError: (error) => {
+        toastManager.add({
+          title: "Upload failed",
+          description: error.message || "Failed to upload video",
+          type: "error",
+        });
+        setUploading(false);
+        uploadRef.current = null;
+      },
+    });
+
+    uploadRef.current = upload;
+    upload.start();
+  };
 
   if (!subscribed && type === "dancer") {
     return (
@@ -41,7 +100,7 @@ export function VideoUploadDialog() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogTrigger
         render={
           <button
@@ -59,14 +118,25 @@ export function VideoUploadDialog() {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Video</DialogTitle>
-          <DialogDescription>Add a video to your account.</DialogDescription>
+          <DialogTitle>Upload Video</DialogTitle>
+          <DialogDescription>
+            Add a video to your profile. Max 2 minutes.
+          </DialogDescription>
         </DialogHeader>
-        <DialogPanel></DialogPanel>
+        <DialogPanel>
+          <VideoUploadForm
+            isLoading={uploading}
+            progress={progress}
+            onSubmit={onSubmit}
+          />
+        </DialogPanel>
         <DialogFooter>
           <DialogClose render={<Button variant="secondary" />}>
             Cancel
           </DialogClose>
+          <Button disabled={uploading} type="submit" form="video-upload-form">
+            {uploading ? <Spinner label="Uploading..." /> : "Upload"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
