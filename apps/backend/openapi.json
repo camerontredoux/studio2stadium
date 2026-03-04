@@ -185,6 +185,16 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthLoginResponse"
+                }
+              }
+            }
+          },
           "204": {
             "description": "No Content"
           },
@@ -2504,14 +2514,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ImagesPresignResponse"
-                }
-              }
-            }
+            "description": "OK"
           },
           "422": {
             "description": "Unprocessable Entity",
@@ -4088,6 +4091,100 @@
         "required": [
           "email",
           "password"
+        ]
+      },
+      "AuthLoginResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "user",
+                  "admin",
+                  "prodigy_admin"
+                ]
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "dancer",
+                  "school"
+                ]
+              },
+              "displayEmail": {
+                "type": "string"
+              },
+              "firstName": {
+                "type": "string"
+              },
+              "lastName": {
+                "type": "string"
+              },
+              "avatar": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "verified": {
+                "type": "boolean"
+              },
+              "notifications": {
+                "type": "boolean"
+              },
+              "profileId": {
+                "type": "string"
+              },
+              "platforms": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "core",
+                    "prodigy"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "id",
+              "username",
+              "role",
+              "type",
+              "displayEmail",
+              "firstName",
+              "lastName",
+              "avatar",
+              "verified",
+              "notifications",
+              "profileId",
+              "platforms"
+            ]
+          },
+          "token": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "user",
+          "token",
+          "expiresIn"
         ]
       },
       "AuthLogoutResponse": {
@@ -7131,21 +7228,6 @@
         "required": [
           "type",
           "contentType"
-        ]
-      },
-      "ImagesPresignResponse": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string"
-          },
-          "url": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "key",
-          "url"
         ]
       },
       "SchoolsResponse": {
