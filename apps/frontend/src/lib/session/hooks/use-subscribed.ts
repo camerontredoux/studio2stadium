@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { sessionQueries } from "../queries";
 import { useSession } from "./use-session";
 
@@ -7,10 +7,9 @@ import { useSession } from "./use-session";
  */
 export const useSubscribed = () => {
   const session = useSession();
+  const isDancer = session.type === "dancer";
 
-  const { data } = useSuspenseQuery(
-    sessionQueries.subscribed(session.type === "dancer"),
-  );
+  const { data } = useQuery(sessionQueries.subscribed(isDancer));
 
-  return data;
+  return data ?? { subscribed: !isDancer };
 };

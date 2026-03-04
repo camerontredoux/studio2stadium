@@ -32,12 +32,12 @@ export const sessionQueries = {
       gcTime: Infinity,
     });
   },
-  subscribed: (enabled?: boolean) => {
+  subscribed: (enabled: boolean = true) => {
     return $api.queryOptions(
       "get",
       "/subscriptions/status",
-      { enabled },
-      { staleTime: Infinity, gcTime: Infinity },
+      {},
+      { staleTime: Infinity, gcTime: Infinity, enabled },
     );
   },
   application: (enabled?: boolean) => {

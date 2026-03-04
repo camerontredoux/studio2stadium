@@ -15,11 +15,5 @@ export const notificationQueries = {
       getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
       initialPageParam: undefined as string | undefined,
     }),
-  count: () =>
-    $api.queryOptions(
-      "get",
-      "/notifications/count",
-      {},
-      { refetchInterval: 1000 * 30 },
-    ),
+  count: () => $api.queryOptions("get", "/notifications/count"),
 };
