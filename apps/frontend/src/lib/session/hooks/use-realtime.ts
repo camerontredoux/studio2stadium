@@ -1,6 +1,10 @@
 import { toastManager } from "@/components/ui/toast-manager";
+import { dancerQueries } from "@/features/dancer/api/queries";
+import { schoolQueries } from "@/features/school/api/queries";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { useSession } from "./use-session";
 
 type RealtimeEvent =
   | { type: "video.ready"; videoId: string }
@@ -22,6 +26,8 @@ const HEARTBEAT_INTERVAL = 5000;
  */
 export function useRealtime() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { username, type } = useSession();
 
   useEffect(() => {
     const bc = new BroadcastChannel(CHANNEL_NAME);
@@ -34,10 +40,23 @@ export function useRealtime() {
         case "video.ready":
           toastManager.add({
             title: "Video ready",
-            description: "Your video has been processed and is now live!",
+            description: "Your video has been processed!",
             type: "success",
+            actionProps: {
+              children: "View",
+              onClick: () =>
+                navigate({
+                  to: type === "school" ? "/explore/$username" : "/$username",
+                  params: { username },
+                }),
+            },
           });
-          queryClient.invalidateQueries({ queryKey: ["feed"] });
+          queryClient.invalidateQueries({
+            queryKey:
+              type === "school"
+                ? schoolQueries.profile(username).queryKey
+                : dancerQueries.profile(username).queryKey,
+          });
           break;
 
         case "video.failed":
@@ -143,5 +162,5 @@ export function useRealtime() {
       if (eventSource) eventSource.close();
       bc.close();
     };
-  }, [queryClient]);
+  }, [queryClient, navigate, username, type]);
 }
