@@ -43,7 +43,12 @@ export class UploadProfileImageService {
       ),
     ]);
 
-    if (!subscription && imageCount.count >= FREE_TIER_IMAGE_LIMIT) {
+    // Only dancers have the free tier image limit
+    if (
+      user.type === "dancer" &&
+      !subscription &&
+      imageCount.count >= FREE_TIER_IMAGE_LIMIT
+    ) {
       return {
         error: "limit_exceeded",
         message:
