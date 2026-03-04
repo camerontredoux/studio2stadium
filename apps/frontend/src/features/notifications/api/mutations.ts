@@ -1,9 +1,10 @@
 import type { ApiSchemas } from "@/lib/api/client";
 import { client } from "@/lib/api/client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { type InfiniteData, useMutation, useQueryClient } from "@tanstack/react-query";
 import { notificationQueries } from "./queries";
 
-type Notification = ApiSchemas["NotificationsResponse"][number];
+type NotificationsResponse = ApiSchemas["NotificationsResponse"];
+type InfiniteNotifications = InfiniteData<NotificationsResponse, string | undefined>;
 
 export function useMarkNotificationRead() {
   const queryClient = useQueryClient();
@@ -15,17 +16,27 @@ export function useMarkNotificationRead() {
       await queryClient.cancelQueries(notificationQueries.notifications());
       await queryClient.cancelQueries(notificationQueries.count());
 
-      const previousNotifications = queryClient.getQueryData<Notification[]>(
+      const previousNotifications = queryClient.getQueryData<InfiniteNotifications>(
         notificationQueries.notifications().queryKey,
       );
       const previousCount = queryClient.getQueryData<{ count: number }>(
         notificationQueries.count().queryKey,
       );
 
-      queryClient.setQueryData(
+      queryClient.setQueryData<InfiniteNotifications>(
         notificationQueries.notifications().queryKey,
-        (old: Notification[] | undefined) =>
-          old?.map((n) => (n.id === id ? { ...n, read: true } : n)),
+        (old) =>
+          old
+            ? {
+                ...old,
+                pages: old.pages.map((page) => ({
+                  ...page,
+                  data: page.data.map((n) =>
+                    n.id === id ? { ...n, read: true } : n,
+                  ),
+                })),
+              }
+            : undefined,
       );
 
       queryClient.setQueryData(
@@ -62,17 +73,25 @@ export function useMarkAllNotificationsRead() {
       await queryClient.cancelQueries(notificationQueries.notifications());
       await queryClient.cancelQueries(notificationQueries.count());
 
-      const previousNotifications = queryClient.getQueryData<Notification[]>(
+      const previousNotifications = queryClient.getQueryData<InfiniteNotifications>(
         notificationQueries.notifications().queryKey,
       );
       const previousCount = queryClient.getQueryData<{ count: number }>(
         notificationQueries.count().queryKey,
       );
 
-      queryClient.setQueryData(
+      queryClient.setQueryData<InfiniteNotifications>(
         notificationQueries.notifications().queryKey,
-        (old: Notification[] | undefined) =>
-          old?.map((n) => ({ ...n, read: true })),
+        (old) =>
+          old
+            ? {
+                ...old,
+                pages: old.pages.map((page) => ({
+                  ...page,
+                  data: page.data.map((n) => ({ ...n, read: true })),
+                })),
+              }
+            : undefined,
       );
 
       queryClient.setQueryData(notificationQueries.count().queryKey, {
