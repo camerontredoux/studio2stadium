@@ -106,7 +106,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ApplicationRequest"
+                "$ref": "#/components/schemas/ApplicationPatchRequest"
               }
             }
           }
@@ -604,6 +604,21 @@
         ],
         "summary": "Get notification count",
         "description": "Returns the count of unread notifications"
+      }
+    },
+    "/notifications/stream": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Realtime notification stream",
+        "description": "SSE endpoint for realtime notifications"
       }
     },
     "/notifications/read-all": {
@@ -3944,6 +3959,21 @@
           "phone",
           "mediaId"
         ]
+      },
+      "ApplicationPatchRequest": {
+        "type": "object",
+        "properties": {
+          "mediaId": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
       },
       "AuthSignupRequest": {
         "type": "object",

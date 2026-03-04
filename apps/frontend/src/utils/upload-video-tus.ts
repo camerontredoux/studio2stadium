@@ -28,7 +28,6 @@ export function uploadVideoTus({
       filename: file.name,
       filetype: file.type,
     },
-    withCredentials: true,
     onError: (error) => {
       onError(error instanceof Error ? error : new Error(String(error)));
     },

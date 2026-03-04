@@ -79,6 +79,10 @@ type NotificationsCountGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/notifications/get-count/controller.ts').default['handle'], false>
 }
+type NotificationsStreamGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/notifications/stream/controller.ts').default['handle'], false>
+}
 type NotificationsReadallPost = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/notifications/mark-all-read/controller.ts').default['handle'], false>
@@ -527,6 +531,12 @@ export interface ApiDefinition {
       };
       '$get': NotificationsCountGetHead;
       '$head': NotificationsCountGetHead;
+    };
+    'stream': {
+      '$url': {
+      };
+      '$get': NotificationsStreamGetHead;
+      '$head': NotificationsStreamGetHead;
     };
     'read-all': {
       '$url': {

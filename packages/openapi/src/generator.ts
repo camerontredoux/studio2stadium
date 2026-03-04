@@ -463,7 +463,8 @@ export class OpenApiGenerator {
           /(Get|Head|Post|Put|Patch|Delete)+$/,
           ""
         );
-        const requestSchemaName = `${baseName}Request`;
+        const method = options.method.replace("$", "");
+        const methodCapitalized = method.charAt(0).toUpperCase() + method.slice(1);
 
         // Build body schema without params
         const bodyRequired = request.required?.filter((r) => r !== "params") || [];
@@ -472,6 +473,18 @@ export class OpenApiGenerator {
           properties: bodyProperties,
           ...(bodyRequired.length && { required: bodyRequired }),
         };
+
+        // Check if a schema with the base name already exists and if it matches
+        const baseSchemaName = `${baseName}Request`;
+        let requestSchemaName = baseSchemaName;
+
+        if (this.#aliasSchemas.has(baseSchemaName)) {
+          const existingSchema = this.#aliasSchemas.get(baseSchemaName)!;
+          // Compare schemas - if different, use method-specific name
+          if (JSON.stringify(existingSchema) !== JSON.stringify(bodySchema)) {
+            requestSchemaName = `${baseName}${methodCapitalized}Request`;
+          }
+        }
 
         // Register the schema if not already registered
         if (!this.#aliasSchemas.has(requestSchemaName)) {

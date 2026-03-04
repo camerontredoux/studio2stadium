@@ -106,7 +106,9 @@ export function ApplicationSettings() {
       >
         <Badge
           className="w-fit capitalize"
-          variant={statusVariant[application.status]}
+          variant={
+            statusVariant[application.status as keyof typeof statusVariant]
+          }
         >
           {application.status}
         </Badge>
@@ -171,7 +173,10 @@ export function ApplicationSettings() {
                 </Button>
               </form>
             </FormProvider>
-            <img className="rounded-lg" src={application.thumbnail} />
+            <img
+              className="rounded-lg"
+              src={application.thumbnail ?? undefined}
+            />
           </Section>
         </>
       )}
