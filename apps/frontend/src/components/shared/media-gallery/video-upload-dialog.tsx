@@ -24,7 +24,13 @@ import { CrownIcon, VideoIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import type * as tus from "tus-js-client";
 
-export function VideoUploadDialog() {
+const PREMIUM_VIDEO_LIMIT = 3;
+
+interface VideoUploadDialogProps {
+  videoCount: number;
+}
+
+export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
   const [open, setOpen] = useState(false);
   const {
     data: { subscribed },
@@ -82,21 +88,30 @@ export function VideoUploadDialog() {
     upload.start();
   };
 
-  if (!subscribed && type === "dancer") {
+  const isFreeTierDancer = !subscribed && type === "dancer";
+  const hasReachedLimit = videoCount >= PREMIUM_VIDEO_LIMIT;
+
+  if (isFreeTierDancer || hasReachedLimit) {
     return (
       <div className="border-border group flex aspect-square flex-1 flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed opacity-60">
         <div className="bg-muted rounded-full p-3">
           <VideoIcon className="text-muted-foreground size-6" />
         </div>
-        <span className="text-muted-foreground text-sm font-medium">Video</span>
-        <Button
-          className="hover:text-brand gap-2"
-          variant="link"
-          size="xs"
-          render={<Link to="/checkout" />}
-        >
-          <CrownIcon className="text-brand size-3" /> Premium Only
-        </Button>
+        <span className="text-muted-foreground text-sm font-medium">
+          {hasReachedLimit
+            ? `Limit ${PREMIUM_VIDEO_LIMIT}/${PREMIUM_VIDEO_LIMIT}`
+            : "Video"}
+        </span>
+        {isFreeTierDancer && (
+          <Button
+            className="hover:text-brand gap-2"
+            variant="link"
+            size="xs"
+            render={<Link to="/checkout" />}
+          >
+            <CrownIcon className="text-brand size-3" /> Premium Only
+          </Button>
+        )}
       </div>
     );
   }

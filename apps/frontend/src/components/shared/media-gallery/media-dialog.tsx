@@ -17,9 +17,10 @@ import { VideoUploadDialog } from "./video-upload-dialog";
 
 interface MediaDialogProps {
   imageCount: number;
+  videoCount: number;
 }
 
-export function MediaDialog({ imageCount }: MediaDialogProps) {
+export function MediaDialog({ imageCount, videoCount }: MediaDialogProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -44,7 +45,7 @@ export function MediaDialog({ imageCount }: MediaDialogProps) {
               </span>
               <div className="bg-border h-12 w-px" />
             </div>
-            <VideoUploadDialog />
+            <VideoUploadDialog videoCount={videoCount} />
           </div>
         </DialogPanel>
         <DialogFooter>
