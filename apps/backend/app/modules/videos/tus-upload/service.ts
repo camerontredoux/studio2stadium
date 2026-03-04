@@ -31,7 +31,7 @@ export class Service {
         db
           .select({ count: count() })
           .from(videos)
-          .where(eq(videos.userId, userId))
+          .where(and(eq(videos.userId, userId), eq(videos.type, "cloudflare")))
       ),
       this.db.use((db) =>
         db
