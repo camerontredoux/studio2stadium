@@ -18,7 +18,17 @@ export default class LoginController {
       inMemoryBlockOnConsumed: 11,
     });
 
-    await auth.use("redis").login(user);
+    const guard = auth.use("redis");
+    await guard.login(user);
+
+    const isMobile = request.header("X-Client-Type") === "mobile";
+    if (isMobile) {
+      return response.ok({
+        token: guard.getSessionToken(),
+        expiresIn: 604800, // 7 days in seconds
+        user,
+      });
+    }
 
     return response.noContent();
   }

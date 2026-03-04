@@ -34,9 +34,9 @@ export class RedisSessionGuard<
   #connection: Connection;
 
   /**
-   * Session ID from the session cookie
+   * Session ID from the session cookie or bearer token
    */
-  #sessionId: string;
+  #sessionId: string | undefined;
 
   /**
    * Reference to the HTTP context
@@ -69,6 +69,11 @@ export class RedisSessionGuard<
   authenticatedViaCookie: boolean = false;
 
   /**
+   * Whether authentication was via bearer token (mobile).
+   */
+  authenticatedViaBearer: boolean = false;
+
+  /**
    * Whether the current request has been authenticated
    */
   isAuthenticated: boolean = false;
@@ -97,7 +102,27 @@ export class RedisSessionGuard<
     this.#ctx = ctx;
     this.#userProvider = userProvider;
     this.#connection = redis.connection("session");
-    this.#sessionId = ctx.request.cookie(options.sessionCookieName);
+
+    // Try cookie first, then bearer token
+    const cookieSessionId = ctx.request.cookie(options.sessionCookieName);
+    if (cookieSessionId) {
+      this.#sessionId = cookieSessionId;
+    } else {
+      const bearerToken = this.#extractBearerToken();
+      if (bearerToken) {
+        this.#ctx.logger.info("[RedisGuard]: Authenticating via bearer token", {
+          bearerToken,
+        });
+        this.#sessionId = bearerToken;
+        this.authenticatedViaBearer = true;
+      }
+    }
+  }
+
+  #extractBearerToken(): string | undefined {
+    const header = this.#ctx.request.header("Authorization");
+    if (!header?.startsWith("Bearer ")) return undefined;
+    return header.slice(7);
   }
 
   #versionKey(userId: string): string {
@@ -121,7 +146,7 @@ export class RedisSessionGuard<
   }
 
   async #refreshSession() {
-    await this.#connection.expire(this.#sessionId, this.#options.sessionAge);
+    await this.#connection.expire(this.#sessionId!, this.#options.sessionAge);
   }
 
   async #commitSession(session: SessionData<User>, login: boolean = false) {
@@ -133,10 +158,10 @@ export class RedisSessionGuard<
     const message = new MessageBuilder().build(
       session,
       undefined,
-      this.#sessionId
+      this.#sessionId!
     );
     await this.#connection.setex(
-      this.#sessionId,
+      this.#sessionId!,
       this.#options.sessionAge,
       message
     );
@@ -169,8 +194,11 @@ export class RedisSessionGuard<
     this.user = undefined;
     this.isLoggedOut = false;
 
-    this.#clearSessionCookie();
-    this.#clearCacheCookie();
+    // Only clear cookies for cookie-based auth
+    if (!this.authenticatedViaBearer) {
+      this.#clearSessionCookie();
+      this.#clearCacheCookie();
+    }
 
     return new E_UNAUTHORIZED_ACCESS("Invalid or expired user session");
   }
@@ -235,10 +263,10 @@ export class RedisSessionGuard<
    * @throws {UnauthorizedException} if the session is invalid or expired
    */
   async #getUserFromSession(): Promise<SessionData<User> | null> {
-    const content = await this.#connection.get(this.#sessionId);
+    const content = await this.#connection.get(this.#sessionId!);
     if (!content) throw this.#authenticationFailed();
 
-    return this.#parseSessionData(content, this.#sessionId);
+    return this.#parseSessionData(content, this.#sessionId!);
   }
 
   /**
@@ -344,6 +372,13 @@ export class RedisSessionGuard<
       throw new E_UNAUTHORIZED_ACCESS("Invalid or expired user session");
     }
     return this.user;
+  }
+
+  /**
+   * Returns the session token for bearer auth (mobile clients).
+   */
+  getSessionToken(): string | undefined {
+    return this.#sessionId;
   }
 
   setSessionCookie() {

@@ -14,7 +14,12 @@ export default class AuthenticatedMiddleware {
     await next();
 
     const guard = ctx.auth.use("redis");
-    if (guard.isAuthenticated && !guard.authenticatedViaCookie) {
+    // Only set cookies for cookie-based auth (web), not bearer (mobile)
+    if (
+      guard.isAuthenticated &&
+      !guard.authenticatedViaCookie &&
+      !guard.authenticatedViaBearer
+    ) {
       guard.setSessionCookie();
 
       if (!guard.isRefreshed) {
