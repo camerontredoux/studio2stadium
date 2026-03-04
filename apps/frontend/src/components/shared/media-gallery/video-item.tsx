@@ -4,6 +4,7 @@ import {
   DialogClose,
   DialogContent,
   DialogFooter,
+  DialogPanel,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { VideoIcon } from "lucide-react";
@@ -39,13 +40,15 @@ export function VideoItem({
         showCloseButton={false}
         className="max-w-7xl overflow-clip"
       >
-        <iframe
-          src={video.mediaUrl}
-          title={video.caption || "Video"}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          className="aspect-video h-full w-full"
-        />
+        <DialogPanel className="p-0" scrollFade={false}>
+          <iframe
+            src={video.mediaUrl}
+            title={video.caption || "Video"}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="aspect-video w-full"
+          />
+        </DialogPanel>
         <DialogFooter>
           {showOwnerControls ? (
             <VideoDelete key={video.id} id={video.id} />
