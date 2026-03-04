@@ -12,7 +12,6 @@ import { Link } from "@tanstack/react-router";
 function UpcomingEventSkeleton() {
   return (
     <div className="flex items-center gap-3 px-5 py-4">
-      <Skeleton className="size-12 shrink-0 self-start rounded-xl" />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         {/* Row 1: badge + title (text-sm → h-5) */}
         <div className="flex h-5 items-center gap-2">
