@@ -737,7 +737,9 @@ export interface paths {
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    cursor?: string | null;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -751,6 +753,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["NotificationsResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -4416,6 +4427,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/videos/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a video
+         * @description Deletes a video from the user's profile and feed
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -4606,20 +4665,23 @@ export interface components {
             category: string;
         }[];
         NotificationsResponse: {
-            link: string | null;
-            id: string;
-            type: string;
-            createdAt: string;
-            message: string;
-            read: boolean;
-            actor: {
-                name: string;
-                username: string;
-                avatar: string | null;
-                profileUrl: string;
-            } | null;
-            metadata?: Record<string, never>;
-        }[];
+            data: {
+                link: string | null;
+                id: string;
+                type: string;
+                createdAt: string;
+                message: string;
+                read: boolean;
+                actor: {
+                    name: string;
+                    username: string;
+                    avatar: string | null;
+                    profileUrl: string;
+                } | null;
+                metadata?: Record<string, never>;
+            }[];
+            nextCursor: string | null;
+        };
         NotificationsCountResponse: {
             count: number;
         };

@@ -2,7 +2,7 @@ import { db } from "#database/connection";
 import { notifications } from "#database/schema/notifications";
 import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, gte, lt } from "drizzle-orm";
 
 // Content types stored by the Go event processor
 type NotificationContent =
@@ -45,19 +45,45 @@ type EnrichedNotification = {
   metadata?: Record<string, unknown>;
 };
 
+type PaginatedResponse = {
+  data: EnrichedNotification[];
+  nextCursor: string | null;
+};
+
+const PAGE_SIZE = 20;
+
 @inject()
 export class Service {
-  async execute(userId: string): Promise<EnrichedNotification[]> {
+  async execute(userId: string, cursor?: string): Promise<PaginatedResponse> {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const cursorDate = cursor ? new Date(cursor) : null;
+
+    const conditions = [
+      eq(notifications.userId, userId),
+      gte(notifications.createdAt, thirtyDaysAgo),
+    ];
+
+    if (cursorDate) {
+      conditions.push(lt(notifications.createdAt, cursorDate));
+    }
+
     const userNotifications = await db
       .select()
       .from(notifications)
-      .where(eq(notifications.userId, userId))
+      .where(and(...conditions))
       .orderBy(desc(notifications.createdAt))
-      .limit(50);
+      .limit(PAGE_SIZE + 1);
+
+    const hasMore = userNotifications.length > PAGE_SIZE;
+    const notificationsToProcess = hasMore
+      ? userNotifications.slice(0, PAGE_SIZE)
+      : userNotifications;
 
     const enriched: EnrichedNotification[] = [];
 
-    for (const notif of userNotifications) {
+    for (const notif of notificationsToProcess) {
       const content = notif.content as NotificationContent;
       const result = await this.enrichNotification(
         notif.id,
@@ -70,7 +96,13 @@ export class Service {
       }
     }
 
-    return enriched;
+    const lastNotification = enriched[enriched.length - 1];
+    const nextCursor =
+      hasMore && lastNotification
+        ? lastNotification.createdAt.toISOString()
+        : null;
+
+    return { data: enriched, nextCursor };
   }
 
   private async enrichNotification(
@@ -81,46 +113,95 @@ export class Service {
   ): Promise<EnrichedNotification | null> {
     switch (content.type) {
       case "school.interest":
-        return this.enrichDancerNotification(id, content.type, content.dancerId, createdAt, read, {
-          message: "showed interest in your school",
-        });
+        return this.enrichDancerNotification(
+          id,
+          content.type,
+          content.dancerId,
+          createdAt,
+          read,
+          {
+            message: "showed interest in your school",
+          }
+        );
 
       case "dancer.favorite":
-        return this.enrichSchoolNotification(id, content.type, content.schoolId, createdAt, read, {
-          message: "added you to their favorites",
-          metadata: { platform: content.platform },
-        });
+        return this.enrichSchoolNotification(
+          id,
+          content.type,
+          content.schoolId,
+          createdAt,
+          read,
+          {
+            message: "added you to their favorites",
+            metadata: { platform: content.platform },
+          }
+        );
 
       case "school.followed":
-        return this.enrichDancerNotification(id, content.type, content.dancerId, createdAt, read, {
-          message: "followed your school",
-        });
+        return this.enrichDancerNotification(
+          id,
+          content.type,
+          content.dancerId,
+          createdAt,
+          read,
+          {
+            message: "followed your school",
+          }
+        );
 
       case "crv.submission":
-        return this.enrichDancerNotification(id, content.type, content.dancerId, createdAt, read, {
-          message: "submitted a recruiting video",
-          link: `/recruiting/submissions`,
-          metadata: { videoId: content.videoId },
-        });
+        return this.enrichDancerNotification(
+          id,
+          content.type,
+          content.dancerId,
+          createdAt,
+          read,
+          {
+            message: "submitted a recruiting video",
+            link: `/recruiting/submissions`,
+            metadata: { videoId: content.videoId },
+          }
+        );
 
       case "dancer.profile-viewed":
-        return this.enrichSchoolNotification(id, content.type, content.schoolId, createdAt, read, {
-          message: "viewed your profile",
-        });
+        return this.enrichSchoolNotification(
+          id,
+          content.type,
+          content.schoolId,
+          createdAt,
+          read,
+          {
+            message: "viewed your profile",
+          }
+        );
 
       case "dancer.prospect-status":
-        return this.enrichSchoolNotification(id, content.type, content.schoolId, createdAt, read, {
-          message: `updated your status to ${content.status}`,
-          metadata: { status: content.status },
-        });
+        return this.enrichSchoolNotification(
+          id,
+          content.type,
+          content.schoolId,
+          createdAt,
+          read,
+          {
+            message: `updated your status to ${content.status}`,
+            metadata: { status: content.status },
+          }
+        );
 
       case "dancer.image-uploaded":
       case "dancer.video-uploaded":
       case "dancer.reference-added":
       case "dancer.achievement-added":
-        return this.enrichDancerNotification(id, content.type, content.dancerId, createdAt, read, {
-          message: this.getProfileUpdateMessage(content.updateType),
-        });
+        return this.enrichDancerNotification(
+          id,
+          content.type,
+          content.dancerId,
+          createdAt,
+          read,
+          {
+            message: this.getProfileUpdateMessage(content.updateType),
+          }
+        );
 
       case "school.event-created":
         return this.enrichSchoolNotificationWithEvent(
@@ -134,9 +215,16 @@ export class Service {
 
       case "school.image-uploaded":
       case "school.video-uploaded":
-        return this.enrichSchoolNotification(id, content.type, content.schoolId, createdAt, read, {
-          message: `uploaded a new ${content.updateType}`,
-        });
+        return this.enrichSchoolNotification(
+          id,
+          content.type,
+          content.schoolId,
+          createdAt,
+          read,
+          {
+            message: `uploaded a new ${content.updateType}`,
+          }
+        );
 
       case "event.attended":
         return this.enrichEventAttendedNotification(
@@ -159,7 +247,11 @@ export class Service {
     dancerId: string,
     createdAt: Date,
     read: boolean,
-    options: { message: string; link?: string; metadata?: Record<string, unknown> }
+    options: {
+      message: string;
+      link?: string;
+      metadata?: Record<string, unknown>;
+    }
   ): Promise<EnrichedNotification | null> {
     const dancer = await db.query.dancerProfiles.findFirst({
       where: { id: dancerId },
@@ -201,7 +293,11 @@ export class Service {
     schoolId: string,
     createdAt: Date,
     read: boolean,
-    options: { message: string; link?: string; metadata?: Record<string, unknown> }
+    options: {
+      message: string;
+      link?: string;
+      metadata?: Record<string, unknown>;
+    }
   ): Promise<EnrichedNotification | null> {
     const school = await db.query.schoolProfiles.findFirst({
       where: { id: schoolId },

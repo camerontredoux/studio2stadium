@@ -72,8 +72,8 @@ type LibraryIdGetHead = {
   response: MakeTuyauResponse<import('../app/modules/library/list-videos-by-category/controller.ts').default['handle'], true>
 }
 type NotificationsGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/notifications/get-notifications/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/notifications/get-notifications/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/notifications/get-notifications/controller.ts').default['handle'], true>
 }
 type NotificationsCountGetHead = {
   request: unknown
@@ -414,6 +414,10 @@ type UsersActivityGetHead = {
 type VideosPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/videos/upload-profile-video/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/videos/upload-profile-video/controller.ts').default['handle'], true>
+}
+type VideosIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/videos/delete-video/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/videos/delete-video/controller.ts').default['handle'], true>
 }
 export interface ApiDefinition {
   'admin': {
@@ -918,6 +922,11 @@ export interface ApiDefinition {
     '$url': {
     };
     '$post': VideosPost;
+    ':id': {
+      '$url': {
+      };
+      '$delete': VideosIdDelete;
+    };
   };
 }
 const routes = [

@@ -1,12 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Suspense } from "react";
 import { useMarkAllNotificationsRead } from "./api/mutations";
 import { notificationQueries } from "./api/queries";
-import {
-  NotificationList,
-  NotificationListSkeleton,
-} from "./components/notification-list";
+import { NotificationList } from "./components/notification-list";
 
 export function Page() {
   const { data: countData } = useSuspenseQuery(notificationQueries.count());
@@ -36,9 +32,7 @@ export function Page() {
         )}
       </div>
 
-      <Suspense fallback={<NotificationListSkeleton />}>
-        <NotificationList />
-      </Suspense>
+      <NotificationList />
     </div>
   );
 }

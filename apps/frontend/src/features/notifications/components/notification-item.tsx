@@ -5,7 +5,7 @@ import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import { useMarkNotificationRead } from "../api/mutations";
 
-type Notification = ApiSchemas["NotificationsResponse"][number];
+type Notification = ApiSchemas["NotificationsResponse"]["data"][number];
 
 export function NotificationItem({
   notification,

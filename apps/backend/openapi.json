@@ -538,7 +538,23 @@
     },
     "/notifications": {
       "get": {
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -546,6 +562,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/NotificationsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -3672,6 +3698,40 @@
         "summary": "Upload video to profile",
         "description": "Posts a video to the user's profile"
       }
+    },
+    "/videos/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Videos"
+        ],
+        "summary": "Delete a video",
+        "description": "Deletes a video from the user's profile and feed"
+      }
     }
   },
   "components": {
@@ -4407,87 +4467,106 @@
         }
       },
       "NotificationsResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "link": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "id": {
-              "type": "string"
-            },
-            "type": {
-              "type": "string"
-            },
-            "createdAt": {
-              "type": "string"
-            },
-            "message": {
-              "type": "string"
-            },
-            "read": {
-              "type": "boolean"
-            },
-            "actor": {
-              "oneOf": [
-                {
-                  "type": "object",
-                  "properties": {
-                    "name": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "link": {
+                  "oneOf": [
+                    {
                       "type": "string"
                     },
-                    "username": {
-                      "type": "string"
-                    },
-                    "avatar": {
-                      "oneOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "profileUrl": {
-                      "type": "string"
+                    {
+                      "type": "null"
                     }
-                  },
-                  "required": [
-                    "name",
-                    "username",
-                    "avatar",
-                    "profileUrl"
                   ]
                 },
-                {
-                  "type": "null"
+                "id": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "read": {
+                  "type": "boolean"
+                },
+                "actor": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "username": {
+                          "type": "string"
+                        },
+                        "avatar": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "profileUrl": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "username",
+                        "avatar",
+                        "profileUrl"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "metadata": {
+                  "type": "object",
+                  "properties": {}
                 }
+              },
+              "required": [
+                "link",
+                "id",
+                "type",
+                "createdAt",
+                "message",
+                "read",
+                "actor"
               ]
-            },
-            "metadata": {
-              "type": "object",
-              "properties": {}
             }
           },
-          "required": [
-            "link",
-            "id",
-            "type",
-            "createdAt",
-            "message",
-            "read",
-            "actor"
-          ]
-        }
+          "nextCursor": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "nextCursor"
+        ]
       },
       "NotificationsCountResponse": {
         "type": "object",

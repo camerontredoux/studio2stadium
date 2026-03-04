@@ -29,7 +29,9 @@ export class DeleteProfileVideoService {
       await tx.delete(videos).where(eq(videos.id, video.id));
       await tx
         .delete(feed)
-        .where(and(eq(feed.contentId, video.id), eq(feed.contentType, "video")));
+        .where(
+          and(eq(feed.contentId, video.id), eq(feed.contentType, "video"))
+        );
     });
   }
 }

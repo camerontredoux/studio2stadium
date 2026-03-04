@@ -46,7 +46,9 @@ export class DeleteProfileImageService {
       await tx.delete(images).where(eq(images.id, image.id));
       await tx
         .delete(feed)
-        .where(and(eq(feed.contentId, image.id), eq(feed.contentType, "image")));
+        .where(
+          and(eq(feed.contentId, image.id), eq(feed.contentType, "image"))
+        );
     });
   }
 }

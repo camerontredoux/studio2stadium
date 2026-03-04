@@ -4,7 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/notifications/")({
   loader: ({ context: { queryClient } }) => {
-    queryClient.ensureQueryData(notificationQueries.notifications());
+    queryClient.ensureInfiniteQueryData(notificationQueries.notifications());
   },
   component: Page,
 });
