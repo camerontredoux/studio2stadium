@@ -24,7 +24,9 @@ export function uploadVideoTus({
   const upload = new tus.Upload(file, {
     onBeforeRequest: (request) => {
       const xhr = request.getUnderlyingObject();
-      xhr.withCredentials = true;
+      if (request.getURL().includes(import.meta.env.VITE_API_URL)) {
+        xhr.withCredentials = true;
+      }
     },
     endpoint: getTusEndpoint(),
     retryDelays: [0, 1000, 3000, 5000],
