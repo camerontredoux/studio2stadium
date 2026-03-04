@@ -12,7 +12,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { TimePicker } from "@/components/ui/time-picker";
 import { schemas } from "@/features/school/api/schemas";
 import { EVENT_TYPE_ITEMS } from "@/utils/constants/event-types";
-import { getDefaultTimezone, TIMEZONE_ITEMS } from "@/utils/constants/timezones";
+import {
+  getDefaultTimezone,
+  TIMEZONE_ITEMS,
+} from "@/utils/constants/timezones";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";

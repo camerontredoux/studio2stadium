@@ -5,6 +5,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { notificationQueries } from "@/features/notifications/api/queries";
 import { createAccess } from "@/lib/access/access";
 import { queries, SessionNetworkError } from "@/lib/session";
+import { useRealtime } from "@/lib/session/hooks/use-realtime";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app")({
@@ -64,6 +65,8 @@ export const Route = createFileRoute("/_app")({
 });
 
 function RouteComponent() {
+  useRealtime();
+
   return (
     <ToastProvider position="top-center">
       <AppLayout>

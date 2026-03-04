@@ -60,7 +60,11 @@ export function SchoolPage({ username }: SchoolPageProps) {
   const isPreview = mode === "preview";
 
   return (
-    <ProfileProvider username={username} isOwner={isOwner} isPreview={isPreview}>
+    <ProfileProvider
+      username={username}
+      isOwner={isOwner}
+      isPreview={isPreview}
+    >
       <SidebarLayout
         sidebar={
           <>

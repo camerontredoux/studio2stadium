@@ -90,9 +90,7 @@ export function HeroContent({
               school.division}
           </Badge>
         )}
-        {school.gpa && (
-          <Badge variant="outline">{school.gpa} GPA</Badge>
-        )}
+        {school.gpa && <Badge variant="outline">{school.gpa} GPA</Badge>}
         {showOwnerControls && <ProgramDetailsDialog username={username} />}
       </div>
     </div>

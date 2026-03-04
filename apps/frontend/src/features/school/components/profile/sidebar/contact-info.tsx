@@ -16,8 +16,7 @@ interface ContactInfoProps {
 
 export function ContactInfo({ school }: ContactInfoProps) {
   const { username, showOwnerControls } = useProfile();
-  const noInfo =
-    !school.displayEmail && !school.instagram && !school.tiktok;
+  const noInfo = !school.displayEmail && !school.instagram && !school.tiktok;
 
   return (
     <Frame>

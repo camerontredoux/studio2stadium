@@ -1,10 +1,17 @@
 import type { ApiSchemas } from "@/lib/api/client";
 import { client } from "@/lib/api/client";
-import { type InfiniteData, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  type InfiniteData,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { notificationQueries } from "./queries";
 
 type NotificationsResponse = ApiSchemas["NotificationsResponse"];
-type InfiniteNotifications = InfiniteData<NotificationsResponse, string | undefined>;
+type InfiniteNotifications = InfiniteData<
+  NotificationsResponse,
+  string | undefined
+>;
 
 export function useMarkNotificationRead() {
   const queryClient = useQueryClient();
@@ -16,9 +23,10 @@ export function useMarkNotificationRead() {
       await queryClient.cancelQueries(notificationQueries.notifications());
       await queryClient.cancelQueries(notificationQueries.count());
 
-      const previousNotifications = queryClient.getQueryData<InfiniteNotifications>(
-        notificationQueries.notifications().queryKey,
-      );
+      const previousNotifications =
+        queryClient.getQueryData<InfiniteNotifications>(
+          notificationQueries.notifications().queryKey,
+        );
       const previousCount = queryClient.getQueryData<{ count: number }>(
         notificationQueries.count().queryKey,
       );
@@ -73,9 +81,10 @@ export function useMarkAllNotificationsRead() {
       await queryClient.cancelQueries(notificationQueries.notifications());
       await queryClient.cancelQueries(notificationQueries.count());
 
-      const previousNotifications = queryClient.getQueryData<InfiniteNotifications>(
-        notificationQueries.notifications().queryKey,
-      );
+      const previousNotifications =
+        queryClient.getQueryData<InfiniteNotifications>(
+          notificationQueries.notifications().queryKey,
+        );
       const previousCount = queryClient.getQueryData<{ count: number }>(
         notificationQueries.count().queryKey,
       );

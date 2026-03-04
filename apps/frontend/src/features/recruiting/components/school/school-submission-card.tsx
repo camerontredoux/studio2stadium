@@ -98,7 +98,7 @@ export function SchoolSubmissionCard({
     const previous = queryClient.getQueryData<SchoolSubmission[]>(queryKey);
 
     queryClient.setQueryData<SchoolSubmission[]>(queryKey, (old) =>
-      old?.map((s) => (s.id === submission.id ? { ...s, ...updates } : s))
+      old?.map((s) => (s.id === submission.id ? { ...s, ...updates } : s)),
     );
 
     return previous;
@@ -116,10 +116,10 @@ export function SchoolSubmissionCard({
           onError: () => {
             queryClient.setQueryData(
               recruitingQueries.schoolSubmissions().queryKey,
-              previous
+              previous,
             );
           },
-        }
+        },
       );
     }
   };
@@ -136,10 +136,10 @@ export function SchoolSubmissionCard({
         onError: () => {
           queryClient.setQueryData(
             recruitingQueries.schoolSubmissions().queryKey,
-            previous
+            previous,
           );
         },
-      }
+      },
     );
   };
 

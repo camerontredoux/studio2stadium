@@ -41,7 +41,7 @@ export function DancerPage({ username }: DancerPageProps) {
   const { data } = useSuspenseQuery(dancerQueries.profile(username));
   const { mutate: viewDancer } = useViewDancer();
 
-  const hasNotified = useRef(false)
+  const hasNotified = useRef(false);
 
   useEffect(() => {
     if (!hasNotified.current) {

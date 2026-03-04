@@ -7,6 +7,7 @@ const GetNotificationCountController = () =>
   import("./get-count/controller.ts");
 const MarkReadController = () => import("./mark-read/controller.ts");
 const MarkAllReadController = () => import("./mark-all-read/controller.ts");
+const StreamController = () => import("./stream/controller.ts");
 
 router
   .group(() => {
@@ -18,6 +19,11 @@ router
     router.get("/count", [GetNotificationCountController]).openapi({
       summary: "Get notification count",
       description: "Returns the count of unread notifications",
+    });
+
+    router.get("/stream", [StreamController]).openapi({
+      summary: "Realtime notification stream",
+      description: "SSE endpoint for realtime notifications",
     });
 
     router.post("/read-all", [MarkAllReadController]).openapi({

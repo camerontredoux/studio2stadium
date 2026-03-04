@@ -108,7 +108,12 @@ export function EventHero({ event }: EventHeroProps) {
       </FramePanel>
 
       <FrameFooter className="flex w-fit items-center gap-2 px-4 py-3 max-sm:w-full sm:px-5">
-        <SaveEventButton size="sm" id={event.id} isSaved={event.saved} disabled={isOrganizer} />
+        <SaveEventButton
+          size="sm"
+          id={event.id}
+          isSaved={event.saved}
+          disabled={isOrganizer}
+        />
         {event.website && (
           <Button
             size="sm"

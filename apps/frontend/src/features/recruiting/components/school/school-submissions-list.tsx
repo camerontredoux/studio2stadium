@@ -21,7 +21,7 @@ type SchoolSubmissionsListProps = {
 function filterSubmissions(
   submissions: SchoolSubmission[],
   status: string,
-  watched: string
+  watched: string,
 ) {
   return submissions.filter((s) => {
     if (status !== "all" && s.status !== status) return false;
@@ -37,7 +37,7 @@ function filterSubmissions(
 function groupByDate(submissions: SchoolSubmission[]) {
   const groups: { date: string; submissions: SchoolSubmission[] }[] = [];
   const sorted = [...submissions].sort(
-    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
   );
   for (const sub of sorted) {
     const dateStr = formatDate(sub.updatedAt);

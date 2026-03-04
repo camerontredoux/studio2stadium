@@ -44,7 +44,9 @@ export function NotificationItem({
               "flex size-10 items-center justify-center rounded-full",
               isVideoReady && "bg-green-500/10 text-green-500",
               isVideoFailed && "bg-destructive/10 text-destructive",
-              !isVideoReady && !isVideoFailed && "bg-muted text-muted-foreground",
+              !isVideoReady &&
+                !isVideoFailed &&
+                "bg-muted text-muted-foreground",
             )}
           >
             {isVideoReady ? (
@@ -95,7 +97,12 @@ export function NotificationItem({
               </Link>{" "}
             </>
           )}
-          <span className={cn(isSystemNotification && "font-medium", "text-muted-foreground")}>
+          <span
+            className={cn(
+              isSystemNotification && "font-medium",
+              "text-muted-foreground",
+            )}
+          >
             {notification.message}
             {notification.metadata?.eventTitle &&
               notification.metadata?.eventLink && (

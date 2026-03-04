@@ -52,17 +52,21 @@ async function createCroppedImage(
         cropData.height,
       );
 
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          reject(new Error("Canvas is empty"));
-          return;
-        }
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error("Canvas is empty"));
+            return;
+          }
 
-        const croppedFile = new File([blob], `cropped-${fileName}`, {
-          type: "image/jpeg",
-        });
-        resolve(croppedFile);
-      }, "image/jpeg", 0.9);
+          const croppedFile = new File([blob], `cropped-${fileName}`, {
+            type: "image/jpeg",
+          });
+          resolve(croppedFile);
+        },
+        "image/jpeg",
+        0.9,
+      );
     };
 
     image.onerror = () => reject(new Error("Failed to load image"));

@@ -158,7 +158,6 @@ export function EventsSection({ events }: EventsSectionProps) {
           </div>
         )}
       </FramePanel>
-
     </Frame>
   );
 }

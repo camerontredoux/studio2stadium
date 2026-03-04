@@ -21,7 +21,9 @@ import { z } from "zod";
 import { schoolQueries } from "../../../api/queries";
 import { schemas } from "../../../api/schemas";
 
-export type ProgramDetailsFormData = z.infer<typeof schemas.updateProgramDetails>;
+export type ProgramDetailsFormData = z.infer<
+  typeof schemas.updateProgramDetails
+>;
 
 const CIRCUIT_OPTIONS = [
   { value: "uda", label: "UDA" },
@@ -48,7 +50,10 @@ interface ProgramDetailsFormProps {
   onSubmit: (data: ProgramDetailsFormData) => void;
 }
 
-export function ProgramDetailsForm({ username, onSubmit }: ProgramDetailsFormProps) {
+export function ProgramDetailsForm({
+  username,
+  onSubmit,
+}: ProgramDetailsFormProps) {
   const { data } = useSuspenseQuery(schoolQueries.profile(username));
 
   const form = useForm({

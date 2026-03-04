@@ -23,7 +23,11 @@ export function ProgramDetails({ school }: ProgramDetailsProps) {
 
   const sections = [
     { id: "about", label: "About", content: school.about },
-    { id: "mission", label: "Mission Statement", content: school.missionStatement },
+    {
+      id: "mission",
+      label: "Mission Statement",
+      content: school.missionStatement,
+    },
     { id: "whatWeDo", label: "What We Do", content: school.whatWeDo },
     { id: "benefits", label: "Benefits", content: school.benefits },
   ].filter((s) => s.content);
