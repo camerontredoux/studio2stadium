@@ -9,7 +9,7 @@ export const useCreateDancer = () => {
   return $api.useMutation("post", "/dancers", {
     onSuccess: async () => {
       await queryClient.resetQueries({ queryKey: ["session"] });
-      navigate({ to: "/feed", replace: true });
+      navigate({ to: "/checkout", replace: true });
     },
   });
 };

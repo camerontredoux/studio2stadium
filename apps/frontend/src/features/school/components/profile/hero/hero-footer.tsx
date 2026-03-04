@@ -15,7 +15,9 @@ import { ShowInterestDialog } from "./interest-dialog";
 export function HeroFooter({ school }: { school: SchoolProfile }) {
   const { isOwner, isPreview, showOwnerControls } = useProfile();
   const navigate = useNavigate({ from: "/explore/$username" });
-  const { subscribed } = useSubscribed();
+  const {
+    data: { subscribed },
+  } = useSubscribed();
 
   const { data: activity } = useQuery(queries.activity({ enabled: isOwner }));
   const { data: metadata } = useQuery(

@@ -42,6 +42,10 @@ class ProfileViewedHandler {
       return;
     }
 
+    if (!dancer.user.notifications) {
+      return;
+    }
+
     const schoolProfileUrl = `${env.get("SITE_URL")}/explore/${school.user.username}`;
 
     await mail.send(

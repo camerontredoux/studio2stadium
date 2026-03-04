@@ -26,7 +26,9 @@ import type * as tus from "tus-js-client";
 
 export function VideoUploadDialog() {
   const [open, setOpen] = useState(false);
-  const { subscribed } = useSubscribed();
+  const {
+    data: { subscribed },
+  } = useSubscribed();
   const { type } = useSession();
 
   const [uploading, setUploading] = useState(false);

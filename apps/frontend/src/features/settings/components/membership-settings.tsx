@@ -16,12 +16,8 @@ import { useManage } from "../api/mutations";
 
 export function MembershipSettings() {
   const {
-    cancelAtPeriodEnd,
-    currentPeriodEnd,
-    subscribed: subbed,
+    data: { cancelAtPeriodEnd, currentPeriodEnd, subscribed },
   } = useSubscribed();
-
-  const subscribed = subbed;
 
   const navigate = useNavigate();
 

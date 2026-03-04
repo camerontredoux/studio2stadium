@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_app/(routes)/recruiting")({
 
 function RouteComponent() {
   const session = useSession();
-  const subscription = useSubscribed();
+  const { data: subscription } = useSubscribed();
 
   if (!subscription.subscribed && session.type === "dancer") {
     return (

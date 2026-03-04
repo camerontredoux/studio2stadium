@@ -26,6 +26,10 @@ class DancerCreatedHandler {
       return;
     }
 
+    if (!user.notifications) {
+      return;
+    }
+
     await mail.send(
       new DancerWelcomeEmail({
         email: user.displayEmail,

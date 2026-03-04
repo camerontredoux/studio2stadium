@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_app/(routes)/resources/library")({
 });
 
 function RouteComponent() {
-  const subscription = useSubscribed();
+  const { data: subscription } = useSubscribed();
 
   if (!subscription.subscribed) {
     return (

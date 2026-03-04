@@ -42,6 +42,10 @@ class ProspectStatusHandler {
       return;
     }
 
+    if (!dancer.user.notifications) {
+      return;
+    }
+
     await mail.send(
       new ProspectStatusEmail({
         dancerEmail: dancer.user.displayEmail,

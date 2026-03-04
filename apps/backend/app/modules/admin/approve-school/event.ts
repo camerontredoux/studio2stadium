@@ -35,6 +35,10 @@ class SchoolApprovedHandler {
       return;
     }
 
+    if (!user.notifications) {
+      return;
+    }
+
     await mail.send(
       new SchoolWelcomeEmail({
         email: user.displayEmail,

@@ -9,13 +9,15 @@ export const useSubscribed = () => {
   const session = useSession();
   const isDancer = session.type === "dancer";
 
-  const { data } = useQuery(sessionQueries.subscribed(isDancer));
+  const { data, isPending } = useQuery(sessionQueries.subscribed(isDancer));
 
-  return (
-    data ?? {
-      subscribed: !isDancer,
-      cancelAtPeriodEnd: false,
-      currentPeriodEnd: null,
-    }
-  );
+  return {
+    data:
+      data ?? {
+        subscribed: !isDancer,
+        cancelAtPeriodEnd: false,
+        currentPeriodEnd: null,
+      },
+    isPending,
+  };
 };

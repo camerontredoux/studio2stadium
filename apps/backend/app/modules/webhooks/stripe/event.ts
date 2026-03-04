@@ -38,6 +38,10 @@ class SubscriptionCreatedHandler {
       return;
     }
 
+    if (!user.notifications) {
+      return;
+    }
+
     await mail.send(
       new PremiumWelcomeEmail({
         email: user.displayEmail,

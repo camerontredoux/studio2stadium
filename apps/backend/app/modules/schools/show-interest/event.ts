@@ -43,6 +43,10 @@ class ShowInterestHandler {
       return;
     }
 
+    if (!school.user.notifications) {
+      return;
+    }
+
     const dancerName = `${dancer.user.firstName} ${dancer.user.lastName}`;
     const dancerProfileUrl = `${env.get("SITE_URL")}/${dancer.user.username}`;
 

@@ -5,6 +5,7 @@ import { useSession } from "@/lib/session";
 import { Suspense } from "react";
 import { Feed } from "./components/feed";
 import { FeedSkeleton } from "./components/feed-skeleton";
+import { FreeTierAlert } from "./components/free-tier-alert";
 import { ProgramSpotlight } from "./components/spotlight/program-spotlight";
 
 export function FeedPage() {
@@ -25,7 +26,12 @@ export function FeedPage() {
           </p>
         </div>
 
-        {session.type === "dancer" && <ProgramSpotlight />}
+        {session.type === "dancer" && (
+          <>
+            <FreeTierAlert />
+            <ProgramSpotlight />
+          </>
+        )}
 
         <Suspense fallback={<FeedSkeleton />}>
           <Feed />
