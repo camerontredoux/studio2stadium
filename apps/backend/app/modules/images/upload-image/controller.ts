@@ -10,12 +10,12 @@ export default class UploadImageController {
     const user = ctx.auth.getUserOrFail();
     const payload = await ctx.request.validateUsing(schema);
 
-    const result = await service.execute(user.id, payload);
+    const { key, url, ...rest } = await service.execute(user.id, payload);
 
-    if ("error" in result && result.error === "limit_exceeded") {
-      throw new E_FORBIDDEN(result.message);
+    if ("error" in rest && rest.error === "limit_exceeded") {
+      throw new E_FORBIDDEN(rest.message);
     }
 
-    return result;
+    return { key, url };
   }
 }
