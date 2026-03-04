@@ -28,6 +28,10 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.users.id,
       to: r.videos.userId,
     }),
+    videoUploads: r.many.videoUploads({
+      from: r.users.id,
+      to: r.videoUploads.userId,
+    }),
     events: r.many.danceEvents({
       from: r.users.id.through(r.danceEventAttendees.userId),
       to: r.danceEvents.id.through(r.danceEventAttendees.eventId),

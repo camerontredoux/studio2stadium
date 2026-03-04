@@ -1184,6 +1184,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/cloudflare/stream/webhook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CloudflareStreamWebhookResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/contact": {
         parameters: {
             query?: never;
@@ -4514,6 +4549,59 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/videos/tus": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Initiate TUS video upload
+         * @description Initiates a TUS resumable upload to Cloudflare Stream
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -4762,6 +4850,9 @@ export interface components {
         StripeWebhookResponse: {
             received: boolean;
         };
+        CloudflareStreamWebhookResponse: {
+            received: boolean;
+        };
         ContactRequest: {
             email: string;
             name: string;
@@ -4938,6 +5029,8 @@ export interface components {
             }[];
             videos: {
                 id: string;
+                /** @enum {string} */
+                type: "youtube" | "cloudflare";
                 createdAt: string;
                 updatedAt: string;
                 userId: string;
@@ -5348,6 +5441,8 @@ export interface components {
             size: number | null;
             videos: {
                 id: string;
+                /** @enum {string} */
+                type: "youtube" | "cloudflare";
                 createdAt: string;
                 updatedAt: string;
                 userId: string;

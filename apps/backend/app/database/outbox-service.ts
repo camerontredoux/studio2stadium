@@ -44,7 +44,13 @@ export type OutboxEntry =
   // Event attendance
   | { type: "event.attended"; payload: { userId: string; eventId: string } }
   // Admin
-  | { type: "school.approved"; payload: { schoolId: string } };
+  | { type: "school.approved"; payload: { schoolId: string } }
+  // Video processing
+  | { type: "video.ready"; payload: { userId: string; videoId: string } }
+  | {
+      type: "video.failed";
+      payload: { userId: string; errorMessage: string };
+    };
 
 export class OutboxService {
   async publish(entry: OutboxEntry): Promise<void> {

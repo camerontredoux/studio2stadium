@@ -68,3 +68,12 @@ export const schoolApplicationStatus = pgEnum("school_application_status", [
   "accepted",
   "rejected",
 ]);
+
+export const videoType = pgEnum("video_type", ["youtube", "cloudflare"]);
+
+export const videoUploadStatus = pgEnum("video_upload_status", [
+  "pending",
+  "processing",
+  "ready",
+  "failed",
+]);

@@ -115,6 +115,10 @@ type StripeWebhookPost = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/webhooks/stripe/controller.ts').default['handle'], false>
 }
+type CloudflareStreamWebhookPost = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/webhooks/cloudflare/controller.ts').default['handle'], false>
+}
 type ContactPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/contact/contact-us/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/contact/contact-us/controller.ts').default['handle'], true>
@@ -423,6 +427,10 @@ type VideosIdDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/videos/delete-video/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/videos/delete-video/controller.ts').default['handle'], true>
 }
+type VideosTusPost = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/videos/tus-upload/controller.ts').default['handle'], false>
+}
 export interface ApiDefinition {
   'admin': {
     'schools': {
@@ -576,6 +584,15 @@ export interface ApiDefinition {
       '$url': {
       };
       '$post': StripeWebhookPost;
+    };
+  };
+  'cloudflare': {
+    'stream': {
+      'webhook': {
+        '$url': {
+        };
+        '$post': CloudflareStreamWebhookPost;
+      };
     };
   };
   'contact': {
@@ -936,6 +953,11 @@ export interface ApiDefinition {
       '$url': {
       };
       '$delete': VideosIdDelete;
+    };
+    'tus': {
+      '$url': {
+      };
+      '$post': VideosTusPost;
     };
   };
 }

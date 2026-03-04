@@ -833,6 +833,22 @@
         }
       }
     },
+    "/cloudflare/stream/webhook": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CloudflareStreamWebhookResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/contact": {
       "post": {
         "requestBody": {
@@ -3754,6 +3770,33 @@
         "summary": "Delete a video",
         "description": "Deletes a video from the user's profile and feed"
       }
+    },
+    "/videos/tus": {
+      "post": {
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Videos"
+        ],
+        "summary": "Initiate TUS video upload",
+        "description": "Initiates a TUS resumable upload to Cloudflare Stream"
+      }
     }
   },
   "components": {
@@ -4759,6 +4802,17 @@
           "received"
         ]
       },
+      "CloudflareStreamWebhookResponse": {
+        "type": "object",
+        "properties": {
+          "received": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "received"
+        ]
+      },
       "ContactRequest": {
         "type": "object",
         "properties": {
@@ -5718,6 +5772,13 @@
                 "id": {
                   "type": "string"
                 },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "youtube",
+                    "cloudflare"
+                  ]
+                },
                 "createdAt": {
                   "type": "string"
                 },
@@ -5743,6 +5804,7 @@
               },
               "required": [
                 "id",
+                "type",
                 "createdAt",
                 "updatedAt",
                 "userId",
@@ -8180,6 +8242,13 @@
                 "id": {
                   "type": "string"
                 },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "youtube",
+                    "cloudflare"
+                  ]
+                },
                 "createdAt": {
                   "type": "string"
                 },
@@ -8205,6 +8274,7 @@
               },
               "required": [
                 "id",
+                "type",
                 "createdAt",
                 "updatedAt",
                 "userId",

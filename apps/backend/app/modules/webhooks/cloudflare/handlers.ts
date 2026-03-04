@@ -1,0 +1,104 @@
+import { db } from "#database/connection";
+import { videoUploads, videos } from "#database/schema/media";
+import { eq } from "drizzle-orm";
+import { VideoFailedEvent, VideoReadyEvent } from "./event.ts";
+
+export interface StreamWebhookPayload {
+  uid: string;
+  readyToStream: boolean;
+  status: {
+    state: "ready" | "error" | "inprogress" | "queued" | "downloading";
+    errorReasonCode?: string;
+    errorReasonText?: string;
+  };
+  thumbnail?: string;
+  duration?: number;
+  meta?: Record<string, string>;
+}
+
+export async function handleStreamWebhook(payload: StreamWebhookPayload) {
+  const { uid: cloudflareMediaId, status, thumbnail, duration } = payload;
+
+  // Find the upload record
+  const [upload] = await db
+    .select()
+    .from(videoUploads)
+    .where(eq(videoUploads.cloudflareMediaId, cloudflareMediaId))
+    .limit(1);
+
+  if (!upload) {
+    console.warn(
+      `No upload record found for cloudflareMediaId: ${cloudflareMediaId}`
+    );
+    return;
+  }
+
+  switch (status.state) {
+    case "ready": {
+      // Create video record
+      const [video] = await db
+        .insert(videos)
+        .values({
+          userId: upload.userId,
+          mediaId: cloudflareMediaId,
+          type: "cloudflare",
+        })
+        .returning();
+
+      // Update upload record
+      await db
+        .update(videoUploads)
+        .set({
+          status: "ready",
+          videoId: video.id,
+          thumbnailUrl: thumbnail,
+          duration,
+          updatedAt: new Date(),
+        })
+        .where(eq(videoUploads.id, upload.id));
+
+      // Dispatch notification event
+      VideoReadyEvent.dispatch({
+        userId: upload.userId,
+        videoId: video.id,
+        cloudflareMediaId,
+      });
+      break;
+    }
+
+    case "error": {
+      const errorMessage =
+        status.errorReasonText || status.errorReasonCode || "Unknown error";
+
+      await db
+        .update(videoUploads)
+        .set({
+          status: "failed",
+          errorMessage,
+          updatedAt: new Date(),
+        })
+        .where(eq(videoUploads.id, upload.id));
+
+      // Dispatch failure notification
+      VideoFailedEvent.dispatch({
+        userId: upload.userId,
+        cloudflareMediaId,
+        errorMessage,
+      });
+      break;
+    }
+
+    case "inprogress":
+    case "queued":
+    case "downloading": {
+      await db
+        .update(videoUploads)
+        .set({
+          status: "processing",
+          updatedAt: new Date(),
+        })
+        .where(eq(videoUploads.id, upload.id));
+      break;
+    }
+  }
+}

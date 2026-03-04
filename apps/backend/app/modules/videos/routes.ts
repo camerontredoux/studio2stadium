@@ -6,6 +6,7 @@ const UploadProfileVideoController = () =>
   import("./upload-profile-video/controller.ts");
 const DeleteProfileVideoController = () =>
   import("./delete-video/controller.ts");
+const TusUploadController = () => import("./tus-upload/controller.ts");
 
 router
   .group(() => {
@@ -24,6 +25,14 @@ router
         description: "Deletes a video from the user's profile and feed",
       })
       .use(middleware.profile());
+
+    router
+      .post("tus", [TusUploadController])
+      .openapi({
+        summary: "Initiate TUS video upload",
+        description: "Initiates a TUS resumable upload to Cloudflare Stream",
+      })
+      .use(throttle("video-upload", 10));
   })
   .use(middleware.auth())
   .prefix("videos")

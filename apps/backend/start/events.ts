@@ -26,6 +26,9 @@ import "#modules/events/save-event/event"; //  event attended notification
 // Subscription events
 import "#modules/webhooks/stripe/event"; //  premium welcome + subscription ended emails
 
+// Cloudflare events
+import "#modules/webhooks/cloudflare/event"; //  video ready/failed notifications
+
 // Admin events
 import "#modules/admin/approve-school/event"; //  school welcome email + global notification
 

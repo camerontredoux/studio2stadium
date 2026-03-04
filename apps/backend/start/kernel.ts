@@ -43,6 +43,8 @@ router.use([
  */
 export const middleware = router.named({
   verifyStripeWebhook: () => import("#middleware/routes/verify-stripe-webhook"),
+  verifyCloudflareWebhook: () =>
+    import("#middleware/routes/verify-cloudflare-webhook"),
   auth: () => import("#middleware/routes/authenticated"),
   dancer: () => import("#middleware/routes/dancer"),
   school: () => import("#middleware/routes/school"),
