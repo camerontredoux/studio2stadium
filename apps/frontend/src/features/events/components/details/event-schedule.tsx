@@ -11,6 +11,10 @@ interface EventScheduleProps {
 }
 
 export function EventSchedule({ schedule }: EventScheduleProps) {
+  if (!schedule) {
+    return null;
+  }
+
   return (
     <Frame>
       <FrameHeader>

@@ -89,10 +89,7 @@ export function SchoolPage({ username }: SchoolPageProps) {
 
           <EventsSection events={data.events} />
 
-          <EventsAttending
-            events={data.attendingEvents ?? []}
-            globalEvents={data.globalEvents ?? []}
-          />
+          <EventsAttending globalEvents={data.globalEvents ?? []} />
         </div>
       </SidebarLayout>
     </ProfileProvider>

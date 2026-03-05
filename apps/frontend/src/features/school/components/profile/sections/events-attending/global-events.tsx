@@ -3,15 +3,26 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogPanel,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Separator } from "@/components/ui/separator";
 import { formatDate } from "@/components/utils/format";
-import type { SchoolProfile } from "@/features/school/types";
-import { CalendarIcon, MapPinIcon } from "lucide-react";
+import type { GlobalEvent, SchoolProfile } from "@/features/school/types";
+import { CalendarIcon, ExternalLinkIcon, MapPinIcon } from "lucide-react";
 
 const PAGE_SIZE = 3;
 
@@ -64,6 +75,7 @@ export function GlobalEvents({ events }: { events: Events }) {
               </span>
             </div>
           </div>
+          <GlobalEventDialog event={event} />
         </div>
       ))}
 
@@ -107,5 +119,46 @@ export function GlobalEvents({ events }: { events: Events }) {
         </Pagination>
       )}
     </div>
+  );
+}
+
+export function GlobalEventDialog({ event }: { event: GlobalEvent }) {
+  return (
+    <Dialog>
+      <DialogTrigger
+        render={
+          <Button variant="outline" size="xs">
+            View
+          </Button>
+        }
+      />
+      <DialogContent>
+        <DialogHeader className="min-w-0 pr-12">
+          <DialogTitle title={event.title} className="truncate">
+            {event.title}
+          </DialogTitle>
+        </DialogHeader>
+        <DialogPanel>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <CalendarIcon className="text-brand size-3.5 shrink-0" />
+              <span className="text-sm">{formatDate(event.startDatetime)}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <MapPinIcon className="text-brand size-3.5 shrink-0" />
+              <span className="text-sm">{event.location}</span>
+            </div>
+          </div>
+          <Separator className="mt-3 mb-2" />
+          <p>{event.description}</p>
+        </DialogPanel>
+        <DialogFooter>
+          <DialogClose render={<Button variant="secondary">Close</Button>} />
+          <Button render={<a target="_blank" href={event.website} />}>
+            <ExternalLinkIcon /> More Info
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

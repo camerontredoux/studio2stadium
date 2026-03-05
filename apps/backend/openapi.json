@@ -8706,63 +8706,22 @@
                     "camp"
                   ]
                 },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
                 "location": {
+                  "type": "string"
+                },
+                "website": {
                   "type": "string"
                 },
                 "title": {
                   "type": "string"
                 },
-                "startDatetime": {
-                  "type": "string"
-                },
-                "endDatetime": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "id",
-                "type",
-                "location",
-                "title",
-                "startDatetime",
-                "endDatetime"
-              ]
-            }
-          },
-          "attendingEvents": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "type": {
-                  "type": "string",
-                  "enum": [
-                    "other",
-                    "recruitment",
-                    "audition",
-                    "rehearsal",
-                    "recital",
-                    "showcase",
-                    "competition",
-                    "class",
-                    "intensive",
-                    "workshop",
-                    "fundraiser",
-                    "combine",
-                    "convention",
-                    "clinic",
-                    "deadline",
-                    "performance",
-                    "camp"
-                  ]
-                },
-                "location": {
-                  "type": "string"
-                },
-                "title": {
+                "description": {
                   "type": "string"
                 },
                 "startDatetime": {
@@ -8771,33 +8730,26 @@
                 "endDatetime": {
                   "type": "string"
                 },
-                "organizer": {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "name"
-                      ]
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
+                "thumbnail": {
+                  "type": "string"
+                },
+                "organization": {
+                  "type": "string"
                 }
               },
               "required": [
                 "id",
                 "type",
+                "createdAt",
+                "updatedAt",
                 "location",
+                "website",
                 "title",
+                "description",
                 "startDatetime",
                 "endDatetime",
-                "organizer"
+                "thumbnail",
+                "organization"
               ]
             }
           }
@@ -8834,8 +8786,7 @@
           "sports",
           "styles",
           "events",
-          "globalEvents",
-          "attendingEvents"
+          "globalEvents"
         ]
       },
       "SchoolsIdFollowResponse": {

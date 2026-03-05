@@ -12,7 +12,7 @@ export class Service {
 
     if (!school) return null;
 
-    const { schoolProfile, events, images, videos, avatar, ...user } = school;
+    const { schoolProfile, images, videos, avatar, ...user } = school;
 
     if (!schoolProfile) return null;
 
@@ -34,7 +34,6 @@ export class Service {
       ...user,
       images: profileImages,
       avatar: profilePicture,
-      attendingEvents: events,
       videos: profileVideos,
       ...schoolProfile,
     };
@@ -52,31 +51,6 @@ export class Service {
           displayEmail: true,
         },
         with: {
-          events: {
-            orderBy: {
-              startDatetime: "asc",
-            },
-            where: {
-              startDatetime: {
-                gte: new Date(),
-              },
-            },
-            columns: {
-              id: true,
-              title: true,
-              startDatetime: true,
-              endDatetime: true,
-              location: true,
-              type: true,
-            },
-            with: {
-              organizer: {
-                columns: {
-                  name: true,
-                },
-              },
-            },
-          },
           globalEvents: {
             orderBy: {
               startDatetime: "asc",
@@ -85,14 +59,6 @@ export class Service {
               startDatetime: {
                 gte: new Date(),
               },
-            },
-            columns: {
-              id: true,
-              title: true,
-              startDatetime: true,
-              endDatetime: true,
-              location: true,
-              type: true,
             },
           },
           images: true,
