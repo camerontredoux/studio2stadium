@@ -38,7 +38,9 @@ export function EditDialog({ username }: { username: string }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="xs" />}>Edit Profile</DialogTrigger>
+      <DialogTrigger render={<Button className="flex-1" size="sm" />}>
+        Edit Profile
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit About</DialogTitle>

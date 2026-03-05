@@ -11,16 +11,12 @@ import {
   FrameTitle,
 } from "@/components/ui/frame";
 import type { SchoolProfile } from "@/features/school/types";
-import { useProfile } from "../context/use-profile";
-import { EditDialog } from "../edit/edit-dialog";
 
 interface ProgramDetailsProps {
   school: SchoolProfile;
 }
 
 export function ProgramDetails({ school }: ProgramDetailsProps) {
-  const { username, showOwnerControls } = useProfile();
-
   const sections = [
     { id: "about", label: "About", content: school.about },
     {
@@ -38,14 +34,7 @@ export function ProgramDetails({ school }: ProgramDetailsProps) {
   return (
     <Frame className="h-fit w-full">
       <FrameHeader>
-        <FrameTitle className="flex items-center justify-between gap-2">
-          Program Details
-          {showOwnerControls ? (
-            <EditDialog username={username} />
-          ) : (
-            <div className="h-7 w-fit sm:h-6" />
-          )}
-        </FrameTitle>
+        <FrameTitle>Program Details</FrameTitle>
       </FrameHeader>
       <FramePanel className="p-0!">
         {hasContent ? (

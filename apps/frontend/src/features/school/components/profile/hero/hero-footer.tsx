@@ -5,15 +5,16 @@ import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { queries } from "@/shared/engagement/api/queries";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { EyeIcon, EyeOffIcon, HeartIcon, Share2Icon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, HeartIcon } from "lucide-react";
 import { SchoolFollowersDialog } from "../../followers-dialog";
 import { SchoolFollowingDialog } from "../../following-dialog";
 import { useProfile } from "../context/use-profile";
+import { EditDialog } from "../edit/edit-dialog";
 import { FollowButton } from "../follow-button";
 import { ShowInterestDialog } from "./interest-dialog";
 
 export function HeroFooter({ school }: { school: SchoolProfile }) {
-  const { isOwner, isPreview, showOwnerControls } = useProfile();
+  const { isOwner, isPreview, showOwnerControls, username } = useProfile();
   const navigate = useNavigate({ from: "/explore/$username" });
   const {
     data: { subscribed },
@@ -40,11 +41,6 @@ export function HeroFooter({ school }: { school: SchoolProfile }) {
       <div className="flex items-center gap-2 max-sm:w-full">
         {isOwner && (
           <>
-            {!isPreview && (
-              <Button size="sm" className="flex-1 sm:hidden">
-                <Share2Icon className="size-4" /> Share
-              </Button>
-            )}
             <Button
               size="sm"
               variant={isPreview ? "destructive-outline" : "outline"}
@@ -61,6 +57,7 @@ export function HeroFooter({ school }: { school: SchoolProfile }) {
                 </>
               )}
             </Button>
+            {!isPreview && <EditDialog username={username} />}
           </>
         )}
 

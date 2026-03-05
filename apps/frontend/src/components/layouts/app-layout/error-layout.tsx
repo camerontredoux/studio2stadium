@@ -8,9 +8,9 @@ export function ErrorComponent({ error }: ErrorComponentProps) {
   return (
     <VideoProcessingProvider>
       <AppLayout>
-        <Alert>
+        <Alert variant="error">
           <CircleAlertIcon />
-          <AlertTitle>An error occured</AlertTitle>
+          <AlertTitle>Error</AlertTitle>
           <AlertDescription>An error occured. {error.message}</AlertDescription>
         </Alert>
       </AppLayout>
