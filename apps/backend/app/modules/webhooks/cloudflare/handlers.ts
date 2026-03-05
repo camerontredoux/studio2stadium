@@ -4,8 +4,8 @@ import { feed } from "#database/schema/feed";
 import { videoUploads, videos } from "#database/schema/media";
 import { schoolProfiles } from "#database/schema/schools";
 import { users } from "#database/schema/users";
-import { eq } from "drizzle-orm";
 import { VideoUploadEvent } from "#modules/videos/upload-profile-video/event";
+import { eq } from "drizzle-orm";
 import { VideoFailedEvent, VideoReadyEvent } from "./event.ts";
 
 export interface StreamWebhookPayload {
@@ -103,7 +103,6 @@ export async function handleStreamWebhook(payload: StreamWebhookPayload) {
         }
       }
 
-      // Dispatch notification event
       VideoReadyEvent.dispatch({
         userId: upload.userId,
         videoId: video.id,
@@ -125,7 +124,6 @@ export async function handleStreamWebhook(payload: StreamWebhookPayload) {
         })
         .where(eq(videoUploads.id, upload.id));
 
-      // Dispatch failure notification
       VideoFailedEvent.dispatch({
         userId: upload.userId,
         cloudflareMediaId,

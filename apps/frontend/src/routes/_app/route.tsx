@@ -43,7 +43,6 @@ export const Route = createFileRoute("/_app")({
         });
       }
 
-      // Preload notification count (don't await)
       context.queryClient.ensureQueryData(notificationQueries.count());
 
       return {

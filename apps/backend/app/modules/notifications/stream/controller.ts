@@ -11,44 +11,49 @@ export default class StreamController {
     const user = auth.getUserOrFail();
     const channel = getUserChannel(user.id);
 
-    // Set CORS headers manually for SSE (streaming bypasses normal middleware)
     const origin = request.header("origin");
     if (origin) {
       response.response.setHeader("Access-Control-Allow-Origin", origin);
       response.response.setHeader("Access-Control-Allow-Credentials", "true");
     }
 
-    // Set SSE headers
     response.response.setHeader("Content-Type", "text/event-stream");
     response.response.setHeader("Cache-Control", "no-cache");
     response.response.setHeader("Connection", "keep-alive");
-    response.response.setHeader("X-Accel-Buffering", "no"); // Disable nginx buffering
+    response.response.setHeader("X-Accel-Buffering", "no");
 
     // Send initial connection event
     response.response.write(`event: connected\ndata: {}\n\n`);
 
-    // Subscribe to user's channel
-    redis.subscribe(channel, (message: string) => {
+    let cleanedUp = false;
+
+    const cleanup = () => {
+      if (cleanedUp) return;
+      cleanedUp = true;
+      clearInterval(heartbeat);
+      redis.unsubscribe(channel);
+    };
+
+    const messageHandler = (message: string) => {
       try {
         const event = JSON.parse(message) as RealtimeEvent;
         response.response.write(`event: ${event.type}\ndata: ${message}\n\n`);
-      } catch {
-        // Ignore malformed messages
-      }
-    });
 
-    // Keep connection alive with heartbeat
+        if (event.type === "video.ready" || event.type === "video.failed") {
+          cleanup();
+          response.response.end();
+        }
+      } catch {}
+    };
+
+    redis.subscribe(channel, messageHandler);
+
     const heartbeat = setInterval(() => {
       response.response.write(`:heartbeat\n\n`);
     }, 30000);
 
-    // Cleanup on disconnect
-    response.response.on("close", async () => {
-      clearInterval(heartbeat);
-      await redis.unsubscribe(channel);
-    });
+    response.response.on("close", cleanup);
 
-    // Don't let AdonisJS finalize the response - we're streaming
     return new Promise(() => {});
   }
 }
