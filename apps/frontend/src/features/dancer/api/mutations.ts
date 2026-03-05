@@ -98,3 +98,7 @@ export function useUpdateReference(username: string) {
     },
   });
 }
+
+export function useViewDancer() {
+  return $api.useMutation("post", "/schools/me/view-dancer/{id}");
+}

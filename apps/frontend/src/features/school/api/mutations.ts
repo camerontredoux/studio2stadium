@@ -79,7 +79,3 @@ export function useUpdateSports(profileUsername?: string) {
     },
   });
 }
-
-export function useViewDancer() {
-  return $api.useMutation("post", "/schools/me/view-dancer/{id}");
-}
