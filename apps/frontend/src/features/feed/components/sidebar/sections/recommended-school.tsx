@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import type { RecommendedSchool } from "@/features/feed/types";
 import { handleApiError } from "@/lib/api/errors";
+import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { useFollowSchool } from "@/shared/engagement/api/mutations";
 import { queries } from "@/shared/engagement/api/queries";
 import { US_STATES } from "@/utils/constants/states";
@@ -12,6 +13,8 @@ import { MapPinIcon, Users2Icon } from "lucide-react";
 
 export function RecommendedSchool({ school }: { school: RecommendedSchool }) {
   const { data } = useSuspenseQuery(queries.followingIds("dancer"));
+  const { data: subscription } = useSubscribed();
+
   const { mutate } = useFollowSchool(school);
 
   const [retryAfter, startCountdown] = useCountdown();
@@ -59,19 +62,21 @@ export function RecommendedSchool({ school }: { school: RecommendedSchool }) {
             </p>
           </div>
         </div>
-        <Button
-          className="ml-auto"
-          size="xs"
-          variant="outline"
-          onClick={handleFollow}
-          disabled={isFollowing || !!retryAfter}
-        >
-          {retryAfter
-            ? `Retry in ${retryAfter}s`
-            : isFollowing
-              ? "Following"
-              : "Follow"}
-        </Button>
+        {subscription.subscribed ? (
+          <Button
+            className="ml-auto"
+            size="xs"
+            variant="outline"
+            onClick={handleFollow}
+            disabled={isFollowing || !!retryAfter}
+          >
+            {retryAfter
+              ? `Retry in ${retryAfter}s`
+              : isFollowing
+                ? "Following"
+                : "Follow"}
+          </Button>
+        ) : null}
       </div>
     </div>
   );

@@ -1,8 +1,7 @@
-import { AccessDenied } from "@/components/shared/access-denied";
+import { PremiumGuard } from "@/components/shared/premium-guard";
 import type { SchoolSearchFilter } from "@/features/explore/components/schools/filters/types";
 import { queries } from "@/features/library/api/queries";
 import { LibraryPage } from "@/features/library/page";
-import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/resources/library")({
@@ -20,15 +19,12 @@ export const Route = createFileRoute("/_app/(routes)/resources/library")({
 });
 
 function RouteComponent() {
-  const { data: subscription } = useSubscribed();
-
-  if (!subscription.subscribed) {
-    return (
-      <div className="pt-4">
-        <AccessDenied description="Resources is a premium feature. Subscribe to unlock this page and get full access." />
-      </div>
-    );
-  }
-
-  return <LibraryPage />;
+  return (
+    <PremiumGuard
+      description="Resources is a premium feature. Subscribe to unlock this page and get full access."
+      className="pt-4"
+    >
+      <LibraryPage />
+    </PremiumGuard>
+  );
 }

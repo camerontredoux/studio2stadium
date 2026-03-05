@@ -8,11 +8,13 @@ import {
 } from "@/components/ui/frame";
 import { Separator } from "@/components/ui/separator";
 import { eventQueries } from "@/features/events/api/queries";
+import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 
 export function EventsSection() {
   const { data } = useSuspenseQuery(eventQueries.upcoming());
+  const { data: subscription } = useSubscribed();
 
   return (
     <Frame compact>
@@ -25,14 +27,20 @@ export function EventsSection() {
         </FrameTitle>
       </FrameHeader>
       <FramePanel>
-        {data.map((event, i) => (
-          <div key={event.id}>
-            {i > 0 && <Separator />}
-            <Link to="/events/$eventId" params={{ eventId: event.id }}>
-              <UpcomingEvent event={event} />
-            </Link>
+        {subscription.subscribed ? (
+          data.map((event, i) => (
+            <div key={event.id}>
+              {i > 0 && <Separator />}
+              <Link to="/events/$eventId" params={{ eventId: event.id }}>
+                <UpcomingEvent event={event} />
+              </Link>
+            </div>
+          ))
+        ) : (
+          <div className="text-muted-foreground flex items-center justify-center p-4 text-sm">
+            This is a premium feature.
           </div>
-        ))}
+        )}
       </FramePanel>
     </Frame>
   );

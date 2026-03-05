@@ -1,6 +1,4 @@
-import { AccessDenied } from "@/components/shared/access-denied";
-import { useSession } from "@/lib/session";
-import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
+import { PremiumGuard } from "@/components/shared/premium-guard";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/recruiting")({
@@ -13,14 +11,9 @@ export const Route = createFileRoute("/_app/(routes)/recruiting")({
 });
 
 function RouteComponent() {
-  const session = useSession();
-  const { data: subscription } = useSubscribed();
-
-  if (!subscription.subscribed && session.type === "dancer") {
-    return (
-      <AccessDenied description="Common Recruiting is a premium feature. Subscribe to unlock this page and get full access." />
-    );
-  }
-
-  return <Outlet />;
+  return (
+    <PremiumGuard description="Common Recruiting is a premium feature. Subscribe to unlock this page and get full access.">
+      <Outlet />
+    </PremiumGuard>
+  );
 }
