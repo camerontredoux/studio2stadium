@@ -15,7 +15,6 @@ import { toastManager } from "@/components/ui/toast-manager";
 import { useRequestUpload } from "@/shared/images/api/mutations";
 import { ImageUploadField } from "@/shared/images/components/image-upload-field";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
-import { ImageIcon } from "lucide-react";
 import { useState } from "react";
 
 interface ImageUploadDialogProps {
