@@ -114,6 +114,12 @@ export class Service {
         },
       };
     }
+    if (filters.competitiveCircuit) {
+      where.competitiveCircuit = filters.competitiveCircuit;
+    }
+    if (filters.teamSelection) {
+      where.teamSelection = filters.teamSelection;
+    }
 
     return where;
   }

@@ -1,7 +1,9 @@
+import { competitiveCircuitOptions } from "#shared/constants/comp-circuit";
 import { divisionOptions } from "#shared/constants/divisions";
 import { sportOptions } from "#shared/constants/sports";
 import { stateOptions } from "#shared/constants/states";
 import { styleOptions } from "#shared/constants/styles";
+import { teamSelectionOptions } from "#shared/constants/team-selection";
 
 type SchoolFilterParam =
   | "name"
@@ -10,6 +12,8 @@ type SchoolFilterParam =
   | "gpaRange"
   | "location"
   | "division"
+  | "competitiveCircuit"
+  | "teamSelection"
   | "sports"
   | "styles"
   | "following";
@@ -59,6 +63,20 @@ export const filters: Filter[] = [
     type: "select",
     paramKey: "location",
     options: stateOptions,
+  },
+  {
+    label: "Competitive Circuit",
+    id: "competitive-circuit",
+    type: "select",
+    paramKey: "competitiveCircuit",
+    options: competitiveCircuitOptions,
+  },
+  {
+    label: "Team Selection",
+    id: "team-selection",
+    type: "select",
+    paramKey: "teamSelection",
+    options: teamSelectionOptions,
   },
   {
     label: "Division",

@@ -1,7 +1,9 @@
+import { competitiveCircuitCodes } from "#shared/constants/comp-circuit";
 import { divisionCodes } from "#shared/constants/divisions";
 import { sportCodes } from "#shared/constants/sports";
 import { stateCodes } from "#shared/constants/states";
 import { styleCodes } from "#shared/constants/styles";
+import { teamSelectionCodes } from "#shared/constants/team-selection";
 import vine from "@vinejs/vine";
 import { type Infer } from "@vinejs/vine/types";
 
@@ -52,6 +54,8 @@ export const validator = vine.create(
     division: vine.string().transform(csvEnum(divisionCodes)).optional(),
     sports: vine.string().transform(csvEnum(sportCodes)).optional(),
     styles: vine.string().transform(csvEnum(styleCodes)).optional(),
+    competitiveCircuit: vine.enum(competitiveCircuitCodes).optional(),
+    teamSelection: vine.enum(teamSelectionCodes).optional(),
   })
 );
 
