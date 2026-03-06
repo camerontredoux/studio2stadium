@@ -30,7 +30,7 @@ import "#modules/webhooks/stripe/event"; //  premium welcome + subscription ende
 import "#modules/webhooks/cloudflare/event"; //  video ready/failed notifications
 
 // Admin events
-import "#modules/admin/approve-school/event"; //  school welcome email + global notification
+import "#modules/admin/update-application-status/event"; //  school welcome email + global notification
 
 // Contact events
 import "#modules/contact/contact-us/event"; //  contact form email

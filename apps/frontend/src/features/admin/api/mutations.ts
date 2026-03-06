@@ -1,8 +1,8 @@
 import { $api } from "@/lib/api/client";
 import { adminQueries } from "./queries";
 
-export function useApproveSchool() {
-  return $api.useMutation("post", "/admin/schools/{id}/approve", {
+export function useUpdateApplicationStatus() {
+  return $api.useMutation("patch", "/admin/applications/{id}/status", {
     meta: {
       invalidateQueries: [adminQueries.applications().queryKey],
     },

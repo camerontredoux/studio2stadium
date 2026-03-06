@@ -1,8 +1,8 @@
 import { middleware } from "#start/kernel";
 import router from "@adonisjs/core/services/router";
 
-const ApproveSchoolController = () =>
-  import("#modules/admin/approve-school/controller");
+const UpdateApplicationStatusController = () =>
+  import("#modules/admin/update-application-status/controller");
 const AddSchoolEventController = () =>
   import("#modules/admin/add-school-event/controller");
 const AddGlobalEventController = () =>
@@ -16,11 +16,13 @@ const GetDancersController = () =>
 
 router
   .group(() => {
-    router.post("schools/:id/approve", [ApproveSchoolController]).openapi({
-      summary: "Approve school application",
-      description:
-        "Approves a school application, setting verified=true and status=accepted",
-    });
+    router
+      .patch("applications/:id/status", [UpdateApplicationStatusController])
+      .openapi({
+        summary: "Update application status",
+        description:
+          "Updates a school application status to accepted or rejected",
+      });
 
     router
       .post("schools/:schoolId/events", [AddSchoolEventController])

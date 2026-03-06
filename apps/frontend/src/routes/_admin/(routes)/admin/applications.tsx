@@ -2,11 +2,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
-import { useApproveSchool } from "@/features/admin/api/mutations";
+import { useUpdateApplicationStatus } from "@/features/admin/api/mutations";
 import { adminQueries } from "@/features/admin/api/queries";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckIcon } from "lucide-react";
+import { CheckIcon, XIcon } from "lucide-react";
 import * as React from "react";
 
 export const Route = createFileRoute("/_admin/(routes)/admin/applications")({
@@ -15,29 +15,33 @@ export const Route = createFileRoute("/_admin/(routes)/admin/applications")({
 
 function ApplicationsPage() {
   const { data: applications } = useSuspenseQuery(adminQueries.applications());
-  const { mutate: approve, isPending } = useApproveSchool();
-  const [approvingId, setApprovingId] = React.useState<string | null>(null);
+  const { mutate: updateStatus, isPending } = useUpdateApplicationStatus();
+  const [processingId, setProcessingId] = React.useState<string | null>(null);
+  const [processingAction, setProcessingAction] = React.useState<"accepted" | "rejected" | null>(null);
 
-  const handleApprove = (id: string) => {
-    setApprovingId(id);
-    approve(
-      { params: { path: { id } } },
+  const handleUpdateStatus = (id: string, status: "accepted" | "rejected") => {
+    setProcessingId(id);
+    setProcessingAction(status);
+    updateStatus(
+      { params: { path: { id } }, body: { status } },
       {
         onSuccess: () => {
           toastManager.add({
             title: "Success",
-            description: "School application approved",
+            description: status === "accepted" ? "School application approved" : "School application rejected",
             type: "success",
           });
-          setApprovingId(null);
+          setProcessingId(null);
+          setProcessingAction(null);
         },
         onError: () => {
           toastManager.add({
             title: "Error",
-            description: "Failed to approve application",
+            description: `Failed to ${status === "accepted" ? "approve" : "reject"} application`,
             type: "error",
           });
-          setApprovingId(null);
+          setProcessingId(null);
+          setProcessingAction(null);
         },
       },
     );
@@ -90,20 +94,37 @@ function ApplicationsPage() {
                     {new Date(app.createdAt).toLocaleDateString()}
                   </td>
                   <td className="p-3">
-                    <Button
-                      size="sm"
-                      onClick={() => handleApprove(app.id)}
-                      disabled={isPending}
-                    >
-                      {approvingId === app.id ? (
-                        <Spinner label="Approving..." />
-                      ) : (
-                        <>
-                          <CheckIcon className="mr-1 h-4 w-4" />
-                          Approve
-                        </>
-                      )}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleUpdateStatus(app.id, "accepted")}
+                        disabled={isPending}
+                      >
+                        {processingId === app.id && processingAction === "accepted" ? (
+                          <Spinner label="Approving..." />
+                        ) : (
+                          <>
+                            <CheckIcon className="mr-1 h-4 w-4" />
+                            Approve
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleUpdateStatus(app.id, "rejected")}
+                        disabled={isPending}
+                      >
+                        {processingId === app.id && processingAction === "rejected" ? (
+                          <Spinner label="Rejecting..." />
+                        ) : (
+                          <>
+                            <XIcon className="mr-1 h-4 w-4" />
+                            Reject
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}

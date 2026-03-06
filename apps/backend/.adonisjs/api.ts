@@ -7,9 +7,9 @@
 import type { MakeTuyauRequest, MakeTuyauResponse } from '@tuyau/utils/types'
 import type { InferInput } from '@vinejs/vine/types'
 
-type AdminSchoolsIdApprovePost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/approve-school/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/admin/approve-school/controller.ts').default['handle'], true>
+type AdminApplicationsIdStatusPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/update-application-status/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/update-application-status/controller.ts').default['handle'], true>
 }
 type AdminSchoolsIdEventsPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/add-school-event/validator.ts')['schema']>>
@@ -124,8 +124,8 @@ type StylesGetHead = {
   response: MakeTuyauResponse<import('../app/modules/styles/get-styles/controller.ts').default['handle'], false>
 }
 type SubscriptionsStatusGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/subscriptions/status/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/update-application-status/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/update-application-status/controller.ts').default['handle'], true>
 }
 type SubscriptionsCheckoutPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/subscriptions/checkout/validator.ts')['schema']>>
@@ -453,14 +453,20 @@ type VideosTusPost = {
 }
 export interface ApiDefinition {
   'admin': {
-    'schools': {
+    'applications': {
       ':id': {
-        'approve': {
+        'status': {
           '$url': {
           };
-          '$post': AdminSchoolsIdApprovePost;
+          '$patch': AdminApplicationsIdStatusPatch;
         };
       };
+      '$url': {
+      };
+      '$get': AdminApplicationsGetHead;
+      '$head': AdminApplicationsGetHead;
+    };
+    'schools': {
       ':schoolId': {
         'events': {
           '$url': {
@@ -479,12 +485,6 @@ export interface ApiDefinition {
         };
         '$post': AdminEventsGlobalPost;
       };
-    };
-    'applications': {
-      '$url': {
-      };
-      '$get': AdminApplicationsGetHead;
-      '$head': AdminApplicationsGetHead;
     };
     'dancers': {
       '$url': {
