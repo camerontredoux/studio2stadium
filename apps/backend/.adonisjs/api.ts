@@ -467,7 +467,7 @@ export interface ApiDefinition {
       '$head': AdminApplicationsGetHead;
     };
     'schools': {
-      ':schoolId': {
+      ':username': {
         'events': {
           '$url': {
           };

@@ -25,10 +25,10 @@ router
       });
 
     router
-      .post("schools/:schoolId/events", [AddSchoolEventController])
+      .post("schools/:username/events", [AddSchoolEventController])
       .openapi({
         summary: "Add event to school",
-        description: "Creates an event for a school by profileId",
+        description: "Creates an event for a school by username",
       });
 
     router.post("events/global", [AddGlobalEventController]).openapi({

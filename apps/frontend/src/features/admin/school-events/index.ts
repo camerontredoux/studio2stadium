@@ -1,0 +1,1 @@
+export { SchoolEventsPage } from "./page";

@@ -134,7 +134,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/schools/{schoolId}/events": {
+    "/admin/schools/{username}/events": {
         parameters: {
             query?: never;
             header?: never;
@@ -145,14 +145,14 @@ export interface paths {
         put?: never;
         /**
          * Add event to school
-         * @description Creates an event for a school by profileId
+         * @description Creates an event for a school by username
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    schoolId: string;
+                    username: string;
                 };
                 cookie?: never;
             };

@@ -10,7 +10,7 @@ export function useUpdateApplicationStatus() {
 }
 
 export function useAddSchoolEvent() {
-  return $api.useMutation("post", "/admin/schools/{schoolId}/events");
+  return $api.useMutation("post", "/admin/schools/{username}/events");
 }
 
 export function useAddGlobalEvent() {

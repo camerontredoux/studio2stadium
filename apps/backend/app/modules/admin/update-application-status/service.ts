@@ -1,3 +1,4 @@
+import { invalidateUserSessions } from "#auth/invalidate";
 import { schoolApplications } from "#database/schema/schools";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
@@ -45,6 +46,9 @@ export class Service {
         .set({ status, notes })
         .where(eq(schoolApplications.id, params.id));
     });
+
+    // Force school to re-authenticate with updated status
+    await invalidateUserSessions(school.userId);
 
     if (status === "accepted") {
       SchoolApprovedEvent.dispatch({

@@ -102,7 +102,7 @@
         "description": "Returns all schools for admin dashboard"
       }
     },
-    "/admin/schools/{schoolId}/events": {
+    "/admin/schools/{username}/events": {
       "post": {
         "requestBody": {
           "content": {
@@ -115,7 +115,7 @@
         },
         "parameters": [
           {
-            "name": "schoolId",
+            "name": "username",
             "in": "path",
             "required": true,
             "schema": {
@@ -149,7 +149,7 @@
           "Admin"
         ],
         "summary": "Add event to school",
-        "description": "Creates an event for a school by profileId"
+        "description": "Creates an event for a school by username"
       }
     },
     "/admin/events/global": {

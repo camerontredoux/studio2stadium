@@ -67,7 +67,16 @@ export class Service {
             with: {
               skills: true,
               styles: true,
-              events: true,
+              events: {
+                orderBy: {
+                  startDatetime: "asc",
+                },
+                where: {
+                  startDatetime: {
+                    gte: new Date(),
+                  },
+                },
+              },
               sports: true,
             },
           },
