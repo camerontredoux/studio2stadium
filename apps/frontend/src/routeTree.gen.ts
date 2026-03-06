@@ -39,6 +39,7 @@ import { Route as AuthroutesSignupTypeRouteImport } from './routes/_auth/(routes
 import { Route as ApproutesSettingsPasswordRouteImport } from './routes/_app/(routes)/settings/password'
 import { Route as ApproutesSettingsMembershipRouteImport } from './routes/_app/(routes)/settings/membership'
 import { Route as ApproutesSettingsDeleteRouteImport } from './routes/_app/(routes)/settings/delete'
+import { Route as ApproutesSettingsContactRouteImport } from './routes/_app/(routes)/settings/contact'
 import { Route as ApproutesSettingsApplicationRouteImport } from './routes/_app/(routes)/settings/application'
 import { Route as ApproutesSettingsAccountRouteImport } from './routes/_app/(routes)/settings/account'
 import { Route as ApproutesResourcesLibraryRouteImport } from './routes/_app/(routes)/resources/library'
@@ -207,6 +208,12 @@ const ApproutesSettingsDeleteRoute = ApproutesSettingsDeleteRouteImport.update({
   path: '/delete',
   getParentRoute: () => ApproutesSettingsRouteRoute,
 } as any)
+const ApproutesSettingsContactRoute =
+  ApproutesSettingsContactRouteImport.update({
+    id: '/contact',
+    path: '/contact',
+    getParentRoute: () => ApproutesSettingsRouteRoute,
+  } as any)
 const ApproutesSettingsApplicationRoute =
   ApproutesSettingsApplicationRouteImport.update({
     id: '/application',
@@ -323,6 +330,7 @@ export interface FileRoutesByFullPath {
   '/resources/library': typeof ApproutesResourcesLibraryRoute
   '/settings/account': typeof ApproutesSettingsAccountRoute
   '/settings/application': typeof ApproutesSettingsApplicationRoute
+  '/settings/contact': typeof ApproutesSettingsContactRoute
   '/settings/delete': typeof ApproutesSettingsDeleteRoute
   '/settings/membership': typeof ApproutesSettingsMembershipRoute
   '/settings/password': typeof ApproutesSettingsPasswordRoute
@@ -363,6 +371,7 @@ export interface FileRoutesByTo {
   '/resources/library': typeof ApproutesResourcesLibraryRoute
   '/settings/account': typeof ApproutesSettingsAccountRoute
   '/settings/application': typeof ApproutesSettingsApplicationRoute
+  '/settings/contact': typeof ApproutesSettingsContactRoute
   '/settings/delete': typeof ApproutesSettingsDeleteRoute
   '/settings/membership': typeof ApproutesSettingsMembershipRoute
   '/settings/password': typeof ApproutesSettingsPasswordRoute
@@ -411,6 +420,7 @@ export interface FileRoutesById {
   '/_app/(routes)/resources/library': typeof ApproutesResourcesLibraryRoute
   '/_app/(routes)/settings/account': typeof ApproutesSettingsAccountRoute
   '/_app/(routes)/settings/application': typeof ApproutesSettingsApplicationRoute
+  '/_app/(routes)/settings/contact': typeof ApproutesSettingsContactRoute
   '/_app/(routes)/settings/delete': typeof ApproutesSettingsDeleteRoute
   '/_app/(routes)/settings/membership': typeof ApproutesSettingsMembershipRoute
   '/_app/(routes)/settings/password': typeof ApproutesSettingsPasswordRoute
@@ -456,6 +466,7 @@ export interface FileRouteTypes {
     | '/resources/library'
     | '/settings/account'
     | '/settings/application'
+    | '/settings/contact'
     | '/settings/delete'
     | '/settings/membership'
     | '/settings/password'
@@ -496,6 +507,7 @@ export interface FileRouteTypes {
     | '/resources/library'
     | '/settings/account'
     | '/settings/application'
+    | '/settings/contact'
     | '/settings/delete'
     | '/settings/membership'
     | '/settings/password'
@@ -543,6 +555,7 @@ export interface FileRouteTypes {
     | '/_app/(routes)/resources/library'
     | '/_app/(routes)/settings/account'
     | '/_app/(routes)/settings/application'
+    | '/_app/(routes)/settings/contact'
     | '/_app/(routes)/settings/delete'
     | '/_app/(routes)/settings/membership'
     | '/_app/(routes)/settings/password'
@@ -778,6 +791,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApproutesSettingsDeleteRouteImport
       parentRoute: typeof ApproutesSettingsRouteRoute
     }
+    '/_app/(routes)/settings/contact': {
+      id: '/_app/(routes)/settings/contact'
+      path: '/contact'
+      fullPath: '/settings/contact'
+      preLoaderRoute: typeof ApproutesSettingsContactRouteImport
+      parentRoute: typeof ApproutesSettingsRouteRoute
+    }
     '/_app/(routes)/settings/application': {
       id: '/_app/(routes)/settings/application'
       path: '/application'
@@ -962,6 +982,7 @@ const ApproutesResourcesRouteRouteWithChildren =
 interface ApproutesSettingsRouteRouteChildren {
   ApproutesSettingsAccountRoute: typeof ApproutesSettingsAccountRoute
   ApproutesSettingsApplicationRoute: typeof ApproutesSettingsApplicationRoute
+  ApproutesSettingsContactRoute: typeof ApproutesSettingsContactRoute
   ApproutesSettingsDeleteRoute: typeof ApproutesSettingsDeleteRoute
   ApproutesSettingsMembershipRoute: typeof ApproutesSettingsMembershipRoute
   ApproutesSettingsPasswordRoute: typeof ApproutesSettingsPasswordRoute
@@ -972,6 +993,7 @@ const ApproutesSettingsRouteRouteChildren: ApproutesSettingsRouteRouteChildren =
   {
     ApproutesSettingsAccountRoute: ApproutesSettingsAccountRoute,
     ApproutesSettingsApplicationRoute: ApproutesSettingsApplicationRoute,
+    ApproutesSettingsContactRoute: ApproutesSettingsContactRoute,
     ApproutesSettingsDeleteRoute: ApproutesSettingsDeleteRoute,
     ApproutesSettingsMembershipRoute: ApproutesSettingsMembershipRoute,
     ApproutesSettingsPasswordRoute: ApproutesSettingsPasswordRoute,

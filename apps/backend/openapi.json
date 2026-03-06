@@ -924,47 +924,16 @@
         "description": "Returns a list of all styles"
       }
     },
-    "/subscriptions/status": {
+    "/subscriptions": {
       "get": {
-        "parameters": [
-          {
-            "name": "notes",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "accepted",
-                "rejected"
-              ]
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "422": {
-            "description": "Unprocessable Entity",
+          "200": {
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/SubscriptionsResponse"
                 }
               }
             }
@@ -5591,6 +5560,32 @@
             "slug"
           ]
         }
+      },
+      "SubscriptionsResponse": {
+        "type": "object",
+        "properties": {
+          "cancelAtPeriodEnd": {
+            "type": "boolean"
+          },
+          "currentPeriodEnd": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "subscribed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "cancelAtPeriodEnd",
+          "currentPeriodEnd",
+          "subscribed"
+        ]
       },
       "SubscriptionsCheckoutRequest": {
         "type": "object",

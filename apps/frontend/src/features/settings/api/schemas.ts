@@ -24,4 +24,8 @@ export const accountSchemas = {
     phone: z.string(),
     mediaId: z.string(),
   }),
+  feedback: z.object({
+    type: z.enum(["bug", "feature", "improvement", "other"]),
+    message: z.string().min(10, "Please provide more details"),
+  }),
 } as const;

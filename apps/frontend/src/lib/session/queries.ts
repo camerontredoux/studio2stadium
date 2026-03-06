@@ -35,7 +35,7 @@ export const sessionQueries = {
   subscribed: (enabled: boolean = true) => {
     return $api.queryOptions(
       "get",
-      "/subscriptions/status",
+      "/subscriptions",
       {},
       { staleTime: Infinity, gcTime: Infinity, enabled },
     );

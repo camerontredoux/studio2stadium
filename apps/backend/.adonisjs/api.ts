@@ -123,17 +123,17 @@ type StylesGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/styles/get-styles/controller.ts').default['handle'], false>
 }
-type SubscriptionsStatusGetHead = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/update-application-status/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/admin/update-application-status/controller.ts').default['handle'], true>
+type SubscriptionsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/subscriptions/get-status/controller.ts').default['handle'], false>
 }
 type SubscriptionsCheckoutPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/subscriptions/checkout/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/subscriptions/checkout/controller.ts').default['handle'], true>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/subscriptions/create-checkout/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/subscriptions/create-checkout/controller.ts').default['handle'], true>
 }
 type SubscriptionsManagePost = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/subscriptions/manage/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/subscriptions/manage-subscription/controller.ts').default['handle'], false>
 }
 type StripeWebhookPost = {
   request: unknown
@@ -618,12 +618,10 @@ export interface ApiDefinition {
     '$head': StylesGetHead;
   };
   'subscriptions': {
-    'status': {
-      '$url': {
-      };
-      '$get': SubscriptionsStatusGetHead;
-      '$head': SubscriptionsStatusGetHead;
+    '$url': {
     };
+    '$get': SubscriptionsGetHead;
+    '$head': SubscriptionsGetHead;
     'checkout': {
       '$url': {
       };
