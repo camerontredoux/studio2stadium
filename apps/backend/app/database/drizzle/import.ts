@@ -117,10 +117,10 @@ async function importUsers() {
     data.map(async (u) => ({
       id: u.id,
       username: u.username,
-      email: await normalizeEmail("~" + u.displayEmail),
+      email: await normalizeEmail(u.displayEmail),
       role: u.role,
       type: u.type,
-      displayEmail: "~" + u.displayEmail,
+      displayEmail: u.displayEmail,
       firstName: u.firstName,
       lastName: u.lastName,
       password: u.password,
