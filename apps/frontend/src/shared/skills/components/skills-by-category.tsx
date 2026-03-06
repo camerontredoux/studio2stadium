@@ -13,10 +13,12 @@ export function SkillsByCategory({
   selectedSkillIds,
   onToggle,
 }: SkillsByCategoryProps) {
+  const selectedSet = new Set(selectedSkillIds);
+
   return (
     <div className="flex flex-wrap gap-2">
       {skills.map((skill) => {
-        const isSelected = selectedSkillIds.includes(skill.slug);
+        const isSelected = selectedSet.has(skill.slug);
         return (
           <Button
             key={skill.slug}

@@ -28,9 +28,10 @@ export function SkillsSummary({
 
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const selectedSet = new Set(selectedSkillIds);
   const selectedByCategory: Record<string, Skill[]> = {};
   for (const [category, skills] of Object.entries(skillsByCategory)) {
-    const selected = skills.filter((s) => selectedSkillIds.includes(s.slug));
+    const selected = skills.filter((s) => selectedSet.has(s.slug));
     if (selected.length > 0) {
       selectedByCategory[category] = selected;
     }

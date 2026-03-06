@@ -11,10 +11,12 @@ interface SportsListProps {
 export function SportsList({ selectedSportIds, onToggle }: SportsListProps) {
   const { data } = useSuspenseQuery(sportQueries.all());
 
+  const selectedSet = new Set(selectedSportIds);
+
   return (
     <div className="flex flex-wrap gap-2">
       {data.map((sport) => {
-        const isSelected = selectedSportIds.includes(sport.slug);
+        const isSelected = selectedSet.has(sport.slug);
         return (
           <Button
             key={sport.slug}

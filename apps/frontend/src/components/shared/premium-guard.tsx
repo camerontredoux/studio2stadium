@@ -37,5 +37,5 @@ export function PremiumGuard({
     );
   }
 
-  return <>{children}</>;
+  return children;
 }

@@ -1,4 +1,3 @@
-import { PremiumGuard } from "@/components/shared/premium-guard";
 import { eventQueries } from "@/features/events/api/queries";
 import type { EventSearchFilter } from "@/features/events/components/filters/types";
 import { Page } from "@/features/events/page";
@@ -18,13 +17,5 @@ export const Route = createFileRoute("/_app/(routes)/events/")({
     queryClient.ensureQueryData(eventQueries.events(search));
     queryClient.ensureQueryData(eventQueries.globalEvents());
   },
-  component: RouteComponent,
+  component: Page,
 });
-
-function RouteComponent() {
-  return (
-    <PremiumGuard description="Events is a premium feature. Subscribe to unlock and browse school events.">
-      <Page />
-    </PremiumGuard>
-  );
-}

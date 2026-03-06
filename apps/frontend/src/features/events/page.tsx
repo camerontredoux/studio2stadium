@@ -1,3 +1,4 @@
+import { PremiumGuard } from "@/components/shared/premium-guard";
 import { Tabs, TabsContent, TabsList, TabsTab } from "@/components/ui/tabs";
 import { useSession } from "@/lib/session";
 import { Suspense, useState } from "react";
@@ -96,9 +97,11 @@ export function Page() {
 
         <div {...handlers} className="overflow-x-clip">
           <TabsContent value="school">
-            <Suspense fallback={<EventListSkeleton />}>
-              <EventList />
-            </Suspense>
+            <PremiumGuard description="Events is a premium feature. Subscribe to unlock and browse school events.">
+              <Suspense fallback={<EventListSkeleton />}>
+                <EventList />
+              </Suspense>
+            </PremiumGuard>
           </TabsContent>
 
           <TabsContent value="global">

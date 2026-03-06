@@ -18,10 +18,14 @@ export function useUpdateSkills(profileUsername?: string) {
   });
 }
 
-export function useUpdateStyles() {
+export function useUpdateStyles(username: string) {
   return $api.useMutation("patch", "/dancers/me/styles", {
     meta: {
-      invalidateQueries: [dancerQueries.styles().queryKey, checklistKey],
+      invalidateQueries: [
+        dancerQueries.profile(username).queryKey,
+        dancerQueries.styles().queryKey,
+        checklistKey,
+      ],
     },
   });
 }

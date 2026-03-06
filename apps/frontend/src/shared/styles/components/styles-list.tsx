@@ -11,12 +11,13 @@ interface StylesListProps {
 export function StylesList({ selectedStyleIds, onToggle }: StylesListProps) {
   const { data } = useSuspenseQuery(styleQueries.all());
 
-  const max = selectedStyleIds.length >= 3;
+  const selectedSet = new Set(selectedStyleIds);
+  const max = selectedSet.size >= 3;
 
   return (
     <div className="flex flex-wrap gap-2">
       {data.map((style) => {
-        const isSelected = selectedStyleIds.includes(style.slug);
+        const isSelected = selectedSet.has(style.slug);
         return (
           <Button
             key={style.slug}
