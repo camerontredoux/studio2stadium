@@ -3420,7 +3420,18 @@ export interface paths {
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    location?: ("ID" | "OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
+                    commonRecruiting?: (string | number | boolean) | null;
+                    teamSelection?: ("audition" | "recruitment" | "hybrid") | null;
+                    competitiveCircuit?: ("other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive") | null;
+                    division?: string | null;
+                    sports?: string | null;
+                    styles?: string | null;
+                    following?: (string | number | boolean) | null;
+                    gpaRange?: Record<string, never>;
+                    upcomingEvents?: (string | number | boolean) | null;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -3434,6 +3445,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["SchoolsResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -5588,18 +5608,15 @@ export interface components {
         SchoolsResponse: {
             id: string;
             location: string;
-            user: {
-                id: string;
-                username: string;
-                email: string;
-                avatar: string | null;
-                verified: boolean;
-                /** @enum {string} */
-                role: "user" | "admin" | "prodigy_admin";
-            };
+            username: string;
+            avatar: string | null;
             createdAt: string;
             name: string;
+            gpa: number | null;
             division: string | null;
+            size: number | null;
+            events: number;
+            followers: number;
         }[];
         SchoolsCheckavailabilityResponse: {
             available: boolean;

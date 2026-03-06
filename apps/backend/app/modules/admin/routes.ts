@@ -1,15 +1,18 @@
 import { middleware } from "#start/kernel";
 import router from "@adonisjs/core/services/router";
 
-const ApproveSchoolController = () => import("./approve-school/controller.ts");
+const ApproveSchoolController = () =>
+  import("#modules/admin/approve-school/controller");
 const AddSchoolEventController = () =>
-  import("./add-school-event/controller.ts");
+  import("#modules/admin/add-school-event/controller");
 const AddGlobalEventController = () =>
-  import("./add-global-event/controller.ts");
+  import("#modules/admin/add-global-event/controller");
 const GetApplicationsController = () =>
-  import("./get-applications/controller.ts");
-const GetSchoolsController = () => import("./get-schools/controller.ts");
-const GetDancersController = () => import("./get-dancers/controller.ts");
+  import("#modules/admin/get-applications/controller");
+const GetSchoolsController = () =>
+  import("#modules/admin/get-all-schools/controller");
+const GetDancersController = () =>
+  import("#modules/admin/get-all-dancers/controller");
 
 router
   .group(() => {

@@ -25,11 +25,11 @@ type AdminApplicationsGetHead = {
 }
 type AdminSchoolsGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/admin/get-schools/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/admin/get-all-schools/controller.ts').default['handle'], false>
 }
 type AdminDancersGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/admin/get-dancers/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/admin/get-all-dancers/controller.ts').default['handle'], false>
 }
 type ApplicationGetHead = {
   request: unknown
@@ -332,8 +332,8 @@ type SchoolsFiltersGetHead = {
   response: MakeTuyauResponse<import('../app/modules/schools/get-school-filters/controller.ts').default['handle'], false>
 }
 type SchoolsGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/admin/get-schools/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-schools/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/get-schools/controller.ts').default['handle'], true>
 }
 type SchoolsRecommendedGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-recommended-programs/validator.ts')['schema']>>
