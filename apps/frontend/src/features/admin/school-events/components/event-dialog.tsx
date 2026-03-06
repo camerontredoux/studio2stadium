@@ -13,7 +13,7 @@ import type { SchoolEventFormData } from "@/features/admin/api/schemas";
 import { SchoolEventForm } from "@/features/admin/components/school-event-form";
 
 interface EventDialogProps {
-  school: { id: string; name: string } | null;
+  school: { username: string; name: string } | null;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: SchoolEventFormData) => void;
   isPending: boolean;

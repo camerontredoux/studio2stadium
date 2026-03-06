@@ -78,7 +78,7 @@ function RouteComponent() {
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
               </SheetTrigger>
-              <SheetPopup side="right" className="w-64">
+              <SheetPopup variant="inset" side="right" className="w-64">
                 <SheetHeader>
                   <SheetTitle>Menu</SheetTitle>
                 </SheetHeader>
