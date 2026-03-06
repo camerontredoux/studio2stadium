@@ -1,5 +1,5 @@
 import { db } from "#database/connection";
-import { crvSubmissions } from "#database/schema/crv";
+import { crvSubmissions, crvVideos } from "#database/schema/crv";
 import {
   achievements,
   dancerProfiles,
@@ -14,7 +14,7 @@ import {
 } from "#database/schema/events";
 import { feed } from "#database/schema/feed";
 import { library, posts } from "#database/schema/global";
-import { images, videos } from "#database/schema/media";
+import { images, videos, videoUploads } from "#database/schema/media";
 import { notifications } from "#database/schema/notifications";
 import { favorites, follows } from "#database/schema/profiles";
 import { schoolProfiles } from "#database/schema/schools";
@@ -23,10 +23,12 @@ import { dancerSports, schoolSports, sports } from "#database/schema/sports";
 import { dancerStyles, schoolStyles, styles } from "#database/schema/styles";
 import { subscriptions } from "#database/schema/subscriptions";
 import { platforms, users } from "#database/schema/users";
+import { normalizeEmail } from "#utils/normalize-email";
+import { sql } from "drizzle-orm";
 import { existsSync, readFileSync } from "node:fs";
 
 // Path to export directory - update this to match your export location
-const EXPORT_DIR = "app/database/drizzle/export";
+const EXPORT_DIR = process.env.IMPORT_DIR || "app/database/drizzle/full-import";
 
 // Type alias for dance event types
 type DanceEventType =
@@ -66,18 +68,22 @@ function toDate(dateStr: string | Date | null | undefined): Date | null {
 }
 
 // Helper to batch insert - fails on first error
-
 async function batchInsert<T extends Record<string, unknown>>(
   table: any,
   data: T[],
-  batchSize = 500
+  batchSize = 500,
+  onConflict: "error" | "skip" = "error"
 ): Promise<number> {
   if (data.length === 0) return 0;
 
   let inserted = 0;
   for (let i = 0; i < data.length; i += batchSize) {
     const batch = data.slice(i, i + batchSize);
-    await db.insert(table).values(batch);
+    if (onConflict === "skip") {
+      await db.insert(table).values(batch).onConflictDoNothing();
+    } else {
+      await db.insert(table).values(batch);
+    }
     inserted += batch.length;
   }
 
@@ -107,26 +113,28 @@ async function importUsers() {
   };
 
   const data = readJson<UserData>("01_users.json");
-  const mapped = data.map((u) => ({
-    id: u.id,
-    username: u.username,
-    email: u.email,
-    role: u.role,
-    type: u.type,
-    displayEmail: u.displayEmail,
-    firstName: u.firstName,
-    lastName: u.lastName,
-    password: u.password,
-    // Note: salt field from export is not in new schema (bcrypt includes salt in hash)
-    avatar: u.avatar,
-    phone: u.phone,
-    verified: u.verified,
-    notifications: u.notifications,
-    createdAt: toDate(u.createdAt)!,
-    updatedAt: toDate(u.updatedAt)!,
-  }));
+  const mapped = await Promise.all(
+    data.map(async (u) => ({
+      id: u.id,
+      username: u.username,
+      email: await normalizeEmail(u.displayEmail),
+      role: u.role,
+      type: u.type,
+      displayEmail: u.displayEmail,
+      firstName: u.firstName,
+      lastName: u.lastName,
+      password: u.password,
+      avatar: u.avatar,
+      phone: u.phone,
+      verified: u.verified,
+      notifications: u.notifications,
+      createdAt: toDate(u.createdAt)!,
+      updatedAt: toDate(u.updatedAt)!,
+    }))
+  );
 
-  return batchInsert(users, mapped);
+  // Skip duplicates caused by email normalization
+  return batchInsert(users, mapped, 500, "skip");
 }
 
 async function importUserPlatforms() {
@@ -143,7 +151,7 @@ async function importUserPlatforms() {
     joinedAt: toDate(p.joinedAt)!,
   }));
 
-  return batchInsert(platforms, mapped);
+  return batchInsert(platforms, mapped, 500, "skip");
 }
 
 async function importDancerProfiles() {
@@ -188,7 +196,7 @@ async function importDancerProfiles() {
     updatedAt: toDate(p.updatedAt)!,
   }));
 
-  return batchInsert(dancerProfiles, mapped);
+  return batchInsert(dancerProfiles, mapped, 500, "skip");
 }
 
 async function importSchoolProfiles() {
@@ -197,6 +205,16 @@ async function importSchoolProfiles() {
     userId: string;
     name: string;
     location: string;
+    city: string | null;
+    commonRecruiting: boolean;
+    teamSelection: "recruitment" | "audition" | "hybrid";
+    competitiveCircuit:
+      | "uda"
+      | "dtu"
+      | "nda"
+      | "usa"
+      | "non-competitive"
+      | "other";
     division: string | null;
     benefits: string | null;
     about: string | null;
@@ -210,7 +228,6 @@ async function importSchoolProfiles() {
     size: number | null;
     tiktok: string | null;
     instagram: string | null;
-    image: string | null; // Exported but not in schema - ignored
     createdAt: string;
     updatedAt: string;
   };
@@ -221,6 +238,10 @@ async function importSchoolProfiles() {
     userId: p.userId,
     name: p.name,
     location: p.location,
+    city: p.city,
+    commonRecruiting: p.commonRecruiting,
+    teamSelection: p.teamSelection,
+    competitiveCircuit: p.competitiveCircuit,
     division: p.division,
     benefits: p.benefits,
     about: p.about,
@@ -234,12 +255,11 @@ async function importSchoolProfiles() {
     size: p.size,
     tiktok: p.tiktok,
     instagram: p.instagram,
-    // Note: image field from export is not in schema (schools use user.avatar)
     createdAt: toDate(p.createdAt)!,
     updatedAt: toDate(p.updatedAt)!,
   }));
 
-  return batchInsert(schoolProfiles, mapped);
+  return batchInsert(schoolProfiles, mapped, 500, "skip");
 }
 
 async function importSkills() {
@@ -293,7 +313,7 @@ async function importAchievements() {
     updatedAt: toDate(a.updatedAt)!,
   }));
 
-  return batchInsert(achievements, mapped);
+  return batchInsert(achievements, mapped, 500, "skip");
 }
 
 async function importReferences() {
@@ -318,7 +338,7 @@ async function importReferences() {
     updatedAt: toDate(r.updatedAt)!,
   }));
 
-  return batchInsert(references, mapped);
+  return batchInsert(references, mapped, 500, "skip");
 }
 
 async function importDancerSkills() {
@@ -337,7 +357,7 @@ async function importDancerSkills() {
     updatedAt: toDate(s.updatedAt)!,
   }));
 
-  return batchInsert(dancerSkills, mapped);
+  return batchInsert(dancerSkills, mapped, 500, "skip");
 }
 
 async function importSchoolSkills() {
@@ -358,7 +378,7 @@ async function importSchoolSkills() {
     updatedAt: toDate(s.updatedAt)!,
   }));
 
-  return batchInsert(schoolSkills, mapped);
+  return batchInsert(schoolSkills, mapped, 500, "skip");
 }
 
 async function importDancerSports() {
@@ -443,6 +463,7 @@ async function importProfileVideos() {
     userId: string;
     mediaId: string;
     caption: string | null;
+    type: "youtube" | "cloudflare";
     createdAt: string;
     updatedAt: string;
   };
@@ -453,6 +474,7 @@ async function importProfileVideos() {
     userId: v.userId,
     mediaId: v.mediaId,
     caption: v.caption,
+    type: v.type,
     createdAt: toDate(v.createdAt)!,
     updatedAt: toDate(v.updatedAt)!,
   }));
@@ -483,6 +505,37 @@ async function importProfileImages() {
   return batchInsert(images, mapped);
 }
 
+async function importVideoUploads() {
+  type VideoUploadData = {
+    id: string;
+    userId: string;
+    cloudflareMediaId: string;
+    status: "pending" | "processing" | "ready" | "failed";
+    thumbnailUrl: string | null;
+    duration: number | null;
+    errorMessage: string | null;
+    videoId: string | null;
+    createdAt: string;
+    updatedAt: string;
+  };
+
+  const data = readJson<VideoUploadData>("18_video_uploads.json");
+  const mapped = data.map((v) => ({
+    id: v.id,
+    userId: v.userId,
+    cloudflareMediaId: v.cloudflareMediaId,
+    status: v.status,
+    thumbnailUrl: v.thumbnailUrl,
+    duration: v.duration,
+    errorMessage: v.errorMessage,
+    videoId: v.videoId,
+    createdAt: toDate(v.createdAt)!,
+    updatedAt: toDate(v.updatedAt)!,
+  }));
+
+  return batchInsert(videoUploads, mapped);
+}
+
 async function importDanceEvents() {
   type EventData = {
     id: string;
@@ -502,7 +555,7 @@ async function importDanceEvents() {
     updatedAt: string;
   };
 
-  const data = readJson<EventData>("18_dance_events.json");
+  const data = readJson<EventData>("19_dance_events.json");
   const mapped = data.map((e) => ({
     id: e.id,
     schoolId: e.schoolId,
@@ -540,7 +593,7 @@ async function importGlobalDanceEvents() {
     updatedAt: string;
   };
 
-  const data = readJson<EventData>("19_global_events.json");
+  const data = readJson<EventData>("20_global_events.json");
   const mapped = data.map((e) => ({
     id: e.id,
     title: e.title,
@@ -567,7 +620,7 @@ async function importEventAttendees() {
     updatedAt: string;
   };
 
-  const data = readJson<AttendeeData>("20_event_attendees.json");
+  const data = readJson<AttendeeData>("21_event_attendees.json");
   const mapped = data.map((a) => ({
     eventId: a.eventId,
     userId: a.userId,
@@ -586,7 +639,7 @@ async function importGlobalEventAttendees() {
     updatedAt: string;
   };
 
-  const data = readJson<AttendeeData>("21_global_event_attendees.json");
+  const data = readJson<AttendeeData>("22_global_event_attendees.json");
   const mapped = data.map((a) => ({
     eventId: a.eventId,
     userId: a.userId,
@@ -605,7 +658,7 @@ async function importDancerInterests() {
     updatedAt: string;
   };
 
-  const data = readJson<InterestData>("22_dancer_interests.json");
+  const data = readJson<InterestData>("23_dancer_interests.json");
   const mapped = data.map((i) => ({
     dancerId: i.dancerId,
     schoolId: i.schoolId,
@@ -630,7 +683,7 @@ async function importFavorites() {
     updatedAt: string;
   };
 
-  const data = readJson<FavoriteData>("23_favorites.json");
+  const data = readJson<FavoriteData>("24_favorites.json");
   const mapped = data.map((f) => ({
     id: f.id,
     schoolId: f.schoolId,
@@ -656,7 +709,7 @@ async function importFollows() {
     updatedAt: string;
   };
 
-  const data = readJson<FollowData>("24_follows.json");
+  const data = readJson<FollowData>("25_follows.json");
   const mapped = data.map((f) => ({
     id: f.id,
     dancerId: f.dancerId,
@@ -668,12 +721,32 @@ async function importFollows() {
   return batchInsert(follows, mapped);
 }
 
+async function importCrvVideos() {
+  type CrvVideoData = {
+    id: string;
+    dancerId: string;
+    youtubeId: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+
+  const data = readJson<CrvVideoData>("26_crv_videos.json");
+  const mapped = data.map((v) => ({
+    id: v.id,
+    dancerId: v.dancerId,
+    youtubeId: v.youtubeId,
+    createdAt: toDate(v.createdAt)!,
+    updatedAt: toDate(v.updatedAt)!,
+  }));
+
+  return batchInsert(crvVideos, mapped);
+}
+
 async function importCrvSubmissions() {
   type SubmissionData = {
     id: string;
     dancerId: string;
     schoolId: string;
-    videoId: string;
     status: "pending" | "released" | "in_review" | "accepted";
     watched: boolean;
     watchedAt: string | null;
@@ -681,12 +754,11 @@ async function importCrvSubmissions() {
     updatedAt: string;
   };
 
-  const data = readJson<SubmissionData>("25_crv_submissions.json");
+  const data = readJson<SubmissionData>("27_crv_submissions.json");
   const mapped = data.map((s) => ({
     id: s.id,
     dancerId: s.dancerId,
     schoolId: s.schoolId,
-    videoId: s.videoId,
     status: s.status,
     watched: s.watched,
     watchedAt: toDate(s.watchedAt),
@@ -711,7 +783,7 @@ async function importSubscriptions() {
     updatedAt: string;
   };
 
-  const data = readJson<SubscriptionData>("26_subscriptions.json");
+  const data = readJson<SubscriptionData>("28_subscriptions.json");
   const mapped = data.map((s) => ({
     id: s.id,
     userId: s.userId,
@@ -742,7 +814,7 @@ async function importPosts() {
     updatedAt: string;
   };
 
-  const data = readJson<PostData>("27_posts.json");
+  const data = readJson<PostData>("29_posts.json");
   const mapped = data.map((p) => ({
     id: p.id,
     slug: p.slug,
@@ -769,7 +841,7 @@ async function importVideoLibrary() {
     updatedAt: string;
   };
 
-  const data = readJson<LibraryData>("28_video_library.json");
+  const data = readJson<LibraryData>("30_video_library.json");
   const mapped = data.map((v) => ({
     id: v.id,
     url: v.url,
@@ -793,7 +865,7 @@ async function importFeed() {
     updatedAt: string;
   };
 
-  const data = readJson<FeedData>("29_feed.json");
+  const data = readJson<FeedData>("31_feed.json");
   const mapped = data.map((f) => ({
     id: f.id,
     contentId: f.contentId,
@@ -838,6 +910,17 @@ async function importNotifications() {
 
 async function main() {
   console.log("Starting import...\n");
+
+  // Truncate all data first
+  console.log("Truncating existing data...");
+  await db.execute(sql`TRUNCATE users CASCADE`);
+  await db.execute(sql`TRUNCATE profile_skills CASCADE`);
+  await db.execute(sql`TRUNCATE profile_sports CASCADE`);
+  await db.execute(sql`TRUNCATE profile_styles CASCADE`);
+  await db.execute(sql`TRUNCATE global_dance_events CASCADE`);
+  await db.execute(sql`TRUNCATE posts CASCADE`);
+  await db.execute(sql`TRUNCATE video_library CASCADE`);
+  console.log("  ✓ Truncated\n");
 
   if (!existsSync(EXPORT_DIR)) {
     console.error(`❌ Export directory not found: ${EXPORT_DIR}`);
@@ -904,6 +987,9 @@ async function main() {
   const imagesCount = await importProfileImages();
   console.log(`  ✓ Profile Images: ${imagesCount}`);
 
+  const videoUploadsCount = await importVideoUploads();
+  console.log(`  ✓ Video Uploads: ${videoUploadsCount}`);
+
   // Phase 5: Events
   console.log("\nPhase 5: Importing events...");
   const eventsCount = await importDanceEvents();
@@ -928,6 +1014,9 @@ async function main() {
 
   const followsCount = await importFollows();
   console.log(`  ✓ Follows: ${followsCount}`);
+
+  const crvVideosCount = await importCrvVideos();
+  console.log(`  ✓ CRV Videos: ${crvVideosCount}`);
 
   const crvCount = await importCrvSubmissions();
   console.log(`  ✓ CRV Submissions: ${crvCount}`);
