@@ -1,3 +1,4 @@
+import { ContentCard } from "@/components/shared/content-card";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -8,7 +9,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ContentCard } from "@/components/shared/content-card";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { formatDate } from "@/components/utils/format";
@@ -42,7 +42,7 @@ export function BlogCard({ blog, onDelete, isDeleting }: BlogCardProps) {
             size="xs"
             render={
               <a
-                href={`https://marketing.studio2stadium.com/blog/${blog.slug}`}
+                href={`https://studio2stadium.com/blog/${blog.slug}`}
                 target="_blank"
               />
             }

@@ -59,7 +59,7 @@ export function MembershipSettings() {
           <div
             className="absolute inset-0 bg-cover bg-right"
             style={{
-              backgroundImage: `url('https://marketing.studio2stadium.com/_astro/partners.DL9k8Vh1_1wBFw5.webp')`,
+              backgroundImage: `url('https://studio2stadium.com/_astro/partners.DL9k8Vh1_1wBFw5.webp')`,
             }}
           />
           <div className="absolute inset-0 bg-linear-to-r from-black/80 via-black/60 to-black/40" />
