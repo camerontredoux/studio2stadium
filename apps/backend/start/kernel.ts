@@ -46,6 +46,7 @@ export const middleware = router.named({
   verifyCloudflareWebhook: () =>
     import("#middleware/routes/verify-cloudflare-webhook"),
   auth: () => import("#middleware/routes/authenticated"),
+  admin: () => import("#middleware/routes/admin"),
   dancer: () => import("#middleware/routes/dancer"),
   school: () => import("#middleware/routes/school"),
   subscribed: () => import("#middleware/routes/subscribed"),

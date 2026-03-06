@@ -201,4 +201,10 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.schoolProfiles.id,
     }),
   },
+  schoolApplications: {
+    school: r.one.schoolProfiles({
+      from: r.schoolApplications.schoolId,
+      to: r.schoolProfiles.id,
+    }),
+  },
 }));

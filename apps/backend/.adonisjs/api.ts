@@ -11,6 +11,26 @@ type AdminSchoolsIdApprovePost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/approve-school/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/approve-school/controller.ts').default['handle'], true>
 }
+type AdminSchoolsIdEventsPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/add-school-event/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/add-school-event/controller.ts').default['handle'], true>
+}
+type AdminEventsGlobalPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/add-global-event/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/add-global-event/controller.ts').default['handle'], true>
+}
+type AdminApplicationsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/admin/get-applications/controller.ts').default['handle'], false>
+}
+type AdminSchoolsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/admin/get-schools/controller.ts').default['handle'], false>
+}
+type AdminDancersGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/admin/get-dancers/controller.ts').default['handle'], false>
+}
 type ApplicationGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/applications/get-application/controller.ts').default['handle'], false>
@@ -312,8 +332,8 @@ type SchoolsFiltersGetHead = {
   response: MakeTuyauResponse<import('../app/modules/schools/get-school-filters/controller.ts').default['handle'], false>
 }
 type SchoolsGetHead = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-schools/validator.ts')['validator']>>
-  response: MakeTuyauResponse<import('../app/modules/schools/get-schools/controller.ts').default['handle'], true>
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/admin/get-schools/controller.ts').default['handle'], false>
 }
 type SchoolsRecommendedGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-recommended-programs/validator.ts')['schema']>>
@@ -441,6 +461,36 @@ export interface ApiDefinition {
           '$post': AdminSchoolsIdApprovePost;
         };
       };
+      ':schoolId': {
+        'events': {
+          '$url': {
+          };
+          '$post': AdminSchoolsIdEventsPost;
+        };
+      };
+      '$url': {
+      };
+      '$get': AdminSchoolsGetHead;
+      '$head': AdminSchoolsGetHead;
+    };
+    'events': {
+      'global': {
+        '$url': {
+        };
+        '$post': AdminEventsGlobalPost;
+      };
+    };
+    'applications': {
+      '$url': {
+      };
+      '$get': AdminApplicationsGetHead;
+      '$head': AdminApplicationsGetHead;
+    };
+    'dancers': {
+      '$url': {
+      };
+      '$get': AdminDancersGetHead;
+      '$head': AdminDancersGetHead;
     };
   };
   'application': {
