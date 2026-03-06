@@ -116,6 +116,11 @@ type SchoolApprovedPayload struct {
 	SchoolId string `json:"schoolId"`
 }
 
+// blog.post-created - blog post is created (global notification)
+type BlogPostCreatedPayload struct {
+	PostId string `json:"postId"`
+}
+
 // video.ready - video upload finished processing
 type VideoReadyPayload struct {
 	UserId  string `json:"userId"`
@@ -186,6 +191,11 @@ type SchoolContentUpdateContent struct {
 type SchoolApprovedContent struct {
 	Type     string `json:"type"`
 	SchoolId string `json:"schoolId"`
+}
+
+type BlogPostCreatedContent struct {
+	Type   string `json:"type"`
+	PostId string `json:"postId"`
 }
 
 type EventAttendedContent struct {

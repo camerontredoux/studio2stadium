@@ -8,7 +8,6 @@ export const posts = pg.pgTable(
     slug: pg.text().notNull().unique(),
     title: pg.text().notNull(),
     content: pg.text().notNull(),
-    summary: pg.text().notNull(),
     description: pg.text().notNull(),
     thumbnail: pg.text().notNull(),
     tags: pg.text().array(),

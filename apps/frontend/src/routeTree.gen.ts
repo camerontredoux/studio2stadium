@@ -51,6 +51,7 @@ import { Route as ApproutesEventsEventIdRouteImport } from './routes/_app/(route
 import { Route as AdminroutesAdminSchoolEventsRouteImport } from './routes/_admin/(routes)/admin/school-events'
 import { Route as AdminroutesAdminGlobalEventsRouteImport } from './routes/_admin/(routes)/admin/global-events'
 import { Route as AdminroutesAdminDashboardRouteImport } from './routes/_admin/(routes)/admin/dashboard'
+import { Route as AdminroutesAdminBlogRouteImport } from './routes/_admin/(routes)/admin/blog'
 import { Route as AdminroutesAdminApplicationsRouteImport } from './routes/_admin/(routes)/admin/applications'
 import { Route as AdminroutesAdminDashboardMetricsRouteImport } from './routes/_admin/(routes)/admin/dashboard/metrics'
 import { Route as AdminroutesAdminDashboardAssetsRouteImport } from './routes/_admin/(routes)/admin/dashboard/assets'
@@ -276,6 +277,11 @@ const AdminroutesAdminDashboardRoute =
     path: '/admin/dashboard',
     getParentRoute: () => AdminRouteRoute,
   } as any)
+const AdminroutesAdminBlogRoute = AdminroutesAdminBlogRouteImport.update({
+  id: '/(routes)/admin/blog',
+  path: '/admin/blog',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminroutesAdminApplicationsRoute =
   AdminroutesAdminApplicationsRouteImport.update({
     id: '/(routes)/admin/applications',
@@ -311,6 +317,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof AuthroutesLoginRoute
   '/reset': typeof AuthroutesResetRoute
   '/admin/applications': typeof AdminroutesAdminApplicationsRoute
+  '/admin/blog': typeof AdminroutesAdminBlogRoute
   '/admin/dashboard': typeof AdminroutesAdminDashboardRouteWithChildren
   '/admin/global-events': typeof AdminroutesAdminGlobalEventsRoute
   '/admin/school-events': typeof AdminroutesAdminSchoolEventsRoute
@@ -351,6 +358,7 @@ export interface FileRoutesByTo {
   '/login': typeof AuthroutesLoginRoute
   '/reset': typeof AuthroutesResetRoute
   '/admin/applications': typeof AdminroutesAdminApplicationsRoute
+  '/admin/blog': typeof AdminroutesAdminBlogRoute
   '/admin/dashboard': typeof AdminroutesAdminDashboardRouteWithChildren
   '/admin/global-events': typeof AdminroutesAdminGlobalEventsRoute
   '/admin/school-events': typeof AdminroutesAdminSchoolEventsRoute
@@ -399,6 +407,7 @@ export interface FileRoutesById {
   '/_auth/(routes)/reset': typeof AuthroutesResetRoute
   '/_app/(routes)/': typeof ApproutesIndexRoute
   '/_admin/(routes)/admin/applications': typeof AdminroutesAdminApplicationsRoute
+  '/_admin/(routes)/admin/blog': typeof AdminroutesAdminBlogRoute
   '/_admin/(routes)/admin/dashboard': typeof AdminroutesAdminDashboardRouteWithChildren
   '/_admin/(routes)/admin/global-events': typeof AdminroutesAdminGlobalEventsRoute
   '/_admin/(routes)/admin/school-events': typeof AdminroutesAdminSchoolEventsRoute
@@ -444,6 +453,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset'
     | '/admin/applications'
+    | '/admin/blog'
     | '/admin/dashboard'
     | '/admin/global-events'
     | '/admin/school-events'
@@ -484,6 +494,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset'
     | '/admin/applications'
+    | '/admin/blog'
     | '/admin/dashboard'
     | '/admin/global-events'
     | '/admin/school-events'
@@ -531,6 +542,7 @@ export interface FileRouteTypes {
     | '/_auth/(routes)/reset'
     | '/_app/(routes)/'
     | '/_admin/(routes)/admin/applications'
+    | '/_admin/(routes)/admin/blog'
     | '/_admin/(routes)/admin/dashboard'
     | '/_admin/(routes)/admin/global-events'
     | '/_admin/(routes)/admin/school-events'
@@ -862,6 +874,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminroutesAdminDashboardRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/_admin/(routes)/admin/blog': {
+      id: '/_admin/(routes)/admin/blog'
+      path: '/admin/blog'
+      fullPath: '/admin/blog'
+      preLoaderRoute: typeof AdminroutesAdminBlogRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/_admin/(routes)/admin/applications': {
       id: '/_admin/(routes)/admin/applications'
       path: '/admin/applications'
@@ -905,6 +924,7 @@ const AdminroutesAdminDashboardRouteWithChildren =
 
 interface AdminRouteRouteChildren {
   AdminroutesAdminApplicationsRoute: typeof AdminroutesAdminApplicationsRoute
+  AdminroutesAdminBlogRoute: typeof AdminroutesAdminBlogRoute
   AdminroutesAdminDashboardRoute: typeof AdminroutesAdminDashboardRouteWithChildren
   AdminroutesAdminGlobalEventsRoute: typeof AdminroutesAdminGlobalEventsRoute
   AdminroutesAdminSchoolEventsRoute: typeof AdminroutesAdminSchoolEventsRoute
@@ -912,6 +932,7 @@ interface AdminRouteRouteChildren {
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminroutesAdminApplicationsRoute: AdminroutesAdminApplicationsRoute,
+  AdminroutesAdminBlogRoute: AdminroutesAdminBlogRoute,
   AdminroutesAdminDashboardRoute: AdminroutesAdminDashboardRouteWithChildren,
   AdminroutesAdminGlobalEventsRoute: AdminroutesAdminGlobalEventsRoute,
   AdminroutesAdminSchoolEventsRoute: AdminroutesAdminSchoolEventsRoute,

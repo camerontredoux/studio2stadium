@@ -1,6 +1,6 @@
 import { db } from "#database/connection";
 import { outboxService } from "#database/outbox-service";
-import { AppEvent } from "#shared/event";
+import { BaseEvent } from "@adonisjs/core/events";
 import emitter from "@adonisjs/core/services/emitter";
 import mail from "@adonisjs/mail/services/main";
 import SchoolWelcomeEmail from "./email.ts";
@@ -11,7 +11,7 @@ interface SchoolApprovedEventData {
   schoolName: string;
 }
 
-export class SchoolApprovedEvent extends AppEvent {
+export class SchoolApprovedEvent extends BaseEvent {
   constructor(public data: SchoolApprovedEventData) {
     super();
   }

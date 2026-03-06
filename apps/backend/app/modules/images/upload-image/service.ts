@@ -62,7 +62,10 @@ export class UploadImageService {
 
     const disk = drive.use("r2");
 
-    const key = `${type}/${userId}/${randomUUID()}`;
+    const key =
+      type === "blog"
+        ? `blog/${randomUUID()}`
+        : `${type}/${userId}/${randomUUID()}`;
 
     const signedUrl = await disk.getSignedUploadUrl(key, {
       expiresIn: "15 mins",

@@ -97,27 +97,24 @@ export function NotificationItem({
               </Link>{" "}
             </>
           )}
-          <span
-            className={cn(
-              isSystemNotification && "font-medium",
-              "text-muted-foreground",
-            )}
-          >
-            {notification.message}
-            {notification.metadata?.eventTitle &&
-              notification.metadata?.eventLink && (
-                <>
-                  :{" "}
-                  <Link
-                    to={notification.metadata.eventLink as string}
-                    onClick={(e) => e.stopPropagation()}
-                    className="text-foreground font-medium hover:underline"
-                  >
-                    {notification.metadata.eventTitle as string}
-                  </Link>
-                </>
+{isSystemNotification && notification.metadata?.slug ? (
+            <a
+              href={`https://studio2stadium.com/blog/${notification.metadata.slug}`}
+              onClick={(e) => e.stopPropagation()}
+              className="font-semibold hover:underline"
+            >
+              {notification.message}
+            </a>
+          ) : (
+            <span
+              className={cn(
+                isSystemNotification && "font-medium",
+                "text-muted-foreground",
               )}
-          </span>
+            >
+              {notification.message}
+            </span>
+          )}
         </p>
         <p className="text-muted-foreground text-xs">{timeAgo}</p>
       </div>

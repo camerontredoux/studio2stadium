@@ -279,6 +279,100 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/blog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Creates a new blog post */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminBlogRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminBlogResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/blog/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Deletes a blog post */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/application": {
         parameters: {
             query?: never;
@@ -4981,6 +5075,16 @@ export interface components {
             gpa: number | null;
             gradYear: number | null;
         }[];
+        AdminBlogRequest: {
+            tags?: string[] | null;
+            title: string;
+            description: string;
+            thumbnail: string;
+            content: string;
+        };
+        AdminBlogResponse: {
+            id: string;
+        };
         ApplicationResponse: {
             id?: string;
             /** @enum {string} */
@@ -5607,7 +5711,7 @@ export interface components {
         };
         ImagesPresignRequest: {
             /** @enum {string} */
-            type: "id" | "avatar" | "feed";
+            type: "id" | "avatar" | "feed" | "blog";
             contentType: string;
         };
         ImagesPresignResponse: {

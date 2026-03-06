@@ -481,13 +481,19 @@ func (s *EventService) HandleSchoolVideoUploaded(
 }
 
 // HandleSchoolApproved - school is approved
-// Creates a global notification
+// Fans out notification to all users
 func (s *EventService) HandleSchoolApproved(
 	outboxEvent *t.OutboxEvent,
-	globalNotification **t.GlobalNotification,
+	notifications *[]*t.Notification,
 ) error {
 	var payload t.SchoolApprovedPayload
 	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	// Get all user IDs for fan-out
+	userIds, err := s.store.GetAllUserIds()
+	if err != nil {
 		return err
 	}
 
@@ -500,9 +506,53 @@ func (s *EventService) HandleSchoolApproved(
 		return err
 	}
 
-	*globalNotification = &t.GlobalNotification{
-		Content: contentJson,
+	notifs := make([]*t.Notification, 0, len(userIds))
+	for _, userId := range userIds {
+		notifs = append(notifs, &t.Notification{
+			UserId:  userId,
+			Content: contentJson,
+		})
 	}
+
+	*notifications = notifs
+	return nil
+}
+
+// HandleBlogPostCreated - blog post is created
+// Fans out notification to all users
+func (s *EventService) HandleBlogPostCreated(
+	outboxEvent *t.OutboxEvent,
+	notifications *[]*t.Notification,
+) error {
+	var payload t.BlogPostCreatedPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	// Get all user IDs for fan-out
+	userIds, err := s.store.GetAllUserIds()
+	if err != nil {
+		return err
+	}
+
+	content := t.BlogPostCreatedContent{
+		Type:   "blog.post-created",
+		PostId: payload.PostId,
+	}
+	contentJson, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+
+	notifs := make([]*t.Notification, 0, len(userIds))
+	for _, userId := range userIds {
+		notifs = append(notifs, &t.Notification{
+			UserId:  userId,
+			Content: contentJson,
+		})
+	}
+
+	*notifications = notifs
 	return nil
 }
 

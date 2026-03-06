@@ -31,6 +31,14 @@ type AdminDancersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/admin/get-all-dancers/controller.ts').default['handle'], false>
 }
+type AdminBlogPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/create-blog-post/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/create-blog-post/controller.ts').default['handle'], true>
+}
+type AdminBlogIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/delete-blog-post/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/delete-blog-post/controller.ts').default['handle'], true>
+}
 type ApplicationGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/applications/get-application/controller.ts').default['handle'], false>
@@ -491,6 +499,16 @@ export interface ApiDefinition {
       };
       '$get': AdminDancersGetHead;
       '$head': AdminDancersGetHead;
+    };
+    'blog': {
+      '$url': {
+      };
+      '$post': AdminBlogPost;
+      ':id': {
+        '$url': {
+        };
+        '$delete': AdminBlogIdDelete;
+      };
     };
   };
   'application': {

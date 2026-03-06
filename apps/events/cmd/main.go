@@ -55,6 +55,18 @@ func main() {
 	eventService := services.NewEventService(aws, store)
 
 	c := cron.New()
+
+	// Cleanup old notifications and processed events daily at 3am
+	_, err = c.AddFunc("CRON_TZ=America/Denver 0 3 * * *", func() {
+		log.Println("Running daily cleanup job...")
+		if err := eventService.CleanupOldData(); err != nil {
+			log.Printf("Error during cleanup: %v", err)
+		}
+	})
+	if err != nil {
+		log.Fatalf("Error adding cleanup cron job: %v", err)
+	}
+
 	// dancer has not uploaded shit
 	_, err = c.AddFunc("CRON_TZ=America/Denver 0 9 1 * *", func() {
 

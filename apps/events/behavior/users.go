@@ -21,3 +21,15 @@ func (s *BehaviorStore) GetSchool(schoolId string) (*t.School, error) {
 	}
 	return &res, nil
 }
+
+// GetAllUserIds returns all user IDs for fan-out notifications
+func (s *BehaviorStore) GetAllUserIds() ([]string, error) {
+	var userIds []string
+	err := s.db.Postgres.GetDB().
+		Table("users").
+		Pluck("id", &userIds).Error
+	if err != nil {
+		return nil, err
+	}
+	return userIds, nil
+}
