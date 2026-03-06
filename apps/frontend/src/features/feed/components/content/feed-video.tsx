@@ -32,13 +32,15 @@ export function FeedVideo({ item }: FeedVideoProps) {
         showCloseButton={false}
         className="max-w-7xl overflow-clip"
       >
-        <iframe
-          src={item.content ?? ""}
-          title="Feed Item"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          className="aspect-video h-full w-full"
-        />
+        <div className="flex min-h-0 flex-1 items-center justify-center">
+          <iframe
+            src={item.content ?? ""}
+            title="Feed Item"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="aspect-video h-full max-h-full max-w-full"
+          />
+        </div>
         <DialogFooter>
           <DialogClose render={<Button variant="secondary">Close</Button>}>
             Close
