@@ -1,3 +1,4 @@
+import env from "#start/env";
 import { BaseMail } from "@adonisjs/mail";
 
 interface FeedbackEmailData {
@@ -33,7 +34,7 @@ export default class FeedbackEmail extends BaseMail {
       other: "Feedback",
     };
 
-    this.message.to("camtredoux@gmail.com");
+    this.message.to(env.get("MAIL_TO_ADDRESS"));
     this.message.replyTo(userEmail);
     this.message.html(
       `<h2>${typeLabels[type]}</h2>
