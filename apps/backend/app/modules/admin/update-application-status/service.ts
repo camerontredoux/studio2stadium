@@ -1,3 +1,4 @@
+import { invalidateUserSessions } from "#auth/invalidate";
 import { schoolApplications } from "#database/schema/schools";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
@@ -10,7 +11,7 @@ import { Validator } from "./validator.ts";
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute({ params }: Validator) {
+  async execute({ params, status, notes }: Validator) {
     // Find the school application
     const application = await this.db.use((db) =>
       db.query.schoolApplications.findFirst({
@@ -37,20 +38,25 @@ export class Service {
     await this.db.tx(async (tx) => {
       await tx
         .update(users)
-        .set({ verified: true })
+        .set({ verified: status === "accepted" })
         .where(eq(users.id, school.userId));
 
       await tx
         .update(schoolApplications)
-        .set({ status: "accepted" })
+        .set({ status, notes })
         .where(eq(schoolApplications.id, params.id));
     });
 
-    SchoolApprovedEvent.dispatch({
-      userId: school.userId,
-      schoolId: school.id,
-      schoolName: school.name,
-    });
+    // Force school to re-authenticate with updated status
+    await invalidateUserSessions(school.userId);
+
+    if (status === "accepted") {
+      SchoolApprovedEvent.dispatch({
+        userId: school.userId,
+        schoolId: school.id,
+        schoolName: school.name,
+      });
+    }
 
     return { success: true };
   }

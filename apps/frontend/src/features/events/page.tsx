@@ -47,7 +47,7 @@ export function Page() {
               Global Events
             </h1>
             <p className="text-muted-foreground text-sm">
-              Events from organizations partnered with us
+              Upcoming events curated by our team
             </p>
           </div>
         </div>
@@ -90,7 +90,7 @@ export function Page() {
             <p className="text-muted-foreground text-sm">
               {activeTab === "school"
                 ? "Showcases, auditions & more from schools"
-                : "Events from organizations partnered with us"}
+                : "Upcoming events curated by our team"}
             </p>
           </div>
         </div>

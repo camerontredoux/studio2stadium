@@ -1,6 +1,21 @@
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetHeader,
+  SheetPopup,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { ToastProvider } from "@/components/ui/toast";
 import { queries } from "@/lib/session";
-import { Link, Outlet, createFileRoute, redirect } from "@tanstack/react-router";
+import {
+  Link,
+  Outlet,
+  createFileRoute,
+  redirect,
+} from "@tanstack/react-router";
+import { Menu } from "lucide-react";
+import { useState } from "react";
 
 export const Route = createFileRoute("/_admin")({
   beforeLoad: async ({ context }) => {
@@ -17,38 +32,81 @@ export const Route = createFileRoute("/_admin")({
   component: RouteComponent,
 });
 
+const navLinks = [
+  { to: "/admin/applications", label: "Applications" },
+  { to: "/admin/school-events", label: "School Events" },
+  { to: "/admin/global-events", label: "Global Events" },
+] as const;
+
 function RouteComponent() {
+  const [open, setOpen] = useState(false);
+
   return (
-    <ToastProvider>
-      <div className="min-h-screen bg-background">
-        <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
+    <ToastProvider position="top-center">
+      <div className="bg-background min-h-screen">
+        <header className="bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-50 border-b backdrop-blur">
+          <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
             <Link to="/admin/dashboard" className="text-lg font-semibold">
               Admin
             </Link>
-            <nav className="flex items-center gap-6 text-sm">
+
+            {/* Desktop nav */}
+            <nav className="hidden items-center gap-6 text-sm md:flex">
               <Link
-                to="/admin/applications"
-                className="text-muted-foreground transition-colors hover:text-foreground [&.active]:text-foreground [&.active]:font-medium"
+                to="/"
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
-                Applications
+                Back to Site
               </Link>
-              <Link
-                to="/admin/school-events"
-                className="text-muted-foreground transition-colors hover:text-foreground [&.active]:text-foreground [&.active]:font-medium"
-              >
-                School Events
-              </Link>
-              <Link
-                to="/admin/global-events"
-                className="text-muted-foreground transition-colors hover:text-foreground [&.active]:text-foreground [&.active]:font-medium"
-              >
-                Global Events
-              </Link>
+              {navLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="text-muted-foreground hover:text-foreground [&.active]:text-foreground transition-colors [&.active]:font-medium"
+                >
+                  {link.label}
+                </Link>
+              ))}
             </nav>
+
+            {/* Mobile menu */}
+            <Sheet open={open} onOpenChange={setOpen}>
+              <SheetTrigger
+                className="md:hidden"
+                render={<Button variant="ghost" size="icon" />}
+              >
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
+              </SheetTrigger>
+              <SheetPopup variant="inset" side="right" className="w-64">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col gap-4 px-4 py-6">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      onClick={() => setOpen(false)}
+                      className="text-muted-foreground hover:text-foreground [&.active]:text-foreground text-sm transition-colors [&.active]:font-medium"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                  <hr className="my-2" />
+                  <Link
+                    to="/"
+                    onClick={() => setOpen(false)}
+                    className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                  >
+                    Back to Site
+                  </Link>
+                </nav>
+              </SheetPopup>
+            </Sheet>
           </div>
         </header>
-        <main className="mx-auto max-w-5xl px-6 py-8">
+        <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
           <Outlet />
         </main>
       </div>

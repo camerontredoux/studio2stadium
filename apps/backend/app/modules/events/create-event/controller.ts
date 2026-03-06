@@ -1,3 +1,4 @@
+import cache from "@adonisjs/cache/services/main";
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
 import { createEventSchema } from "./schema.ts";
@@ -9,6 +10,7 @@ export default class CreateEventController {
     const payload = await ctx.request.validateUsing(createEventSchema);
 
     await service.execute(payload, ctx.session.profileId);
+    await cache.delete({ key: `schools:profile:${ctx.session.username}` });
 
     return ctx.response.noContent();
   }

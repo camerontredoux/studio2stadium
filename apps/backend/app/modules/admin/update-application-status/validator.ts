@@ -6,6 +6,8 @@ export const schema = vine.create(
     params: vine.object({
       id: vine.string().uuid(),
     }),
+    status: vine.enum(["accepted", "rejected"]),
+    notes: vine.string().optional(),
   })
 );
 

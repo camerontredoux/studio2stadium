@@ -15,7 +15,7 @@
     }
   ],
   "paths": {
-    "/admin/schools": {
+    "/admin/applications": {
       "get": {
         "parameters": [],
         "responses": {
@@ -24,7 +24,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AdminSchoolsResponse"
+                  "$ref": "#/components/schemas/AdminApplicationsResponse"
                 }
               }
             }
@@ -33,12 +33,21 @@
         "tags": [
           "Admin"
         ],
-        "summary": "Get all schools",
-        "description": "Returns all schools for admin dashboard"
+        "summary": "Get all applications",
+        "description": "Returns all school applications for admin review"
       }
     },
-    "/admin/schools/{id}/approve": {
-      "post": {
+    "/admin/applications/{id}/status": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminApplicationsIdStatusRequest"
+              }
+            }
+          }
+        },
         "parameters": [
           {
             "name": "id",
@@ -67,11 +76,33 @@
         "tags": [
           "Admin"
         ],
-        "summary": "Approve school application",
-        "description": "Approves a school application, setting verified=true and status=accepted"
+        "summary": "Update application status",
+        "description": "Updates a school application status to accepted or rejected"
       }
     },
-    "/admin/schools/{schoolId}/events": {
+    "/admin/schools": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSchoolsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get all schools",
+        "description": "Returns all schools for admin dashboard"
+      }
+    },
+    "/admin/schools/{username}/events": {
       "post": {
         "requestBody": {
           "content": {
@@ -84,7 +115,7 @@
         },
         "parameters": [
           {
-            "name": "schoolId",
+            "name": "username",
             "in": "path",
             "required": true,
             "schema": {
@@ -118,7 +149,7 @@
           "Admin"
         ],
         "summary": "Add event to school",
-        "description": "Creates an event for a school by profileId"
+        "description": "Creates an event for a school by username"
       }
     },
     "/admin/events/global": {
@@ -159,28 +190,6 @@
         ],
         "summary": "Add global event",
         "description": "Creates a global dance event"
-      }
-    },
-    "/admin/applications": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminApplicationsResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Admin"
-        ],
-        "summary": "Get all applications",
-        "description": "Returns all school applications for admin review"
       }
     },
     "/admin/dancers": {
@@ -917,14 +926,45 @@
     },
     "/subscriptions/status": {
       "get": {
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "notes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "accepted",
+                "rejected"
+              ]
+            }
+          }
+        ],
         "responses": {
-          "200": {
-            "description": "OK",
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SubscriptionsStatusResponse"
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -1100,6 +1140,21 @@
       "get": {
         "parameters": [
           {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
             "name": "location",
             "in": "query",
             "required": false,
@@ -1159,21 +1214,6 @@
                     "WI",
                     "WY"
                   ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          {
-            "name": "name",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2173,6 +2213,21 @@
       "get": {
         "parameters": [
           {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
             "name": "location",
             "in": "query",
             "required": false,
@@ -2232,21 +2287,6 @@
                     "WI",
                     "WY"
                   ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          {
-            "name": "date",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -2829,8 +2869,8 @@
                 {
                   "type": "string",
                   "enum": [
-                    "audition",
                     "recruitment",
+                    "audition",
                     "hybrid"
                   ]
                 },
@@ -4066,8 +4106,8 @@
       "DancerFilterParam": {
         "type": "string",
         "enum": [
-          "location",
           "name",
+          "location",
           "sports",
           "styles",
           "following",
@@ -4086,8 +4126,8 @@
       "SchoolFilterParam": {
         "type": "string",
         "enum": [
-          "location",
           "name",
+          "location",
           "sports",
           "styles",
           "following",
@@ -4115,7 +4155,7 @@
           }
         ]
       },
-      "AdminSchoolsResponse": {
+      "AdminApplicationsResponse": {
         "type": "array",
         "items": {
           "type": "object",
@@ -4123,7 +4163,141 @@
             "id": {
               "type": "string"
             },
-            "location": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "accepted",
+                "rejected",
+                "pending"
+              ]
+            },
+            "notes": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "school": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "avatar": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "displayEmail": {
+                      "type": "string"
+                    },
+                    "firstName": {
+                      "type": "string"
+                    },
+                    "lastName": {
+                      "type": "string"
+                    },
+                    "verified": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "avatar",
+                    "id",
+                    "email",
+                    "displayEmail",
+                    "firstName",
+                    "lastName",
+                    "verified"
+                  ]
+                },
+                "name": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "user",
+                "name",
+                "location"
+              ]
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "thumbnail": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "status",
+            "notes",
+            "school",
+            "createdAt",
+            "thumbnail"
+          ]
+        }
+      },
+      "AdminApplicationsIdStatusRequest": {
+        "type": "object",
+        "properties": {
+          "notes": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "rejected"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "AdminSchoolsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
               "type": "string"
             },
             "user": {
@@ -4175,6 +4349,9 @@
             "name": {
               "type": "string"
             },
+            "location": {
+              "type": "string"
+            },
             "division": {
               "oneOf": [
                 {
@@ -4188,10 +4365,10 @@
           },
           "required": [
             "id",
-            "location",
             "user",
             "createdAt",
             "name",
+            "location",
             "division"
           ]
         }
@@ -4199,7 +4376,7 @@
       "AdminSchoolsIdEventsRequest": {
         "type": "object",
         "properties": {
-          "address": {
+          "website": {
             "oneOf": [
               {
                 "type": "string"
@@ -4209,7 +4386,7 @@
               }
             ]
           },
-          "website": {
+          "address": {
             "oneOf": [
               {
                 "type": "string"
@@ -4242,19 +4419,12 @@
               }
             ]
           },
-          "title": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "location": {
-            "type": "string"
-          },
           "type": {
             "type": "string",
             "enum": [
+              "recruitment",
               "audition",
+              "other",
               "rehearsal",
               "recital",
               "showcase",
@@ -4267,11 +4437,18 @@
               "convention",
               "clinic",
               "deadline",
-              "recruitment",
               "performance",
-              "camp",
-              "other"
+              "camp"
             ]
+          },
+          "location": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
           },
           "startDatetime": {
             "type": "string"
@@ -4284,10 +4461,10 @@
           }
         },
         "required": [
+          "type",
+          "location",
           "title",
           "description",
-          "location",
-          "type",
           "startDatetime",
           "endDatetime",
           "timezone"
@@ -4307,22 +4484,12 @@
       "AdminEventsGlobalRequest": {
         "type": "object",
         "properties": {
-          "title": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "location": {
-            "type": "string"
-          },
-          "website": {
-            "type": "string"
-          },
           "type": {
             "type": "string",
             "enum": [
+              "recruitment",
               "audition",
+              "other",
               "rehearsal",
               "recital",
               "showcase",
@@ -4335,11 +4502,21 @@
               "convention",
               "clinic",
               "deadline",
-              "recruitment",
               "performance",
-              "camp",
-              "other"
+              "camp"
             ]
+          },
+          "location": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
           },
           "startDatetime": {
             "type": "string"
@@ -4355,11 +4532,11 @@
           }
         },
         "required": [
-          "title",
-          "description",
+          "type",
           "location",
           "website",
-          "type",
+          "title",
+          "description",
           "startDatetime",
           "endDatetime",
           "thumbnail",
@@ -4377,127 +4554,12 @@
           "id"
         ]
       },
-      "AdminApplicationsResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "school": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "location": {
-                  "type": "string"
-                },
-                "user": {
-                  "type": "object",
-                  "properties": {
-                    "avatar": {
-                      "oneOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "id": {
-                      "type": "string"
-                    },
-                    "email": {
-                      "type": "string"
-                    },
-                    "displayEmail": {
-                      "type": "string"
-                    },
-                    "firstName": {
-                      "type": "string"
-                    },
-                    "lastName": {
-                      "type": "string"
-                    },
-                    "verified": {
-                      "type": "boolean"
-                    }
-                  },
-                  "required": [
-                    "avatar",
-                    "id",
-                    "email",
-                    "displayEmail",
-                    "firstName",
-                    "lastName",
-                    "verified"
-                  ]
-                },
-                "name": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "id",
-                "location",
-                "user",
-                "name"
-              ]
-            },
-            "createdAt": {
-              "type": "string"
-            },
-            "status": {
-              "type": "string",
-              "enum": [
-                "pending",
-                "accepted",
-                "rejected"
-              ]
-            },
-            "thumbnail": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "notes": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          "required": [
-            "id",
-            "school",
-            "createdAt",
-            "status",
-            "thumbnail",
-            "notes"
-          ]
-        }
-      },
       "AdminDancersResponse": {
         "type": "array",
         "items": {
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
-            },
-            "location": {
               "type": "string"
             },
             "user": {
@@ -4550,6 +4612,9 @@
             "createdAt": {
               "type": "string"
             },
+            "location": {
+              "type": "string"
+            },
             "gpa": {
               "oneOf": [
                 {
@@ -4573,9 +4638,9 @@
           },
           "required": [
             "id",
-            "location",
             "user",
             "createdAt",
+            "location",
             "gpa",
             "gradYear"
           ]
@@ -4587,8 +4652,23 @@
           "id": {
             "type": "string"
           },
-          "schoolId": {
-            "type": "string"
+          "status": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "rejected",
+              "pending"
+            ]
+          },
+          "notes": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "createdAt": {
             "type": "string"
@@ -4596,13 +4676,8 @@
           "updatedAt": {
             "type": "string"
           },
-          "status": {
-            "type": "string",
-            "enum": [
-              "pending",
-              "accepted",
-              "rejected"
-            ]
+          "schoolId": {
+            "type": "string"
           },
           "thumbnail": {
             "oneOf": [
@@ -4616,16 +4691,6 @@
           },
           "mediaId": {
             "type": "string"
-          },
-          "notes": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
           }
         },
         "required": [
@@ -4665,16 +4730,6 @@
       "AuthSignupRequest": {
         "type": "object",
         "properties": {
-          "location": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "phone": {
             "oneOf": [
               {
@@ -4695,6 +4750,16 @@
               }
             ]
           },
+          "location": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "city": {
             "oneOf": [
               {
@@ -4705,18 +4770,18 @@
               }
             ]
           },
-          "type": {
-            "type": "string",
-            "enum": [
-              "school",
-              "dancer"
-            ]
-          },
           "email": {
             "type": "string"
           },
           "username": {
             "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "dancer",
+              "school"
+            ]
           },
           "firstName": {
             "type": "string"
@@ -4732,9 +4797,9 @@
           }
         },
         "required": [
-          "type",
           "email",
           "username",
+          "type",
           "firstName",
           "lastName",
           "password",
@@ -4759,8 +4824,8 @@
           "type": {
             "type": "string",
             "enum": [
-              "school",
-              "dancer"
+              "dancer",
+              "school"
             ]
           }
         },
@@ -4796,13 +4861,6 @@
               "id": {
                 "type": "string"
               },
-              "type": {
-                "type": "string",
-                "enum": [
-                  "school",
-                  "dancer"
-                ]
-              },
               "username": {
                 "type": "string"
               },
@@ -4812,6 +4870,13 @@
                   "user",
                   "admin",
                   "prodigy_admin"
+                ]
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "dancer",
+                  "school"
                 ]
               },
               "displayEmail": {
@@ -4855,9 +4920,9 @@
             },
             "required": [
               "id",
-              "type",
               "username",
               "role",
+              "type",
               "displayEmail",
               "firstName",
               "lastName",
@@ -4898,13 +4963,6 @@
           "id": {
             "type": "string"
           },
-          "type": {
-            "type": "string",
-            "enum": [
-              "school",
-              "dancer"
-            ]
-          },
           "username": {
             "type": "string"
           },
@@ -4914,6 +4972,13 @@
               "user",
               "admin",
               "prodigy_admin"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "dancer",
+              "school"
             ]
           },
           "displayEmail": {
@@ -4957,9 +5022,9 @@
         },
         "required": [
           "id",
-          "type",
           "username",
           "role",
+          "type",
           "displayEmail",
           "firstName",
           "lastName",
@@ -5034,13 +5099,13 @@
             "id": {
               "type": "string"
             },
+            "createdAt": {
+              "type": "string"
+            },
             "title": {
               "type": "string"
             },
             "description": {
-              "type": "string"
-            },
-            "createdAt": {
               "type": "string"
             },
             "thumbnail": {
@@ -5052,9 +5117,9 @@
           },
           "required": [
             "id",
+            "createdAt",
             "title",
             "description",
-            "createdAt",
             "thumbnail",
             "slug"
           ]
@@ -5208,9 +5273,6 @@
             "items": {
               "type": "object",
               "properties": {
-                "name": {
-                  "type": "string"
-                },
                 "status": {
                   "type": "string",
                   "enum": [
@@ -5218,6 +5280,9 @@
                     "ok",
                     "warning"
                   ]
+                },
+                "name": {
+                  "type": "string"
                 },
                 "meta": {
                   "type": "object",
@@ -5234,8 +5299,8 @@
                 }
               },
               "required": [
-                "name",
                 "status",
+                "name",
                 "message",
                 "finishedAt",
                 "isCached"
@@ -5267,9 +5332,6 @@
                   "id": {
                     "type": "string"
                   },
-                  "title": {
-                    "type": "string"
-                  },
                   "url": {
                     "type": "string"
                   },
@@ -5279,16 +5341,19 @@
                   "updatedAt": {
                     "type": "string"
                   },
+                  "title": {
+                    "type": "string"
+                  },
                   "category": {
                     "type": "string"
                   }
                 },
                 "required": [
                   "id",
-                  "title",
                   "url",
                   "createdAt",
                   "updatedAt",
+                  "title",
                   "category"
                 ]
               }
@@ -5308,9 +5373,6 @@
             "id": {
               "type": "string"
             },
-            "title": {
-              "type": "string"
-            },
             "url": {
               "type": "string"
             },
@@ -5320,16 +5382,19 @@
             "updatedAt": {
               "type": "string"
             },
+            "title": {
+              "type": "string"
+            },
             "category": {
               "type": "string"
             }
           },
           "required": [
             "id",
-            "title",
             "url",
             "createdAt",
             "updatedAt",
+            "title",
             "category"
           ]
         }
@@ -5527,32 +5592,6 @@
           ]
         }
       },
-      "SubscriptionsStatusResponse": {
-        "type": "object",
-        "properties": {
-          "cancelAtPeriodEnd": {
-            "type": "boolean"
-          },
-          "currentPeriodEnd": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "subscribed": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "cancelAtPeriodEnd",
-          "currentPeriodEnd",
-          "subscribed"
-        ]
-      },
       "SubscriptionsCheckoutRequest": {
         "type": "object",
         "properties": {
@@ -5677,9 +5716,6 @@
                 "id": {
                   "type": "string"
                 },
-                "location": {
-                  "type": "string"
-                },
                 "username": {
                   "type": "string"
                 },
@@ -5700,6 +5736,9 @@
                   "type": "string"
                 },
                 "birthday": {
+                  "type": "string"
+                },
+                "location": {
                   "type": "string"
                 },
                 "gpa": {
@@ -5731,12 +5770,12 @@
               },
               "required": [
                 "id",
-                "location",
                 "username",
                 "avatar",
                 "createdAt",
                 "name",
                 "birthday",
+                "location",
                 "gpa",
                 "gradYear",
                 "followers",
@@ -5794,14 +5833,14 @@
               }
             ]
           },
-          "location": {
-            "type": "string"
-          },
           "birthday": {
             "type": [
               "string",
               "number"
             ]
+          },
+          "location": {
+            "type": "string"
           },
           "platform": {
             "type": "string",
@@ -5812,8 +5851,8 @@
           }
         },
         "required": [
-          "location",
           "birthday",
+          "location",
           "platform"
         ]
       },
@@ -5871,7 +5910,7 @@
       "DancersMeRequest": {
         "type": "object",
         "properties": {
-          "location": {
+          "birthday": {
             "oneOf": [
               {
                 "type": "string"
@@ -5881,7 +5920,7 @@
               }
             ]
           },
-          "birthday": {
+          "location": {
             "oneOf": [
               {
                 "type": "string"
@@ -6193,6 +6232,15 @@
             "id": {
               "type": "string"
             },
+            "status": {
+              "type": "string",
+              "enum": [
+                "accepted",
+                "pending",
+                "released",
+                "in_review"
+              ]
+            },
             "school": {
               "type": "object",
               "properties": {
@@ -6212,10 +6260,10 @@
                 "id": {
                   "type": "string"
                 },
-                "location": {
+                "name": {
                   "type": "string"
                 },
-                "name": {
+                "location": {
                   "type": "string"
                 }
               },
@@ -6223,21 +6271,12 @@
                 "avatar",
                 "username",
                 "id",
-                "location",
-                "name"
+                "name",
+                "location"
               ]
             },
             "updatedAt": {
               "type": "string"
-            },
-            "status": {
-              "type": "string",
-              "enum": [
-                "pending",
-                "accepted",
-                "released",
-                "in_review"
-              ]
             },
             "watched": {
               "type": "boolean"
@@ -6255,9 +6294,9 @@
           },
           "required": [
             "id",
+            "status",
             "school",
             "updatedAt",
-            "status",
             "watched",
             "watchedAt"
           ]
@@ -6346,9 +6385,6 @@
           "id": {
             "type": "string"
           },
-          "location": {
-            "type": "string"
-          },
           "username": {
             "type": "string"
           },
@@ -6382,6 +6418,9 @@
             ]
           },
           "birthday": {
+            "type": "string"
+          },
+          "location": {
             "type": "string"
           },
           "biography": {
@@ -6492,12 +6531,6 @@
                 "id": {
                   "type": "string"
                 },
-                "title": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
                 "createdAt": {
                   "type": "string"
                 },
@@ -6506,15 +6539,21 @@
                 },
                 "profileId": {
                   "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
                 }
               },
               "required": [
                 "id",
-                "title",
-                "description",
                 "createdAt",
                 "updatedAt",
-                "profileId"
+                "profileId",
+                "title",
+                "description"
               ]
             }
           },
@@ -6524,6 +6563,18 @@
               "type": "object",
               "properties": {
                 "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "profileId": {
                   "type": "string"
                 },
                 "title": {
@@ -6538,28 +6589,16 @@
                       "type": "null"
                     }
                   ]
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "updatedAt": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "profileId": {
-                  "type": "string"
                 }
               },
               "required": [
                 "id",
-                "title",
-                "description",
                 "createdAt",
                 "updatedAt",
                 "name",
-                "profileId"
+                "profileId",
+                "title",
+                "description"
               ]
             }
           },
@@ -6752,16 +6791,12 @@
                 "id": {
                   "type": "string"
                 },
-                "title": {
-                  "type": "string"
-                },
-                "location": {
-                  "type": "string"
-                },
                 "type": {
                   "type": "string",
                   "enum": [
+                    "recruitment",
                     "audition",
+                    "other",
                     "rehearsal",
                     "recital",
                     "showcase",
@@ -6774,11 +6809,15 @@
                     "convention",
                     "clinic",
                     "deadline",
-                    "recruitment",
                     "performance",
-                    "camp",
-                    "other"
+                    "camp"
                   ]
+                },
+                "location": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
                 },
                 "startDatetime": {
                   "type": "string"
@@ -6807,9 +6846,9 @@
               },
               "required": [
                 "id",
-                "title",
-                "location",
                 "type",
+                "location",
+                "title",
                 "startDatetime",
                 "endDatetime",
                 "organizer"
@@ -6824,16 +6863,12 @@
                 "id": {
                   "type": "string"
                 },
-                "title": {
-                  "type": "string"
-                },
-                "location": {
-                  "type": "string"
-                },
                 "type": {
                   "type": "string",
                   "enum": [
+                    "recruitment",
                     "audition",
+                    "other",
                     "rehearsal",
                     "recital",
                     "showcase",
@@ -6846,11 +6881,15 @@
                     "convention",
                     "clinic",
                     "deadline",
-                    "recruitment",
                     "performance",
-                    "camp",
-                    "other"
+                    "camp"
                   ]
+                },
+                "location": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
                 },
                 "startDatetime": {
                   "type": "string"
@@ -6861,9 +6900,9 @@
               },
               "required": [
                 "id",
-                "title",
-                "location",
                 "type",
+                "location",
+                "title",
                 "startDatetime",
                 "endDatetime"
               ]
@@ -6909,7 +6948,6 @@
         },
         "required": [
           "id",
-          "location",
           "username",
           "displayEmail",
           "firstName",
@@ -6917,6 +6955,7 @@
           "avatar",
           "phone",
           "birthday",
+          "location",
           "biography",
           "instagram",
           "tiktok",
@@ -6969,25 +7008,35 @@
       "DancersReferencesRequest": {
         "type": "object",
         "properties": {
+          "name": {
+            "type": "string"
+          },
           "title": {
             "type": "string"
           },
           "description": {
             "type": "string"
-          },
-          "name": {
-            "type": "string"
           }
         },
         "required": [
+          "name",
           "title",
-          "description",
-          "name"
+          "description"
         ]
       },
       "DancersReferencesIdRequest": {
         "type": "object",
         "properties": {
+          "name": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "title": {
             "oneOf": [
               {
@@ -6999,16 +7048,6 @@
             ]
           },
           "description": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "name": {
             "oneOf": [
               {
                 "type": "string"
@@ -7073,16 +7112,12 @@
                   "id": {
                     "type": "string"
                   },
-                  "title": {
-                    "type": "string"
-                  },
-                  "location": {
-                    "type": "string"
-                  },
                   "type": {
                     "type": "string",
                     "enum": [
+                      "recruitment",
                       "audition",
+                      "other",
                       "rehearsal",
                       "recital",
                       "showcase",
@@ -7095,16 +7130,20 @@
                       "convention",
                       "clinic",
                       "deadline",
-                      "recruitment",
                       "performance",
-                      "camp",
-                      "other"
+                      "camp"
                     ]
+                  },
+                  "date": {
+                    "type": "string"
                   },
                   "time": {
                     "type": "string"
                   },
-                  "date": {
+                  "location": {
+                    "type": "string"
+                  },
+                  "title": {
                     "type": "string"
                   },
                   "organizer": {
@@ -7149,11 +7188,11 @@
                 },
                 "required": [
                   "id",
-                  "title",
-                  "location",
                   "type",
-                  "time",
                   "date",
+                  "time",
+                  "location",
+                  "title",
                   "organizer",
                   "attendees",
                   "saved"
@@ -7173,7 +7212,7 @@
       "EventsRequest": {
         "type": "object",
         "properties": {
-          "address": {
+          "website": {
             "oneOf": [
               {
                 "type": "string"
@@ -7183,7 +7222,7 @@
               }
             ]
           },
-          "website": {
+          "address": {
             "oneOf": [
               {
                 "type": "string"
@@ -7206,19 +7245,12 @@
               }
             ]
           },
-          "title": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "location": {
-            "type": "string"
-          },
           "type": {
             "type": "string",
             "enum": [
+              "recruitment",
               "audition",
+              "other",
               "rehearsal",
               "recital",
               "showcase",
@@ -7231,11 +7263,18 @@
               "convention",
               "clinic",
               "deadline",
-              "recruitment",
               "performance",
-              "camp",
-              "other"
+              "camp"
             ]
+          },
+          "location": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
           },
           "startDatetime": {
             "type": "string"
@@ -7248,10 +7287,10 @@
           }
         },
         "required": [
+          "type",
+          "location",
           "title",
           "description",
-          "location",
-          "type",
           "startDatetime",
           "endDatetime",
           "timezone"
@@ -7317,16 +7356,12 @@
             "id": {
               "type": "string"
             },
-            "title": {
-              "type": "string"
-            },
-            "location": {
-              "type": "string"
-            },
             "type": {
               "type": "string",
               "enum": [
+                "recruitment",
                 "audition",
+                "other",
                 "rehearsal",
                 "recital",
                 "showcase",
@@ -7339,16 +7374,20 @@
                 "convention",
                 "clinic",
                 "deadline",
-                "recruitment",
                 "performance",
-                "camp",
-                "other"
+                "camp"
               ]
+            },
+            "date": {
+              "type": "string"
             },
             "time": {
               "type": "string"
             },
-            "date": {
+            "location": {
+              "type": "string"
+            },
+            "title": {
               "type": "string"
             },
             "organizer": {
@@ -7376,11 +7415,11 @@
           },
           "required": [
             "id",
-            "title",
-            "location",
             "type",
-            "time",
             "date",
+            "time",
+            "location",
+            "title",
             "organizer"
           ]
         }
@@ -7421,22 +7460,12 @@
             "id": {
               "type": "string"
             },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "location": {
-              "type": "string"
-            },
-            "website": {
-              "type": "string"
-            },
             "type": {
               "type": "string",
               "enum": [
+                "recruitment",
                 "audition",
+                "other",
                 "rehearsal",
                 "recital",
                 "showcase",
@@ -7449,11 +7478,21 @@
                 "convention",
                 "clinic",
                 "deadline",
-                "recruitment",
                 "performance",
-                "camp",
-                "other"
+                "camp"
               ]
+            },
+            "location": {
+              "type": "string"
+            },
+            "website": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
             },
             "organization": {
               "type": "string"
@@ -7471,11 +7510,11 @@
             "saved",
             "attendees",
             "id",
-            "title",
-            "description",
+            "type",
             "location",
             "website",
-            "type",
+            "title",
+            "description",
             "organization",
             "eventAttendees"
           ]
@@ -7505,16 +7544,12 @@
             "id": {
               "type": "string"
             },
-            "title": {
-              "type": "string"
-            },
-            "location": {
-              "type": "string"
-            },
             "type": {
               "type": "string",
               "enum": [
+                "recruitment",
                 "audition",
+                "other",
                 "rehearsal",
                 "recital",
                 "showcase",
@@ -7527,11 +7562,15 @@
                 "convention",
                 "clinic",
                 "deadline",
-                "recruitment",
                 "performance",
-                "camp",
-                "other"
+                "camp"
               ]
+            },
+            "location": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
             }
           },
           "required": [
@@ -7539,9 +7578,9 @@
             "date",
             "time",
             "id",
-            "title",
+            "type",
             "location",
-            "type"
+            "title"
           ]
         }
       },
@@ -7550,6 +7589,47 @@
         "properties": {
           "id": {
             "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "recruitment",
+              "audition",
+              "other",
+              "rehearsal",
+              "recital",
+              "showcase",
+              "competition",
+              "class",
+              "intensive",
+              "workshop",
+              "fundraiser",
+              "combine",
+              "convention",
+              "clinic",
+              "deadline",
+              "performance",
+              "camp"
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "website": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "schoolId": {
             "type": "string"
@@ -7560,20 +7640,7 @@
           "description": {
             "type": "string"
           },
-          "location": {
-            "type": "string"
-          },
           "address": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "website": {
             "oneOf": [
               {
                 "type": "string"
@@ -7606,35 +7673,7 @@
               }
             ]
           },
-          "type": {
-            "type": "string",
-            "enum": [
-              "audition",
-              "rehearsal",
-              "recital",
-              "showcase",
-              "competition",
-              "class",
-              "intensive",
-              "workshop",
-              "fundraiser",
-              "combine",
-              "convention",
-              "clinic",
-              "deadline",
-              "recruitment",
-              "performance",
-              "camp",
-              "other"
-            ]
-          },
           "timezone": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
             "type": "string"
           },
           "schedule": {
@@ -7712,18 +7751,18 @@
         },
         "required": [
           "id",
+          "type",
+          "createdAt",
+          "updatedAt",
+          "location",
+          "website",
           "schoolId",
           "title",
           "description",
-          "location",
           "address",
-          "website",
           "tags",
           "cost",
-          "type",
           "timezone",
-          "createdAt",
-          "updatedAt",
           "organizer",
           "attendees",
           "saved",
@@ -7737,6 +7776,55 @@
       "EventsIdRequest": {
         "type": "object",
         "properties": {
+          "type": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "recruitment",
+                  "audition",
+                  "other",
+                  "rehearsal",
+                  "recital",
+                  "showcase",
+                  "competition",
+                  "class",
+                  "intensive",
+                  "workshop",
+                  "fundraiser",
+                  "combine",
+                  "convention",
+                  "clinic",
+                  "deadline",
+                  "performance",
+                  "camp"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "location": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "website": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "title": {
             "oneOf": [
               {
@@ -7757,27 +7845,7 @@
               }
             ]
           },
-          "location": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "address": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "website": {
             "oneOf": [
               {
                 "type": "string"
@@ -7804,35 +7872,6 @@
             "oneOf": [
               {
                 "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "type": {
-            "oneOf": [
-              {
-                "type": "string",
-                "enum": [
-                  "audition",
-                  "rehearsal",
-                  "recital",
-                  "showcase",
-                  "competition",
-                  "class",
-                  "intensive",
-                  "workshop",
-                  "fundraiser",
-                  "combine",
-                  "convention",
-                  "clinic",
-                  "deadline",
-                  "recruitment",
-                  "performance",
-                  "camp",
-                  "other"
-                ]
               },
               {
                 "type": "null"
@@ -7940,9 +7979,6 @@
             "id": {
               "type": "string"
             },
-            "location": {
-              "type": "string"
-            },
             "username": {
               "type": "string"
             },
@@ -7960,6 +7996,9 @@
               "type": "string"
             },
             "name": {
+              "type": "string"
+            },
+            "location": {
               "type": "string"
             },
             "gpa": {
@@ -8001,11 +8040,11 @@
           },
           "required": [
             "id",
-            "location",
             "username",
             "avatar",
             "createdAt",
             "name",
+            "location",
             "gpa",
             "division",
             "size",
@@ -8084,9 +8123,6 @@
             "id": {
               "type": "string"
             },
-            "location": {
-              "type": "string"
-            },
             "debug": {
               "type": "object",
               "properties": {
@@ -8154,6 +8190,9 @@
               ]
             },
             "name": {
+              "type": "string"
+            },
+            "location": {
               "type": "string"
             },
             "gpa": {
@@ -8228,10 +8267,10 @@
           },
           "required": [
             "id",
-            "location",
             "username",
             "avatar",
             "name",
+            "location",
             "gpa",
             "about",
             "size",
@@ -8254,16 +8293,6 @@
         "type": "object",
         "properties": {
           "location": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "website": {
             "oneOf": [
               {
                 "type": "string"
@@ -8335,8 +8364,8 @@
               {
                 "type": "string",
                 "enum": [
-                  "audition",
                   "recruitment",
+                  "audition",
                   "hybrid"
                 ]
               },
@@ -8384,6 +8413,16 @@
             ]
           },
           "about": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "website": {
             "oneOf": [
               {
                 "type": "string"
@@ -8738,6 +8777,15 @@
             "id": {
               "type": "string"
             },
+            "status": {
+              "type": "string",
+              "enum": [
+                "accepted",
+                "pending",
+                "released",
+                "in_review"
+              ]
+            },
             "dancer": {
               "type": "object",
               "properties": {
@@ -8789,15 +8837,6 @@
             "updatedAt": {
               "type": "string"
             },
-            "status": {
-              "type": "string",
-              "enum": [
-                "pending",
-                "accepted",
-                "released",
-                "in_review"
-              ]
-            },
             "watched": {
               "type": "boolean"
             },
@@ -8824,10 +8863,10 @@
           },
           "required": [
             "id",
+            "status",
             "dancer",
             "createdAt",
             "updatedAt",
-            "status",
             "watched",
             "watchedAt",
             "youtubeId"
@@ -8842,8 +8881,8 @@
               {
                 "type": "string",
                 "enum": [
-                  "pending",
                   "accepted",
+                  "pending",
                   "released",
                   "in_review"
                 ]
@@ -8875,19 +8914,6 @@
           "id": {
             "type": "string"
           },
-          "location": {
-            "type": "string"
-          },
-          "website": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "username": {
             "type": "string"
           },
@@ -8914,6 +8940,9 @@
             "type": "string"
           },
           "userId": {
+            "type": "string"
+          },
+          "location": {
             "type": "string"
           },
           "instagram": {
@@ -8962,8 +8991,8 @@
           "teamSelection": {
             "type": "string",
             "enum": [
-              "audition",
               "recruitment",
+              "audition",
               "hybrid"
             ]
           },
@@ -8999,6 +9028,16 @@
             ]
           },
           "about": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "website": {
             "oneOf": [
               {
                 "type": "string"
@@ -9257,19 +9296,38 @@
                 "id": {
                   "type": "string"
                 },
-                "schoolId": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "recruitment",
+                    "audition",
+                    "other",
+                    "rehearsal",
+                    "recital",
+                    "showcase",
+                    "competition",
+                    "class",
+                    "intensive",
+                    "workshop",
+                    "fundraiser",
+                    "combine",
+                    "convention",
+                    "clinic",
+                    "deadline",
+                    "performance",
+                    "camp"
+                  ]
+                },
+                "createdAt": {
                   "type": "string"
                 },
-                "title": {
-                  "type": "string"
-                },
-                "description": {
+                "updatedAt": {
                   "type": "string"
                 },
                 "location": {
                   "type": "string"
                 },
-                "address": {
+                "website": {
                   "oneOf": [
                     {
                       "type": "string"
@@ -9279,7 +9337,16 @@
                     }
                   ]
                 },
-                "website": {
+                "schoolId": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "address": {
                   "oneOf": [
                     {
                       "type": "string"
@@ -9312,28 +9379,6 @@
                     }
                   ]
                 },
-                "type": {
-                  "type": "string",
-                  "enum": [
-                    "audition",
-                    "rehearsal",
-                    "recital",
-                    "showcase",
-                    "competition",
-                    "class",
-                    "intensive",
-                    "workshop",
-                    "fundraiser",
-                    "combine",
-                    "convention",
-                    "clinic",
-                    "deadline",
-                    "recruitment",
-                    "performance",
-                    "camp",
-                    "other"
-                  ]
-                },
                 "startDatetime": {
                   "type": "string"
                 },
@@ -9342,30 +9387,24 @@
                 },
                 "timezone": {
                   "type": "string"
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "updatedAt": {
-                  "type": "string"
                 }
               },
               "required": [
                 "id",
+                "type",
+                "createdAt",
+                "updatedAt",
+                "location",
+                "website",
                 "schoolId",
                 "title",
                 "description",
-                "location",
                 "address",
-                "website",
                 "tags",
                 "cost",
-                "type",
                 "startDatetime",
                 "endDatetime",
-                "timezone",
-                "createdAt",
-                "updatedAt"
+                "timezone"
               ]
             }
           },
@@ -9377,22 +9416,12 @@
                 "id": {
                   "type": "string"
                 },
-                "title": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "location": {
-                  "type": "string"
-                },
-                "website": {
-                  "type": "string"
-                },
                 "type": {
                   "type": "string",
                   "enum": [
+                    "recruitment",
                     "audition",
+                    "other",
                     "rehearsal",
                     "recital",
                     "showcase",
@@ -9405,22 +9434,32 @@
                     "convention",
                     "clinic",
                     "deadline",
-                    "recruitment",
                     "performance",
-                    "camp",
-                    "other"
+                    "camp"
                   ]
-                },
-                "startDatetime": {
-                  "type": "string"
-                },
-                "endDatetime": {
-                  "type": "string"
                 },
                 "createdAt": {
                   "type": "string"
                 },
                 "updatedAt": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "website": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "startDatetime": {
+                  "type": "string"
+                },
+                "endDatetime": {
                   "type": "string"
                 },
                 "thumbnail": {
@@ -9432,15 +9471,15 @@
               },
               "required": [
                 "id",
-                "title",
-                "description",
-                "location",
-                "website",
                 "type",
-                "startDatetime",
-                "endDatetime",
                 "createdAt",
                 "updatedAt",
+                "location",
+                "website",
+                "title",
+                "description",
+                "startDatetime",
+                "endDatetime",
                 "thumbnail",
                 "organization"
               ]
@@ -9449,8 +9488,6 @@
         },
         "required": [
           "id",
-          "location",
-          "website",
           "username",
           "displayEmail",
           "avatar",
@@ -9458,6 +9495,7 @@
           "updatedAt",
           "name",
           "userId",
+          "location",
           "instagram",
           "tiktok",
           "gpa",
@@ -9468,6 +9506,7 @@
           "division",
           "benefits",
           "about",
+          "website",
           "timeCommitment",
           "headCoach",
           "assistantCoach",

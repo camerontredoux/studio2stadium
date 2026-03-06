@@ -4,6 +4,97 @@
  */
 
 export interface paths {
+    "/admin/applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all applications
+         * @description Returns all school applications for admin review
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminApplicationsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/applications/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update application status
+         * @description Updates a school application status to accepted or rejected
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminApplicationsIdStatusRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/admin/schools": {
         parameters: {
             query?: never;
@@ -43,55 +134,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/schools/{id}/approve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Approve school application
-         * @description Approves a school application, setting verified=true and status=accepted
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/schools/{schoolId}/events": {
+    "/admin/schools/{username}/events": {
         parameters: {
             query?: never;
             header?: never;
@@ -102,14 +145,14 @@ export interface paths {
         put?: never;
         /**
          * Add event to school
-         * @description Creates an event for a school by profileId
+         * @description Creates an event for a school by username
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    schoolId: string;
+                    username: string;
                 };
                 cookie?: never;
             };
@@ -191,45 +234,6 @@ export interface paths {
                 };
             };
         };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/applications": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get all applications
-         * @description Returns all school applications for admin review
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AdminApplicationsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1301,20 +1305,30 @@ export interface paths {
          */
         get: {
             parameters: {
-                query?: never;
+                query: {
+                    notes?: string | null;
+                    status: "accepted" | "rejected";
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["SubscriptionsStatusResponse"];
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -1602,8 +1616,8 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    location?: ("ID" | "OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
                     name?: string | null;
+                    location?: ("ID" | "OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
                     sports?: string | null;
                     styles?: string | null;
                     following?: (string | number | boolean) | null;
@@ -2809,8 +2823,8 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    location?: ("ID" | "OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
                     date?: string | null;
+                    location?: ("ID" | "OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
                     schoolName?: string | null;
                 };
                 header?: never;
@@ -3423,7 +3437,7 @@ export interface paths {
                 query?: {
                     location?: ("ID" | "OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
                     commonRecruiting?: (string | number | boolean) | null;
-                    teamSelection?: ("audition" | "recruitment" | "hybrid") | null;
+                    teamSelection?: ("recruitment" | "audition" | "hybrid") | null;
                     competitiveCircuit?: ("other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive") | null;
                     division?: string | null;
                     sports?: string | null;
@@ -4879,15 +4893,41 @@ export interface components {
             message: string;
         };
         /** @enum {string} */
-        DancerFilterParam: "location" | "name" | "sports" | "styles" | "following" | "premium" | "gpaRange";
+        DancerFilterParam: "name" | "location" | "sports" | "styles" | "following" | "premium" | "gpaRange";
         /** @enum {string} */
         EventFilterParam: "location" | "date" | "schoolName";
         /** @enum {string} */
-        SchoolFilterParam: "location" | "name" | "sports" | "styles" | "following" | "gpaRange" | "commonRecruiting" | "teamSelection" | "competitiveCircuit" | "division" | "upcomingEvents";
+        SchoolFilterParam: "name" | "location" | "sports" | "styles" | "following" | "gpaRange" | "commonRecruiting" | "teamSelection" | "competitiveCircuit" | "division" | "upcomingEvents";
         MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
+        AdminApplicationsResponse: {
+            id: string;
+            /** @enum {string} */
+            status: "accepted" | "rejected" | "pending";
+            notes: string | null;
+            school: {
+                id: string;
+                user: {
+                    avatar: string | null;
+                    id: string;
+                    email: string;
+                    displayEmail: string;
+                    firstName: string;
+                    lastName: string;
+                    verified: boolean;
+                };
+                name: string;
+                location: string;
+            };
+            createdAt: string;
+            thumbnail: string | null;
+        }[];
+        AdminApplicationsIdStatusRequest: {
+            notes?: string | null;
+            /** @enum {string} */
+            status: "accepted" | "rejected";
+        };
         AdminSchoolsResponse: {
             id: string;
-            location: string;
             user: {
                 id: string;
                 username: string;
@@ -4899,18 +4939,19 @@ export interface components {
             };
             createdAt: string;
             name: string;
+            location: string;
             division: string | null;
         }[];
         AdminSchoolsIdEventsRequest: {
-            address?: string | null;
             website?: string | null;
+            address?: string | null;
             tags?: string[] | null;
             cost?: string | null;
+            /** @enum {string} */
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+            location: string;
             title: string;
             description: string;
-            location: string;
-            /** @enum {string} */
-            type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
             startDatetime: string;
             endDatetime: string;
             timezone: string;
@@ -4919,12 +4960,12 @@ export interface components {
             id: string;
         };
         AdminEventsGlobalRequest: {
-            title: string;
-            description: string;
+            /** @enum {string} */
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             location: string;
             website: string;
-            /** @enum {string} */
-            type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+            title: string;
+            description: string;
             startDatetime: string;
             endDatetime: string;
             thumbnail: string;
@@ -4933,31 +4974,8 @@ export interface components {
         AdminEventsGlobalResponse: {
             id: string;
         };
-        AdminApplicationsResponse: {
-            id: string;
-            school: {
-                id: string;
-                location: string;
-                user: {
-                    avatar: string | null;
-                    id: string;
-                    email: string;
-                    displayEmail: string;
-                    firstName: string;
-                    lastName: string;
-                    verified: boolean;
-                };
-                name: string;
-            };
-            createdAt: string;
-            /** @enum {string} */
-            status: "pending" | "accepted" | "rejected";
-            thumbnail: string | null;
-            notes: string | null;
-        }[];
         AdminDancersResponse: {
             id: string;
-            location: string;
             user: {
                 id: string;
                 username: string;
@@ -4969,19 +4987,20 @@ export interface components {
                 role: "user" | "admin" | "prodigy_admin";
             };
             createdAt: string;
+            location: string;
             gpa: number | null;
             gradYear: number | null;
         }[];
         ApplicationResponse: {
             id?: string;
-            schoolId?: string;
+            /** @enum {string} */
+            status?: "accepted" | "rejected" | "pending";
+            notes?: string | null;
             createdAt?: string;
             updatedAt?: string;
-            /** @enum {string} */
-            status?: "pending" | "accepted" | "rejected";
+            schoolId?: string;
             thumbnail: string | null;
             mediaId?: string;
-            notes?: string | null;
         };
         ApplicationRequest: {
             phone: string;
@@ -4991,14 +5010,14 @@ export interface components {
             mediaId?: string | null;
         };
         AuthSignupRequest: {
-            location?: string | null;
             phone?: string | null;
             name?: string | null;
+            location?: string | null;
             city?: string | null;
-            /** @enum {string} */
-            type: "school" | "dancer";
             email: string;
             username: string;
+            /** @enum {string} */
+            type: "dancer" | "school";
             firstName: string;
             lastName: string;
             password: string;
@@ -5010,7 +5029,7 @@ export interface components {
             firstName: string;
             lastName: string;
             /** @enum {string} */
-            type: "school" | "dancer";
+            type: "dancer" | "school";
         };
         AuthLoginRequest: {
             email: string;
@@ -5019,11 +5038,11 @@ export interface components {
         AuthLoginResponse: {
             user: {
                 id: string;
-                /** @enum {string} */
-                type: "school" | "dancer";
                 username: string;
                 /** @enum {string} */
                 role: "user" | "admin" | "prodigy_admin";
+                /** @enum {string} */
+                type: "dancer" | "school";
                 displayEmail: string;
                 firstName: string;
                 lastName: string;
@@ -5041,11 +5060,11 @@ export interface components {
         };
         AuthSessionResponse: {
             id: string;
-            /** @enum {string} */
-            type: "school" | "dancer";
             username: string;
             /** @enum {string} */
             role: "user" | "admin" | "prodigy_admin";
+            /** @enum {string} */
+            type: "dancer" | "school";
             displayEmail: string;
             firstName: string;
             lastName: string;
@@ -5072,9 +5091,9 @@ export interface components {
         };
         BlogResponse: {
             id: string;
+            createdAt: string;
             title: string;
             description: string;
-            createdAt: string;
             thumbnail: string;
             slug: string;
         }[];
@@ -5106,9 +5125,9 @@ export interface components {
                 platform: string;
             };
             checks: {
-                name: string;
                 /** @enum {string} */
                 status: "error" | "ok" | "warning";
+                name: string;
                 meta?: Record<string, never>;
                 message: string;
                 finishedAt: string;
@@ -5119,19 +5138,19 @@ export interface components {
             category: string;
             videos: {
                 id: string;
-                title: string;
                 url: string;
                 createdAt: string;
                 updatedAt: string;
+                title: string;
                 category: string;
             }[];
         }[];
         LibraryIdResponse: {
             id: string;
-            title: string;
             url: string;
             createdAt: string;
             updatedAt: string;
+            title: string;
             category: string;
         }[];
         NotificationsResponse: {
@@ -5174,11 +5193,6 @@ export interface components {
             name: string;
             slug: string;
         }[];
-        SubscriptionsStatusResponse: {
-            cancelAtPeriodEnd: boolean;
-            currentPeriodEnd: string | null;
-            subscribed: boolean;
-        };
         SubscriptionsCheckoutRequest: {
             /** @enum {string} */
             type: "monthly" | "yearly";
@@ -5210,12 +5224,12 @@ export interface components {
         DancersResponse: {
             dancers: {
                 id: string;
-                location: string;
                 username: string;
                 avatar: string | null;
                 createdAt: string;
                 name: string;
                 birthday: string;
+                location: string;
                 gpa: number | null;
                 gradYear: number | null;
                 followers: number;
@@ -5232,8 +5246,8 @@ export interface components {
         };
         DancersRequest: {
             phoneNumber?: string | null;
-            location: string;
             birthday: string | number;
+            location: string;
             /** @enum {string} */
             platform: "core" | "prodigy";
         };
@@ -5249,8 +5263,8 @@ export interface components {
             paramKey: components["schemas"]["DancerFilterParam"];
         }[];
         DancersMeRequest: {
-            location?: string | null;
             birthday?: string | null;
+            location?: string | null;
             biography?: string | null;
             instagram?: string | null;
             tiktok?: string | null;
@@ -5302,16 +5316,16 @@ export interface components {
         };
         DancersSubmissionsResponse: {
             id: string;
+            /** @enum {string} */
+            status: "accepted" | "pending" | "released" | "in_review";
             school: {
                 avatar: string | null;
                 username: string;
                 id: string;
-                location: string;
                 name: string;
+                location: string;
             };
             updatedAt: string;
-            /** @enum {string} */
-            status: "pending" | "accepted" | "released" | "in_review";
             watched: boolean;
             watchedAt: string | null;
         }[];
@@ -5334,7 +5348,6 @@ export interface components {
         }[];
         DancersIdResponse: {
             id: string;
-            location: string;
             username: string;
             displayEmail: string;
             firstName: string;
@@ -5342,6 +5355,7 @@ export interface components {
             avatar: string | null;
             phone: string | null;
             birthday: string;
+            location: string;
             biography: string | null;
             instagram: string | null;
             tiktok: string | null;
@@ -5354,20 +5368,20 @@ export interface components {
             trainingHours: number | null;
             achievements: {
                 id: string;
-                title: string;
-                description: string;
                 createdAt: string;
                 updatedAt: string;
                 profileId: string;
+                title: string;
+                description: string;
             }[];
             references: {
                 id: string;
-                title: string;
-                description: string | null;
                 createdAt: string;
                 updatedAt: string;
                 name: string;
                 profileId: string;
+                title: string;
+                description: string | null;
             }[];
             videos: {
                 id: string;
@@ -5405,10 +5419,10 @@ export interface components {
             }[];
             events: {
                 id: string;
-                title: string;
-                location: string;
                 /** @enum {string} */
-                type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                location: string;
+                title: string;
                 startDatetime: string;
                 endDatetime: string;
                 organizer: {
@@ -5417,10 +5431,10 @@ export interface components {
             }[];
             globalEvents: {
                 id: string;
-                title: string;
-                location: string;
                 /** @enum {string} */
-                type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                location: string;
+                title: string;
                 startDatetime: string;
                 endDatetime: string;
             }[];
@@ -5441,14 +5455,14 @@ export interface components {
             favorited: boolean;
         };
         DancersReferencesRequest: {
+            name: string;
             title: string;
             description: string;
-            name: string;
         };
         DancersReferencesIdRequest: {
+            name?: string | null;
             title?: string | null;
             description?: string | null;
-            name?: string | null;
         };
         DancersAchievementsAchievementsRequest: {
             title: string;
@@ -5461,12 +5475,12 @@ export interface components {
         EventsResponse: {
             events: {
                 id: string;
-                title: string;
-                location: string;
                 /** @enum {string} */
-                type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
-                time: string;
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 date: string;
+                time: string;
+                location: string;
+                title: string;
                 organizer: {
                     name: string;
                     thumbnail: string | null;
@@ -5479,14 +5493,14 @@ export interface components {
             month: string;
         }[];
         EventsRequest: {
-            address?: string | null;
             website?: string | null;
+            address?: string | null;
             tags?: string[] | null;
+            /** @enum {string} */
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+            location: string;
             title: string;
             description: string;
-            location: string;
-            /** @enum {string} */
-            type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
             startDatetime: string;
             endDatetime: string;
             timezone: string;
@@ -5504,12 +5518,12 @@ export interface components {
         }[];
         EventsUpcomingResponse: {
             id: string;
-            title: string;
-            location: string;
             /** @enum {string} */
-            type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
-            time: string;
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             date: string;
+            time: string;
+            location: string;
+            title: string;
             organizer: {
                 name: string;
                 thumbnail: string | null;
@@ -5524,12 +5538,12 @@ export interface components {
             saved: boolean;
             attendees: number;
             id: string;
-            title: string;
-            description: string;
+            /** @enum {string} */
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             location: string;
             website: string;
-            /** @enum {string} */
-            type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+            title: string;
+            description: string;
             organization: string;
             eventAttendees: number;
         }[];
@@ -5538,26 +5552,26 @@ export interface components {
             date: string;
             time: string;
             id: string;
-            title: string;
-            location: string;
             /** @enum {string} */
-            type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+            location: string;
+            title: string;
         }[];
         EventsIdResponse: {
             id: string;
+            /** @enum {string} */
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+            createdAt: string;
+            updatedAt: string;
+            location: string;
+            website: string | null;
             schoolId: string;
             title: string;
             description: string;
-            location: string;
             address: string | null;
-            website: string | null;
             tags: string[] | null;
             cost: string | null;
-            /** @enum {string} */
-            type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
             timezone: string;
-            createdAt: string;
-            updatedAt: string;
             schedule?: {
                 time: string;
                 activity: string;
@@ -5578,14 +5592,14 @@ export interface components {
             endDate: string;
         };
         EventsIdRequest: {
+            type?: ("recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp") | null;
+            location?: string | null;
+            website?: string | null;
             title?: string | null;
             description?: string | null;
-            location?: string | null;
             address?: string | null;
-            website?: string | null;
             tags?: string[] | null;
             cost?: string | null;
-            type?: ("audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other") | null;
             startDatetime?: string | null;
             endDatetime?: string | null;
             timezone?: string | null;
@@ -5607,11 +5621,11 @@ export interface components {
         };
         SchoolsResponse: {
             id: string;
-            location: string;
             username: string;
             avatar: string | null;
             createdAt: string;
             name: string;
+            location: string;
             gpa: number | null;
             division: string | null;
             size: number | null;
@@ -5634,7 +5648,6 @@ export interface components {
         }[];
         SchoolsRecommendedResponse: {
             id: string;
-            location: string;
             debug?: {
                 schoolSkills: {
                     skillId: string;
@@ -5650,6 +5663,7 @@ export interface components {
             username: string;
             avatar: string | null;
             name: string;
+            location: string;
             gpa: number | null;
             about: string | null;
             size: number | null;
@@ -5668,17 +5682,17 @@ export interface components {
         }[];
         SchoolsMeRequest: {
             location?: string | null;
-            website?: string | null;
             instagram?: string | null;
             tiktok?: string | null;
             gpa?: (string | number) | null;
             city?: string | null;
             commonRecruiting?: (string | number | boolean) | null;
-            teamSelection?: ("audition" | "recruitment" | "hybrid") | null;
+            teamSelection?: ("recruitment" | "audition" | "hybrid") | null;
             competitiveCircuit?: ("other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive") | null;
             division?: string | null;
             benefits?: string | null;
             about?: string | null;
+            website?: string | null;
             timeCommitment?: string | null;
             headCoach?: string | null;
             assistantCoach?: string | null;
@@ -5736,6 +5750,8 @@ export interface components {
         };
         SchoolsMeSubmissionsResponse: {
             id: string;
+            /** @enum {string} */
+            status: "accepted" | "pending" | "released" | "in_review";
             dancer: {
                 id: string;
                 username: string;
@@ -5746,20 +5762,16 @@ export interface components {
             };
             createdAt: string;
             updatedAt: string;
-            /** @enum {string} */
-            status: "pending" | "accepted" | "released" | "in_review";
             watched: boolean;
             watchedAt: string | null;
             youtubeId: string | null;
         }[];
         SchoolsMeSubmissionsIdRequest: {
-            status?: ("pending" | "accepted" | "released" | "in_review") | null;
+            status?: ("accepted" | "pending" | "released" | "in_review") | null;
             watched?: (string | number | boolean) | null;
         };
         SchoolsIdResponse: {
             id: string;
-            location: string;
-            website: string | null;
             username: string;
             displayEmail: string;
             avatar: string | null;
@@ -5767,18 +5779,20 @@ export interface components {
             updatedAt: string;
             name: string;
             userId: string;
+            location: string;
             instagram: string | null;
             tiktok: string | null;
             gpa: number | null;
             city: string | null;
             commonRecruiting: boolean;
             /** @enum {string} */
-            teamSelection: "audition" | "recruitment" | "hybrid";
+            teamSelection: "recruitment" | "audition" | "hybrid";
             /** @enum {string} */
             competitiveCircuit: "other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive";
             division: string | null;
             benefits: string | null;
             about: string | null;
+            website: string | null;
             timeCommitment: string | null;
             headCoach: string | null;
             assistantCoach: string | null;
@@ -5821,34 +5835,34 @@ export interface components {
             }[];
             events: {
                 id: string;
+                /** @enum {string} */
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                createdAt: string;
+                updatedAt: string;
+                location: string;
+                website: string | null;
                 schoolId: string;
                 title: string;
                 description: string;
-                location: string;
                 address: string | null;
-                website: string | null;
                 tags: string[] | null;
                 cost: string | null;
-                /** @enum {string} */
-                type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
                 startDatetime: string;
                 endDatetime: string;
                 timezone: string;
-                createdAt: string;
-                updatedAt: string;
             }[];
             globalEvents: {
                 id: string;
-                title: string;
-                description: string;
-                location: string;
-                website: string;
                 /** @enum {string} */
-                type: "audition" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "recruitment" | "performance" | "camp" | "other";
-                startDatetime: string;
-                endDatetime: string;
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 createdAt: string;
                 updatedAt: string;
+                location: string;
+                website: string;
+                title: string;
+                description: string;
+                startDatetime: string;
+                endDatetime: string;
                 thumbnail: string;
                 organization: string;
             }[];

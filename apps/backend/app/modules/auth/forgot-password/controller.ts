@@ -18,6 +18,8 @@ export default class ForgotPasswordController {
 
     const resetUrl = `${env.get("SITE_URL")}/reset?token=${token}&userId=${userId}`;
 
+    ctx.logger.info(`Reset password URL: ${resetUrl}`);
+
     ForgotPasswordEvent.dispatch({
       email: payload.email,
       resetUrl,
