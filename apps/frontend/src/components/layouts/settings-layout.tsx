@@ -54,14 +54,6 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
           )}
           <TabsTab
             nativeButton={false}
-            value="/settings/contact"
-            className="text-brand data-active:text-brand max-sm:text-sm"
-            render={<Link to="/settings/contact" />}
-          >
-            Contact Us
-          </TabsTab>
-          <TabsTab
-            nativeButton={false}
             value="/settings/delete"
             className="text-brand data-active:text-brand max-sm:text-sm"
             render={<Link to="/settings/delete" />}

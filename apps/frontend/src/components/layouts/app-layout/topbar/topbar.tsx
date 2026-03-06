@@ -1,3 +1,4 @@
+import { FeedbackButton } from "@/components/shared/feedback-button";
 import { MainLogo } from "@/components/shared/main-logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -34,19 +35,25 @@ export function Topbar() {
   return (
     <header className="bg-background border-border fixed top-0 right-0 left-0 z-50 h-12 border-b">
       <div className="relative mx-auto flex h-full max-w-7xl items-center justify-between px-2 lg:px-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="desktop:hidden rounded-full"
-          render={<Link to="/settings" />}
-        >
-          <HiCog className="size-6" />
-        </Button>
+        <div className="flex items-center gap-1 sm:hidden">
+          <Button
+            variant="secondary"
+            size="icon"
+            className="desktop:hidden rounded-full"
+            render={<Link to="/settings" />}
+          >
+            <HiCog className="size-6" />
+          </Button>
+          <FeedbackButton />
+        </div>
         <div className="absolute left-1/2 shrink-0 -translate-x-1/2 sm:static sm:translate-x-0">
-          <MainLogo className="h-5 dark:invert" />
+          <MainLogo className="h-5 max-sm:h-4 dark:invert" />
         </div>
         <div className="flex w-full items-center justify-end gap-2">
           <VideoProcessingIndicator />
+          <div className="hidden sm:block">
+            <FeedbackButton />
+          </div>
           <Button
             variant="secondary"
             size="icon"
@@ -98,7 +105,10 @@ export function Topbar() {
                 <>
                   <MenuSeparator />
                   <MenuGroup>
-                    <MenuItem closeOnClick render={<Link to="/admin/dashboard" />}>
+                    <MenuItem
+                      closeOnClick
+                      render={<Link to="/admin/dashboard" />}
+                    >
                       Dashboard
                     </MenuItem>
                   </MenuGroup>

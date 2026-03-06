@@ -33,7 +33,7 @@ export default class FeedbackEmail extends BaseMail {
       other: "Feedback",
     };
 
-    this.message.to("info@studio2stadium.com");
+    this.message.to("camtredoux@gmail.com");
     this.message.replyTo(userEmail);
     this.message.html(
       `<h2>${typeLabels[type]}</h2>

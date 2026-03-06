@@ -4,7 +4,6 @@ import {
   ChevronRight,
   CreditCard,
   FolderOpen,
-  MessageSquareIcon,
   SkullIcon,
   User,
   UserRoundSearchIcon,
@@ -43,12 +42,6 @@ export function SettingsPage() {
             href: "/settings/application",
           },
         ]),
-    {
-      icon: MessageSquareIcon,
-      label: "Contact Us",
-      description: "Send us feedback or suggestions",
-      href: "/settings/contact",
-    },
     {
       icon: SkullIcon,
       label: "Danger",
