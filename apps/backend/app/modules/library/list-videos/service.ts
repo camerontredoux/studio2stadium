@@ -1,4 +1,5 @@
 import { DatabaseService } from "#database/service";
+import { videoUrl } from "#utils/video-url";
 import { inject } from "@adonisjs/core";
 
 @inject()
@@ -21,8 +22,11 @@ export class Service {
         acc.set(category, []);
       }
 
+      const { url, ...rest } = video;
+      const youtubeUrl = videoUrl(url, "youtube");
+
       if (acc.get(category)!.length < 6) {
-        acc.get(category)?.push(video);
+        acc.get(category)?.push({ ...rest, url: youtubeUrl });
       }
 
       return acc;

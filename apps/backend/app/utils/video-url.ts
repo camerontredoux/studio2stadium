@@ -4,8 +4,6 @@ export function videoUrl(
   key: string | null | undefined,
   type: "youtube" | "cloudflare"
 ) {
-  if (!key) return null;
-
   if (type === "youtube") {
     return `https://www.youtube.com/embed/${key}`;
   }

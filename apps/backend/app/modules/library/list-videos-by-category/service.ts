@@ -1,4 +1,5 @@
 import { DatabaseService } from "#database/service";
+import { videoUrl } from "#utils/video-url";
 import { inject } from "@adonisjs/core";
 import { Validator } from "./validator.ts";
 
@@ -10,7 +11,7 @@ export class Service {
     const limit = 6;
     const offset = (page - 1) * limit;
 
-    return this.db.use((db) =>
+    const videos = await this.db.use((db) =>
       db.query.library.findMany({
         where: {
           category,
@@ -22,5 +23,11 @@ export class Service {
         offset,
       })
     );
+
+    return videos.map((video) => {
+      const { url, ...rest } = video;
+      const youtubeUrl = videoUrl(url, "youtube");
+      return { ...rest, url: youtubeUrl };
+    });
   }
 }
