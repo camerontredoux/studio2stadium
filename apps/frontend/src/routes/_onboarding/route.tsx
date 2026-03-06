@@ -22,24 +22,25 @@ export const Route = createFileRoute("/_onboarding")({
         });
       }
 
+      if (session.verified) {
+        throw redirect({
+          to: "/feed",
+          replace: true,
+        });
+      }
+
+      // Schools with an application should go to settings/application
       if (session.type === "school") {
         const application = await context.queryClient.ensureQueryData(
-          queries.application(session.type === "school"),
+          queries.application(true),
         );
 
-        if (application) {
+        if (application?.id) {
           throw redirect({
             to: "/settings/application",
             replace: true,
           });
         }
-      }
-
-      if (session.verified && session.type === "dancer") {
-        throw redirect({
-          to: "/feed",
-          replace: true,
-        });
       }
 
       return { session };

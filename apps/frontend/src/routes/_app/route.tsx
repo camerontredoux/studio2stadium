@@ -23,24 +23,39 @@ export const Route = createFileRoute("/_app")({
         });
       }
 
-      if (session.type === "school") {
-        const application = await context.queryClient.ensureQueryData(
-          queries.application(session.type === "school"),
-        );
+      if (!session.verified) {
+        if (session.type === "school") {
+          const application = await context.queryClient.ensureQueryData(
+            queries.application(true),
+          );
 
-        if (!application) {
+          // Schools without an application must go to onboarding first
+          if (!application?.id) {
+            throw redirect({
+              to: "/onboarding",
+              replace: true,
+            });
+          }
+
+          // Schools with an application can access settings, their profile, and logout
+          const allowedPaths = ["/settings", `/explore/${session.username}`, "/logout"];
+          const isAllowed = allowedPaths.some((path) =>
+            location.pathname.startsWith(path),
+          );
+
+          if (!isAllowed) {
+            throw redirect({
+              to: "/settings/application",
+              replace: true,
+            });
+          }
+        } else {
+          // Dancers must complete onboarding
           throw redirect({
             to: "/onboarding",
             replace: true,
           });
         }
-      }
-
-      if (!session.verified && session.type === "dancer") {
-        throw redirect({
-          to: "/onboarding",
-          replace: true,
-        });
       }
 
       context.queryClient.ensureQueryData(notificationQueries.count());
