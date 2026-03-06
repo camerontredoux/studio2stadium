@@ -1306,6 +1306,7 @@ export interface paths {
         get: {
             parameters: {
                 query: {
+                    notes?: string | null;
                     status: "accepted" | "rejected";
                 };
                 header?: never;
@@ -4902,6 +4903,7 @@ export interface components {
             id: string;
             /** @enum {string} */
             status: "accepted" | "rejected" | "pending";
+            notes: string | null;
             school: {
                 id: string;
                 user: {
@@ -4918,9 +4920,9 @@ export interface components {
             };
             createdAt: string;
             thumbnail: string | null;
-            notes: string | null;
         }[];
         AdminApplicationsIdStatusRequest: {
+            notes?: string | null;
             /** @enum {string} */
             status: "accepted" | "rejected";
         };
@@ -4993,12 +4995,12 @@ export interface components {
             id?: string;
             /** @enum {string} */
             status?: "accepted" | "rejected" | "pending";
+            notes?: string | null;
             createdAt?: string;
             updatedAt?: string;
             schoolId?: string;
             thumbnail: string | null;
             mediaId?: string;
-            notes?: string | null;
         };
         ApplicationRequest: {
             phone: string;

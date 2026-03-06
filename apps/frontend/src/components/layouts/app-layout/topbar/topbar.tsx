@@ -94,6 +94,16 @@ export function Topbar() {
                   <MenuRadioItem value="system">System</MenuRadioItem>
                 </MenuRadioGroup>
               </MenuGroup>
+              {session.role === "admin" && (
+                <>
+                  <MenuSeparator />
+                  <MenuGroup>
+                    <MenuItem closeOnClick render={<Link to="/admin/dashboard" />}>
+                      Dashboard
+                    </MenuItem>
+                  </MenuGroup>
+                </>
+              )}
               <MenuSeparator />
               <MenuGroup>
                 <MenuItem closeOnClick render={<Link to="/logout" />}>

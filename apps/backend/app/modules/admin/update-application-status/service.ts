@@ -10,7 +10,7 @@ import { Validator } from "./validator.ts";
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute({ params, status }: Validator) {
+  async execute({ params, status, notes }: Validator) {
     // Find the school application
     const application = await this.db.use((db) =>
       db.query.schoolApplications.findFirst({
@@ -33,18 +33,16 @@ export class Service {
       return { error: "School not found" };
     }
 
-    // Update user.verified (only if accepted) and application.status
+    // Update user.verified and application.status
     await this.db.tx(async (tx) => {
-      if (status === "accepted") {
-        await tx
-          .update(users)
-          .set({ verified: true })
-          .where(eq(users.id, school.userId));
-      }
+      await tx
+        .update(users)
+        .set({ verified: status === "accepted" })
+        .where(eq(users.id, school.userId));
 
       await tx
         .update(schoolApplications)
-        .set({ status })
+        .set({ status, notes })
         .where(eq(schoolApplications.id, params.id));
     });
 

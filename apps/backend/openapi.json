@@ -928,6 +928,21 @@
       "get": {
         "parameters": [
           {
+            "name": "notes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
             "name": "status",
             "in": "query",
             "required": true,
@@ -4156,6 +4171,16 @@
                 "pending"
               ]
             },
+            "notes": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "school": {
               "type": "object",
               "properties": {
@@ -4230,31 +4255,31 @@
                   "type": "null"
                 }
               ]
-            },
-            "notes": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
             }
           },
           "required": [
             "id",
             "status",
+            "notes",
             "school",
             "createdAt",
-            "thumbnail",
-            "notes"
+            "thumbnail"
           ]
         }
       },
       "AdminApplicationsIdStatusRequest": {
         "type": "object",
         "properties": {
+          "notes": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "status": {
             "type": "string",
             "enum": [
@@ -4635,6 +4660,16 @@
               "pending"
             ]
           },
+          "notes": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "createdAt": {
             "type": "string"
           },
@@ -4656,16 +4691,6 @@
           },
           "mediaId": {
             "type": "string"
-          },
-          "notes": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
           }
         },
         "required": [
