@@ -67,6 +67,7 @@ export default await Env.create(new URL("../", import.meta.url), {
   AWS_SECRET_ACCESS_KEY: Env.schema.string(),
   AWS_REGION: Env.schema.string(),
   MAIL_FROM_ADDRESS: Env.schema.string({ format: "email" }),
+  MAIL_TO_ADDRESS: Env.schema.string({ format: "email" }),
   MAIL_FROM_NAME: Env.schema.string(),
 
   SQS_ACCESS_KEY_ID: Env.schema.string(),
