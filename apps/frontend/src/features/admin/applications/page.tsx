@@ -63,7 +63,7 @@ export function ApplicationsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <h2 className="text-2xl font-bold">School Applications</h2>
 
       <ApplicationsTable
