@@ -1,13 +1,13 @@
 import { middleware } from "#start/kernel";
 import router from "@adonisjs/core/services/router";
 
-const SubscriptionController = () => import("./status/controller.ts");
-const ManageController = () => import("./manage/controller.ts");
-const CheckoutController = () => import("./checkout/controller.ts");
+const GetStatusController = () => import("./get-status/controller.ts");
+const ManageController = () => import("./manage-subscription/controller.ts");
+const CheckoutController = () => import("./create-checkout/controller.ts");
 
 router
   .group(() => {
-    router.get("status", [SubscriptionController]).openapi({
+    router.get("", [GetStatusController]).openapi({
       summary: "Get subscription status",
       description: "Gets the authenticated dancer's subscription status",
     });

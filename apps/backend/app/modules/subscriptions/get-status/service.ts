@@ -2,7 +2,7 @@ import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 
 @inject()
-export class Service {
+export class GetSubscriptionService {
   constructor(private db: DatabaseService) {}
 
   async execute(userId: string) {

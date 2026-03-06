@@ -1292,7 +1292,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/subscriptions/status": {
+    "/subscriptions": {
         parameters: {
             query?: never;
             header?: never;
@@ -1305,30 +1305,20 @@ export interface paths {
          */
         get: {
             parameters: {
-                query: {
-                    notes?: string | null;
-                    status: "accepted" | "rejected";
-                };
+                query?: never;
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
+                /** @description OK */
+                200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Error"];
+                        "application/json": components["schemas"]["SubscriptionsResponse"];
                     };
                 };
             };
@@ -5193,6 +5183,11 @@ export interface components {
             name: string;
             slug: string;
         }[];
+        SubscriptionsResponse: {
+            cancelAtPeriodEnd: boolean;
+            currentPeriodEnd: string | null;
+            subscribed: boolean;
+        };
         SubscriptionsCheckoutRequest: {
             /** @enum {string} */
             type: "monthly" | "yearly";

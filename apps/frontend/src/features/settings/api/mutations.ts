@@ -32,3 +32,7 @@ export function useUpdateApplication() {
     },
   });
 }
+
+export function useSubmitFeedback() {
+  return $api.useMutation("post", "/feedback");
+}
