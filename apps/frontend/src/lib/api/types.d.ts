@@ -3200,6 +3200,8 @@ export interface paths {
                 query?: {
                     location?: ("ID" | "OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
                     commonRecruiting?: (string | number | boolean) | null;
+                    teamSelection?: ("recruitment" | "audition" | "hybrid") | null;
+                    competitiveCircuit?: ("other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive") | null;
                     division?: string | null;
                     sports?: string | null;
                     styles?: string | null;
@@ -3318,6 +3320,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["SchoolsFiltersResponse"];
+                    };
+                };
+                /** @description Unknown Response */
+                304: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -4649,7 +4660,7 @@ export interface components {
         /** @enum {string} */
         EventFilterParam: "location" | "date" | "schoolName";
         /** @enum {string} */
-        SchoolFilterParam: "name" | "location" | "sports" | "styles" | "following" | "gpaRange" | "commonRecruiting" | "division" | "upcomingEvents";
+        SchoolFilterParam: "name" | "location" | "sports" | "styles" | "following" | "gpaRange" | "commonRecruiting" | "teamSelection" | "competitiveCircuit" | "division" | "upcomingEvents";
         MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
         ApplicationResponse: {
             id?: string;
@@ -4673,6 +4684,7 @@ export interface components {
             phone?: string | null;
             name?: string | null;
             location?: string | null;
+            city?: string | null;
             email: string;
             username: string;
             /** @enum {string} */
@@ -5349,6 +5361,7 @@ export interface components {
             instagram?: string | null;
             tiktok?: string | null;
             gpa?: (string | number) | null;
+            city?: string | null;
             commonRecruiting?: (string | number | boolean) | null;
             teamSelection?: ("recruitment" | "audition" | "hybrid") | null;
             competitiveCircuit?: ("other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive") | null;
@@ -5446,6 +5459,7 @@ export interface components {
             instagram: string | null;
             tiktok: string | null;
             gpa: number | null;
+            city: string | null;
             commonRecruiting: boolean;
             /** @enum {string} */
             teamSelection: "recruitment" | "audition" | "hybrid";

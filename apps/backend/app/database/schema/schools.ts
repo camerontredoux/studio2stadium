@@ -18,6 +18,7 @@ export const schoolProfiles = pg.pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     name: pg.text().notNull().unique(),
     location: pg.text().notNull(),
+    city: pg.text(),
     commonRecruiting: pg.boolean().notNull().default(false),
     teamSelection: teamSelectionType().notNull().default("recruitment"),
     competitiveCircuit: competitiveCircuitType()

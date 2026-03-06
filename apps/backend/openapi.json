@@ -2665,6 +2665,49 @@
             }
           },
           {
+            "name": "teamSelection",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "recruitment",
+                    "audition",
+                    "hybrid"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "competitiveCircuit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "other",
+                    "uda",
+                    "dtu",
+                    "nda",
+                    "usa",
+                    "non-competitive"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
             "name": "division",
             "in": "query",
             "required": false,
@@ -2837,6 +2880,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SchoolsFiltersResponse"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -3884,6 +3937,8 @@
           "following",
           "gpaRange",
           "commonRecruiting",
+          "teamSelection",
+          "competitiveCircuit",
           "division",
           "upcomingEvents"
         ]
@@ -4009,6 +4064,16 @@
             ]
           },
           "location": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "city": {
             "oneOf": [
               {
                 "type": "string"
@@ -7616,6 +7681,16 @@
               }
             ]
           },
+          "city": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "commonRecruiting": {
             "oneOf": [
               {
@@ -8246,6 +8321,16 @@
               }
             ]
           },
+          "city": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "commonRecruiting": {
             "type": "boolean"
           },
@@ -8767,6 +8852,7 @@
           "instagram",
           "tiktok",
           "gpa",
+          "city",
           "commonRecruiting",
           "teamSelection",
           "competitiveCircuit",

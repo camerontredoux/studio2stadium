@@ -31,6 +31,7 @@ export const schemas = {
     assistantCoach: z.string().optional(),
     commonRecruiting: z.boolean().optional(),
     location: z.string().nullable().optional(),
+    city: z.string().nullable().optional(),
   }),
 
   updateProgramDetails: z.object({

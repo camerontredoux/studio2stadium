@@ -32,6 +32,7 @@ export const schemas = {
     termsChecked: z.boolean(),
     name: z.string().optional(),
     location: z.string().optional(),
+    city: z.string().optional(),
   }),
 
   available: z.object({

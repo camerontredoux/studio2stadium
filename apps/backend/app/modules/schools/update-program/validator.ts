@@ -23,6 +23,7 @@ export const updateProgramSchema = vine.create(
     size: vine.number().nullable().optional(),
     tiktok: vine.string().nullable().optional(),
     instagram: vine.string().nullable().optional(),
+    city: vine.string().nullable().optional(),
   })
 );
 

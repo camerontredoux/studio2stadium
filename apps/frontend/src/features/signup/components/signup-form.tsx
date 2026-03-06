@@ -46,6 +46,7 @@ export function SignupForm() {
       password: "",
       name: schoolName,
       location: "",
+      city: "",
       termsChecked: false,
     },
   });
@@ -144,20 +145,33 @@ export function SignupForm() {
           />
 
           {type === "school" && (
-            <Controller
-              control={control}
-              name="location"
-              render={({ field, fieldState }) => (
-                <Field name={field.name} invalid={fieldState.invalid}>
-                  <FieldLabel>Location</FieldLabel>
-                  <LocationSelect
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                  <FieldError error={fieldState.error} />
-                </Field>
-              )}
-            />
+            <>
+              <Controller
+                control={control}
+                name="location"
+                render={({ field, fieldState }) => (
+                  <Field name={field.name} invalid={fieldState.invalid}>
+                    <FieldLabel>State</FieldLabel>
+                    <LocationSelect
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                    <FieldError error={fieldState.error} />
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="city"
+                render={({ field, fieldState }) => (
+                  <Field name={field.name} invalid={fieldState.invalid}>
+                    <FieldLabel>City</FieldLabel>
+                    <Input type="text" placeholder="City name" {...field} />
+                    <FieldError error={fieldState.error} />
+                  </Field>
+                )}
+              />
+            </>
           )}
 
           <Controller

@@ -1,0 +1,1 @@
+ALTER TABLE "school_profiles" ADD COLUMN "city" text;

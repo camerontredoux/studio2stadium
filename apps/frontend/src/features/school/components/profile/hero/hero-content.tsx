@@ -58,8 +58,10 @@ export function HeroContent({
             <div className="flex items-center gap-1.5">
               <MapPinIcon className="text-brand size-3.5 shrink-0" />
               <span className="text-nowrap">
-                {US_STATES[school.location as keyof typeof US_STATES] ||
-                  school.location}
+                {school.city
+                  ? `${school.city}, ${US_STATES[school.location as keyof typeof US_STATES] || school.location}`
+                  : US_STATES[school.location as keyof typeof US_STATES] ||
+                    school.location}
               </span>
             </div>
             {school.website && (

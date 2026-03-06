@@ -61,6 +61,7 @@ export class Service {
           userId: user.id,
           name: input.name,
           location: input.location,
+          city: input.city,
         });
       }
 

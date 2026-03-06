@@ -39,6 +39,7 @@ export function TeamForm({ username, onSubmit }: TeamFormProps) {
       assistantCoach: data.assistantCoach ?? "",
       commonRecruiting: data.commonRecruiting ?? false,
       location: data.location ?? undefined,
+      city: data.city ?? "",
     },
   });
 
@@ -49,7 +50,39 @@ export function TeamForm({ username, onSubmit }: TeamFormProps) {
         className="flex w-full flex-col gap-3"
         onSubmit={(e) => form.handleSubmit(onSubmit)(e)}
       >
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
+          <Controller
+            control={form.control}
+            name="location"
+            render={({ field, fieldState }) => (
+              <Field name="location" invalid={fieldState.invalid}>
+                <FieldLabel>State</FieldLabel>
+                <LocationSelect
+                  value={field.value ?? undefined}
+                  onChange={field.onChange}
+                />
+                <FieldError error={fieldState.error} />
+              </Field>
+            )}
+          />
+          <Controller
+            control={form.control}
+            name="city"
+            render={({ field: { value, ...field }, fieldState }) => (
+              <Field name={field.name} invalid={fieldState.invalid}>
+                <FieldLabel>City</FieldLabel>
+                <Input
+                  type="text"
+                  value={value as string}
+                  placeholder="City name"
+                  {...field}
+                />
+                <FieldError error={fieldState.error} />
+              </Field>
+            )}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
           <Controller
             control={form.control}
             name="size"
@@ -73,15 +106,17 @@ export function TeamForm({ username, onSubmit }: TeamFormProps) {
           />
           <Controller
             control={form.control}
-            name="location"
-            render={({ field, fieldState }) => (
-              <Field name="location" invalid={fieldState.invalid}>
-                <FieldLabel>Location</FieldLabel>
-                <LocationSelect
-                  value={field.value ?? undefined}
-                  onChange={field.onChange}
-                />
-                <FieldError error={fieldState.error} />
+            name="commonRecruiting"
+            render={({ field: { value, onChange } }) => (
+              <Field name="commonRecruiting">
+                <FieldLabel>Common Recruiting</FieldLabel>
+                <label className="border-input flex h-9 w-fit cursor-pointer items-center gap-2 rounded-lg border px-2 sm:h-8">
+                  <Checkbox
+                    checked={value}
+                    onCheckedChange={(checked) => onChange(checked === true)}
+                  />
+                  <span className="text-sm">Participating</span>
+                </label>
               </Field>
             )}
           />
@@ -134,24 +169,7 @@ export function TeamForm({ username, onSubmit }: TeamFormProps) {
             </Field>
           )}
         />
-        <Controller
-          control={form.control}
-          name="commonRecruiting"
-          render={({ field: { value, onChange } }) => (
-            <Field name="commonRecruiting">
-              <label className="flex w-fit cursor-pointer items-center gap-2">
-                <Checkbox
-                  checked={value}
-                  onCheckedChange={(checked) => onChange(checked === true)}
-                />
-                <span className="text-sm font-medium">
-                  Participates in common recruiting
-                </span>
-              </label>
-            </Field>
-          )}
-        />
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
           <Field name="styles">
             <FieldLabel>Styles</FieldLabel>
             <StylesList
