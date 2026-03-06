@@ -31,6 +31,8 @@ import "#modules/webhooks/cloudflare/event"; //  video ready/failed notification
 
 // Admin events
 import "#modules/admin/update-application-status/event"; //  school welcome email + global notification
+import "#modules/admin/create-blog-post/event"; //  blog post created outbox
+import "#modules/admin/delete-blog-post/event"; //  blog post deleted
 
 // Contact events
 import "#modules/contact/contact-us/event"; //  contact form email

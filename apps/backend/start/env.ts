@@ -107,4 +107,5 @@ export default await Env.create(new URL("../", import.meta.url), {
   CLOUDFLARE_WEBHOOK_URL: Env.schema.string(),
   CLOUDFLARE_STREAM_TOKEN: Env.schema.string(),
   CLOUDFLARE_STREAM_URL: Env.schema.string(),
+  CLOUDFLARE_DEPLOY_HOOK: Env.schema.string(),
 });

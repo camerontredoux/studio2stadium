@@ -61,3 +61,19 @@ func (s *BehaviorStore) CreateGlobalNotificationAndEvent(
 		return nil
 	})
 }
+
+// CleanupOldNotifications deletes notifications older than the specified number of days
+func (s *BehaviorStore) CleanupOldNotifications(daysOld int) (int64, error) {
+	result := s.db.Postgres.GetDB().
+		Where("created_at < NOW() - INTERVAL '1 day' * ?", daysOld).
+		Delete(&t.Notification{})
+	return result.RowsAffected, result.Error
+}
+
+// CleanupOldProcessedEvents deletes processed events older than the specified number of days
+func (s *BehaviorStore) CleanupOldProcessedEvents(daysOld int) (int64, error) {
+	result := s.db.Postgres.GetDB().
+		Where("created_at < NOW() - INTERVAL '1 day' * ?", daysOld).
+		Delete(&t.ProcessedEvent{})
+	return result.RowsAffected, result.Error
+}

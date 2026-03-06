@@ -4,7 +4,6 @@ import (
 	"log"
 
 	sqsT "github.com/aws/aws-sdk-go-v2/service/sqs/types"
-	"github.com/davecgh/go-spew/spew"
 
 	b "github.com/StudioToStadium/event-server/behavior"
 	t "github.com/StudioToStadium/event-server/types"
@@ -20,6 +19,27 @@ type EventService struct {
 
 func NewEventService(aws *aws.AWSClient, db *db.Store) *EventService {
 	return &EventService{aws: aws, store: b.NewBehaviorStore(db)}
+}
+
+// CleanupOldData removes notifications and processed events older than 30 days
+func (s *EventService) CleanupOldData() error {
+	notifCount, err := s.store.CleanupOldNotifications(30)
+	if err != nil {
+		return err
+	}
+	if notifCount > 0 {
+		log.Printf("Cleaned up %d old notifications", notifCount)
+	}
+
+	eventCount, err := s.store.CleanupOldProcessedEvents(30)
+	if err != nil {
+		return err
+	}
+	if eventCount > 0 {
+		log.Printf("Cleaned up %d old processed events", eventCount)
+	}
+
+	return nil
 }
 
 func (s *EventService) ProcessEvents() error {
@@ -135,9 +155,11 @@ func (s *EventService) ProcessQueueMessage(message *sqsT.Message) (*t.QueueMessa
 	case "school.video-uploaded":
 		err = s.HandleSchoolVideoUploaded(outboxEvent, &notifications)
 
-	// Global notification events
+	// Fan-out notification events (to all users)
 	case "school.approved":
-		err = s.HandleSchoolApproved(outboxEvent, &globalNotification)
+		err = s.HandleSchoolApproved(outboxEvent, &notifications)
+	case "blog.post-created":
+		err = s.HandleBlogPostCreated(outboxEvent, &notifications)
 
 	// Event attendance
 	case "event.attended":
@@ -163,9 +185,10 @@ func (s *EventService) ProcessQueueMessage(message *sqsT.Message) (*t.QueueMessa
 
 	if len(notifications) > 0 {
 		log.Printf(
-			"Creating notifications and processed event\nNotifications: %s\nProcessedEvent: %s\n",
-			spew.Sdump(notifications),
-			spew.Sdump(processedEvent),
+			"Creating %d notifications for event %s:%s",
+			len(notifications),
+			processedEvent.EventId,
+			processedEvent.EventType,
 		)
 		err = s.store.CreateNotificationsAndEvent(notifications, processedEvent)
 		if err != nil {
@@ -173,9 +196,9 @@ func (s *EventService) ProcessQueueMessage(message *sqsT.Message) (*t.QueueMessa
 		}
 	} else if globalNotification != nil {
 		log.Printf(
-			"Creating global notification and processed event\nGlobalNotification: %s\nProcessedEvent: %s\n",
-			spew.Sdump(globalNotification),
-			spew.Sdump(processedEvent),
+			"Creating global notification for event %s:%s",
+			processedEvent.EventId,
+			processedEvent.EventType,
 		)
 		err = s.store.CreateGlobalNotificationAndEvent(globalNotification, processedEvent)
 		if err != nil {

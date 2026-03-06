@@ -36,6 +36,7 @@ const navLinks = [
   { to: "/admin/applications", label: "Applications" },
   { to: "/admin/school-events", label: "School Events" },
   { to: "/admin/global-events", label: "Global Events" },
+  { to: "/admin/blog", label: "Blog" },
 ] as const;
 
 function RouteComponent() {

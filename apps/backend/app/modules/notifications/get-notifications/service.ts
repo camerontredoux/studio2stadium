@@ -29,7 +29,9 @@ type NotificationContent =
     }
   | { type: "event.attended"; userId: string; eventId: string }
   | { type: "video.ready"; videoId: string }
-  | { type: "video.failed"; errorMessage: string };
+  | { type: "video.failed"; errorMessage: string }
+  | { type: "school.approved"; schoolId: string }
+  | { type: "blog.post-created"; postId: string };
 
 type EnrichedNotification = {
   id: string;
@@ -62,6 +64,7 @@ export class Service {
 
     const cursorDate = cursor ? new Date(cursor) : null;
 
+    // Build conditions for user notifications
     const conditions = [
       eq(notifications.userId, userId),
       gte(notifications.createdAt, thirtyDaysAgo),
@@ -71,17 +74,17 @@ export class Service {
       conditions.push(lt(notifications.createdAt, cursorDate));
     }
 
-    const userNotifications = await db
+    const userNotifs = await db
       .select()
       .from(notifications)
       .where(and(...conditions))
       .orderBy(desc(notifications.createdAt))
       .limit(PAGE_SIZE + 1);
 
-    const hasMore = userNotifications.length > PAGE_SIZE;
+    const hasMore = userNotifs.length > PAGE_SIZE;
     const notificationsToProcess = hasMore
-      ? userNotifications.slice(0, PAGE_SIZE)
-      : userNotifications;
+      ? userNotifs.slice(0, PAGE_SIZE)
+      : userNotifs;
 
     const enriched: EnrichedNotification[] = [];
 
@@ -252,6 +255,22 @@ export class Service {
           id,
           content.type,
           content.errorMessage,
+          createdAt,
+          read
+        );
+
+      case "school.approved":
+        return this.enrichSchoolApprovedNotification(
+          id,
+          content.schoolId,
+          createdAt,
+          read
+        );
+
+      case "blog.post-created":
+        return this.enrichBlogPostCreatedNotification(
+          id,
+          content.postId,
           createdAt,
           read
         );
@@ -498,6 +517,68 @@ export class Service {
       message: `Your video failed to process: ${errorMessage}`,
       link: null,
       metadata: { errorMessage },
+    };
+  }
+
+  private async enrichSchoolApprovedNotification(
+    id: string,
+    schoolId: string,
+    createdAt: Date,
+    read: boolean
+  ): Promise<EnrichedNotification | null> {
+    const school = await db.query.schoolProfiles.findFirst({
+      where: { id: schoolId },
+      columns: { id: true, name: true },
+      with: {
+        user: {
+          columns: {
+            username: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+
+    if (!school || !school.user) return null;
+
+    return {
+      id,
+      type: "school.approved",
+      createdAt,
+      read,
+      actor: {
+        name: school.name,
+        username: school.user.username,
+        avatar: imageUrl(school.user.avatar, "avatar"),
+        profileUrl: `/explore/${school.user.username}`,
+      },
+      message: "just joined the platform",
+      link: `/explore/${school.user.username}`,
+    };
+  }
+
+  private async enrichBlogPostCreatedNotification(
+    id: string,
+    postId: string,
+    createdAt: Date,
+    read: boolean
+  ): Promise<EnrichedNotification | null> {
+    const post = await db.query.posts.findFirst({
+      where: { id: postId },
+      columns: { id: true, title: true, slug: true, thumbnail: true },
+    });
+
+    if (!post) return null;
+
+    return {
+      id,
+      type: "blog.post-created",
+      createdAt,
+      read,
+      actor: null,
+      message: `New blog post: ${post.title}`,
+      link: `/blog/${post.slug}`,
+      metadata: { postId, slug: post.slug },
     };
   }
 }

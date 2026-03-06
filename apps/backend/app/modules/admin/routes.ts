@@ -13,6 +13,10 @@ const GetSchoolsController = () =>
   import("#modules/admin/get-all-schools/controller");
 const GetDancersController = () =>
   import("#modules/admin/get-all-dancers/controller");
+const CreateBlogPostController = () =>
+  import("#modules/admin/create-blog-post/controller");
+const DeleteBlogPostController = () =>
+  import("#modules/admin/delete-blog-post/controller");
 
 router
   .group(() => {
@@ -49,6 +53,14 @@ router
     router.get("dancers", [GetDancersController]).openapi({
       summary: "Get all dancers",
       description: "Returns all dancers for admin dashboard",
+    });
+
+    router.post("blog", [CreateBlogPostController]).openapi({
+      description: "Creates a new blog post",
+    });
+
+    router.delete("blog/:id", [DeleteBlogPostController]).openapi({
+      description: "Deletes a blog post",
     });
   })
   .use([middleware.auth(), middleware.admin()])

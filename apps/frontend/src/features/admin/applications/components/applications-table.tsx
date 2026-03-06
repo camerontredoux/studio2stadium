@@ -85,7 +85,7 @@ export function ApplicationsTable({
                 <StatusBadge status={app.status} />
               </TableCell>
               <TableCell>
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   {app.status !== "accepted" && (
                     <Button
                       size="xs"
