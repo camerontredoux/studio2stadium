@@ -208,7 +208,7 @@ export function SignupForm() {
                       By clicking this checkbox, you agree to our{" "}
                       <a
                         className="text-brand underline"
-                        href="https://marketing.studio2stadium.com/terms"
+                        href="https://studio2stadium.com/terms"
                         target="_blank"
                       >
                         terms and conditions
