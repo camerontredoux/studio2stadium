@@ -17,6 +17,8 @@ const CreateBlogPostController = () =>
   import("#modules/admin/create-blog-post/controller");
 const DeleteBlogPostController = () =>
   import("#modules/admin/delete-blog-post/controller");
+const GetOutboxStatsController = () =>
+  import("#modules/admin/get-outbox-stats/controller");
 
 router
   .group(() => {
@@ -56,11 +58,19 @@ router
     });
 
     router.post("blog", [CreateBlogPostController]).openapi({
-      description: "Creates a new blog post",
+      summary: "Create blog post",
+      description:
+        "Creates a new blog post with title, content, and optional cover image",
     });
 
     router.delete("blog/:id", [DeleteBlogPostController]).openapi({
-      description: "Deletes a blog post",
+      summary: "Delete blog post",
+      description: "Permanently deletes a blog post by ID",
+    });
+
+    router.get("outbox/stats", [GetOutboxStatsController]).openapi({
+      summary: "Get outbox stats",
+      description: "Returns aggregated counts of outbox items by type",
     });
   })
   .use([middleware.auth(), middleware.admin()])

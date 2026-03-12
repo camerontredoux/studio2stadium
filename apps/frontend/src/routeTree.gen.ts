@@ -49,6 +49,7 @@ import { Route as ApproutesRecruitingEditRouteImport } from './routes/_app/(rout
 import { Route as ApproutesExploreUsernameRouteImport } from './routes/_app/(routes)/explore/$username'
 import { Route as ApproutesEventsEventIdRouteImport } from './routes/_app/(routes)/events/$eventId'
 import { Route as AdminroutesAdminSchoolEventsRouteImport } from './routes/_admin/(routes)/admin/school-events'
+import { Route as AdminroutesAdminOutboxStatsRouteImport } from './routes/_admin/(routes)/admin/outbox-stats'
 import { Route as AdminroutesAdminGlobalEventsRouteImport } from './routes/_admin/(routes)/admin/global-events'
 import { Route as AdminroutesAdminDashboardRouteImport } from './routes/_admin/(routes)/admin/dashboard'
 import { Route as AdminroutesAdminBlogRouteImport } from './routes/_admin/(routes)/admin/blog'
@@ -265,6 +266,12 @@ const AdminroutesAdminSchoolEventsRoute =
     path: '/admin/school-events',
     getParentRoute: () => AdminRouteRoute,
   } as any)
+const AdminroutesAdminOutboxStatsRoute =
+  AdminroutesAdminOutboxStatsRouteImport.update({
+    id: '/(routes)/admin/outbox-stats',
+    path: '/admin/outbox-stats',
+    getParentRoute: () => AdminRouteRoute,
+  } as any)
 const AdminroutesAdminGlobalEventsRoute =
   AdminroutesAdminGlobalEventsRouteImport.update({
     id: '/(routes)/admin/global-events',
@@ -320,6 +327,7 @@ export interface FileRoutesByFullPath {
   '/admin/blog': typeof AdminroutesAdminBlogRoute
   '/admin/dashboard': typeof AdminroutesAdminDashboardRouteWithChildren
   '/admin/global-events': typeof AdminroutesAdminGlobalEventsRoute
+  '/admin/outbox-stats': typeof AdminroutesAdminOutboxStatsRoute
   '/admin/school-events': typeof AdminroutesAdminSchoolEventsRoute
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
   '/explore/$username': typeof ApproutesExploreUsernameRoute
@@ -361,6 +369,7 @@ export interface FileRoutesByTo {
   '/admin/blog': typeof AdminroutesAdminBlogRoute
   '/admin/dashboard': typeof AdminroutesAdminDashboardRouteWithChildren
   '/admin/global-events': typeof AdminroutesAdminGlobalEventsRoute
+  '/admin/outbox-stats': typeof AdminroutesAdminOutboxStatsRoute
   '/admin/school-events': typeof AdminroutesAdminSchoolEventsRoute
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
   '/explore/$username': typeof ApproutesExploreUsernameRoute
@@ -410,6 +419,7 @@ export interface FileRoutesById {
   '/_admin/(routes)/admin/blog': typeof AdminroutesAdminBlogRoute
   '/_admin/(routes)/admin/dashboard': typeof AdminroutesAdminDashboardRouteWithChildren
   '/_admin/(routes)/admin/global-events': typeof AdminroutesAdminGlobalEventsRoute
+  '/_admin/(routes)/admin/outbox-stats': typeof AdminroutesAdminOutboxStatsRoute
   '/_admin/(routes)/admin/school-events': typeof AdminroutesAdminSchoolEventsRoute
   '/_app/(routes)/events/$eventId': typeof ApproutesEventsEventIdRoute
   '/_app/(routes)/explore/$username': typeof ApproutesExploreUsernameRoute
@@ -456,6 +466,7 @@ export interface FileRouteTypes {
     | '/admin/blog'
     | '/admin/dashboard'
     | '/admin/global-events'
+    | '/admin/outbox-stats'
     | '/admin/school-events'
     | '/events/$eventId'
     | '/explore/$username'
@@ -497,6 +508,7 @@ export interface FileRouteTypes {
     | '/admin/blog'
     | '/admin/dashboard'
     | '/admin/global-events'
+    | '/admin/outbox-stats'
     | '/admin/school-events'
     | '/events/$eventId'
     | '/explore/$username'
@@ -545,6 +557,7 @@ export interface FileRouteTypes {
     | '/_admin/(routes)/admin/blog'
     | '/_admin/(routes)/admin/dashboard'
     | '/_admin/(routes)/admin/global-events'
+    | '/_admin/(routes)/admin/outbox-stats'
     | '/_admin/(routes)/admin/school-events'
     | '/_app/(routes)/events/$eventId'
     | '/_app/(routes)/explore/$username'
@@ -860,6 +873,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminroutesAdminSchoolEventsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/_admin/(routes)/admin/outbox-stats': {
+      id: '/_admin/(routes)/admin/outbox-stats'
+      path: '/admin/outbox-stats'
+      fullPath: '/admin/outbox-stats'
+      preLoaderRoute: typeof AdminroutesAdminOutboxStatsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/_admin/(routes)/admin/global-events': {
       id: '/_admin/(routes)/admin/global-events'
       path: '/admin/global-events'
@@ -927,6 +947,7 @@ interface AdminRouteRouteChildren {
   AdminroutesAdminBlogRoute: typeof AdminroutesAdminBlogRoute
   AdminroutesAdminDashboardRoute: typeof AdminroutesAdminDashboardRouteWithChildren
   AdminroutesAdminGlobalEventsRoute: typeof AdminroutesAdminGlobalEventsRoute
+  AdminroutesAdminOutboxStatsRoute: typeof AdminroutesAdminOutboxStatsRoute
   AdminroutesAdminSchoolEventsRoute: typeof AdminroutesAdminSchoolEventsRoute
 }
 
@@ -935,6 +956,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminroutesAdminBlogRoute: AdminroutesAdminBlogRoute,
   AdminroutesAdminDashboardRoute: AdminroutesAdminDashboardRouteWithChildren,
   AdminroutesAdminGlobalEventsRoute: AdminroutesAdminGlobalEventsRoute,
+  AdminroutesAdminOutboxStatsRoute: AdminroutesAdminOutboxStatsRoute,
   AdminroutesAdminSchoolEventsRoute: AdminroutesAdminSchoolEventsRoute,
 }
 

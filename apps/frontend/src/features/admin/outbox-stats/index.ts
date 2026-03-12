@@ -1,0 +1,1 @@
+export { OutboxStatsPage } from "./page";

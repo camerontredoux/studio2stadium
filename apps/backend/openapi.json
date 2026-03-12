@@ -250,7 +250,8 @@
         "tags": [
           "Admin"
         ],
-        "description": "Creates a new blog post"
+        "summary": "Create blog post",
+        "description": "Creates a new blog post with title, content, and optional cover image"
       }
     },
     "/admin/blog/{id}": {
@@ -283,7 +284,23 @@
         "tags": [
           "Admin"
         ],
-        "description": "Deletes a blog post"
+        "summary": "Delete blog post",
+        "description": "Permanently deletes a blog post by ID"
+      }
+    },
+    "/admin/outbox/stats": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get outbox stats",
+        "description": "Returns aggregated counts of outbox items by type"
       }
     },
     "/application": {

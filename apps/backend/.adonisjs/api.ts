@@ -39,6 +39,10 @@ type AdminBlogIdDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/delete-blog-post/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/delete-blog-post/controller.ts').default['handle'], true>
 }
+type AdminOutboxStatsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/admin/get-outbox-stats/controller.ts').default['handle'], false>
+}
 type ApplicationGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/applications/get-application/controller.ts').default['handle'], false>
@@ -508,6 +512,14 @@ export interface ApiDefinition {
         '$url': {
         };
         '$delete': AdminBlogIdDelete;
+      };
+    };
+    'outbox': {
+      'stats': {
+        '$url': {
+        };
+        '$get': AdminOutboxStatsGetHead;
+        '$head': AdminOutboxStatsGetHead;
       };
     };
   };
