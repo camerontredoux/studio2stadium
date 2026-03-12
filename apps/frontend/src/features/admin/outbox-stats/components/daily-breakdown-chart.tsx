@@ -89,7 +89,7 @@ export function DailyBreakdownChart({ data }: DailyBreakdownChartProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-medium">Daily Event Counts</h4>
-        <Select value={selectedType} onValueChange={setSelectedType} items={selectItems}>
+        <Select value={selectedType} onValueChange={(v) => setSelectedType(v ?? "all")} items={selectItems}>
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Select event type" />
           </SelectTrigger>
