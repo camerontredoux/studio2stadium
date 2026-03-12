@@ -30,7 +30,9 @@
             }
           }
         },
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Get all applications",
         "description": "Returns all school applications for admin review"
       }
@@ -71,7 +73,9 @@
             }
           }
         },
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Update application status",
         "description": "Updates a school application status to accepted or rejected"
       }
@@ -91,7 +95,9 @@
             }
           }
         },
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Get all schools",
         "description": "Returns all schools for admin dashboard"
       }
@@ -139,7 +145,9 @@
             }
           }
         },
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Add event to school",
         "description": "Creates an event for a school by username"
       }
@@ -177,9 +185,111 @@
             }
           }
         },
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Add global event",
         "description": "Creates a global dance event"
+      }
+    },
+    "/admin/events/global/{id}": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminEventsGlobalIdRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEventsGlobalIdResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Edit global event",
+        "description": "Updates a global event by ID"
+      }
+    },
+    "/admin/events/school/{id}": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminEventsSchoolIdRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEventsSchoolIdResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Edit school event",
+        "description": "Updates a school event by ID"
       }
     },
     "/admin/dancers": {
@@ -197,7 +307,9 @@
             }
           }
         },
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Get all dancers",
         "description": "Returns all dancers for admin dashboard"
       }
@@ -235,7 +347,9 @@
             }
           }
         },
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Create blog post",
         "description": "Creates a new blog post with title, content, and optional cover image"
       }
@@ -267,7 +381,9 @@
             }
           }
         },
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Delete blog post",
         "description": "Permanently deletes a blog post by ID"
       }
@@ -280,7 +396,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Get outbox stats",
         "description": "Returns aggregated counts of outbox items by type"
       }
@@ -300,7 +418,9 @@
             }
           }
         },
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Get outbox stats history",
         "description": "Returns historical outbox stats with daily, weekly, and monthly breakdowns"
       }
@@ -320,7 +440,9 @@
             }
           }
         },
-        "tags": ["Applications"],
+        "tags": [
+          "Applications"
+        ],
         "summary": "Get application status",
         "description": "Returns the school's application details"
       },
@@ -349,7 +471,9 @@
             }
           }
         },
-        "tags": ["Applications"],
+        "tags": [
+          "Applications"
+        ],
         "summary": "Submit application",
         "description": "Submits the school's application"
       },
@@ -378,7 +502,9 @@
             }
           }
         },
-        "tags": ["Applications"],
+        "tags": [
+          "Applications"
+        ],
         "summary": "Update application",
         "description": "Updates the school's application"
       }
@@ -416,7 +542,9 @@
             }
           }
         },
-        "tags": ["Authentication"],
+        "tags": [
+          "Authentication"
+        ],
         "summary": "Create user account",
         "description": "Creates a new base user account."
       }
@@ -467,7 +595,9 @@
             }
           }
         },
-        "tags": ["Authentication"],
+        "tags": [
+          "Authentication"
+        ],
         "summary": "Start user session",
         "description": "Logs in a user and creates a session in Redis."
       }
@@ -486,7 +616,9 @@
             }
           }
         },
-        "tags": ["Authentication"],
+        "tags": [
+          "Authentication"
+        ],
         "summary": "End user session",
         "description": "Logs out the current user and deletes their session from Redis."
       }
@@ -506,7 +638,9 @@
             }
           }
         },
-        "tags": ["Authentication"],
+        "tags": [
+          "Authentication"
+        ],
         "summary": "Get user session",
         "description": "Retrieves the current session's user information."
       }
@@ -537,7 +671,9 @@
             }
           }
         },
-        "tags": ["Authentication"],
+        "tags": [
+          "Authentication"
+        ],
         "summary": "Change password",
         "description": "Changes the user's password"
       }
@@ -568,7 +704,9 @@
             }
           }
         },
-        "tags": ["Authentication"],
+        "tags": [
+          "Authentication"
+        ],
         "summary": "Forgot password",
         "description": "Sends a password reset email to the user"
       }
@@ -606,7 +744,9 @@
             }
           }
         },
-        "tags": ["Authentication"],
+        "tags": [
+          "Authentication"
+        ],
         "summary": "Reset password",
         "description": "Resets the user's password"
       }
@@ -626,7 +766,9 @@
             }
           }
         },
-        "tags": ["Blog"],
+        "tags": [
+          "Blog"
+        ],
         "summary": "Get all posts",
         "description": "Returns a list of all blog posts"
       }
@@ -672,7 +814,9 @@
             }
           }
         },
-        "tags": ["Feed"],
+        "tags": [
+          "Feed"
+        ],
         "summary": "Get feed",
         "description": "Returns the feed for the current user"
       }
@@ -719,7 +863,9 @@
             }
           }
         },
-        "tags": ["Video Library"],
+        "tags": [
+          "Video Library"
+        ],
         "summary": "List tap in videos",
         "description": "Returns a list of all tap in videos with their category"
       }
@@ -740,7 +886,10 @@
             "in": "query",
             "required": true,
             "schema": {
-              "type": ["string", "number"]
+              "type": [
+                "string",
+                "number"
+              ]
             }
           }
         ],
@@ -766,7 +915,9 @@
             }
           }
         },
-        "tags": ["Video Library"],
+        "tags": [
+          "Video Library"
+        ],
         "summary": "List videos by category",
         "description": "Returns a list of videos by category, paginated with 6 results at a time"
       }
@@ -812,7 +963,9 @@
             }
           }
         },
-        "tags": ["Notifications"],
+        "tags": [
+          "Notifications"
+        ],
         "summary": "Get notifications",
         "description": "Returns the user's notifications with enriched data"
       }
@@ -832,7 +985,9 @@
             }
           }
         },
-        "tags": ["Notifications"],
+        "tags": [
+          "Notifications"
+        ],
         "summary": "Get notification count",
         "description": "Returns the count of unread notifications"
       }
@@ -845,7 +1000,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Notifications"],
+        "tags": [
+          "Notifications"
+        ],
         "summary": "Realtime notification stream",
         "description": "SSE endpoint for realtime notifications"
       }
@@ -864,7 +1021,9 @@
             }
           }
         },
-        "tags": ["Notifications"],
+        "tags": [
+          "Notifications"
+        ],
         "summary": "Mark all notifications as read",
         "description": "Marks all notifications as read by setting seenAt"
       }
@@ -903,7 +1062,9 @@
             }
           }
         },
-        "tags": ["Notifications"],
+        "tags": [
+          "Notifications"
+        ],
         "summary": "Mark notification as read",
         "description": "Marks a notification as read by setting seenAt"
       }
@@ -923,7 +1084,9 @@
             }
           }
         },
-        "tags": ["Skills"],
+        "tags": [
+          "Skills"
+        ],
         "summary": "Get all skills",
         "description": "Returns a list of all skills"
       }
@@ -943,7 +1106,9 @@
             }
           }
         },
-        "tags": ["Sports"],
+        "tags": [
+          "Sports"
+        ],
         "summary": "Get all sports",
         "description": "Returns a list of all sports"
       }
@@ -963,7 +1128,9 @@
             }
           }
         },
-        "tags": ["Styles"],
+        "tags": [
+          "Styles"
+        ],
         "summary": "Get all styles",
         "description": "Returns a list of all styles"
       }
@@ -983,7 +1150,9 @@
             }
           }
         },
-        "tags": ["Subscriptions"],
+        "tags": [
+          "Subscriptions"
+        ],
         "summary": "Get subscription status",
         "description": "Gets the authenticated dancer's subscription status"
       }
@@ -1021,7 +1190,9 @@
             }
           }
         },
-        "tags": ["Subscriptions"],
+        "tags": [
+          "Subscriptions"
+        ],
         "summary": "Create a checkout session",
         "description": "Creates a checkout session for the authenticated dancer"
       }
@@ -1040,7 +1211,9 @@
             }
           }
         },
-        "tags": ["Subscriptions"],
+        "tags": [
+          "Subscriptions"
+        ],
         "summary": "Manage a subscription",
         "description": "Manages the authenticated dancer's subscription"
       }
@@ -1103,7 +1276,9 @@
             }
           }
         },
-        "tags": ["Contact"],
+        "tags": [
+          "Contact"
+        ],
         "summary": "Contact us",
         "description": "Sends a contact form message to the team"
       }
@@ -1134,7 +1309,9 @@
             }
           }
         },
-        "tags": ["Contact"],
+        "tags": [
+          "Contact"
+        ],
         "summary": "Submit feedback",
         "description": "Submits user feedback to the team"
       }
@@ -1261,7 +1438,11 @@
             "schema": {
               "oneOf": [
                 {
-                  "type": ["string", "number", "boolean"]
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
                 },
                 {
                   "type": "null"
@@ -1276,7 +1457,10 @@
             "schema": {
               "oneOf": [
                 {
-                  "type": ["string", "number"]
+                  "type": [
+                    "string",
+                    "number"
+                  ]
                 },
                 {
                   "type": "null"
@@ -1291,7 +1475,10 @@
             "schema": {
               "oneOf": [
                 {
-                  "type": ["string", "number"]
+                  "type": [
+                    "string",
+                    "number"
+                  ]
                 },
                 {
                   "type": "null"
@@ -1306,7 +1493,11 @@
             "schema": {
               "oneOf": [
                 {
-                  "type": ["string", "number", "boolean"]
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
                 },
                 {
                   "type": "null"
@@ -1346,7 +1537,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Get dancers",
         "description": "Returns a list of dancers"
       },
@@ -1375,7 +1568,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Create a dancer",
         "description": "Populate account with personal information to finish dancer signup"
       }
@@ -1395,7 +1590,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Get dancer filters",
         "description": "Returns the filters to use when searching for dancers"
       }
@@ -1426,7 +1623,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Update my portfolio",
         "description": "Updates the authenticated dancer's portfolio"
       }
@@ -1446,7 +1645,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Get dancer skills",
         "description": "Returns the dancer's skills"
       },
@@ -1475,7 +1676,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Update dancer skills",
         "description": "Updates the dancer's skills"
       }
@@ -1495,7 +1698,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Get dancer styles",
         "description": "Returns the dancer's styles"
       },
@@ -1524,7 +1729,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Update dancer styles",
         "description": "Updates the dancer's styles"
       }
@@ -1544,7 +1751,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Get dancer sports",
         "description": "Returns the dancer's sports"
       },
@@ -1573,7 +1782,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Update dancer sports",
         "description": "Updates the dancer's sports"
       }
@@ -1593,7 +1804,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Get following list",
         "description": "Returns the list of school's IDs I'm following"
       }
@@ -1613,7 +1826,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Get following list IDs",
         "description": "Returns the list of school's IDs I'm following"
       }
@@ -1633,7 +1848,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Get dancer followers",
         "description": "Returns the schools that have favorited this dancer."
       }
@@ -1663,7 +1880,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Get dancer profile checklist",
         "description": "Returns the dancer's profile checklist"
       }
@@ -1683,7 +1902,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Get dancer's CRV submissions",
         "description": "Returns the common recruiting video submissions for the authenticated dancer"
       },
@@ -1712,7 +1933,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Create a CRV submission",
         "description": "Creates a common recruiting video submission for the authenticated dancer"
       }
@@ -1732,7 +1955,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Get the dancer's submission video",
         "description": "Returns the dancer's submission video"
       },
@@ -1761,7 +1986,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Edit the dancer's submission video",
         "description": "Updates the YouTube URL for the dancer's common recruiting video"
       }
@@ -1781,7 +2008,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Get schools that the dancer has not submitted to",
         "description": "Returns the schools that the dancer has not submitted to"
       }
@@ -1820,7 +2049,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Get a dancer",
         "description": "Returns the dancer's public profile"
       }
@@ -1862,7 +2093,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Favorite a dancer",
         "description": "Adds a dancer to the school's favorites list."
       },
@@ -1892,7 +2125,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Unfavorite a dancer",
         "description": "Removes a dancer from the school's favorites list."
       }
@@ -1931,7 +2166,9 @@
             }
           }
         },
-        "tags": ["Dancers"],
+        "tags": [
+          "Dancers"
+        ],
         "summary": "Get dancer metadata",
         "description": "Returns the dancer's metadata"
       }
@@ -1962,7 +2199,9 @@
             }
           }
         },
-        "tags": ["References"],
+        "tags": [
+          "References"
+        ],
         "summary": "Create a reference",
         "description": "Creates a reference for the authenticated dancer"
       }
@@ -2003,7 +2242,9 @@
             }
           }
         },
-        "tags": ["References"],
+        "tags": [
+          "References"
+        ],
         "summary": "Update a reference",
         "description": "Updates a reference for the authenticated dancer"
       },
@@ -2033,7 +2274,9 @@
             }
           }
         },
-        "tags": ["References"],
+        "tags": [
+          "References"
+        ],
         "summary": "Delete a reference",
         "description": "Deletes a reference for the authenticated dancer"
       }
@@ -2064,7 +2307,9 @@
             }
           }
         },
-        "tags": ["Achievements"],
+        "tags": [
+          "Achievements"
+        ],
         "summary": "Create an achievement",
         "description": "Creates an achievement for the authenticated dancer"
       }
@@ -2105,7 +2350,9 @@
             }
           }
         },
-        "tags": ["Achievements"],
+        "tags": [
+          "Achievements"
+        ],
         "summary": "Update an achievement",
         "description": "Updates an achievement for the authenticated dancer"
       },
@@ -2135,7 +2382,9 @@
             }
           }
         },
-        "tags": ["Achievements"],
+        "tags": [
+          "Achievements"
+        ],
         "summary": "Delete an achievement",
         "description": "Deletes an achievement for the authenticated dancer"
       }
@@ -2263,7 +2512,9 @@
             }
           }
         },
-        "tags": ["Events"],
+        "tags": [
+          "Events"
+        ],
         "summary": "Get all events",
         "description": "Returns a list of all upcoming events"
       },
@@ -2292,7 +2543,9 @@
             }
           }
         },
-        "tags": ["Events"],
+        "tags": [
+          "Events"
+        ],
         "summary": "Create event",
         "description": "Creates a new school hosted event"
       }
@@ -2312,7 +2565,9 @@
             }
           }
         },
-        "tags": ["Events"],
+        "tags": [
+          "Events"
+        ],
         "summary": "Get event filters",
         "description": "Returns the filters to use when searching for events"
       }
@@ -2332,7 +2587,9 @@
             }
           }
         },
-        "tags": ["Events"],
+        "tags": [
+          "Events"
+        ],
         "summary": "Get upcoming events",
         "description": "Returns a list of upcoming events"
       }
@@ -2352,7 +2609,9 @@
             }
           }
         },
-        "tags": ["Events"],
+        "tags": [
+          "Events"
+        ],
         "summary": "Get all global events",
         "description": "Returns a list of all upcoming global events"
       }
@@ -2372,7 +2631,9 @@
             }
           }
         },
-        "tags": ["Events"],
+        "tags": [
+          "Events"
+        ],
         "summary": "Get upcoming global events",
         "description": "Returns a list of upcoming global events"
       }
@@ -2411,7 +2672,9 @@
             }
           }
         },
-        "tags": ["Events"],
+        "tags": [
+          "Events"
+        ],
         "summary": "Get event by id",
         "description": "Returns details about a specific event"
       },
@@ -2450,7 +2713,9 @@
             }
           }
         },
-        "tags": ["Events"],
+        "tags": [
+          "Events"
+        ],
         "summary": "Edit event",
         "description": "Edits a school hosted event"
       },
@@ -2480,7 +2745,9 @@
             }
           }
         },
-        "tags": ["Events"],
+        "tags": [
+          "Events"
+        ],
         "summary": "Delete event",
         "description": "Deletes a school hosted event"
       }
@@ -2521,7 +2788,9 @@
             }
           }
         },
-        "tags": ["Events"],
+        "tags": [
+          "Events"
+        ],
         "summary": "Save event",
         "description": "Saves an event for the current user"
       }
@@ -2568,7 +2837,9 @@
             }
           }
         },
-        "tags": ["Events"],
+        "tags": [
+          "Events"
+        ],
         "summary": "Unsave event",
         "description": "Unsaves an event for the current user"
       }
@@ -2599,7 +2870,9 @@
             }
           }
         },
-        "tags": ["Images"],
+        "tags": [
+          "Images"
+        ],
         "summary": "Upload media to user's profile",
         "description": "Posts an image to the user's profile and adds it to their followers' feeds"
       }
@@ -2637,7 +2910,9 @@
             }
           }
         },
-        "tags": ["Images"],
+        "tags": [
+          "Images"
+        ],
         "summary": "Request one-time upload URL",
         "description": "Makes a request to Cloudflare to create a one-time signed upload URL for the user's image"
       }
@@ -2669,7 +2944,9 @@
             }
           }
         },
-        "tags": ["Images"],
+        "tags": [
+          "Images"
+        ],
         "summary": "Delete an image",
         "description": "Deletes an image from the user's profile and feed"
       }
@@ -2751,7 +3028,11 @@
             "schema": {
               "oneOf": [
                 {
-                  "type": ["string", "number", "boolean"]
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
                 },
                 {
                   "type": "null"
@@ -2767,7 +3048,11 @@
               "oneOf": [
                 {
                   "type": "string",
-                  "enum": ["recruitment", "audition", "hybrid"]
+                  "enum": [
+                    "recruitment",
+                    "audition",
+                    "hybrid"
+                  ]
                 },
                 {
                   "type": "null"
@@ -2850,7 +3135,11 @@
             "schema": {
               "oneOf": [
                 {
-                  "type": ["string", "number", "boolean"]
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
                 },
                 {
                   "type": "null"
@@ -2874,7 +3163,11 @@
             "schema": {
               "oneOf": [
                 {
-                  "type": ["string", "number", "boolean"]
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
                 },
                 {
                   "type": "null"
@@ -2905,7 +3198,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Get schools",
         "description": "Returns a list of schools"
       }
@@ -2944,7 +3239,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Check school name availability",
         "description": "Checks if a school name is available for registration."
       }
@@ -2974,7 +3271,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Get school filters",
         "description": "Returns the filters to use when searching for schools"
       }
@@ -2989,7 +3288,10 @@
             "schema": {
               "oneOf": [
                 {
-                  "type": ["string", "number"]
+                  "type": [
+                    "string",
+                    "number"
+                  ]
                 },
                 {
                   "type": "null"
@@ -3020,7 +3322,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Get recommended programs",
         "description": "Returns a list of recommended programs"
       }
@@ -3051,7 +3355,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Update my school",
         "description": "Updates the authenticated school's program information"
       }
@@ -3071,7 +3377,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Get school followers",
         "description": "Returns the dancers that have followed this school."
       }
@@ -3091,7 +3399,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Get following list",
         "description": "Returns the list of dancers this school has favorited."
       }
@@ -3111,7 +3421,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Get following list IDs",
         "description": "Returns the list of dancer's IDs this school has favorited"
       }
@@ -3131,7 +3443,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Get favorites data",
         "description": "Returns the data for the school's favorites"
       }
@@ -3172,7 +3486,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Update a favorite",
         "description": "Updates a favorite for the school"
       }
@@ -3192,7 +3508,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Get school skills",
         "description": "Returns the school's skills"
       },
@@ -3221,7 +3539,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Update school skills",
         "description": "Updates the school's skills"
       }
@@ -3241,7 +3561,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Get school styles",
         "description": "Returns the school's styles"
       },
@@ -3270,7 +3592,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Update school styles",
         "description": "Updates the school's styles"
       }
@@ -3290,7 +3614,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Get school sports",
         "description": "Returns the school's sports"
       },
@@ -3319,7 +3645,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Update school sports",
         "description": "Updates the school's sports"
       }
@@ -3339,7 +3667,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Get CRV submissions",
         "description": "Returns dancer submissions to this school"
       }
@@ -3380,7 +3710,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Update CRV submission",
         "description": "Updates status or watched state of a submission"
       }
@@ -3412,7 +3744,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Record profile view",
         "description": "Records that the school viewed a dancer's profile"
       }
@@ -3451,7 +3785,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Get a school",
         "description": "Returns the school's public profile"
       }
@@ -3493,7 +3829,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Follow a school",
         "description": "Follows the school's profile using the school ID"
       },
@@ -3523,7 +3861,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Unfollow a school",
         "description": "Unfollows the school's profile using the school ID"
       }
@@ -3562,7 +3902,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Get school metadata",
         "description": "Returns the school's metadata"
       }
@@ -3601,7 +3943,9 @@
             }
           }
         },
-        "tags": ["Schools"],
+        "tags": [
+          "Schools"
+        ],
         "summary": "Show interest in a school",
         "description": "A dancer can show interest in a school up to 3 times. This endpoint will increment the interest count for the school, and send a notification to the school."
       }
@@ -3640,7 +3984,9 @@
             }
           }
         },
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Check username availability",
         "description": "Checks if a username is available for registration."
       }
@@ -3660,7 +4006,9 @@
             }
           }
         },
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get account settings",
         "description": "Returns the user's account settings"
       },
@@ -3689,7 +4037,9 @@
             }
           }
         },
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Update account settings",
         "description": "Updates the user's account settings"
       },
@@ -3736,7 +4086,9 @@
             }
           }
         },
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Delete account",
         "description": "Deletes the user's account"
       }
@@ -3777,7 +4129,9 @@
             }
           }
         },
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Update user avatar",
         "description": "Updates the image ID for the user's avatar from Cloudflare"
       }
@@ -3797,7 +4151,9 @@
             }
           }
         },
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get user activity",
         "description": "Returns the user's activity"
       }
@@ -3829,7 +4185,9 @@
             }
           }
         },
-        "tags": ["Videos"],
+        "tags": [
+          "Videos"
+        ],
         "summary": "Delete a video",
         "description": "Deletes a video from the user's profile and feed"
       }
@@ -3854,7 +4212,9 @@
             }
           }
         },
-        "tags": ["Videos"],
+        "tags": [
+          "Videos"
+        ],
         "summary": "Initiate TUS video upload",
         "description": "Initiates a TUS resumable upload to Cloudflare Stream"
       }
@@ -3892,7 +4252,9 @@
             }
           }
         },
-        "tags": ["Videos"],
+        "tags": [
+          "Videos"
+        ],
         "summary": "Add YouTube video",
         "description": "Add a YouTube video to the user's profile"
       }
@@ -3937,7 +4299,11 @@
             "additionalProperties": true
           }
         },
-        "required": ["message", "code", "status"]
+        "required": [
+          "message",
+          "code",
+          "status"
+        ]
       },
       "ValidationError": {
         "properties": {
@@ -3952,7 +4318,10 @@
             "example": "Email is required"
           }
         },
-        "required": ["field", "message"]
+        "required": [
+          "field",
+          "message"
+        ]
       },
       "DancerFilterParam": {
         "type": "string",
@@ -3968,7 +4337,11 @@
       },
       "EventFilterParam": {
         "type": "string",
-        "enum": ["location", "date", "schoolName"]
+        "enum": [
+          "location",
+          "date",
+          "schoolName"
+        ]
       },
       "SchoolFilterParam": {
         "type": "string",
@@ -3990,7 +4363,12 @@
         "oneOf": [
           {
             "type": "string",
-            "enum": ["partial", "excellent", "good", "unqualified"]
+            "enum": [
+              "partial",
+              "excellent",
+              "good",
+              "unqualified"
+            ]
           },
           {
             "type": "null"
@@ -4007,7 +4385,11 @@
             },
             "status": {
               "type": "string",
-              "enum": ["accepted", "rejected", "pending"]
+              "enum": [
+                "accepted",
+                "rejected",
+                "pending"
+              ]
             },
             "notes": {
               "oneOf": [
@@ -4074,7 +4456,12 @@
                   "type": "string"
                 }
               },
-              "required": ["id", "user", "name", "location"]
+              "required": [
+                "id",
+                "user",
+                "name",
+                "location"
+              ]
             },
             "createdAt": {
               "type": "string"
@@ -4115,10 +4502,15 @@
           },
           "status": {
             "type": "string",
-            "enum": ["accepted", "rejected"]
+            "enum": [
+              "accepted",
+              "rejected"
+            ]
           }
         },
-        "required": ["status"]
+        "required": [
+          "status"
+        ]
       },
       "AdminSchoolsResponse": {
         "type": "array",
@@ -4155,7 +4547,11 @@
                 },
                 "role": {
                   "type": "string",
-                  "enum": ["user", "admin", "prodigy_admin"]
+                  "enum": [
+                    "user",
+                    "admin",
+                    "prodigy_admin"
+                  ]
                 }
               },
               "required": [
@@ -4279,9 +4675,6 @@
           },
           "endDatetime": {
             "type": "string"
-          },
-          "timezone": {
-            "type": "string"
           }
         },
         "required": [
@@ -4290,8 +4683,7 @@
           "title",
           "description",
           "startDatetime",
-          "endDatetime",
-          "timezone"
+          "endDatetime"
         ]
       },
       "AdminSchoolsIdEventsResponse": {
@@ -4301,7 +4693,9 @@
             "type": "string"
           }
         },
-        "required": ["id"]
+        "required": [
+          "id"
+        ]
       },
       "AdminEventsGlobalRequest": {
         "type": "object",
@@ -4372,7 +4766,272 @@
             "type": "string"
           }
         },
-        "required": ["id"]
+        "required": [
+          "id"
+        ]
+      },
+      "AdminEventsGlobalIdRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "recruitment",
+                  "audition",
+                  "other",
+                  "rehearsal",
+                  "recital",
+                  "showcase",
+                  "competition",
+                  "class",
+                  "intensive",
+                  "workshop",
+                  "fundraiser",
+                  "combine",
+                  "convention",
+                  "clinic",
+                  "deadline",
+                  "performance",
+                  "camp"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "location": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "website": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "startDatetime": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "endDatetime": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "thumbnail": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "organization": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "AdminEventsGlobalIdResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "AdminEventsSchoolIdRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "recruitment",
+                  "audition",
+                  "other",
+                  "rehearsal",
+                  "recital",
+                  "showcase",
+                  "competition",
+                  "class",
+                  "intensive",
+                  "workshop",
+                  "fundraiser",
+                  "combine",
+                  "convention",
+                  "clinic",
+                  "deadline",
+                  "performance",
+                  "camp"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "location": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "website": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "address": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tags": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cost": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "startDatetime": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "endDatetime": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "AdminEventsSchoolIdResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
       },
       "AdminDancersResponse": {
         "type": "array",
@@ -4412,7 +5071,11 @@
                 },
                 "role": {
                   "type": "string",
-                  "enum": ["user", "admin", "prodigy_admin"]
+                  "enum": [
+                    "user",
+                    "admin",
+                    "prodigy_admin"
+                  ]
                 }
               },
               "required": [
@@ -4452,7 +5115,14 @@
               ]
             }
           },
-          "required": ["id", "user", "createdAt", "location", "gpa", "gradYear"]
+          "required": [
+            "id",
+            "user",
+            "createdAt",
+            "location",
+            "gpa",
+            "gradYear"
+          ]
         }
       },
       "AdminBlogRequest": {
@@ -4484,7 +5154,12 @@
             "type": "string"
           }
         },
-        "required": ["title", "description", "thumbnail", "content"]
+        "required": [
+          "title",
+          "description",
+          "thumbnail",
+          "content"
+        ]
       },
       "AdminBlogResponse": {
         "type": "object",
@@ -4493,7 +5168,9 @@
             "type": "string"
           }
         },
-        "required": ["id"]
+        "required": [
+          "id"
+        ]
       },
       "AdminOutboxStatsHistoryResponse": {
         "type": "object",
@@ -4525,11 +5202,20 @@
                   "type": "number"
                 }
               },
-              "required": ["type", "date", "count"]
+              "required": [
+                "type",
+                "date",
+                "count"
+              ]
             }
           }
         },
-        "required": ["daily", "weekly", "monthly", "dailyBreakdown"]
+        "required": [
+          "daily",
+          "weekly",
+          "monthly",
+          "dailyBreakdown"
+        ]
       },
       "ApplicationResponse": {
         "type": "object",
@@ -4539,7 +5225,11 @@
           },
           "status": {
             "type": "string",
-            "enum": ["accepted", "rejected", "pending"]
+            "enum": [
+              "accepted",
+              "rejected",
+              "pending"
+            ]
           },
           "notes": {
             "oneOf": [
@@ -4574,7 +5264,9 @@
             "type": "string"
           }
         },
-        "required": ["thumbnail"]
+        "required": [
+          "thumbnail"
+        ]
       },
       "ApplicationRequest": {
         "type": "object",
@@ -4586,7 +5278,10 @@
             "type": "string"
           }
         },
-        "required": ["phone", "mediaId"]
+        "required": [
+          "phone",
+          "mediaId"
+        ]
       },
       "ApplicationPatchRequest": {
         "type": "object",
@@ -4654,7 +5349,10 @@
           },
           "type": {
             "type": "string",
-            "enum": ["dancer", "school"]
+            "enum": [
+              "dancer",
+              "school"
+            ]
           },
           "firstName": {
             "type": "string"
@@ -4696,10 +5394,19 @@
           },
           "type": {
             "type": "string",
-            "enum": ["dancer", "school"]
+            "enum": [
+              "dancer",
+              "school"
+            ]
           }
         },
-        "required": ["id", "displayEmail", "firstName", "lastName", "type"]
+        "required": [
+          "id",
+          "displayEmail",
+          "firstName",
+          "lastName",
+          "type"
+        ]
       },
       "AuthLoginRequest": {
         "type": "object",
@@ -4711,7 +5418,10 @@
             "type": "string"
           }
         },
-        "required": ["email", "password"]
+        "required": [
+          "email",
+          "password"
+        ]
       },
       "AuthLoginResponse": {
         "type": "object",
@@ -4727,11 +5437,18 @@
               },
               "role": {
                 "type": "string",
-                "enum": ["user", "admin", "prodigy_admin"]
+                "enum": [
+                  "user",
+                  "admin",
+                  "prodigy_admin"
+                ]
               },
               "type": {
                 "type": "string",
-                "enum": ["dancer", "school"]
+                "enum": [
+                  "dancer",
+                  "school"
+                ]
               },
               "displayEmail": {
                 "type": "string"
@@ -4765,7 +5482,10 @@
                 "type": "array",
                 "items": {
                   "type": "string",
-                  "enum": ["core", "prodigy"]
+                  "enum": [
+                    "core",
+                    "prodigy"
+                  ]
                 }
               }
             },
@@ -4791,7 +5511,11 @@
             "type": "number"
           }
         },
-        "required": ["user", "token", "expiresIn"]
+        "required": [
+          "user",
+          "token",
+          "expiresIn"
+        ]
       },
       "AuthLogoutResponse": {
         "type": "object",
@@ -4800,7 +5524,9 @@
             "type": "string"
           }
         },
-        "required": ["message"]
+        "required": [
+          "message"
+        ]
       },
       "AuthSessionResponse": {
         "type": "object",
@@ -4813,11 +5539,18 @@
           },
           "role": {
             "type": "string",
-            "enum": ["user", "admin", "prodigy_admin"]
+            "enum": [
+              "user",
+              "admin",
+              "prodigy_admin"
+            ]
           },
           "type": {
             "type": "string",
-            "enum": ["dancer", "school"]
+            "enum": [
+              "dancer",
+              "school"
+            ]
           },
           "displayEmail": {
             "type": "string"
@@ -4851,7 +5584,10 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": ["core", "prodigy"]
+              "enum": [
+                "core",
+                "prodigy"
+              ]
             }
           }
         },
@@ -4880,7 +5616,10 @@
             "type": "string"
           }
         },
-        "required": ["currentPassword", "newPassword"]
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ]
       },
       "AuthPasswordForgotRequest": {
         "type": "object",
@@ -4889,7 +5628,9 @@
             "type": "string"
           }
         },
-        "required": ["email"]
+        "required": [
+          "email"
+        ]
       },
       "AuthPasswordResetRequest": {
         "type": "object",
@@ -4904,7 +5645,11 @@
             "type": "string"
           }
         },
-        "required": ["password", "userId", "token"]
+        "required": [
+          "password",
+          "userId",
+          "token"
+        ]
       },
       "AuthPasswordResetResponse": {
         "type": "object",
@@ -4913,7 +5658,9 @@
             "type": "string"
           }
         },
-        "required": ["message"]
+        "required": [
+          "message"
+        ]
       },
       "BlogResponse": {
         "type": "array",
@@ -5044,14 +5791,21 @@
             "type": "string"
           }
         },
-        "required": ["feed", "nextCursor"]
+        "required": [
+          "feed",
+          "nextCursor"
+        ]
       },
       "HealthResponse": {
         "type": "object",
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["error", "ok", "warning"]
+            "enum": [
+              "error",
+              "ok",
+              "warning"
+            ]
           },
           "isHealthy": {
             "type": "boolean"
@@ -5078,7 +5832,12 @@
                 "type": "string"
               }
             },
-            "required": ["pid", "uptime", "version", "platform"]
+            "required": [
+              "pid",
+              "uptime",
+              "version",
+              "platform"
+            ]
           },
           "checks": {
             "type": "array",
@@ -5087,7 +5846,11 @@
               "properties": {
                 "status": {
                   "type": "string",
-                  "enum": ["error", "ok", "warning"]
+                  "enum": [
+                    "error",
+                    "ok",
+                    "warning"
+                  ]
                 },
                 "name": {
                   "type": "string"
@@ -5116,7 +5879,13 @@
             }
           }
         },
-        "required": ["status", "isHealthy", "finishedAt", "debugInfo", "checks"]
+        "required": [
+          "status",
+          "isHealthy",
+          "finishedAt",
+          "debugInfo",
+          "checks"
+        ]
       },
       "LibraryResponse": {
         "type": "array",
@@ -5161,7 +5930,10 @@
               }
             }
           },
-          "required": ["category", "videos"]
+          "required": [
+            "category",
+            "videos"
+          ]
         }
       },
       "LibraryIdResponse": {
@@ -5256,7 +6028,12 @@
                           "type": "string"
                         }
                       },
-                      "required": ["name", "username", "avatar", "profileUrl"]
+                      "required": [
+                        "name",
+                        "username",
+                        "avatar",
+                        "profileUrl"
+                      ]
                     },
                     {
                       "type": "null"
@@ -5290,7 +6067,10 @@
             ]
           }
         },
-        "required": ["data", "nextCursor"]
+        "required": [
+          "data",
+          "nextCursor"
+        ]
       },
       "NotificationsCountResponse": {
         "type": "object",
@@ -5299,7 +6079,9 @@
             "type": "number"
           }
         },
-        "required": ["count"]
+        "required": [
+          "count"
+        ]
       },
       "NotificationsReadallResponse": {
         "type": "object",
@@ -5308,7 +6090,9 @@
             "type": "boolean"
           }
         },
-        "required": ["success"]
+        "required": [
+          "success"
+        ]
       },
       "NotificationsIdResponse": {
         "type": "object",
@@ -5317,7 +6101,9 @@
             "type": "string"
           }
         },
-        "required": ["id"]
+        "required": [
+          "id"
+        ]
       },
       "SkillsResponse": {
         "type": "array",
@@ -5334,7 +6120,11 @@
               "type": "string"
             }
           },
-          "required": ["name", "slug", "category"]
+          "required": [
+            "name",
+            "slug",
+            "category"
+          ]
         }
       },
       "SportsResponse": {
@@ -5349,7 +6139,10 @@
               "type": "string"
             }
           },
-          "required": ["name", "slug"]
+          "required": [
+            "name",
+            "slug"
+          ]
         }
       },
       "StylesResponse": {
@@ -5364,7 +6157,10 @@
               "type": "string"
             }
           },
-          "required": ["name", "slug"]
+          "required": [
+            "name",
+            "slug"
+          ]
         }
       },
       "SubscriptionsResponse": {
@@ -5387,17 +6183,26 @@
             "type": "boolean"
           }
         },
-        "required": ["cancelAtPeriodEnd", "currentPeriodEnd", "subscribed"]
+        "required": [
+          "cancelAtPeriodEnd",
+          "currentPeriodEnd",
+          "subscribed"
+        ]
       },
       "SubscriptionsCheckoutRequest": {
         "type": "object",
         "properties": {
           "type": {
             "type": "string",
-            "enum": ["monthly", "yearly"]
+            "enum": [
+              "monthly",
+              "yearly"
+            ]
           }
         },
-        "required": ["type"]
+        "required": [
+          "type"
+        ]
       },
       "SubscriptionsCheckoutResponse": {
         "type": "object",
@@ -5406,7 +6211,9 @@
             "type": "string"
           }
         },
-        "required": ["clientSecret"]
+        "required": [
+          "clientSecret"
+        ]
       },
       "SubscriptionsManageResponse": {
         "type": "object",
@@ -5415,7 +6222,9 @@
             "type": "string"
           }
         },
-        "required": ["url"]
+        "required": [
+          "url"
+        ]
       },
       "StripeWebhookResponse": {
         "type": "object",
@@ -5424,7 +6233,9 @@
             "type": "boolean"
           }
         },
-        "required": ["received"]
+        "required": [
+          "received"
+        ]
       },
       "CloudflareStreamWebhookResponse": {
         "type": "object",
@@ -5433,7 +6244,9 @@
             "type": "boolean"
           }
         },
-        "required": ["received"]
+        "required": [
+          "received"
+        ]
       },
       "ContactRequest": {
         "type": "object",
@@ -5451,7 +6264,12 @@
             "type": "string"
           }
         },
-        "required": ["email", "name", "message", "subject"]
+        "required": [
+          "email",
+          "name",
+          "message",
+          "subject"
+        ]
       },
       "FeedbackRequest": {
         "type": "object",
@@ -5468,13 +6286,21 @@
           },
           "type": {
             "type": "string",
-            "enum": ["other", "bug", "feature", "improvement"]
+            "enum": [
+              "other",
+              "bug",
+              "feature",
+              "improvement"
+            ]
           },
           "message": {
             "type": "string"
           }
         },
-        "required": ["type", "message"]
+        "required": [
+          "type",
+          "message"
+        ]
       },
       "DancersResponse": {
         "type": "object",
@@ -5586,7 +6412,10 @@
             ]
           }
         },
-        "required": ["dancers", "pagination"]
+        "required": [
+          "dancers",
+          "pagination"
+        ]
       },
       "DancersRequest": {
         "type": "object",
@@ -5602,17 +6431,27 @@
             ]
           },
           "birthday": {
-            "type": ["string", "number"]
+            "type": [
+              "string",
+              "number"
+            ]
           },
           "location": {
             "type": "string"
           },
           "platform": {
             "type": "string",
-            "enum": ["core", "prodigy"]
+            "enum": [
+              "core",
+              "prodigy"
+            ]
           }
         },
-        "required": ["birthday", "location", "platform"]
+        "required": [
+          "birthday",
+          "location",
+          "platform"
+        ]
       },
       "DancersFiltersResponse": {
         "type": "array",
@@ -5624,7 +6463,13 @@
             },
             "type": {
               "type": "string",
-              "enum": ["select", "input", "toggle", "multi-select", "range"]
+              "enum": [
+                "select",
+                "input",
+                "toggle",
+                "multi-select",
+                "range"
+              ]
             },
             "options": {
               "type": "array",
@@ -5638,7 +6483,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["label", "value"]
+                "required": [
+                  "label",
+                  "value"
+                ]
               }
             },
             "label": {
@@ -5648,7 +6496,12 @@
               "$ref": "#/components/schemas/DancerFilterParam"
             }
           },
-          "required": ["id", "type", "label", "paramKey"]
+          "required": [
+            "id",
+            "type",
+            "label",
+            "paramKey"
+          ]
         }
       },
       "DancersMeRequest": {
@@ -5747,7 +6600,10 @@
           "gpa": {
             "oneOf": [
               {
-                "type": ["string", "number"]
+                "type": [
+                  "string",
+                  "number"
+                ]
               },
               {
                 "type": "null"
@@ -5757,7 +6613,10 @@
           "gradYear": {
             "oneOf": [
               {
-                "type": ["string", "number"]
+                "type": [
+                  "string",
+                  "number"
+                ]
               },
               {
                 "type": "null"
@@ -5767,7 +6626,10 @@
           "trainingHours": {
             "oneOf": [
               {
-                "type": ["string", "number"]
+                "type": [
+                  "string",
+                  "number"
+                ]
               },
               {
                 "type": "null"
@@ -5785,7 +6647,9 @@
               "type": "string"
             }
           },
-          "required": ["skillId"]
+          "required": [
+            "skillId"
+          ]
         }
       },
       "DancersMeSkillsRequest": {
@@ -5798,7 +6662,9 @@
             }
           }
         },
-        "required": ["skills"]
+        "required": [
+          "skills"
+        ]
       },
       "DancersMeStylesResponse": {
         "type": "array",
@@ -5809,7 +6675,9 @@
               "type": "string"
             }
           },
-          "required": ["styleId"]
+          "required": [
+            "styleId"
+          ]
         }
       },
       "DancersMeStylesRequest": {
@@ -5822,7 +6690,9 @@
             }
           }
         },
-        "required": ["styles"]
+        "required": [
+          "styles"
+        ]
       },
       "DancersMeSportsResponse": {
         "type": "array",
@@ -5833,7 +6703,9 @@
               "type": "string"
             }
           },
-          "required": ["sportId"]
+          "required": [
+            "sportId"
+          ]
         }
       },
       "DancersMeSportsRequest": {
@@ -5846,7 +6718,9 @@
             }
           }
         },
-        "required": ["sports"]
+        "required": [
+          "sports"
+        ]
       },
       "DancersMeFollowingResponse": {
         "type": "array",
@@ -5873,7 +6747,12 @@
               "type": "string"
             }
           },
-          "required": ["id", "username", "avatar", "name"]
+          "required": [
+            "id",
+            "username",
+            "avatar",
+            "name"
+          ]
         }
       },
       "DancersMeFollowingIdsResponse": {
@@ -5907,7 +6786,12 @@
               "type": "string"
             }
           },
-          "required": ["id", "username", "avatar", "name"]
+          "required": [
+            "id",
+            "username",
+            "avatar",
+            "name"
+          ]
         }
       },
       "DancersMeChecklistResponse": {
@@ -5929,7 +6813,13 @@
             "type": "boolean"
           }
         },
-        "required": ["gpa", "location", "skills", "styles", "sports"]
+        "required": [
+          "gpa",
+          "location",
+          "skills",
+          "styles",
+          "sports"
+        ]
       },
       "DancersSubmissionsResponse": {
         "type": "array",
@@ -5941,7 +6831,12 @@
             },
             "status": {
               "type": "string",
-              "enum": ["accepted", "pending", "released", "in_review"]
+              "enum": [
+                "accepted",
+                "pending",
+                "released",
+                "in_review"
+              ]
             },
             "school": {
               "type": "object",
@@ -5969,7 +6864,13 @@
                   "type": "string"
                 }
               },
-              "required": ["avatar", "username", "id", "name", "location"]
+              "required": [
+                "avatar",
+                "username",
+                "id",
+                "name",
+                "location"
+              ]
             },
             "updatedAt": {
               "type": "string"
@@ -6011,7 +6912,10 @@
             "type": "string"
           }
         },
-        "required": ["schoolId", "videoId"]
+        "required": [
+          "schoolId",
+          "videoId"
+        ]
       },
       "DancersSubmissionsVideoResponse": {
         "type": "object",
@@ -6020,7 +6924,9 @@
             "type": "string"
           }
         },
-        "required": ["youtubeId"]
+        "required": [
+          "youtubeId"
+        ]
       },
       "DancersSubmissionsVideoRequest": {
         "type": "object",
@@ -6029,7 +6935,9 @@
             "type": "string"
           }
         },
-        "required": ["videoId"]
+        "required": [
+          "videoId"
+        ]
       },
       "DancersSubmissionsSchoolsResponse": {
         "type": "array",
@@ -6059,7 +6967,13 @@
               "type": "string"
             }
           },
-          "required": ["username", "avatar", "id", "name", "location"]
+          "required": [
+            "username",
+            "avatar",
+            "id",
+            "name",
+            "location"
+          ]
         }
       },
       "DancersIdResponse": {
@@ -6295,7 +7209,10 @@
                 },
                 "type": {
                   "type": "string",
-                  "enum": ["youtube", "cloudflare"]
+                  "enum": [
+                    "youtube",
+                    "cloudflare"
+                  ]
                 },
                 "createdAt": {
                   "type": "string"
@@ -6420,7 +7337,11 @@
                   "type": "string"
                 }
               },
-              "required": ["name", "slug", "category"]
+              "required": [
+                "name",
+                "slug",
+                "category"
+              ]
             }
           },
           "sports": {
@@ -6435,7 +7356,10 @@
                   "type": "string"
                 }
               },
-              "required": ["name", "slug"]
+              "required": [
+                "name",
+                "slug"
+              ]
             }
           },
           "styles": {
@@ -6450,7 +7374,10 @@
                   "type": "string"
                 }
               },
-              "required": ["name", "slug"]
+              "required": [
+                "name",
+                "slug"
+              ]
             }
           },
           "events": {
@@ -6504,7 +7431,9 @@
                           "type": "string"
                         }
                       },
-                      "required": ["name"]
+                      "required": [
+                        "name"
+                      ]
                     },
                     {
                       "type": "null"
@@ -6654,7 +7583,9 @@
             "type": "boolean"
           }
         },
-        "required": ["created"]
+        "required": [
+          "created"
+        ]
       },
       "DancersIdMetadataResponse": {
         "type": "object",
@@ -6666,7 +7597,10 @@
             "type": "boolean"
           }
         },
-        "required": ["followers", "favorited"]
+        "required": [
+          "followers",
+          "favorited"
+        ]
       },
       "DancersReferencesRequest": {
         "type": "object",
@@ -6681,7 +7615,11 @@
             "type": "string"
           }
         },
-        "required": ["name", "title", "description"]
+        "required": [
+          "name",
+          "title",
+          "description"
+        ]
       },
       "DancersReferencesIdRequest": {
         "type": "object",
@@ -6728,7 +7666,10 @@
             "type": "string"
           }
         },
-        "required": ["title", "description"]
+        "required": [
+          "title",
+          "description"
+        ]
       },
       "DancersAchievementsAchievementsIdRequest": {
         "type": "object",
@@ -6819,7 +7760,10 @@
                         ]
                       }
                     },
-                    "required": ["name", "thumbnail"]
+                    "required": [
+                      "name",
+                      "thumbnail"
+                    ]
                   },
                   "attendees": {
                     "type": "array",
@@ -6830,7 +7774,9 @@
                           "type": "string"
                         }
                       },
-                      "required": ["id"]
+                      "required": [
+                        "id"
+                      ]
                     }
                   },
                   "saved": {
@@ -6854,7 +7800,10 @@
               "type": "string"
             }
           },
-          "required": ["events", "month"]
+          "required": [
+            "events",
+            "month"
+          ]
         }
       },
       "EventsRequest": {
@@ -6929,9 +7878,6 @@
           },
           "endDatetime": {
             "type": "string"
-          },
-          "timezone": {
-            "type": "string"
           }
         },
         "required": [
@@ -6940,8 +7886,7 @@
           "title",
           "description",
           "startDatetime",
-          "endDatetime",
-          "timezone"
+          "endDatetime"
         ]
       },
       "EventsFiltersResponse": {
@@ -6975,7 +7920,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["label", "value"]
+                "required": [
+                  "label",
+                  "value"
+                ]
               }
             },
             "label": {
@@ -6985,7 +7933,12 @@
               "$ref": "#/components/schemas/EventFilterParam"
             }
           },
-          "required": ["id", "type", "label", "paramKey"]
+          "required": [
+            "id",
+            "type",
+            "label",
+            "paramKey"
+          ]
         }
       },
       "EventsUpcomingResponse": {
@@ -7047,7 +8000,10 @@
                   ]
                 }
               },
-              "required": ["name", "thumbnail"]
+              "required": [
+                "name",
+                "thumbnail"
+              ]
             }
           },
           "required": [
@@ -7310,9 +8266,6 @@
               }
             ]
           },
-          "timezone": {
-            "type": "string"
-          },
           "schedule": {
             "type": "array",
             "items": {
@@ -7328,7 +8281,10 @@
                   "type": "string"
                 }
               },
-              "required": ["time", "activity"]
+              "required": [
+                "time",
+                "activity"
+              ]
             }
           },
           "organizer": {
@@ -7354,7 +8310,12 @@
                 "type": "number"
               }
             },
-            "required": ["name", "username", "avatar", "events"]
+            "required": [
+              "name",
+              "username",
+              "avatar",
+              "events"
+            ]
           },
           "attendees": {
             "type": "number"
@@ -7391,7 +8352,6 @@
           "address",
           "tags",
           "cost",
-          "timezone",
           "organizer",
           "attendees",
           "saved",
@@ -7526,16 +8486,6 @@
                 "type": "null"
               }
             ]
-          },
-          "timezone": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
           }
         }
       },
@@ -7561,20 +8511,30 @@
             "type": "string"
           }
         },
-        "required": ["key"]
+        "required": [
+          "key"
+        ]
       },
       "ImagesPresignRequest": {
         "type": "object",
         "properties": {
           "type": {
             "type": "string",
-            "enum": ["id", "avatar", "feed", "blog"]
+            "enum": [
+              "id",
+              "avatar",
+              "feed",
+              "blog"
+            ]
           },
           "contentType": {
             "type": "string"
           }
         },
-        "required": ["type", "contentType"]
+        "required": [
+          "type",
+          "contentType"
+        ]
       },
       "ImagesPresignResponse": {
         "type": "object",
@@ -7586,7 +8546,10 @@
             "type": "string"
           }
         },
-        "required": ["url", "key"]
+        "required": [
+          "url",
+          "key"
+        ]
       },
       "SchoolsResponse": {
         "type": "array",
@@ -7677,7 +8640,9 @@
             "type": "boolean"
           }
         },
-        "required": ["available"]
+        "required": [
+          "available"
+        ]
       },
       "SchoolsFiltersResponse": {
         "type": "array",
@@ -7689,7 +8654,13 @@
             },
             "type": {
               "type": "string",
-              "enum": ["select", "input", "toggle", "multi-select", "range"]
+              "enum": [
+                "select",
+                "input",
+                "toggle",
+                "multi-select",
+                "range"
+              ]
             },
             "options": {
               "type": "array",
@@ -7703,7 +8674,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["label", "value"]
+                "required": [
+                  "label",
+                  "value"
+                ]
               }
             },
             "label": {
@@ -7713,7 +8687,12 @@
               "$ref": "#/components/schemas/SchoolFilterParam"
             }
           },
-          "required": ["id", "type", "label", "paramKey"]
+          "required": [
+            "id",
+            "type",
+            "label",
+            "paramKey"
+          ]
         }
       },
       "SchoolsRecommendedResponse": {
@@ -7742,7 +8721,11 @@
                         "type": "number"
                       }
                     },
-                    "required": ["skillId", "weight", "rarityBonus"]
+                    "required": [
+                      "skillId",
+                      "weight",
+                      "rarityBonus"
+                    ]
                   }
                 },
                 "matchedSkills": {
@@ -7760,11 +8743,18 @@
                         "type": "number"
                       }
                     },
-                    "required": ["skillId", "weight", "rarityBonus"]
+                    "required": [
+                      "skillId",
+                      "weight",
+                      "rarityBonus"
+                    ]
                   }
                 }
               },
-              "required": ["schoolSkills", "matchedSkills"]
+              "required": [
+                "schoolSkills",
+                "matchedSkills"
+              ]
             },
             "username": {
               "type": "string"
@@ -7915,7 +8905,10 @@
           "gpa": {
             "oneOf": [
               {
-                "type": ["string", "number"]
+                "type": [
+                  "string",
+                  "number"
+                ]
               },
               {
                 "type": "null"
@@ -7935,7 +8928,11 @@
           "commonRecruiting": {
             "oneOf": [
               {
-                "type": ["string", "number", "boolean"]
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
               },
               {
                 "type": "null"
@@ -7946,7 +8943,11 @@
             "oneOf": [
               {
                 "type": "string",
-                "enum": ["recruitment", "audition", "hybrid"]
+                "enum": [
+                  "recruitment",
+                  "audition",
+                  "hybrid"
+                ]
               },
               {
                 "type": "null"
@@ -7957,7 +8958,14 @@
             "oneOf": [
               {
                 "type": "string",
-                "enum": ["other", "uda", "dtu", "nda", "usa", "non-competitive"]
+                "enum": [
+                  "other",
+                  "uda",
+                  "dtu",
+                  "nda",
+                  "usa",
+                  "non-competitive"
+                ]
               },
               {
                 "type": "null"
@@ -8057,7 +9065,10 @@
           "size": {
             "oneOf": [
               {
-                "type": ["string", "number"]
+                "type": [
+                  "string",
+                  "number"
+                ]
               },
               {
                 "type": "null"
@@ -8101,7 +9112,12 @@
               "type": "string"
             }
           },
-          "required": ["id", "username", "avatar", "name"]
+          "required": [
+            "id",
+            "username",
+            "avatar",
+            "name"
+          ]
         }
       },
       "SchoolsMeFollowingResponse": {
@@ -8129,7 +9145,12 @@
               "type": "string"
             }
           },
-          "required": ["id", "username", "avatar", "name"]
+          "required": [
+            "id",
+            "username",
+            "avatar",
+            "name"
+          ]
         }
       },
       "SchoolsMeFollowingIdsResponse": {
@@ -8167,7 +9188,10 @@
             },
             "platformName": {
               "type": "string",
-              "enum": ["core", "prodigy"]
+              "enum": [
+                "core",
+                "prodigy"
+              ]
             },
             "comment": {
               "oneOf": [
@@ -8229,7 +9253,10 @@
           "rating": {
             "oneOf": [
               {
-                "type": ["string", "number"]
+                "type": [
+                  "string",
+                  "number"
+                ]
               },
               {
                 "type": "null"
@@ -8247,7 +9274,9 @@
               "type": "string"
             }
           },
-          "required": ["skillId"]
+          "required": [
+            "skillId"
+          ]
         }
       },
       "SchoolsMeSkillsRequest": {
@@ -8260,7 +9289,9 @@
             }
           }
         },
-        "required": ["skills"]
+        "required": [
+          "skills"
+        ]
       },
       "SchoolsMeStylesResponse": {
         "type": "array",
@@ -8271,7 +9302,9 @@
               "type": "string"
             }
           },
-          "required": ["styleId"]
+          "required": [
+            "styleId"
+          ]
         }
       },
       "SchoolsMeStylesRequest": {
@@ -8284,7 +9317,9 @@
             }
           }
         },
-        "required": ["styles"]
+        "required": [
+          "styles"
+        ]
       },
       "SchoolsMeSportsResponse": {
         "type": "array",
@@ -8295,7 +9330,9 @@
               "type": "string"
             }
           },
-          "required": ["sportId"]
+          "required": [
+            "sportId"
+          ]
         }
       },
       "SchoolsMeSportsRequest": {
@@ -8308,7 +9345,9 @@
             }
           }
         },
-        "required": ["sports"]
+        "required": [
+          "sports"
+        ]
       },
       "SchoolsMeSubmissionsResponse": {
         "type": "array",
@@ -8320,7 +9359,12 @@
             },
             "status": {
               "type": "string",
-              "enum": ["accepted", "pending", "released", "in_review"]
+              "enum": [
+                "accepted",
+                "pending",
+                "released",
+                "in_review"
+              ]
             },
             "dancer": {
               "type": "object",
@@ -8416,7 +9460,12 @@
             "oneOf": [
               {
                 "type": "string",
-                "enum": ["accepted", "pending", "released", "in_review"]
+                "enum": [
+                  "accepted",
+                  "pending",
+                  "released",
+                  "in_review"
+                ]
               },
               {
                 "type": "null"
@@ -8426,7 +9475,11 @@
           "watched": {
             "oneOf": [
               {
-                "type": ["string", "number", "boolean"]
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
               },
               {
                 "type": "null"
@@ -8517,11 +9570,22 @@
           },
           "teamSelection": {
             "type": "string",
-            "enum": ["recruitment", "audition", "hybrid"]
+            "enum": [
+              "recruitment",
+              "audition",
+              "hybrid"
+            ]
           },
           "competitiveCircuit": {
             "type": "string",
-            "enum": ["other", "uda", "dtu", "nda", "usa", "non-competitive"]
+            "enum": [
+              "other",
+              "uda",
+              "dtu",
+              "nda",
+              "usa",
+              "non-competitive"
+            ]
           },
           "division": {
             "oneOf": [
@@ -8633,7 +9697,10 @@
                 },
                 "type": {
                   "type": "string",
-                  "enum": ["youtube", "cloudflare"]
+                  "enum": [
+                    "youtube",
+                    "cloudflare"
+                  ]
                 },
                 "createdAt": {
                   "type": "string"
@@ -8758,7 +9825,11 @@
                   "type": "string"
                 }
               },
-              "required": ["name", "slug", "category"]
+              "required": [
+                "name",
+                "slug",
+                "category"
+              ]
             }
           },
           "sports": {
@@ -8773,7 +9844,10 @@
                   "type": "string"
                 }
               },
-              "required": ["name", "slug"]
+              "required": [
+                "name",
+                "slug"
+              ]
             }
           },
           "styles": {
@@ -8788,7 +9862,10 @@
                   "type": "string"
                 }
               },
-              "required": ["name", "slug"]
+              "required": [
+                "name",
+                "slug"
+              ]
             }
           },
           "events": {
@@ -8887,9 +9964,6 @@
                 },
                 "endDatetime": {
                   "type": "string"
-                },
-                "timezone": {
-                  "type": "string"
                 }
               },
               "required": [
@@ -8906,8 +9980,7 @@
                 "tags",
                 "cost",
                 "startDatetime",
-                "endDatetime",
-                "timezone"
+                "endDatetime"
               ]
             }
           },
@@ -9032,7 +10105,9 @@
             "type": "boolean"
           }
         },
-        "required": ["created"]
+        "required": [
+          "created"
+        ]
       },
       "SchoolsIdMetadataResponse": {
         "type": "object",
@@ -9047,7 +10122,11 @@
             "type": "number"
           }
         },
-        "required": ["following", "followers", "interested"]
+        "required": [
+          "following",
+          "followers",
+          "interested"
+        ]
       },
       "SchoolsIdInterestResponse": {
         "type": "object",
@@ -9056,7 +10135,9 @@
             "type": "boolean"
           }
         },
-        "required": ["created"]
+        "required": [
+          "created"
+        ]
       },
       "UsersCheckavailabilityResponse": {
         "type": "object",
@@ -9065,7 +10146,9 @@
             "type": "boolean"
           }
         },
-        "required": ["available"]
+        "required": [
+          "available"
+        ]
       },
       "UsersAccountResponse": {
         "type": "object",
@@ -9147,7 +10230,11 @@
           "notifications": {
             "oneOf": [
               {
-                "type": ["string", "number", "boolean"]
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
               },
               {
                 "type": "null"
@@ -9163,7 +10250,9 @@
             "type": "string"
           }
         },
-        "required": ["key"]
+        "required": [
+          "key"
+        ]
       },
       "UsersActivityResponse": {
         "type": "object",
@@ -9181,7 +10270,12 @@
             "type": "number"
           }
         },
-        "required": ["videos", "images", "following", "followers"]
+        "required": [
+          "videos",
+          "images",
+          "following",
+          "followers"
+        ]
       },
       "VideosYoutubeRequest": {
         "type": "object",
@@ -9200,7 +10294,9 @@
             "type": "string"
           }
         },
-        "required": ["videoId"]
+        "required": [
+          "videoId"
+        ]
       },
       "VideosYoutubeResponse": {
         "type": "object",
@@ -9212,7 +10308,10 @@
             "type": "string"
           }
         },
-        "required": ["id", "mediaId"]
+        "required": [
+          "id",
+          "mediaId"
+        ]
       }
     }
   },

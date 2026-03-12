@@ -100,7 +100,6 @@ export function EventDialog({
       location: data.location,
       startDatetime,
       endDatetime,
-      timezone: data.timezone,
       website: data.website || null,
       address: data.address || null,
     };
@@ -142,7 +141,6 @@ export function EventDialog({
         title: event.title,
         description: event.description ?? "",
         location: event.location,
-        timezone: event.timezone,
         website: event.website ?? "",
         address: event.address ?? "",
         cost: event.cost ?? "",

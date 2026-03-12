@@ -22,7 +22,6 @@ export const danceEvents = pg.pgTable(
     type: danceEventType().notNull(),
     startDatetime: pg.timestamp().notNull(),
     endDatetime: pg.timestamp().notNull(),
-    timezone: pg.text().notNull(),
     ...timestamps,
   },
   (table) => [

@@ -24,9 +24,14 @@ type School = ApiSchemas["AdminSchoolsResponse"][number];
 interface SchoolsTableProps {
   schools: School[];
   onAddEvent: (school: { username: string; name: string }) => void;
+  onViewEvents: (school: { username: string; name: string }) => void;
 }
 
-export function SchoolsTable({ schools, onAddEvent }: SchoolsTableProps) {
+export function SchoolsTable({
+  schools,
+  onAddEvent,
+  onViewEvents,
+}: SchoolsTableProps) {
   const [search, setSearch] = React.useState("");
 
   const filteredSchools = schools.filter((school) =>
@@ -85,18 +90,32 @@ export function SchoolsTable({ schools, onAddEvent }: SchoolsTableProps) {
                     </div>
                   </TableCell>
                   <TableCell className="whitespace-nowrap">
-                    <Button
-                      size="xs"
-                      variant="outline"
-                      onClick={() =>
-                        onAddEvent({
-                          username: school.user.username,
-                          name: school.name,
-                        })
-                      }
-                    >
-                      Create
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        size="xs"
+                        variant="outline"
+                        onClick={() =>
+                          onViewEvents({
+                            username: school.user.username,
+                            name: school.name,
+                          })
+                        }
+                      >
+                        View Events
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant="outline"
+                        onClick={() =>
+                          onAddEvent({
+                            username: school.user.username,
+                            name: school.name,
+                          })
+                        }
+                      >
+                        Create
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

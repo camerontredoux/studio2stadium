@@ -13,7 +13,6 @@ export const createEventSchema = vine.create(
     type: vine.enum(danceEventType.enumValues),
     startDatetime: vine.string(),
     endDatetime: vine.string(),
-    timezone: vine.string(),
   })
 );
 

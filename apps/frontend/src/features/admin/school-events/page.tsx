@@ -6,6 +6,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { EventDialog } from "./components/event-dialog";
 import { SchoolsTable } from "./components/schools-table";
+import { ViewEventsDialog } from "./components/view-events-dialog";
 
 function combineDateAndTime(date: Date, time: string): string {
   const match = time.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
@@ -27,6 +28,10 @@ export function SchoolEventsPage() {
     username: string;
     name: string;
   } | null>(null);
+  const [viewingSchool, setViewingSchool] = useState<{
+    username: string;
+    name: string;
+  } | null>(null);
 
   const handleSubmit = (data: SchoolEventFormData) => {
     if (!selectedSchool) return;
@@ -44,7 +49,6 @@ export function SchoolEventsPage() {
           location: data.location,
           startDatetime,
           endDatetime,
-          timezone: data.timezone,
           website: data.website || null,
           address: data.address || null,
         },
@@ -73,13 +77,22 @@ export function SchoolEventsPage() {
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">School Events</h2>
 
-      <SchoolsTable schools={schools} onAddEvent={setSelectedSchool} />
+      <SchoolsTable
+        schools={schools}
+        onAddEvent={setSelectedSchool}
+        onViewEvents={setViewingSchool}
+      />
 
       <EventDialog
         school={selectedSchool}
         onOpenChange={(open) => !open && setSelectedSchool(null)}
         onSubmit={handleSubmit}
         isPending={isPending}
+      />
+
+      <ViewEventsDialog
+        school={viewingSchool}
+        onOpenChange={(open) => !open && setViewingSchool(null)}
       />
     </div>
   );

@@ -18,6 +18,7 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 interface GlobalEventFormProps {
   onSubmit: (data: GlobalEventFormData) => void;
   formId?: string;
+  defaultValues?: Partial<GlobalEventFormData>;
 }
 
 const today = new Date();
@@ -26,18 +27,22 @@ today.setHours(0, 0, 0, 0);
 export function GlobalEventForm({
   onSubmit,
   formId = "global-event-form",
+  defaultValues,
 }: GlobalEventFormProps) {
   const form = useForm<GlobalEventFormData>({
     resolver: zodResolver(schemas.globalEvent),
     defaultValues: {
-      title: "",
-      description: "",
-      location: "",
-      website: "",
-      startTime: "",
-      endTime: "",
-      thumbnail: "",
-      organization: "",
+      title: defaultValues?.title ?? "",
+      description: defaultValues?.description ?? "",
+      location: defaultValues?.location ?? "",
+      website: defaultValues?.website ?? "",
+      startTime: defaultValues?.startTime ?? "",
+      endTime: defaultValues?.endTime ?? "",
+      thumbnail: defaultValues?.thumbnail ?? "",
+      organization: defaultValues?.organization ?? "",
+      type: defaultValues?.type,
+      startDate: defaultValues?.startDate,
+      endDate: defaultValues?.endDate,
     },
   });
 

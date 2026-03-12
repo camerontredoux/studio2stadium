@@ -12,16 +12,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { TimePicker } from "@/components/ui/time-picker";
 import { schemas, type SchoolEventFormData } from "@/features/admin/api/schemas";
 import { EVENT_TYPE_ITEMS } from "@/utils/constants/event-types";
-import {
-  getDefaultTimezone,
-  TIMEZONE_ITEMS,
-} from "@/utils/constants/timezones";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
 interface SchoolEventFormProps {
   onSubmit: (data: SchoolEventFormData) => void;
   formId?: string;
+  defaultValues?: Partial<SchoolEventFormData>;
 }
 
 const today = new Date();
@@ -30,18 +27,21 @@ today.setHours(0, 0, 0, 0);
 export function SchoolEventForm({
   onSubmit,
   formId = "school-event-form",
+  defaultValues,
 }: SchoolEventFormProps) {
   const form = useForm<SchoolEventFormData>({
     resolver: zodResolver(schemas.schoolEvent),
     defaultValues: {
-      title: "",
-      description: "",
-      location: "",
-      startTime: "",
-      endTime: "",
-      timezone: getDefaultTimezone(),
-      website: "",
-      address: "",
+      title: defaultValues?.title ?? "",
+      description: defaultValues?.description ?? "",
+      location: defaultValues?.location ?? "",
+      startTime: defaultValues?.startTime ?? "",
+      endTime: defaultValues?.endTime ?? "",
+      website: defaultValues?.website ?? "",
+      address: defaultValues?.address ?? "",
+      type: defaultValues?.type,
+      startDate: defaultValues?.startDate,
+      endDate: defaultValues?.endDate,
     },
   });
 
@@ -170,33 +170,6 @@ export function SchoolEventForm({
             )}
           />
         </div>
-
-        <Controller
-          control={form.control}
-          name="timezone"
-          render={({ field, fieldState }) => (
-            <Field name={field.name} invalid={fieldState.invalid}>
-              <FieldLabel>Timezone</FieldLabel>
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-                items={TIMEZONE_ITEMS}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select timezone" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TIMEZONE_ITEMS.map((item) => (
-                    <SelectItem key={item.value} value={item.value}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FieldError error={fieldState.error} />
-            </Field>
-          )}
-        />
 
         <Controller
           control={form.control}

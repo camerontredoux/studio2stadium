@@ -7,6 +7,10 @@ const AddSchoolEventController = () =>
   import("#modules/admin/add-school-event/controller");
 const AddGlobalEventController = () =>
   import("#modules/admin/add-global-event/controller");
+const EditSchoolEventController = () =>
+  import("#modules/admin/edit-school-event/controller");
+const EditGlobalEventController = () =>
+  import("#modules/admin/edit-global-event/controller");
 const GetApplicationsController = () =>
   import("#modules/admin/get-applications/controller");
 const GetSchoolsController = () =>
@@ -42,6 +46,16 @@ router
     router.post("events/global", [AddGlobalEventController]).openapi({
       summary: "Add global event",
       description: "Creates a global dance event",
+    });
+
+    router.patch("events/school/:id", [EditSchoolEventController]).openapi({
+      summary: "Edit school event",
+      description: "Updates a school event by ID",
+    });
+
+    router.patch("events/global/:id", [EditGlobalEventController]).openapi({
+      summary: "Edit global event",
+      description: "Updates a global event by ID",
     });
 
     router.get("applications", [GetApplicationsController]).openapi({

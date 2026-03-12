@@ -12,10 +12,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { TimePicker } from "@/components/ui/time-picker";
 import { schemas } from "@/features/school/api/schemas";
 import { EVENT_TYPE_ITEMS } from "@/utils/constants/event-types";
-import {
-  getDefaultTimezone,
-  TIMEZONE_ITEMS,
-} from "@/utils/constants/timezones";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -47,7 +43,6 @@ export function EventForm({
       startTime: defaultValues?.startTime ?? "",
       endDate: defaultValues?.endDate,
       endTime: defaultValues?.endTime ?? "",
-      timezone: defaultValues?.timezone ?? getDefaultTimezone(),
       website: defaultValues?.website ?? "",
       address: defaultValues?.address ?? "",
     },
@@ -183,34 +178,6 @@ export function EventForm({
             )}
           />
         </div>
-
-        {/* Timezone */}
-        <Controller
-          control={form.control}
-          name="timezone"
-          render={({ field, fieldState }) => (
-            <Field name={field.name} invalid={fieldState.invalid}>
-              <FieldLabel>Timezone</FieldLabel>
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-                items={TIMEZONE_ITEMS}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select timezone" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TIMEZONE_ITEMS.map((item) => (
-                    <SelectItem key={item.value} value={item.value}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FieldError error={fieldState.error} />
-            </Field>
-          )}
-        />
 
         {/* Location */}
         <Controller

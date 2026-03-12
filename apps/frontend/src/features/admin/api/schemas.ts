@@ -18,7 +18,6 @@ export const schemas = {
       startTime: z.string().min(1, "Start time is required"),
       endDate: z.date({ message: "End date is required" }),
       endTime: z.string().min(1, "End time is required"),
-      timezone: z.string().min(1, "Timezone is required"),
       website: z.url("Must be a valid URL").optional().or(z.literal("")),
       address: z.string().optional(),
     })

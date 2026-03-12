@@ -1,0 +1,1 @@
+ALTER TABLE "dance_events" DROP COLUMN "timezone";

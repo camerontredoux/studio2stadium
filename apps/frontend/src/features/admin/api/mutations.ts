@@ -16,3 +16,11 @@ export function useAddSchoolEvent() {
 export function useAddGlobalEvent() {
   return $api.useMutation("post", "/admin/events/global");
 }
+
+export function useEditGlobalEvent() {
+  return $api.useMutation("patch", "/admin/events/global/{id}");
+}
+
+export function useEditSchoolEvent() {
+  return $api.useMutation("patch", "/admin/events/school/{id}");
+}

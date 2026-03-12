@@ -240,6 +240,114 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/events/global/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Edit global event
+         * @description Updates a global event by ID
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminEventsGlobalIdRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminEventsGlobalIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/admin/events/school/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Edit school event
+         * @description Updates a school event by ID
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminEventsSchoolIdRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminEventsSchoolIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/admin/dancers": {
         parameters: {
             query?: never;
@@ -5172,7 +5280,6 @@ export interface components {
             description: string;
             startDatetime: string;
             endDatetime: string;
-            timezone: string;
         };
         AdminSchoolsIdEventsResponse: {
             id: string;
@@ -5190,6 +5297,35 @@ export interface components {
             organization: string;
         };
         AdminEventsGlobalResponse: {
+            id: string;
+        };
+        AdminEventsGlobalIdRequest: {
+            type?: ("recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp") | null;
+            location?: string | null;
+            website?: string | null;
+            title?: string | null;
+            description?: string | null;
+            startDatetime?: string | null;
+            endDatetime?: string | null;
+            thumbnail?: string | null;
+            organization?: string | null;
+        };
+        AdminEventsGlobalIdResponse: {
+            id: string;
+        };
+        AdminEventsSchoolIdRequest: {
+            type?: ("recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp") | null;
+            location?: string | null;
+            website?: string | null;
+            title?: string | null;
+            description?: string | null;
+            address?: string | null;
+            tags?: string[] | null;
+            cost?: string | null;
+            startDatetime?: string | null;
+            endDatetime?: string | null;
+        };
+        AdminEventsSchoolIdResponse: {
             id: string;
         };
         AdminDancersResponse: {
@@ -5746,7 +5882,6 @@ export interface components {
             description: string;
             startDatetime: string;
             endDatetime: string;
-            timezone: string;
         };
         EventsFiltersResponse: {
             id: string;
@@ -5814,7 +5949,6 @@ export interface components {
             address: string | null;
             tags: string[] | null;
             cost: string | null;
-            timezone: string;
             schedule?: {
                 time: string;
                 activity: string;
@@ -5845,7 +5979,6 @@ export interface components {
             cost?: string | null;
             startDatetime?: string | null;
             endDatetime?: string | null;
-            timezone?: string | null;
         };
         EventsIdSaveRequest: {
             type?: string | null;
@@ -6092,7 +6225,6 @@ export interface components {
                 cost: string | null;
                 startDatetime: string;
                 endDatetime: string;
-                timezone: string;
             }[];
             globalEvents: {
                 id: string;

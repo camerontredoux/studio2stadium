@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/tooltip";
 import type { ApiSchemas } from "@/lib/api/client";
 import { useSession } from "@/lib/session";
-import { TIMEZONE_LABELS } from "@/utils/constants/timezones";
 import { useRouter } from "@tanstack/react-router";
 import {
   CalendarIcon,
@@ -77,15 +76,8 @@ export function EventHero({ event }: EventHeroProps) {
                 {event.startDate} &middot; {event.startTime} -{" "}
                 {event.endDate !== event.startDate ? (
                   <>{event.endDate} &middot; </>
-                ) : (
-                  ""
-                )}{" "}
-                {event.endTime}{" "}
-                {
-                  TIMEZONE_LABELS[
-                    event.timezone as keyof typeof TIMEZONE_LABELS
-                  ]
-                }
+                ) : null}
+                {event.endTime}
               </span>
             </div>
             <TooltipProvider delay={0}>

@@ -2,7 +2,7 @@ import { danceEventType } from "#database/schema/enums";
 import vine from "@vinejs/vine";
 import { type Infer } from "@vinejs/vine/types";
 
-export const editEventSchema = vine.create(
+export const schema = vine.create(
   vine.object({
     params: vine.object({
       id: vine.string().uuid(),
@@ -20,4 +20,4 @@ export const editEventSchema = vine.create(
   })
 );
 
-export type EditEventSchema = Infer<typeof editEventSchema>;
+export type Validator = Infer<typeof schema>;
