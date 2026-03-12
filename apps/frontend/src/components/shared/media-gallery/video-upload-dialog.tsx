@@ -10,8 +10,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toastManager } from "@/components/ui/toast-manager";
+import { dancerQueries } from "@/features/dancer/api/queries";
+import { schoolQueries } from "@/features/school/api/queries";
+import { $api } from "@/lib/api/client";
 import { useSession } from "@/lib/session";
 import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { useVideoProcessing } from "@/lib/video-processing";
@@ -19,7 +25,9 @@ import {
   VideoUploadForm,
   type FormValues,
 } from "@/shared/videos/components/video-upload-form";
+import { getYouTubeId } from "@/utils/get-youtube-id";
 import { uploadVideoTus } from "@/utils/upload-video-tus";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { CrownIcon, VideoIcon } from "lucide-react";
 import { useRef, useState } from "react";
@@ -33,15 +41,42 @@ interface VideoUploadDialogProps {
 
 export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
   const [open, setOpen] = useState(false);
+  const [tab, setTab] = useState<"file" | "youtube">("file");
+  const [youtubeUrl, setYoutubeUrl] = useState("");
   const {
     data: { subscribed },
   } = useSubscribed();
-  const { type } = useSession();
+  const { type, username } = useSession();
   const { setIsProcessing } = useVideoProcessing();
+  const queryClient = useQueryClient();
 
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const uploadRef = useRef<tus.Upload | null>(null);
+
+  const youtubeUpload = $api.useMutation("post", "/videos/youtube", {
+    onSuccess: () => {
+      const profileQuery =
+        type === "dancer"
+          ? dancerQueries.profile(username)
+          : schoolQueries.profile(username);
+      queryClient.invalidateQueries({ queryKey: profileQuery.queryKey });
+      toastManager.add({
+        title: "Video added",
+        description: "Your YouTube video has been added to your profile.",
+        type: "success",
+      });
+      setOpen(false);
+      setYoutubeUrl("");
+    },
+    onError: (error) => {
+      toastManager.add({
+        title: "Failed to add video",
+        description: error.message || "Could not add the YouTube video",
+        type: "error",
+      });
+    },
+  });
 
   const handleClose = (isOpen: boolean) => {
     if (!isOpen && uploadRef.current) {
@@ -52,7 +87,23 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
     if (!isOpen) {
       setUploading(false);
       setProgress(0);
+      setYoutubeUrl("");
+      setTab("file");
     }
+  };
+
+  const handleYoutubeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const videoId = getYouTubeId(youtubeUrl);
+    if (!videoId) {
+      toastManager.add({
+        title: "Invalid URL",
+        description: "Please enter a valid YouTube URL",
+        type: "error",
+      });
+      return;
+    }
+    youtubeUpload.mutate({ body: { videoId } });
   };
 
   const onSubmit = (data: FormValues) => {
@@ -138,25 +189,62 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Upload Video</DialogTitle>
+          <DialogTitle>Add Video</DialogTitle>
           <DialogDescription>
-            Add a video to your profile. Max 2 minutes.
+            Add a video to your profile.
           </DialogDescription>
         </DialogHeader>
         <DialogPanel>
-          <VideoUploadForm
-            isLoading={uploading}
-            progress={progress}
-            onSubmit={onSubmit}
-          />
+          <Tabs
+            value={tab}
+            onValueChange={(value) => setTab(value as "file" | "youtube")}
+          >
+            <TabsList className="w-full">
+              <TabsTrigger value="file" className="flex-1">
+                Upload File
+              </TabsTrigger>
+              <TabsTrigger value="youtube" className="flex-1">
+                YouTube Link
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="file" className="mt-4">
+              <VideoUploadForm
+                isLoading={uploading}
+                progress={progress}
+                onSubmit={onSubmit}
+              />
+            </TabsContent>
+            <TabsContent value="youtube" className="mt-4">
+              <form id="youtube-upload-form" onSubmit={handleYoutubeSubmit}>
+                <Field>
+                  <FieldLabel>YouTube URL</FieldLabel>
+                  <Input
+                    placeholder="https://youtube.com/watch?v=..."
+                    value={youtubeUrl}
+                    onChange={(e) => setYoutubeUrl(e.target.value)}
+                  />
+                </Field>
+              </form>
+            </TabsContent>
+          </Tabs>
         </DialogPanel>
         <DialogFooter>
           <DialogClose render={<Button variant="secondary" />}>
             Cancel
           </DialogClose>
-          <Button disabled={uploading} type="submit" form="video-upload-form">
-            {uploading ? <Spinner label="Uploading..." /> : "Upload"}
-          </Button>
+          {tab === "file" ? (
+            <Button disabled={uploading} type="submit" form="video-upload-form">
+              {uploading ? <Spinner label="Uploading..." /> : "Upload"}
+            </Button>
+          ) : (
+            <Button
+              disabled={youtubeUpload.isPending || !youtubeUrl}
+              type="submit"
+              form="youtube-upload-form"
+            >
+              {youtubeUpload.isPending ? <Spinner label="Adding..." /> : "Add"}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

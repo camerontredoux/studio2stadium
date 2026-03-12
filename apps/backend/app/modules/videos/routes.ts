@@ -5,6 +5,8 @@ import router from "@adonisjs/core/services/router";
 const DeleteProfileVideoController = () =>
   import("./delete-video/controller.ts");
 const TusUploadController = () => import("./tus-upload/controller.ts");
+const AddYoutubeVideoController = () =>
+  import("./add-youtube-video/controller.ts");
 
 router
   .group(() => {
@@ -23,6 +25,15 @@ router
         description: "Initiates a TUS resumable upload to Cloudflare Stream",
       })
       .use(throttle("video-upload", 10));
+
+    router
+      .post("youtube", [AddYoutubeVideoController])
+      .openapi({
+        summary: "Add YouTube video",
+        description: "Add a YouTube video to the user's profile",
+      })
+      .use(middleware.profile())
+      .use(middleware.subscribed());
   })
   .use(middleware.auth())
   .prefix("videos")

@@ -4096,6 +4096,46 @@
         "summary": "Initiate TUS video upload",
         "description": "Initiates a TUS resumable upload to Cloudflare Stream"
       }
+    },
+    "/videos/youtube": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideosYoutubeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideosYoutubeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Videos"
+        ],
+        "summary": "Add YouTube video",
+        "description": "Add a YouTube video to the user's profile"
+      }
     }
   },
   "components": {
@@ -9831,6 +9871,42 @@
           "images",
           "following",
           "followers"
+        ]
+      },
+      "VideosYoutubeRequest": {
+        "type": "object",
+        "properties": {
+          "caption": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "videoId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "videoId"
+        ]
+      },
+      "VideosYoutubeResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "mediaId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "mediaId"
         ]
       }
     }
