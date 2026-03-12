@@ -19,6 +19,8 @@ const DeleteBlogPostController = () =>
   import("#modules/admin/delete-blog-post/controller");
 const GetOutboxStatsController = () =>
   import("#modules/admin/get-outbox-stats/controller");
+const GetOutboxStatsHistoryController = () =>
+  import("#modules/admin/get-outbox-stats-history/controller");
 
 router
   .group(() => {
@@ -72,6 +74,14 @@ router
       summary: "Get outbox stats",
       description: "Returns aggregated counts of outbox items by type",
     });
+
+    router
+      .get("outbox/stats/history", [GetOutboxStatsHistoryController])
+      .openapi({
+        summary: "Get outbox stats history",
+        description:
+          "Returns historical outbox stats with daily, weekly, and monthly breakdowns",
+      });
   })
   .use([middleware.auth(), middleware.admin()])
   .prefix("admin")

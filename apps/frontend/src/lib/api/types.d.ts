@@ -416,6 +416,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/outbox/stats/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get outbox stats history
+         * @description Returns historical outbox stats with daily, weekly, and monthly breakdowns
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOutboxStatsHistoryResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/application": {
         parameters: {
             query?: never;
@@ -5179,6 +5218,16 @@ export interface components {
         };
         AdminBlogResponse: {
             id: string;
+        };
+        AdminOutboxStatsHistoryResponse: {
+            daily: Record<string, never>;
+            weekly: Record<string, never>;
+            monthly: Record<string, never>;
+            dailyBreakdown: {
+                type: string;
+                date: string;
+                count: number;
+            }[];
         };
         ApplicationResponse: {
             id?: string;

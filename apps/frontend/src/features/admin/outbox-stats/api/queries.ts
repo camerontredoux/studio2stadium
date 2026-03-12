@@ -1,9 +1,18 @@
 import { $api } from "@/lib/api/client";
+import type { components } from "@/lib/api/types";
 
 export interface OutboxStat {
   type: string;
   count: number;
 }
+
+export type OutboxStatsHistory =
+  components["schemas"]["AdminOutboxStatsHistoryResponse"];
+
+export type PeriodStats = Record<
+  string,
+  { current: number; previous: number; change: number | null }
+>;
 
 export const outboxStatsQueries = {
   stats: () =>
@@ -27,4 +36,6 @@ export const outboxStatsQueries = {
         return [];
       },
     }),
+
+  history: () => $api.queryOptions("get", "/admin/outbox/stats/history"),
 };
