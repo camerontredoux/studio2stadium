@@ -33,11 +33,12 @@ export const Route = createFileRoute("/_admin")({
 });
 
 const navLinks = [
+  { to: "/admin/dashboard", label: "Dashboard" },
   { to: "/admin/applications", label: "Applications" },
   { to: "/admin/school-events", label: "School Events" },
   { to: "/admin/global-events", label: "Global Events" },
   { to: "/admin/blog", label: "Blog" },
-  { to: "/admin/outbox-stats", label: "Outbox" },
+  { to: "/admin/outbox-stats", label: "Stats" },
 ] as const;
 
 function RouteComponent() {
@@ -52,31 +53,8 @@ function RouteComponent() {
               S2S Dashboard
             </Link>
 
-            {/* Desktop nav */}
-            <nav className="hidden items-center gap-6 text-sm md:flex">
-              <Link
-                to="/"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Back to Site
-              </Link>
-              {navLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className="text-muted-foreground hover:text-foreground [&.active]:text-foreground transition-colors [&.active]:font-medium"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-
-            {/* Mobile menu */}
             <Sheet open={open} onOpenChange={setOpen}>
-              <SheetTrigger
-                className="md:hidden"
-                render={<Button variant="ghost" size="icon" />}
-              >
+              <SheetTrigger render={<Button variant="ghost" size="icon" />}>
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
               </SheetTrigger>
