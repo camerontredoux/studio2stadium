@@ -9,19 +9,21 @@ export class EditEventService {
   constructor(private db: DatabaseService) {}
 
   async execute(payload: EditEventSchema) {
+    const { params, ...data } = payload;
+
     await this.db.use((db) =>
       db
         .update(danceEvents)
         .set({
-          ...payload,
-          startDatetime: payload.startDatetime
-            ? new Date(payload.startDatetime)
+          ...data,
+          startDatetime: data.startDatetime
+            ? new Date(data.startDatetime)
             : undefined,
-          endDatetime: payload.endDatetime
-            ? new Date(payload.endDatetime)
+          endDatetime: data.endDatetime
+            ? new Date(data.endDatetime)
             : undefined,
         })
-        .where(eq(danceEvents.id, payload.params.id))
+        .where(eq(danceEvents.id, params.id))
     );
   }
 }
