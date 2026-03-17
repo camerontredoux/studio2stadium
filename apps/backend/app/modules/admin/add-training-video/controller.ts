@@ -1,14 +1,15 @@
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
 import { Service } from "./service.ts";
-import { validator } from "./validator.ts";
+import { schema } from "./validator.ts";
 
-export default class GetDancersController {
+export default class AddTrainingVideoController {
   @inject()
   async handle(ctx: HttpContext, service: Service) {
-    const payload = await ctx.request.validateUsing(validator);
+    const payload = await ctx.request.validateUsing(schema);
+
     const result = await service.execute(payload);
 
-    return ctx.response.ok(result);
+    return ctx.response.created(result);
   }
 }

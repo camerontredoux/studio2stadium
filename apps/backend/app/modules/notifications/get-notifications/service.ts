@@ -31,7 +31,8 @@ type NotificationContent =
   | { type: "video.ready"; videoId: string }
   | { type: "video.failed"; errorMessage: string }
   | { type: "school.approved"; schoolId: string }
-  | { type: "blog.post-created"; postId: string };
+  | { type: "blog.post-created"; postId: string }
+  | { type: "library.video-added"; videoId: string };
 
 type EnrichedNotification = {
   id: string;
@@ -271,6 +272,14 @@ export class Service {
         return this.enrichBlogPostCreatedNotification(
           id,
           content.postId,
+          createdAt,
+          read
+        );
+
+      case "library.video-added":
+        return this.enrichLibraryVideoAddedNotification(
+          id,
+          content.videoId,
           createdAt,
           read
         );
@@ -579,6 +588,31 @@ export class Service {
       message: `New blog post: ${post.title}`,
       link: `/blog/${post.slug}`,
       metadata: { postId, slug: post.slug },
+    };
+  }
+
+  private async enrichLibraryVideoAddedNotification(
+    id: string,
+    videoId: string,
+    createdAt: Date,
+    read: boolean
+  ): Promise<EnrichedNotification | null> {
+    const video = await db.query.library.findFirst({
+      where: { id: videoId },
+      columns: { id: true, title: true, category: true },
+    });
+
+    if (!video) return null;
+
+    return {
+      id,
+      type: "library.video-added",
+      createdAt,
+      read,
+      actor: null,
+      message: `New training video: ${video.title}`,
+      link: `/library/${video.category}`,
+      metadata: { videoId, category: video.category },
     };
   }
 }

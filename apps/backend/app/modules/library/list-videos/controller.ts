@@ -6,6 +6,11 @@ import { Service } from "./service.ts";
 export default class ListVideosController {
   @inject()
   async handle(ctx: HttpContext, service: Service) {
+    if (ctx.auth.user?.role === "admin") {
+      const videos = await service.execute();
+      return ctx.response.ok(videos);
+    }
+
     const videos = await cache.getOrSet({
       key: "library:videos",
       factory: () => service.execute(),

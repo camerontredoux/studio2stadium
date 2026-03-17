@@ -649,3 +649,41 @@ func (s *EventService) HandleVideoFailed(
 	}}
 	return nil
 }
+
+// HandleLibraryVideoAdded - training video is added to library
+// Notifies all subscribed (premium) users
+func (s *EventService) HandleLibraryVideoAdded(
+	outboxEvent *t.OutboxEvent,
+	notifications *[]*t.Notification,
+) error {
+	var payload t.LibraryVideoAddedPayload
+	if err := outboxEvent.GetPayload(&payload); err != nil {
+		return err
+	}
+
+	// Get all subscribed user IDs
+	userIds, err := s.store.GetSubscribedUserIds()
+	if err != nil {
+		return err
+	}
+
+	content := t.LibraryVideoAddedContent{
+		Type:    "library.video-added",
+		VideoId: payload.VideoId,
+	}
+	contentJson, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+
+	notifs := make([]*t.Notification, 0, len(userIds))
+	for _, userId := range userIds {
+		notifs = append(notifs, &t.Notification{
+			UserId:  userId,
+			Content: contentJson,
+		})
+	}
+
+	*notifications = notifs
+	return nil
+}

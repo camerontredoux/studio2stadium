@@ -36,8 +36,8 @@ type AdminSchoolsGetHead = {
   response: MakeTuyauResponse<import('../app/modules/admin/get-all-schools/controller.ts').default['handle'], false>
 }
 type AdminDancersGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/admin/get-all-dancers/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/get-all-dancers/validator.ts')['validator']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/get-all-dancers/controller.ts').default['handle'], true>
 }
 type AdminBlogPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/create-blog-post/validator.ts')['schema']>>
@@ -54,6 +54,18 @@ type AdminOutboxStatsGetHead = {
 type AdminOutboxStatsHistoryGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/admin/get-outbox-stats-history/controller.ts').default['handle'], false>
+}
+type AdminDancersStatsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/admin/get-dancer-stats/controller.ts').default['handle'], false>
+}
+type AdminLibraryVideosPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/add-training-video/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/add-training-video/controller.ts').default['handle'], true>
+}
+type AdminLibraryVideosIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/delete-training-video/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/delete-training-video/controller.ts').default['handle'], true>
 }
 type ApplicationGetHead = {
   request: unknown
@@ -531,6 +543,12 @@ export interface ApiDefinition {
       };
       '$get': AdminDancersGetHead;
       '$head': AdminDancersGetHead;
+      'stats': {
+        '$url': {
+        };
+        '$get': AdminDancersStatsGetHead;
+        '$head': AdminDancersStatsGetHead;
+      };
     };
     'blog': {
       '$url': {
@@ -553,6 +571,18 @@ export interface ApiDefinition {
           };
           '$get': AdminOutboxStatsHistoryGetHead;
           '$head': AdminOutboxStatsHistoryGetHead;
+        };
+      };
+    };
+    'library': {
+      'videos': {
+        '$url': {
+        };
+        '$post': AdminLibraryVideosPost;
+        ':id': {
+          '$url': {
+          };
+          '$delete': AdminLibraryVideosIdDelete;
         };
       };
     };

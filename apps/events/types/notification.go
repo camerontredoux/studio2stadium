@@ -121,6 +121,11 @@ type BlogPostCreatedPayload struct {
 	PostId string `json:"postId"`
 }
 
+// library.video-added - training video is added (subscribed users notification)
+type LibraryVideoAddedPayload struct {
+	VideoId string `json:"videoId"`
+}
+
 // video.ready - video upload finished processing
 type VideoReadyPayload struct {
 	UserId  string `json:"userId"`
@@ -196,6 +201,11 @@ type SchoolApprovedContent struct {
 type BlogPostCreatedContent struct {
 	Type   string `json:"type"`
 	PostId string `json:"postId"`
+}
+
+type LibraryVideoAddedContent struct {
+	Type    string `json:"type"`
+	VideoId string `json:"videoId"`
 }
 
 type EventAttendedContent struct {

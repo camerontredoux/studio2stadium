@@ -46,6 +46,7 @@ export type OutboxEntry =
   // Admin
   | { type: "school.approved"; payload: { schoolId: string } }
   | { type: "blog.post-created"; payload: { postId: string } }
+  | { type: "library.video-added"; payload: { videoId: string } }
   // Video processing
   | { type: "video.ready"; payload: { userId: string; videoId: string } }
   | {

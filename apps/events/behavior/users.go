@@ -33,3 +33,16 @@ func (s *BehaviorStore) GetAllUserIds() ([]string, error) {
 	}
 	return userIds, nil
 }
+
+// GetSubscribedUserIds returns user IDs with active subscriptions
+func (s *BehaviorStore) GetSubscribedUserIds() ([]string, error) {
+	var userIds []string
+	err := s.db.Postgres.GetDB().
+		Table("user_subscriptions").
+		Where("status = ?", "active").
+		Pluck("user_id", &userIds).Error
+	if err != nil {
+		return nil, err
+	}
+	return userIds, nil
+}

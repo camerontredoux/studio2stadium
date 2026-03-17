@@ -25,6 +25,12 @@ const GetOutboxStatsController = () =>
   import("#modules/admin/get-outbox-stats/controller");
 const GetOutboxStatsHistoryController = () =>
   import("#modules/admin/get-outbox-stats-history/controller");
+const GetDancerStatsController = () =>
+  import("#modules/admin/get-dancer-stats/controller");
+const AddTrainingVideoController = () =>
+  import("#modules/admin/add-training-video/controller");
+const DeleteTrainingVideoController = () =>
+  import("#modules/admin/delete-training-video/controller");
 
 router
   .group(() => {
@@ -95,6 +101,24 @@ router
         summary: "Get outbox stats history",
         description:
           "Returns historical outbox stats with daily, weekly, and monthly breakdowns",
+      });
+
+    router.get("dancers/stats", [GetDancerStatsController]).openapi({
+      summary: "Get dancer signup stats",
+      description:
+        "Returns dancer signup statistics with DAU/WAU/MAU and percentage changes",
+    });
+
+    router.post("library/videos", [AddTrainingVideoController]).openapi({
+      summary: "Add training video",
+      description: "Adds a training video to the video library",
+    });
+
+    router
+      .delete("library/videos/:id", [DeleteTrainingVideoController])
+      .openapi({
+        summary: "Delete training video",
+        description: "Permanently deletes a training video by ID",
       });
   })
   .use([middleware.auth(), middleware.admin()])

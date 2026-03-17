@@ -6,8 +6,9 @@ import { Tabs, TabsList, TabsTab } from "../ui/tabs";
 export function ResourcesLayout({ children }: { children: React.ReactNode }) {
   const session = useSession();
 
+  const showLibrary = session.type === "dancer" || session.role === "admin";
   const resourceTabs = [
-    session.type === "dancer" ? "/resources/library" : "/resources/favorites",
+    showLibrary ? "/resources/library" : "/resources/favorites",
     "/resources/blog",
   ] as const;
 
@@ -45,7 +46,7 @@ export function ResourcesLayout({ children }: { children: React.ReactNode }) {
           className="text-brand data-active:text-brand max-sm:text-sm"
           render={<Link to={resourceTabs[0]} />}
         >
-          {session.type === "dancer" ? "Tap In" : "Favorites"}
+          {showLibrary ? "Tap In" : "Favorites"}
         </TabsTab>
         <TabsTab
           nativeButton={false}

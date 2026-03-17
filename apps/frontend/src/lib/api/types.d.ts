@@ -361,7 +361,10 @@ export interface paths {
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    limit?: (string | number) | null;
+                    page?: (string | number) | null;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -375,6 +378,54 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["AdminDancersResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/dancers/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dancer signup stats
+         * @description Returns dancer signup statistics with DAU/WAU/MAU and percentage changes
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminDancersStatsResponse"];
                     };
                 };
             };
@@ -558,6 +609,108 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/library/videos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add training video
+         * @description Adds a training video to the video library
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminLibraryVideosRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminLibraryVideosResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/library/videos/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete training video
+         * @description Permanently deletes a training video by ID
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminLibraryVideosIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -5329,22 +5482,54 @@ export interface components {
             id: string;
         };
         AdminDancersResponse: {
-            id: string;
-            user: {
+            dancers: {
                 id: string;
-                username: string;
-                email: string;
-                name: string;
-                avatar: string | null;
-                verified: boolean;
-                /** @enum {string} */
-                role: "user" | "admin" | "prodigy_admin";
+                user: {
+                    id: string;
+                    username: string;
+                    email: string;
+                    name: string;
+                    avatar: string | null;
+                    verified: boolean;
+                    /** @enum {string} */
+                    role: "user" | "admin" | "prodigy_admin";
+                };
+                createdAt: string;
+                location: string;
+                gpa: number | null;
+                gradYear: number | null;
+            }[];
+            pagination: {
+                total: number;
+                page: number;
+                limit: number;
+                totalPages: number;
+                hasNextPage: boolean;
+                hasPreviousPage: boolean;
             };
-            createdAt: string;
-            location: string;
-            gpa: number | null;
-            gradYear: number | null;
-        }[];
+        };
+        AdminDancersStatsResponse: {
+            total: number;
+            daily: {
+                current: number;
+                previous: number;
+                change: number | null;
+            };
+            weekly: {
+                current: number;
+                previous: number;
+                change: number | null;
+            };
+            monthly: {
+                current: number;
+                previous: number;
+                change: number | null;
+            };
+            dailyBreakdown: {
+                date: string;
+                count: number;
+            }[];
+        };
         AdminBlogRequest: {
             tags?: string[] | null;
             title: string;
@@ -5364,6 +5549,17 @@ export interface components {
                 date: string;
                 count: number;
             }[];
+        };
+        AdminLibraryVideosRequest: {
+            url: string;
+            title: string;
+            category: string;
+        };
+        AdminLibraryVideosResponse: {
+            id: string;
+        };
+        AdminLibraryVideosIdResponse: {
+            success: boolean;
         };
         ApplicationResponse: {
             id?: string;

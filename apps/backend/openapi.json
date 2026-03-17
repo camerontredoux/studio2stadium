@@ -294,7 +294,44 @@
     },
     "/admin/dancers": {
       "get": {
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -305,6 +342,16 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -312,6 +359,28 @@
         ],
         "summary": "Get all dancers",
         "description": "Returns all dancers for admin dashboard"
+      }
+    },
+    "/admin/dancers/stats": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDancersStatsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get dancer signup stats",
+        "description": "Returns dancer signup statistics with DAU/WAU/MAU and percentage changes"
       }
     },
     "/admin/blog": {
@@ -423,6 +492,87 @@
         ],
         "summary": "Get outbox stats history",
         "description": "Returns historical outbox stats with daily, weekly, and monthly breakdowns"
+      }
+    },
+    "/admin/library/videos": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLibraryVideosRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLibraryVideosResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Add training video",
+        "description": "Adds a training video to the video library"
+      }
+    },
+    "/admin/library/videos/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLibraryVideosIdResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete training video",
+        "description": "Permanently deletes a training video by ID"
       }
     },
     "/application": {
@@ -5034,96 +5184,247 @@
         ]
       },
       "AdminDancersResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "user": {
+        "type": "object",
+        "properties": {
+          "dancers": {
+            "type": "array",
+            "items": {
               "type": "object",
               "properties": {
                 "id": {
                   "type": "string"
                 },
-                "username": {
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "username": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "avatar": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "verified": {
+                      "type": "boolean"
+                    },
+                    "role": {
+                      "type": "string",
+                      "enum": [
+                        "user",
+                        "admin",
+                        "prodigy_admin"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "username",
+                    "email",
+                    "name",
+                    "avatar",
+                    "verified",
+                    "role"
+                  ]
+                },
+                "createdAt": {
                   "type": "string"
                 },
-                "email": {
+                "location": {
                   "type": "string"
                 },
-                "name": {
-                  "type": "string"
-                },
-                "avatar": {
+                "gpa": {
                   "oneOf": [
                     {
-                      "type": "string"
+                      "type": "number"
                     },
                     {
                       "type": "null"
                     }
                   ]
                 },
-                "verified": {
-                  "type": "boolean"
-                },
-                "role": {
-                  "type": "string",
-                  "enum": [
-                    "user",
-                    "admin",
-                    "prodigy_admin"
+                "gradYear": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
                   ]
                 }
               },
               "required": [
                 "id",
-                "username",
-                "email",
-                "name",
-                "avatar",
-                "verified",
-                "role"
-              ]
-            },
-            "createdAt": {
-              "type": "string"
-            },
-            "location": {
-              "type": "string"
-            },
-            "gpa": {
-              "oneOf": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "gradYear": {
-              "oneOf": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "null"
-                }
+                "user",
+                "createdAt",
+                "location",
+                "gpa",
+                "gradYear"
               ]
             }
           },
-          "required": [
-            "id",
-            "user",
-            "createdAt",
-            "location",
-            "gpa",
-            "gradYear"
-          ]
-        }
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "number"
+              },
+              "page": {
+                "type": "number"
+              },
+              "limit": {
+                "type": "number"
+              },
+              "totalPages": {
+                "type": "number"
+              },
+              "hasNextPage": {
+                "type": "boolean"
+              },
+              "hasPreviousPage": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "total",
+              "page",
+              "limit",
+              "totalPages",
+              "hasNextPage",
+              "hasPreviousPage"
+            ]
+          }
+        },
+        "required": [
+          "dancers",
+          "pagination"
+        ]
+      },
+      "AdminDancersStatsResponse": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "daily": {
+            "type": "object",
+            "properties": {
+              "current": {
+                "type": "number"
+              },
+              "previous": {
+                "type": "number"
+              },
+              "change": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "current",
+              "previous",
+              "change"
+            ]
+          },
+          "weekly": {
+            "type": "object",
+            "properties": {
+              "current": {
+                "type": "number"
+              },
+              "previous": {
+                "type": "number"
+              },
+              "change": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "current",
+              "previous",
+              "change"
+            ]
+          },
+          "monthly": {
+            "type": "object",
+            "properties": {
+              "current": {
+                "type": "number"
+              },
+              "previous": {
+                "type": "number"
+              },
+              "change": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "current",
+              "previous",
+              "change"
+            ]
+          },
+          "dailyBreakdown": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "date",
+                "count"
+              ]
+            }
+          }
+        },
+        "required": [
+          "total",
+          "daily",
+          "weekly",
+          "monthly",
+          "dailyBreakdown"
+        ]
       },
       "AdminBlogRequest": {
         "type": "object",
@@ -5215,6 +5516,47 @@
           "weekly",
           "monthly",
           "dailyBreakdown"
+        ]
+      },
+      "AdminLibraryVideosRequest": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "title",
+          "category"
+        ]
+      },
+      "AdminLibraryVideosResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "AdminLibraryVideosIdResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success"
         ]
       },
       "ApplicationResponse": {

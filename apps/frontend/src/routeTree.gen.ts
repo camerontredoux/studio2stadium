@@ -48,10 +48,12 @@ import { Route as ApproutesRecruitingSubmitRouteImport } from './routes/_app/(ro
 import { Route as ApproutesRecruitingEditRouteImport } from './routes/_app/(routes)/recruiting/edit'
 import { Route as ApproutesExploreUsernameRouteImport } from './routes/_app/(routes)/explore/$username'
 import { Route as ApproutesEventsEventIdRouteImport } from './routes/_app/(routes)/events/$eventId'
+import { Route as AdminroutesAdminVideoLibraryRouteImport } from './routes/_admin/(routes)/admin/video-library'
 import { Route as AdminroutesAdminSchoolEventsRouteImport } from './routes/_admin/(routes)/admin/school-events'
 import { Route as AdminroutesAdminOutboxStatsRouteImport } from './routes/_admin/(routes)/admin/outbox-stats'
 import { Route as AdminroutesAdminGlobalEventsRouteImport } from './routes/_admin/(routes)/admin/global-events'
 import { Route as AdminroutesAdminDashboardRouteImport } from './routes/_admin/(routes)/admin/dashboard'
+import { Route as AdminroutesAdminDancersRouteImport } from './routes/_admin/(routes)/admin/dancers'
 import { Route as AdminroutesAdminBlogRouteImport } from './routes/_admin/(routes)/admin/blog'
 import { Route as AdminroutesAdminApplicationsRouteImport } from './routes/_admin/(routes)/admin/applications'
 import { Route as AdminroutesAdminDashboardMetricsRouteImport } from './routes/_admin/(routes)/admin/dashboard/metrics'
@@ -260,6 +262,12 @@ const ApproutesEventsEventIdRoute = ApproutesEventsEventIdRouteImport.update({
   path: '/events/$eventId',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AdminroutesAdminVideoLibraryRoute =
+  AdminroutesAdminVideoLibraryRouteImport.update({
+    id: '/(routes)/admin/video-library',
+    path: '/admin/video-library',
+    getParentRoute: () => AdminRouteRoute,
+  } as any)
 const AdminroutesAdminSchoolEventsRoute =
   AdminroutesAdminSchoolEventsRouteImport.update({
     id: '/(routes)/admin/school-events',
@@ -284,6 +292,11 @@ const AdminroutesAdminDashboardRoute =
     path: '/admin/dashboard',
     getParentRoute: () => AdminRouteRoute,
   } as any)
+const AdminroutesAdminDancersRoute = AdminroutesAdminDancersRouteImport.update({
+  id: '/(routes)/admin/dancers',
+  path: '/admin/dancers',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminroutesAdminBlogRoute = AdminroutesAdminBlogRouteImport.update({
   id: '/(routes)/admin/blog',
   path: '/admin/blog',
@@ -325,10 +338,12 @@ export interface FileRoutesByFullPath {
   '/reset': typeof AuthroutesResetRoute
   '/admin/applications': typeof AdminroutesAdminApplicationsRoute
   '/admin/blog': typeof AdminroutesAdminBlogRoute
+  '/admin/dancers': typeof AdminroutesAdminDancersRoute
   '/admin/dashboard': typeof AdminroutesAdminDashboardRouteWithChildren
   '/admin/global-events': typeof AdminroutesAdminGlobalEventsRoute
   '/admin/outbox-stats': typeof AdminroutesAdminOutboxStatsRoute
   '/admin/school-events': typeof AdminroutesAdminSchoolEventsRoute
+  '/admin/video-library': typeof AdminroutesAdminVideoLibraryRoute
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
   '/explore/$username': typeof ApproutesExploreUsernameRoute
   '/recruiting/edit': typeof ApproutesRecruitingEditRoute
@@ -367,10 +382,12 @@ export interface FileRoutesByTo {
   '/reset': typeof AuthroutesResetRoute
   '/admin/applications': typeof AdminroutesAdminApplicationsRoute
   '/admin/blog': typeof AdminroutesAdminBlogRoute
+  '/admin/dancers': typeof AdminroutesAdminDancersRoute
   '/admin/dashboard': typeof AdminroutesAdminDashboardRouteWithChildren
   '/admin/global-events': typeof AdminroutesAdminGlobalEventsRoute
   '/admin/outbox-stats': typeof AdminroutesAdminOutboxStatsRoute
   '/admin/school-events': typeof AdminroutesAdminSchoolEventsRoute
+  '/admin/video-library': typeof AdminroutesAdminVideoLibraryRoute
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
   '/explore/$username': typeof ApproutesExploreUsernameRoute
   '/recruiting/edit': typeof ApproutesRecruitingEditRoute
@@ -417,10 +434,12 @@ export interface FileRoutesById {
   '/_app/(routes)/': typeof ApproutesIndexRoute
   '/_admin/(routes)/admin/applications': typeof AdminroutesAdminApplicationsRoute
   '/_admin/(routes)/admin/blog': typeof AdminroutesAdminBlogRoute
+  '/_admin/(routes)/admin/dancers': typeof AdminroutesAdminDancersRoute
   '/_admin/(routes)/admin/dashboard': typeof AdminroutesAdminDashboardRouteWithChildren
   '/_admin/(routes)/admin/global-events': typeof AdminroutesAdminGlobalEventsRoute
   '/_admin/(routes)/admin/outbox-stats': typeof AdminroutesAdminOutboxStatsRoute
   '/_admin/(routes)/admin/school-events': typeof AdminroutesAdminSchoolEventsRoute
+  '/_admin/(routes)/admin/video-library': typeof AdminroutesAdminVideoLibraryRoute
   '/_app/(routes)/events/$eventId': typeof ApproutesEventsEventIdRoute
   '/_app/(routes)/explore/$username': typeof ApproutesExploreUsernameRoute
   '/_app/(routes)/recruiting/edit': typeof ApproutesRecruitingEditRoute
@@ -464,10 +483,12 @@ export interface FileRouteTypes {
     | '/reset'
     | '/admin/applications'
     | '/admin/blog'
+    | '/admin/dancers'
     | '/admin/dashboard'
     | '/admin/global-events'
     | '/admin/outbox-stats'
     | '/admin/school-events'
+    | '/admin/video-library'
     | '/events/$eventId'
     | '/explore/$username'
     | '/recruiting/edit'
@@ -506,10 +527,12 @@ export interface FileRouteTypes {
     | '/reset'
     | '/admin/applications'
     | '/admin/blog'
+    | '/admin/dancers'
     | '/admin/dashboard'
     | '/admin/global-events'
     | '/admin/outbox-stats'
     | '/admin/school-events'
+    | '/admin/video-library'
     | '/events/$eventId'
     | '/explore/$username'
     | '/recruiting/edit'
@@ -555,10 +578,12 @@ export interface FileRouteTypes {
     | '/_app/(routes)/'
     | '/_admin/(routes)/admin/applications'
     | '/_admin/(routes)/admin/blog'
+    | '/_admin/(routes)/admin/dancers'
     | '/_admin/(routes)/admin/dashboard'
     | '/_admin/(routes)/admin/global-events'
     | '/_admin/(routes)/admin/outbox-stats'
     | '/_admin/(routes)/admin/school-events'
+    | '/_admin/(routes)/admin/video-library'
     | '/_app/(routes)/events/$eventId'
     | '/_app/(routes)/explore/$username'
     | '/_app/(routes)/recruiting/edit'
@@ -866,6 +891,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApproutesEventsEventIdRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_admin/(routes)/admin/video-library': {
+      id: '/_admin/(routes)/admin/video-library'
+      path: '/admin/video-library'
+      fullPath: '/admin/video-library'
+      preLoaderRoute: typeof AdminroutesAdminVideoLibraryRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/_admin/(routes)/admin/school-events': {
       id: '/_admin/(routes)/admin/school-events'
       path: '/admin/school-events'
@@ -892,6 +924,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/dashboard'
       fullPath: '/admin/dashboard'
       preLoaderRoute: typeof AdminroutesAdminDashboardRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/_admin/(routes)/admin/dancers': {
+      id: '/_admin/(routes)/admin/dancers'
+      path: '/admin/dancers'
+      fullPath: '/admin/dancers'
+      preLoaderRoute: typeof AdminroutesAdminDancersRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/_admin/(routes)/admin/blog': {
@@ -945,19 +984,23 @@ const AdminroutesAdminDashboardRouteWithChildren =
 interface AdminRouteRouteChildren {
   AdminroutesAdminApplicationsRoute: typeof AdminroutesAdminApplicationsRoute
   AdminroutesAdminBlogRoute: typeof AdminroutesAdminBlogRoute
+  AdminroutesAdminDancersRoute: typeof AdminroutesAdminDancersRoute
   AdminroutesAdminDashboardRoute: typeof AdminroutesAdminDashboardRouteWithChildren
   AdminroutesAdminGlobalEventsRoute: typeof AdminroutesAdminGlobalEventsRoute
   AdminroutesAdminOutboxStatsRoute: typeof AdminroutesAdminOutboxStatsRoute
   AdminroutesAdminSchoolEventsRoute: typeof AdminroutesAdminSchoolEventsRoute
+  AdminroutesAdminVideoLibraryRoute: typeof AdminroutesAdminVideoLibraryRoute
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminroutesAdminApplicationsRoute: AdminroutesAdminApplicationsRoute,
   AdminroutesAdminBlogRoute: AdminroutesAdminBlogRoute,
+  AdminroutesAdminDancersRoute: AdminroutesAdminDancersRoute,
   AdminroutesAdminDashboardRoute: AdminroutesAdminDashboardRouteWithChildren,
   AdminroutesAdminGlobalEventsRoute: AdminroutesAdminGlobalEventsRoute,
   AdminroutesAdminOutboxStatsRoute: AdminroutesAdminOutboxStatsRoute,
   AdminroutesAdminSchoolEventsRoute: AdminroutesAdminSchoolEventsRoute,
+  AdminroutesAdminVideoLibraryRoute: AdminroutesAdminVideoLibraryRoute,
 }
 
 const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(

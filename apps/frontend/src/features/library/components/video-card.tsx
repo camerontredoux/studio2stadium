@@ -1,3 +1,13 @@
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogPopup,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,8 +18,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Frame, FramePanel } from "@/components/ui/frame";
+import { Spinner } from "@/components/ui/spinner";
+import { toastManager } from "@/components/ui/toast-manager";
 import type { ApiSchemas } from "@/lib/api/client";
+import { useSession } from "@/lib/session";
 import { getYouTubeId } from "@/utils/get-youtube-id";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useDeleteLibraryVideo } from "../api/mutations";
+import { queries } from "../api/queries";
 
 type Video = ApiSchemas["LibraryResponse"][number]["videos"][number];
 
@@ -19,6 +36,37 @@ interface VideoCardProps {
 
 export function VideoCard({ video }: VideoCardProps) {
   const id = getYouTubeId(video.url);
+  const session = useSession();
+  const isAdmin = session.role === "admin";
+  const queryClient = useQueryClient();
+  const { mutate: deleteVideo, isPending } = useDeleteLibraryVideo();
+  const [alertOpen, setAlertOpen] = useState(false);
+
+  const handleDelete = () => {
+    deleteVideo(
+      { params: { path: { id: video.id } } },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries(queries.videos());
+          setAlertOpen(false);
+          toastManager.add({
+            title: "Deleted",
+            description: "Video removed from library",
+            type: "success",
+          });
+        },
+        onError: () => {
+          setAlertOpen(false);
+          toastManager.add({
+            title: "Error",
+            description: "Failed to delete video",
+            type: "error",
+          });
+        },
+      },
+    );
+  };
+
   return (
     <Frame compact className="group flex flex-col [content-visibility:auto]">
       <FramePanel side="inset" className="flex flex-col">
@@ -51,6 +99,37 @@ export function VideoCard({ video }: VideoCardProps) {
               />
             </div>
             <DialogFooter>
+              {isAdmin && (
+                <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+                  <AlertDialogTrigger
+                    render={<Button variant="destructive" />}
+                  >
+                    Delete
+                  </AlertDialogTrigger>
+                  <AlertDialogPopup>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Video</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete "{video.title}"? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogClose
+                        render={<Button variant="ghost" disabled={isPending} />}
+                      >
+                        Cancel
+                      </AlertDialogClose>
+                      <Button
+                        variant="destructive"
+                        onClick={handleDelete}
+                        disabled={isPending}
+                      >
+                        {isPending ? <Spinner label="Deleting..." /> : "Delete"}
+                      </Button>
+                    </AlertDialogFooter>
+                  </AlertDialogPopup>
+                </AlertDialog>
+              )}
               <DialogClose render={<Button variant="secondary" />}>
                 Close
               </DialogClose>

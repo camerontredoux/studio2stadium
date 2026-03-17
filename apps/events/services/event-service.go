@@ -160,6 +160,8 @@ func (s *EventService) ProcessQueueMessage(message *sqsT.Message) (*t.QueueMessa
 		err = s.HandleSchoolApproved(outboxEvent, &notifications)
 	case "blog.post-created":
 		err = s.HandleBlogPostCreated(outboxEvent, &notifications)
+	case "library.video-added":
+		err = s.HandleLibraryVideoAdded(outboxEvent, &notifications)
 
 	// Event attendance
 	case "event.attended":

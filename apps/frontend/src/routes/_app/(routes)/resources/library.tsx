@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_app/(routes)/resources/library")({
   validateSearch: (search: Record<string, unknown>) =>
     search as SchoolSearchFilter,
   beforeLoad: ({ context: { session } }) => {
-    if (session.type === "school") {
+    if (session.type === "school" && session.role !== "admin") {
       throw redirect({ to: "/resources/favorites" });
     }
   },

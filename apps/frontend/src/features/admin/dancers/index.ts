@@ -1,0 +1,1 @@
+export { DancersPage } from "./page";

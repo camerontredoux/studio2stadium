@@ -128,17 +128,27 @@ export function LoginForm() {
         )}
       </Button>
 
-      <p className="text-muted-foreground text-center text-sm">
-        Don&apos;t have an account?{" "}
-        <Button
-          type="button"
-          variant="link"
-          className="text-brand p-0 text-sm font-medium"
-          render={<Link to="/signup" replace={true} />}
+      <div className="flex items-center justify-between gap-2">
+        <a
+          href="https://studio2stadium.com"
+          target="_blank"
+          className="text-brand text-sm font-medium hover:underline"
         >
-          Sign up
-        </Button>
-      </p>
+          Marketing
+        </a>
+
+        <p className="text-muted-foreground text-sm">
+          Don&apos;t have an account?{" "}
+          <Button
+            type="button"
+            variant="link"
+            className="text-brand p-0 text-sm font-medium"
+            render={<Link to="/signup" replace={true} />}
+          >
+            Sign up
+          </Button>
+        </p>
+      </div>
     </form>
   );
 }
