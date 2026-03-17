@@ -28,6 +28,11 @@ export class Service {
               role: true,
             },
           },
+          application: {
+            columns: {
+              status: true,
+            },
+          },
         },
         orderBy: {
           createdAt: "desc",
@@ -36,7 +41,12 @@ export class Service {
     );
 
     return schools
-      .filter((school) => school.user)
+      .filter(
+        (school) =>
+          school.user &&
+          school.application?.status !== "pending" &&
+          school.application?.status !== "rejected"
+      )
       .map((school) => ({
         id: school.id,
         name: school.name,

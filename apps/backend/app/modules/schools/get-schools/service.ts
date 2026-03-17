@@ -43,6 +43,11 @@ export class Service {
               username: true,
             },
           },
+          application: {
+            columns: {
+              status: true,
+            },
+          },
         },
         orderBy: {
           name: "asc",
@@ -58,8 +63,13 @@ export class Service {
 
     return schools.flatMap((school) => {
       if (!school.user) return [];
+      if (
+        school.application?.status === "pending" ||
+        school.application?.status === "rejected"
+      )
+        return [];
 
-      const { user, ...schoolProfile } = school;
+      const { user, application, ...schoolProfile } = school;
 
       return [
         {
