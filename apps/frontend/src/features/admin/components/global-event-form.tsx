@@ -1,6 +1,7 @@
 import { CalendarPopover } from "@/components/ui/calendar-popover";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { ThumbnailUpload } from "@/shared/images/components/thumbnail-upload";
 import {
   Select,
   SelectContent,
@@ -217,8 +218,8 @@ export function GlobalEventForm({
           name="thumbnail"
           render={({ field, fieldState }) => (
             <Field name={field.name} invalid={fieldState.invalid}>
-              <FieldLabel>Thumbnail URL</FieldLabel>
-              <Input type="url" placeholder="https://example.com/image.jpg" {...field} />
+              <FieldLabel>Thumbnail</FieldLabel>
+              <ThumbnailUpload value={field.value} onChange={field.onChange} returnKey />
               <FieldError error={fieldState.error} />
             </Field>
           )}

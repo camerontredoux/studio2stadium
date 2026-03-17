@@ -50,7 +50,7 @@ export const schemas = {
       startTime: z.string().min(1, "Start time is required"),
       endDate: z.date({ message: "End date is required" }),
       endTime: z.string().min(1, "End time is required"),
-      thumbnail: z.url("Must be a valid URL"),
+      thumbnail: z.string().min(1, "Thumbnail is required"),
       organization: z.string().min(1, "Organization is required"),
     })
     .refine(

@@ -8,10 +8,12 @@ import { useRef, useState } from "react";
 
 interface ThumbnailUploadProps {
   value: string;
-  onChange: (url: string) => void;
+  onChange: (value: string) => void;
+  /** If true, returns only the media key instead of full URL */
+  returnKey?: boolean;
 }
 
-export function ThumbnailUpload({ value, onChange }: ThumbnailUploadProps) {
+export function ThumbnailUpload({ value, onChange, returnKey = false }: ThumbnailUploadProps) {
   const { mutateAsync: requestUpload } = useRequestUpload();
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -33,8 +35,10 @@ export function ThumbnailUpload({ value, onChange }: ThumbnailUploadProps) {
       setUploading(true);
       await uploadToCloudflare(url, file, setProgress);
 
-      const imageUrl = `https://studio2stadium.com/img/${key}?type=feed`;
-      onChange(imageUrl);
+      const result = returnKey
+        ? key
+        : `https://studio2stadium.com/img/${key}?type=feed`;
+      onChange(result);
     } catch {
       toastManager.add({
         title: "Error",
@@ -51,10 +55,13 @@ export function ThumbnailUpload({ value, onChange }: ThumbnailUploadProps) {
   };
 
   if (value) {
+    const previewUrl = value.startsWith("http")
+      ? value
+      : `https://studio2stadium.com/img/${value}?type=feed`;
     return (
       <div className="relative w-fit">
         <img
-          src={value}
+          src={previewUrl}
           alt="Thumbnail preview"
           className="h-32 w-auto rounded-lg object-cover"
         />

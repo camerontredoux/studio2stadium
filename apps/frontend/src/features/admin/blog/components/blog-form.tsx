@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { blogPostSchema, type BlogPostFormData } from "../api/schemas";
 import { RichTextEditor } from "./rich-text-editor";
-import { ThumbnailUpload } from "./thumbnail-upload";
+import { ThumbnailUpload } from "@/shared/images/components/thumbnail-upload";
 
 interface BlogFormProps {
   onSubmit: (data: BlogPostFormData) => void;
