@@ -10,6 +10,7 @@ const sortableColumns = [
   "firstName",
   "lastName",
   "verified",
+  "email",
 ] as const;
 
 export const validator = vine.create(

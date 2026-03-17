@@ -6,6 +6,20 @@ import { z } from "zod";
 const searchSchema = z.object({
   page: z.coerce.number().optional().default(0),
   limit: z.coerce.number().optional().default(10),
+  sortBy: z
+    .enum([
+      "createdAt",
+      "location",
+      "gpa",
+      "gradYear",
+      "username",
+      "firstName",
+      "lastName",
+      "verified",
+      "email",
+    ])
+    .optional(),
+  sortDirection: z.enum(["asc", "desc"]).optional(),
 });
 
 export const Route = createFileRoute("/_admin/(routes)/admin/dancers")({

@@ -8,7 +8,21 @@ export const adminQueries = {
     $api.queryOptions("get", "/schools/{username}", {
       params: { path: { username } },
     }),
-  dancers: (search: { page?: number; limit?: number }) =>
+  dancers: (search: {
+    page?: number;
+    limit?: number;
+    sortBy?:
+      | "createdAt"
+      | "location"
+      | "gpa"
+      | "gradYear"
+      | "username"
+      | "firstName"
+      | "lastName"
+      | "verified"
+      | "email";
+    sortDirection?: "asc" | "desc";
+  }) =>
     $api.queryOptions(
       "get",
       "/admin/dancers",
@@ -17,6 +31,9 @@ export const adminQueries = {
           query: {
             page: search.page ?? 0,
             limit: search.limit ?? 10,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            sortBy: search.sortBy as any,
+            sortDirection: search.sortDirection,
           },
         },
       },

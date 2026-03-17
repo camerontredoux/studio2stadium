@@ -364,6 +364,8 @@ export interface paths {
                 query?: {
                     limit?: (string | number) | null;
                     page?: (string | number) | null;
+                    sortBy?: ("location" | "username" | "firstName" | "lastName" | "verified" | "createdAt" | "gpa" | "gradYear") | null;
+                    sortDirection?: ("asc" | "desc") | null;
                 };
                 header?: never;
                 path?: never;

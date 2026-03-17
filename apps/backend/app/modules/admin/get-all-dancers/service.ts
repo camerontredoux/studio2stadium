@@ -15,6 +15,7 @@ const sortColumnMap = {
   firstName: users.firstName,
   lastName: users.lastName,
   verified: users.verified,
+  email: users.displayEmail,
 } satisfies Record<SortableColumn, AnyColumn>;
 
 @inject()

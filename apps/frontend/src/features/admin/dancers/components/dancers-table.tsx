@@ -16,11 +16,9 @@ import {
   type ColumnDef,
   flexRender,
   getCoreRowModel,
-  getSortedRowModel,
-  type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import {
   CheckIcon,
   ChevronDownIcon,
@@ -28,17 +26,38 @@ import {
   ExternalLinkIcon,
   XIcon,
 } from "lucide-react";
-import { useState } from "react";
 import { DancersPagination } from "./dancers-pagination";
 
 type Dancer = ApiSchemas["AdminDancersResponse"]["dancers"][number];
 type Pagination = ApiSchemas["AdminDancersResponse"]["pagination"];
+
+type SortBy =
+  | "createdAt"
+  | "location"
+  | "gpa"
+  | "gradYear"
+  | "username"
+  | "firstName"
+  | "lastName"
+  | "verified"
+  | "email";
 
 interface DancersTableProps {
   dancers: Dancer[];
   pagination: Pagination;
   isLoading?: boolean;
 }
+
+// Map column IDs to backend sortBy values
+const columnToSortBy: Record<string, SortBy> = {
+  dancer: "lastName",
+  email: "email",
+  verified: "verified",
+  location: "location",
+  gradYear: "gradYear",
+  gpa: "gpa",
+  createdAt: "createdAt",
+};
 
 const columns: ColumnDef<Dancer>[] = [
   {
@@ -134,20 +153,67 @@ const columnVisibility: Record<string, string> = {
   createdAt: "hidden sm:table-cell",
 };
 
+// Map backend sortBy to column ID for display
+const sortByToColumn: Record<string, string> = {
+  lastName: "dancer",
+  firstName: "dancer",
+  username: "dancer",
+  email: "email",
+  verified: "verified",
+  location: "location",
+  gradYear: "gradYear",
+  gpa: "gpa",
+  createdAt: "createdAt",
+};
+
 export function DancersTable({
   dancers,
   pagination,
   isLoading,
 }: DancersTableProps) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const navigate = useNavigate();
+  const search = useSearch({ from: "/_admin/(routes)/admin/dancers" });
+
+  const currentSortColumn = search.sortBy
+    ? sortByToColumn[search.sortBy]
+    : undefined;
+  const currentSortDirection = search.sortDirection;
+
+  const handleSort = (columnId: string) => {
+    const backendSortBy = columnToSortBy[columnId];
+    if (!backendSortBy) return;
+
+    let newDirection: "asc" | "desc" | undefined;
+
+    if (currentSortColumn === columnId) {
+      // Cycle: asc -> desc -> none
+      if (currentSortDirection === "asc") {
+        newDirection = "desc";
+      } else if (currentSortDirection === "desc") {
+        newDirection = undefined;
+      } else {
+        newDirection = "asc";
+      }
+    } else {
+      newDirection = "asc";
+    }
+
+    navigate({
+      to: "/admin/dancers",
+      search: {
+        ...search,
+        page: 0, // Reset to first page when sorting changes
+        sortBy: newDirection ? backendSortBy : undefined,
+        sortDirection: newDirection,
+      },
+    });
+  };
 
   const table = useReactTable({
     columns,
     data: dancers,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    onSortingChange: setSorting,
-    state: { sorting },
+    manualSorting: true,
   });
 
   if (dancers.length === 0) {
@@ -160,46 +226,52 @@ export function DancersTable({
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow className="hover:bg-transparent" key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead
-                  key={header.id}
-                  className={columnVisibility[header.id]}
-                >
-                  {header.isPlaceholder ? null : (
-                    <div
-                      className="flex h-full cursor-pointer items-center justify-between gap-2 select-none"
-                      onClick={header.column.getToggleSortingHandler()}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          header.column.getToggleSortingHandler()?.(e);
-                        }
-                      }}
-                      role="button"
-                      tabIndex={0}
-                    >
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                      {{
-                        asc: (
+              {headerGroup.headers.map((header) => {
+                const canSort = columnToSortBy[header.id] !== undefined;
+                const isSorted = currentSortColumn === header.id;
+
+                return (
+                  <TableHead
+                    key={header.id}
+                    className={columnVisibility[header.id]}
+                  >
+                    {header.isPlaceholder ? null : (
+                      <div
+                        className={`flex h-full items-center justify-between gap-2 select-none ${canSort ? "cursor-pointer" : ""}`}
+                        onClick={() => canSort && handleSort(header.id)}
+                        onKeyDown={(e) => {
+                          if (
+                            canSort &&
+                            (e.key === "Enter" || e.key === " ")
+                          ) {
+                            e.preventDefault();
+                            handleSort(header.id);
+                          }
+                        }}
+                        role={canSort ? "button" : undefined}
+                        tabIndex={canSort ? 0 : undefined}
+                      >
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                        {isSorted && currentSortDirection === "asc" && (
                           <ChevronUpIcon
                             aria-hidden="true"
                             className="size-4 shrink-0 opacity-80"
                           />
-                        ),
-                        desc: (
+                        )}
+                        {isSorted && currentSortDirection === "desc" && (
                           <ChevronDownIcon
                             aria-hidden="true"
                             className="size-4 shrink-0 opacity-80"
                           />
-                        ),
-                      }[header.column.getIsSorted() as string] ?? null}
-                    </div>
-                  )}
-                </TableHead>
-              ))}
+                        )}
+                      </div>
+                    )}
+                  </TableHead>
+                );
+              })}
             </TableRow>
           ))}
         </TableHeader>
