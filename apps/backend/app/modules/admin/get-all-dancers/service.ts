@@ -3,10 +3,10 @@ import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
 import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
-import { asc, desc, eq, sql } from "drizzle-orm";
+import { asc, desc, eq, sql, type AnyColumn } from "drizzle-orm";
 import { type SortableColumn, type Validator } from "./validator.ts";
 
-const sortColumnMap: Record<SortableColumn, typeof dancerProfiles.createdAt | typeof users.username> = {
+const sortColumnMap = {
   createdAt: dancerProfiles.createdAt,
   location: dancerProfiles.location,
   gpa: dancerProfiles.gpa,
@@ -15,7 +15,7 @@ const sortColumnMap: Record<SortableColumn, typeof dancerProfiles.createdAt | ty
   firstName: users.firstName,
   lastName: users.lastName,
   verified: users.verified,
-};
+} satisfies Record<SortableColumn, AnyColumn>;
 
 @inject()
 export class Service {
