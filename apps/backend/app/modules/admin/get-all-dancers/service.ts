@@ -3,8 +3,19 @@ import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
 import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
-import { desc, eq, sql } from "drizzle-orm";
-import { Validator } from "./validator.ts";
+import { asc, desc, eq, sql } from "drizzle-orm";
+import { type SortableColumn, type Validator } from "./validator.ts";
+
+const sortColumnMap: Record<SortableColumn, typeof dancerProfiles.createdAt | typeof users.username> = {
+  createdAt: dancerProfiles.createdAt,
+  location: dancerProfiles.location,
+  gpa: dancerProfiles.gpa,
+  gradYear: dancerProfiles.gradYear,
+  username: users.username,
+  firstName: users.firstName,
+  lastName: users.lastName,
+  verified: users.verified,
+};
 
 @inject()
 export class Service {
@@ -13,6 +24,10 @@ export class Service {
   async execute(params: Validator) {
     const limit = params.limit ?? 20;
     const offset = params.page ? params.page * limit : 0;
+    const sortBy = params.sortBy ?? "createdAt";
+    const sortDirection = params.sortDirection ?? "desc";
+    const sortColumn = sortColumnMap[sortBy];
+    const orderBy = sortDirection === "asc" ? asc(sortColumn) : desc(sortColumn);
 
     const [data, countResult] = await Promise.all([
       this.db.use((db) =>
@@ -34,7 +49,7 @@ export class Service {
           })
           .from(dancerProfiles)
           .innerJoin(users, eq(dancerProfiles.userId, users.id))
-          .orderBy(desc(dancerProfiles.createdAt))
+          .orderBy(orderBy)
           .limit(limit)
           .offset(offset)
       ),

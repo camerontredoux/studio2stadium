@@ -24,4 +24,5 @@ export const adminQueries = {
         placeholderData: keepPreviousData,
       },
     ),
+  dancerStats: () => $api.queryOptions("get", "/admin/dancers/stats"),
 };
