@@ -13,10 +13,11 @@ import { toastManager } from "@/components/ui/toast-manager";
 import { useEditSchoolEvent } from "@/features/admin/api/mutations";
 import type { SchoolEventFormData } from "@/features/admin/api/schemas";
 import { SchoolEventForm } from "@/features/admin/components/school-event-form";
-import { $api, type ApiSchemas } from "@/lib/api/client";
+import { type ApiSchemas } from "@/lib/api/client";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { CalendarIcon, MapPinIcon } from "lucide-react";
 import { Suspense, useRef, useState } from "react";
+import { adminQueries } from "../../api/queries";
 
 type SchoolEvent = ApiSchemas["SchoolsIdResponse"]["events"][number];
 
@@ -85,9 +86,7 @@ interface EventsListProps {
 
 function EventsList({ username, onEdit }: EventsListProps) {
   const { data: school } = useSuspenseQuery(
-    $api.queryOptions("get", "/schools/{username}", {
-      params: { path: { username } },
-    }),
+    adminQueries.schoolEvents(username),
   );
 
   const events = school.events;
@@ -114,14 +113,43 @@ interface EventCardProps {
   onEdit: () => void;
 }
 
+function formatDatetimeWithoutTimezone(datetime: string): {
+  date: string;
+  time: string;
+} {
+  // Parse ISO string directly without timezone conversion
+  // Expected format: "2026-03-16T14:00:00" or "2026-03-16T14:00:00Z"
+  const [datePart, timePart] = datetime.split("T");
+  const [year, month, day] = datePart.split("-").map(Number);
+  const timeOnly = timePart.replace("Z", "").split(":").slice(0, 2);
+  const [hours, minutes] = timeOnly.map(Number);
+
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const formattedDate = `${monthNames[month - 1]} ${day}, ${year}`;
+
+  const hour12 = hours % 12 || 12;
+  const ampm = hours >= 12 ? "PM" : "AM";
+  const formattedTime = `${hour12}:${String(minutes).padStart(2, "0")} ${ampm}`;
+
+  return { date: formattedDate, time: formattedTime };
+}
+
 function EventCard({ event, onEdit }: EventCardProps) {
-  const startDate = new Date(event.startDatetime);
-  const formattedDate = startDate.toLocaleDateString("en-US", {
-    dateStyle: "medium",
-  });
-  const formattedTime = startDate.toLocaleTimeString("en-US", {
-    timeStyle: "short",
-  });
+  const { date: formattedDate, time: formattedTime } =
+    formatDatetimeWithoutTimezone(event.startDatetime);
 
   return (
     <div className="bg-muted/50 flex items-start justify-between gap-3 rounded-lg border p-3">
@@ -164,13 +192,18 @@ function combineDateAndTime(date: Date, time: string): string {
 }
 
 function parseISODateTime(datetime: string): { date: Date; time: string } {
-  const d = new Date(datetime);
-  const hours = String(d.getHours()).padStart(2, "0");
-  const minutes = String(d.getMinutes()).padStart(2, "0");
-  return {
-    date: d,
-    time: `${hours}:${minutes}`,
-  };
+  // Parse ISO string directly without timezone conversion
+  // Expected format: "2026-03-16T14:00:00" or "2026-03-16T14:00:00Z"
+  const [datePart, timePart] = datetime.split("T");
+  const [year, month, day] = datePart.split("-").map(Number);
+  const timeOnly = timePart.replace("Z", "").split(":").slice(0, 2);
+  const [hours, minutes] = timeOnly.map(Number);
+
+  // Create date at noon to avoid any DST edge cases when only using the date portion
+  const date = new Date(year, month - 1, day, 12, 0, 0);
+  const time = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+
+  return { date, time };
 }
 
 interface EditEventDialogProps {
@@ -185,7 +218,7 @@ function EditEventDialog({
   onOpenChange,
 }: EditEventDialogProps) {
   const queryClient = useQueryClient();
-  const { mutate: editEvent, isPending } = useEditSchoolEvent();
+  const { mutate: editEvent, isPending } = useEditSchoolEvent(schoolUsername);
 
   // Keep reference to last event for exit animation
   const lastEventRef = useRef<SchoolEvent | null>(null);
@@ -241,7 +274,11 @@ function EditEventDialog({
             type: "success",
           });
           queryClient.invalidateQueries({
-            queryKey: ["get", "/schools/{username}", { path: { username: schoolUsername } }],
+            queryKey: [
+              "get",
+              "/schools/{username}",
+              { path: { username: schoolUsername } },
+            ],
           });
           onOpenChange(false);
         },

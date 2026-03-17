@@ -21,6 +21,10 @@ export function useEditGlobalEvent() {
   return $api.useMutation("patch", "/admin/events/global/{id}");
 }
 
-export function useEditSchoolEvent() {
-  return $api.useMutation("patch", "/admin/events/school/{id}");
+export function useEditSchoolEvent(username: string) {
+  return $api.useMutation("patch", "/admin/events/school/{id}", {
+    meta: {
+      invalidateQueries: [adminQueries.schoolEvents(username).queryKey],
+    },
+  });
 }

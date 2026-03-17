@@ -20,7 +20,7 @@ export default class GetSchoolController {
       throw new E_FORBIDDEN("You are not authorized to view this profile");
     }
 
-    if (isOwner) {
+    if (isOwner || isAdmin) {
       const school = await service.execute(params.username);
       if (!school)
         throw new E_BAD_REQUEST("School not found", {
