@@ -1,35 +1,45 @@
 import { BaseMail } from "@adonisjs/mail";
+import { renderEmail, renderEmailText, ProfileViewedEmail } from "@stos/emails";
 
 interface ProfileViewedEmailData {
   dancerEmail: string;
   dancerName: string;
   schoolName: string;
   schoolProfileUrl: string;
+  freemium?: boolean;
+  upgradeUrl?: string;
 }
 
-export default class ProfileViewedEmail extends BaseMail {
+export default class ProfileViewedEmailMail extends BaseMail {
   subject: string;
 
   constructor(private data: ProfileViewedEmailData) {
     super();
-    this.subject = `${data.schoolName} viewed your profile!`;
+    this.subject = data.freemium
+      ? "Someone viewed your profile"
+      : `${data.schoolName} viewed your profile!`;
   }
 
-  prepare() {
-    const { dancerEmail, dancerName, schoolName, schoolProfileUrl } = this.data;
+  async prepare() {
+    const {
+      dancerEmail,
+      dancerName,
+      schoolName,
+      schoolProfileUrl,
+      freemium,
+      upgradeUrl,
+    } = this.data;
+
+    const template = ProfileViewedEmail({
+      dancerName,
+      schoolName,
+      schoolProfileUrl,
+      freemium,
+      upgradeUrl,
+    });
 
     this.message.to(dancerEmail);
-    this.message.html(
-      `<p>Hi ${dancerName},</p>
-<p>Great news! <strong>${schoolName}</strong> just viewed your profile on Studio2Stadium.</p>
-<p><a href="${schoolProfileUrl}">View their program</a></p>`
-    );
-    this.message.text(
-      `Hi ${dancerName},
-
-Great news! ${schoolName} just viewed your profile on Studio2Stadium.
-
-View their program: ${schoolProfileUrl}`
-    );
+    this.message.html(await renderEmail(template));
+    this.message.text(await renderEmailText(template));
   }
 }

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { Textarea } from "@/components/ui/textarea";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
 import { TriangleAlertIcon } from "lucide-react";
@@ -23,6 +24,7 @@ const CONFIRM_TEXT = "delete";
 export function DangerSettings() {
   const [open, setOpen] = useState(false);
   const [confirmText, setConfirmText] = useState("");
+  const [feedback, setFeedback] = useState("");
 
   const { mutate, isPending } = useDeleteAccount();
 
@@ -30,7 +32,11 @@ export function DangerSettings() {
 
   const handleDelete = () => {
     mutate(
-      {},
+      {
+        body: {
+          feedback: feedback.trim() || undefined,
+        },
+      } as any,
       {
         onSuccess: () => {
           window.location.href = "/login";
@@ -52,6 +58,7 @@ export function DangerSettings() {
     setOpen(isOpen);
     if (!isOpen) {
       setConfirmText("");
+      setFeedback("");
     }
   };
 
@@ -91,7 +98,16 @@ export function DangerSettings() {
                       your account and remove all your data from our servers.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
-                  <div className="px-6 pb-4">
+                  <div className="flex flex-col gap-3 px-6 pb-4">
+                    <Field name="feedback">
+                      <FieldLabel>Feedback (optional)</FieldLabel>
+                      <Textarea
+                        placeholder="Tell us why you are deleting your account..."
+                        value={feedback}
+                        onChange={(e) => setFeedback(e.target.value)}
+                        maxLength={1000}
+                      />
+                    </Field>
                     <Field name="confirm">
                       <FieldLabel>
                         Type <span className="font-mono font-bold">delete</span>{" "}

@@ -1,4 +1,5 @@
 import { BaseMail } from "@adonisjs/mail";
+import { renderEmail, renderEmailText, ContactUsEmail } from "@stos/emails";
 
 interface ContactUsEmailData {
   name: string;
@@ -7,7 +8,7 @@ interface ContactUsEmailData {
   message: string;
 }
 
-export default class ContactUsEmail extends BaseMail {
+export default class ContactUsEmailMail extends BaseMail {
   subject: string;
 
   constructor(private data: ContactUsEmailData) {
@@ -15,25 +16,14 @@ export default class ContactUsEmail extends BaseMail {
     this.subject = `Contact Form: ${data.subject}`;
   }
 
-  prepare() {
+  async prepare() {
     const { name, email, subject, message } = this.data;
+
+    const template = ContactUsEmail({ name, email, subject, message });
 
     this.message.to("info@studio2stadium.com");
     this.message.replyTo(email);
-    this.message.html(
-      `<h2>Contact Form Submission</h2>
-<p><strong>From:</strong> ${name} (${email})</p>
-<p><strong>Subject:</strong> ${subject}</p>
-<hr>
-<p>${message.replace(/\n/g, "<br>")}</p>`
-    );
-    this.message.text(
-      `Contact Form Submission
-
-From: ${name} (${email})
-Subject: ${subject}
-
-${message}`
-    );
+    this.message.html(await renderEmail(template));
+    this.message.text(await renderEmailText(template));
   }
 }

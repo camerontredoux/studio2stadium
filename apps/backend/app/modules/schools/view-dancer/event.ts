@@ -30,7 +30,7 @@ class ProfileViewedHandler {
     const [dancer, school] = await Promise.all([
       db.query.dancerProfiles.findFirst({
         where: { id: dancerId },
-        with: { user: true },
+        with: { user: { with: { subscription: true } } },
       }),
       db.query.schoolProfiles.findFirst({
         where: { id: schoolId },
@@ -47,6 +47,14 @@ class ProfileViewedHandler {
     }
 
     const schoolProfileUrl = `${env.get("SITE_URL")}/explore/${school.user.username}`;
+    const upgradeUrl = `${env.get("SITE_URL")}/settings/membership`;
+
+    const sub = dancer.user.subscription;
+    const isPremium =
+      !!sub &&
+      sub.status === "active" &&
+      !!sub.currentPeriodEnd &&
+      sub.currentPeriodEnd > new Date();
 
     await mail.send(
       new ProfileViewedEmail({
@@ -54,6 +62,8 @@ class ProfileViewedHandler {
         dancerName: dancer.user.firstName,
         schoolName: school.name,
         schoolProfileUrl,
+        freemium: !isPremium,
+        upgradeUrl,
       })
     );
   }

@@ -7,7 +7,8 @@
     "lint": "pnpm -r lint",
     "check": "pnpm -r check",
     "backend": "pnpm --filter backend",
-    "frontend": "pnpm --filter frontend"
+    "frontend": "pnpm --filter frontend",
+    "emails": "pnpm --filter @stos/emails"
   },
   "devDependencies": {
     "typescript": "^5.8.3"

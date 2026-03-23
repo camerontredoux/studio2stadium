@@ -1,5 +1,6 @@
 import env from "#start/env";
 import { BaseMail } from "@adonisjs/mail";
+import { renderEmail, renderEmailText, FeedbackEmail } from "@stos/emails";
 
 interface FeedbackEmailData {
   type: "bug" | "feature" | "improvement" | "other";
@@ -10,7 +11,7 @@ interface FeedbackEmailData {
   userName: string;
 }
 
-export default class FeedbackEmail extends BaseMail {
+export default class FeedbackEmailMail extends BaseMail {
   subject: string;
 
   constructor(private data: FeedbackEmailData) {
@@ -24,34 +25,21 @@ export default class FeedbackEmail extends BaseMail {
     this.subject = `${typeLabels[data.type]} from ${data.userName}`;
   }
 
-  prepare() {
+  async prepare() {
     const { type, message, page, userId, userEmail, userName } = this.data;
 
-    const typeLabels = {
-      bug: "Bug Report",
-      feature: "Feature Request",
-      improvement: "Improvement Suggestion",
-      other: "Feedback",
-    };
+    const template = FeedbackEmail({
+      type,
+      message,
+      page,
+      userId,
+      userEmail,
+      userName,
+    });
 
     this.message.to(env.get("MAIL_TO_ADDRESS"));
     this.message.replyTo(userEmail);
-    this.message.html(
-      `<h2>${typeLabels[type]}</h2>
-<p><strong>From:</strong> ${userName} (${userEmail})</p>
-<p><strong>User ID:</strong> ${userId}</p>
-${page ? `<p><strong>Page:</strong> ${page}</p>` : ""}
-<hr>
-<p>${message.replace(/\n/g, "<br>")}</p>`
-    );
-    this.message.text(
-      `${typeLabels[type]}
-
-From: ${userName} (${userEmail})
-User ID: ${userId}
-${page ? `Page: ${page}` : ""}
-
-${message}`
-    );
+    this.message.html(await renderEmail(template));
+    this.message.text(await renderEmailText(template));
   }
 }

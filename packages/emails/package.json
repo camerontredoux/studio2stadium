@@ -1,0 +1,40 @@
+{
+  "name": "@stos/emails",
+  "type": "module",
+  "version": "1.0.0",
+  "exports": {
+    ".": "./build/index.js"
+  },
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "dev": "email dev",
+    "build": "tsup"
+  },
+  "dependencies": {
+    "@react-email/components": "^0.0.36",
+    "@react-email/render": "^1.0.5",
+    "react": "^19",
+    "react-dom": "^19"
+  },
+  "devDependencies": {
+    "@react-email/preview-server": "5.2.10",
+    "@types/react": "^19",
+    "prettier": "^3.8.1",
+    "react-email": "^5.2.10",
+    "tsup": "^8.5.1",
+    "typescript": "^5.8"
+  },
+  "tsup": {
+    "entry": [
+      "./src/index.ts"
+    ],
+    "outDir": "./build",
+    "format": "esm",
+    "dts": true,
+    "target": "esnext",
+    "platform": "node",
+    "skipNodeModulesBundle": true
+  }
+}

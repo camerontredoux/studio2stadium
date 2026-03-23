@@ -1,4 +1,5 @@
 import { BaseMail } from "@adonisjs/mail";
+import { renderEmail, renderEmailText, ShowInterestEmail } from "@stos/emails";
 
 interface ShowInterestEmailData {
   schoolEmail: string;
@@ -8,7 +9,7 @@ interface ShowInterestEmailData {
   interestCount: number;
 }
 
-export default class ShowInterestEmail extends BaseMail {
+export default class ShowInterestEmailMail extends BaseMail {
   subject: string;
 
   constructor(private data: ShowInterestEmailData) {
@@ -16,7 +17,7 @@ export default class ShowInterestEmail extends BaseMail {
     this.subject = `${data.dancerName} is interested in ${data.schoolName}!`;
   }
 
-  prepare() {
+  async prepare() {
     const {
       schoolEmail,
       schoolName,
@@ -25,26 +26,15 @@ export default class ShowInterestEmail extends BaseMail {
       interestCount,
     } = this.data;
 
-    const countText =
-      interestCount === 1
-        ? "This is their first time showing interest"
-        : `They've shown interest ${interestCount} times`;
+    const template = ShowInterestEmail({
+      schoolName,
+      dancerName,
+      dancerProfileUrl,
+      interestCount,
+    });
 
     this.message.to(schoolEmail);
-    this.message.html(
-      `<p>Great news!</p>
-<p><strong>${dancerName}</strong> just showed interest in <strong>${schoolName}</strong>.</p>
-<p>${countText}.</p>
-<p><a href="${dancerProfileUrl}">View their profile</a></p>`
-    );
-    this.message.text(
-      `Great news!
-
-${dancerName} just showed interest in ${schoolName}.
-
-${countText}.
-
-View their profile: ${dancerProfileUrl}`
-    );
+    this.message.html(await renderEmail(template));
+    this.message.text(await renderEmailText(template));
   }
 }

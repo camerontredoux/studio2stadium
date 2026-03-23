@@ -1,8 +1,8 @@
 import { AppEvent } from "#shared/event";
 import emitter from "@adonisjs/core/services/emitter";
 import mail from "@adonisjs/mail/services/main";
-import DeleteFeedbackEmail from "./email.ts";
-import GoodbyeEmail from "./goodbye-email.ts";
+import DeleteFeedbackEmail from "./emails/feedback.ts";
+import GoodbyeEmail from "./emails/goodbye.ts";
 
 interface DeleteAccountEventData {
   userId: string;
