@@ -171,12 +171,18 @@ export class RedisSessionGuard<
 
   #clearSessionCookie() {
     this.#ctx.logger.debug("[RedisGuard]: Clearing session cookie");
-    this.#ctx.response.clearCookie(this.#options.sessionCookieName);
+    this.#ctx.response.clearCookie(
+      this.#options.sessionCookieName,
+      this.#options.cookieOptions(0)
+    );
   }
 
   #clearCacheCookie() {
     this.#ctx.logger.debug("[RedisGuard]: Clearing cache cookie");
-    this.#ctx.response.clearCookie(this.#options.cacheCookieName);
+    this.#ctx.response.clearCookie(
+      this.#options.cacheCookieName,
+      this.#options.cookieOptions(0)
+    );
   }
 
   #authenticationFailed() {

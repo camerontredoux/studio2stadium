@@ -5,10 +5,9 @@ export const useLogout = () => {
   const queryClient = useQueryClient();
 
   return $api.useMutation("post", "/auth/logout", {
-    onMutate: () => {
+    onSuccess: () => {
       queryClient.clear();
       window.location.href = "/login";
     },
-    retry: 3,
   });
 };
