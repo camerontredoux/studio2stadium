@@ -8,6 +8,7 @@ WORKDIR /app
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/backend/package.json ./apps/backend/
 COPY packages/openapi ./packages/openapi/
+COPY packages/emails ./packages/emails/
 
 RUN pnpm install --frozen-lockfile
 
@@ -16,6 +17,7 @@ FROM deps AS build
 COPY apps/backend ./apps/backend
 
 RUN pnpm --filter @stos/openapi build
+RUN pnpm --filter @stos/emails build
 RUN pnpm --filter backend build
 
 RUN pnpm deploy --filter backend --prod /app/deployed
