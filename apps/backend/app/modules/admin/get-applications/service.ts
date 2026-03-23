@@ -43,7 +43,7 @@ export class Service {
         id: app.id,
         status: app.status,
         notes: app.notes,
-        thumbnail: imageUrl(app.mediaId, "thumbnail"),
+        thumbnail: imageUrl(app.mediaId, "feed"),
         createdAt: app.createdAt,
         school: {
           id: app.school!.id,
