@@ -90,12 +90,12 @@ export function VideoCard({ video }: VideoCardProps) {
             showCloseButton={false}
             className="max-w-7xl overflow-clip"
           >
-            <div className="flex justify-center sm:max-h-[calc(100dvh-8rem)]">
+            <div className="sm:max-h-[calc(100dvh-8rem)]">
               <iframe
                 src={video.url}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
-                className="aspect-video max-h-full max-w-full"
+                className="aspect-video h-full w-full"
               />
             </div>
             <DialogFooter>
