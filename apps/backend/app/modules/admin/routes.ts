@@ -31,6 +31,18 @@ const AddTrainingVideoController = () =>
   import("#modules/admin/add-training-video/controller");
 const DeleteTrainingVideoController = () =>
   import("#modules/admin/delete-training-video/controller");
+const UpdateSchoolProgramController = () =>
+  import("#modules/admin/update-school-program/controller");
+const UpdateSchoolSkillsController = () =>
+  import("#modules/admin/update-school-skills/controller");
+const UpdateSchoolStylesController = () =>
+  import("#modules/admin/update-school-styles/controller");
+const UpdateSchoolSportsController = () =>
+  import("#modules/admin/update-school-sports/controller");
+const UpdateSchoolAccountController = () =>
+  import("#modules/admin/update-school-account/controller");
+const UpdateSchoolAvatarController = () =>
+  import("#modules/admin/update-school-avatar/controller");
 
 router
   .group(() => {
@@ -47,6 +59,54 @@ router
       .openapi({
         summary: "Add event to school",
         description: "Creates an event for a school by username",
+      });
+
+    router
+      .patch("schools/:username/profile", [UpdateSchoolProgramController])
+      .openapi({
+        summary: "Update school program profile",
+        description:
+          "Updates a school's program profile (same fields as PATCH /schools/me for the school)",
+      });
+
+    router
+      .patch("schools/:username/skills", [UpdateSchoolSkillsController])
+      .openapi({
+        summary: "Update school skills",
+        description:
+          "Replaces the school's skills (same as PATCH /schools/me/skills)",
+      });
+
+    router
+      .patch("schools/:username/styles", [UpdateSchoolStylesController])
+      .openapi({
+        summary: "Update school styles",
+        description:
+          "Replaces the school's styles (same as PATCH /schools/me/styles)",
+      });
+
+    router
+      .patch("schools/:username/sports", [UpdateSchoolSportsController])
+      .openapi({
+        summary: "Update school sports",
+        description:
+          "Replaces the school's sports (same as PATCH /schools/me/sports)",
+      });
+
+    router
+      .patch("schools/:username/account", [UpdateSchoolAccountController])
+      .openapi({
+        summary: "Update school account",
+        description:
+          "Updates the school user's account fields (email, name, phone, etc.; same as PATCH /users/account)",
+      });
+
+    router
+      .post("schools/:username/avatar", [UpdateSchoolAvatarController])
+      .openapi({
+        summary: "Set school avatar",
+        description:
+          "Sets the school user's avatar from an uploaded R2 key (same as POST /users/avatar)",
       });
 
     router.post("events/global", [AddGlobalEventController]).openapi({

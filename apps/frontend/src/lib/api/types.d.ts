@@ -188,6 +188,327 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/schools/{username}/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update school program profile
+         * @description Updates a school's program profile (same fields as PATCH /schools/me for the school)
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminSchoolsIdProfileRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/admin/schools/{username}/skills": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update school skills
+         * @description Replaces the school's skills (same as PATCH /schools/me/skills)
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminSchoolsIdSkillsRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/admin/schools/{username}/styles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update school styles
+         * @description Replaces the school's styles (same as PATCH /schools/me/styles)
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminSchoolsIdStylesRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/admin/schools/{username}/sports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update school sports
+         * @description Replaces the school's sports (same as PATCH /schools/me/sports)
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminSchoolsIdSportsRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/admin/schools/{username}/account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update school account
+         * @description Updates the school user's account fields (email, name, phone, etc.; same as PATCH /users/account)
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminSchoolsIdAccountRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/admin/schools/{username}/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set school avatar
+         * @description Sets the school user's avatar from an uploaded R2 key (same as POST /users/avatar)
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminSchoolsIdAvatarRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/events/global": {
         parameters: {
             query?: never;
@@ -364,7 +685,7 @@ export interface paths {
                 query?: {
                     limit?: (string | number) | null;
                     page?: (string | number) | null;
-                    sortBy?: ("location" | "username" | "firstName" | "lastName" | "verified" | "createdAt" | "gpa" | "gradYear") | null;
+                    sortBy?: ("location" | "email" | "username" | "firstName" | "lastName" | "verified" | "createdAt" | "gpa" | "gradYear") | null;
                     sortDirection?: ("asc" | "desc") | null;
                 };
                 header?: never;
@@ -5438,6 +5759,46 @@ export interface components {
         };
         AdminSchoolsIdEventsResponse: {
             id: string;
+        };
+        AdminSchoolsIdProfileRequest: {
+            location?: string | null;
+            instagram?: string | null;
+            tiktok?: string | null;
+            gpa?: (string | number) | null;
+            city?: string | null;
+            commonRecruiting?: (string | number | boolean) | null;
+            teamSelection?: ("recruitment" | "audition" | "hybrid") | null;
+            competitiveCircuit?: ("other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive") | null;
+            division?: string | null;
+            benefits?: string | null;
+            about?: string | null;
+            website?: string | null;
+            timeCommitment?: string | null;
+            headCoach?: string | null;
+            assistantCoach?: string | null;
+            missionStatement?: string | null;
+            whatWeDo?: string | null;
+            size?: (string | number) | null;
+            schoolName?: string | null;
+        };
+        AdminSchoolsIdSkillsRequest: {
+            skills: string[];
+        };
+        AdminSchoolsIdStylesRequest: {
+            styles: string[];
+        };
+        AdminSchoolsIdSportsRequest: {
+            sports: string[];
+        };
+        AdminSchoolsIdAccountRequest: {
+            displayEmail?: string | null;
+            firstName?: string | null;
+            lastName?: string | null;
+            phone?: string | null;
+            notifications?: (string | number | boolean) | null;
+        };
+        AdminSchoolsIdAvatarRequest: {
+            key: string;
         };
         AdminEventsGlobalRequest: {
             /** @enum {string} */

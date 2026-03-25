@@ -15,6 +15,30 @@ type AdminSchoolsIdEventsPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/add-school-event/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/add-school-event/controller.ts').default['handle'], true>
 }
+type AdminSchoolsIdProfilePatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/update-school-program/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/update-school-program/controller.ts').default['handle'], true>
+}
+type AdminSchoolsIdSkillsPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/update-school-skills/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/update-school-skills/controller.ts').default['handle'], true>
+}
+type AdminSchoolsIdStylesPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/update-school-styles/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/update-school-styles/controller.ts').default['handle'], true>
+}
+type AdminSchoolsIdSportsPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/update-school-sports/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/update-school-sports/controller.ts').default['handle'], true>
+}
+type AdminSchoolsIdAccountPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/update-school-account/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/update-school-account/controller.ts').default['handle'], true>
+}
+type AdminSchoolsIdAvatarPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/update-school-avatar/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/update-school-avatar/controller.ts').default['handle'], true>
+}
 type AdminEventsGlobalPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/add-global-event/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/add-global-event/controller.ts').default['handle'], true>
@@ -512,6 +536,36 @@ export interface ApiDefinition {
           '$url': {
           };
           '$post': AdminSchoolsIdEventsPost;
+        };
+        'profile': {
+          '$url': {
+          };
+          '$patch': AdminSchoolsIdProfilePatch;
+        };
+        'skills': {
+          '$url': {
+          };
+          '$patch': AdminSchoolsIdSkillsPatch;
+        };
+        'styles': {
+          '$url': {
+          };
+          '$patch': AdminSchoolsIdStylesPatch;
+        };
+        'sports': {
+          '$url': {
+          };
+          '$patch': AdminSchoolsIdSportsPatch;
+        };
+        'account': {
+          '$url': {
+          };
+          '$patch': AdminSchoolsIdAccountPatch;
+        };
+        'avatar': {
+          '$url': {
+          };
+          '$post': AdminSchoolsIdAvatarPost;
         };
       };
       '$url': {

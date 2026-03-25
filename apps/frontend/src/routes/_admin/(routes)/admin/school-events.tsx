@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { SchoolEventsPage } from "@/features/admin/school-events";
+import { SchoolsPage } from "@/features/admin/schools";
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
@@ -38,7 +38,7 @@ function TableSkeleton() {
 function RouteComponent() {
   return (
     <Suspense fallback={<TableSkeleton />}>
-      <SchoolEventsPage />
+      <SchoolsPage />
     </Suspense>
   );
 }

@@ -9,10 +9,16 @@ export class UpdateProgramService {
   constructor(private db: DatabaseService) {}
 
   async execute(profileId: string, data: UpdateProgramSchema) {
+    const { schoolName, ...rest } = data;
+    const setData = {
+      ...rest,
+      ...(schoolName !== undefined ? { name: schoolName } : {}),
+    };
+
     await this.db.use((db) =>
       db
         .update(schoolProfiles)
-        .set(data)
+        .set(setData)
         .where(eq(schoolProfiles.id, profileId))
     );
   }

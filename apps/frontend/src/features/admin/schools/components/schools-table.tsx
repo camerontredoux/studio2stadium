@@ -25,12 +25,14 @@ interface SchoolsTableProps {
   schools: School[];
   onAddEvent: (school: { username: string; name: string }) => void;
   onViewEvents: (school: { username: string; name: string }) => void;
+  onEdit: (school: { username: string; name: string }) => void;
 }
 
 export function SchoolsTable({
   schools,
   onAddEvent,
   onViewEvents,
+  onEdit,
 }: SchoolsTableProps) {
   const [search, setSearch] = React.useState("");
 
@@ -95,6 +97,18 @@ export function SchoolsTable({
                         size="xs"
                         variant="outline"
                         onClick={() =>
+                          onEdit({
+                            username: school.user.username,
+                            name: school.name,
+                          })
+                        }
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant="outline"
+                        onClick={() =>
                           onViewEvents({
                             username: school.user.username,
                             name: school.name,
@@ -113,7 +127,7 @@ export function SchoolsTable({
                           })
                         }
                       >
-                        Create
+                        Add Event
                       </Button>
                     </div>
                   </TableCell>

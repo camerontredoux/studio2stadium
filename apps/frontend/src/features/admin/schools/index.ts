@@ -1,0 +1,1 @@
+export { SchoolsPage } from "./page";

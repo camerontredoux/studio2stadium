@@ -4,6 +4,7 @@ import { adminQueries } from "@/features/admin/api/queries";
 import type { SchoolEventFormData } from "@/features/admin/api/schemas";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { EditSchoolDialog } from "./components/edit-school-dialog";
 import { EventDialog } from "./components/event-dialog";
 import { SchoolsTable } from "./components/schools-table";
 import { ViewEventsDialog } from "./components/view-events-dialog";
@@ -21,7 +22,7 @@ function combineDateAndTime(date: Date, time: string): string {
   return `${year}-${month}-${day}T${hour}:${min}:00`;
 }
 
-export function SchoolEventsPage() {
+export function SchoolsPage() {
   const { data: schools } = useSuspenseQuery(adminQueries.schools());
   const { mutate: addEvent, isPending } = useAddSchoolEvent();
   const [selectedSchool, setSelectedSchool] = useState<{
@@ -29,6 +30,10 @@ export function SchoolEventsPage() {
     name: string;
   } | null>(null);
   const [viewingSchool, setViewingSchool] = useState<{
+    username: string;
+    name: string;
+  } | null>(null);
+  const [editingSchool, setEditingSchool] = useState<{
     username: string;
     name: string;
   } | null>(null);
@@ -75,12 +80,18 @@ export function SchoolEventsPage() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold">School Events</h2>
+      <h2 className="text-2xl font-bold">Schools</h2>
 
       <SchoolsTable
         schools={schools}
         onAddEvent={setSelectedSchool}
         onViewEvents={setViewingSchool}
+        onEdit={setEditingSchool}
+      />
+
+      <EditSchoolDialog
+        school={editingSchool}
+        onOpenChange={(open) => !open && setEditingSchool(null)}
       />
 
       <EventDialog

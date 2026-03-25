@@ -28,3 +28,51 @@ export function useEditSchoolEvent(username: string) {
     },
   });
 }
+
+export function useAdminUpdateSchoolProfile() {
+  return $api.useMutation("patch", "/admin/schools/{username}/profile", {
+    meta: {
+      invalidateQueries: [adminQueries.schools().queryKey],
+    },
+  });
+}
+
+export function useAdminUpdateSchoolAccount() {
+  return $api.useMutation("patch", "/admin/schools/{username}/account", {
+    meta: {
+      invalidateQueries: [adminQueries.schools().queryKey],
+    },
+  });
+}
+
+export function useAdminUpdateSchoolSkills() {
+  return $api.useMutation("patch", "/admin/schools/{username}/skills", {
+    meta: {
+      invalidateQueries: [adminQueries.schools().queryKey],
+    },
+  });
+}
+
+export function useAdminUpdateSchoolStyles() {
+  return $api.useMutation("patch", "/admin/schools/{username}/styles", {
+    meta: {
+      invalidateQueries: [adminQueries.schools().queryKey],
+    },
+  });
+}
+
+export function useAdminUpdateSchoolSports() {
+  return $api.useMutation("patch", "/admin/schools/{username}/sports", {
+    meta: {
+      invalidateQueries: [adminQueries.schools().queryKey],
+    },
+  });
+}
+
+export function useAdminUpdateSchoolAvatar() {
+  return $api.useMutation("post", "/admin/schools/{username}/avatar", {
+    meta: {
+      invalidateQueries: [adminQueries.schools().queryKey],
+    },
+  });
+}
