@@ -58,6 +58,12 @@ export function Navbar() {
             activeIcon={HiBookOpen}
             inactiveIcon={HiOutlineBookOpen}
           />
+          <NavLink
+            to="/studio"
+            label="Studio"
+            activeIcon={HiBookOpen}
+            inactiveIcon={HiOutlineBookOpen}
+          />
           {session.type === "dancer" ? (
             <NavLink
               to="/$username"
