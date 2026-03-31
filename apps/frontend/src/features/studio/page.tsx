@@ -1,8 +1,4 @@
-import { About } from "./components/about";
-
+import ProfileBanner from "./components/banner/ProfileBanner";
 export function StudioPage() {
-  return <div>
-    <About></About>
-    Studio Page
-    </div>;
+  return <div><ProfileBanner/></div>;
 }
