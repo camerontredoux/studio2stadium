@@ -13,3 +13,4 @@ export * from "./sports.ts";
 export * from "./styles.ts";
 export * from "./subscriptions.ts";
 export * from "./users.ts";
+export * from "./studios.ts";

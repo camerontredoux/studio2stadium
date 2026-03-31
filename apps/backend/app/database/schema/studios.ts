@@ -28,7 +28,6 @@ export const studioProfiles = pg.pgTable(
     (table) => [
         pg.index().on(table.userId),
         pg.index().on(table.location),
-        pg.index().on(table.size),
     ]
 )
 

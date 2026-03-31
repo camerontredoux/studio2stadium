@@ -3,6 +3,7 @@ import * as pg from "drizzle-orm/pg-core";
 import { timestamps } from "./helpers/columns.ts";
 import { schoolProfiles } from "./schools.ts";
 import { users } from "./users.ts";
+import { studioProfiles } from "./studios.ts";
 
 export const dancerProfiles = pg.pgTable(
   "dancer_profiles",
@@ -13,6 +14,9 @@ export const dancerProfiles = pg.pgTable(
       .notNull()
       .unique()
       .references(() => users.id, { onDelete: "cascade" }),
+    studioId: pg
+      .uuid()
+      .references(() => studioProfiles.id, { onDelete: "set null" }),
     birthday: pg.date({ mode: "string" }).notNull(),
     location: pg.text().notNull(),
     biography: pg.text(),
@@ -30,6 +34,7 @@ export const dancerProfiles = pg.pgTable(
   },
   (table) => [
     pg.index().on(table.userId),
+    pg.index().on(table.studioId),
     pg.index().on(table.gpa),
     pg.index().on(table.location),
   ]
