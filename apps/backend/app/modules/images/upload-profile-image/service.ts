@@ -12,7 +12,7 @@ const FREE_TIER_IMAGE_LIMIT = 4;
 
 interface UserInfo {
   id: string;
-  type: "dancer" | "school";
+  type: "dancer" | "school" | "studio";
   profileId: string;
 }
 

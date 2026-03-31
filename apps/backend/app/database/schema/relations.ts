@@ -50,7 +50,7 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.dancerProfiles.userId,
       to: r.users.id,
     }),
-    studio: r.one.studioProfiles({
+    studioProfile: r.one.studioProfiles({
       from: r.dancerProfiles.studioId,
       to: r.studioProfiles.id,
     }),

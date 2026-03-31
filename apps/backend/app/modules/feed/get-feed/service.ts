@@ -36,7 +36,7 @@ type FeedItemResponse = {
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute(type: "dancer" | "school", userId: string, cursor?: string) {
+  async execute(type: "dancer" | "school" | "studio", userId: string, cursor?: string) {
     const following = await this.getFollowing(type, userId);
 
     if (following.length === 0) {
@@ -101,7 +101,7 @@ export class Service {
     });
   }
 
-  mapFeedItems(feed: FeedRow[], type: "dancer" | "school"): FeedItemResponse[] {
+  mapFeedItems(feed: FeedRow[], type: "dancer" | "school" | "studio"): FeedItemResponse[] {
     return feed.map((row) => ({
       id: row.content_id,
       contentType: row.content_type,
@@ -135,10 +135,20 @@ export class Service {
     return null;
   }
 
-  getDisplayName(row: FeedRow, type: "dancer" | "school"): string | null {
-    return type === "dancer"
-      ? row.school_name
-      : row.first_name + " " + row.last_name;
+  getDisplayName(row: FeedRow, type: "dancer" | "school" | "studio"): string | null {
+    if (type === "dancer") {
+      return row.school_name;
+    }
+
+    if (type === "school") {
+      return row.first_name + " " + row.last_name;
+    }
+
+    // if (type === "studio") {
+    //   return ???; // decide later
+    // }
+
+    throw new Error("Invalid user type");
   }
 
   calculateNextCursor(feed: FeedRow[]): string | undefined {
@@ -147,10 +157,20 @@ export class Service {
       : undefined;
   }
 
-  async getFollowing(type: "dancer" | "school", userId: string) {
-    return type === "dancer"
-      ? this.getDancerFollowing(userId)
-      : this.getSchoolFavorites(userId);
+  async getFollowing(type: "dancer" | "school" | "studio", userId: string) {
+    if (type === "dancer") {
+      return this.getDancerFollowing(userId);
+    }
+
+    if (type === "school") {
+      return this.getSchoolFavorites(userId);
+    }
+
+    if (type === "studio") {
+      return [];
+    }
+
+    throw new Error("Invalid user type");
   }
 
   async getDancerFollowing(userId: string) {
