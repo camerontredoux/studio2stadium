@@ -15,7 +15,7 @@ export function About ({ description }: AboutProps) {
       <FrameHeader>
         <FrameTitle>About</FrameTitle>
       </FrameHeader>
-      <FramePanel className="text-sm leading-relaxed">"test"</FramePanel>
+      <FramePanel className="text-sm leading-relaxed">{description}</FramePanel>
     </Frame>
   );
 }
