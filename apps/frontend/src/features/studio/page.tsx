@@ -1,3 +1,8 @@
+import { About } from "./components/about";
+
 export function StudioPage() {
-  return <div>Studio Page</div>;
+  return <div>
+    <About></About>
+    Studio Page
+    </div>;
 }
