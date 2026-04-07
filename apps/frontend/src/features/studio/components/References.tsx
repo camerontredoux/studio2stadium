@@ -1,6 +1,5 @@
 import { Frame, FrameHeader, FramePanel, FrameTitle } from "@/components/ui/frame";
 
-// Your existing icons (no need to replace them)
 const EMAIL_ICON =
   "https://d1wf5hycmlyms9.cloudfront.net/email-1-svgrepo-com58963abb-0d7a-42ed-8a5d-94b32cc0a961.png";
 const INSTAGRAM_ICON =
