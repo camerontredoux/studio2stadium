@@ -41,7 +41,8 @@
     "#config/*": "./config/*.js",
     "#auth/*": "./app/auth/*.js",
     "#shared/*": "./app/shared/*.js",
-    "#payments/*": "./app/payments/*.js"
+    "#payments/*": "./app/payments/*.js",
+    "#commands/*": "./commands/*.js"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^7.8.2",
