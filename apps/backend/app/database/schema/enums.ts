@@ -77,3 +77,7 @@ export const videoUploadStatus = pgEnum("video_upload_status", [
   "ready",
   "failed",
 ]);
+
+export const orgRole = pgEnum("org_role", ["admin", "member"]);
+export const orgMemberType = pgEnum("org_member_type", ["coach", "dancer"]);
+export const premiumGrantSource = pgEnum("premium_grant_source", ["org_event"]);
