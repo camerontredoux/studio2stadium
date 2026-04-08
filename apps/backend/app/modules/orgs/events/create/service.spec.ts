@@ -7,6 +7,9 @@ import { seedOrganizations } from "#commands/backfill-organizations";
 import { CreateEventService } from "./service.ts";
 import { DatabaseService } from "#database/service";
 import { eq } from "drizzle-orm";
+import { E_DATABASE_ERROR } from "#exceptions/database";
+import CreateEventController from "./controller.ts";
+import OrgAdminMiddleware from "#middleware/routes/org-admin";
 
 const svc = new CreateEventService(new DatabaseService());
 
@@ -106,5 +109,80 @@ test.group("POST /orgs/:slug/events middleware", (group) => {
       name: "X", startDate: "2026-06-13", endDate: "2026-06-14",
     });
     res.assertStatus(401);
+  });
+});
+
+test.group("CreateEventController mock", () => {
+  test("returns 409 when service throws unique violation", async ({ assert }) => {
+    const conflictErr = new E_DATABASE_ERROR("Unique (partial index) already exists", {
+      code: "E_UNIQUE_VIOLATION",
+      cause: "partial index",
+    });
+
+    let statusCode: number | null = null;
+    let responseBody: any = null;
+
+    const mockCtx: any = {
+      org: { id: "test-org-id" },
+      request: {
+        validateUsing: async () => ({
+          name: "E",
+          startDate: "2026-06-13",
+          endDate: "2026-06-14",
+          isActive: true,
+        }),
+      },
+      response: {
+        created: (body: any) => { statusCode = 201; responseBody = body; },
+        conflict: (body: any) => { statusCode = 409; responseBody = body; },
+      },
+    };
+
+    const brokenService: any = {
+      execute: async () => { throw conflictErr; },
+    };
+
+    await new CreateEventController().handle(mockCtx, brokenService);
+
+    assert.equal(statusCode, 409);
+    assert.match(responseBody.message, /active/i);
+  });
+});
+
+test.group("OrgAdminMiddleware mock", () => {
+  test("rejects role=member with 403", async ({ assert }) => {
+    let forbiddenCalled = false;
+    let forbiddenBody: any = null;
+
+    const ctx: any = {
+      orgMembership: { role: "member" },
+      response: {
+        forbidden: (body: any) => {
+          forbiddenCalled = true;
+          forbiddenBody = body;
+        },
+      },
+    };
+
+    let nextCalled = false;
+    await new OrgAdminMiddleware().handle(ctx, async () => { nextCalled = true; });
+
+    assert.isFalse(nextCalled);
+    assert.isTrue(forbiddenCalled);
+    assert.match(forbiddenBody.message, /admin/i);
+  });
+
+  test("calls next for role=admin", async ({ assert }) => {
+    const ctx: any = {
+      orgMembership: { role: "admin" },
+      response: {
+        forbidden: () => {},
+      },
+    };
+
+    let nextCalled = false;
+    await new OrgAdminMiddleware().handle(ctx, async () => { nextCalled = true; });
+
+    assert.isTrue(nextCalled);
   });
 });
