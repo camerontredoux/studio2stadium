@@ -6,6 +6,8 @@ import { dancerProfiles } from "#database/schema/dancers";
 import { schoolProfiles } from "#database/schema/schools";
 import { favorites } from "#database/schema/profiles";
 import { organizations } from "#database/schema/organizations";
+import { csvUploads, eventRosters, orgEvents } from "#database/schema/org-events";
+import { orgMemberships } from "#database/schema/organizations";
 import { seedOrganizations } from "#commands/backfill-organizations";
 import { backfillSchoolFavoritesOrg } from "#commands/backfill-school-favorites-org";
 
@@ -59,6 +61,10 @@ async function fixtures() {
 
 test.group("backfill school_favorites.source_org_id", (group) => {
   group.each.setup(async () => {
+    await db.delete(csvUploads).execute();
+    await db.delete(eventRosters).execute();
+    await db.delete(orgEvents).execute();
+    await db.delete(orgMemberships).execute();
     await db.delete(favorites).execute();
     await db.delete(dancerProfiles).execute();
     await db.delete(schoolProfiles).execute();

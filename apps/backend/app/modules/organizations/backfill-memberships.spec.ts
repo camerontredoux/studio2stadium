@@ -2,6 +2,7 @@ import { test } from "@japa/runner";
 import { db } from "#database/connection";
 import { users, platforms } from "#database/schema/users";
 import { organizations, orgMemberships } from "#database/schema/organizations";
+import { csvUploads, eventRosters, orgEvents } from "#database/schema/org-events";
 import { and, eq } from "drizzle-orm";
 import { seedOrganizations } from "#commands/backfill-organizations";
 import { backfillOrgMemberships } from "#commands/backfill-org-memberships";
@@ -9,6 +10,9 @@ import { backfillOrgMemberships } from "#commands/backfill-org-memberships";
 test.group("backfill org memberships", (group) => {
   group.each.setup(async () => {
     // Clean slate: delete memberships + platforms + users + orgs in FK order.
+    await db.delete(csvUploads).execute();
+    await db.delete(eventRosters).execute();
+    await db.delete(orgEvents).execute();
     await db.delete(orgMemberships).execute();
     await db.delete(platforms).execute();
     await db.delete(users).execute();

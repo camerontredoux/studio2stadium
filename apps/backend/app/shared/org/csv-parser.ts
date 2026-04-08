@@ -19,7 +19,7 @@ export interface RowError {
   reason: string;
 }
 
-function parseCsv<T>(
+function parseCsv<T extends object>(
   csv: string,
   validateRow: (r: Record<string, string>, rowNum: number) => T | RowError
 ): { rows: T[]; errors: RowError[] } {

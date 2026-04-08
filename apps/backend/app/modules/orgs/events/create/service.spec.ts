@@ -1,7 +1,7 @@
 import { test } from "@japa/runner";
 import { db } from "#database/connection";
 import { organizations, orgMemberships } from "#database/schema/organizations";
-import { orgEvents } from "#database/schema/org-events";
+import { orgEvents, eventRosters, csvUploads } from "#database/schema/org-events";
 import { users } from "#database/schema/users";
 import { seedOrganizations } from "#commands/backfill-organizations";
 import { CreateEventService } from "./service.ts";
@@ -13,22 +13,10 @@ import OrgAdminMiddleware from "#middleware/routes/org-admin";
 
 const svc = new CreateEventService(new DatabaseService());
 
-async function createUser(attrs: Partial<typeof users.$inferInsert> & { username: string; email: string }) {
-  const [u] = await db.insert(users).values({
-    role: "user",
-    type: "school",
-    displayEmail: attrs.email,
-    firstName: "Test",
-    lastName: "User",
-    password: "x",
-    verified: true,
-    ...attrs,
-  }).returning();
-  return u!;
-}
-
 test.group("CreateEventService", (group) => {
   group.each.setup(async () => {
+    await db.delete(csvUploads).execute();
+    await db.delete(eventRosters).execute();
     await db.delete(orgEvents).execute();
     await db.delete(orgMemberships).execute();
     await db.delete(users).execute();
@@ -97,6 +85,8 @@ test.group("CreateEventService", (group) => {
 
 test.group("POST /orgs/:slug/events middleware", (group) => {
   group.each.setup(async () => {
+    await db.delete(csvUploads).execute();
+    await db.delete(eventRosters).execute();
     await db.delete(orgEvents).execute();
     await db.delete(orgMemberships).execute();
     await db.delete(users).execute();
