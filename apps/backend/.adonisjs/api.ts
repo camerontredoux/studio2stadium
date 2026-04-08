@@ -171,6 +171,38 @@ type NotificationsIdPost = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/notifications/mark-read/controller.ts').default['handle'], false>
 }
+type OrgsIdEventsPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/create/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/create/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/update/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/update/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/get-profile-checklist/controller.ts').default['handle'], false>
+}
+type OrgsIdEventsIdUploadCoachesPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/upload-coaches/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/upload-coaches/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdUploadDancersPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/upload-dancers/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/upload-dancers/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdStatsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/admin/get-dancer-stats/controller.ts').default['handle'], false>
+}
+type OrgsIdGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/get-org/controller.ts').default['handle'], false>
+}
+type OrgsIdRegisterPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/register-dancer/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/register-dancer/controller.ts').default['handle'], true>
+}
 type SkillsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/skills/get-skills/controller.ts').default['handle'], false>
@@ -745,6 +777,49 @@ export interface ApiDefinition {
       '$url': {
       };
       '$post': NotificationsIdPost;
+    };
+  };
+  'orgs': {
+    ':slug': {
+      'events': {
+        '$url': {
+        };
+        '$post': OrgsIdEventsPost;
+        ':id': {
+          '$url': {
+          };
+          '$patch': OrgsIdEventsIdPatch;
+          'upload': {
+            'coaches': {
+              '$url': {
+              };
+              '$post': OrgsIdEventsIdUploadCoachesPost;
+            };
+            'dancers': {
+              '$url': {
+              };
+              '$post': OrgsIdEventsIdUploadDancersPost;
+            };
+          };
+          'stats': {
+            '$url': {
+            };
+            '$get': OrgsIdEventsIdStatsGetHead;
+            '$head': OrgsIdEventsIdStatsGetHead;
+          };
+        };
+        '$get': OrgsIdEventsGetHead;
+        '$head': OrgsIdEventsGetHead;
+      };
+      '$url': {
+      };
+      '$get': OrgsIdGetHead;
+      '$head': OrgsIdGetHead;
+      'register': {
+        '$url': {
+        };
+        '$post': OrgsIdRegisterPost;
+      };
     };
   };
   'skills': {

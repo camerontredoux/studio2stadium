@@ -7,11 +7,11 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { $api } from "@/lib/api/client";
 import { handleApiError } from "@/lib/api/errors";
+import { useOrg } from "@/features/org/context/use-org";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useOrg } from "@/features/org/context/use-org";
 
 const schema = z.object({
   firstName: z.string().min(1, "Required"),
@@ -61,66 +61,56 @@ export function OrgRegisterForm({
   };
 
   return (
-    <div className="mx-auto w-full max-w-sm space-y-6 p-6">
-      {org.logoUrl && (
-        <img src={org.logoUrl} alt={org.name} className="mx-auto h-16 w-auto" />
-      )}
-      <div className="text-center text-white">
-        <h1 className="text-2xl font-semibold">You're in!</h1>
-        <p className="mt-1 text-sm opacity-80">
-          Let's finish your {org.name} profile. Takes 30 seconds.
-        </p>
-      </div>
+    <form
+      className="flex w-full flex-col gap-3"
+      onSubmit={(e) => handleSubmit(onSubmit)(e)}
+    >
+      <Frame>
+        <FramePanel className="flex w-full flex-col gap-3 sm:gap-5">
+          <Controller
+            control={control}
+            name="firstName"
+            render={({ field, fieldState }) => (
+              <Field name={field.name} invalid={fieldState.invalid}>
+                <FieldLabel>First name</FieldLabel>
+                <Input autoFocus autoComplete="given-name" {...field} />
+                <FieldError error={fieldState.error} />
+              </Field>
+            )}
+          />
+          <Controller
+            control={control}
+            name="lastName"
+            render={({ field, fieldState }) => (
+              <Field name={field.name} invalid={fieldState.invalid}>
+                <FieldLabel>Last name</FieldLabel>
+                <Input autoComplete="family-name" {...field} />
+                <FieldError error={fieldState.error} />
+              </Field>
+            )}
+          />
+          <Controller
+            control={control}
+            name="password"
+            render={({ field, fieldState }) => (
+              <Field name={field.name} invalid={fieldState.invalid}>
+                <FieldLabel>Create a password</FieldLabel>
+                <PasswordInput autoComplete="new-password" {...field} />
+                <FieldError error={fieldState.error} />
+              </Field>
+            )}
+          />
+        </FramePanel>
+      </Frame>
 
-      <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
-        <Frame>
-          <FramePanel className="flex flex-col gap-3 sm:gap-5">
-            <Controller
-              control={control}
-              name="firstName"
-              render={({ field, fieldState }) => (
-                <Field name={field.name} invalid={fieldState.invalid}>
-                  <FieldLabel>First name</FieldLabel>
-                  <Input autoFocus autoComplete="given-name" {...field} />
-                  <FieldError error={fieldState.error} />
-                </Field>
-              )}
-            />
-            <Controller
-              control={control}
-              name="lastName"
-              render={({ field, fieldState }) => (
-                <Field name={field.name} invalid={fieldState.invalid}>
-                  <FieldLabel>Last name</FieldLabel>
-                  <Input autoComplete="family-name" {...field} />
-                  <FieldError error={fieldState.error} />
-                </Field>
-              )}
-            />
-            <Controller
-              control={control}
-              name="password"
-              render={({ field, fieldState }) => (
-                <Field name={field.name} invalid={fieldState.invalid}>
-                  <FieldLabel>Create a password</FieldLabel>
-                  <PasswordInput autoComplete="new-password" {...field} />
-                  <FieldError error={fieldState.error} />
-                </Field>
-              )}
-            />
-          </FramePanel>
-        </Frame>
-
-        <Button
-          ref={submitRef}
-          type="submit"
-          disabled={isPending}
-          className="w-full"
-          style={{ background: "var(--org-accent, #e94560)", color: "white" }}
-        >
-          {isPending ? <Spinner label="Creating account..." /> : "Finish sign up"}
-        </Button>
-      </form>
-    </div>
+      <Button
+        ref={submitRef}
+        disabled={isPending}
+        className="w-full"
+        type="submit"
+      >
+        {isPending ? <Spinner label="Creating account..." /> : "Finish sign up"}
+      </Button>
+    </form>
   );
 }
