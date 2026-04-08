@@ -4786,6 +4786,14 @@
           "message"
         ]
       },
+      "SubscriptionSource": {
+        "type": "string",
+        "enum": [
+          "stripe",
+          "org_event",
+          "none"
+        ]
+      },
       "DancerFilterParam": {
         "type": "string",
         "enum": [
@@ -7151,6 +7159,9 @@
       "SubscriptionsResponse": {
         "type": "object",
         "properties": {
+          "source": {
+            "$ref": "#/components/schemas/SubscriptionSource"
+          },
           "cancelAtPeriodEnd": {
             "type": "boolean"
           },
@@ -7166,12 +7177,24 @@
           },
           "subscribed": {
             "type": "boolean"
+          },
+          "grantedBy": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
+          "source",
           "cancelAtPeriodEnd",
           "currentPeriodEnd",
-          "subscribed"
+          "subscribed",
+          "grantedBy"
         ]
       },
       "SubscriptionsCheckoutRequest": {
