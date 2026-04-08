@@ -56,4 +56,5 @@ export const middleware = router.named({
   orgAdmin: () => import("#middleware/routes/org_admin"),
   orgCoach: () => import("#middleware/routes/org_coach"),
   orgDancer: () => import("#middleware/routes/org_dancer"),
+  orgFeature: () => import("#middleware/routes/org_feature"),
 });
