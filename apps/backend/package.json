@@ -91,6 +91,7 @@
     "@vinejs/vine": "^4.1.0",
     "argon2": "^0.43.0",
     "cron": "^4.4.0",
+    "csv-parse": "^6.2.1",
     "drizzle-orm": "1.0.0-beta.12-a5629fb",
     "luxon": "^3.7.2",
     "postgres": "^3.4.8",

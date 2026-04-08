@@ -102,6 +102,7 @@ export default defineConfig({
           "tests/functional/**/*.spec(.ts|.js)",
           "app/modules/**/*.spec.ts",
           "app/middleware/**/*.spec.ts",
+          "app/shared/**/*.spec.ts",
           "commands/**/*.spec.ts",
         ],
         name: "functional",
