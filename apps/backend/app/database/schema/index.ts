@@ -6,6 +6,7 @@ export * from "./feed.ts";
 export * from "./global.ts";
 export * from "./media.ts";
 export * from "./notifications.ts";
+export * from "./organizations.ts";
 export * from "./profiles.ts";
 export * from "./schools.ts";
 export * from "./skills.ts";
