@@ -101,6 +101,8 @@ export default defineConfig({
         files: [
           "tests/functional/**/*.spec(.ts|.js)",
           "app/modules/**/*.spec.ts",
+          "app/middleware/**/*.spec.ts",
+          "commands/**/*.spec.ts",
         ],
         name: "functional",
         timeout: 30000,
