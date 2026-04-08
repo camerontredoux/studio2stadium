@@ -27,7 +27,8 @@ Plans 4–7 can be parallelized once Plan 3 has shipped.
 
 | # | File | Ships |
 |---|---|---|
-| 1 | [01-foundation.md](./2026-04-07-summit-01-foundation.md) | `organizations`, `org_memberships`, `premium_grants` tables; `platform_name` → `organizations.slug` migration; updated premium check; everything else keeps working |
+| 1 | [01-foundation.md](./2026-04-07-summit-01-foundation.md) | `organizations`, `org_memberships`, `premium_grants` tables; additive migration; updated premium check; everything else keeps working. **Status: Tasks 1-8 shipped.** Task 9 (destructive cleanup) deferred to Plan 01b below. |
+| 1b | [01b-legacy-cleanup.md](./2026-04-07-summit-01b-legacy-cleanup.md) | Refactor every live callsite off `platformName`/`user_platforms`/`prodigy_admin`, then drop them. Not a blocker for Plans 02–07. |
 | 2 | [02-org-shell.md](./2026-04-07-summit-02-org-shell.md) | `/orgs/:slug` public endpoint, org middleware stack, branded login/registration, `OrgProvider` with CSS-variable theming |
 | 3 | [03-events-rosters-csv.md](./2026-04-07-summit-03-events-rosters-csv.md) | `org_events`, `event_rosters`, `event_dancer_profiles`, `csv_uploads`; admin event CRUD; coach + dancer CSV flows with invite emails and premium grant wiring; admin stats dashboard |
 | 4 | [04-coach-scouting.md](./2026-04-07-summit-04-coach-scouting.md) | `event_favorites`, `event_notes`, `event_ratings`; dancer search/profile; favorites/notes/rating endpoints + UI; bib quick-jump; rankings |
