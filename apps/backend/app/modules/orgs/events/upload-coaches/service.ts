@@ -57,7 +57,7 @@ export class UploadCoachesService {
         const byEmail = new Map(matchedUsers.map((u) => [u.email.toLowerCase(), u.id]));
 
         for (const r of rows) {
-          const userId = byEmail.get(r.email) ?? null;
+          const userId = byEmail.get(r.email.toLowerCase()) ?? null;
 
           const [existing] = await tx
             .select()
@@ -109,15 +109,18 @@ export class UploadCoachesService {
     });
 
     // Fire-and-forget invite emails for unmatched rows (after transaction)
-    if (org) {
-      const emails = rows.map((r) => r.email);
+    if (org && rows.length > 0) {
+      const uploadId = result.uploadId;
       const unmatchedRows = await this.db.use((db) =>
         db.select({ email: eventRosters.email, firstName: eventRosters.firstName })
           .from(eventRosters)
-          .where(and(eq(eventRosters.eventId, eventId), isNull(eventRosters.userId)))
+          .where(and(
+            eq(eventRosters.csvUploadId, uploadId),
+            isNull(eventRosters.userId),
+          ))
       ).catch(() => []);
 
-      for (const row of unmatchedRows.filter((r) => emails.includes(r.email))) {
+      for (const row of unmatchedRows) {
         sendOrgInviteEmail({
           org,
           email: row.email,
