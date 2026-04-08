@@ -62,3 +62,23 @@ export const premiumGrants = pg.pgTable(
     pg.index().on(table.expiresAt),
   ]
 );
+
+export const dancerInvites = pg.pgTable(
+  "org_dancer_invites",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    orgId: pg
+      .uuid()
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    email: pg.text().notNull(),
+    token: pg.varchar({ length: 64 }).notNull().unique(),
+    expiresAt: pg.timestamp({ withTimezone: true }).notNull(),
+    consumedAt: pg.timestamp({ withTimezone: true }),
+    ...timestamps,
+  },
+  (table) => [
+    pg.index().on(table.orgId, table.email),
+    pg.index().on(table.token),
+  ]
+);
