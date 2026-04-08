@@ -1935,6 +1935,119 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get organization
+         * @description Public org metadata + branding for the login and landing pages.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Dancer self-registration via invite token
+         * @description Consumes a one-time invite token and creates a new dancer account with an org membership and a time-limited premium grant.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdRegisterRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdRegisterResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/skills": {
         parameters: {
             query?: never;
@@ -5695,6 +5808,8 @@ export interface components {
             message: string;
         };
         /** @enum {string} */
+        SubscriptionSource: "stripe" | "org_event" | "none";
+        /** @enum {string} */
         DancerFilterParam: "name" | "location" | "sports" | "styles" | "following" | "premium" | "gpaRange";
         /** @enum {string} */
         EventFilterParam: "location" | "date" | "schoolName";
@@ -6113,6 +6228,25 @@ export interface components {
         NotificationsIdResponse: {
             id: string;
         };
+        OrgsIdResponse: {
+            id: string;
+            name: string;
+            slug: string;
+            logoUrl: string | null;
+            primaryColor: string | null;
+            accentColor: string | null;
+            features: Record<string, never>;
+            settings: Record<string, never>;
+        };
+        OrgsIdRegisterRequest: {
+            firstName: string;
+            lastName: string;
+            password: string;
+            token: string;
+        };
+        OrgsIdRegisterResponse: {
+            userId: string;
+        };
         SkillsResponse: {
             name: string;
             slug: string;
@@ -6127,9 +6261,11 @@ export interface components {
             slug: string;
         }[];
         SubscriptionsResponse: {
+            source: components["schemas"]["SubscriptionSource"];
             cancelAtPeriodEnd: boolean;
             currentPeriodEnd: string | null;
             subscribed: boolean;
+            grantedBy: string | null;
         };
         SubscriptionsCheckoutRequest: {
             /** @enum {string} */

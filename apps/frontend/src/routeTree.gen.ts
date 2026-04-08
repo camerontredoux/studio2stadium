@@ -9,11 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as OrgRouteRouteImport } from './routes/_org/route'
 import { Route as OnboardingRouteRouteImport } from './routes/_onboarding/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AdminRouteRouteImport } from './routes/_admin/route'
 import { Route as ApproutesIndexRouteImport } from './routes/_app/(routes)/index'
+import { Route as OrgOrgSlugRegisterRouteImport } from './routes/_org/$orgSlug/register'
+import { Route as OrgOrgSlugLoginRouteImport } from './routes/_org/$orgSlug/login'
 import { Route as AuthroutesResetRouteImport } from './routes/_auth/(routes)/reset'
 import { Route as AuthroutesLoginRouteImport } from './routes/_auth/(routes)/login'
 import { Route as AuthroutesForgotRouteImport } from './routes/_auth/(routes)/forgot'
@@ -59,6 +62,10 @@ import { Route as AdminroutesAdminApplicationsRouteImport } from './routes/_admi
 import { Route as AdminroutesAdminDashboardMetricsRouteImport } from './routes/_admin/(routes)/admin/dashboard/metrics'
 import { Route as AdminroutesAdminDashboardAssetsRouteImport } from './routes/_admin/(routes)/admin/dashboard/assets'
 
+const OrgRouteRoute = OrgRouteRouteImport.update({
+  id: '/_org',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRouteRoute = OnboardingRouteRouteImport.update({
   id: '/_onboarding',
   getParentRoute: () => rootRouteImport,
@@ -79,6 +86,16 @@ const ApproutesIndexRoute = ApproutesIndexRouteImport.update({
   id: '/(routes)/',
   path: '/',
   getParentRoute: () => AppRouteRoute,
+} as any)
+const OrgOrgSlugRegisterRoute = OrgOrgSlugRegisterRouteImport.update({
+  id: '/$orgSlug/register',
+  path: '/$orgSlug/register',
+  getParentRoute: () => OrgRouteRoute,
+} as any)
+const OrgOrgSlugLoginRoute = OrgOrgSlugLoginRouteImport.update({
+  id: '/$orgSlug/login',
+  path: '/$orgSlug/login',
+  getParentRoute: () => OrgRouteRoute,
 } as any)
 const AuthroutesResetRoute = AuthroutesResetRouteImport.update({
   id: '/(routes)/reset',
@@ -336,6 +353,8 @@ export interface FileRoutesByFullPath {
   '/forgot': typeof AuthroutesForgotRoute
   '/login': typeof AuthroutesLoginRoute
   '/reset': typeof AuthroutesResetRoute
+  '/$orgSlug/login': typeof OrgOrgSlugLoginRoute
+  '/$orgSlug/register': typeof OrgOrgSlugRegisterRoute
   '/admin/applications': typeof AdminroutesAdminApplicationsRoute
   '/admin/blog': typeof AdminroutesAdminBlogRoute
   '/admin/dancers': typeof AdminroutesAdminDancersRoute
@@ -380,6 +399,8 @@ export interface FileRoutesByTo {
   '/forgot': typeof AuthroutesForgotRoute
   '/login': typeof AuthroutesLoginRoute
   '/reset': typeof AuthroutesResetRoute
+  '/$orgSlug/login': typeof OrgOrgSlugLoginRoute
+  '/$orgSlug/register': typeof OrgOrgSlugRegisterRoute
   '/admin/applications': typeof AdminroutesAdminApplicationsRoute
   '/admin/blog': typeof AdminroutesAdminBlogRoute
   '/admin/dancers': typeof AdminroutesAdminDancersRoute
@@ -418,6 +439,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteRouteWithChildren
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_onboarding': typeof OnboardingRouteRouteWithChildren
+  '/_org': typeof OrgRouteRouteWithChildren
   '/_app/(routes)/recruiting': typeof ApproutesRecruitingRouteRouteWithChildren
   '/_app/(routes)/resources': typeof ApproutesResourcesRouteRouteWithChildren
   '/_app/(routes)/settings': typeof ApproutesSettingsRouteRouteWithChildren
@@ -431,6 +453,8 @@ export interface FileRoutesById {
   '/_auth/(routes)/forgot': typeof AuthroutesForgotRoute
   '/_auth/(routes)/login': typeof AuthroutesLoginRoute
   '/_auth/(routes)/reset': typeof AuthroutesResetRoute
+  '/_org/$orgSlug/login': typeof OrgOrgSlugLoginRoute
+  '/_org/$orgSlug/register': typeof OrgOrgSlugRegisterRoute
   '/_app/(routes)/': typeof ApproutesIndexRoute
   '/_admin/(routes)/admin/applications': typeof AdminroutesAdminApplicationsRoute
   '/_admin/(routes)/admin/blog': typeof AdminroutesAdminBlogRoute
@@ -481,6 +505,8 @@ export interface FileRouteTypes {
     | '/forgot'
     | '/login'
     | '/reset'
+    | '/$orgSlug/login'
+    | '/$orgSlug/register'
     | '/admin/applications'
     | '/admin/blog'
     | '/admin/dancers'
@@ -525,6 +551,8 @@ export interface FileRouteTypes {
     | '/forgot'
     | '/login'
     | '/reset'
+    | '/$orgSlug/login'
+    | '/$orgSlug/register'
     | '/admin/applications'
     | '/admin/blog'
     | '/admin/dancers'
@@ -562,6 +590,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/_auth'
     | '/_onboarding'
+    | '/_org'
     | '/_app/(routes)/recruiting'
     | '/_app/(routes)/resources'
     | '/_app/(routes)/settings'
@@ -575,6 +604,8 @@ export interface FileRouteTypes {
     | '/_auth/(routes)/forgot'
     | '/_auth/(routes)/login'
     | '/_auth/(routes)/reset'
+    | '/_org/$orgSlug/login'
+    | '/_org/$orgSlug/register'
     | '/_app/(routes)/'
     | '/_admin/(routes)/admin/applications'
     | '/_admin/(routes)/admin/blog'
@@ -614,10 +645,18 @@ export interface RootRouteChildren {
   AppRouteRoute: typeof AppRouteRouteWithChildren
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   OnboardingRouteRoute: typeof OnboardingRouteRouteWithChildren
+  OrgRouteRoute: typeof OrgRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_org': {
+      id: '/_org'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof OrgRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_onboarding': {
       id: '/_onboarding'
       path: ''
@@ -652,6 +691,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof ApproutesIndexRouteImport
       parentRoute: typeof AppRouteRoute
+    }
+    '/_org/$orgSlug/register': {
+      id: '/_org/$orgSlug/register'
+      path: '/$orgSlug/register'
+      fullPath: '/$orgSlug/register'
+      preLoaderRoute: typeof OrgOrgSlugRegisterRouteImport
+      parentRoute: typeof OrgRouteRoute
+    }
+    '/_org/$orgSlug/login': {
+      id: '/_org/$orgSlug/login'
+      path: '/$orgSlug/login'
+      fullPath: '/$orgSlug/login'
+      preLoaderRoute: typeof OrgOrgSlugLoginRouteImport
+      parentRoute: typeof OrgRouteRoute
     }
     '/_auth/(routes)/reset': {
       id: '/_auth/(routes)/reset'
@@ -1143,11 +1196,26 @@ const OnboardingRouteRouteWithChildren = OnboardingRouteRoute._addFileChildren(
   OnboardingRouteRouteChildren,
 )
 
+interface OrgRouteRouteChildren {
+  OrgOrgSlugLoginRoute: typeof OrgOrgSlugLoginRoute
+  OrgOrgSlugRegisterRoute: typeof OrgOrgSlugRegisterRoute
+}
+
+const OrgRouteRouteChildren: OrgRouteRouteChildren = {
+  OrgOrgSlugLoginRoute: OrgOrgSlugLoginRoute,
+  OrgOrgSlugRegisterRoute: OrgOrgSlugRegisterRoute,
+}
+
+const OrgRouteRouteWithChildren = OrgRouteRoute._addFileChildren(
+  OrgRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   AdminRouteRoute: AdminRouteRouteWithChildren,
   AppRouteRoute: AppRouteRouteWithChildren,
   AuthRouteRoute: AuthRouteRouteWithChildren,
   OnboardingRouteRoute: OnboardingRouteRouteWithChildren,
+  OrgRouteRoute: OrgRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
