@@ -1,9 +1,25 @@
-import { useState } from "react";
-import { useOrg } from "@/features/org/context/use-org";
-import { $api } from "@/lib/api/client";
+import { useAnchoredErrorToast } from "@/components/hooks/use-anchored-error-toast";
 import { Button } from "@/components/ui/button";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Frame, FramePanel } from "@/components/ui/frame";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Spinner } from "@/components/ui/spinner";
+import { $api } from "@/lib/api/client";
+import { handleApiError } from "@/lib/api/errors";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRef } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+import { useOrg } from "@/features/org/context/use-org";
+
+const schema = z.object({
+  firstName: z.string().min(1, "Required"),
+  lastName: z.string().min(1, "Required"),
+  password: z.string().min(8, "At least 8 characters"),
+});
+
+type Schema = z.infer<typeof schema>;
 
 export function OrgRegisterForm({
   token,
@@ -13,92 +29,98 @@ export function OrgRegisterForm({
   onSuccess: () => void;
 }) {
   const { org } = useOrg();
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const { mutate, isPending } = $api.useMutation("post", "/orgs/{slug}/register");
 
-  const register = $api.useMutation("post", "/orgs/{slug}/register");
+  const submitRef = useRef<HTMLButtonElement>(null);
+  const errorToast = useAnchoredErrorToast(submitRef);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    try {
-      await register.mutateAsync({
+  const { control, handleSubmit, setError } = useForm<Schema>({
+    resolver: zodResolver(schema),
+    defaultValues: { firstName: "", lastName: "", password: "" },
+  });
+
+  const onSubmit = (data: Schema) => {
+    if (isPending) return;
+    mutate(
+      {
         params: { path: { slug: org.slug } },
-        body: { token, firstName, lastName, password },
-      });
-      onSuccess();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : null;
-      setError(msg ?? "Your invite link is invalid or expired.");
-    }
-  }
+        body: { token, ...data },
+      },
+      {
+        onSuccess,
+        onError: handleApiError({
+          onValidation(field, message) {
+            setError(field as keyof Schema, { message });
+          },
+          onError(error) {
+            errorToast.show(error.message);
+          },
+        }),
+      },
+    );
+  };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="mx-auto w-full max-w-sm space-y-5 p-6 text-white"
-    >
+    <div className="mx-auto w-full max-w-sm space-y-6 p-6">
       {org.logoUrl && (
-        <img src={org.logoUrl} alt={org.name} className="mx-auto h-16" />
+        <img src={org.logoUrl} alt={org.name} className="mx-auto h-16 w-auto" />
       )}
-      <h1 className="text-center text-2xl font-semibold">
-        You're in! Let's finish your {org.name} profile.
-      </h1>
-      <p className="text-center text-sm opacity-80">
-        This link is just for you. Takes 30 seconds.
-      </p>
-      <div className="space-y-2">
-        <Label htmlFor="firstName" className="text-white">
-          First name
-        </Label>
-        <Input
-          id="firstName"
-          autoFocus
-          required
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-          className="h-12 text-base"
-        />
+      <div className="text-center text-white">
+        <h1 className="text-2xl font-semibold">You're in!</h1>
+        <p className="mt-1 text-sm opacity-80">
+          Let's finish your {org.name} profile. Takes 30 seconds.
+        </p>
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="lastName" className="text-white">
-          Last name
-        </Label>
-        <Input
-          id="lastName"
-          required
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          className="h-12 text-base"
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="password" className="text-white">
-          Create a password
-        </Label>
-        <Input
-          id="password"
-          type="password"
-          autoComplete="new-password"
-          required
-          minLength={8}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="h-12 text-base"
-        />
-        <p className="text-xs opacity-70">At least 8 characters.</p>
-      </div>
-      {error && <p className="text-sm text-red-300">{error}</p>}
-      <Button
-        type="submit"
-        disabled={register.isPending}
-        className="h-12 w-full text-base font-semibold"
-        style={{ background: "var(--org-accent)", color: "white" }}
-      >
-        {register.isPending ? "Creating account..." : "Finish sign up"}
-      </Button>
-    </form>
+
+      <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
+        <Frame>
+          <FramePanel className="flex flex-col gap-3 sm:gap-5">
+            <Controller
+              control={control}
+              name="firstName"
+              render={({ field, fieldState }) => (
+                <Field name={field.name} invalid={fieldState.invalid}>
+                  <FieldLabel>First name</FieldLabel>
+                  <Input autoFocus autoComplete="given-name" {...field} />
+                  <FieldError error={fieldState.error} />
+                </Field>
+              )}
+            />
+            <Controller
+              control={control}
+              name="lastName"
+              render={({ field, fieldState }) => (
+                <Field name={field.name} invalid={fieldState.invalid}>
+                  <FieldLabel>Last name</FieldLabel>
+                  <Input autoComplete="family-name" {...field} />
+                  <FieldError error={fieldState.error} />
+                </Field>
+              )}
+            />
+            <Controller
+              control={control}
+              name="password"
+              render={({ field, fieldState }) => (
+                <Field name={field.name} invalid={fieldState.invalid}>
+                  <FieldLabel>Create a password</FieldLabel>
+                  <PasswordInput autoComplete="new-password" {...field} />
+                  <FieldError error={fieldState.error} />
+                </Field>
+              )}
+            />
+          </FramePanel>
+        </Frame>
+
+        <Button
+          ref={submitRef}
+          type="submit"
+          disabled={isPending}
+          className="w-full"
+          style={{ background: "var(--org-accent, #e94560)", color: "white" }}
+        >
+          {isPending ? <Spinner label="Creating account..." /> : "Finish sign up"}
+        </Button>
+      </form>
+    </div>
   );
 }
