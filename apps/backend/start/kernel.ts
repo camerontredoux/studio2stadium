@@ -52,4 +52,8 @@ export const middleware = router.named({
   subscribed: () => import("#middleware/routes/subscribed"),
   profile: () => import("#middleware/routes/profile"),
   org: () => import("#middleware/routes/org"),
+  orgMember: () => import("#middleware/routes/org_member"),
+  orgAdmin: () => import("#middleware/routes/org_admin"),
+  orgCoach: () => import("#middleware/routes/org_coach"),
+  orgDancer: () => import("#middleware/routes/org_dancer"),
 });
