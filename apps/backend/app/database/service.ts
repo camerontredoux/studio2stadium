@@ -1,5 +1,6 @@
 import { E_DATABASE_ERROR } from "#exceptions/database";
 import { RuntimeException } from "@adonisjs/core/exceptions";
+import logger from "@adonisjs/core/services/logger";
 import { DrizzleQueryError } from "drizzle-orm";
 import postgres from "postgres";
 import { db } from "./connection.ts";
@@ -57,6 +58,7 @@ export class DatabaseService {
             cause: cause.detail,
           });
         default:
+          this.#logUnmappedPostgresError(error, cause);
           throw new E_DATABASE_ERROR(`Database error: ${cause.code}`, {
             code: "E_DATABASE_ERROR",
             cause: cause.code,
@@ -64,5 +66,32 @@ export class DatabaseService {
       }
     }
     throw error;
+  }
+
+  /**
+   * Logs full Postgres + Drizzle context for errors we don't map to a specific
+   * exception (e.g. 42P01 undefined_table). Safe to ship: goes to server logs only.
+   */
+  #logUnmappedPostgresError(
+    drizzleError: DrizzleQueryError,
+    cause: postgres.PostgresError
+  ) {
+    logger.error(
+      {
+        pgCode: cause.code,
+        pgMessage: cause.message,
+        detail: cause.detail,
+        hint: cause.hint,
+        schema: cause.schema_name,
+        table: cause.table_name,
+        column: cause.column_name,
+        constraint: cause.constraint_name,
+        position: cause.position,
+        where: cause.where,
+        query: drizzleError.query,
+        params: drizzleError.params,
+      },
+      "Unmapped Postgres error from Drizzle query"
+    );
   }
 }

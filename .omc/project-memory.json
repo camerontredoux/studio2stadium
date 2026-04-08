@@ -1,0 +1,376 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1775593808029,
+  "projectRoot": "/home/cameron/Developer/studio2stadium/app",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": ">=22",
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      }
+    ],
+    "frameworks": [],
+    "packageManager": "pnpm",
+    "runtime": "Node.js 22"
+  },
+  "build": {
+    "buildCommand": "pnpm build",
+    "testCommand": null,
+    "lintCommand": "pnpm lint",
+    "devCommand": "pnpm dev",
+    "scripts": {
+      "dev": "pnpm -r --parallel dev",
+      "build": "pnpm -r build",
+      "lint": "pnpm -r lint",
+      "check": "pnpm -r check",
+      "backend": "pnpm --filter backend",
+      "frontend": "pnpm --filter frontend",
+      "emails": "pnpm --filter @stos/emails"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": true,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "apps": {
+      "path": "apps",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1775593808015,
+      "keyFiles": []
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 0,
+      "lastAccessed": 1775593808016,
+      "keyFiles": []
+    },
+    "packages": {
+      "path": "packages",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1775593808021,
+      "keyFiles": []
+    }
+  },
+  "hotPaths": [
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/create/service.spec.ts",
+      "accessCount": 16,
+      "lastAccessed": 1775665627775,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/routes.ts",
+      "accessCount": 12,
+      "lastAccessed": 1775666845282,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/database/schema/org-events.ts",
+      "accessCount": 10,
+      "lastAccessed": 1775666746389,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/upload-coaches/service.ts",
+      "accessCount": 9,
+      "lastAccessed": 1775666062508,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03",
+      "accessCount": 6,
+      "lastAccessed": 1775666055246,
+      "type": "directory"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/shared/org/csv-parser.ts",
+      "accessCount": 6,
+      "lastAccessed": 1775666072392,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/upload-coaches/service.spec.ts",
+      "accessCount": 5,
+      "lastAccessed": 1775666068541,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/database/schema/organizations.ts",
+      "accessCount": 5,
+      "lastAccessed": 1775666235216,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/database/schema/index.ts",
+      "accessCount": 4,
+      "lastAccessed": 1775663133980,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend",
+      "accessCount": 4,
+      "lastAccessed": 1775663166853,
+      "type": "directory"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/start/kernel.ts",
+      "accessCount": 4,
+      "lastAccessed": 1775663728649,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/database/service.ts",
+      "accessCount": 4,
+      "lastAccessed": 1775666746663,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/database/schema/enums.ts",
+      "accessCount": 3,
+      "lastAccessed": 1775662712181,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/routes.ts",
+      "accessCount": 3,
+      "lastAccessed": 1775664234433,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/create/controller.ts",
+      "accessCount": 3,
+      "lastAccessed": 1775664345169,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/organizations/backfill-school-favorites-org.spec.ts",
+      "accessCount": 3,
+      "lastAccessed": 1775665428424,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/upload-coaches/controller.ts",
+      "accessCount": 3,
+      "lastAccessed": 1775666062932,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/upload-coaches/validator.ts",
+      "accessCount": 3,
+      "lastAccessed": 1775666063973,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/shared/org/invite-email.ts",
+      "accessCount": 3,
+      "lastAccessed": 1775666072813,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/middleware/routes/org.spec.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775662817290,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/database/drizzle/20260408153741_jittery_mandarin/migration.sql",
+      "accessCount": 2,
+      "lastAccessed": 1775663174562,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/middleware/routes/org-event.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775663580666,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/middleware/routes/org-event.spec.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775663581065,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/middleware/routes/org.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775663733076,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/get-org/controller.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775663733557,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/get-org/service.spec.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775663959632,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/create/validator.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775664237426,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/create/service.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775664239808,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/update/validator.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775664240363,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/update/service.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775664240506,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/update/controller.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775664241818,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/list/service.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775664241862,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/list/controller.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775664242570,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/database/schema",
+      "accessCount": 2,
+      "lastAccessed": 1775664250477,
+      "type": "directory"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/middleware/routes/org-admin.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775664341756,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/database",
+      "accessCount": 2,
+      "lastAccessed": 1775664348867,
+      "type": "directory"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/adonisrc.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775664579324,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/commands/backfill-organizations.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775664905419,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/organizations/backfill-memberships.spec.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775665419688,
+      "type": "file"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-04-01-multi-tenant-org-platform-design.md",
+      "accessCount": 1,
+      "lastAccessed": 1775593830471,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/database/schema/helpers/columns.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775662616518,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/database/drizzle",
+      "accessCount": 1,
+      "lastAccessed": 1775662720131,
+      "type": "directory"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/drizzle.config.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775663129944,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/package.json",
+      "accessCount": 1,
+      "lastAccessed": 1775663130305,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/database/drizzle/20260408020717_talented_black_queen/migration.sql",
+      "accessCount": 1,
+      "lastAccessed": 1775663174942,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/register-dancer/service.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775663621456,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/middleware/routes/subscribed.spec.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775663648644,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/auth/guard.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775663987724,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/exceptions/database.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775664341591,
+      "type": "file"
+    },
+    {
+      "path": ".worktrees/summit-03/apps/backend/app/shared/org/csv-parser.spec.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775664608401,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

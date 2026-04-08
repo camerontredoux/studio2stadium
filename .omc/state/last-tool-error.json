@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"ls /home/cameron/Developer/studio2stadium/app/.worktrees/summit-03/apps/backend/app/database/schema/ /home/cameron/Developer/studio2stadium/app/.worktrees/summit-03/apps/backend/drizzle/ 2...",
+  "error": "Exit code 2\nls: cannot access '/home/cameron/Developer/studio2stadium/app/.worktrees/summit-03/apps/backend/drizzle/': No such file or directory\n/home/cameron/Developer/studio2stadium/app/.worktrees/summit-03/apps/backend/app/database/schema/:\ncrv.ts\ndancers.ts\nenums.ts\nevents.ts\nfeed.ts\nglobal.ts\nhelpers\nindex.ts\nmedia.ts\nnotifications.ts\norg-events.ts\norganizations.ts\nprofiles.ts\nrelations.ts\nschools.ts\nskills.ts\nsports.ts\nstyles.ts\nsubscriptions.ts\nusers.ts\n[rerun: b1]",
+  "timestamp": "2026-04-08T15:38:25.108Z",
+  "retry_count": 1
+}
