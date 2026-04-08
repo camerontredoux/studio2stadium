@@ -6,8 +6,8 @@ import { dancerProfiles } from "#database/schema/dancers";
 import { schoolProfiles } from "#database/schema/schools";
 import { favorites } from "#database/schema/profiles";
 import { organizations } from "#database/schema/organizations";
-import { seedOrganizations } from "#commands/backfill_organizations";
-import { backfillSchoolFavoritesOrg } from "#commands/backfill_school_favorites_org";
+import { seedOrganizations } from "#commands/backfill-organizations";
+import { backfillSchoolFavoritesOrg } from "#commands/backfill-school-favorites-org";
 
 async function fixtures() {
   const [dancerUser] = await db
@@ -67,7 +67,9 @@ test.group("backfill school_favorites.source_org_id", (group) => {
     await seedOrganizations();
   });
 
-  test("fills source_org_id based on platform_name=core", async ({ assert }) => {
+  test("fills source_org_id based on platform_name=core", async ({
+    assert,
+  }) => {
     const { dp, sp } = await fixtures();
     const [row] = await db
       .insert(favorites)
@@ -92,7 +94,9 @@ test.group("backfill school_favorites.source_org_id", (group) => {
     assert.equal(after!.sourceOrgId, core!.id);
   });
 
-  test("fills source_org_id based on platform_name=prodigy", async ({ assert }) => {
+  test("fills source_org_id based on platform_name=prodigy", async ({
+    assert,
+  }) => {
     const { dp, sp } = await fixtures();
     const [row] = await db
       .insert(favorites)
@@ -114,7 +118,9 @@ test.group("backfill school_favorites.source_org_id", (group) => {
     assert.equal(after!.sourceOrgId, prodigy!.id);
   });
 
-  test("leaves already-populated rows untouched on second run", async ({ assert }) => {
+  test("leaves already-populated rows untouched on second run", async ({
+    assert,
+  }) => {
     const { dp, sp } = await fixtures();
     const [row] = await db
       .insert(favorites)

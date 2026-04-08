@@ -1,13 +1,10 @@
 import { test } from "@japa/runner";
 import { db } from "#database/connection";
 import { users, platforms } from "#database/schema/users";
-import {
-  organizations,
-  orgMemberships,
-} from "#database/schema/organizations";
+import { organizations, orgMemberships } from "#database/schema/organizations";
 import { and, eq } from "drizzle-orm";
-import { seedOrganizations } from "#commands/backfill_organizations";
-import { backfillOrgMemberships } from "#commands/backfill_org_memberships";
+import { seedOrganizations } from "#commands/backfill-organizations";
+import { backfillOrgMemberships } from "#commands/backfill-org-memberships";
 
 test.group("backfill org memberships", (group) => {
   group.each.setup(async () => {
@@ -19,7 +16,9 @@ test.group("backfill org memberships", (group) => {
     await seedOrganizations();
   });
 
-  test("creates org_memberships rows for every user_platforms row", async ({ assert }) => {
+  test("creates org_memberships rows for every user_platforms row", async ({
+    assert,
+  }) => {
     const [u] = await db
       .insert(users)
       .values({
@@ -58,7 +57,9 @@ test.group("backfill org memberships", (group) => {
     assert.equal(rows[0]!.role, "member");
   });
 
-  test("promotes prodigy_admin role users to admin on prodigy org", async ({ assert }) => {
+  test("promotes prodigy_admin role users to admin on prodigy org", async ({
+    assert,
+  }) => {
     const [u] = await db
       .insert(users)
       .values({
@@ -95,7 +96,9 @@ test.group("backfill org memberships", (group) => {
     assert.equal(row!.role, "admin");
   });
 
-  test("school-type users become coach-type memberships", async ({ assert }) => {
+  test("school-type users become coach-type memberships", async ({
+    assert,
+  }) => {
     const [school] = await db
       .insert(users)
       .values({

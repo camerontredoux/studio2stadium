@@ -41,7 +41,9 @@ test.group("GetSubscriptionService", (group) => {
     assert.isNull(result.grantedBy);
   });
 
-  test("returns source='stripe' when only a Stripe subscription exists", async ({ assert }) => {
+  test("returns source='stripe' when only a Stripe subscription exists", async ({
+    assert,
+  }) => {
     const user = await createUser("stripe");
     const periodEnd = new Date(Date.now() + 7 * 86400000);
     await db.insert(subscriptions).values({
@@ -62,7 +64,9 @@ test.group("GetSubscriptionService", (group) => {
     assert.isNull(result.grantedBy);
   });
 
-  test("returns source='org_event' when only a grant exists", async ({ assert }) => {
+  test("returns source='org_event' when only a grant exists", async ({
+    assert,
+  }) => {
     const user = await createUser("grant");
     const expires = new Date(Date.now() + 30 * 86400000);
     await db.insert(premiumGrants).values({
@@ -79,7 +83,9 @@ test.group("GetSubscriptionService", (group) => {
     assert.isFalse(result.cancelAtPeriodEnd);
   });
 
-  test("Stripe subscription takes precedence over grant", async ({ assert }) => {
+  test("Stripe subscription takes precedence over grant", async ({
+    assert,
+  }) => {
     const user = await createUser("both");
     const subEnd = new Date(Date.now() + 10 * 86400000);
     const grantEnd = new Date(Date.now() + 90 * 86400000);

@@ -2,14 +2,16 @@ import { test } from "@japa/runner";
 import { db } from "#database/connection";
 import { organizations } from "#database/schema/organizations";
 import { eq } from "drizzle-orm";
-import { seedOrganizations } from "#commands/backfill_organizations";
+import { seedOrganizations } from "#commands/backfill-organizations";
 
 test.group("organization seed", (group) => {
   group.each.setup(async () => {
     await db.delete(organizations).execute();
   });
 
-  test("creates core, prodigy, and summit orgs idempotently", async ({ assert }) => {
+  test("creates core, prodigy, and summit orgs idempotently", async ({
+    assert,
+  }) => {
     await seedOrganizations();
     await seedOrganizations(); // idempotent second run
 

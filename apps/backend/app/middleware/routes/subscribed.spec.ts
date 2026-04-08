@@ -33,9 +33,7 @@ function mockCtx(user: { id: string; role: string }) {
   };
 }
 
-async function createUser(
-  overrides: Partial<typeof users.$inferInsert> = {}
-) {
+async function createUser(overrides: Partial<typeof users.$inferInsert> = {}) {
   const suffix = Math.random().toString(36).slice(2, 8);
   const [u] = await db
     .insert(users)

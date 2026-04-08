@@ -1,9 +1,5 @@
 import * as pg from "drizzle-orm/pg-core";
-import {
-  orgMemberType,
-  orgRole,
-  premiumGrantSource,
-} from "./enums.ts";
+import { orgMemberType, orgRole, premiumGrantSource } from "./enums.ts";
 import { timestamps } from "./helpers/columns.ts";
 import { users } from "./users.ts";
 

@@ -3,10 +3,7 @@ import type { CommandOptions } from "@adonisjs/core/types/ace";
 import { eq } from "drizzle-orm";
 import { db } from "#database/connection";
 import { platforms, users } from "#database/schema/users";
-import {
-  organizations,
-  orgMemberships,
-} from "#database/schema/organizations";
+import { organizations, orgMemberships } from "#database/schema/organizations";
 
 /**
  * One-shot data migration: map every `user_platforms` row into an equivalent
