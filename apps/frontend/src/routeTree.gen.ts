@@ -27,6 +27,7 @@ import { Route as ApproutesFeedRouteImport } from './routes/_app/(routes)/feed'
 import { Route as ApproutesDancersRouteImport } from './routes/_app/(routes)/dancers'
 import { Route as ApproutesCheckoutRouteImport } from './routes/_app/(routes)/checkout'
 import { Route as ApproutesUsernameRouteImport } from './routes/_app/(routes)/$username'
+import { Route as OrgOrgSlugAuthenticatedRouteRouteImport } from './routes/_org/$orgSlug/_authenticated/route'
 import { Route as ApproutesSettingsRouteRouteImport } from './routes/_app/(routes)/settings/route'
 import { Route as ApproutesResourcesRouteRouteImport } from './routes/_app/(routes)/resources/route'
 import { Route as ApproutesRecruitingRouteRouteImport } from './routes/_app/(routes)/recruiting/route'
@@ -59,6 +60,7 @@ import { Route as AdminroutesAdminDashboardRouteImport } from './routes/_admin/(
 import { Route as AdminroutesAdminDancersRouteImport } from './routes/_admin/(routes)/admin/dancers'
 import { Route as AdminroutesAdminBlogRouteImport } from './routes/_admin/(routes)/admin/blog'
 import { Route as AdminroutesAdminApplicationsRouteImport } from './routes/_admin/(routes)/admin/applications'
+import { Route as OrgOrgSlugAuthenticatedAdminIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/index'
 import { Route as AdminroutesAdminDashboardMetricsRouteImport } from './routes/_admin/(routes)/admin/dashboard/metrics'
 import { Route as AdminroutesAdminDashboardAssetsRouteImport } from './routes/_admin/(routes)/admin/dashboard/assets'
 
@@ -147,6 +149,12 @@ const ApproutesUsernameRoute = ApproutesUsernameRouteImport.update({
   path: '/$username',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const OrgOrgSlugAuthenticatedRouteRoute =
+  OrgOrgSlugAuthenticatedRouteRouteImport.update({
+    id: '/$orgSlug/_authenticated',
+    path: '/$orgSlug',
+    getParentRoute: () => OrgRouteRoute,
+  } as any)
 const ApproutesSettingsRouteRoute = ApproutesSettingsRouteRouteImport.update({
   id: '/(routes)/settings',
   path: '/settings',
@@ -325,6 +333,12 @@ const AdminroutesAdminApplicationsRoute =
     path: '/admin/applications',
     getParentRoute: () => AdminRouteRoute,
   } as any)
+const OrgOrgSlugAuthenticatedAdminIndexRoute =
+  OrgOrgSlugAuthenticatedAdminIndexRouteImport.update({
+    id: '/admin/',
+    path: '/admin/',
+    getParentRoute: () => OrgOrgSlugAuthenticatedRouteRoute,
+  } as any)
 const AdminroutesAdminDashboardMetricsRoute =
   AdminroutesAdminDashboardMetricsRouteImport.update({
     id: '/metrics',
@@ -343,6 +357,7 @@ export interface FileRoutesByFullPath {
   '/recruiting': typeof ApproutesRecruitingRouteRouteWithChildren
   '/resources': typeof ApproutesResourcesRouteRouteWithChildren
   '/settings': typeof ApproutesSettingsRouteRouteWithChildren
+  '/$orgSlug': typeof OrgOrgSlugAuthenticatedRouteRouteWithChildren
   '/$username': typeof ApproutesUsernameRoute
   '/checkout': typeof ApproutesCheckoutRoute
   '/dancers': typeof ApproutesDancersRoute
@@ -386,9 +401,11 @@ export interface FileRoutesByFullPath {
   '/onboarding/': typeof OnboardingroutesOnboardingIndexRoute
   '/admin/dashboard/assets': typeof AdminroutesAdminDashboardAssetsRoute
   '/admin/dashboard/metrics': typeof AdminroutesAdminDashboardMetricsRoute
+  '/$orgSlug/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof ApproutesIndexRoute
+  '/$orgSlug': typeof OrgOrgSlugAuthenticatedRouteRouteWithChildren
   '/$username': typeof ApproutesUsernameRoute
   '/checkout': typeof ApproutesCheckoutRoute
   '/dancers': typeof ApproutesDancersRoute
@@ -432,6 +449,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingroutesOnboardingIndexRoute
   '/admin/dashboard/assets': typeof AdminroutesAdminDashboardAssetsRoute
   '/admin/dashboard/metrics': typeof AdminroutesAdminDashboardMetricsRoute
+  '/$orgSlug/admin': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -443,6 +461,7 @@ export interface FileRoutesById {
   '/_app/(routes)/recruiting': typeof ApproutesRecruitingRouteRouteWithChildren
   '/_app/(routes)/resources': typeof ApproutesResourcesRouteRouteWithChildren
   '/_app/(routes)/settings': typeof ApproutesSettingsRouteRouteWithChildren
+  '/_org/$orgSlug/_authenticated': typeof OrgOrgSlugAuthenticatedRouteRouteWithChildren
   '/_app/(routes)/$username': typeof ApproutesUsernameRoute
   '/_app/(routes)/checkout': typeof ApproutesCheckoutRoute
   '/_app/(routes)/dancers': typeof ApproutesDancersRoute
@@ -487,6 +506,7 @@ export interface FileRoutesById {
   '/_onboarding/(routes)/onboarding/': typeof OnboardingroutesOnboardingIndexRoute
   '/_admin/(routes)/admin/dashboard/assets': typeof AdminroutesAdminDashboardAssetsRoute
   '/_admin/(routes)/admin/dashboard/metrics': typeof AdminroutesAdminDashboardMetricsRoute
+  '/_org/$orgSlug/_authenticated/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -495,6 +515,7 @@ export interface FileRouteTypes {
     | '/recruiting'
     | '/resources'
     | '/settings'
+    | '/$orgSlug'
     | '/$username'
     | '/checkout'
     | '/dancers'
@@ -538,9 +559,11 @@ export interface FileRouteTypes {
     | '/onboarding/'
     | '/admin/dashboard/assets'
     | '/admin/dashboard/metrics'
+    | '/$orgSlug/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$orgSlug'
     | '/$username'
     | '/checkout'
     | '/dancers'
@@ -584,6 +607,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/admin/dashboard/assets'
     | '/admin/dashboard/metrics'
+    | '/$orgSlug/admin'
   id:
     | '__root__'
     | '/_admin'
@@ -594,6 +618,7 @@ export interface FileRouteTypes {
     | '/_app/(routes)/recruiting'
     | '/_app/(routes)/resources'
     | '/_app/(routes)/settings'
+    | '/_org/$orgSlug/_authenticated'
     | '/_app/(routes)/$username'
     | '/_app/(routes)/checkout'
     | '/_app/(routes)/dancers'
@@ -638,6 +663,7 @@ export interface FileRouteTypes {
     | '/_onboarding/(routes)/onboarding/'
     | '/_admin/(routes)/admin/dashboard/assets'
     | '/_admin/(routes)/admin/dashboard/metrics'
+    | '/_org/$orgSlug/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -775,6 +801,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$username'
       preLoaderRoute: typeof ApproutesUsernameRouteImport
       parentRoute: typeof AppRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated': {
+      id: '/_org/$orgSlug/_authenticated'
+      path: '/$orgSlug'
+      fullPath: '/$orgSlug'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedRouteRouteImport
+      parentRoute: typeof OrgRouteRoute
     }
     '/_app/(routes)/settings': {
       id: '/_app/(routes)/settings'
@@ -1000,6 +1033,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminroutesAdminApplicationsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/_org/$orgSlug/_authenticated/admin/': {
+      id: '/_org/$orgSlug/_authenticated/admin/'
+      path: '/admin'
+      fullPath: '/$orgSlug/admin/'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminIndexRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedRouteRoute
+    }
     '/_admin/(routes)/admin/dashboard/metrics': {
       id: '/_admin/(routes)/admin/dashboard/metrics'
       path: '/metrics'
@@ -1196,12 +1236,30 @@ const OnboardingRouteRouteWithChildren = OnboardingRouteRoute._addFileChildren(
   OnboardingRouteRouteChildren,
 )
 
+interface OrgOrgSlugAuthenticatedRouteRouteChildren {
+  OrgOrgSlugAuthenticatedAdminIndexRoute: typeof OrgOrgSlugAuthenticatedAdminIndexRoute
+}
+
+const OrgOrgSlugAuthenticatedRouteRouteChildren: OrgOrgSlugAuthenticatedRouteRouteChildren =
+  {
+    OrgOrgSlugAuthenticatedAdminIndexRoute:
+      OrgOrgSlugAuthenticatedAdminIndexRoute,
+  }
+
+const OrgOrgSlugAuthenticatedRouteRouteWithChildren =
+  OrgOrgSlugAuthenticatedRouteRoute._addFileChildren(
+    OrgOrgSlugAuthenticatedRouteRouteChildren,
+  )
+
 interface OrgRouteRouteChildren {
+  OrgOrgSlugAuthenticatedRouteRoute: typeof OrgOrgSlugAuthenticatedRouteRouteWithChildren
   OrgOrgSlugLoginRoute: typeof OrgOrgSlugLoginRoute
   OrgOrgSlugRegisterRoute: typeof OrgOrgSlugRegisterRoute
 }
 
 const OrgRouteRouteChildren: OrgRouteRouteChildren = {
+  OrgOrgSlugAuthenticatedRouteRoute:
+    OrgOrgSlugAuthenticatedRouteRouteWithChildren,
   OrgOrgSlugLoginRoute: OrgOrgSlugLoginRoute,
   OrgOrgSlugRegisterRoute: OrgOrgSlugRegisterRoute,
 }
