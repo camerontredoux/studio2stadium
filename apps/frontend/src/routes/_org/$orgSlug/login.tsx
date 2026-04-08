@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { OrgAuthLayout } from "@/features/org/components/org-auth-layout";
 import { OrgLoginForm } from "@/features/org/components/org-login-form";
 
 export const Route = createFileRoute("/_org/$orgSlug/login")({
@@ -8,13 +9,8 @@ export const Route = createFileRoute("/_org/$orgSlug/login")({
 function OrgLoginPage() {
   const navigate = useNavigate();
   return (
-    <div
-      className="min-h-screen"
-      style={{ background: "var(--org-primary, #0f172a)" }}
-    >
-      <OrgLoginForm
-        onSuccess={() => navigate({ to: "/feed" })}
-      />
-    </div>
+    <OrgAuthLayout>
+      <OrgLoginForm onSuccess={() => navigate({ to: "/feed" })} />
+    </OrgAuthLayout>
   );
 }
