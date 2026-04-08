@@ -34,7 +34,9 @@ test.group("OrgMiddleware", (group) => {
     await seedOrganizations();
   });
 
-  test("attaches ctx.org for a valid slug and calls next", async ({ assert }) => {
+  test("attaches ctx.org for a valid slug and calls next", async ({
+    assert,
+  }) => {
     const { ctx, state } = mockCtx("summit");
     let nextCalled = false;
     await new OrgMiddleware().handle(ctx, async () => {

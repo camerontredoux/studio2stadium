@@ -2,15 +2,12 @@ import { test } from "@japa/runner";
 import { eq } from "drizzle-orm";
 import { db } from "#database/connection";
 import { users } from "#database/schema/users";
-import {
-  organizations,
-  orgMemberships,
-} from "#database/schema/organizations";
+import { organizations, orgMemberships } from "#database/schema/organizations";
 import { seedOrganizations } from "#commands/backfill-organizations";
-import OrgMemberMiddleware from "./org_member.ts";
-import OrgAdminMiddleware from "./org_admin.ts";
-import OrgCoachMiddleware from "./org_coach.ts";
-import OrgDancerMiddleware from "./org_dancer.ts";
+import OrgMemberMiddleware from "./org-member.ts";
+import OrgAdminMiddleware from "./org-admin.ts";
+import OrgCoachMiddleware from "./org-coach.ts";
+import OrgDancerMiddleware from "./org-dancer.ts";
 
 type CtxState = {
   nextCalled: boolean;
@@ -189,7 +186,9 @@ test.group("org role middlewares", (group) => {
     assert.isTrue(state.nextCalled);
   });
 
-  test("orgDancer forbids type=coach even if role=admin", async ({ assert }) => {
+  test("orgDancer forbids type=coach even if role=admin", async ({
+    assert,
+  }) => {
     const { ctx, state, next } = mockCtx({
       user: { id: "u7" },
       membership: { role: "admin", type: "coach" },

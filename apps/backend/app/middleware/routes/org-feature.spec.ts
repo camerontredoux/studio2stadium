@@ -1,5 +1,5 @@
 import { test } from "@japa/runner";
-import OrgFeatureMiddleware from "./org_feature.ts";
+import OrgFeatureMiddleware from "./org-feature.ts";
 
 type State = {
   nextCalled: boolean;
@@ -37,7 +37,9 @@ test.group("OrgFeatureMiddleware", () => {
     assert.isNotNull(state.notFoundBody);
   });
 
-  test("404s when the feature key is missing from features", async ({ assert }) => {
+  test("404s when the feature key is missing from features", async ({
+    assert,
+  }) => {
     const { ctx, state, next } = mockCtx({ something_else: true });
     await new OrgFeatureMiddleware().handle(ctx, next, "callbacks");
     assert.isFalse(state.nextCalled);
