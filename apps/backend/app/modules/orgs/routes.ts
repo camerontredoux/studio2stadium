@@ -1,4 +1,5 @@
 import "./events/routes.ts";
+import "./scouting/routes.ts";
 import router from "@adonisjs/core/services/router";
 
 const GetOrgController = () => import("./get-org/controller.ts");
