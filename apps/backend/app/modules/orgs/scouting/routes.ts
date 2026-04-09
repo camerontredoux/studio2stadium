@@ -6,6 +6,8 @@ const GetDancerById = () => import("./dancers/get-by-id/controller.ts");
 const CreateFavorite = () => import("./favorites/create/controller.ts");
 const DeleteFavorite = () => import("./favorites/delete/controller.ts");
 const ListFavorites = () => import("./favorites/list/controller.ts");
+const UpsertNote = () => import("./notes/upsert/controller.ts");
+const DeleteNote = () => import("./notes/delete/controller.ts");
 
 router
   .group(() => {
@@ -17,6 +19,8 @@ router
     router.get(":slug/favorites", [ListFavorites]);
     router.post(":slug/favorites", [CreateFavorite]);
     router.delete(":slug/favorites/:dancerRosterId", [DeleteFavorite]);
+    router.put(":slug/dancers/:dancerRosterId/notes", [UpsertNote]);
+    router.delete(":slug/dancers/:dancerRosterId/notes", [DeleteNote]);
   })
   .prefix("orgs")
   .use([
