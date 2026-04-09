@@ -48,6 +48,7 @@ a@x.co,A,B,101`;
     assert.lengthOf(rows, 1);
     assert.lengthOf(errors, 0);
     assert.equal(rows[0]!.bibNumber, 101);
+    assert.equal(rows[0]!.csvRow, 2);
   });
 
   test("reports error for missing bib number", ({ assert }) => {

@@ -3,22 +3,16 @@ import { cn } from "@/components/utils/cn";
 interface RosterActivationRingProps {
   registered: number;
   total: number;
-  size?: number;
-  strokeWidth?: number;
   className?: string;
 }
 
 export function RosterActivationRing({
   registered,
   total,
-  size = 168,
-  strokeWidth = 10,
   className,
 }: RosterActivationRingProps) {
   const pct = total > 0 ? Math.round((registered / total) * 100) : 0;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference * (1 - Math.min(1, Math.max(0, pct / 100)));
+  const clampedPct = Math.min(100, Math.max(0, pct));
 
   const label =
     total > 0
@@ -28,52 +22,37 @@ export function RosterActivationRing({
   return (
     <div
       className={cn(
-        "relative inline-flex flex-col items-center justify-center",
+        "bg-background/70 border-border/70 inline-flex w-full flex-col gap-2 rounded-xl border p-4 backdrop-blur-sm",
         className,
       )}
       role="img"
       aria-label={label}
     >
-      <svg
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
-        className="-rotate-90"
-      >
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={strokeWidth}
-          className="text-muted/30"
-        />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="var(--org-primary, var(--color-primary))"
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          className="transition-[stroke-dashoffset] duration-700 ease-out"
-        />
-      </svg>
-      <div
-        className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center"
-        aria-hidden="true"
-      >
-        <span className="text-4xl font-semibold tabular-nums tracking-tight">
-          {pct}
-          <span className="text-lg">%</span>
-        </span>
-        <span className="text-muted-foreground mt-1 text-[11px] font-medium tracking-wide uppercase">
-          activated
+      <div className="flex items-end justify-between gap-3">
+        <div className="flex flex-col">
+          <span className="text-muted-foreground text-[11px] font-semibold tracking-[0.14em] uppercase">
+            Activation
+          </span>
+          <span className="text-foreground text-3xl leading-none font-semibold tabular-nums tracking-tight">
+            {clampedPct}
+            <span className="text-base">%</span>
+          </span>
+        </div>
+        <span className="text-muted-foreground text-sm font-medium tabular-nums">
+          {registered}/{total}
         </span>
       </div>
+      <div className="bg-muted h-2.5 w-full overflow-hidden rounded-full">
+        <div
+          className="h-full rounded-full transition-[width] duration-700 ease-out"
+          style={{
+            width: `${clampedPct}%`,
+            background:
+              "linear-gradient(to right, var(--org-primary, var(--color-primary)), var(--org-accent, var(--color-primary)))",
+          }}
+        />
+      </div>
+      <p className="text-muted-foreground text-xs">Roster members activated</p>
     </div>
   );
 }

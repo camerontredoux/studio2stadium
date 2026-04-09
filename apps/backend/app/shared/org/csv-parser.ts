@@ -12,6 +12,8 @@ export interface DancerRow {
   firstName: string;
   lastName: string;
   bibNumber: number;
+  /** 1-based line number in the CSV file (header is row 1). */
+  csvRow: number;
 }
 
 export interface RowError {
@@ -74,6 +76,7 @@ export function parseDancerCsv(csv: string) {
       firstName: r["firstName"]!.trim(),
       lastName: r["lastName"]!.trim(),
       bibNumber: bib,
+      csvRow: row,
     };
   });
 }

@@ -8,8 +8,11 @@ import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
 import { EventHero } from "@/features/org/components/event-hero";
 import { StatCard } from "@/features/org/components/stat-card";
 import { CsvUploadTriggerCard } from "@/features/org/components/csv-upload-trigger-card";
-import { EditEventSheet } from "@/features/org/components/edit-event-sheet";
-import { CreateEventForm } from "@/features/org/components/create-event-form";
+import {
+  CreateEventForm,
+  EventFormSheet,
+} from "@/features/org/components/event-form-sheet";
+import { OrgEventSwitcher } from "@/features/org/components/org-event-switcher";
 import {
   useAdminCommandListener,
   useAdminCommands,
@@ -21,9 +24,11 @@ export const Route = createFileRoute("/_org/$orgSlug/_authenticated/admin/")({
 
 function AdminDashboard({
   orgSlug,
+  events,
   activeEvent,
 }: {
   orgSlug: string;
+  events: OrgEvent[];
   activeEvent: OrgEvent;
 }) {
   const { data: stats } = useSuspenseQuery(
@@ -45,6 +50,11 @@ function AdminDashboard({
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+      <OrgEventSwitcher
+        orgSlug={orgSlug}
+        events={events}
+        activeEvent={activeEvent}
+      />
       <EventHero
         event={activeEvent}
         registered={stats.registered}
@@ -104,7 +114,7 @@ function AdminDashboard({
         />
       </section>
 
-      <EditEventSheet
+      <EventFormSheet
         orgSlug={orgSlug}
         event={activeEvent}
         open={editOpen}
@@ -133,5 +143,11 @@ function AdminHome() {
     );
   }
 
-  return <AdminDashboard orgSlug={orgSlug} activeEvent={activeEvent} />;
+  return (
+    <AdminDashboard
+      orgSlug={orgSlug}
+      events={events}
+      activeEvent={activeEvent}
+    />
+  );
 }

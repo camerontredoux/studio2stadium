@@ -9,15 +9,25 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Kbd } from "@/components/ui/kbd";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Menu,
+  MenuGroup,
+  MenuItem,
+  MenuPopup,
+  MenuSeparator,
+  MenuTrigger,
+} from "@/components/ui/menu";
 import { useOrg } from "@/features/org/context/use-org";
 import { useAdminCommands } from "@/features/org/hooks/use-admin-commands";
+import { useSession } from "@/lib/session";
 import { Link, useLocation, useParams } from "@tanstack/react-router";
 import {
   CalendarIcon,
+  ChevronDownIcon,
   HistoryIcon,
   LayoutDashboardIcon,
-  SearchIcon,
+  LogOutIcon,
   SettingsIcon,
   UsersIcon,
 } from "lucide-react";
@@ -53,10 +63,15 @@ const navItems = [
 ];
 
 export function AdminSidebar() {
+  const session = useSession();
   const { org } = useOrg();
   const { orgSlug } = useParams({ strict: false }) as { orgSlug: string };
   const location = useLocation();
-  const { openPalette, dispatch } = useAdminCommands();
+  const { dispatch } = useAdminCommands();
+
+  const displayName =
+    [session.firstName, session.lastName].filter(Boolean).join(" ").trim() ||
+    session.username;
 
   return (
     <Sidebar collapsible="icon">
@@ -84,7 +99,7 @@ export function AdminSidebar() {
                   {org.name.charAt(0).toUpperCase()}
                 </div>
               )}
-              <div className="flex min-w-0 flex-col">
+              <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
                 <span className="truncate font-semibold">{org.name}</span>
                 <span className="text-muted-foreground truncate text-[10px] font-medium tracking-wide uppercase">
                   Admin
@@ -139,17 +154,47 @@ export function AdminSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              tooltip="Command palette"
-              onClick={openPalette}
-              className="justify-between"
-            >
-              <div className="flex items-center gap-2">
-                <SearchIcon />
-                <span>Commands</span>
-              </div>
-              <Kbd className="ml-auto text-[10px]">⌘K</Kbd>
-            </SidebarMenuButton>
+            <Menu>
+              <SidebarMenuButton
+                size="lg"
+                tooltip={displayName}
+                className="data-popup-open:bg-sidebar-accent"
+                render={<MenuTrigger />}
+              >
+                <Avatar className="size-8 rounded-lg">
+                  <AvatarImage src={session.avatar || undefined} />
+                  <AvatarFallback className="rounded-lg text-xs">
+                    {session.username.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="grid min-w-0 flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                  <span className="truncate font-medium">{displayName}</span>
+                  <span className="text-muted-foreground truncate text-xs">
+                    {session.displayEmail}
+                  </span>
+                </div>
+                <ChevronDownIcon className="text-muted-foreground ml-auto size-4 shrink-0 group-data-[collapsible=icon]:hidden" />
+              </SidebarMenuButton>
+              <MenuPopup
+                side="top"
+                align="start"
+                className="w-(--anchor-width) min-w-0 max-w-(--anchor-width)"
+              >
+                <MenuGroup>
+                  <MenuItem disabled className="min-h-0 flex-col items-start gap-0.5 py-2">
+                    <span className="font-medium">{displayName}</span>
+                    <span className="text-muted-foreground text-xs">
+                      @{session.username}
+                    </span>
+                  </MenuItem>
+                </MenuGroup>
+                <MenuSeparator />
+                <MenuItem closeOnClick render={<Link to="/logout" />}>
+                  <LogOutIcon />
+                  Log out
+                </MenuItem>
+              </MenuPopup>
+            </Menu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

@@ -1,12 +1,14 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { randomBytes } from "node:crypto";
+import { dancerProfiles } from "#database/schema/dancers";
+import { schoolProfiles } from "#database/schema/schools";
 import { users } from "#database/schema/users";
 import { organizations, orgMemberships, premiumGrants, dancerInvites } from "#database/schema/organizations";
 import { orgEvents, eventRosters, csvUploads } from "#database/schema/org-events";
 import { parseDancerCsv } from "#shared/org/csv-parser";
 import { sendOrgInviteEmail } from "#shared/org/invite-email";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 
 function randomToken(): string {
   return randomBytes(32).toString("base64url");
@@ -37,19 +39,19 @@ export class UploadDancersService {
 
     // Detect duplicate bib numbers within the uploaded file. First occurrence
     // wins; later duplicates are dropped to errors.
-    const bibsInFile = new Map<number, number>(); // bib -> row index
+    const bibsInFile = new Map<number, number>(); // bib -> csvRow of first occurrence
     const rowsWithoutInFileBibDupes: typeof rows = [];
-    rows.forEach((r, i) => {
+    rows.forEach((r) => {
       if (r.bibNumber != null) {
-        const firstIdx = bibsInFile.get(r.bibNumber);
-        if (firstIdx !== undefined) {
+        const firstRow = bibsInFile.get(r.bibNumber);
+        if (firstRow !== undefined) {
           errors.push({
-            row: i + 1,
-            reason: `duplicate bib number ${r.bibNumber} (first seen on row ${firstIdx + 1})`,
+            row: r.csvRow,
+            reason: `duplicate bib number ${r.bibNumber} (first seen on row ${firstRow})`,
           });
           return;
         }
-        bibsInFile.set(r.bibNumber, i);
+        bibsInFile.set(r.bibNumber, r.csvRow);
       }
       rowsWithoutInFileBibDupes.push(r);
     });
@@ -67,18 +69,50 @@ export class UploadDancersService {
       if (r.bibNumber != null) bibOwners.set(r.bibNumber, r.email.toLowerCase());
     }
 
-    const filteredRows = rowsWithoutInFileBibDupes.filter((r, i) => {
+    const filteredRows = rowsWithoutInFileBibDupes.filter((r) => {
       if (r.bibNumber == null) return true;
       const owner = bibOwners.get(r.bibNumber);
       if (owner && owner !== r.email.toLowerCase()) {
         errors.push({
-          row: i + 1,
+          row: r.csvRow,
           reason: `bib number ${r.bibNumber} already taken by ${owner} on this event`,
         });
         return false;
       }
       return true;
     });
+
+    // School accounts cannot be added as dancers (coach CSV is for schools).
+    let rowsToProcess = filteredRows;
+    if (filteredRows.length > 0) {
+      const emails = filteredRows.map((r) => r.email);
+      const schoolOnlyRows = await this.db.use((db) =>
+        db
+          .select({ email: users.email })
+          .from(users)
+          .innerJoin(schoolProfiles, eq(schoolProfiles.userId, users.id))
+          .leftJoin(dancerProfiles, eq(dancerProfiles.userId, users.id))
+          .where(and(inArray(users.email, emails), isNull(dancerProfiles.id))),
+      );
+      const schoolOnly = new Set(
+        schoolOnlyRows.map((u) => u.email.toLowerCase()),
+      );
+      if (schoolOnly.size > 0) {
+        const next: typeof filteredRows = [];
+        for (const r of filteredRows) {
+          if (schoolOnly.has(r.email.toLowerCase())) {
+            errors.push({
+              row: r.csvRow,
+              reason:
+                "email belongs to a school account, not a dancer — use the coach roster for staff",
+            });
+          } else {
+            next.push(r);
+          }
+        }
+        rowsToProcess = next;
+      }
+    }
 
     const [org] = await this.db.use((db) =>
       db.select().from(organizations).where(eq(organizations.id, orgId))
@@ -114,16 +148,17 @@ export class UploadDancersService {
         errorDetails: errors as any,
       }).returning();
 
-      if (filteredRows.length > 0) {
-        // Batch match users by email only (dancers may not have school profiles)
-        const emails = filteredRows.map((r) => r.email);
+      if (rowsToProcess.length > 0) {
+        // Match only users with a dancer profile (same idea as coach CSV + school profile).
+        const emails = rowsToProcess.map((r) => r.email);
         const matchedUsers = await tx
           .select({ id: users.id, email: users.email })
           .from(users)
+          .innerJoin(dancerProfiles, eq(dancerProfiles.userId, users.id))
           .where(inArray(users.email, emails));
         const byEmail = new Map(matchedUsers.map((u) => [u.email.toLowerCase(), u.id]));
 
-        for (const r of filteredRows) {
+        for (const r of rowsToProcess) {
           const userId = byEmail.get(r.email.toLowerCase()) ?? null;
 
           const [existing] = await tx

@@ -69,7 +69,7 @@ export function EventHero({
     <section
       className={cn(
         "relative overflow-hidden rounded-2xl border",
-        "bg-gradient-to-br from-card via-card to-card/60",
+        "bg-linear-to-br from-card via-card to-card/60",
       )}
     >
       {/* Brand-colored left accent bar */}
@@ -88,7 +88,7 @@ export function EventHero({
         aria-hidden="true"
       />
 
-      <div className="relative flex flex-col gap-8 p-6 pl-8 md:flex-row md:items-start md:justify-between md:p-10 md:pl-12">
+      <div className="relative flex flex-col gap-8 p-6 pl-8 lg:p-10 lg:pl-12 xl:flex-row xl:items-start xl:justify-between">
         <div className="flex min-w-0 flex-1 flex-col gap-5">
           <div className="flex flex-col gap-2">
             <div
@@ -185,9 +185,12 @@ export function EventHero({
           </div>
         </div>
 
-        {/* Ring */}
-        <div className="flex shrink-0 items-center justify-center md:self-center">
-          <RosterActivationRing registered={registered} total={total} />
+        <div className="flex w-full shrink-0 items-center justify-start xl:w-auto xl:self-center">
+          <RosterActivationRing
+            registered={registered}
+            total={total}
+            className="w-full max-w-sm"
+          />
         </div>
       </div>
     </section>

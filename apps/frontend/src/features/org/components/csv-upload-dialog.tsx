@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -6,20 +7,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { cn } from "@/components/utils/cn";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminQueries } from "@/features/org/api/admin-queries";
+import type { CsvSchema } from "@/features/org/lib/csv-schemas";
 import {
   schemaFor,
   validateParsed,
   type CsvRosterType,
   type ParseResult,
 } from "@/features/org/lib/csv-schemas";
-import Papa from "papaparse";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangleIcon,
   CheckCircle2Icon,
@@ -31,7 +30,8 @@ import {
   UserCheckIcon,
   XCircleIcon,
 } from "lucide-react";
-import type { CsvSchema } from "@/features/org/lib/csv-schemas";
+import Papa from "papaparse";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 type UploadResult = {
   rowsAdded: number;
@@ -42,11 +42,31 @@ type UploadResult = {
 
 type ServerPreview = {
   totalRows: number;
+  /** Rows the server will process (after parser + account checks). */
+  acceptedRows: number;
   willMatch: number;
   willInvite: number;
   willUpdate: number;
   willError: number;
+  errors?: Array<{ row: number; reason: string }>;
 };
+
+function previewRowCounts(
+  parse: ParseResult,
+  serverPreview: ServerPreview | null,
+  serverPreviewPending: boolean,
+): { totalRows: number; acceptedRows: number } {
+  if (serverPreview && !serverPreviewPending) {
+    return {
+      totalRows: serverPreview.totalRows,
+      acceptedRows: serverPreview.acceptedRows ?? serverPreview.totalRows,
+    };
+  }
+  return {
+    totalRows: parse.totalRows,
+    acceptedRows: parse.validRowsCount,
+  };
+}
 
 type DialogStep =
   | { name: "idle" }
@@ -152,8 +172,7 @@ export function CsvUploadDialog({
 
   const previewMutation = useMutation({
     mutationFn: (file: File) => {
-      const pathSegment =
-        schema.type === "dancer" ? "dancers" : "coaches";
+      const pathSegment = schema.type === "dancer" ? "dancers" : "coaches";
       const path = `/orgs/${orgSlug}/events/${eventId}/upload/${pathSegment}/preview`;
       return postForm<ServerPreview>(path, file);
     },
@@ -227,9 +246,7 @@ export function CsvUploadDialog({
   };
 
   const title =
-    step.name === "done"
-      ? "Upload complete"
-      : `Upload ${schema.label} roster`;
+    step.name === "done" ? "Upload complete" : `Upload ${schema.label} roster`;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -296,16 +313,37 @@ export function CsvUploadDialog({
                   upload.mutate(step.file);
                 }}
                 disabled={
-                  step.parse.validRowsCount === 0 ||
-                  step.parse.duplicates.length > 0 ||
-                  step.serverPreviewPending
+                  (() => {
+                    const { acceptedRows } = previewRowCounts(
+                      step.parse,
+                      step.serverPreview,
+                      step.serverPreviewPending,
+                    );
+                    return (
+                      acceptedRows === 0 ||
+                      step.parse.duplicates.length > 0 ||
+                      step.serverPreviewPending
+                    );
+                  })()
                 }
               >
-                {step.parse.duplicates.length > 0
-                  ? `Fix ${step.parse.duplicates.length} duplicate${step.parse.duplicates.length === 1 ? "" : "s"} to continue`
-                  : step.serverPreview && step.serverPreview.willInvite > 0
-                    ? `Upload & send ${step.serverPreview.willInvite.toLocaleString()} invites`
-                    : `Upload ${step.parse.validRowsCount.toLocaleString()} rows`}
+                {(() => {
+                  const dup = step.parse.duplicates.length;
+                  if (dup > 0) {
+                    return `Fix ${dup} duplicate${dup === 1 ? "" : "s"} to continue`;
+                  }
+                  const { acceptedRows } = previewRowCounts(
+                    step.parse,
+                    step.serverPreview,
+                    step.serverPreviewPending,
+                  );
+                  const sp = step.serverPreview;
+                  const pending = step.serverPreviewPending;
+                  if (sp && !pending && sp.willInvite > 0) {
+                    return `Upload & send ${sp.willInvite.toLocaleString()} invites`;
+                  }
+                  return `Upload ${acceptedRows.toLocaleString()} rows`;
+                })()}
               </Button>
             </>
           )}
@@ -340,28 +378,37 @@ function PreviewView({
   const columns = step.parse.detectedColumns;
 
   const hasDuplicates = step.parse.duplicates.length > 0;
+  const sp = step.serverPreview;
+  const pending = step.serverPreviewPending;
+  const hasServerIssues = Boolean(sp && !pending && sp.willError > 0);
+  const showImpactCards = !hasDuplicates && !hasServerIssues;
+
+  const { totalRows: rowTotal, acceptedRows: rowsToUpload } = previewRowCounts(
+    step.parse,
+    sp,
+    pending,
+  );
 
   return (
     <div className="flex min-h-0 flex-col gap-3 overflow-hidden">
-      {hasDuplicates ? (
-        <DuplicateBanner duplicates={step.parse.duplicates} />
-      ) : (
+      {(hasDuplicates || hasServerIssues) && (
+        <PreviewIssuesBanner
+          duplicates={step.parse.duplicates}
+          serverPreview={sp}
+          serverPending={pending}
+          kind={schema.type}
+        />
+      )}
+      {showImpactCards && (
         <ImpactSummary
-          pending={step.serverPreviewPending}
-          preview={step.serverPreview}
+          pending={pending}
+          preview={sp}
           kind={schema.type}
         />
       )}
 
-      <ColumnChips
-        schema={schema}
-        detectedColumns={step.parse.detectedColumns}
-        warningsCount={step.parse.warningsCount}
-      />
-
-
       <div className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
-        Preview · first 10 of {step.parse.totalRows.toLocaleString()} rows
+        Preview · first 10 of {rowTotal.toLocaleString()} rows
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto rounded-lg border">
@@ -417,9 +464,18 @@ function PreviewView({
       </div>
 
       <p className="text-muted-foreground text-xs">
-        Showing 10 of {step.parse.totalRows.toLocaleString()} ·{" "}
-        {step.parse.validRowsCount.toLocaleString()} rows will upload
+        Showing 10 of {rowTotal.toLocaleString()} ·{" "}
+        {rowsToUpload.toLocaleString()} rows will upload
+        {hasDuplicates
+          ? " — upload stays disabled until duplicate values are fixed."
+          : ""}
       </p>
+
+      <ColumnChips
+        schema={schema}
+        detectedColumns={step.parse.detectedColumns}
+        warningsCount={step.parse.warningsCount}
+      />
     </div>
   );
 }
@@ -435,12 +491,10 @@ function ErrorView({
 }) {
   void schema;
   return (
-    <div className="flex flex-col items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+    <div className="border-destructive/30 bg-destructive/5 flex flex-col items-start gap-3 rounded-xl border p-4">
       <div className="flex items-center gap-2">
         <XCircleIcon className="text-destructive size-5" />
-        <span className="font-semibold">
-          This file doesn't look right
-        </span>
+        <span className="font-semibold">This file doesn't look right</span>
       </div>
       <ul className="text-muted-foreground flex flex-col gap-1 text-sm">
         {step.parse.missingRequired.map((col) => (
@@ -565,9 +619,7 @@ function StepIndicator({ step }: { step: DialogStep["name"] }) {
                   isActive &&
                     "border-primary bg-primary text-primary-foreground",
                   isDone && "border-emerald-500 bg-emerald-500 text-white",
-                  !isActive &&
-                    !isDone &&
-                    "border-border text-muted-foreground",
+                  !isActive && !isDone && "border-border text-muted-foreground",
                 )}
               >
                 {isDone ? <CheckCircle2Icon className="size-3" /> : i + 1}
@@ -633,7 +685,7 @@ function IdleView({
           "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
           isDragging
             ? "border-primary bg-primary/5 scale-[1.01]"
-            : "border-border/80 bg-gradient-to-b from-muted/20 to-muted/40 hover:border-primary/50 hover:from-primary/5 hover:to-primary/10",
+            : "border-border/80 from-muted/20 to-muted/40 hover:border-primary/50 hover:from-primary/5 hover:to-primary/10 bg-gradient-to-b",
         )}
       >
         <div
@@ -657,7 +709,7 @@ function IdleView({
             className={cn(
               "bg-card border-border/60 absolute inset-x-3 top-2 flex h-14 items-center justify-center rounded-lg border shadow-sm transition-transform duration-300",
               "-rotate-6",
-              isDragging && "-rotate-12 -translate-x-2",
+              isDragging && "-translate-x-2 -rotate-12",
             )}
             aria-hidden="true"
           >
@@ -667,7 +719,7 @@ function IdleView({
             className={cn(
               "bg-card border-border/60 absolute inset-x-3 top-1 flex h-14 items-center justify-center rounded-lg border shadow-sm transition-transform duration-300",
               "rotate-3",
-              isDragging && "rotate-6 translate-x-2",
+              isDragging && "translate-x-2 rotate-6",
             )}
             aria-hidden="true"
           >
@@ -718,7 +770,7 @@ function ExpectedColumns({
                   ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
                   : col.required
                     ? "border-border/80 bg-background text-foreground/80"
-                    : "border-dashed border-border/60 bg-transparent text-muted-foreground",
+                    : "border-border/60 text-muted-foreground border-dashed bg-transparent",
               )}
             >
               {isMatched && <CheckCircle2Icon className="size-3" />}
@@ -734,37 +786,86 @@ function ExpectedColumns({
   );
 }
 
-function DuplicateBanner({
+function PreviewIssuesBanner({
   duplicates,
+  serverPreview,
+  serverPending,
+  kind,
 }: {
   duplicates: Array<{ column: string; value: string; rows: number[] }>;
+  serverPreview: ServerPreview | null;
+  serverPending: boolean;
+  kind: "dancer" | "coach";
 }) {
+  const hasDup = duplicates.length > 0;
+  const hasSrv =
+    serverPreview != null &&
+    !serverPending &&
+    (serverPreview.willError > 0 || (serverPreview.errors?.length ?? 0) > 0);
+
+  if (!hasDup && !hasSrv) return null;
+
   return (
-    <div className="border-destructive/30 bg-destructive/5 flex flex-col gap-2 rounded-xl border p-3">
+    <div className="border-destructive/30 bg-destructive/5 flex flex-col gap-3 rounded-xl border p-3">
       <div className="text-destructive flex items-center gap-2 text-sm font-semibold">
-        <XCircleIcon className="size-4" />
-        {duplicates.length} duplicate {duplicates[0]?.column ?? "value"}
-        {duplicates.length === 1 ? "" : "s"} in this file
+        <XCircleIcon className="size-4 shrink-0" />
+        Fix these issues before uploading
       </div>
-      <p className="text-muted-foreground text-xs">
-        Fix the file and re-upload. Uploads are blocked until every{" "}
-        {duplicates[0]?.column ?? "value"} is unique.
-      </p>
-      <ul className="flex max-h-20 flex-col gap-0.5 overflow-auto font-mono text-[11px]">
-        {duplicates.slice(0, 5).map((d) => (
-          <li key={`${d.column}-${d.value}`} className="text-foreground/80">
-            <span className="text-destructive font-semibold">{d.value}</span>{" "}
-            <span className="text-muted-foreground">
-              — rows {d.rows.join(", ")}
-            </span>
-          </li>
-        ))}
-        {duplicates.length > 5 && (
-          <li className="text-muted-foreground">
-            …and {duplicates.length - 5} more
-          </li>
-        )}
-      </ul>
+
+      {hasDup && (
+        <div className="flex flex-col gap-2">
+          <p className="text-foreground/90 text-xs font-medium">
+            {duplicates.length} duplicate {duplicates[0]?.column ?? "value"}
+            {duplicates.length === 1 ? "" : "s"} — each must be unique in this
+            file.
+          </p>
+          <ul className="flex max-h-24 flex-col gap-0.5 overflow-auto font-mono text-[11px]">
+            {duplicates.slice(0, 6).map((d) => (
+              <li key={`${d.column}-${d.value}`} className="text-foreground/80">
+                <span className="text-destructive font-semibold">{d.value}</span>{" "}
+                <span className="text-muted-foreground">
+                  — rows {d.rows.join(", ")}
+                </span>
+              </li>
+            ))}
+            {duplicates.length > 6 && (
+              <li className="text-muted-foreground">
+                …and {duplicates.length - 6} more
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
+
+      {hasDup && hasSrv && (
+        <div className="bg-border/60 h-px w-full shrink-0" aria-hidden />
+      )}
+
+      {hasSrv && serverPreview && (
+        <div className="flex flex-col gap-2">
+          <p className="text-foreground/90 text-xs font-medium">
+            {serverPreview.willError} row
+            {serverPreview.willError === 1 ? "" : "s"} rejected in a server check
+            {kind === "dancer"
+              ? " (for example, school emails on a dancer roster)"
+              : ""}
+            .
+          </p>
+          <ul className="flex max-h-28 flex-col gap-0.5 overflow-auto text-[11px]">
+            {(serverPreview.errors ?? []).slice(0, 10).map((e, i) => (
+              <li key={i} className="text-foreground/80">
+                <span className="text-muted-foreground font-mono">Row {e.row}</span>{" "}
+                — {e.reason}
+              </li>
+            ))}
+          </ul>
+          {serverPreview.willError > 10 ? (
+            <p className="text-muted-foreground text-[11px]">
+              …and {serverPreview.willError - 10} more
+            </p>
+          ) : null}
+        </div>
+      )}
     </div>
   );
 }
@@ -863,7 +964,7 @@ function ImpactCard({
         {icon}
       </div>
       <div className="flex min-w-0 flex-col">
-        <span className="text-lg leading-none font-semibold tabular-nums">
+        <span className="text-sm leading-none font-semibold tabular-nums">
           {value.toLocaleString()}{" "}
           <span className="text-muted-foreground text-xs font-normal">
             {label}
@@ -906,7 +1007,7 @@ function ColumnChips({
         );
       })}
       {warningsCount > 0 && (
-        <span className="bg-amber-500/10 text-amber-700 dark:text-amber-400 ml-auto inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium">
+        <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-400">
           <AlertTriangleIcon className="size-3" />
           {warningsCount} skipped
         </span>
