@@ -1,89 +1,116 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
-import { client } from "@/lib/api/client";
-import { StatCard } from "@/features/org/components/stat-card";
-import { CsvUploader } from "@/features/org/components/csv-uploader";
-import { UploadResultCard } from "@/features/org/components/upload-result-card";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { formatDistanceToNow } from "date-fns";
+import { UploadIcon, UsersIcon, UserCheckIcon, UserXIcon } from "lucide-react";
+
+import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
+import { EventHero } from "@/features/org/components/event-hero";
+import { StatCard } from "@/features/org/components/stat-card";
+import { CsvUploadTriggerCard } from "@/features/org/components/csv-upload-trigger-card";
+import { EditEventSheet } from "@/features/org/components/edit-event-sheet";
+import { CreateEventForm } from "@/features/org/components/create-event-form";
+import {
+  useAdminCommandListener,
+  useAdminCommands,
+} from "@/features/org/hooks/use-admin-commands";
 
 export const Route = createFileRoute("/_org/$orgSlug/_authenticated/admin/")({
   component: AdminHome,
 });
 
-type UploadResult = {
-  rowsAdded: number;
-  rowsUpdated: number;
-  rowsErrored: number;
-  errors: Array<{ row: number; reason: string }>;
-};
+function AdminDashboard({
+  orgSlug,
+  activeEvent,
+}: {
+  orgSlug: string;
+  activeEvent: OrgEvent;
+}) {
+  const { data: stats } = useSuspenseQuery(
+    adminQueries.stats(orgSlug, activeEvent.id),
+  );
+  const [editOpen, setEditOpen] = useState(false);
+  const { openPalette } = useAdminCommands();
 
-function AdminDashboard({ orgSlug, activeEvent }: { orgSlug: string; activeEvent: OrgEvent }) {
-  const [lastUpload, setLastUpload] = useState<UploadResult | null>(null);
-  const qc = useQueryClient();
-  const { data: stats } = useSuspenseQuery(adminQueries.stats(orgSlug, activeEvent.id));
+  useAdminCommandListener(
+    (a) => a.type === "open-edit-event",
+    () => setEditOpen(true),
+  );
 
-  const rawClient = client as unknown as {
-    POST: (path: string, opts: { body: FormData }) => Promise<{ data: UploadResult }>;
-  };
-
-  const uploadDancers = useMutation({
-    mutationFn: async (file: File) => {
-      const form = new FormData();
-      form.append("file", file);
-      const res = await rawClient.POST(
-        `/orgs/${orgSlug}/events/${activeEvent.id}/upload/dancers`,
-        { body: form },
-      );
-      return res.data;
-    },
-    onSuccess: (data) => {
-      setLastUpload(data);
-      qc.invalidateQueries(adminQueries.stats(orgSlug, activeEvent.id));
-    },
-  });
-
-  const uploadCoaches = useMutation({
-    mutationFn: async (file: File) => {
-      const form = new FormData();
-      form.append("file", file);
-      const res = await rawClient.POST(
-        `/orgs/${orgSlug}/events/${activeEvent.id}/upload/coaches`,
-        { body: form },
-      );
-      return res.data;
-    },
-    onSuccess: (data) => {
-      setLastUpload(data);
-      qc.invalidateQueries(adminQueries.stats(orgSlug, activeEvent.id));
-    },
-  });
+  const totalRoster = stats.coaches + stats.dancers;
+  const lastUpload = stats.recentUploads[0] ?? null;
+  const lastUploadLabel = lastUpload
+    ? `${formatDistanceToNow(new Date(lastUpload.createdAt), { addSuffix: true })}`
+    : "No uploads yet";
 
   return (
-    <main className="mx-auto max-w-5xl space-y-8 p-6" style={{ color: "white" }}>
-      <h1 className="text-3xl font-bold">{activeEvent.name}</h1>
-      <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatCard label="Coaches" value={stats.coaches} />
-        <StatCard label="Dancers" value={stats.dancers} />
-        <StatCard label="Registered" value={stats.registered} />
-        <StatCard label="Pending" value={stats.pending} />
-      </section>
-      <section className="grid gap-4 md:grid-cols-2">
-        <CsvUploader
-          title="Upload dancer roster"
-          description="CSV with email, firstName, lastName, bibNumber"
-          isPending={uploadDancers.isPending}
-          onUpload={(file) => uploadDancers.mutate(file)}
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+      <EventHero
+        event={activeEvent}
+        registered={stats.registered}
+        total={totalRoster}
+        onEditEvent={() => setEditOpen(true)}
+        onOpenCommand={openPalette}
+      />
+
+      <section
+        aria-label="Event stats"
+        className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4"
+      >
+        <StatCard
+          label="Dancers"
+          value={stats.dancers.toLocaleString()}
+          subtitle="on roster"
+          icon={<UsersIcon className="size-4" />}
         />
-        <CsvUploader
-          title="Upload coach roster"
-          description="CSV with email, firstName, lastName, organization"
-          isPending={uploadCoaches.isPending}
-          onUpload={(file) => uploadCoaches.mutate(file)}
+        <StatCard
+          label="Coaches"
+          value={stats.coaches.toLocaleString()}
+          subtitle="on roster"
+          icon={<UsersIcon className="size-4" />}
+        />
+        <StatCard
+          label="Pending"
+          value={stats.pending.toLocaleString()}
+          subtitle="not yet active"
+          icon={<UserXIcon className="size-4" />}
+          tone={stats.pending > 0 ? "accent" : "default"}
+        />
+        <StatCard
+          label="Active"
+          value={stats.registered.toLocaleString()}
+          subtitle={lastUploadLabel}
+          icon={<UserCheckIcon className="size-4" />}
         />
       </section>
-      {lastUpload && <UploadResultCard result={lastUpload} />}
-    </main>
+
+      <section
+        aria-label="Roster uploads"
+        className="grid gap-4 md:grid-cols-2"
+      >
+        <CsvUploadTriggerCard
+          orgSlug={orgSlug}
+          eventId={activeEvent.id}
+          type="dancer"
+          icon={<UploadIcon className="size-4" />}
+          lastUpload={stats.recentUploads.find((u) => u.type === "dancer") ?? null}
+        />
+        <CsvUploadTriggerCard
+          orgSlug={orgSlug}
+          eventId={activeEvent.id}
+          type="coach"
+          icon={<UploadIcon className="size-4" />}
+          lastUpload={stats.recentUploads.find((u) => u.type === "coach") ?? null}
+        />
+      </section>
+
+      <EditEventSheet
+        orgSlug={orgSlug}
+        event={activeEvent}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+      />
+    </div>
   );
 }
 
@@ -94,9 +121,14 @@ function AdminHome() {
 
   if (!activeEvent) {
     return (
-      <div className="mx-auto max-w-md p-12 text-center" style={{ color: "white" }}>
-        <h1 className="text-2xl font-semibold">No active event</h1>
-        <p className="mt-2 opacity-70">Create an event to get started.</p>
+      <div className="mx-auto w-full max-w-md space-y-4">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold">Create your first event</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            You'll be able to upload rosters once an event is active.
+          </p>
+        </div>
+        <CreateEventForm orgSlug={orgSlug} />
       </div>
     );
   }

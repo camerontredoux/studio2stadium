@@ -8,6 +8,7 @@ export const schema = vine.compile(vine.object({
   venueName: vine.string().trim().optional(),
   venueAddress: vine.string().trim().optional(),
   contactEmail: vine.string().email().optional(),
+  schedulePdfUrl: vine.string().url().optional(),
   isActive: vine.boolean().optional(),
 }));
 export type Validator = Infer<typeof schema>;

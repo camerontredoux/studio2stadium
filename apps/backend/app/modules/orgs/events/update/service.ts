@@ -24,6 +24,7 @@ export class UpdateEventService {
           ...(patch.venueName !== undefined && { venueName: patch.venueName }),
           ...(patch.venueAddress !== undefined && { venueAddress: patch.venueAddress }),
           ...(patch.contactEmail !== undefined && { contactEmail: patch.contactEmail }),
+          ...(patch.schedulePdfUrl !== undefined && { schedulePdfUrl: patch.schedulePdfUrl }),
           ...(patch.isActive !== undefined && { isActive: patch.isActive }),
         })
         .where(and(eq(orgEvents.id, eventId), eq(orgEvents.orgId, orgId)))

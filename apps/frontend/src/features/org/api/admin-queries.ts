@@ -8,8 +8,27 @@ async function fetchJson<T>(path: string): Promise<T> {
 
 export type OrgEvent = {
   id: string;
+  orgId: string;
   name: string;
+  startDate: string;
+  endDate: string;
+  venueName: string | null;
+  venueAddress: string | null;
+  contactEmail: string | null;
+  schedulePdfUrl: string | null;
   isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CsvUploadSummary = {
+  id: string;
+  eventId: string;
+  type: "coach" | "dancer";
+  rowsAdded: number;
+  rowsUpdated: number;
+  rowsErrored: number;
+  createdAt: string;
 };
 
 export type OrgEventStats = {
@@ -17,6 +36,7 @@ export type OrgEventStats = {
   dancers: number;
   registered: number;
   pending: number;
+  recentUploads: CsvUploadSummary[];
 };
 
 export const adminQueries = {

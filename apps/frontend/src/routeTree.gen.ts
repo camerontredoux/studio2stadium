@@ -60,7 +60,11 @@ import { Route as AdminroutesAdminDashboardRouteImport } from './routes/_admin/(
 import { Route as AdminroutesAdminDancersRouteImport } from './routes/_admin/(routes)/admin/dancers'
 import { Route as AdminroutesAdminBlogRouteImport } from './routes/_admin/(routes)/admin/blog'
 import { Route as AdminroutesAdminApplicationsRouteImport } from './routes/_admin/(routes)/admin/applications'
+import { Route as OrgOrgSlugAuthenticatedAdminRouteRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/route'
 import { Route as OrgOrgSlugAuthenticatedAdminIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/index'
+import { Route as OrgOrgSlugAuthenticatedAdminUploadsRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/uploads'
+import { Route as OrgOrgSlugAuthenticatedAdminSettingsRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/settings'
+import { Route as OrgOrgSlugAuthenticatedAdminRostersRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/rosters'
 import { Route as AdminroutesAdminDashboardMetricsRouteImport } from './routes/_admin/(routes)/admin/dashboard/metrics'
 import { Route as AdminroutesAdminDashboardAssetsRouteImport } from './routes/_admin/(routes)/admin/dashboard/assets'
 
@@ -333,11 +337,35 @@ const AdminroutesAdminApplicationsRoute =
     path: '/admin/applications',
     getParentRoute: () => AdminRouteRoute,
   } as any)
+const OrgOrgSlugAuthenticatedAdminRouteRoute =
+  OrgOrgSlugAuthenticatedAdminRouteRouteImport.update({
+    id: '/admin',
+    path: '/admin',
+    getParentRoute: () => OrgOrgSlugAuthenticatedRouteRoute,
+  } as any)
 const OrgOrgSlugAuthenticatedAdminIndexRoute =
   OrgOrgSlugAuthenticatedAdminIndexRouteImport.update({
-    id: '/admin/',
-    path: '/admin/',
-    getParentRoute: () => OrgOrgSlugAuthenticatedRouteRoute,
+    id: '/',
+    path: '/',
+    getParentRoute: () => OrgOrgSlugAuthenticatedAdminRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedAdminUploadsRoute =
+  OrgOrgSlugAuthenticatedAdminUploadsRouteImport.update({
+    id: '/uploads',
+    path: '/uploads',
+    getParentRoute: () => OrgOrgSlugAuthenticatedAdminRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedAdminSettingsRoute =
+  OrgOrgSlugAuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => OrgOrgSlugAuthenticatedAdminRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedAdminRostersRoute =
+  OrgOrgSlugAuthenticatedAdminRostersRouteImport.update({
+    id: '/rosters',
+    path: '/rosters',
+    getParentRoute: () => OrgOrgSlugAuthenticatedAdminRouteRoute,
   } as any)
 const AdminroutesAdminDashboardMetricsRoute =
   AdminroutesAdminDashboardMetricsRouteImport.update({
@@ -370,6 +398,7 @@ export interface FileRoutesByFullPath {
   '/reset': typeof AuthroutesResetRoute
   '/$orgSlug/login': typeof OrgOrgSlugLoginRoute
   '/$orgSlug/register': typeof OrgOrgSlugRegisterRoute
+  '/$orgSlug/admin': typeof OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren
   '/admin/applications': typeof AdminroutesAdminApplicationsRoute
   '/admin/blog': typeof AdminroutesAdminBlogRoute
   '/admin/dancers': typeof AdminroutesAdminDancersRoute
@@ -401,6 +430,9 @@ export interface FileRoutesByFullPath {
   '/onboarding/': typeof OnboardingroutesOnboardingIndexRoute
   '/admin/dashboard/assets': typeof AdminroutesAdminDashboardAssetsRoute
   '/admin/dashboard/metrics': typeof AdminroutesAdminDashboardMetricsRoute
+  '/$orgSlug/admin/rosters': typeof OrgOrgSlugAuthenticatedAdminRostersRoute
+  '/$orgSlug/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
+  '/$orgSlug/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
   '/$orgSlug/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -449,6 +481,9 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingroutesOnboardingIndexRoute
   '/admin/dashboard/assets': typeof AdminroutesAdminDashboardAssetsRoute
   '/admin/dashboard/metrics': typeof AdminroutesAdminDashboardMetricsRoute
+  '/$orgSlug/admin/rosters': typeof OrgOrgSlugAuthenticatedAdminRostersRoute
+  '/$orgSlug/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
+  '/$orgSlug/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
   '/$orgSlug/admin': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -475,6 +510,7 @@ export interface FileRoutesById {
   '/_org/$orgSlug/login': typeof OrgOrgSlugLoginRoute
   '/_org/$orgSlug/register': typeof OrgOrgSlugRegisterRoute
   '/_app/(routes)/': typeof ApproutesIndexRoute
+  '/_org/$orgSlug/_authenticated/admin': typeof OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren
   '/_admin/(routes)/admin/applications': typeof AdminroutesAdminApplicationsRoute
   '/_admin/(routes)/admin/blog': typeof AdminroutesAdminBlogRoute
   '/_admin/(routes)/admin/dancers': typeof AdminroutesAdminDancersRoute
@@ -506,6 +542,9 @@ export interface FileRoutesById {
   '/_onboarding/(routes)/onboarding/': typeof OnboardingroutesOnboardingIndexRoute
   '/_admin/(routes)/admin/dashboard/assets': typeof AdminroutesAdminDashboardAssetsRoute
   '/_admin/(routes)/admin/dashboard/metrics': typeof AdminroutesAdminDashboardMetricsRoute
+  '/_org/$orgSlug/_authenticated/admin/rosters': typeof OrgOrgSlugAuthenticatedAdminRostersRoute
+  '/_org/$orgSlug/_authenticated/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
+  '/_org/$orgSlug/_authenticated/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
   '/_org/$orgSlug/_authenticated/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -528,6 +567,7 @@ export interface FileRouteTypes {
     | '/reset'
     | '/$orgSlug/login'
     | '/$orgSlug/register'
+    | '/$orgSlug/admin'
     | '/admin/applications'
     | '/admin/blog'
     | '/admin/dancers'
@@ -559,6 +599,9 @@ export interface FileRouteTypes {
     | '/onboarding/'
     | '/admin/dashboard/assets'
     | '/admin/dashboard/metrics'
+    | '/$orgSlug/admin/rosters'
+    | '/$orgSlug/admin/settings'
+    | '/$orgSlug/admin/uploads'
     | '/$orgSlug/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -607,6 +650,9 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/admin/dashboard/assets'
     | '/admin/dashboard/metrics'
+    | '/$orgSlug/admin/rosters'
+    | '/$orgSlug/admin/settings'
+    | '/$orgSlug/admin/uploads'
     | '/$orgSlug/admin'
   id:
     | '__root__'
@@ -632,6 +678,7 @@ export interface FileRouteTypes {
     | '/_org/$orgSlug/login'
     | '/_org/$orgSlug/register'
     | '/_app/(routes)/'
+    | '/_org/$orgSlug/_authenticated/admin'
     | '/_admin/(routes)/admin/applications'
     | '/_admin/(routes)/admin/blog'
     | '/_admin/(routes)/admin/dancers'
@@ -663,6 +710,9 @@ export interface FileRouteTypes {
     | '/_onboarding/(routes)/onboarding/'
     | '/_admin/(routes)/admin/dashboard/assets'
     | '/_admin/(routes)/admin/dashboard/metrics'
+    | '/_org/$orgSlug/_authenticated/admin/rosters'
+    | '/_org/$orgSlug/_authenticated/admin/settings'
+    | '/_org/$orgSlug/_authenticated/admin/uploads'
     | '/_org/$orgSlug/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -1033,12 +1083,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminroutesAdminApplicationsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/_org/$orgSlug/_authenticated/admin': {
+      id: '/_org/$orgSlug/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/$orgSlug/admin'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedRouteRoute
+    }
     '/_org/$orgSlug/_authenticated/admin/': {
       id: '/_org/$orgSlug/_authenticated/admin/'
-      path: '/admin'
+      path: '/'
       fullPath: '/$orgSlug/admin/'
       preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminIndexRouteImport
-      parentRoute: typeof OrgOrgSlugAuthenticatedRouteRoute
+      parentRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/admin/uploads': {
+      id: '/_org/$orgSlug/_authenticated/admin/uploads'
+      path: '/uploads'
+      fullPath: '/$orgSlug/admin/uploads'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminUploadsRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/admin/settings': {
+      id: '/_org/$orgSlug/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/$orgSlug/admin/settings'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/admin/rosters': {
+      id: '/_org/$orgSlug/_authenticated/admin/rosters'
+      path: '/rosters'
+      fullPath: '/$orgSlug/admin/rosters'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminRostersRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRoute
     }
     '/_admin/(routes)/admin/dashboard/metrics': {
       id: '/_admin/(routes)/admin/dashboard/metrics'
@@ -1236,14 +1314,38 @@ const OnboardingRouteRouteWithChildren = OnboardingRouteRoute._addFileChildren(
   OnboardingRouteRouteChildren,
 )
 
-interface OrgOrgSlugAuthenticatedRouteRouteChildren {
+interface OrgOrgSlugAuthenticatedAdminRouteRouteChildren {
+  OrgOrgSlugAuthenticatedAdminRostersRoute: typeof OrgOrgSlugAuthenticatedAdminRostersRoute
+  OrgOrgSlugAuthenticatedAdminSettingsRoute: typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
+  OrgOrgSlugAuthenticatedAdminUploadsRoute: typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
   OrgOrgSlugAuthenticatedAdminIndexRoute: typeof OrgOrgSlugAuthenticatedAdminIndexRoute
+}
+
+const OrgOrgSlugAuthenticatedAdminRouteRouteChildren: OrgOrgSlugAuthenticatedAdminRouteRouteChildren =
+  {
+    OrgOrgSlugAuthenticatedAdminRostersRoute:
+      OrgOrgSlugAuthenticatedAdminRostersRoute,
+    OrgOrgSlugAuthenticatedAdminSettingsRoute:
+      OrgOrgSlugAuthenticatedAdminSettingsRoute,
+    OrgOrgSlugAuthenticatedAdminUploadsRoute:
+      OrgOrgSlugAuthenticatedAdminUploadsRoute,
+    OrgOrgSlugAuthenticatedAdminIndexRoute:
+      OrgOrgSlugAuthenticatedAdminIndexRoute,
+  }
+
+const OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren =
+  OrgOrgSlugAuthenticatedAdminRouteRoute._addFileChildren(
+    OrgOrgSlugAuthenticatedAdminRouteRouteChildren,
+  )
+
+interface OrgOrgSlugAuthenticatedRouteRouteChildren {
+  OrgOrgSlugAuthenticatedAdminRouteRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren
 }
 
 const OrgOrgSlugAuthenticatedRouteRouteChildren: OrgOrgSlugAuthenticatedRouteRouteChildren =
   {
-    OrgOrgSlugAuthenticatedAdminIndexRoute:
-      OrgOrgSlugAuthenticatedAdminIndexRoute,
+    OrgOrgSlugAuthenticatedAdminRouteRoute:
+      OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren,
   }
 
 const OrgOrgSlugAuthenticatedRouteRouteWithChildren =
