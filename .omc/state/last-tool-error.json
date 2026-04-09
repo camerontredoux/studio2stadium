@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"git merge-base --is-ancestor e2ab324 plan/summit-04-coach-scouting && echo \\\"e2ab324 is now in summit-04\\\" && echo '---' && git log --oneline plan/summit-03-events-rosters..plan/summit-04-...",
+  "error": "Exit code 1\ne2ab324 is now in summit-04\n---\n549e5d0 feat(coach): favorites and rankings pages\na1cee77 feat(coach): dancer profile with notes + rating\nc34a606 feat(coach): dancer search page\n0db5b01 feat(coach): shell, sidebar, view switcher\n5b6a19b feat(scouting): frontend queries + bib quick-jump\n534c712 feat(scouting): rankings endpoint\n33e953a feat(scouting): ratings upsert\nf0da1a3 feat(scouting): notes upsert + delete\n2b7b8ae feat(scouting): favorites endpoints\ncb6dc98 feat(scouting): dancer...",
+  "timestamp": "2026-04-09T14:40:49.086Z",
+  "retry_count": 8
+}
