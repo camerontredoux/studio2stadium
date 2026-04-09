@@ -2,7 +2,7 @@ import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { users } from "#database/schema/users";
 import { schoolProfiles } from "#database/schema/schools";
-import { eventRosters, csvUploads } from "#database/schema/org-events";
+import { eventRosters, csvUploads, orgEvents } from "#database/schema/org-events";
 import { organizations, orgMemberships } from "#database/schema/organizations";
 import { parseCoachCsv } from "#shared/org/csv-parser";
 import { sendOrgInviteEmail } from "#shared/org/invite-email";
@@ -29,6 +29,10 @@ export class UploadCoachesService {
 
     const [org] = await this.db.use((db) =>
       db.select().from(organizations).where(eq(organizations.id, orgId))
+    );
+
+    const [event] = await this.db.use((db) =>
+      db.select().from(orgEvents).where(eq(orgEvents.id, eventId))
     );
 
     const result = await this.db.tx(async (tx) => {
@@ -123,6 +127,7 @@ export class UploadCoachesService {
       for (const row of unmatchedRows) {
         sendOrgInviteEmail({
           org,
+          event: event ?? null,
           email: row.email,
           firstName: row.firstName,
           type: "coach",

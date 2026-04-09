@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"git add apps/frontend/src/features/org/components/org-auth-layout.tsx apps/frontend/src/routes/_org/$orgSlug/login.tsx apps/frontend/src/routes/_org/$orgSlug/register.tsx && git commit -m ...",
-  "error": "Exit code 128\nfatal: pathspec 'apps/frontend/src/routes/_org//login.tsx' did not match any files\n[rerun: b87]",
-  "timestamp": "2026-04-08T19:46:29.123Z",
-  "retry_count": 1
-}

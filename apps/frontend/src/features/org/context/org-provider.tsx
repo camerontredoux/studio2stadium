@@ -2,6 +2,11 @@ import { createContext, useEffect, useMemo, type ReactNode } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { orgQueries } from "@/features/org/api/queries";
 
+export interface OrgMembership {
+  role: "admin" | "member";
+  type: "coach" | "dancer";
+}
+
 export interface OrgContextValue {
   org: {
     id: string;
@@ -13,6 +18,8 @@ export interface OrgContextValue {
   };
   features: Record<string, boolean>;
   settings: Record<string, unknown>;
+  membership: OrgMembership | null;
+  isAdmin: boolean;
   hasFeature: (key: string) => boolean;
 }
 
@@ -22,6 +29,8 @@ export function OrgProvider({ slug, children }: { slug: string; children: ReactN
   const { data } = useSuspenseQuery(orgQueries.org(slug));
 
   const features = (data.features ?? {}) as Record<string, boolean>;
+  const membership =
+    ((data as { membership?: OrgMembership | null }).membership ?? null);
 
   const value = useMemo<OrgContextValue>(
     () => ({
@@ -35,9 +44,11 @@ export function OrgProvider({ slug, children }: { slug: string; children: ReactN
       },
       features,
       settings: (data.settings ?? {}) as Record<string, unknown>,
+      membership,
+      isAdmin: membership?.role === "admin",
       hasFeature: (key) => Boolean(features[key]),
     }),
-    [data, features],
+    [data, features, membership],
   );
 
   useEffect(() => {

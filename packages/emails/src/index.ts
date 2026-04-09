@@ -69,6 +69,11 @@ export {
   type SubscriptionEndedEmailProps,
 } from "./templates/SubscriptionEndedEmail.js";
 
+export {
+  OrgInviteEmail,
+  type OrgInviteEmailProps,
+} from "./templates/OrgInviteEmail.js";
+
 // Render utilities
 export { renderEmail, renderEmailText } from "./render.js";
 

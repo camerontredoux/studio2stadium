@@ -1,0 +1,268 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1775677964447,
+  "projectRoot": "/home/cameron/Developer/studio2stadium/app/.worktrees/summit-03",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": ">=22",
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      }
+    ],
+    "frameworks": [],
+    "packageManager": "pnpm",
+    "runtime": "Node.js 22"
+  },
+  "build": {
+    "buildCommand": "pnpm build",
+    "testCommand": null,
+    "lintCommand": "pnpm lint",
+    "devCommand": "pnpm dev",
+    "scripts": {
+      "dev": "pnpm -r --parallel dev",
+      "build": "pnpm -r build",
+      "lint": "pnpm -r lint",
+      "check": "pnpm -r check",
+      "backend": "pnpm --filter backend",
+      "frontend": "pnpm --filter frontend",
+      "emails": "pnpm --filter @stos/emails"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": true,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "apps": {
+      "path": "apps",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1775677964439,
+      "keyFiles": []
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 0,
+      "lastAccessed": 1775677964440,
+      "keyFiles": []
+    },
+    "packages": {
+      "path": "packages",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1775677964443,
+      "keyFiles": []
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "apps/frontend/src/features/org/components/csv-upload-dialog.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1775700707379,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/routes/_org/$orgSlug/_authenticated/admin/index.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1775700129629,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/routes/_app/route.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1775677995092,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/components/csv-upload-trigger-card.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1775700193820,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/components/ui/sidebar.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1775677990605,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/components/admin-sidebar.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1775698970653,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src",
+      "accessCount": 2,
+      "lastAccessed": 1775699945945,
+      "type": "directory"
+    },
+    {
+      "path": "apps/frontend/src/features/org/components/edit-event-sheet.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1775700052981,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/components/stat-card.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1775700126909,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/components/layouts/sidebar-layout.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775677998055,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/components/shared/sidebar-wrapper.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775677998176,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/routes/_org/$orgSlug/_authenticated/route.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775678013641,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/context/use-org.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775678014269,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/routes/_org/$orgSlug/_authenticated/admin/route.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775678038715,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/modules/orgs/events/list/service.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775698941821,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/modules/orgs/events/list/controller.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775698942135,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/modules/orgs/events/stats/service.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775698942895,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/modules/orgs/events/stats/controller.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775698943683,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/modules/orgs/events/update/service.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775698944163,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/modules/orgs/events/update/controller.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775698945021,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/modules/orgs/events/update/validator.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775698945334,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/modules/orgs/events/routes.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775698945966,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/context/org-provider.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775698969835,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/components/create-event-form.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775698971229,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/api/admin-queries.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775698989242,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/hooks/use-event-phase.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775699006947,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/components/roster-activation-ring.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775699018129,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/components/event-hero.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775699057694,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/hooks/use-admin-commands.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775699092088,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/hooks/use-admin-commands.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775699119269,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/events/components/filters/filter-sheet.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775699952534,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/components/ui/card.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775700116979,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

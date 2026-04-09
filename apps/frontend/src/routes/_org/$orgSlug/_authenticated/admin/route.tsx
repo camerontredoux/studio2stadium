@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import {
   SidebarInset,
   SidebarProvider,
@@ -8,8 +8,18 @@ import { Separator } from "@/components/ui/separator";
 import { AdminSidebar } from "@/features/org/components/admin-sidebar";
 import { AdminCommandPalette } from "@/features/org/components/admin-command-palette";
 import { AdminCommandsProvider } from "@/features/org/hooks/use-admin-commands";
+import { orgQueries } from "@/features/org/api/queries";
 
 export const Route = createFileRoute("/_org/$orgSlug/_authenticated/admin")({
+  beforeLoad: async ({ context, params }) => {
+    const data = (await context.queryClient.ensureQueryData(
+      orgQueries.org(params.orgSlug),
+    )) as { membership?: { role: string; type: string } | null } | null;
+    const role = data?.membership?.role;
+    if (role !== "admin") {
+      throw redirect({ to: "/" });
+    }
+  },
   component: AdminLayout,
 });
 

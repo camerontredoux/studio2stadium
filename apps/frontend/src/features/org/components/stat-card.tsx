@@ -39,7 +39,7 @@ export function StatCard({
           aria-hidden="true"
         />
       )}
-      <CardContent className="flex flex-col gap-1 py-5">
+      <CardContent className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
             {label}

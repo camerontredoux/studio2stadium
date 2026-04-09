@@ -4,6 +4,8 @@ export interface CsvColumnSchema {
   key: string;
   label: string;
   required: boolean;
+  /** Unique across rows — later duplicates get flagged as errors. */
+  unique?: boolean;
   validate?: (value: string) => string | null;
 }
 
@@ -41,7 +43,13 @@ export const dancerSchema: CsvSchema = {
     },
     { key: "firstName", label: "firstName", required: true, validate: nonEmpty("first name") },
     { key: "lastName", label: "lastName", required: true, validate: nonEmpty("last name") },
-    { key: "bibNumber", label: "bibNumber", required: false, validate: integerish("bib number") },
+    {
+      key: "bibNumber",
+      label: "bibNumber",
+      required: false,
+      unique: true,
+      validate: integerish("bib number"),
+    },
   ],
 };
 
@@ -71,6 +79,12 @@ export interface ParsedRow {
   errors: string[];
 }
 
+export interface DuplicateGroup {
+  column: string;
+  value: string;
+  rows: number[];
+}
+
 export interface ParseResult {
   rows: ParsedRow[];
   totalRows: number;
@@ -78,6 +92,8 @@ export interface ParseResult {
   missingRequired: string[];
   warningsCount: number;
   validRowsCount: number;
+  /** Unique-column collisions within the file. Blocks upload. */
+  duplicates: DuplicateGroup[];
 }
 
 export function validateParsed(
@@ -101,6 +117,36 @@ export function validateParsed(
     return { index: i + 1, values, errors };
   });
 
+  // Cross-row pass: flag duplicate values for columns marked `unique`.
+  // Every occurrence (including the first) gets a row-level error so the
+  // user sees all of them in the preview table.
+  const duplicates: DuplicateGroup[] = [];
+  if (missingRequired.length === 0) {
+    for (const col of schema.columns) {
+      if (!col.unique) continue;
+      const groups = new Map<string, number[]>();
+      for (const r of parsed) {
+        const raw = (r.values[col.key] ?? "").trim();
+        if (!raw) continue;
+        const list = groups.get(raw) ?? [];
+        list.push(r.index);
+        groups.set(raw, list);
+      }
+      for (const [value, rowNums] of groups) {
+        if (rowNums.length < 2) continue;
+        duplicates.push({ column: col.label, value, rows: rowNums });
+        const dupSet = new Set(rowNums);
+        for (const r of parsed) {
+          if (dupSet.has(r.index)) {
+            r.errors.push(
+              `duplicate ${col.label} "${value}" (also on rows ${rowNums.filter((n) => n !== r.index).join(", ")})`,
+            );
+          }
+        }
+      }
+    }
+  }
+
   const warningsCount = parsed.filter((r) => r.errors.length > 0).length;
   const validRowsCount = parsed.length - warningsCount;
 
@@ -111,5 +157,6 @@ export function validateParsed(
     missingRequired,
     warningsCount,
     validRowsCount,
+    duplicates,
   };
 }

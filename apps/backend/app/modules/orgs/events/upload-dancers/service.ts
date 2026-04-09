@@ -29,7 +29,56 @@ export class UploadDancersService {
     fileUrl: string;
     csv: string;
   }) {
-    const { rows, errors } = parseDancerCsv(csv);
+    const parseResult = parseDancerCsv(csv);
+    const rows = parseResult.rows;
+    const errors: Array<{ row: number; reason: string }> = [
+      ...parseResult.errors,
+    ];
+
+    // Detect duplicate bib numbers within the uploaded file. First occurrence
+    // wins; later duplicates are dropped to errors.
+    const bibsInFile = new Map<number, number>(); // bib -> row index
+    const rowsWithoutInFileBibDupes: typeof rows = [];
+    rows.forEach((r, i) => {
+      if (r.bibNumber != null) {
+        const firstIdx = bibsInFile.get(r.bibNumber);
+        if (firstIdx !== undefined) {
+          errors.push({
+            row: i + 1,
+            reason: `duplicate bib number ${r.bibNumber} (first seen on row ${firstIdx + 1})`,
+          });
+          return;
+        }
+        bibsInFile.set(r.bibNumber, i);
+      }
+      rowsWithoutInFileBibDupes.push(r);
+    });
+
+    // Preload existing bib -> email map for this event so we can skip rows
+    // whose bib is already taken by a different dancer on this roster.
+    const existingBibRows = await this.db.use((db) =>
+      db
+        .select({ email: eventRosters.email, bibNumber: eventRosters.bibNumber })
+        .from(eventRosters)
+        .where(eq(eventRosters.eventId, eventId)),
+    );
+    const bibOwners = new Map<number, string>();
+    for (const r of existingBibRows) {
+      if (r.bibNumber != null) bibOwners.set(r.bibNumber, r.email.toLowerCase());
+    }
+
+    const filteredRows = rowsWithoutInFileBibDupes.filter((r, i) => {
+      if (r.bibNumber == null) return true;
+      const owner = bibOwners.get(r.bibNumber);
+      if (owner && owner !== r.email.toLowerCase()) {
+        errors.push({
+          row: i + 1,
+          reason: `bib number ${r.bibNumber} already taken by ${owner} on this event`,
+        });
+        return false;
+      }
+      return true;
+    });
 
     const [org] = await this.db.use((db) =>
       db.select().from(organizations).where(eq(organizations.id, orgId))
@@ -65,16 +114,16 @@ export class UploadDancersService {
         errorDetails: errors as any,
       }).returning();
 
-      if (rows.length > 0) {
+      if (filteredRows.length > 0) {
         // Batch match users by email only (dancers may not have school profiles)
-        const emails = rows.map((r) => r.email);
+        const emails = filteredRows.map((r) => r.email);
         const matchedUsers = await tx
           .select({ id: users.id, email: users.email })
           .from(users)
           .where(inArray(users.email, emails));
         const byEmail = new Map(matchedUsers.map((u) => [u.email.toLowerCase(), u.id]));
 
-        for (const r of rows) {
+        for (const r of filteredRows) {
           const userId = byEmail.get(r.email.toLowerCase()) ?? null;
 
           const [existing] = await tx
@@ -167,6 +216,7 @@ export class UploadDancersService {
       for (const { email, firstName, token } of inviteTokens) {
         sendOrgInviteEmail({
           org,
+          event: event ?? null,
           email,
           firstName,
           type: "dancer",

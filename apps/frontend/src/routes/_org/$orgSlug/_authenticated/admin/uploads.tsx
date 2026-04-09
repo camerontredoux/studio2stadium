@@ -60,7 +60,10 @@ function UploadsPage() {
           <SummaryStat
             label="Rows processed"
             value={stats.recentUploads
-              .reduce((sum, u) => sum + u.rowsAdded + u.rowsUpdated, 0)
+              .reduce(
+                (sum, u) => sum + (u.rowsAdded ?? 0) + (u.rowsUpdated ?? 0),
+                0,
+              )
               .toLocaleString()}
             hint="across recent uploads"
           />

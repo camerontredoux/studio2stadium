@@ -1,5 +1,6 @@
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetFooter,
@@ -59,6 +60,19 @@ function parseYmd(ymd: string): Date {
   return new Date(y, (m ?? 1) - 1, d ?? 1);
 }
 
+function defaultsFrom(event: OrgEvent): Schema {
+  return {
+    name: event.name,
+    dateRange: {
+      from: parseYmd(event.startDate),
+      to: parseYmd(event.endDate),
+    },
+    venueName: event.venueName ?? "",
+    venueAddress: event.venueAddress ?? "",
+    contactEmail: event.contactEmail ?? "",
+  };
+}
+
 interface EditEventSheetProps {
   orgSlug: string;
   event: OrgEvent;
@@ -101,31 +115,11 @@ export function EditEventSheet({
 
   const { control, handleSubmit, reset } = useForm<Schema>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: event.name,
-      dateRange: {
-        from: parseYmd(event.startDate),
-        to: parseYmd(event.endDate),
-      },
-      venueName: event.venueName ?? "",
-      venueAddress: event.venueAddress ?? "",
-      contactEmail: event.contactEmail ?? "",
-    },
+    defaultValues: defaultsFrom(event),
   });
 
   useEffect(() => {
-    if (open) {
-      reset({
-        name: event.name,
-        dateRange: {
-          from: parseYmd(event.startDate),
-          to: parseYmd(event.endDate),
-        },
-        venueName: event.venueName ?? "",
-        venueAddress: event.venueAddress ?? "",
-        contactEmail: event.contactEmail ?? "",
-      });
-    }
+    if (open) reset(defaultsFrom(event));
   }, [open, event, reset]);
 
   const onSubmit = (data: Schema) => {
@@ -143,18 +137,18 @@ export function EditEventSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetPopup>
+      <SheetPopup variant="inset">
         <SheetHeader>
           <SheetTitle>Edit event</SheetTitle>
           <SheetDescription>
-            Update details for {event.name}. Changes save instantly.
+            Update details for {event.name}
           </SheetDescription>
         </SheetHeader>
         <SheetContent>
           <form
             id="edit-event-form"
-            className="flex flex-col gap-5 px-4 pb-4"
-            onSubmit={(e) => handleSubmit(onSubmit)(e)}
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-5 px-4 pt-2 pb-4"
           >
             <Controller
               control={control}
@@ -162,7 +156,7 @@ export function EditEventSheet({
               render={({ field, fieldState }) => (
                 <Field name={field.name} invalid={fieldState.invalid}>
                   <FieldLabel>Event name</FieldLabel>
-                  <Input {...field} />
+                  <Input autoFocus {...field} />
                   <FieldError error={fieldState.error} />
                 </Field>
               )}
@@ -253,9 +247,7 @@ export function EditEventSheet({
           </form>
         </SheetContent>
         <SheetFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
+          <SheetClose render={<Button variant="ghost" />}>Cancel</SheetClose>
           <Button
             type="submit"
             form="edit-event-form"

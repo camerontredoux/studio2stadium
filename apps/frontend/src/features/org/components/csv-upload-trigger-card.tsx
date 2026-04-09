@@ -15,15 +15,9 @@ interface CsvUploadTriggerCardProps {
   lastUpload: CsvUploadSummary | null;
 }
 
-const LABELS: Record<CsvRosterType, { title: string; help: string }> = {
-  dancer: {
-    title: "Upload dancer roster",
-    help: "CSV with email, firstName, lastName, bibNumber",
-  },
-  coach: {
-    title: "Upload coach roster",
-    help: "CSV with email, firstName, lastName, organization",
-  },
+const LABELS: Record<CsvRosterType, string> = {
+  dancer: "Upload dancer roster",
+  coach: "Upload coach roster",
 };
 
 export function CsvUploadTriggerCard({
@@ -34,7 +28,7 @@ export function CsvUploadTriggerCard({
   lastUpload,
 }: CsvUploadTriggerCardProps) {
   const [open, setOpen] = useState(false);
-  const { title, help } = LABELS[type];
+  const title = LABELS[type];
 
   useAdminCommandListener(
     (a) => a.type === "open-upload" && a.kind === type,
@@ -46,8 +40,10 @@ export function CsvUploadTriggerCard({
     : "No uploads yet";
 
   const lastMeta = lastUpload
-    ? `${lastUpload.rowsAdded + lastUpload.rowsUpdated} rows${
-        lastUpload.rowsErrored > 0 ? ` · ${lastUpload.rowsErrored} errors` : ""
+    ? `${((lastUpload.rowsAdded ?? 0) + (lastUpload.rowsUpdated ?? 0)).toLocaleString()} rows${
+        (lastUpload.rowsErrored ?? 0) > 0
+          ? ` · ${lastUpload.rowsErrored} errors`
+          : ""
       }`
     : "Click to upload your first roster";
 
@@ -69,26 +65,20 @@ export function CsvUploadTriggerCard({
           "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
         )}
       >
-        <CardContent className="flex items-start gap-4 py-5">
+        <CardContent className="flex items-center gap-3">
           <div
             className={cn(
-              "bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-lg transition-transform",
+              "bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-lg transition-transform",
               "group-hover:scale-105",
             )}
           >
             {icon}
           </div>
-          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <h3 className="font-semibold">{title}</h3>
-            <p className="text-muted-foreground text-xs">{help}</p>
-            <div className="mt-2 flex flex-col gap-0.5">
-              <span className="text-foreground/80 text-xs font-medium">
-                {lastLabel}
-              </span>
-              <span className="text-muted-foreground text-[11px]">
-                {lastMeta}
-              </span>
-            </div>
+          <div className="flex min-w-0 flex-1 flex-col">
+            <h3 className="font-semibold leading-tight">{title}</h3>
+            <span className="text-muted-foreground truncate text-xs">
+              {lastLabel} · {lastMeta}
+            </span>
           </div>
         </CardContent>
       </Card>
