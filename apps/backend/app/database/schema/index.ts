@@ -15,3 +15,4 @@ export * from "./styles.ts";
 export * from "./subscriptions.ts";
 export * from "./users.ts";
 export * from "./org-events.ts";
+export * from "./event-features.ts";
