@@ -9,6 +9,7 @@ const ListFavorites = () => import("./favorites/list/controller.ts");
 const UpsertNote = () => import("./notes/upsert/controller.ts");
 const DeleteNote = () => import("./notes/delete/controller.ts");
 const UpsertRating = () => import("./ratings/upsert/controller.ts");
+const ListRankings = () => import("./rankings/controller.ts");
 
 router
   .group(() => {
@@ -23,6 +24,7 @@ router
     router.put(":slug/dancers/:dancerRosterId/notes", [UpsertNote]);
     router.delete(":slug/dancers/:dancerRosterId/notes", [DeleteNote]);
     router.put(":slug/dancers/:dancerRosterId/rating", [UpsertRating]);
+    router.get(":slug/rankings", [ListRankings]);
   })
   .prefix("orgs")
   .use([
