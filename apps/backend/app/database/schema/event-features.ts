@@ -6,9 +6,18 @@ export const eventFavorites = pg.pgTable(
   "event_favorites",
   {
     id: pg.uuid().primaryKey().defaultRandom(),
-    eventId: pg.uuid().notNull().references(() => orgEvents.id, { onDelete: "cascade" }),
-    coachRosterId: pg.uuid().notNull().references(() => eventRosters.id, { onDelete: "cascade" }),
-    dancerRosterId: pg.uuid().notNull().references(() => eventRosters.id, { onDelete: "cascade" }),
+    eventId: pg
+      .uuid()
+      .notNull()
+      .references(() => orgEvents.id, { onDelete: "cascade" }),
+    coachRosterId: pg
+      .uuid()
+      .notNull()
+      .references(() => eventRosters.id, { onDelete: "cascade" }),
+    dancerRosterId: pg
+      .uuid()
+      .notNull()
+      .references(() => eventRosters.id, { onDelete: "cascade" }),
     ...timestamps,
   },
   (table) => [
@@ -21,9 +30,18 @@ export const eventNotes = pg.pgTable(
   "event_notes",
   {
     id: pg.uuid().primaryKey().defaultRandom(),
-    eventId: pg.uuid().notNull().references(() => orgEvents.id, { onDelete: "cascade" }),
-    coachRosterId: pg.uuid().notNull().references(() => eventRosters.id, { onDelete: "cascade" }),
-    dancerRosterId: pg.uuid().notNull().references(() => eventRosters.id, { onDelete: "cascade" }),
+    eventId: pg
+      .uuid()
+      .notNull()
+      .references(() => orgEvents.id, { onDelete: "cascade" }),
+    coachRosterId: pg
+      .uuid()
+      .notNull()
+      .references(() => eventRosters.id, { onDelete: "cascade" }),
+    dancerRosterId: pg
+      .uuid()
+      .notNull()
+      .references(() => eventRosters.id, { onDelete: "cascade" }),
     content: pg.text().notNull(),
     ...timestamps,
   },
@@ -37,9 +55,18 @@ export const eventRatings = pg.pgTable(
   "event_ratings",
   {
     id: pg.uuid().primaryKey().defaultRandom(),
-    eventId: pg.uuid().notNull().references(() => orgEvents.id, { onDelete: "cascade" }),
-    coachRosterId: pg.uuid().notNull().references(() => eventRosters.id, { onDelete: "cascade" }),
-    dancerRosterId: pg.uuid().notNull().references(() => eventRosters.id, { onDelete: "cascade" }),
+    eventId: pg
+      .uuid()
+      .notNull()
+      .references(() => orgEvents.id, { onDelete: "cascade" }),
+    coachRosterId: pg
+      .uuid()
+      .notNull()
+      .references(() => eventRosters.id, { onDelete: "cascade" }),
+    dancerRosterId: pg
+      .uuid()
+      .notNull()
+      .references(() => eventRosters.id, { onDelete: "cascade" }),
     rating: pg.smallint().notNull(),
     ...timestamps,
   },
