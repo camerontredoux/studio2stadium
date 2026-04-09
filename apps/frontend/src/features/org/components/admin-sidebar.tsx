@@ -21,6 +21,7 @@ import {
 import { useOrg } from "@/features/org/context/use-org";
 import { useAdminCommands } from "@/features/org/hooks/use-admin-commands";
 import { useSession } from "@/lib/session";
+import { ViewSwitcher } from "@/features/org/components/view-switcher";
 import { Link, useLocation, useParams } from "@tanstack/react-router";
 import {
   CalendarIcon,
@@ -153,6 +154,7 @@ export function AdminSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
+          <ViewSwitcher />
           <SidebarMenuItem>
             <Menu>
               <SidebarMenuButton

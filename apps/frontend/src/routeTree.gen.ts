@@ -60,7 +60,9 @@ import { Route as AdminroutesAdminDashboardRouteImport } from './routes/_admin/(
 import { Route as AdminroutesAdminDancersRouteImport } from './routes/_admin/(routes)/admin/dancers'
 import { Route as AdminroutesAdminBlogRouteImport } from './routes/_admin/(routes)/admin/blog'
 import { Route as AdminroutesAdminApplicationsRouteImport } from './routes/_admin/(routes)/admin/applications'
+import { Route as OrgOrgSlugAuthenticatedCoachRouteRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/route'
 import { Route as OrgOrgSlugAuthenticatedAdminRouteRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/route'
+import { Route as OrgOrgSlugAuthenticatedCoachIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/index'
 import { Route as OrgOrgSlugAuthenticatedAdminIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/index'
 import { Route as OrgOrgSlugAuthenticatedAdminUploadsRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/uploads'
 import { Route as OrgOrgSlugAuthenticatedAdminSettingsRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/settings'
@@ -337,11 +339,23 @@ const AdminroutesAdminApplicationsRoute =
     path: '/admin/applications',
     getParentRoute: () => AdminRouteRoute,
   } as any)
+const OrgOrgSlugAuthenticatedCoachRouteRoute =
+  OrgOrgSlugAuthenticatedCoachRouteRouteImport.update({
+    id: '/coach',
+    path: '/coach',
+    getParentRoute: () => OrgOrgSlugAuthenticatedRouteRoute,
+  } as any)
 const OrgOrgSlugAuthenticatedAdminRouteRoute =
   OrgOrgSlugAuthenticatedAdminRouteRouteImport.update({
     id: '/admin',
     path: '/admin',
     getParentRoute: () => OrgOrgSlugAuthenticatedRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedCoachIndexRoute =
+  OrgOrgSlugAuthenticatedCoachIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => OrgOrgSlugAuthenticatedCoachRouteRoute,
   } as any)
 const OrgOrgSlugAuthenticatedAdminIndexRoute =
   OrgOrgSlugAuthenticatedAdminIndexRouteImport.update({
@@ -399,6 +413,7 @@ export interface FileRoutesByFullPath {
   '/$orgSlug/login': typeof OrgOrgSlugLoginRoute
   '/$orgSlug/register': typeof OrgOrgSlugRegisterRoute
   '/$orgSlug/admin': typeof OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren
+  '/$orgSlug/coach': typeof OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren
   '/admin/applications': typeof AdminroutesAdminApplicationsRoute
   '/admin/blog': typeof AdminroutesAdminBlogRoute
   '/admin/dancers': typeof AdminroutesAdminDancersRoute
@@ -434,6 +449,7 @@ export interface FileRoutesByFullPath {
   '/$orgSlug/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
   '/$orgSlug/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
   '/$orgSlug/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
+  '/$orgSlug/coach/': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof ApproutesIndexRoute
@@ -485,6 +501,7 @@ export interface FileRoutesByTo {
   '/$orgSlug/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
   '/$orgSlug/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
   '/$orgSlug/admin': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
+  '/$orgSlug/coach': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -511,6 +528,7 @@ export interface FileRoutesById {
   '/_org/$orgSlug/register': typeof OrgOrgSlugRegisterRoute
   '/_app/(routes)/': typeof ApproutesIndexRoute
   '/_org/$orgSlug/_authenticated/admin': typeof OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren
+  '/_org/$orgSlug/_authenticated/coach': typeof OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren
   '/_admin/(routes)/admin/applications': typeof AdminroutesAdminApplicationsRoute
   '/_admin/(routes)/admin/blog': typeof AdminroutesAdminBlogRoute
   '/_admin/(routes)/admin/dancers': typeof AdminroutesAdminDancersRoute
@@ -546,6 +564,7 @@ export interface FileRoutesById {
   '/_org/$orgSlug/_authenticated/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
   '/_org/$orgSlug/_authenticated/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
   '/_org/$orgSlug/_authenticated/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
+  '/_org/$orgSlug/_authenticated/coach/': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -568,6 +587,7 @@ export interface FileRouteTypes {
     | '/$orgSlug/login'
     | '/$orgSlug/register'
     | '/$orgSlug/admin'
+    | '/$orgSlug/coach'
     | '/admin/applications'
     | '/admin/blog'
     | '/admin/dancers'
@@ -603,6 +623,7 @@ export interface FileRouteTypes {
     | '/$orgSlug/admin/settings'
     | '/$orgSlug/admin/uploads'
     | '/$orgSlug/admin/'
+    | '/$orgSlug/coach/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -654,6 +675,7 @@ export interface FileRouteTypes {
     | '/$orgSlug/admin/settings'
     | '/$orgSlug/admin/uploads'
     | '/$orgSlug/admin'
+    | '/$orgSlug/coach'
   id:
     | '__root__'
     | '/_admin'
@@ -679,6 +701,7 @@ export interface FileRouteTypes {
     | '/_org/$orgSlug/register'
     | '/_app/(routes)/'
     | '/_org/$orgSlug/_authenticated/admin'
+    | '/_org/$orgSlug/_authenticated/coach'
     | '/_admin/(routes)/admin/applications'
     | '/_admin/(routes)/admin/blog'
     | '/_admin/(routes)/admin/dancers'
@@ -714,6 +737,7 @@ export interface FileRouteTypes {
     | '/_org/$orgSlug/_authenticated/admin/settings'
     | '/_org/$orgSlug/_authenticated/admin/uploads'
     | '/_org/$orgSlug/_authenticated/admin/'
+    | '/_org/$orgSlug/_authenticated/coach/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1083,12 +1107,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminroutesAdminApplicationsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/_org/$orgSlug/_authenticated/coach': {
+      id: '/_org/$orgSlug/_authenticated/coach'
+      path: '/coach'
+      fullPath: '/$orgSlug/coach'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedCoachRouteRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedRouteRoute
+    }
     '/_org/$orgSlug/_authenticated/admin': {
       id: '/_org/$orgSlug/_authenticated/admin'
       path: '/admin'
       fullPath: '/$orgSlug/admin'
       preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRouteImport
       parentRoute: typeof OrgOrgSlugAuthenticatedRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/coach/': {
+      id: '/_org/$orgSlug/_authenticated/coach/'
+      path: '/'
+      fullPath: '/$orgSlug/coach/'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedCoachIndexRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedCoachRouteRoute
     }
     '/_org/$orgSlug/_authenticated/admin/': {
       id: '/_org/$orgSlug/_authenticated/admin/'
@@ -1338,14 +1376,32 @@ const OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren =
     OrgOrgSlugAuthenticatedAdminRouteRouteChildren,
   )
 
+interface OrgOrgSlugAuthenticatedCoachRouteRouteChildren {
+  OrgOrgSlugAuthenticatedCoachIndexRoute: typeof OrgOrgSlugAuthenticatedCoachIndexRoute
+}
+
+const OrgOrgSlugAuthenticatedCoachRouteRouteChildren: OrgOrgSlugAuthenticatedCoachRouteRouteChildren =
+  {
+    OrgOrgSlugAuthenticatedCoachIndexRoute:
+      OrgOrgSlugAuthenticatedCoachIndexRoute,
+  }
+
+const OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren =
+  OrgOrgSlugAuthenticatedCoachRouteRoute._addFileChildren(
+    OrgOrgSlugAuthenticatedCoachRouteRouteChildren,
+  )
+
 interface OrgOrgSlugAuthenticatedRouteRouteChildren {
   OrgOrgSlugAuthenticatedAdminRouteRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren
+  OrgOrgSlugAuthenticatedCoachRouteRoute: typeof OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren
 }
 
 const OrgOrgSlugAuthenticatedRouteRouteChildren: OrgOrgSlugAuthenticatedRouteRouteChildren =
   {
     OrgOrgSlugAuthenticatedAdminRouteRoute:
       OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren,
+    OrgOrgSlugAuthenticatedCoachRouteRoute:
+      OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren,
   }
 
 const OrgOrgSlugAuthenticatedRouteRouteWithChildren =
