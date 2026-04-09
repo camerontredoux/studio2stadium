@@ -20,10 +20,8 @@ interface DancerCardProps {
 export function DancerCard({ dancer, slug, isFavorited }: DancerCardProps) {
   return (
     <Link
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      to={"/$orgSlug/coach/dancers/$rosterId" as any}
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      params={{ orgSlug: slug, rosterId: dancer.rosterId } as any}
+      to="/$orgSlug/coach/dancers/$rosterId"
+      params={{ orgSlug: slug, rosterId: dancer.rosterId }}
       className="flex items-center gap-3 rounded-lg border bg-card p-3 hover:bg-accent/50 transition-colors"
     >
       <div className="size-12 shrink-0 overflow-hidden rounded-full bg-muted">

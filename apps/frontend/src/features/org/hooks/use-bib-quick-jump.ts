@@ -11,8 +11,7 @@ export function useBibQuickJump(slug: string) {
       scoutingQueries.dancers(slug, { bib: Number(query) }),
     );
     if (Array.isArray(data) && data.length === 1) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (navigate as any)({
+      await navigate({
         to: "/$orgSlug/coach/dancers/$rosterId",
         params: { orgSlug: slug, rosterId: data[0]!.rosterId },
       });
