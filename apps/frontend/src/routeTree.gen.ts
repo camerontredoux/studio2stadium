@@ -69,6 +69,7 @@ import { Route as OrgOrgSlugAuthenticatedAdminSettingsRouteImport } from './rout
 import { Route as OrgOrgSlugAuthenticatedAdminRostersRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/rosters'
 import { Route as AdminroutesAdminDashboardMetricsRouteImport } from './routes/_admin/(routes)/admin/dashboard/metrics'
 import { Route as AdminroutesAdminDashboardAssetsRouteImport } from './routes/_admin/(routes)/admin/dashboard/assets'
+import { Route as OrgOrgSlugAuthenticatedCoachDancersIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/dancers/index'
 
 const OrgRouteRoute = OrgRouteRouteImport.update({
   id: '/_org',
@@ -393,6 +394,12 @@ const AdminroutesAdminDashboardAssetsRoute =
     path: '/assets',
     getParentRoute: () => AdminroutesAdminDashboardRoute,
   } as any)
+const OrgOrgSlugAuthenticatedCoachDancersIndexRoute =
+  OrgOrgSlugAuthenticatedCoachDancersIndexRouteImport.update({
+    id: '/dancers/',
+    path: '/dancers/',
+    getParentRoute: () => OrgOrgSlugAuthenticatedCoachRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof ApproutesIndexRoute
@@ -450,6 +457,7 @@ export interface FileRoutesByFullPath {
   '/$orgSlug/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
   '/$orgSlug/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
   '/$orgSlug/coach/': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
+  '/$orgSlug/coach/dancers/': typeof OrgOrgSlugAuthenticatedCoachDancersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof ApproutesIndexRoute
@@ -502,6 +510,7 @@ export interface FileRoutesByTo {
   '/$orgSlug/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
   '/$orgSlug/admin': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
   '/$orgSlug/coach': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
+  '/$orgSlug/coach/dancers': typeof OrgOrgSlugAuthenticatedCoachDancersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -565,6 +574,7 @@ export interface FileRoutesById {
   '/_org/$orgSlug/_authenticated/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
   '/_org/$orgSlug/_authenticated/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
   '/_org/$orgSlug/_authenticated/coach/': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
+  '/_org/$orgSlug/_authenticated/coach/dancers/': typeof OrgOrgSlugAuthenticatedCoachDancersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -624,6 +634,7 @@ export interface FileRouteTypes {
     | '/$orgSlug/admin/uploads'
     | '/$orgSlug/admin/'
     | '/$orgSlug/coach/'
+    | '/$orgSlug/coach/dancers/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -676,6 +687,7 @@ export interface FileRouteTypes {
     | '/$orgSlug/admin/uploads'
     | '/$orgSlug/admin'
     | '/$orgSlug/coach'
+    | '/$orgSlug/coach/dancers'
   id:
     | '__root__'
     | '/_admin'
@@ -738,6 +750,7 @@ export interface FileRouteTypes {
     | '/_org/$orgSlug/_authenticated/admin/uploads'
     | '/_org/$orgSlug/_authenticated/admin/'
     | '/_org/$orgSlug/_authenticated/coach/'
+    | '/_org/$orgSlug/_authenticated/coach/dancers/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1170,6 +1183,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminroutesAdminDashboardAssetsRouteImport
       parentRoute: typeof AdminroutesAdminDashboardRoute
     }
+    '/_org/$orgSlug/_authenticated/coach/dancers/': {
+      id: '/_org/$orgSlug/_authenticated/coach/dancers/'
+      path: '/dancers'
+      fullPath: '/$orgSlug/coach/dancers/'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedCoachDancersIndexRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedCoachRouteRoute
+    }
   }
 }
 
@@ -1378,12 +1398,15 @@ const OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren =
 
 interface OrgOrgSlugAuthenticatedCoachRouteRouteChildren {
   OrgOrgSlugAuthenticatedCoachIndexRoute: typeof OrgOrgSlugAuthenticatedCoachIndexRoute
+  OrgOrgSlugAuthenticatedCoachDancersIndexRoute: typeof OrgOrgSlugAuthenticatedCoachDancersIndexRoute
 }
 
 const OrgOrgSlugAuthenticatedCoachRouteRouteChildren: OrgOrgSlugAuthenticatedCoachRouteRouteChildren =
   {
     OrgOrgSlugAuthenticatedCoachIndexRoute:
       OrgOrgSlugAuthenticatedCoachIndexRoute,
+    OrgOrgSlugAuthenticatedCoachDancersIndexRoute:
+      OrgOrgSlugAuthenticatedCoachDancersIndexRoute,
   }
 
 const OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren =

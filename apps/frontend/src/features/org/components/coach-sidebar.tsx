@@ -15,8 +15,7 @@ import { Link, useLocation, useParams } from "@tanstack/react-router";
 import { HeartIcon, SearchIcon, TrophyIcon } from "lucide-react";
 
 const navItems = [
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  { label: "Search", icon: SearchIcon, to: "/$orgSlug/coach/dancers" as any },
+  { label: "Search", icon: SearchIcon, to: "/$orgSlug/coach/dancers" },
   {
     label: "Favorites",
     icon: HeartIcon,
