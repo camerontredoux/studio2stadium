@@ -2048,6 +2048,350 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/dancers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List dancers in active event
+         * @description Coach-scoped dancer search by name or bib number.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    search?: string;
+                    bib?: number;
+                    limit?: number;
+                    offset?: number;
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ScoutingDancerSummary"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/dancers/{rosterId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get dancer detail */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    rosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ScoutingDancerDetail"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/favorites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List favorited dancers */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ScoutingFavoriteSummary"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Favorite a dancer */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ScoutingFavoriteCreateRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": Record<string, never>;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/favorites/{dancerRosterId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Unfavorite a dancer */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    dancerRosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": Record<string, never>;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/dancers/{dancerRosterId}/notes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Upsert a note for a dancer */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    dancerRosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ScoutingNoteUpsertRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": Record<string, never>;
+                    };
+                };
+            };
+        };
+        post?: never;
+        /** Delete note for a dancer */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    dancerRosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": Record<string, never>;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/dancers/{dancerRosterId}/rating": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Upsert rating for a dancer */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    dancerRosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ScoutingRatingUpsertRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": Record<string, never>;
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/rankings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get ranked dancer list */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ScoutingRankingEntry"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/skills": {
         parameters: {
             query?: never;
@@ -6981,6 +7325,78 @@ export interface components {
         VideosYoutubeResponse: {
             id: string;
             mediaId: string;
+        };
+        ScoutingDancerSummary: {
+            rosterId: string;
+            bibNumber: number;
+            firstName: string;
+            lastName: string;
+            organization?: string | null;
+            isRegistered?: boolean | null;
+            profilePhotoUrl?: string | null;
+            gpa?: number | null;
+            gradYear?: number | null;
+            studio?: string | null;
+            state?: string | null;
+        };
+        ScoutingDancerDetail: {
+            rosterId: string;
+            bibNumber: number;
+            firstName: string;
+            lastName: string;
+            organization?: string | null;
+            isRegistered?: boolean | null;
+            profilePhotoUrl?: string | null;
+            gradYear?: number | null;
+            gpa?: number | null;
+            studio?: string | null;
+            state?: string | null;
+            height?: string | null;
+            danceStyles?: string[] | null;
+            bio?: string | null;
+            extra?: Record<string, never> | null;
+            highSchool?: string | null;
+            location?: string | null;
+            note?: string | null;
+            rating?: number | null;
+            isFavorited: boolean;
+        };
+        ScoutingFavoriteSummary: {
+            rosterId: string;
+            bibNumber: number;
+            firstName: string;
+            lastName: string;
+            profilePhotoUrl?: string | null;
+            gradYear?: number | null;
+            studio?: string | null;
+            state?: string | null;
+            gpa?: number | null;
+        };
+        ScoutingFavoriteCreateRequest: {
+            dancerRosterId: string;
+        };
+        ScoutingNoteUpsertRequest: {
+            content: string;
+        };
+        ScoutingRatingUpsertRequest: {
+            rating: number;
+        };
+        ScoutingRankingEntry: {
+            rosterId: string;
+            bibNumber: number;
+            firstName: string;
+            lastName: string;
+            organization?: string | null;
+            isRegistered?: boolean | null;
+            profilePhotoUrl?: string | null;
+            gradYear?: number | null;
+            gpa?: number | null;
+            studio?: string | null;
+            state?: string | null;
+            rating?: number | null;
+            note?: string | null;
+            isFavorited: boolean;
+            favoritedAt?: string | null;
         };
     };
     responses: never;

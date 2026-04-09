@@ -1633,6 +1633,311 @@
         "description": "Consumes a one-time invite token and creates a new dancer account with an org membership and a time-limited premium grant."
       }
     },
+    "/orgs/{slug}/dancers": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "bib",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "number" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "number" }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "number" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ScoutingDancerSummary" }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Org Scouting"],
+        "summary": "List dancers in active event",
+        "description": "Coach-scoped dancer search by name or bib number."
+      }
+    },
+    "/orgs/{slug}/dancers/{rosterId}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "rosterId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ScoutingDancerDetail" }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        },
+        "tags": ["Org Scouting"],
+        "summary": "Get dancer detail"
+      }
+    },
+    "/orgs/{slug}/favorites": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ScoutingFavoriteSummary" }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Org Scouting"],
+        "summary": "List favorited dancers"
+      },
+      "post": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ScoutingFavoriteCreateRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          }
+        },
+        "tags": ["Org Scouting"],
+        "summary": "Favorite a dancer"
+      }
+    },
+    "/orgs/{slug}/favorites/{dancerRosterId}": {
+      "delete": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "dancerRosterId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          }
+        },
+        "tags": ["Org Scouting"],
+        "summary": "Unfavorite a dancer"
+      }
+    },
+    "/orgs/{slug}/dancers/{dancerRosterId}/notes": {
+      "put": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "dancerRosterId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ScoutingNoteUpsertRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          }
+        },
+        "tags": ["Org Scouting"],
+        "summary": "Upsert a note for a dancer"
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "dancerRosterId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          }
+        },
+        "tags": ["Org Scouting"],
+        "summary": "Delete note for a dancer"
+      }
+    },
+    "/orgs/{slug}/dancers/{dancerRosterId}/rating": {
+      "put": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "dancerRosterId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ScoutingRatingUpsertRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          }
+        },
+        "tags": ["Org Scouting"],
+        "summary": "Upsert rating for a dancer"
+      }
+    },
+    "/orgs/{slug}/rankings": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ScoutingRankingEntry" }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Org Scouting"],
+        "summary": "Get ranked dancer list"
+      }
+    },
     "/skills": {
       "get": {
         "parameters": [],
@@ -11517,6 +11822,106 @@
           "id",
           "mediaId"
         ]
+      },
+      "ScoutingDancerSummary": {
+        "type": "object",
+        "properties": {
+          "rosterId": { "type": "string" },
+          "bibNumber": { "type": "number" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "organization": { "type": "string", "nullable": true },
+          "isRegistered": { "type": "boolean", "nullable": true },
+          "profilePhotoUrl": { "type": "string", "nullable": true },
+          "gpa": { "type": "number", "nullable": true },
+          "gradYear": { "type": "number", "nullable": true },
+          "studio": { "type": "string", "nullable": true },
+          "state": { "type": "string", "nullable": true }
+        },
+        "required": ["rosterId", "bibNumber", "firstName", "lastName"]
+      },
+      "ScoutingDancerDetail": {
+        "type": "object",
+        "properties": {
+          "rosterId": { "type": "string" },
+          "bibNumber": { "type": "number" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "organization": { "type": "string", "nullable": true },
+          "isRegistered": { "type": "boolean", "nullable": true },
+          "profilePhotoUrl": { "type": "string", "nullable": true },
+          "gradYear": { "type": "number", "nullable": true },
+          "gpa": { "type": "number", "nullable": true },
+          "studio": { "type": "string", "nullable": true },
+          "state": { "type": "string", "nullable": true },
+          "height": { "type": "string", "nullable": true },
+          "danceStyles": { "type": "array", "items": { "type": "string" }, "nullable": true },
+          "bio": { "type": "string", "nullable": true },
+          "extra": { "type": "object", "nullable": true },
+          "highSchool": { "type": "string", "nullable": true },
+          "location": { "type": "string", "nullable": true },
+          "note": { "type": "string", "nullable": true },
+          "rating": { "type": "number", "nullable": true },
+          "isFavorited": { "type": "boolean" }
+        },
+        "required": ["rosterId", "bibNumber", "firstName", "lastName", "isFavorited"]
+      },
+      "ScoutingFavoriteSummary": {
+        "type": "object",
+        "properties": {
+          "rosterId": { "type": "string" },
+          "bibNumber": { "type": "number" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "profilePhotoUrl": { "type": "string", "nullable": true },
+          "gradYear": { "type": "number", "nullable": true },
+          "studio": { "type": "string", "nullable": true },
+          "state": { "type": "string", "nullable": true },
+          "gpa": { "type": "number", "nullable": true }
+        },
+        "required": ["rosterId", "bibNumber", "firstName", "lastName"]
+      },
+      "ScoutingFavoriteCreateRequest": {
+        "type": "object",
+        "properties": {
+          "dancerRosterId": { "type": "string" }
+        },
+        "required": ["dancerRosterId"]
+      },
+      "ScoutingNoteUpsertRequest": {
+        "type": "object",
+        "properties": {
+          "content": { "type": "string" }
+        },
+        "required": ["content"]
+      },
+      "ScoutingRatingUpsertRequest": {
+        "type": "object",
+        "properties": {
+          "rating": { "type": "number" }
+        },
+        "required": ["rating"]
+      },
+      "ScoutingRankingEntry": {
+        "type": "object",
+        "properties": {
+          "rosterId": { "type": "string" },
+          "bibNumber": { "type": "number" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "organization": { "type": "string", "nullable": true },
+          "isRegistered": { "type": "boolean", "nullable": true },
+          "profilePhotoUrl": { "type": "string", "nullable": true },
+          "gradYear": { "type": "number", "nullable": true },
+          "gpa": { "type": "number", "nullable": true },
+          "studio": { "type": "string", "nullable": true },
+          "state": { "type": "string", "nullable": true },
+          "rating": { "type": "number", "nullable": true },
+          "note": { "type": "string", "nullable": true },
+          "isFavorited": { "type": "boolean" },
+          "favoritedAt": { "type": "string", "nullable": true }
+        },
+        "required": ["rosterId", "bibNumber", "firstName", "lastName", "isFavorited"]
       }
     }
   },
