@@ -16,18 +16,8 @@ import { HeartIcon, SearchIcon, TrophyIcon } from "lucide-react";
 
 const navItems = [
   { label: "Search", icon: SearchIcon, to: "/$orgSlug/coach/dancers" },
-  {
-    label: "Favorites",
-    icon: HeartIcon,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    to: "/$orgSlug/coach/favorites" as any,
-  },
-  {
-    label: "Rankings",
-    icon: TrophyIcon,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    to: "/$orgSlug/coach/rankings" as any,
-  },
+  { label: "Favorites", icon: HeartIcon, to: "/$orgSlug/coach/favorites" },
+  { label: "Rankings", icon: TrophyIcon, to: "/$orgSlug/coach/rankings" },
 ];
 
 export function CoachSidebar() {

@@ -64,12 +64,15 @@ import { Route as OrgOrgSlugAuthenticatedCoachRouteRouteImport } from './routes/
 import { Route as OrgOrgSlugAuthenticatedAdminRouteRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/route'
 import { Route as OrgOrgSlugAuthenticatedCoachIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/index'
 import { Route as OrgOrgSlugAuthenticatedAdminIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/index'
+import { Route as OrgOrgSlugAuthenticatedCoachRankingsRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/rankings'
+import { Route as OrgOrgSlugAuthenticatedCoachFavoritesRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/favorites'
 import { Route as OrgOrgSlugAuthenticatedAdminUploadsRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/uploads'
 import { Route as OrgOrgSlugAuthenticatedAdminSettingsRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/settings'
 import { Route as OrgOrgSlugAuthenticatedAdminRostersRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/rosters'
 import { Route as AdminroutesAdminDashboardMetricsRouteImport } from './routes/_admin/(routes)/admin/dashboard/metrics'
 import { Route as AdminroutesAdminDashboardAssetsRouteImport } from './routes/_admin/(routes)/admin/dashboard/assets'
 import { Route as OrgOrgSlugAuthenticatedCoachDancersIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/dancers/index'
+import { Route as OrgOrgSlugAuthenticatedCoachDancersRosterIdRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/dancers/$rosterId'
 
 const OrgRouteRoute = OrgRouteRouteImport.update({
   id: '/_org',
@@ -364,6 +367,18 @@ const OrgOrgSlugAuthenticatedAdminIndexRoute =
     path: '/',
     getParentRoute: () => OrgOrgSlugAuthenticatedAdminRouteRoute,
   } as any)
+const OrgOrgSlugAuthenticatedCoachRankingsRoute =
+  OrgOrgSlugAuthenticatedCoachRankingsRouteImport.update({
+    id: '/rankings',
+    path: '/rankings',
+    getParentRoute: () => OrgOrgSlugAuthenticatedCoachRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedCoachFavoritesRoute =
+  OrgOrgSlugAuthenticatedCoachFavoritesRouteImport.update({
+    id: '/favorites',
+    path: '/favorites',
+    getParentRoute: () => OrgOrgSlugAuthenticatedCoachRouteRoute,
+  } as any)
 const OrgOrgSlugAuthenticatedAdminUploadsRoute =
   OrgOrgSlugAuthenticatedAdminUploadsRouteImport.update({
     id: '/uploads',
@@ -398,6 +413,12 @@ const OrgOrgSlugAuthenticatedCoachDancersIndexRoute =
   OrgOrgSlugAuthenticatedCoachDancersIndexRouteImport.update({
     id: '/dancers/',
     path: '/dancers/',
+    getParentRoute: () => OrgOrgSlugAuthenticatedCoachRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedCoachDancersRosterIdRoute =
+  OrgOrgSlugAuthenticatedCoachDancersRosterIdRouteImport.update({
+    id: '/dancers/$rosterId',
+    path: '/dancers/$rosterId',
     getParentRoute: () => OrgOrgSlugAuthenticatedCoachRouteRoute,
   } as any)
 
@@ -455,8 +476,11 @@ export interface FileRoutesByFullPath {
   '/$orgSlug/admin/rosters': typeof OrgOrgSlugAuthenticatedAdminRostersRoute
   '/$orgSlug/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
   '/$orgSlug/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
+  '/$orgSlug/coach/favorites': typeof OrgOrgSlugAuthenticatedCoachFavoritesRoute
+  '/$orgSlug/coach/rankings': typeof OrgOrgSlugAuthenticatedCoachRankingsRoute
   '/$orgSlug/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
   '/$orgSlug/coach/': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
+  '/$orgSlug/coach/dancers/$rosterId': typeof OrgOrgSlugAuthenticatedCoachDancersRosterIdRoute
   '/$orgSlug/coach/dancers/': typeof OrgOrgSlugAuthenticatedCoachDancersIndexRoute
 }
 export interface FileRoutesByTo {
@@ -508,8 +532,11 @@ export interface FileRoutesByTo {
   '/$orgSlug/admin/rosters': typeof OrgOrgSlugAuthenticatedAdminRostersRoute
   '/$orgSlug/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
   '/$orgSlug/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
+  '/$orgSlug/coach/favorites': typeof OrgOrgSlugAuthenticatedCoachFavoritesRoute
+  '/$orgSlug/coach/rankings': typeof OrgOrgSlugAuthenticatedCoachRankingsRoute
   '/$orgSlug/admin': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
   '/$orgSlug/coach': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
+  '/$orgSlug/coach/dancers/$rosterId': typeof OrgOrgSlugAuthenticatedCoachDancersRosterIdRoute
   '/$orgSlug/coach/dancers': typeof OrgOrgSlugAuthenticatedCoachDancersIndexRoute
 }
 export interface FileRoutesById {
@@ -572,8 +599,11 @@ export interface FileRoutesById {
   '/_org/$orgSlug/_authenticated/admin/rosters': typeof OrgOrgSlugAuthenticatedAdminRostersRoute
   '/_org/$orgSlug/_authenticated/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
   '/_org/$orgSlug/_authenticated/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
+  '/_org/$orgSlug/_authenticated/coach/favorites': typeof OrgOrgSlugAuthenticatedCoachFavoritesRoute
+  '/_org/$orgSlug/_authenticated/coach/rankings': typeof OrgOrgSlugAuthenticatedCoachRankingsRoute
   '/_org/$orgSlug/_authenticated/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
   '/_org/$orgSlug/_authenticated/coach/': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
+  '/_org/$orgSlug/_authenticated/coach/dancers/$rosterId': typeof OrgOrgSlugAuthenticatedCoachDancersRosterIdRoute
   '/_org/$orgSlug/_authenticated/coach/dancers/': typeof OrgOrgSlugAuthenticatedCoachDancersIndexRoute
 }
 export interface FileRouteTypes {
@@ -632,8 +662,11 @@ export interface FileRouteTypes {
     | '/$orgSlug/admin/rosters'
     | '/$orgSlug/admin/settings'
     | '/$orgSlug/admin/uploads'
+    | '/$orgSlug/coach/favorites'
+    | '/$orgSlug/coach/rankings'
     | '/$orgSlug/admin/'
     | '/$orgSlug/coach/'
+    | '/$orgSlug/coach/dancers/$rosterId'
     | '/$orgSlug/coach/dancers/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -685,8 +718,11 @@ export interface FileRouteTypes {
     | '/$orgSlug/admin/rosters'
     | '/$orgSlug/admin/settings'
     | '/$orgSlug/admin/uploads'
+    | '/$orgSlug/coach/favorites'
+    | '/$orgSlug/coach/rankings'
     | '/$orgSlug/admin'
     | '/$orgSlug/coach'
+    | '/$orgSlug/coach/dancers/$rosterId'
     | '/$orgSlug/coach/dancers'
   id:
     | '__root__'
@@ -748,8 +784,11 @@ export interface FileRouteTypes {
     | '/_org/$orgSlug/_authenticated/admin/rosters'
     | '/_org/$orgSlug/_authenticated/admin/settings'
     | '/_org/$orgSlug/_authenticated/admin/uploads'
+    | '/_org/$orgSlug/_authenticated/coach/favorites'
+    | '/_org/$orgSlug/_authenticated/coach/rankings'
     | '/_org/$orgSlug/_authenticated/admin/'
     | '/_org/$orgSlug/_authenticated/coach/'
+    | '/_org/$orgSlug/_authenticated/coach/dancers/$rosterId'
     | '/_org/$orgSlug/_authenticated/coach/dancers/'
   fileRoutesById: FileRoutesById
 }
@@ -1148,6 +1187,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminIndexRouteImport
       parentRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRoute
     }
+    '/_org/$orgSlug/_authenticated/coach/rankings': {
+      id: '/_org/$orgSlug/_authenticated/coach/rankings'
+      path: '/rankings'
+      fullPath: '/$orgSlug/coach/rankings'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedCoachRankingsRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedCoachRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/coach/favorites': {
+      id: '/_org/$orgSlug/_authenticated/coach/favorites'
+      path: '/favorites'
+      fullPath: '/$orgSlug/coach/favorites'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedCoachFavoritesRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedCoachRouteRoute
+    }
     '/_org/$orgSlug/_authenticated/admin/uploads': {
       id: '/_org/$orgSlug/_authenticated/admin/uploads'
       path: '/uploads'
@@ -1188,6 +1241,13 @@ declare module '@tanstack/react-router' {
       path: '/dancers'
       fullPath: '/$orgSlug/coach/dancers/'
       preLoaderRoute: typeof OrgOrgSlugAuthenticatedCoachDancersIndexRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedCoachRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/coach/dancers/$rosterId': {
+      id: '/_org/$orgSlug/_authenticated/coach/dancers/$rosterId'
+      path: '/dancers/$rosterId'
+      fullPath: '/$orgSlug/coach/dancers/$rosterId'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedCoachDancersRosterIdRouteImport
       parentRoute: typeof OrgOrgSlugAuthenticatedCoachRouteRoute
     }
   }
@@ -1397,14 +1457,23 @@ const OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren =
   )
 
 interface OrgOrgSlugAuthenticatedCoachRouteRouteChildren {
+  OrgOrgSlugAuthenticatedCoachFavoritesRoute: typeof OrgOrgSlugAuthenticatedCoachFavoritesRoute
+  OrgOrgSlugAuthenticatedCoachRankingsRoute: typeof OrgOrgSlugAuthenticatedCoachRankingsRoute
   OrgOrgSlugAuthenticatedCoachIndexRoute: typeof OrgOrgSlugAuthenticatedCoachIndexRoute
+  OrgOrgSlugAuthenticatedCoachDancersRosterIdRoute: typeof OrgOrgSlugAuthenticatedCoachDancersRosterIdRoute
   OrgOrgSlugAuthenticatedCoachDancersIndexRoute: typeof OrgOrgSlugAuthenticatedCoachDancersIndexRoute
 }
 
 const OrgOrgSlugAuthenticatedCoachRouteRouteChildren: OrgOrgSlugAuthenticatedCoachRouteRouteChildren =
   {
+    OrgOrgSlugAuthenticatedCoachFavoritesRoute:
+      OrgOrgSlugAuthenticatedCoachFavoritesRoute,
+    OrgOrgSlugAuthenticatedCoachRankingsRoute:
+      OrgOrgSlugAuthenticatedCoachRankingsRoute,
     OrgOrgSlugAuthenticatedCoachIndexRoute:
       OrgOrgSlugAuthenticatedCoachIndexRoute,
+    OrgOrgSlugAuthenticatedCoachDancersRosterIdRoute:
+      OrgOrgSlugAuthenticatedCoachDancersRosterIdRoute,
     OrgOrgSlugAuthenticatedCoachDancersIndexRoute:
       OrgOrgSlugAuthenticatedCoachDancersIndexRoute,
   }
