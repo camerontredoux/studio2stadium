@@ -49,7 +49,6 @@ test.group("ListDancersService", (group) => {
         firstName: "Alice",
         lastName: "Smith",
         bibNumber: 101,
-        isRegistered: true,
       },
       {
         eventId: event.id,
@@ -58,7 +57,6 @@ test.group("ListDancersService", (group) => {
         firstName: "Bob",
         lastName: "Jones",
         bibNumber: 102,
-        isRegistered: false,
       },
       {
         eventId: event.id,
@@ -66,7 +64,6 @@ test.group("ListDancersService", (group) => {
         email: "coach@x.co",
         firstName: "Coach",
         lastName: "Person",
-        isRegistered: false,
       },
     ]);
 
@@ -85,7 +82,6 @@ test.group("ListDancersService", (group) => {
         firstName: "Alice",
         lastName: "Smith",
         bibNumber: 101,
-        isRegistered: true,
       },
       {
         eventId: event.id,
@@ -94,7 +90,6 @@ test.group("ListDancersService", (group) => {
         firstName: "Bob",
         lastName: "Jones",
         bibNumber: 102,
-        isRegistered: false,
       },
     ]);
 
@@ -113,7 +108,6 @@ test.group("ListDancersService", (group) => {
         firstName: "Alice",
         lastName: "Smith",
         bibNumber: 101,
-        isRegistered: true,
       },
       {
         eventId: event.id,
@@ -122,7 +116,6 @@ test.group("ListDancersService", (group) => {
         firstName: "Bob",
         lastName: "Jones",
         bibNumber: 102,
-        isRegistered: false,
       },
     ]);
 
@@ -142,7 +135,6 @@ test.group("ListDancersService", (group) => {
         lastName: "Smith",
         organization: "Acme Dance",
         bibNumber: 101,
-        isRegistered: true,
       },
       {
         eventId: event.id,
@@ -152,7 +144,6 @@ test.group("ListDancersService", (group) => {
         lastName: "Jones",
         organization: "Beta Studio",
         bibNumber: 102,
-        isRegistered: false,
       },
     ]);
 
@@ -171,7 +162,6 @@ test.group("ListDancersService", (group) => {
         firstName: "Alice",
         lastName: "Smith",
         bibNumber: 101,
-        isRegistered: true,
       },
       {
         eventId: event.id,
@@ -180,7 +170,6 @@ test.group("ListDancersService", (group) => {
         firstName: "Bob",
         lastName: "Jones",
         bibNumber: 102,
-        isRegistered: false,
       },
     ]);
 
@@ -191,6 +180,21 @@ test.group("ListDancersService", (group) => {
   });
 
   test("returns isRegistered on rows", async ({ assert }) => {
+    const [aliceUser] = await db
+      .insert(users)
+      .values({
+        username: "alice",
+        email: "alice@x.co",
+        displayEmail: "alice@x.co",
+        firstName: "Alice",
+        lastName: "Smith",
+        password: "x",
+        role: "user",
+        type: "dancer",
+        verified: true,
+      })
+      .returning();
+
     await db.insert(eventRosters).values([
       {
         eventId: event.id,
@@ -199,7 +203,7 @@ test.group("ListDancersService", (group) => {
         firstName: "Alice",
         lastName: "Smith",
         bibNumber: 101,
-        isRegistered: true,
+        userId: aliceUser!.id,
       },
       {
         eventId: event.id,
@@ -208,7 +212,6 @@ test.group("ListDancersService", (group) => {
         firstName: "Bob",
         lastName: "Jones",
         bibNumber: 102,
-        isRegistered: false,
       },
     ]);
 
@@ -231,7 +234,6 @@ test.group("ListDancersService", (group) => {
         firstName: "Ghost",
         lastName: "Dancer",
         bibNumber: 201,
-        isRegistered: false,
       },
     ]);
 
@@ -255,7 +257,6 @@ test.group("ListDancersService", (group) => {
           firstName: "Pro",
           lastName: "Dancer",
           bibNumber: 301,
-          isRegistered: true,
         },
       ])
       .returning();
@@ -285,7 +286,6 @@ test.group("ListDancersService", (group) => {
       firstName: `Dancer${i}`,
       lastName: "Test",
       bibNumber: 100 + i,
-      isRegistered: false,
     }));
     await db.insert(eventRosters).values(dancers);
 

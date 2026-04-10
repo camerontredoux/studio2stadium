@@ -36,7 +36,7 @@ export class ListDancersService {
           firstName: eventRosters.firstName,
           lastName: eventRosters.lastName,
           organization: eventRosters.organization,
-          isRegistered: eventRosters.isRegistered,
+          isRegistered: sql<boolean>`${eventRosters.userId} IS NOT NULL`,
           profilePhotoUrl: eventDancerProfiles.profilePhotoUrl,
           gpa: sql<
             number | null
