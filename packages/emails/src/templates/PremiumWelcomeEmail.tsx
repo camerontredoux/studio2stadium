@@ -6,6 +6,7 @@ export interface PremiumWelcomeEmailProps {
   firstName: string;
 }
 
+const HEADER_BG = "https://images.studio2stadium.com/assets/PremiumWelcome_Background.png"
 const HERO_BG =
   "https://d1wf5hycmlyms9.cloudfront.net/dcf07b79a52fb0c0964b14285be63a0143661a70d740dc08-c31b-4680-b7e4-264fc550dca2.jpg";
 const LOGO =
@@ -80,31 +81,18 @@ function calendlyConsultingUrl() {
 export function PremiumWelcomeEmail({ firstName }: PremiumWelcomeEmailProps) {
   return (
     <Layout preview="Welcome to Studio 2 Stadium — we're so excited you're here!">
-      <Text style={headerTitle}>
-        STUDIO <span style={{ fontWeight: 700 }}>2</span> STADIUM
-      </Text>
-
       <Section
         className="email-hero-mobile"
         style={{
-          backgroundImage: `url(${HERO_BG})`,
+          backgroundImage: `url(${HEADER_BG})`,
           backgroundSize: "cover",
           backgroundPosition: "top",
           height: "250px",
         }}>
         <Row className="email-hero-row-mobile" style={{ paddingTop: "180px" }}>
-          <Column
-            className="email-premium-hero-logo-col-mobile"
-            align="left"
-            valign="bottom"
-            style={{ padding: "10px" }}>
-            <Img
-              src={LOGO}
-              alt="Studio 2 Stadium"
-              width={80}
-              style={{ display: "block" }}
-            />
-          </Column>
+          <Text>
+            Welcome to Premium
+          </Text>
         </Row>
       </Section>
 
