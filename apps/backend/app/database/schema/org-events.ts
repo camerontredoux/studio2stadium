@@ -47,7 +47,6 @@ export const eventRosters = pg.pgTable(
     firstName: pg.text().notNull(),
     lastName: pg.text().notNull(),
     organization: pg.text(),
-    isRegistered: pg.boolean().notNull().default(false),
     expirationDate: pg.date(),
     csvUploadId: pg.uuid(),
     ...timestamps,
