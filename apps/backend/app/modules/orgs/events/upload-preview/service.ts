@@ -4,7 +4,12 @@ import { dancerProfiles } from "#database/schema/dancers";
 import { schoolProfiles } from "#database/schema/schools";
 import { users } from "#database/schema/users";
 import { eventRosters } from "#database/schema/org-events";
-import { parseCoachCsv, parseDancerCsv } from "#shared/org/csv-parser";
+import {
+  parseCoachCsv,
+  parseDancerCsv,
+  type CoachRow,
+  type DancerRow,
+} from "#shared/org/csv-parser";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 
 export type UploadKind = "dancer" | "coach";
@@ -54,11 +59,12 @@ export class UploadPreviewService {
       };
     }
 
-    let rowsForCounts = rows;
+    let rowsForCounts: CoachRow[] | DancerRow[] = rows;
     let accountErrors: Array<{ row: number; reason: string }> = [];
 
     if (kind === "dancer") {
-      const emails = rows.map((r) => r.email);
+      const dancerRows = rows as DancerRow[];
+      const emails = dancerRows.map((r) => r.email);
       const schoolOnlyRows = await this.db.use((db) =>
         db
           .select({ email: users.email })
@@ -70,14 +76,14 @@ export class UploadPreviewService {
       const schoolOnly = new Set(
         schoolOnlyRows.map((u) => u.email.toLowerCase()),
       );
-      accountErrors = rows
+      accountErrors = dancerRows
         .filter((r) => schoolOnly.has(r.email.toLowerCase()))
         .map((r) => ({
           row: r.csvRow,
           reason:
             "email belongs to a school account, not a dancer — use the coach roster for staff",
         }));
-      rowsForCounts = rows.filter(
+      rowsForCounts = dancerRows.filter(
         (r) => !schoolOnly.has(r.email.toLowerCase()),
       );
     }
