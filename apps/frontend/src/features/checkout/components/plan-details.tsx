@@ -35,7 +35,6 @@ export function PlanDetails({
         <PlanDetailsItem label="Track interest and engagement" />
         <PlanDetailsItem label="Stay organized with the event listings" />
         <PlanDetailsItem label="Smart notifications for profile views, favorites, new resources, and new events" />
-        <PlanDetailsItem label="Includes a 20-minute consultation" />
       </ul>
       <div className="flex flex-col gap-2">
         <p className="text-sm font-medium">Choose your billing cycle:</p>

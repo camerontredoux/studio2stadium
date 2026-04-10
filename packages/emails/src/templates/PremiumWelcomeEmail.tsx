@@ -1,6 +1,6 @@
 import { Column, Img, Link, Row, Section, Text } from "@react-email/components";
 import { Layout } from "../components/Layout.js";
-import { colors, linkStyle, paragraphStyle } from "../components/styles.js";
+import { colors, paragraphStyle } from "../components/styles.js";
 
 export interface PremiumWelcomeEmailProps {
   firstName: string;
@@ -10,12 +10,6 @@ const HERO_BG =
   "https://d1wf5hycmlyms9.cloudfront.net/dcf07b79a52fb0c0964b14285be63a0143661a70d740dc08-c31b-4680-b7e4-264fc550dca2.jpg";
 const LOGO =
   "https://d1wf5hycmlyms9.cloudfront.net/s2slogo777018b0-7579-48d1-b9b1-9f8f044ab2c0.png";
-const ICON_CONSULTING =
-  "https://d1wf5hycmlyms9.cloudfront.net/strokeb856cf71-6500-4122-b3e7-dd37363f1c60.png";
-const ICON_LIBRARY =
-  "https://d1wf5hycmlyms9.cloudfront.net/c4074ac47f2cc82061236c15c691dd762863903f19100796-e2da-41ab-8608-4a6cfa85c7b9.png";
-const ICON_TAG =
-  "https://d1wf5hycmlyms9.cloudfront.net/tagbfed9d19-8eec-4ddd-b892-97b72d2fc20a.png";
 
 const headerTitle = {
   fontSize: "28px",
@@ -27,17 +21,25 @@ const headerTitle = {
 
 const welcomeHeading = {
   fontSize: "24px",
-  textAlign: "center" as const,
+  textAlign: "left" as const,
   margin: "12px 0",
-  fontWeight: "normal" as const,
+  fontWeight: "bold" as const,
   color: colors.text,
 };
 
-const centeredP = {
+const subheading = {
+  fontSize: "18px",
+  textAlign: "left" as const,
+  margin: "12px 0",
+  fontWeight: "bold" as const,
+  color: colors.text,
+}
+
+const leftP = {
   ...paragraphStyle,
-  textAlign: "center" as const,
-  margin: "10px 20px 16px",
-};
+  textAlign: "left" as const,
+  mmargin: "10px 20px 16px"
+}
 
 const featureText = {
   fontSize: "15px",
@@ -107,128 +109,70 @@ export function PremiumWelcomeEmail({ firstName }: PremiumWelcomeEmailProps) {
       </Section>
 
       <Text style={welcomeHeading}>
-        Welcome to Studio <span style={{ fontWeight: "bold" }}>2</span> Stadium
-        Premium -
-      </Text>
-      <Text style={{ ...welcomeHeading, marginTop: 0 }}>
-        we&apos;re <span style={{ fontWeight: "bold" }}>so</span> excited
-        you&apos;re here!
+        You're In - Let's Get Started
       </Text>
 
-      <Text style={centeredP}>
-        Hi {firstName}, whether you&apos;re a dancer or a parent supporting this
-        journey, our goal is to make you feel seen, supported, and empowered
-        every step of the way. You&apos;re now part of a growing community where
-        dancers and college programs can finally connect—without all the
-        confusion.
-      </Text>
-      <Text style={{ ...centeredP, fontWeight: "bold" }}>
-        Here&apos;s how we&apos;ve got your back:
+      <Text style={leftP}>
+        Hi {firstName},
       </Text>
 
-      <Section style={{ margin: "24px 0" }}>
-        <Row style={{ marginBottom: "24px" }}>
-          <Column style={{ width: "44px", verticalAlign: "top" }}>
-            <Img
-              src={ICON_CONSULTING}
-              alt=""
-              width={36}
-              height={36}
-              style={{ display: "block" }}
-            />
-          </Column>
-          <Column style={{ verticalAlign: "top" }}>
-            <Text
-              style={{
-                ...featureText,
-                fontWeight: "bold",
-                marginBottom: "4px",
-              }}>
-              Free 20-minute consulting call
-            </Text>
-            <Text style={featureText}>
-              Get your biggest questions answered, understand the college dance
-              landscape, and start narrowing down schools that feel like the
-              right fit.
-            </Text>
-            <Link
-              href={calendlyConsultingUrl()}
-              style={{ ...linkStyle, fontWeight: "bold" }}>
-              → Schedule Your Free Call
-            </Link>
-          </Column>
-        </Row>
-        <Row style={{ marginBottom: "24px" }}>
-          <Column style={{ width: "44px", verticalAlign: "top" }}>
-            <Img
-              src={ICON_LIBRARY}
-              alt=""
-              width={36}
-              height={36}
-              style={{ display: "block" }}
-            />
-          </Column>
-          <Column>
-            <Text
-              style={{
-                ...featureText,
-                fontWeight: "bold",
-                marginBottom: "4px",
-              }}>
-              Members-only video training library
-            </Text>
-            <Text style={featureText}>
-              Access training tools, audition tips, coach insights, and
-              more—designed to help you grow and stay ready for every
-              opportunity.
-            </Text>
-          </Column>
+      <Text style={leftP}>
+        Welcome to Studio 2 Stadium Premium! We're thrilled to have you here and excited
+        to support you on your journey from the studio to the stadium.
+      </Text>
+      <Text style={leftP}>
+        You now have access to every tool and resource we've built to help dancers like
+        you get discovered by college programs. Explore the platform, make the most of
+        what's available, and don't hesitate to reach out if you need anything.
+      </Text>
+
+      <Section
+        style={{
+          border: '1px solid #fce303',
+          padding: '20px',
+          borderRadius: '10px',
+          background: 'linear-gradient(90deg,rgba(255, 251, 219, 1) 0%, rgba(255, 248, 189, 1) 100%)',
+          marginTop: '20px',
+          marginBottom: '20px'
+        }}
+      >
+        <Row>
+          <Text style={{ fontWeight: 'bold', margin: '0', fontSize: '18px', color: colors.text }}>
+            Your Premium Member Bonus
+          </Text>
         </Row>
         <Row>
-          <Column style={{ width: "44px", verticalAlign: "top" }}>
-            <Img
-              src={ICON_TAG}
-              alt=""
-              width={36}
-              height={36}
-              style={{ display: "block" }}
-            />
-          </Column>
-          <Column>
+          <Text style={{ fontSize: '16px', color: colors.text }}>
+            As a thank you for becoming a Premium member, you&apos;re receiving <strong>25% off your first consulting call.</strong>
+          </Text>
+        </Row>
+        <Row>
+          <Text style={{ fontSize: '16px', color: colors.text }}>
+            Ready for personalized guidance? Book a one-on-one call with us. We&apos;ll help you navigate the college dance,
+            identify the programs that are the right fit, and create a strategy that works for you.
+          </Text>
+        </Row>
+        <Row>
+          <Link href={calendlyConsultingUrl()}>
             <Text
               style={{
-                ...featureText,
-                fontWeight: "bold",
-                marginBottom: "4px",
-              }}>
-              Event tagging system
+                background: 'black',
+                padding: '15px 20px',
+                textDecoration: 'none',
+                color: 'white',
+                width: 'fit-content',
+                borderRadius: '10px',
+                fontWeight: 'bold'
+              }}
+            >
+              Book Your Call →
             </Text>
-            <Text style={featureText}>
-              Use our event tagging system to stay top-of-mind. When you attend
-              clinics, combines, and camps—tag them. Visibility creates
-              momentum.
-            </Text>
-          </Column>
+          </Link>
         </Row>
       </Section>
 
-      <Text
-        style={{
-          ...paragraphStyle,
-          textAlign: "center" as const,
-          fontSize: "22px",
-          margin: "20px 0 8px",
-        }}>
-        <strong>Maximize</strong> Your Experience -
-      </Text>
-      <Text
-        style={{
-          ...paragraphStyle,
-          textAlign: "center" as const,
-          fontSize: "22px",
-          margin: "0 0 16px",
-        }}>
-        Here&apos;s What to Do Next:
+      <Text style={{ ...subheading, marginTop: '30px' }}>
+        Three Things to do First
       </Text>
 
       <Section style={{ padding: "0 8px 20px" }}>
@@ -243,12 +187,10 @@ export function PremiumWelcomeEmail({ firstName }: PremiumWelcomeEmailProps) {
                 fontWeight: "bold",
                 marginBottom: "4px",
               }}>
-              Complete your profile.
+              Complete your profile
             </Text>
             <Text style={featureText}>
-              This is your first impression. Coaches use your profile to start
-              building their list of dancers to watch—so the more complete and
-              current it is, the better.
+              This is your first impression with coaches. Make it count.
             </Text>
           </Column>
         </Row>
@@ -263,11 +205,10 @@ export function PremiumWelcomeEmail({ firstName }: PremiumWelcomeEmailProps) {
                 fontWeight: "bold",
                 marginBottom: "4px",
               }}>
-              Explore college programs.
+              Explore college programs
             </Text>
             <Text style={featureText}>
-              Each program on Studio 2 Stadium is different— we help you filter
-              by what matters to you.
+              Browse programs, filter by what matters to you, and start building your target list.
             </Text>
           </Column>
         </Row>
@@ -282,32 +223,10 @@ export function PremiumWelcomeEmail({ firstName }: PremiumWelcomeEmailProps) {
                 fontWeight: "bold",
                 marginBottom: "4px",
               }}>
-              Keep your profile active.
+              Use everything available to you
             </Text>
             <Text style={featureText}>
-              Update your videos, tag new events, and refresh your info often.
-              Active profiles rise higher in coach home feed.
-            </Text>
-          </Column>
-        </Row>
-        <Row>
-          <Column style={{ width: "42px", verticalAlign: "top" }}>
-            <Text style={stepNumber}>4</Text>
-          </Column>
-          <Column>
-            <Text
-              style={{
-                ...featureText,
-                fontWeight: "bold",
-                marginBottom: "4px",
-              }}>
-              Notify programs when you submit your Common Recruiting Video.
-            </Text>
-            <Text style={featureText}>
-              Once you&apos;ve submitted it, let those programs know through the
-              platform. This allows coaches to update your status (in review,
-              released, or accepted), so you have more clarity on where you
-              stand in the process.
+              From video training to event tagging, take advantage of all your Premium resources.
             </Text>
           </Column>
         </Row>
@@ -315,19 +234,11 @@ export function PremiumWelcomeEmail({ firstName }: PremiumWelcomeEmailProps) {
 
       <Section style={{ textAlign: "center" as const, padding: "0 8px 8px" }}>
         <Text style={closing}>
-          This journey can feel overwhelming but you don&apos;t have to do it
-          alone.
+          We're here to help you every step of the way. You&apos;ve got this.
         </Text>
+        <Text style={closing}>Cheering for you,</Text>
         <Text style={closing}>
-          We built Studio <strong>2</strong> Stadium to make things simpler,
-          more transparent, and more connected.
-        </Text>
-        <Text style={{ ...closing, fontWeight: "bold" }}>
-          We&apos;re here to guide you through it.
-        </Text>
-        <Text style={closing}>With you all the way,</Text>
-        <Text style={closing}>
-          Abbey & The Studio <strong>2</strong> Stadium Team
+          Abbey & The Studio 2 Stadium Team
         </Text>
       </Section>
     </Layout>
