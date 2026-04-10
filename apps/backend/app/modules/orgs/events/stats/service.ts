@@ -1,7 +1,7 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { eventRosters, csvUploads } from "#database/schema/org-events";
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, isNotNull } from "drizzle-orm";
 
 @inject()
 export class EventStatsService {
@@ -22,7 +22,12 @@ export class EventStatsService {
       const [registeredCount] = await db
         .select({ v: count() })
         .from(eventRosters)
-        .where(and(eq(eventRosters.eventId, eventId), eq(eventRosters.isRegistered, true)));
+        .where(
+          and(
+            eq(eventRosters.eventId, eventId),
+            isNotNull(eventRosters.userId),
+          ),
+        );
 
       const recentUploads = await db
         .select()

@@ -50,10 +50,10 @@ test.group("EventStatsService", (group) => {
     const u2 = await createUser({ username: "u2", email: "u2@x.co" });
 
     await db.insert(eventRosters).values([
-      { eventId: event.id, type: "coach", email: "coach@x.co", firstName: "C", lastName: "O", isRegistered: false },
-      { eventId: event.id, type: "dancer", email: "u1@x.co", firstName: "D", lastName: "One", userId: u1.id, isRegistered: true },
-      { eventId: event.id, type: "dancer", email: "u2@x.co", firstName: "D", lastName: "Two", userId: u2.id, isRegistered: true },
-      { eventId: event.id, type: "dancer", email: "ghost@x.co", firstName: "G", lastName: "H", isRegistered: false },
+      { eventId: event.id, type: "coach", email: "coach@x.co", firstName: "C", lastName: "O" },
+      { eventId: event.id, type: "dancer", email: "u1@x.co", firstName: "D", lastName: "One", userId: u1.id },
+      { eventId: event.id, type: "dancer", email: "u2@x.co", firstName: "D", lastName: "Two", userId: u2.id },
+      { eventId: event.id, type: "dancer", email: "ghost@x.co", firstName: "G", lastName: "H" },
     ]);
 
     const svc = new EventStatsService();
