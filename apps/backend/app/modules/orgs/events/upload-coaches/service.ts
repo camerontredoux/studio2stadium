@@ -75,7 +75,6 @@ export class UploadCoachesService {
               lastName: r.lastName,
               organization: r.organization,
               userId,
-              isRegistered: !!userId,
               csvUploadId: upload!.id,
             }).where(eq(eventRosters.id, existing.id));
             updated += 1;
@@ -88,7 +87,6 @@ export class UploadCoachesService {
               lastName: r.lastName,
               organization: r.organization,
               userId,
-              isRegistered: !!userId,
               csvUploadId: upload!.id,
             });
             added += 1;

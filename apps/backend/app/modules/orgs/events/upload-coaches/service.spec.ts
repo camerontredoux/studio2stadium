@@ -83,13 +83,12 @@ ghost@ucla.edu,Ghost,Er,UCLA`;
     const [matchedRoster] = await db.select().from(eventRosters)
       .where(eq(eventRosters.email, "coach1@usc.edu"));
     assert.equal(matchedRoster!.userId, coach.id);
-    assert.isTrue(matchedRoster!.isRegistered);
+    assert.isNotNull(matchedRoster!.userId);
 
     // Unmatched coach has no userId
     const [unmatchedRoster] = await db.select().from(eventRosters)
       .where(eq(eventRosters.email, "ghost@ucla.edu"));
     assert.isNull(unmatchedRoster!.userId);
-    assert.isFalse(unmatchedRoster!.isRegistered);
 
     // org_membership created for matched coach
     const [membership] = await db.select().from(orgMemberships)
