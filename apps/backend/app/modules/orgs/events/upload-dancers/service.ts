@@ -173,7 +173,6 @@ export class UploadDancersService {
               lastName: r.lastName,
               bibNumber: r.bibNumber,
               userId,
-              isRegistered: !!userId,
               expirationDate: userId ? expirationDate : existing.expirationDate,
               csvUploadId: upload!.id,
             }).where(eq(eventRosters.id, existing.id));
@@ -187,7 +186,6 @@ export class UploadDancersService {
               lastName: r.lastName,
               bibNumber: r.bibNumber,
               userId,
-              isRegistered: !!userId,
               expirationDate: userId ? expirationDate : null,
               csvUploadId: upload!.id,
             });

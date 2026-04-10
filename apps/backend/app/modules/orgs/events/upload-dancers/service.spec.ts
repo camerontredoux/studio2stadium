@@ -70,10 +70,10 @@ dancer1@x.co,Dancer,One,101`;
     assert.equal(result.rowsAdded, 1);
     assert.equal(result.rowsErrored, 0);
 
-    // Roster row has userId, isRegistered, and expirationDate set
+    // Roster row has userId and expirationDate set
     const [roster] = await db.select().from(eventRosters).where(eq(eventRosters.email, "dancer1@x.co"));
     assert.equal(roster!.userId, dancer.id);
-    assert.isTrue(roster!.isRegistered);
+    assert.isNotNull(roster!.userId);
     assert.isNotNull(roster!.expirationDate);
 
     // premium_grant created with sourceId = eventId
