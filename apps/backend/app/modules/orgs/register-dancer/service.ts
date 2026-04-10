@@ -6,9 +6,10 @@ import {
   organizations,
   premiumGrants,
 } from "#database/schema/organizations";
+import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { inject } from "@adonisjs/core";
 import hash from "@adonisjs/core/services/hash";
-import { and, eq, gt, isNull } from "drizzle-orm";
+import { and, eq, gt, inArray, isNull } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 
 export class InviteInvalidError extends Error {
@@ -84,6 +85,27 @@ export class RegisterDancerService {
         sourceId: null, // Plan 3 wires this to the active org_events.id
         expiresAt,
       });
+
+      // Link all matching pending roster rows in this org to the new user.
+      // A dancer may appear on multiple events within the same org (recurring
+      // competitions) — all of them flip to active simultaneously.
+      await tx
+        .update(eventRosters)
+        .set({ userId: user!.id })
+        .where(
+          and(
+            eq(eventRosters.type, "dancer"),
+            eq(eventRosters.email, invite.email),
+            isNull(eventRosters.userId),
+            inArray(
+              eventRosters.eventId,
+              tx
+                .select({ id: orgEvents.id })
+                .from(orgEvents)
+                .where(eq(orgEvents.orgId, org.id)),
+            ),
+          ),
+        );
 
       await tx
         .update(dancerInvites)
