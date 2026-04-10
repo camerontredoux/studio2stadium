@@ -9,6 +9,7 @@ const UploadDancersController = () => import("./upload-dancers/controller.ts");
 const UploadPreviewController = () => import("./upload-preview/controller.ts");
 const EventStatsController = () => import("./stats/controller.ts");
 const ListRosterController = () => import("./rosters/list/controller.ts");
+const UpdateRosterController = () => import("./rosters/update/controller.ts");
 
 router.group(() => {
   router.post(":slug/events", [CreateEventController])
@@ -26,5 +27,7 @@ router.group(() => {
   router.get(":slug/events/:id/stats", [EventStatsController])
     .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
   router.get(":slug/events/:id/rosters", [ListRosterController])
+    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
+  router.patch(":slug/events/:id/rosters/:rosterId", [UpdateRosterController])
     .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
 }).prefix("orgs");
