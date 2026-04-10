@@ -13,6 +13,7 @@ const UpdateRosterController = () => import("./rosters/update/controller.ts");
 const DeleteRosterController = () => import("./rosters/delete/controller.ts");
 const ExportRosterController = () => import("./rosters/export/controller.ts");
 const FiltersRosterController = () => import("./rosters/filters/controller.ts");
+const ResendInvitesController = () => import("./rosters/resend-invites/controller.ts");
 
 router.group(() => {
   router.post(":slug/events", [CreateEventController])
@@ -38,5 +39,7 @@ router.group(() => {
   router.patch(":slug/events/:id/rosters/:rosterId", [UpdateRosterController])
     .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
   router.delete(":slug/events/:id/rosters", [DeleteRosterController])
+    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
+  router.post(":slug/events/:id/rosters/resend-invites", [ResendInvitesController])
     .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
 }).prefix("orgs");

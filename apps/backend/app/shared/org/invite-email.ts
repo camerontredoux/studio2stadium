@@ -107,3 +107,33 @@ export async function sendOrgInviteEmail(opts: {
     // Fire-and-forget: email failures must not block the upload response.
   }
 }
+
+export async function sendOrgInviteEmailOrThrow(opts: {
+  org: typeof organizations.$inferSelect;
+  event?: typeof orgEvents.$inferSelect | null;
+  email: string;
+  firstName: string;
+  type: "coach" | "dancer";
+  token?: string;
+}): Promise<void> {
+  const { org, event, email, firstName, type, token } = opts;
+  await mail.send(
+    new OrgInviteMail({
+      email,
+      firstName,
+      orgName: org.name,
+      orgSlug: org.slug,
+      brandColor: org.primaryColor ?? null,
+      eventName: event?.name ?? null,
+      eventDateLabel: event
+        ? formatDateRange(
+            event.startDate as string | null,
+            event.endDate as string | null,
+          )
+        : null,
+      venueName: event?.venueName ?? null,
+      type,
+      token,
+    }),
+  );
+}
