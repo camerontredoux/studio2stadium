@@ -191,9 +191,73 @@ type OrgsIdEventsIdUploadDancersPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/upload-dancers/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/events/upload-dancers/controller.ts').default['handle'], true>
 }
+type OrgsIdEventsIdUploadIdPreviewPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/upload-preview/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/upload-preview/controller.ts').default['handle'], true>
+}
 type OrgsIdEventsIdStatsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/admin/get-dancer-stats/controller.ts').default['handle'], false>
+}
+type OrgsIdEventsIdRostersExportGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/export/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/export/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdRostersFiltersGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/filters/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/filters/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdRostersGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/list/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/list/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdRostersIdPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/update/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/update/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdRostersDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/delete/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/delete/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdRostersResendinvitesPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/resend-invites/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/resend-invites/controller.ts').default['handle'], true>
+}
+type OrgsIdDancersGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/dancers/list/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/dancers/list/controller.ts').default['handle'], true>
+}
+type OrgsIdDancersIdGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/dancers/get-by-id/controller.ts').default['handle'], false>
+}
+type OrgsIdFavoritesGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/favorites/list/controller.ts').default['handle'], false>
+}
+type OrgsIdFavoritesPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/favorites/create/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/favorites/create/controller.ts').default['handle'], true>
+}
+type OrgsIdFavoritesIdDelete = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/favorites/delete/controller.ts').default['handle'], false>
+}
+type OrgsIdDancersIdNotesPut = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/notes/upsert/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/notes/upsert/controller.ts').default['handle'], true>
+}
+type OrgsIdDancersIdNotesDelete = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/notes/delete/controller.ts').default['handle'], false>
+}
+type OrgsIdDancersIdRatingPut = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/ratings/upsert/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/ratings/upsert/controller.ts').default['handle'], true>
+}
+type OrgsIdRankingsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/rankings/controller.ts').default['handle'], false>
 }
 type OrgsIdGetHead = {
   request: unknown
@@ -800,6 +864,13 @@ export interface ApiDefinition {
               };
               '$post': OrgsIdEventsIdUploadDancersPost;
             };
+            ':type': {
+              'preview': {
+                '$url': {
+                };
+                '$post': OrgsIdEventsIdUploadIdPreviewPost;
+              };
+            };
           };
           'stats': {
             '$url': {
@@ -807,9 +878,81 @@ export interface ApiDefinition {
             '$get': OrgsIdEventsIdStatsGetHead;
             '$head': OrgsIdEventsIdStatsGetHead;
           };
+          'rosters': {
+            'export': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdRostersExportGetHead;
+              '$head': OrgsIdEventsIdRostersExportGetHead;
+            };
+            'filters': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdRostersFiltersGetHead;
+              '$head': OrgsIdEventsIdRostersFiltersGetHead;
+            };
+            '$url': {
+            };
+            '$get': OrgsIdEventsIdRostersGetHead;
+            '$head': OrgsIdEventsIdRostersGetHead;
+            ':rosterId': {
+              '$url': {
+              };
+              '$patch': OrgsIdEventsIdRostersIdPatch;
+            };
+            '$delete': OrgsIdEventsIdRostersDelete;
+            'resend-invites': {
+              '$url': {
+              };
+              '$post': OrgsIdEventsIdRostersResendinvitesPost;
+            };
+          };
         };
         '$get': OrgsIdEventsGetHead;
         '$head': OrgsIdEventsGetHead;
+      };
+      'dancers': {
+        '$url': {
+        };
+        '$get': OrgsIdDancersGetHead;
+        '$head': OrgsIdDancersGetHead;
+        ':rosterId': {
+          '$url': {
+          };
+          '$get': OrgsIdDancersIdGetHead;
+          '$head': OrgsIdDancersIdGetHead;
+        };
+        ':dancerRosterId': {
+          'notes': {
+            '$url': {
+            };
+            '$put': OrgsIdDancersIdNotesPut;
+            '$delete': OrgsIdDancersIdNotesDelete;
+          };
+          'rating': {
+            '$url': {
+            };
+            '$put': OrgsIdDancersIdRatingPut;
+          };
+        };
+      };
+      'favorites': {
+        '$url': {
+        };
+        '$get': OrgsIdFavoritesGetHead;
+        '$head': OrgsIdFavoritesGetHead;
+        '$post': OrgsIdFavoritesPost;
+        ':dancerRosterId': {
+          '$url': {
+          };
+          '$delete': OrgsIdFavoritesIdDelete;
+        };
+      };
+      'rankings': {
+        '$url': {
+        };
+        '$get': OrgsIdRankingsGetHead;
+        '$head': OrgsIdRankingsGetHead;
       };
       '$url': {
       };
