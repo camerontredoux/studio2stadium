@@ -1,20 +1,20 @@
 import { toastManager } from "@/components/ui/toast-manager";
 import { adminQueries } from "@/features/org/api/admin-queries";
 import {
+  type RosterEntry,
+  type RosterStatus,
+  downloadRosterCsv,
+  rosterQueries,
+  useDeleteRosters,
+  useUpdateRoster,
+} from "@/features/org/api/roster-queries";
+import {
   DataGrid,
   StatusBadge,
   rosterBulkActions,
 } from "@/features/org/components/data-grid";
 import { RosterDetailSheet } from "@/features/org/components/roster-detail-sheet";
-import {
-  type RosterEntry,
-  deleteRosterEntries,
-  exportRosterCsv,
-  getDistinctOrgs,
-  queryRoster,
-  updateRosterEntry,
-} from "@/features/org/lib/mock-roster-data";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { type ColumnDef, type SortingState } from "@tanstack/react-table";
 import { useCallback, useState } from "react";
@@ -27,6 +27,14 @@ export const Route = createFileRoute(
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyMeta = any;
+
+type SortColumn =
+  | "lastName"
+  | "firstName"
+  | "email"
+  | "organization"
+  | "createdAt"
+  | "isRegistered";
 
 const columns: ColumnDef<RosterEntry, unknown>[] = [
   {
@@ -82,34 +90,42 @@ function CoachesPage() {
   const active = events?.find((e) => e.isActive);
 
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("all");
+  const [status, setStatus] = useState<RosterStatus>("all");
   const [org, setOrg] = useState("all");
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(20);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [selectedEntry, setSelectedEntry] = useState<RosterEntry | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
 
-  const sortBy = sorting[0]?.id;
+  const sortBy = sorting[0]?.id as SortColumn | undefined;
   const sortDir = sorting[0]?.desc ? "desc" : "asc";
 
-  const result = queryRoster({
-    type: "coach",
-    page,
-    limit,
-    search: search || undefined,
-    status: status as "all" | "active" | "pending",
-    org: org === "all" ? undefined : org,
-    sortBy,
-    sortDir: sortBy ? (sortDir as "asc" | "desc") : undefined,
+  const listQuery = useQuery({
+    ...rosterQueries.list(orgSlug, active?.id ?? "", {
+      type: "coach",
+      page,
+      limit,
+      search: search || undefined,
+      status: status === "all" ? undefined : status,
+      org: org === "all" ? undefined : org,
+      sortBy,
+      sortDir: sortBy ? sortDir : undefined,
+    }),
+    enabled: !!active,
   });
 
-  const orgs = getDistinctOrgs("coach");
+  const filtersQuery = useQuery({
+    ...rosterQueries.filters(orgSlug, active?.id ?? "", "coach"),
+    enabled: !!active,
+  });
 
-  const refresh = useCallback(() => {
-    setRefreshKey((k) => k + 1);
-  }, []);
+  const data = listQuery.data?.data ?? [];
+  const total = listQuery.data?.total ?? 0;
+  const orgs = filtersQuery.data?.organizations ?? [];
+
+  const updateMutation = useUpdateRoster();
+  const deleteMutation = useDeleteRosters();
 
   const handleRowClick = useCallback((row: RosterEntry) => {
     setSelectedEntry(row);
@@ -117,68 +133,111 @@ function CoachesPage() {
   }, []);
 
   const handleCellEdit = useCallback(
-    (rowId: string, columnId: string, value: unknown) => {
-      const updates: Record<string, unknown> = {};
+    async (rowId: string, columnId: string, value: unknown) => {
+      if (!active) return;
+      const body: Record<string, unknown> = {};
 
       if (columnId === "lastName") {
-        const parts = String(value).split(" ");
-        updates.firstName = parts[0] ?? "";
-        updates.lastName = parts.slice(1).join(" ") || "";
+        const parts = String(value).trim().split(" ");
+        body.firstName = parts[0] ?? "";
+        body.lastName = parts.slice(1).join(" ") || "";
+      } else if (columnId === "email") {
+        body.email = String(value);
+      } else if (columnId === "organization") {
+        body.organization = String(value) || null;
       } else {
-        updates[columnId] = value;
+        return;
       }
 
-      updateRosterEntry(rowId, updates);
-      refresh();
-      toastManager.add({ title: "Updated", type: "success" });
+      try {
+        await updateMutation.mutateAsync({
+          params: {
+            path: { slug: orgSlug, id: active.id, rosterId: rowId },
+          },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          body: body as any,
+        });
+        toastManager.add({ title: "Updated", type: "success" });
+      } catch (err) {
+        const code = (err as { data?: { code?: string } })?.data?.code;
+        if (code === "ROSTER_ACTIVE_READONLY") {
+          toastManager.add({
+            title: "Can't edit an active roster entry",
+            type: "error",
+          });
+        } else if (code === "ROSTER_EMAIL_CONFLICT") {
+          toastManager.add({
+            title: "That email is already on this roster",
+            type: "error",
+          });
+        } else {
+          toastManager.add({ title: "Failed to update coach", type: "error" });
+        }
+      }
     },
-    [refresh],
+    [active, orgSlug, updateMutation],
   );
 
   const bulkActions = rosterBulkActions({
-    onExport: (ids: string[]) => {
-      const entries = result.data.filter((e) => ids.includes(e.id));
-      const csv = exportRosterCsv(entries);
-      const blob = new Blob([csv], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "coaches-export.csv";
-      a.click();
-      URL.revokeObjectURL(url);
+    onExport: async () => {
+      if (!active) return;
+      try {
+        await downloadRosterCsv(orgSlug, active.id, {
+          type: "coach",
+          search: search || undefined,
+          status: status === "all" ? undefined : status,
+          org: org === "all" ? undefined : org,
+        });
+      } catch {
+        toastManager.add({ title: "Export failed", type: "error" });
+      }
     },
-    onResendInvite: (ids: string[]) => {
-      toastManager.add({
-        title: `Invites resent to ${ids.length} coaches`,
-        type: "success",
-      });
-    },
-    onDelete: (ids: string[]) => {
-      deleteRosterEntries(ids);
-      refresh();
-      toastManager.add({
-        title: `${ids.length} entries deleted`,
-        type: "success",
-      });
+    onDelete: async (ids: string[]) => {
+      if (!active) return;
+      try {
+        await deleteMutation.mutateAsync({
+          params: {
+            path: { slug: orgSlug, id: active.id },
+            query: { ids },
+          },
+        });
+        toastManager.add({
+          title: `${ids.length} coach${ids.length === 1 ? "" : "es"} deleted`,
+          type: "success",
+        });
+      } catch {
+        toastManager.add({ title: "Failed to delete coaches", type: "error" });
+      }
     },
   });
 
+  if (!active) {
+    return (
+      <div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
+        No active event.
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-0 flex-1 flex-col" key={refreshKey}>
+    <div className="flex min-h-0 flex-1 flex-col">
       <DataGrid
         title="Coaches"
-        subtitle={`${result.total.toLocaleString()} on roster${active ? ` for ${active.name}` : ""}`}
+        subtitle={`${total.toLocaleString()} on roster for ${active.name}`}
         columns={columns}
-        data={result.data}
+        data={data}
         pagination={{
           page,
           limit,
-          total: result.total,
+          total,
           onPageChange: setPage,
           onLimitChange: setLimit,
         }}
         search={search}
-        onSearchChange={setSearch}
+        onSearchChange={(v) => {
+          setSearch(v);
+          setPage(0);
+        }}
         searchPlaceholder="Search by name, email..."
         filters={[
           {
@@ -186,7 +245,7 @@ function CoachesPage() {
             label: "Status",
             value: status,
             onChange: (v) => {
-              setStatus(v);
+              setStatus(v as RosterStatus);
               setPage(0);
             },
             options: [
@@ -214,15 +273,18 @@ function CoachesPage() {
         onRowClick={handleRowClick}
         onCellEdit={handleCellEdit}
         bulkActions={bulkActions}
-        emptyMessage="No coaches found"
+        emptyMessage={
+          listQuery.isLoading ? "Loading coaches…" : "No coaches found"
+        }
         itemLabel="coaches"
       />
 
       <RosterDetailSheet
         entry={selectedEntry}
+        orgSlug={orgSlug}
+        eventId={active.id}
         open={sheetOpen}
         onOpenChange={setSheetOpen}
-        onUpdated={refresh}
       />
     </div>
   );

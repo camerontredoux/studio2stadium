@@ -1,7 +1,11 @@
-import { $api, client } from "@/lib/api/client";
+import { $api, client, type ApiSchemas } from "@/lib/api/client";
 
 export type RosterType = "dancer" | "coach";
 export type RosterStatus = "all" | "active" | "pending";
+
+export type RosterEntry =
+  ApiSchemas["OrgsIdEventsIdRostersResponse"]["data"][number];
+export type DancerProfile = NonNullable<RosterEntry["profile"]>;
 
 export interface RosterListParams {
   type: RosterType;
