@@ -1985,6 +1985,1096 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsResponse"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsIdRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/upload/coaches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsIdUploadCoachesRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdUploadCoachesResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/upload/dancers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsIdUploadDancersRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdUploadDancersResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/upload/{type}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                    type: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsIdUploadIdPreviewRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdUploadIdPreviewResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdStatsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/rosters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query: {
+                    search?: string | null;
+                    status?: ("pending" | "active" | "all") | null;
+                    limit?: (string | number) | null;
+                    org?: string | null;
+                    page?: (string | number) | null;
+                    sortBy?: ("email" | "firstName" | "lastName" | "createdAt" | "organization" | "bibNumber" | "isRegistered") | null;
+                    sortDir?: ("asc" | "desc") | null;
+                    type: components["schemas"]["UploadKind"];
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdRostersResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query: {
+                    ids: string[];
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdRostersResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/rosters/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query: {
+                    search?: string | null;
+                    status?: ("pending" | "active" | "all") | null;
+                    org?: string | null;
+                    type: components["schemas"]["UploadKind"];
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/rosters/filters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query: {
+                    type: components["schemas"]["UploadKind"];
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdRostersFiltersResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/rosters/{rosterId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                    rosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsIdRostersIdRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdRostersIdResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/rosters/resend-invites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsIdRostersResendinvitesRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdRostersResendinvitesResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/dancers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List dancers in active event
+         * @description Coach-scoped dancer search by name or bib number.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    search?: string | null;
+                    offset?: (string | number) | null;
+                    limit?: (string | number) | null;
+                    bib?: (string | number) | null;
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdDancersResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/dancers/{rosterId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    rosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdDancersIdResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/dancers/{dancerRosterId}/notes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    dancerRosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdDancersIdNotesRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdDancersIdNotesResponse"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    dancerRosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/dancers/{dancerRosterId}/rating": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    dancerRosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdDancersIdRatingRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdDancersIdRatingResponse"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/favorites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdFavoritesResponse"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdFavoritesRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdFavoritesResponse"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/favorites/{dancerRosterId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    dancerRosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/rankings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdRankingsResponse"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/register": {
         parameters: {
             query?: never;
@@ -2042,350 +3132,6 @@ export interface paths {
                 };
             };
         };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/dancers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List dancers in active event
-         * @description Coach-scoped dancer search by name or bib number.
-         */
-        get: {
-            parameters: {
-                query?: {
-                    search?: string;
-                    bib?: number;
-                    limit?: number;
-                    offset?: number;
-                };
-                header?: never;
-                path: {
-                    slug: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ScoutingDancerSummary"][];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/dancers/{rosterId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get dancer detail */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    rosterId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ScoutingDancerDetail"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/favorites": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List favorited dancers */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ScoutingFavoriteSummary"][];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /** Favorite a dancer */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["ScoutingFavoriteCreateRequest"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": Record<string, never>;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/favorites/{dancerRosterId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Unfavorite a dancer */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    dancerRosterId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": Record<string, never>;
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/dancers/{dancerRosterId}/notes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Upsert a note for a dancer */
-        put: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    dancerRosterId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["ScoutingNoteUpsertRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": Record<string, never>;
-                    };
-                };
-            };
-        };
-        post?: never;
-        /** Delete note for a dancer */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    dancerRosterId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": Record<string, never>;
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/dancers/{dancerRosterId}/rating": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Upsert rating for a dancer */
-        put: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    dancerRosterId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["ScoutingRatingUpsertRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": Record<string, never>;
-                    };
-                };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/rankings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get ranked dancer list */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ScoutingRankingEntry"][];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -6152,6 +6898,8 @@ export interface components {
             message: string;
         };
         /** @enum {string} */
+        UploadKind: "dancer" | "coach";
+        /** @enum {string} */
         SubscriptionSource: "stripe" | "org_event" | "none";
         /** @enum {string} */
         DancerFilterParam: "name" | "location" | "sports" | "styles" | "following" | "premium" | "gpaRange";
@@ -6581,7 +7329,284 @@ export interface components {
             accentColor: string | null;
             features: Record<string, never>;
             settings: Record<string, never>;
+            membership: {
+                /** @enum {string} */
+                role: "admin" | "member";
+                type: components["schemas"]["UploadKind"];
+            } | null;
         };
+        OrgsIdEventsResponse: {
+            gpa: boolean;
+            location: boolean;
+            skills: boolean;
+            styles: boolean;
+            sports: boolean;
+        };
+        OrgsIdEventsRequest: {
+            venueName?: string | null;
+            venueAddress?: string | null;
+            contactEmail?: string | null;
+            isActive?: (string | number | boolean) | null;
+            name: string;
+            startDate: string;
+            endDate: string;
+        };
+        OrgsIdEventsIdRequest: {
+            name?: string | null;
+            startDate?: string | null;
+            endDate?: string | null;
+            venueName?: string | null;
+            venueAddress?: string | null;
+            contactEmail?: string | null;
+            isActive?: (string | number | boolean) | null;
+            schedulePdfUrl?: string | null;
+        };
+        OrgsIdEventsIdResponse: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            name: string;
+            orgId: string;
+            startDate: string;
+            endDate: string;
+            venueName: string | null;
+            venueAddress: string | null;
+            contactEmail: string | null;
+            isActive: boolean;
+            schedulePdfUrl: string | null;
+        };
+        OrgsIdEventsIdUploadCoachesRequest: {
+            file: Record<string, never>;
+        };
+        OrgsIdEventsIdUploadCoachesResponse: {
+            rowsAdded: number;
+            rowsUpdated: number;
+            rowsErrored: number;
+            errors: {
+                row: number;
+                reason: string;
+            }[];
+            uploadId: string;
+        };
+        OrgsIdEventsIdUploadDancersRequest: {
+            file: Record<string, never>;
+        };
+        OrgsIdEventsIdUploadDancersResponse: {
+            rowsAdded: number;
+            rowsUpdated: number;
+            rowsErrored: number;
+            errors: {
+                row: number;
+                reason: string;
+            }[];
+            uploadId: string;
+        };
+        OrgsIdEventsIdUploadIdPreviewRequest: {
+            file: Record<string, never>;
+        };
+        OrgsIdEventsIdUploadIdPreviewResponse: {
+            errors: {
+                row: number;
+                reason: string;
+            }[];
+            kind: components["schemas"]["UploadKind"];
+            totalRows: number;
+            acceptedRows: number;
+            willMatch: number;
+            willInvite: number;
+            willUpdate: number;
+            willError: number;
+        };
+        OrgsIdEventsIdStatsResponse: {
+            total: number;
+            daily: {
+                current: number;
+                previous: number;
+                change: number | null;
+            };
+            weekly: {
+                current: number;
+                previous: number;
+                change: number | null;
+            };
+            monthly: {
+                current: number;
+                previous: number;
+                change: number | null;
+            };
+            dailyBreakdown: {
+                date: string;
+                count: number;
+            }[];
+        };
+        OrgsIdEventsIdRostersResponse: {
+            data: {
+                id: string;
+                email: string;
+                type: components["schemas"]["UploadKind"];
+                firstName: string;
+                lastName: string;
+                createdAt: string;
+                profile: {
+                    studio: string | null;
+                    gpa: number | null;
+                    gradYear: number | null;
+                    profilePhotoUrl: string | null;
+                    state: string | null;
+                    height: string | null;
+                    danceStyles: string[] | null;
+                    bio: string | null;
+                } | null;
+                organization: string | null;
+                eventId: string;
+                bibNumber: number | null;
+                isRegistered: boolean;
+            }[];
+            total: number;
+        };
+        OrgsIdEventsIdRostersFiltersResponse: {
+            organizations: string[];
+        };
+        OrgsIdEventsIdRostersIdRequest: {
+            email?: string | null;
+            firstName?: string | null;
+            lastName?: string | null;
+            profile?: {
+                studio?: string | null;
+                gpa?: (string | number) | null;
+                gradYear?: (string | number) | null;
+                state?: string | null;
+                height?: string | null;
+                danceStyles?: string[] | null;
+                bio?: string | null;
+            } | null;
+            organization?: string | null;
+            bibNumber?: (string | number) | null;
+        };
+        OrgsIdEventsIdRostersIdResponse: {
+            id: string;
+            email: string;
+            type: components["schemas"]["UploadKind"];
+            firstName: string;
+            lastName: string;
+            createdAt: string;
+            profile: {
+                studio: string | null;
+                gpa: number | null;
+                gradYear: number | null;
+                profilePhotoUrl: string | null;
+                state: string | null;
+                height: string | null;
+                danceStyles: string[] | null;
+                bio: string | null;
+            } | null;
+            organization: string | null;
+            eventId: string;
+            bibNumber: number | null;
+            isRegistered: boolean;
+        };
+        OrgsIdEventsIdRostersResendinvitesRequest: {
+            ids: string[];
+        };
+        OrgsIdEventsIdRostersResendinvitesResponse: {
+            failed: {
+                id: string;
+                reason: string;
+            }[];
+            sent: number;
+            skipped: number;
+        };
+        OrgsIdDancersResponse: {
+            rosterId: string;
+            bibNumber: number | null;
+            firstName: string;
+            lastName: string;
+            organization: string | null;
+            isRegistered: boolean;
+            profilePhotoUrl: string | null;
+            gpa: number | null;
+            gradYear: number | null;
+            studio: string | null;
+            state: string | null;
+        }[];
+        OrgsIdDancersIdResponse: {
+            note: string | null;
+            firstName: string;
+            lastName: string;
+            location: string | null;
+            highSchool: string | null;
+            studio: string | null;
+            gpa: number | null;
+            gradYear: number | null;
+            organization: string | null;
+            rating: number | null;
+            bibNumber: number | null;
+            rosterId: string;
+            profilePhotoUrl: string | null;
+            state: string | null;
+            height: string | null;
+            danceStyles: string[] | null;
+            bio: string | null;
+            extra: Record<string, never>;
+            isRegistered: boolean;
+            isFavorited: boolean;
+            favoritedMyRosterId: null;
+        };
+        OrgsIdDancersIdNotesRequest: {
+            content: string;
+        };
+        OrgsIdDancersIdNotesResponse: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            eventId: string;
+            content: string;
+            coachRosterId: string;
+            dancerRosterId: string;
+        };
+        OrgsIdDancersIdRatingRequest: {
+            rating: string | number;
+        };
+        OrgsIdDancersIdRatingResponse: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            eventId: string;
+            rating: number;
+            coachRosterId: string;
+            dancerRosterId: string;
+        };
+        OrgsIdFavoritesResponse: {
+            rosterId: string;
+            bibNumber: number | null;
+            firstName: string;
+            lastName: string;
+            profilePhotoUrl: string | null;
+            gradYear: number | null;
+            studio: string | null;
+            state: string | null;
+            gpa: number | null;
+        }[];
+        OrgsIdFavoritesRequest: {
+            dancerRosterId: string;
+        };
+        OrgsIdRankingsResponse: {
+            note: string | null;
+            firstName: string;
+            lastName: string;
+            studio: string | null;
+            gpa: number | null;
+            gradYear: number | null;
+            organization: string | null;
+            rating: number | null;
+            bibNumber: number | null;
+            rosterId: string;
+            profilePhotoUrl: string | null;
+            state: string | null;
+            isRegistered: boolean;
+            isFavorited: boolean;
+            favoritedAt: string | null;
+        }[];
         OrgsIdRegisterRequest: {
             firstName: string;
             lastName: string;
@@ -6993,6 +8018,8 @@ export interface components {
                 activity: string;
                 description?: string;
             }[];
+            startDate: string;
+            endDate: string;
             organizer: {
                 name: string;
                 username: string;
@@ -7004,8 +8031,6 @@ export interface components {
             eventAttendees: number;
             startTime: string;
             endTime: string;
-            startDate: string;
-            endDate: string;
         };
         EventsIdRequest: {
             type?: ("recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp") | null;
@@ -7325,78 +8350,6 @@ export interface components {
         VideosYoutubeResponse: {
             id: string;
             mediaId: string;
-        };
-        ScoutingDancerSummary: {
-            rosterId: string;
-            bibNumber: number;
-            firstName: string;
-            lastName: string;
-            organization?: string | null;
-            isRegistered?: boolean | null;
-            profilePhotoUrl?: string | null;
-            gpa?: number | null;
-            gradYear?: number | null;
-            studio?: string | null;
-            state?: string | null;
-        };
-        ScoutingDancerDetail: {
-            rosterId: string;
-            bibNumber: number;
-            firstName: string;
-            lastName: string;
-            organization?: string | null;
-            isRegistered?: boolean | null;
-            profilePhotoUrl?: string | null;
-            gradYear?: number | null;
-            gpa?: number | null;
-            studio?: string | null;
-            state?: string | null;
-            height?: string | null;
-            danceStyles?: string[] | null;
-            bio?: string | null;
-            extra?: Record<string, never> | null;
-            highSchool?: string | null;
-            location?: string | null;
-            note?: string | null;
-            rating?: number | null;
-            isFavorited: boolean;
-        };
-        ScoutingFavoriteSummary: {
-            rosterId: string;
-            bibNumber: number;
-            firstName: string;
-            lastName: string;
-            profilePhotoUrl?: string | null;
-            gradYear?: number | null;
-            studio?: string | null;
-            state?: string | null;
-            gpa?: number | null;
-        };
-        ScoutingFavoriteCreateRequest: {
-            dancerRosterId: string;
-        };
-        ScoutingNoteUpsertRequest: {
-            content: string;
-        };
-        ScoutingRatingUpsertRequest: {
-            rating: number;
-        };
-        ScoutingRankingEntry: {
-            rosterId: string;
-            bibNumber: number;
-            firstName: string;
-            lastName: string;
-            organization?: string | null;
-            isRegistered?: boolean | null;
-            profilePhotoUrl?: string | null;
-            gradYear?: number | null;
-            gpa?: number | null;
-            studio?: string | null;
-            state?: string | null;
-            rating?: number | null;
-            note?: string | null;
-            isFavorited: boolean;
-            favoritedAt?: string | null;
         };
     };
     responses: never;
