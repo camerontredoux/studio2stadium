@@ -1,5 +1,6 @@
 import { toastManager } from "@/components/ui/toast-manager";
 import { adminQueries } from "@/features/org/api/admin-queries";
+import { toastRosterMutationError } from "@/features/org/api/roster-mutation-error";
 import {
   type RosterEntry,
   type RosterStatus,
@@ -9,12 +10,10 @@ import {
   useResendInvites,
   useUpdateRoster,
 } from "@/features/org/api/roster-queries";
-import {
-  DataGrid,
-  StatusBadge,
-  rosterBulkActions,
-} from "@/features/org/components/data-grid";
+import { DataGrid, StatusBadge } from "@/features/org/components/data-grid";
+import { rosterBulkActions } from "@/features/org/components/roster-bulk-actions";
 import { RosterDetailSheet } from "@/features/org/components/roster-detail-sheet";
+import { RosterPageHeader } from "@/features/org/components/roster-page-header";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { type ColumnDef, type SortingState } from "@tanstack/react-table";
@@ -134,6 +133,11 @@ function DancersPage() {
     enabled: !!active,
   });
 
+  const statsQuery = useQuery({
+    ...rosterQueries.stats(orgSlug, active?.id ?? "", "dancer"),
+    enabled: !!active,
+  });
+
   const data = listQuery.data?.data ?? [];
   const total = listQuery.data?.total ?? 0;
   const orgs = filtersQuery.data?.organizations ?? [];
@@ -142,10 +146,10 @@ function DancersPage() {
   const deleteMutation = useDeleteRosters();
   const resendMutation = useResendInvites();
 
-  const handleRowClick = useCallback((row: RosterEntry) => {
+  const handleRowClick = (row: RosterEntry) => {
     setSelectedEntry(row);
     setSheetOpen(true);
-  }, []);
+  };
 
   const handleCellEdit = useCallback(
     async (rowId: string, columnId: string, value: unknown) => {
@@ -176,44 +180,28 @@ function DancersPage() {
         });
         toastManager.add({ title: "Updated", type: "success" });
       } catch (err) {
-        const code = (err as { data?: { code?: string } })?.data?.code;
-        if (code === "ROSTER_ACTIVE_READONLY") {
-          toastManager.add({
-            title: "Can't edit an active roster entry",
-            type: "error",
-          });
-        } else if (code === "ROSTER_EMAIL_CONFLICT") {
-          toastManager.add({
-            title: "That email is already on this roster",
-            type: "error",
-          });
-        } else if (code === "ROSTER_BIB_CONFLICT") {
-          toastManager.add({
-            title: "That bib number is already in use",
-            type: "error",
-          });
-        } else {
-          toastManager.add({ title: "Failed to update dancer", type: "error" });
-        }
+        toastRosterMutationError(err);
       }
     },
     [active, orgSlug, updateMutation],
   );
 
+  const handleExport = useCallback(async () => {
+    if (!active) return;
+    try {
+      await downloadRosterCsv(orgSlug, active.id, {
+        type: "dancer",
+        search: search || undefined,
+        status: status === "all" ? undefined : status,
+        org: org === "all" ? undefined : org,
+      });
+    } catch {
+      toastManager.add({ title: "Export failed", type: "error" });
+    }
+  }, [active, orgSlug, search, status, org]);
+
   const bulkActions = rosterBulkActions({
-    onExport: async () => {
-      if (!active) return;
-      try {
-        await downloadRosterCsv(orgSlug, active.id, {
-          type: "dancer",
-          search: search || undefined,
-          status: status === "all" ? undefined : status,
-          org: org === "all" ? undefined : org,
-        });
-      } catch {
-        toastManager.add({ title: "Export failed", type: "error" });
-      }
-    },
+    onExport: handleExport,
     onResendInvite: async (ids: string[]) => {
       if (!active) return;
       toastManager.add({
@@ -269,9 +257,24 @@ function DancersPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <DataGrid
+      <RosterPageHeader
         title="Dancers"
-        subtitle={`${total.toLocaleString()} on roster for ${active.name}`}
+        eventName={active.name}
+        stats={{
+          total: statsQuery.data?.total ?? 0,
+          active: statsQuery.data?.active ?? 0,
+          pending: statsQuery.data?.pending ?? 0,
+          orgCount: filtersQuery.data?.organizations.length ?? 0,
+        }}
+        isLoading={statsQuery.isLoading}
+        status={status}
+        onStatusChange={(next) => {
+          setStatus(next);
+          setPage(0);
+        }}
+      />
+      <DataGrid
+        storageKey="roster-dancers"
         columns={columns}
         data={data}
         pagination={{
@@ -288,20 +291,6 @@ function DancersPage() {
         }}
         searchPlaceholder="Search by name, email, bib #..."
         filters={[
-          {
-            id: "status",
-            label: "Status",
-            value: status,
-            onChange: (v) => {
-              setStatus(v as RosterStatus);
-              setPage(0);
-            },
-            options: [
-              { label: "Status", value: "all" },
-              { label: "Active", value: "active" },
-              { label: "Pending", value: "pending" },
-            ],
-          },
           {
             id: "org",
             label: "Organization",
@@ -321,6 +310,8 @@ function DancersPage() {
         onRowClick={handleRowClick}
         onCellEdit={handleCellEdit}
         bulkActions={bulkActions}
+        onExport={handleExport}
+        nonHideableColumnIds={["lastName"]}
         emptyMessage={
           listQuery.isLoading ? "Loading dancers…" : "No dancers found"
         }
