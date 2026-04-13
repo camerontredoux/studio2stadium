@@ -39,6 +39,10 @@ const ROSTER_FILTERS_KEY_PREFIX = [
   "get",
   "/orgs/{slug}/events/{id}/rosters/filters",
 ] as const;
+const ROSTER_STATS_KEY_PREFIX = [
+  "get",
+  "/orgs/{slug}/events/{id}/rosters/stats",
+] as const;
 
 export const rosterQueries = {
   list: (slug: string, eventId: string, params: RosterListParams) =>
@@ -59,6 +63,17 @@ export const rosterQueries = {
         },
       },
     ),
+  stats: (slug: string, eventId: string, type: RosterType) =>
+    $api.queryOptions(
+      "get",
+      "/orgs/{slug}/events/{id}/rosters/stats",
+      {
+        params: {
+          path: { slug, id: eventId },
+          query: { type },
+        },
+      },
+    ),
 };
 
 export function useUpdateRoster() {
@@ -67,7 +82,11 @@ export function useUpdateRoster() {
     "/orgs/{slug}/events/{id}/rosters/{rosterId}",
     {
       meta: {
-        invalidateQueries: [ROSTER_LIST_KEY_PREFIX, ROSTER_FILTERS_KEY_PREFIX],
+        invalidateQueries: [
+          ROSTER_LIST_KEY_PREFIX,
+          ROSTER_FILTERS_KEY_PREFIX,
+          ROSTER_STATS_KEY_PREFIX,
+        ],
       },
     },
   );
@@ -76,7 +95,11 @@ export function useUpdateRoster() {
 export function useDeleteRosters() {
   return $api.useMutation("delete", "/orgs/{slug}/events/{id}/rosters", {
     meta: {
-      invalidateQueries: [ROSTER_LIST_KEY_PREFIX, ROSTER_FILTERS_KEY_PREFIX],
+      invalidateQueries: [
+        ROSTER_LIST_KEY_PREFIX,
+        ROSTER_FILTERS_KEY_PREFIX,
+        ROSTER_STATS_KEY_PREFIX,
+      ],
     },
   });
 }

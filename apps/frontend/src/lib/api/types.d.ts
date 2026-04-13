@@ -2523,6 +2523,55 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/events/{id}/rosters/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query: {
+                    type: components["schemas"]["UploadKind"];
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdRostersStatsResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/events/{id}/rosters/{rosterId}": {
         parameters: {
             query?: never;
@@ -7466,6 +7515,11 @@ export interface components {
         };
         OrgsIdEventsIdRostersFiltersResponse: {
             organizations: string[];
+        };
+        OrgsIdEventsIdRostersStatsResponse: {
+            total: number;
+            active: number;
+            pending: number;
         };
         OrgsIdEventsIdRostersIdRequest: {
             email?: string | null;
