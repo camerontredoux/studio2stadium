@@ -207,6 +207,10 @@ type OrgsIdEventsIdRostersFiltersGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/filters/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/filters/controller.ts').default['handle'], true>
 }
+type OrgsIdEventsIdRostersStatsGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/stats/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/stats/controller.ts').default['handle'], true>
+}
 type OrgsIdEventsIdRostersGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/list/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/list/controller.ts').default['handle'], true>
@@ -890,6 +894,12 @@ export interface ApiDefinition {
               };
               '$get': OrgsIdEventsIdRostersFiltersGetHead;
               '$head': OrgsIdEventsIdRostersFiltersGetHead;
+            };
+            'stats': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdRostersStatsGetHead;
+              '$head': OrgsIdEventsIdRostersStatsGetHead;
             };
             '$url': {
             };

@@ -13,6 +13,7 @@ const UpdateRosterController = () => import("./rosters/update/controller.ts");
 const DeleteRosterController = () => import("./rosters/delete/controller.ts");
 const ExportRosterController = () => import("./rosters/export/controller.ts");
 const FiltersRosterController = () => import("./rosters/filters/controller.ts");
+const StatsRosterController = () => import("./rosters/stats/controller.ts");
 const ResendInvitesController = () => import("./rosters/resend-invites/controller.ts");
 
 router.group(() => {
@@ -33,6 +34,8 @@ router.group(() => {
   router.get(":slug/events/:id/rosters/export", [ExportRosterController])
     .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
   router.get(":slug/events/:id/rosters/filters", [FiltersRosterController])
+    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
+  router.get(":slug/events/:id/rosters/stats", [StatsRosterController])
     .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
   router.get(":slug/events/:id/rosters", [ListRosterController])
     .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
