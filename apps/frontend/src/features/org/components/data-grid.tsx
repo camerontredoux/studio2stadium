@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSidebar } from "@/components/ui/sidebar";
+import { cn } from "@/components/utils/cn";
 import {
   type ColumnDef,
   type RowSelectionState,
@@ -34,9 +35,9 @@ import {
   ChevronUpIcon,
   DownloadIcon,
   FilterIcon,
-  MailIcon,
+  RowsIcon,
   SearchIcon,
-  Trash2Icon,
+  SlidersHorizontalIcon,
   XIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -80,8 +81,9 @@ export interface DataGridProps<T extends { id: string }> {
   columns: ColumnDef<T, unknown>[];
   data: T[];
   pagination: DataGridPagination;
-  title?: string;
-  subtitle?: string;
+  storageKey: string;
+  nonHideableColumnIds?: string[];
+  onExport?: () => void;
   search?: string;
   onSearchChange?: (value: string) => void;
   searchPlaceholder?: string;
@@ -142,8 +144,9 @@ export function DataGrid<T extends { id: string }>({
   columns,
   data,
   pagination,
-  title,
-  subtitle,
+  storageKey,
+  nonHideableColumnIds,
+  onExport,
   search,
   onSearchChange,
   searchPlaceholder = "Search...",
@@ -156,12 +159,49 @@ export function DataGrid<T extends { id: string }>({
   emptyMessage = "No results found",
   itemLabel = "items",
 }: DataGridProps<T>) {
+  type Density = "comfortable" | "compact";
+
   const { state: sidebarState, isMobile } = useSidebar();
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [editingCell, setEditingCell] = useState<EditingCell | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [pendingDeleteAction, setPendingDeleteAction] =
     useState<BulkAction | null>(null);
+
+  const columnsStorageKey = `s2s:datagrid:${storageKey}:columns`;
+  const densityStorageKey = `s2s:datagrid:${storageKey}:density`;
+
+  const [columnVisibility, setColumnVisibility] = useState<Record<string, boolean>>(() => {
+    if (typeof window === "undefined") return {};
+    try {
+      const raw = window.localStorage.getItem(columnsStorageKey);
+      return raw ? (JSON.parse(raw) as Record<string, boolean>) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(columnsStorageKey, JSON.stringify(columnVisibility));
+    } catch { /* ignore */ }
+  }, [columnVisibility, columnsStorageKey]);
+
+  const [density, setDensity] = useState<Density>(() => {
+    if (typeof window === "undefined") return "comfortable";
+    try {
+      const raw = window.localStorage.getItem(densityStorageKey);
+      return raw === "compact" ? "compact" : "comfortable";
+    } catch {
+      return "comfortable";
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(densityStorageKey, density);
+    } catch { /* ignore */ }
+  }, [density, densityStorageKey]);
 
   const allColumns: ColumnDef<T, unknown>[] = bulkActions
     ? [
@@ -208,7 +248,9 @@ export function DataGrid<T extends { id: string }>({
     state: {
       sorting: sorting ?? [],
       rowSelection,
+      columnVisibility,
     },
+    onColumnVisibilityChange: setColumnVisibility,
     onSortingChange: (updater) => {
       const next =
         typeof updater === "function" ? updater(sorting ?? []) : updater;
@@ -220,6 +262,19 @@ export function DataGrid<T extends { id: string }>({
   });
 
   const selectedIds = Object.keys(rowSelection).filter((k) => rowSelection[k]);
+
+  const activeFilters = (filters ?? []).filter(
+    (f) => f.value !== f.options[0]?.value,
+  );
+  const hasActiveFilters = activeFilters.length > 0;
+
+  const hideableColumns = table
+    .getAllLeafColumns()
+    .filter(
+      (col) =>
+        col.id !== "select" &&
+        !(nonHideableColumnIds ?? []).includes(col.id),
+    );
 
   const handleCellDoubleClick = useCallback(
     (rowId: string, columnId: string) => {
@@ -262,15 +317,6 @@ export function DataGrid<T extends { id: string }>({
     <div className="bg-background flex min-h-0 flex-1 flex-col overflow-hidden">
       {/* ── Toolbar (fixed) ── */}
       <div className="border-border bg-muted/40 flex shrink-0 items-center gap-1.5 border-b px-3 py-1.5">
-        {title && (
-          <>
-            <span className="text-sm font-semibold">{title}</span>
-            {subtitle && (
-              <span className="text-muted-foreground hidden text-xs lg:inline">{subtitle}</span>
-            )}
-            <div className="bg-border mx-0.5 h-4 w-px" />
-          </>
-        )}
         {onSearchChange && (
           <div className="relative min-w-0 flex-1 sm:max-w-56">
             <SearchIcon className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
@@ -341,7 +387,113 @@ export function DataGrid<T extends { id: string }>({
             </PopoverPopup>
           </Popover>
         )}
+        {/* Operator toolbar — right-aligned */}
+        <div className="ml-auto flex items-center gap-1.5">
+          {/* Columns popover */}
+          <Popover>
+            <PopoverTrigger
+              render={<Button size="xs" variant="ghost" className="h-7 gap-1 px-1.5 text-xs" />}
+            >
+              <SlidersHorizontalIcon className="size-3.5" />
+              <span className="hidden sm:inline">Columns</span>
+            </PopoverTrigger>
+            <PopoverPopup side="bottom" align="end" className="w-52">
+              <div className="flex flex-col gap-1">
+                <span className="text-muted-foreground px-1 pb-1 text-[10px] font-semibold tracking-widest uppercase">
+                  Toggle columns
+                </span>
+                {hideableColumns.map((col) => {
+                  const header = col.columnDef.header;
+                  const label = typeof header === "string" ? header : col.id;
+                  return (
+                    <label
+                      key={col.id}
+                      className="hover:bg-muted/40 flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-xs"
+                    >
+                      <Checkbox
+                        checked={col.getIsVisible()}
+                        onCheckedChange={(checked) => col.toggleVisibility(!!checked)}
+                      />
+                      <span>{label}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </PopoverPopup>
+          </Popover>
+          {/* Density popover */}
+          <Popover>
+            <PopoverTrigger
+              render={<Button size="xs" variant="ghost" className="h-7 gap-1 px-1.5 text-xs" />}
+            >
+              <RowsIcon className="size-3.5" />
+              <span className="hidden sm:inline">Density</span>
+            </PopoverTrigger>
+            <PopoverPopup side="bottom" align="end" className="w-40">
+              <div className="flex flex-col gap-0.5">
+                {(["comfortable", "compact"] as const).map((d) => (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => setDensity(d)}
+                    className={cn(
+                      "hover:bg-muted/40 flex items-center justify-between rounded px-2 py-1 text-left text-xs",
+                      density === d && "bg-muted/40 font-medium",
+                    )}
+                  >
+                    <span className="capitalize">{d}</span>
+                    {density === d && (
+                      <span className="text-muted-foreground text-[10px]">✓</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </PopoverPopup>
+          </Popover>
+          {/* Export button */}
+          {onExport && (
+            <Button
+              size="xs"
+              variant="ghost"
+              onClick={onExport}
+              className="h-7 gap-1 px-1.5 text-xs"
+            >
+              <DownloadIcon className="size-3.5" />
+              <span className="hidden sm:inline">Export</span>
+            </Button>
+          )}
+        </div>
       </div>
+      {/* ── Active filter chips ── */}
+      {hasActiveFilters && (
+        <div className="border-border bg-background flex shrink-0 flex-wrap items-center gap-1.5 border-b px-3 py-1.5">
+          <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase">
+            Filters
+          </span>
+          {activeFilters.map((filter) => {
+            const activeLabel =
+              filter.options.find((o) => o.value === filter.value)?.label ??
+              filter.value;
+            return (
+              <span
+                key={filter.id}
+                className="border-border bg-muted/40 inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px]"
+              >
+                <span className="text-muted-foreground">{filter.label}:</span>
+                <span className="font-medium">{activeLabel}</span>
+                <button
+                  type="button"
+                  onClick={() => filter.onChange(filter.options[0]?.value ?? "")}
+                  className="hover:text-foreground text-muted-foreground ml-0.5"
+                  aria-label={`Clear ${filter.label} filter`}
+                >
+                  <XIcon className="size-3" />
+                </button>
+              </span>
+            );
+          })}
+        </div>
+      )}
 
       {/* ── Floating bulk actions toolbar ── */}
       {selectedIds.length > 0 && bulkActions && (
@@ -383,8 +535,11 @@ export function DataGrid<T extends { id: string }>({
       )}
 
       {/* ── Scrollable Table ── */}
-      <div className="flex-1 overflow-auto pb-10">
-        <table className="w-full border-collapse whitespace-nowrap text-xs">
+      <div data-density={density} className="flex-1 overflow-auto pb-10">
+        <table className={cn(
+          "w-full border-collapse whitespace-nowrap",
+          density === "compact" ? "text-[11px]" : "text-xs",
+        )}>
           <thead className="bg-background sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
@@ -401,9 +556,12 @@ export function DataGrid<T extends { id: string }>({
                     <th
                       key={header.id}
                       style={{ width: header.getSize() }}
-                      className={`border-border text-muted-foreground border-b px-2 py-1.5 text-left text-[11px] font-medium tracking-wide uppercase ${
-                        meta?.headerClassName ?? ""
-                      } ${canSort ? "cursor-pointer select-none" : ""}`}
+                      className={cn(
+                        "border-border text-muted-foreground border-b px-2 text-left text-[11px] font-medium tracking-wide uppercase",
+                        density === "compact" ? "py-1" : "py-1.5",
+                        meta?.headerClassName,
+                        canSort && "cursor-pointer select-none",
+                      )}
                       onClick={() => canSort && handleSortClick(header.id)}
                     >
                       <div className="flex items-center gap-1">
@@ -457,7 +615,11 @@ export function DataGrid<T extends { id: string }>({
                     return (
                       <td
                         key={cell.id}
-                        className={`px-2 py-1.5 ${(meta?.cellClassName as string) ?? ""}`}
+                        className={cn(
+                          "px-2",
+                          density === "compact" ? "py-1" : "py-1.5",
+                          meta?.cellClassName as string | undefined,
+                        )}
                         onDoubleClick={(e) => {
                           e.stopPropagation();
                           handleCellDoubleClick(row.id, cell.column.id);
@@ -607,40 +769,3 @@ export function StatusBadge({ isRegistered }: { isRegistered: boolean }) {
   );
 }
 
-export function rosterBulkActions({
-  onExport,
-  onResendInvite,
-  onDelete,
-}: {
-  onExport?: (ids: string[]) => void | Promise<void>;
-  onResendInvite?: (ids: string[]) => void | Promise<void>;
-  onDelete?: (ids: string[]) => void | Promise<void>;
-}): BulkAction[] {
-  const actions: BulkAction[] = [];
-  if (onExport) {
-    actions.push({
-      id: "export",
-      label: "Export",
-      icon: <DownloadIcon className="size-3" />,
-      onClick: onExport,
-    });
-  }
-  if (onResendInvite) {
-    actions.push({
-      id: "resend-invite",
-      label: "Resend invite",
-      icon: <MailIcon className="size-3" />,
-      onClick: onResendInvite,
-    });
-  }
-  if (onDelete) {
-    actions.push({
-      id: "delete",
-      label: "Delete",
-      icon: <Trash2Icon className="size-3" />,
-      variant: "destructive",
-      onClick: onDelete,
-    });
-  }
-  return actions;
-}
