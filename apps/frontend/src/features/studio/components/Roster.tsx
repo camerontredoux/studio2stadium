@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Frame,
   FrameHeader,
@@ -13,6 +13,7 @@ interface Dancer {
   gradYear: number;
   gpa: number;
   age: number;
+  photoUrl?: string;
 }
 
 const DANCERS: Dancer[] = [
@@ -21,40 +22,90 @@ const DANCERS: Dancer[] = [
     name: "Bella Smith",
     team: "Advanced Jazz Team",
     gradYear: 2026,
-    gpa: 3.0,
+    gpa: 3.8,
     age: 18,
+    photoUrl: "https://i.pravatar.cc/150?img=47",
   },
   {
     id: "2",
-    name: "Bella Smith",
-    team: "Advanced Jazz Team",
-    gradYear: 2026,
-    gpa: 3.0,
-    age: 18,
+    name: "Maya Johnson",
+    team: "Senior Pom Team",
+    gradYear: 2025,
+    gpa: 3.6,
+    age: 19,
+    photoUrl: "https://i.pravatar.cc/150?img=32",
   },
   {
     id: "3",
-    name: "Bella Smith",
-    team: "Advanced Jazz Team",
-    gradYear: 2026,
-    gpa: 3.0,
-    age: 18,
+    name: "Sofia Martinez",
+    team: "Competition Hip Hop",
+    gradYear: 2027,
+    gpa: 3.9,
+    age: 17,
+    photoUrl: "https://i.pravatar.cc/150?img=5",
   },
   {
     id: "4",
-    name: "Bella Smith",
-    team: "Advanced Jazz Team",
+    name: "Avery Thompson",
+    team: "Contemporary Company",
     gradYear: 2026,
-    gpa: 3.0,
+    gpa: 3.4,
     age: 18,
+    photoUrl: "https://i.pravatar.cc/150?img=44",
   },
   {
     id: "5",
-    name: "Bella Smith",
+    name: "Chloe Nguyen",
+    team: "Elite Technique Team",
+    gradYear: 2028,
+    gpa: 4.0,
+    age: 16,
+    photoUrl: "https://i.pravatar.cc/150?img=23",
+  },
+  {
+    id: "6",
+    name: "Jordan Lee",
     team: "Advanced Jazz Team",
+    gradYear: 2027,
+    gpa: 3.5,
+    age: 17,
+    photoUrl: "https://i.pravatar.cc/150?img=48",
+  },
+  {
+    id: "7",
+    name: "Natalie Brooks",
+    team: "Senior Pom Team",
     gradYear: 2026,
-    gpa: 3.0,
+    gpa: 3.7,
     age: 18,
+    photoUrl: "https://i.pravatar.cc/150?img=31",
+  },
+  {
+    id: "8",
+    name: "Harper Davis",
+    team: "Lyrical Performance Team",
+    gradYear: 2025,
+    gpa: 3.3,
+    age: 19,
+    photoUrl: "https://i.pravatar.cc/150?img=41",
+  },
+  {
+    id: "9",
+    name: "Riley Carter",
+    team: "Competition Hip Hop",
+    gradYear: 2028,
+    gpa: 3.2,
+    age: 16,
+    photoUrl: "https://i.pravatar.cc/150?img=20",
+  },
+  {
+    id: "10",
+    name: "Emma Patel",
+    team: "Contemporary Company",
+    gradYear: 2027,
+    gpa: 3.9,
+    age: 17,
+    photoUrl: "https://i.pravatar.cc/150?img=16",
   },
 ];
 
@@ -86,6 +137,7 @@ function DancerRow({ dancer }: { dancer: Dancer }) {
     <div className="flex items-center justify-between gap-4 rounded-lg border p-3">
       <div className="flex items-center gap-3">
         <Avatar className="size-12">
+          <AvatarImage src={dancer.photoUrl ?? undefined} alt={dancer.name} />
           <AvatarFallback className="bg-gray-500 font-semibold text-white">
             {initials}
           </AvatarFallback>
