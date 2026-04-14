@@ -26,9 +26,9 @@ export const Route = createFileRoute("/_org/$orgSlug/_authenticated/admin")({
 function AdminLayout() {
   return (
     <AdminCommandsProvider>
-      <SidebarProvider>
+      <SidebarProvider className="h-svh">
         <AdminSidebar />
-        <SidebarInset>
+        <SidebarInset className="overflow-hidden">
           <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
@@ -36,7 +36,7 @@ function AdminLayout() {
               Admin
             </span>
           </header>
-          <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             <Outlet />
           </div>
         </SidebarInset>

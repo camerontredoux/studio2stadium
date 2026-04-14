@@ -9,6 +9,7 @@ import { $api } from "@/lib/api/client";
 import { handleApiError } from "@/lib/api/errors";
 import { useOrg } from "@/features/org/context/use-org";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Link } from "@tanstack/react-router";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -111,6 +112,35 @@ export function OrgRegisterForm({
       >
         {isPending ? <Spinner label="Creating account..." /> : "Finish sign up"}
       </Button>
+
+      <div className="flex items-center justify-between gap-2">
+        <a
+          href="https://studio2stadium.com"
+          target="_blank"
+          rel="noreferrer"
+          className="text-brand text-sm font-medium hover:underline"
+        >
+          Marketing
+        </a>
+
+        <p className="text-muted-foreground text-sm">
+          Already have an account?{" "}
+          <Button
+            type="button"
+            variant="link"
+            className="text-brand p-0 text-sm font-medium"
+            render={
+              <Link
+                to="/$orgSlug/login"
+                params={{ orgSlug: org.slug }}
+                replace={true}
+              />
+            }
+          >
+            Sign in
+          </Button>
+        </p>
+      </div>
     </form>
   );
 }

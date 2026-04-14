@@ -24,6 +24,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { toastManager } from "@/components/ui/toast-manager";
+import { toastRosterMutationError } from "@/features/org/api/roster-mutation-error";
 import {
   type RosterEntry,
   useDeleteRosters,
@@ -139,25 +140,7 @@ export function RosterDetailSheet({
       toastManager.add({ title: "Entry updated", type: "success" });
       onOpenChange(false);
     } catch (err) {
-      const code = (err as { data?: { code?: string } })?.data?.code;
-      if (code === "ROSTER_ACTIVE_READONLY") {
-        toastManager.add({
-          title: "Can't edit an active roster entry",
-          type: "error",
-        });
-      } else if (code === "ROSTER_EMAIL_CONFLICT") {
-        toastManager.add({
-          title: "That email is already on this roster",
-          type: "error",
-        });
-      } else if (code === "ROSTER_BIB_CONFLICT") {
-        toastManager.add({
-          title: "That bib number is already in use",
-          type: "error",
-        });
-      } else {
-        toastManager.add({ title: "Failed to save", type: "error" });
-      }
+      toastRosterMutationError(err);
     }
   };
 

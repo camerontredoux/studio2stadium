@@ -104,12 +104,21 @@ export function AdminCommandPalette() {
           },
         },
         {
-          value: "nav-rosters",
-          label: "Rosters",
+          value: "nav-dancers",
+          label: "Dancers",
           icon: <UsersIcon className="size-4" />,
           onRun: () => {
             closePalette();
-            navigate({ to: "/$orgSlug/admin/rosters", params: { orgSlug } });
+            navigate({ to: "/$orgSlug/admin/dancers" as string, params: { orgSlug } });
+          },
+        },
+        {
+          value: "nav-coaches",
+          label: "Coaches",
+          icon: <UsersIcon className="size-4" />,
+          onRun: () => {
+            closePalette();
+            navigate({ to: "/$orgSlug/admin/coaches" as string, params: { orgSlug } });
           },
         },
         {

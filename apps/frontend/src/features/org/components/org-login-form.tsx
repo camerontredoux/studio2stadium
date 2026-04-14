@@ -1,7 +1,7 @@
 import { useAnchoredErrorToast } from "@/components/hooks/use-anchored-error-toast";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Frame, FramePanel } from "@/components/ui/frame";
+import { Frame, FrameFooter, FramePanel } from "@/components/ui/frame";
 import {
   InputGroup,
   InputGroupAddon,
@@ -12,6 +12,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { $api } from "@/lib/api/client";
 import { handleApiError } from "@/lib/api/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Link } from "@tanstack/react-router";
 import { MailIcon } from "lucide-react";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -93,6 +94,16 @@ export function OrgLoginForm({ onSuccess }: { onSuccess: () => void }) {
             )}
           />
         </FramePanel>
+        <FrameFooter>
+          <Button
+            type="button"
+            variant="link"
+            className="text-muted-foreground ml-auto p-0 text-sm"
+            render={<Link to="/forgot" />}
+          >
+            Forgot password?
+          </Button>
+        </FrameFooter>
       </Frame>
 
       <Button
@@ -103,6 +114,29 @@ export function OrgLoginForm({ onSuccess }: { onSuccess: () => void }) {
       >
         {isPending ? <Spinner label="Signing in..." /> : "Sign in"}
       </Button>
+
+      <div className="flex items-center justify-between gap-2">
+        <a
+          href="https://studio2stadium.com"
+          target="_blank"
+          rel="noreferrer"
+          className="text-brand text-sm font-medium hover:underline"
+        >
+          Marketing
+        </a>
+
+        <p className="text-muted-foreground text-sm">
+          Don&apos;t have an account?{" "}
+          <Button
+            type="button"
+            variant="link"
+            className="text-brand p-0 text-sm font-medium"
+            render={<Link to="/signup" replace={true} />}
+          >
+            Sign up
+          </Button>
+        </p>
+      </div>
     </form>
   );
 }

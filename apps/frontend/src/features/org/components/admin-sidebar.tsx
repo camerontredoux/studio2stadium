@@ -29,6 +29,7 @@ import {
   HistoryIcon,
   LayoutDashboardIcon,
   LogOutIcon,
+  MicIcon,
   SettingsIcon,
   UsersIcon,
 } from "lucide-react";
@@ -47,9 +48,14 @@ const navItems = [
     action: "edit-event" as const,
   },
   {
-    label: "Rosters",
+    label: "Dancers",
     icon: UsersIcon,
-    to: "/$orgSlug/admin/rosters" as const,
+    to: "/$orgSlug/admin/dancers" as const,
+  },
+  {
+    label: "Coaches",
+    icon: MicIcon,
+    to: "/$orgSlug/admin/coaches" as const,
   },
   {
     label: "Uploads",
