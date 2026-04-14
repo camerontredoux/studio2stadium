@@ -1,3 +1,4 @@
+import { SidebarLayout } from "@/components/layouts/sidebar-layout";
 import { About } from "./components/about";
 import { Posts } from "./components/posts";
 import { Roster } from "./components/roster";
@@ -40,38 +41,49 @@ const dummy_posts: Post[] = [
   },
 ];
 
-const studio_tabs = ["about", "posts", "roster"] as const;
+const studio_tabs = ["bio", "media", "roster"] as const;
 
 export function StudioPage() {
   const [activeTab, setActiveTab] =
-    useState<(typeof studio_tabs)[number]>("about");
+    useState<(typeof studio_tabs)[number]>("bio");
 
   return (
-    <div>
-      <StudioBanner></StudioBanner>
-      <References></References>
-      <Tabs
-        value={activeTab}
-        onValueChange={(v) => setActiveTab(v as (typeof studio_tabs)[number])}
-      >
-        <TabsList>
-          <TabsTab value="about">About</TabsTab>
-          <TabsTab value="posts">Posts</TabsTab>
-          <TabsTab value="roster">Roster</TabsTab>
-        </TabsList>
+    <SidebarLayout
+      sidebar={<References />}
+      tabs={{ contentLabel: "Studio", sidebarLabel: "Contact Info" }}
+    >
+      <div className="flex flex-col gap-3 lg:gap-4">
+        <StudioBanner />
 
-        <TabsContent value="about">
-          <About description="Description goes here!" />
-        </TabsContent>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as (typeof studio_tabs)[number])}
+        >
+          <TabsList className="mb-4">
+            <TabsTab value="bio" className="px-5 py-2 text-sm">
+              Bio
+            </TabsTab>
+            <TabsTab value="media" className="px-5 py-2 text-sm">
+              Media
+            </TabsTab>
+            <TabsTab value="roster" className="px-5 py-2 text-sm">
+              Roster
+            </TabsTab>
+          </TabsList>
 
-        <TabsContent value="posts">
-          <Posts posts={dummy_posts}/>
-        </TabsContent>
+          <TabsContent value="bio">
+            <About description="A Boulder-based dance studio focused on contemporary, ballet, and performance training. We create a supportive space for dancers to grow, train, and perform." />
+          </TabsContent>
 
-        <TabsContent value="roster">
-          <Roster />
-        </TabsContent>
-      </Tabs>
-    </div>
+          <TabsContent value="media">
+            <Posts posts={dummy_posts} />
+          </TabsContent>
+
+          <TabsContent value="roster">
+            <Roster />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </SidebarLayout>
   );
 }
