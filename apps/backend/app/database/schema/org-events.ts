@@ -105,3 +105,20 @@ export const csvUploads = pg.pgTable(
   },
   (table) => [pg.index().on(table.eventId, table.createdAt)]
 );
+
+export const eventChecklist = pg.pgTable(
+  "event_checklist",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    eventId: pg
+      .uuid()
+      .notNull()
+      .references(() => orgEvents.id, { onDelete: "cascade" }),
+    title: pg.varchar({ length: 160 }).notNull(),
+    description: pg.text(),
+    completed: pg.boolean().notNull().default(false),
+    position: pg.integer().notNull().default(0),
+    ...timestamps,
+  },
+  (table) => [pg.index().on(table.eventId)],
+);

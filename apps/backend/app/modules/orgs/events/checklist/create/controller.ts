@@ -1,0 +1,13 @@
+import type { HttpContext } from "@adonisjs/core/http";
+import { inject } from "@adonisjs/core";
+import { CreateChecklistService } from "./service.ts";
+import { schema } from "./validator.ts";
+
+export default class CreateChecklistController {
+  @inject()
+  async handle(ctx: HttpContext, service: CreateChecklistService) {
+    const payload = await ctx.request.validateUsing(schema);
+    const result = await service.execute(ctx.params.id, payload);
+    return ctx.response.created(result);
+  }
+}

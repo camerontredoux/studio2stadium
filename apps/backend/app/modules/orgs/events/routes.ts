@@ -15,6 +15,10 @@ const ExportRosterController = () => import("./rosters/export/controller.ts");
 const FiltersRosterController = () => import("./rosters/filters/controller.ts");
 const StatsRosterController = () => import("./rosters/stats/controller.ts");
 const ResendInvitesController = () => import("./rosters/resend-invites/controller.ts");
+const ListChecklistController = () => import("./checklist/list/controller.ts");
+const CreateChecklistController = () => import("./checklist/create/controller.ts");
+const UpdateChecklistController = () => import("./checklist/update/controller.ts");
+const DeleteChecklistController = () => import("./checklist/delete/controller.ts");
 
 router.group(() => {
   router.post(":slug/events", [CreateEventController])
@@ -44,5 +48,13 @@ router.group(() => {
   router.delete(":slug/events/:id/rosters", [DeleteRosterController])
     .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
   router.post(":slug/events/:id/rosters/resend-invites", [ResendInvitesController])
+    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
+  router.get(":slug/events/:id/checklist", [ListChecklistController])
+    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
+  router.post(":slug/events/:id/checklist", [CreateChecklistController])
+    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
+  router.patch(":slug/events/:id/checklist/:itemId", [UpdateChecklistController])
+    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
+  router.delete(":slug/events/:id/checklist/:itemId", [DeleteChecklistController])
     .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
 }).prefix("orgs");

@@ -39,6 +39,17 @@ export type OrgEventStats = {
   recentUploads: CsvUploadSummary[];
 };
 
+export type ChecklistItem = {
+  id: string;
+  eventId: string;
+  title: string;
+  description: string | null;
+  completed: boolean;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export const adminQueries = {
   events: (slug: string) =>
     queryOptions({
@@ -49,5 +60,10 @@ export const adminQueries = {
     queryOptions({
       queryKey: ["orgs", slug, "events", eventId, "stats"],
       queryFn: () => fetchJson<OrgEventStats>(`/orgs/${slug}/events/${eventId}/stats`),
+    }),
+  checklist: (slug: string, eventId: string) =>
+    queryOptions({
+      queryKey: ["orgs", slug, "events", eventId, "checklist"],
+      queryFn: () => fetchJson<ChecklistItem[]>(`/orgs/${slug}/events/${eventId}/checklist`),
     }),
 };

@@ -9,10 +9,21 @@ import {
   ExternalLinkIcon,
   MailIcon,
   MapPinIcon,
+  PencilIcon,
   PlusIcon,
+  Trash2Icon,
   UploadIcon,
 } from "lucide-react";
 
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -26,9 +37,11 @@ import { cn } from "@/components/utils/cn";
 import { client } from "@/lib/api/client";
 import {
   adminQueries,
+  type ChecklistItem,
   type CsvUploadSummary,
   type OrgEvent,
 } from "@/features/org/api/admin-queries";
+import { ChecklistItemDialog } from "@/features/org/components/checklist-item-dialog";
 import {
   CreateEventForm,
   EventFormSheet,
@@ -123,7 +136,7 @@ function AdminDashboard({
           className="grid grid-cols-1 gap-3 px-4 pb-4 lg:grid-cols-5 lg:grid-rows-[14rem]"
         >
           <div className="min-h-0 lg:col-span-2">
-            <PreEventChecklist phase={phase} />
+            <PreEventChecklist orgSlug={orgSlug} eventId={activeEvent.id} phase={phase} />
           </div>
           <div className="min-h-0 lg:col-span-3">
             <TopSchoolsPanel />
@@ -261,26 +274,25 @@ function StatCell({ label, value }: { label: string; value: number }) {
 
 /* ---------- Pre-event checklist ---------- */
 
-type ChecklistItem = {
-  id: string;
-  label: string;
-  hint: string;
-};
+function PreEventChecklist({
+  orgSlug,
+  eventId,
+  phase,
+}: {
+  orgSlug: string;
+  eventId: string;
+  phase: EventPhaseInfo;
+}) {
+  const qc = useQueryClient();
+  const queryKey = adminQueries.checklist(orgSlug, eventId).queryKey;
+  const { data: items } = useSuspenseQuery(adminQueries.checklist(orgSlug, eventId));
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editItem, setEditItem] = useState<ChecklistItem | undefined>();
+  const [deleteItem, setDeleteItem] = useState<ChecklistItem | undefined>();
 
-const DEFAULT_CHECKLIST: ChecklistItem[] = [
-  { id: "venue", label: "Venue confirmed", hint: "Contract signed, space held" },
-  { id: "bibs", label: "Bibs ordered", hint: "Numbered range assigned" },
-  { id: "rosters", label: "Rosters locked", hint: "No new uploads after cutoff" },
-  { id: "schedule", label: "Schedule published", hint: "PDF uploaded + linked" },
-  { id: "checkin", label: "Check-in desk staffed", hint: "Volunteers assigned" },
-  { id: "comms", label: "Pre-event email sent", hint: "Coach brief + dancer info" },
-];
-
-function PreEventChecklist({ phase }: { phase: EventPhaseInfo }) {
-  const [checked, setChecked] = useState<Set<string>>(() => new Set(["venue", "bibs"]));
-  const done = DEFAULT_CHECKLIST.filter((i) => checked.has(i.id)).length;
-  const total = DEFAULT_CHECKLIST.length;
-  const pct = Math.round((done / total) * 100);
+  const done = items.filter((i) => i.completed).length;
+  const total = items.length;
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
 
   const urgency =
     phase.phase === "upcoming" && phase.daysUntilStart > 14
@@ -290,6 +302,56 @@ function PreEventChecklist({ phase }: { phase: EventPhaseInfo }) {
         : phase.phase === "imminent"
           ? "critical"
           : "done";
+
+  const rawClient = client as unknown as {
+    PATCH: (
+      path: string,
+      opts: { body: Record<string, unknown> },
+    ) => Promise<{ data: ChecklistItem }>;
+    DELETE: (
+      path: string,
+      opts?: Record<string, unknown>,
+    ) => Promise<{ data: unknown }>;
+  };
+
+  const toggleMutation = useMutation({
+    mutationFn: async (item: ChecklistItem) => {
+      const res = await rawClient.PATCH(
+        `/orgs/${orgSlug}/events/${eventId}/checklist/${item.id}`,
+        { body: { completed: !item.completed } },
+      );
+      return res.data;
+    },
+    onMutate: async (item) => {
+      await qc.cancelQueries({ queryKey });
+      const prev = qc.getQueryData<ChecklistItem[]>(queryKey);
+      qc.setQueryData<ChecklistItem[]>(queryKey, (old) =>
+        old?.map((i) => (i.id === item.id ? { ...i, completed: !i.completed } : i)),
+      );
+      return { prev };
+    },
+    onError: (_err, _item, ctx) => {
+      if (ctx?.prev) qc.setQueryData(queryKey, ctx.prev);
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (itemId: string) => {
+      await rawClient.DELETE(
+        `/orgs/${orgSlug}/events/${eventId}/checklist/${itemId}`,
+        {},
+      );
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey });
+    },
+    onError: () => {
+      toastManager.add({ title: "Couldn't delete item", type: "error" });
+    },
+  });
 
   return (
     <div className="border-border flex h-full min-h-0 w-full flex-col rounded-md border">
@@ -303,59 +365,136 @@ function PreEventChecklist({ phase }: { phase: EventPhaseInfo }) {
             <UrgencyLabel urgency={urgency} days={phase.daysUntilStart} />
           </span>
         </div>
-        <span className="text-muted-foreground text-[11px] tabular-nums">
-          {pct}%
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground text-[11px] tabular-nums">
+            {pct}%
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-5"
+            onClick={() => {
+              setEditItem(undefined);
+              setDialogOpen(true);
+            }}
+            aria-label="Add checklist item"
+          >
+            <PlusIcon className="size-3" />
+          </Button>
+        </div>
       </div>
 
       <ul className="divide-border flex min-h-0 flex-1 flex-col divide-y overflow-y-auto">
-        {DEFAULT_CHECKLIST.map((item) => {
-          const isChecked = checked.has(item.id);
-          return (
-            <li key={item.id}>
-              <button
-                type="button"
-                onClick={() =>
-                  setChecked((prev) => {
-                    const next = new Set(prev);
-                    if (next.has(item.id)) next.delete(item.id);
-                    else next.add(item.id);
-                    return next;
-                  })
-                }
-                className="hover:bg-muted/40 flex w-full items-center gap-3 px-3 py-2 text-left transition-colors"
+        {items.map((item) => (
+          <li
+            key={item.id}
+            role="button"
+            tabIndex={0}
+            onClick={() => toggleMutation.mutate(item)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggleMutation.mutate(item);
+              }
+            }}
+            className="hover:bg-muted/40 group flex w-full cursor-pointer items-center gap-3 px-3 py-2 transition-colors"
+          >
+            <span
+              className={cn(
+                "border-border flex size-4 shrink-0 items-center justify-center rounded-sm border transition-colors",
+                item.completed
+                  ? "bg-foreground border-foreground"
+                  : "bg-background",
+              )}
+              aria-hidden
+            >
+              {item.completed && (
+                <CheckIcon className="text-background size-3" strokeWidth={3} />
+              )}
+            </span>
+            <div className="flex min-w-0 flex-1 flex-col">
+              <span
+                className={cn(
+                  "text-xs font-medium",
+                  item.completed && "text-muted-foreground line-through",
+                )}
               >
-                <span
-                  className={cn(
-                    "border-border flex size-4 shrink-0 items-center justify-center rounded-sm border transition-colors",
-                    isChecked
-                      ? "bg-foreground border-foreground"
-                      : "bg-background",
-                  )}
-                  aria-hidden
-                >
-                  {isChecked && (
-                    <CheckIcon className="text-background size-3" strokeWidth={3} />
-                  )}
+                {item.title}
+              </span>
+              {item.description && (
+                <span className="text-muted-foreground truncate text-[11px]">
+                  {item.description}
                 </span>
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <span
-                    className={cn(
-                      "text-xs font-medium",
-                      isChecked && "text-muted-foreground line-through",
-                    )}
-                  >
-                    {item.label}
-                  </span>
-                  <span className="text-muted-foreground truncate text-[11px]">
-                    {item.hint}
-                  </span>
-                </div>
-              </button>
-            </li>
-          );
-        })}
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditItem(item);
+                setDialogOpen(true);
+              }}
+              className="text-muted-foreground hover:text-foreground shrink-0 p-1 opacity-0 transition-all group-hover:opacity-100"
+              aria-label="Edit item"
+            >
+              <PencilIcon className="size-3" />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeleteItem(item);
+              }}
+              className="text-muted-foreground hover:text-destructive shrink-0 p-1 opacity-0 transition-all group-hover:opacity-100"
+              aria-label="Delete item"
+            >
+              <Trash2Icon className="size-3" />
+            </button>
+          </li>
+        ))}
       </ul>
+
+      <ChecklistItemDialog
+        orgSlug={orgSlug}
+        eventId={eventId}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        item={editItem}
+      />
+
+      <AlertDialog
+        open={deleteItem !== undefined}
+        onOpenChange={(open) => {
+          if (!open) setDeleteItem(undefined);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete checklist item</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete &ldquo;{deleteItem?.title}&rdquo;?
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose render={<Button variant="ghost" />}>
+              Cancel
+            </AlertDialogClose>
+            <Button
+              variant="destructive"
+              disabled={deleteMutation.isPending}
+              onClick={() => {
+                if (!deleteItem) return;
+                deleteMutation.mutate(deleteItem.id, {
+                  onSuccess: () => setDeleteItem(undefined),
+                });
+              }}
+            >
+              Delete
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
