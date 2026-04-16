@@ -41,6 +41,7 @@ import { Route as ApproutesSettingsMembershipRouteImport } from './routes/_app/(
 import { Route as ApproutesSettingsDeleteRouteImport } from './routes/_app/(routes)/settings/delete'
 import { Route as ApproutesSettingsApplicationRouteImport } from './routes/_app/(routes)/settings/application'
 import { Route as ApproutesSettingsAccountRouteImport } from './routes/_app/(routes)/settings/account'
+import { Route as ApproutesResourcesPartnersRouteImport } from './routes/_app/(routes)/resources/partners'
 import { Route as ApproutesResourcesLibraryRouteImport } from './routes/_app/(routes)/resources/library'
 import { Route as ApproutesResourcesFavoritesRouteImport } from './routes/_app/(routes)/resources/favorites'
 import { Route as ApproutesResourcesBlogRouteImport } from './routes/_app/(routes)/resources/blog'
@@ -223,6 +224,12 @@ const ApproutesSettingsAccountRoute =
     path: '/account',
     getParentRoute: () => ApproutesSettingsRouteRoute,
   } as any)
+const ApproutesResourcesPartnersRoute =
+  ApproutesResourcesPartnersRouteImport.update({
+    id: '/partners',
+    path: '/partners',
+    getParentRoute: () => ApproutesResourcesRouteRoute,
+  } as any)
 const ApproutesResourcesLibraryRoute =
   ApproutesResourcesLibraryRouteImport.update({
     id: '/library',
@@ -351,6 +358,7 @@ export interface FileRoutesByFullPath {
   '/resources/blog': typeof ApproutesResourcesBlogRoute
   '/resources/favorites': typeof ApproutesResourcesFavoritesRoute
   '/resources/library': typeof ApproutesResourcesLibraryRoute
+  '/resources/partners': typeof ApproutesResourcesPartnersRoute
   '/settings/account': typeof ApproutesSettingsAccountRoute
   '/settings/application': typeof ApproutesSettingsApplicationRoute
   '/settings/delete': typeof ApproutesSettingsDeleteRoute
@@ -395,6 +403,7 @@ export interface FileRoutesByTo {
   '/resources/blog': typeof ApproutesResourcesBlogRoute
   '/resources/favorites': typeof ApproutesResourcesFavoritesRoute
   '/resources/library': typeof ApproutesResourcesLibraryRoute
+  '/resources/partners': typeof ApproutesResourcesPartnersRoute
   '/settings/account': typeof ApproutesSettingsAccountRoute
   '/settings/application': typeof ApproutesSettingsApplicationRoute
   '/settings/delete': typeof ApproutesSettingsDeleteRoute
@@ -447,6 +456,7 @@ export interface FileRoutesById {
   '/_app/(routes)/resources/blog': typeof ApproutesResourcesBlogRoute
   '/_app/(routes)/resources/favorites': typeof ApproutesResourcesFavoritesRoute
   '/_app/(routes)/resources/library': typeof ApproutesResourcesLibraryRoute
+  '/_app/(routes)/resources/partners': typeof ApproutesResourcesPartnersRoute
   '/_app/(routes)/settings/account': typeof ApproutesSettingsAccountRoute
   '/_app/(routes)/settings/application': typeof ApproutesSettingsApplicationRoute
   '/_app/(routes)/settings/delete': typeof ApproutesSettingsDeleteRoute
@@ -496,6 +506,7 @@ export interface FileRouteTypes {
     | '/resources/blog'
     | '/resources/favorites'
     | '/resources/library'
+    | '/resources/partners'
     | '/settings/account'
     | '/settings/application'
     | '/settings/delete'
@@ -540,6 +551,7 @@ export interface FileRouteTypes {
     | '/resources/blog'
     | '/resources/favorites'
     | '/resources/library'
+    | '/resources/partners'
     | '/settings/account'
     | '/settings/application'
     | '/settings/delete'
@@ -591,6 +603,7 @@ export interface FileRouteTypes {
     | '/_app/(routes)/resources/blog'
     | '/_app/(routes)/resources/favorites'
     | '/_app/(routes)/resources/library'
+    | '/_app/(routes)/resources/partners'
     | '/_app/(routes)/settings/account'
     | '/_app/(routes)/settings/application'
     | '/_app/(routes)/settings/delete'
@@ -842,6 +855,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApproutesSettingsAccountRouteImport
       parentRoute: typeof ApproutesSettingsRouteRoute
     }
+    '/_app/(routes)/resources/partners': {
+      id: '/_app/(routes)/resources/partners'
+      path: '/partners'
+      fullPath: '/resources/partners'
+      preLoaderRoute: typeof ApproutesResourcesPartnersRouteImport
+      parentRoute: typeof ApproutesResourcesRouteRoute
+    }
     '/_app/(routes)/resources/library': {
       id: '/_app/(routes)/resources/library'
       path: '/library'
@@ -1029,6 +1049,7 @@ interface ApproutesResourcesRouteRouteChildren {
   ApproutesResourcesBlogRoute: typeof ApproutesResourcesBlogRoute
   ApproutesResourcesFavoritesRoute: typeof ApproutesResourcesFavoritesRoute
   ApproutesResourcesLibraryRoute: typeof ApproutesResourcesLibraryRoute
+  ApproutesResourcesPartnersRoute: typeof ApproutesResourcesPartnersRoute
   ApproutesResourcesIndexRoute: typeof ApproutesResourcesIndexRoute
 }
 
@@ -1037,6 +1058,7 @@ const ApproutesResourcesRouteRouteChildren: ApproutesResourcesRouteRouteChildren
     ApproutesResourcesBlogRoute: ApproutesResourcesBlogRoute,
     ApproutesResourcesFavoritesRoute: ApproutesResourcesFavoritesRoute,
     ApproutesResourcesLibraryRoute: ApproutesResourcesLibraryRoute,
+    ApproutesResourcesPartnersRoute: ApproutesResourcesPartnersRoute,
     ApproutesResourcesIndexRoute: ApproutesResourcesIndexRoute,
   }
 

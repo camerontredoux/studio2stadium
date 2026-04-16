@@ -5,13 +5,18 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
+import posthog from "posthog-js";
+import { PostHogProvider } from "posthog-js/react";
 
 import { queryClient } from "./lib/query-client";
 
 import { routeTree } from "@/routeTree.gen";
 import { createRouter } from "@tanstack/react-router";
+import ReactGA from "react-ga4";
 
 import qs from "qs";
+
+ReactGA.initialize(import.meta.env.VITE_GOOGLE_ANALYTICS_ID)
 
 const router = createRouter({
   routeTree,
@@ -40,7 +45,9 @@ declare module "@tanstack/react-router" {
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <PostHogProvider client={posthog}>
+        <RouterProvider router={router} />
+      </PostHogProvider>
     </QueryClientProvider>
   </StrictMode>,
 );

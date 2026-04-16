@@ -5,6 +5,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import posthog from "posthog-js";
 
 import "@stripe/stripe-js";
 
@@ -30,6 +31,16 @@ function RootComponent() {
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDarkMode);
   }, [isDarkMode]);
+
+  useEffect(() => {
+    posthog.init(
+      import.meta.env.VITE_POSTHOG_TOKEN,
+      {
+        api_host: "https://us.i.posthog.com",
+        person_profiles: "identified_only",
+      },
+    )
+  }, [])
 
   return (
     <Fragment>

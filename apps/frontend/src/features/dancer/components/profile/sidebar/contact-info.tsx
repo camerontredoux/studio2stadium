@@ -56,18 +56,21 @@ export function ContactInfo({ dancer }: ContactInfoProps) {
             <ContactInfoItem
               icon={<AiOutlineInstagram className="size-5" />}
               value={dancer.instagram}
+              href={`https://instagram.com/${dancer.instagram.replace("@", "")}`}
             />
           )}
           {dancer.youtube && (
             <ContactInfoItem
               icon={<AiOutlineYoutube className="size-5" />}
               value={dancer.youtube}
+              href={`https://youtube.com/${dancer.youtube}`}
             />
           )}
           {dancer.tiktok && (
             <ContactInfoItem
               icon={<AiOutlineTikTok className="size-5" />}
               value={dancer.tiktok}
+              href={`https://tiktok.com/@${dancer.tiktok.replace("@", "")}`}
             />
           )}
         </div>
@@ -79,14 +82,31 @@ export function ContactInfo({ dancer }: ContactInfoProps) {
 function ContactInfoItem({
   icon,
   value,
+  href,
 }: {
   icon: React.ReactNode;
   value: string;
+  href?: string
 }) {
-  return (
+  const content = (
     <div className="flex items-center gap-2">
       <span className="text-brand">{icon}</span>
-      {value}
+      <span className="truncate">{value}</span>
     </div>
   );
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="hover:text-brand transition-colors"
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return content;
 }

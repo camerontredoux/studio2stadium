@@ -10,6 +10,7 @@ export function ResourcesLayout({ children }: { children: React.ReactNode }) {
   const resourceTabs = [
     showLibrary ? "/resources/library" : "/resources/favorites",
     "/resources/blog",
+    "/resources/partners",
   ] as const;
 
   const pathname = useLocation({ select: (location) => location.pathname });
@@ -55,6 +56,14 @@ export function ResourcesLayout({ children }: { children: React.ReactNode }) {
           render={<Link to={resourceTabs[1]} />}
         >
           Blog
+        </TabsTab>
+        <TabsTab
+          nativeButton={false}
+          value={resourceTabs[2]}
+          className="text-brand data-active:text-brand max-sm:text-sm"
+          render={<Link to={resourceTabs[2]} />}
+        >
+          Partners
         </TabsTab>
       </TabsList>
       <div {...handlers} className="overflow-x-clip">

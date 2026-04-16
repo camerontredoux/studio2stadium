@@ -7,6 +7,7 @@ import {
   redirect,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
+import posthog from "posthog-js";
 
 export const Route = createFileRoute("/_onboarding")({
   beforeLoad: async ({ context, location }) => {
@@ -28,6 +29,11 @@ export const Route = createFileRoute("/_onboarding")({
           replace: true,
         });
       }
+
+      const { id, firstName, lastName, displayEmail } = session
+      posthog.identify(
+        id, { email: displayEmail, name: `${firstName} ${lastName}`},
+      )
 
       // Schools with an application should go to settings/application
       if (session.type === "school") {
