@@ -5,3 +5,15 @@ export type FollowedSchool = ApiSchemas["DancersMeFollowingResponse"][number];
 export type School = ApiSchemas["SchoolsResponse"][number];
 export type Submission = ApiSchemas["DancersSubmissionsResponse"][number];
 export type Dancer = ApiSchemas["DancersResponse"]["dancers"][number];
+
+export type Partner = {
+  id: string;
+  name: string;
+  description: string;
+  longDescription?: string;
+  logo: string;
+  discount?: string;
+  website?: string;
+  loginUrl?: string;
+};
+

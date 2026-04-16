@@ -8,6 +8,7 @@ import { queries, SessionNetworkError } from "@/lib/session";
 import { useRealtime } from "@/lib/session/hooks/use-realtime";
 import { VideoProcessingProvider } from "@/lib/video-processing";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import posthog from "posthog-js";
 
 export const Route = createFileRoute("/_app")({
   beforeLoad: async ({ context, location }) => {
@@ -59,6 +60,11 @@ export const Route = createFileRoute("/_app")({
       }
 
       context.queryClient.ensureQueryData(notificationQueries.count());
+
+      const { id, firstName, lastName, displayEmail } = session
+      posthog.identify(
+        id, { email: displayEmail, name: `${firstName} ${lastName}`},
+      )
 
       return {
         session,
