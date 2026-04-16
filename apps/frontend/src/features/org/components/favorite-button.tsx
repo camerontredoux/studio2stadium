@@ -15,7 +15,10 @@ export function FavoriteButton({
   const { org } = useOrg();
   const qc = useQueryClient();
   const add = $api.useMutation("post", "/orgs/{slug}/favorites");
-  const remove = $api.useMutation("delete", "/orgs/{slug}/favorites/{dancerRosterId}");
+  const remove = $api.useMutation(
+    "delete",
+    "/orgs/{slug}/favorites/{dancerRosterId}",
+  );
 
   const toggle = async (e: MouseEvent) => {
     e.preventDefault();
@@ -43,7 +46,7 @@ export function FavoriteButton({
     <button
       type="button"
       onClick={toggle}
-      className="flex size-11 items-center justify-center rounded-full hover:bg-accent transition-colors"
+      className="hover:bg-accent flex size-11 items-center justify-center rounded-full transition-colors"
       aria-label={isFavorited ? "Unfavorite" : "Favorite"}
       aria-pressed={isFavorited}
     >

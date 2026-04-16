@@ -1,9 +1,6 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
-import {
-  eventDancerProfiles,
-  eventRosters,
-} from "#database/schema/org-events";
+import { eventDancerProfiles, eventRosters } from "#database/schema/org-events";
 import {
   and,
   asc,
@@ -96,7 +93,7 @@ export class ListRosterService {
           .from(eventRosters)
           .leftJoin(
             eventDancerProfiles,
-            eq(eventDancerProfiles.rosterId, eventRosters.id),
+            eq(eventDancerProfiles.rosterId, eventRosters.id)
           )
           .where(and(...filters))
           .orderBy(orderExpr)

@@ -1,9 +1,6 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
-import {
-  eventDancerProfiles,
-  eventRosters,
-} from "#database/schema/org-events";
+import { eventDancerProfiles, eventRosters } from "#database/schema/org-events";
 import { and, eq, ne, sql } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 import type { AuditContext } from "#database/audit";
@@ -52,13 +49,18 @@ export class RosterNotFoundError extends Error {
 export class UpdateRosterService {
   constructor(private db: DatabaseService = new DatabaseService()) {}
 
-  async execute(eventId: string, rosterId: string, input: Validator, audit: AuditContext) {
+  async execute(
+    eventId: string,
+    rosterId: string,
+    input: Validator,
+    audit: AuditContext
+  ) {
     return this.db.withAudit(audit, async (tx, auditLog) => {
       const [row] = await tx
         .select()
         .from(eventRosters)
         .where(
-          and(eq(eventRosters.id, rosterId), eq(eventRosters.eventId, eventId)),
+          and(eq(eventRosters.id, rosterId), eq(eventRosters.eventId, eventId))
         )
         .for("update");
 
@@ -83,8 +85,8 @@ export class UpdateRosterService {
             and(
               eq(eventRosters.eventId, eventId),
               eq(eventRosters.email, input.email),
-              ne(eventRosters.id, rosterId),
-            ),
+              ne(eventRosters.id, rosterId)
+            )
           );
         if (collision) throw new RosterEmailConflictError();
       }
@@ -102,19 +104,22 @@ export class UpdateRosterService {
             and(
               eq(eventRosters.eventId, eventId),
               eq(eventRosters.bibNumber, input.bibNumber),
-              ne(eventRosters.id, rosterId),
-            ),
+              ne(eventRosters.id, rosterId)
+            )
           );
         if (collision) throw new RosterBibConflictError();
       }
 
       // Build update patch — only fields that were provided
       const rosterPatch: Record<string, unknown> = {};
-      if (input.firstName !== undefined) rosterPatch.firstName = input.firstName;
+      if (input.firstName !== undefined)
+        rosterPatch.firstName = input.firstName;
       if (input.lastName !== undefined) rosterPatch.lastName = input.lastName;
       if (input.email !== undefined) rosterPatch.email = input.email;
-      if (input.organization !== undefined) rosterPatch.organization = input.organization;
-      if (input.bibNumber !== undefined) rosterPatch.bibNumber = input.bibNumber;
+      if (input.organization !== undefined)
+        rosterPatch.organization = input.organization;
+      if (input.bibNumber !== undefined)
+        rosterPatch.bibNumber = input.bibNumber;
 
       if (Object.keys(rosterPatch).length > 0) {
         await tx
@@ -146,7 +151,9 @@ export class UpdateRosterService {
               ...(p.studio !== undefined && { studio: p.studio }),
               ...(p.state !== undefined && { state: p.state }),
               ...(p.height !== undefined && { height: p.height }),
-              ...(p.danceStyles !== undefined && { danceStyles: p.danceStyles }),
+              ...(p.danceStyles !== undefined && {
+                danceStyles: p.danceStyles,
+              }),
               ...(p.bio !== undefined && { bio: p.bio }),
             },
           });
@@ -166,11 +173,17 @@ export class UpdateRosterService {
             bibNumber: row.bibNumber,
           },
           after: {
-            ...(input.firstName !== undefined && { firstName: input.firstName }),
+            ...(input.firstName !== undefined && {
+              firstName: input.firstName,
+            }),
             ...(input.lastName !== undefined && { lastName: input.lastName }),
             ...(input.email !== undefined && { email: input.email }),
-            ...(input.organization !== undefined && { organization: input.organization }),
-            ...(input.bibNumber !== undefined && { bibNumber: input.bibNumber }),
+            ...(input.organization !== undefined && {
+              organization: input.organization,
+            }),
+            ...(input.bibNumber !== undefined && {
+              bibNumber: input.bibNumber,
+            }),
           },
         },
       });
@@ -200,7 +213,7 @@ export class UpdateRosterService {
         .from(eventRosters)
         .leftJoin(
           eventDancerProfiles,
-          eq(eventDancerProfiles.rosterId, eventRosters.id),
+          eq(eventDancerProfiles.rosterId, eventRosters.id)
         )
         .where(eq(eventRosters.id, rosterId));
 

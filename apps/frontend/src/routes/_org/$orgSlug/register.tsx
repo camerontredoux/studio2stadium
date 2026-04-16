@@ -1,4 +1,8 @@
-import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  useNavigate,
+  useParams,
+} from "@tanstack/react-router";
 import { z } from "zod";
 import { OrgAuthLayout } from "@/features/org/components/org-auth-layout";
 import { OrgRegisterForm } from "@/features/org/components/org-register-form";
@@ -18,7 +22,9 @@ function RegisterPage() {
     <OrgAuthLayout>
       <OrgRegisterForm
         token={t}
-        onSuccess={() => navigate({ to: "/$orgSlug/login", params: { orgSlug } })}
+        onSuccess={() =>
+          navigate({ to: "/$orgSlug/login", params: { orgSlug } })
+        }
       />
     </OrgAuthLayout>
   );

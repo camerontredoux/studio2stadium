@@ -26,7 +26,7 @@ function DancerProfile() {
     <div className="flex flex-col gap-6">
       {/* Header: photo, name, bib, studio/state, favorite button */}
       <div className="flex items-start gap-4">
-        <div className="size-20 shrink-0 overflow-hidden rounded-full bg-muted">
+        <div className="bg-muted size-20 shrink-0 overflow-hidden rounded-full">
           {dancer.profilePhotoUrl ? (
             <img
               src={dancer.profilePhotoUrl}
@@ -80,7 +80,7 @@ function DancerProfile() {
           <label className="text-muted-foreground text-sm font-medium">
             Bio
           </label>
-          <p className="whitespace-pre-wrap text-sm">{dancer.bio}</p>
+          <p className="text-sm whitespace-pre-wrap">{dancer.bio}</p>
         </section>
       )}
     </div>

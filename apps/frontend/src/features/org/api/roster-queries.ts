@@ -53,27 +53,19 @@ export const rosterQueries = {
       },
     }),
   filters: (slug: string, eventId: string, type: RosterType) =>
-    $api.queryOptions(
-      "get",
-      "/orgs/{slug}/events/{id}/rosters/filters",
-      {
-        params: {
-          path: { slug, id: eventId },
-          query: { type },
-        },
+    $api.queryOptions("get", "/orgs/{slug}/events/{id}/rosters/filters", {
+      params: {
+        path: { slug, id: eventId },
+        query: { type },
       },
-    ),
+    }),
   stats: (slug: string, eventId: string, type: RosterType) =>
-    $api.queryOptions(
-      "get",
-      "/orgs/{slug}/events/{id}/rosters/stats",
-      {
-        params: {
-          path: { slug, id: eventId },
-          query: { type },
-        },
+    $api.queryOptions("get", "/orgs/{slug}/events/{id}/rosters/stats", {
+      params: {
+        path: { slug, id: eventId },
+        query: { type },
       },
-    ),
+    }),
 };
 
 export function useUpdateRoster() {

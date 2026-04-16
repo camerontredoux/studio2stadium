@@ -9,17 +9,32 @@ import type { AuditContext } from "#database/audit";
 export class UpdateChecklistService {
   constructor(private db: DatabaseService) {}
 
-  async execute(eventId: string, itemId: string, input: Validator, auditCtx: AuditContext) {
+  async execute(
+    eventId: string,
+    itemId: string,
+    input: Validator,
+    auditCtx: AuditContext
+  ) {
     return this.db.withAudit(auditCtx, async (tx, audit) => {
       const [before] = await tx
         .select()
         .from(eventChecklist)
-        .where(and(eq(eventChecklist.id, itemId), eq(eventChecklist.eventId, eventId)));
+        .where(
+          and(
+            eq(eventChecklist.id, itemId),
+            eq(eventChecklist.eventId, eventId)
+          )
+        );
 
       const result = await tx
         .update(eventChecklist)
         .set(input)
-        .where(and(eq(eventChecklist.id, itemId), eq(eventChecklist.eventId, eventId)))
+        .where(
+          and(
+            eq(eventChecklist.id, itemId),
+            eq(eventChecklist.eventId, eventId)
+          )
+        )
         .returning();
 
       audit.log({

@@ -16,7 +16,8 @@ function Rankings() {
     from: "/_org/$orgSlug/_authenticated/coach/rankings",
   });
   const { settings } = useOrg();
-  const max = (settings as { rating_scale_max?: number }).rating_scale_max ?? 10;
+  const max =
+    (settings as { rating_scale_max?: number }).rating_scale_max ?? 10;
   const { data } = useSuspenseQuery(scoutingQueries.rankings(orgSlug));
 
   const copyNotes = async () => {
@@ -56,7 +57,7 @@ function Rankings() {
       </div>
 
       {data.length === 0 ? (
-        <div className="text-muted-foreground rounded-lg border bg-card p-8 text-center text-sm">
+        <div className="text-muted-foreground bg-card rounded-lg border p-8 text-center text-sm">
           Start favoriting and rating dancers. They'll show up here in your
           personal rankings.
         </div>
@@ -67,12 +68,12 @@ function Rankings() {
               <Link
                 to="/$orgSlug/coach/dancers/$rosterId"
                 params={{ orgSlug, rosterId: d.rosterId }}
-                className="flex items-center gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-accent/50"
+                className="bg-card hover:bg-accent/50 flex items-center gap-3 rounded-lg border p-3 transition-colors"
               >
                 <span className="text-muted-foreground w-6 text-right font-mono text-sm">
                   {i + 1}
                 </span>
-                <div className="size-10 shrink-0 overflow-hidden rounded-full bg-muted">
+                <div className="bg-muted size-10 shrink-0 overflow-hidden rounded-full">
                   {d.profilePhotoUrl ? (
                     <img
                       src={d.profilePhotoUrl}
@@ -100,7 +101,7 @@ function Rankings() {
                 </div>
                 {d.rating != null && (
                   <div className="flex items-baseline gap-0.5 font-mono">
-                    <span className="text-lg font-semibold text-primary">
+                    <span className="text-primary text-lg font-semibold">
                       {d.rating}
                     </span>
                     <span className="text-muted-foreground text-xs">

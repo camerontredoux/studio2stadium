@@ -109,7 +109,10 @@ export function AdminCommandPalette() {
           icon: <UsersIcon className="size-4" />,
           onRun: () => {
             closePalette();
-            navigate({ to: "/$orgSlug/admin/dancers" as string, params: { orgSlug } });
+            navigate({
+              to: "/$orgSlug/admin/dancers" as string,
+              params: { orgSlug },
+            });
           },
         },
         {
@@ -118,7 +121,10 @@ export function AdminCommandPalette() {
           icon: <UsersIcon className="size-4" />,
           onRun: () => {
             closePalette();
-            navigate({ to: "/$orgSlug/admin/coaches" as string, params: { orgSlug } });
+            navigate({
+              to: "/$orgSlug/admin/coaches" as string,
+              params: { orgSlug },
+            });
           },
         },
         {

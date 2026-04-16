@@ -49,8 +49,8 @@ export class AuditLogStatsService {
             .where(
               and(
                 eq(eventAuditLog.eventId, eventId),
-                isNull(eventAuditLog.parentId),
-              ),
+                isNull(eventAuditLog.parentId)
+              )
             ),
 
           // Top 5 actors by action count
@@ -67,8 +67,8 @@ export class AuditLogStatsService {
             .where(
               and(
                 eq(eventAuditLog.eventId, eventId),
-                isNull(eventAuditLog.parentId),
-              ),
+                isNull(eventAuditLog.parentId)
+              )
             )
             .groupBy(users.id, users.firstName, users.lastName, users.avatar)
             .orderBy(sql`count(${eventAuditLog.id}) desc`)
@@ -88,8 +88,8 @@ export class AuditLogStatsService {
             .where(
               and(
                 eq(eventAuditLog.eventId, eventId),
-                eq(eventAuditLog.resource, "csv_upload"),
-              ),
+                eq(eventAuditLog.resource, "csv_upload")
+              )
             ),
 
           // Action breakdown
@@ -102,8 +102,8 @@ export class AuditLogStatsService {
             .where(
               and(
                 eq(eventAuditLog.eventId, eventId),
-                isNull(eventAuditLog.parentId),
-              ),
+                isNull(eventAuditLog.parentId)
+              )
             )
             .groupBy(eventAuditLog.action)
             .orderBy(sql`count(*) desc`),
@@ -128,7 +128,7 @@ export class AuditLogStatsService {
           ? Math.round(
               ((uploadHealth.total - uploadHealth.errored) /
                 uploadHealth.total) *
-                100,
+                100
             )
           : 100;
 

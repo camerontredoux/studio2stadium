@@ -21,11 +21,7 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Frame, FramePanel } from "@/components/ui/frame";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverPopup,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverPopup, PopoverTrigger } from "@/components/ui/popover";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { toastManager } from "@/components/ui/toast-manager";
@@ -192,11 +188,7 @@ function EventFormFields({
         render={({ field, fieldState }) => (
           <Field name={field.name} invalid={fieldState.invalid}>
             <FieldLabel>Contact email</FieldLabel>
-            <Input
-              {...field}
-              type="email"
-              placeholder="events@example.com"
-            />
+            <Input {...field} type="email" placeholder="events@example.com" />
             <FieldError error={fieldState.error} />
           </Field>
         )}
@@ -228,7 +220,10 @@ export function EventFormSheet({
   const bypassDirtyCheckRef = useRef(false);
 
   const rawClient = client as unknown as {
-    POST: (path: string, opts: { body: unknown }) => Promise<{ data: OrgEvent }>;
+    POST: (
+      path: string,
+      opts: { body: unknown },
+    ) => Promise<{ data: OrgEvent }>;
     PATCH: (
       path: string,
       opts: { body: Record<string, unknown> },
@@ -271,10 +266,9 @@ export function EventFormSheet({
       if (!event) {
         throw new Error("Event is required to update");
       }
-      const res = await rawClient.PATCH(
-        `/orgs/${orgSlug}/events/${event.id}`,
-        { body },
-      );
+      const res = await rawClient.PATCH(`/orgs/${orgSlug}/events/${event.id}`, {
+        body,
+      });
       return res.data;
     },
     onSuccess: () => {
@@ -303,7 +297,9 @@ export function EventFormSheet({
     reset(isCreate ? emptyDefaults() : defaultsFromEvent(event));
   }, [open, isCreate, event, reset]);
 
-  const pending = isCreate ? createMutation.isPending : updateMutation.isPending;
+  const pending = isCreate
+    ? createMutation.isPending
+    : updateMutation.isPending;
   const handleSheetOpenChange = (nextOpen: boolean) => {
     if (nextOpen) {
       onOpenChange(true);
@@ -387,13 +383,16 @@ export function EventFormSheet({
           </SheetFooter>
         </SheetPopup>
       </Sheet>
-      <AlertDialog open={discardConfirmOpen} onOpenChange={setDiscardConfirmOpen}>
+      <AlertDialog
+        open={discardConfirmOpen}
+        onOpenChange={setDiscardConfirmOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Discard changes?</AlertDialogTitle>
             <AlertDialogDescription>
-              You have unsaved changes to this event form. If you close now, your
-              edits will be lost.
+              You have unsaved changes to this event form. If you close now,
+              your edits will be lost.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -404,7 +403,11 @@ export function EventFormSheet({
             >
               Keep editing
             </Button>
-            <Button type="button" variant="destructive" onClick={handleDiscardChanges}>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDiscardChanges}
+            >
               Discard changes
             </Button>
           </AlertDialogFooter>
@@ -424,7 +427,10 @@ export function CreateEventForm({
   const qc = useQueryClient();
 
   const rawClient = client as unknown as {
-    POST: (path: string, opts: { body: unknown }) => Promise<{ data: OrgEvent }>;
+    POST: (
+      path: string,
+      opts: { body: unknown },
+    ) => Promise<{ data: OrgEvent }>;
     PATCH: (
       path: string,
       opts: { body: { isActive: boolean } },

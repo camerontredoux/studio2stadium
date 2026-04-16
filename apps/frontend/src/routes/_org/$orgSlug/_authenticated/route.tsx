@@ -3,7 +3,9 @@ import { queries } from "@/lib/session";
 
 export const Route = createFileRoute("/_org/$orgSlug/_authenticated")({
   beforeLoad: async ({ context, location, params }) => {
-    const session = await context.queryClient.ensureQueryData(queries.session());
+    const session = await context.queryClient.ensureQueryData(
+      queries.session(),
+    );
     if (!session) {
       throw redirect({
         to: "/$orgSlug/login",

@@ -62,7 +62,7 @@ test.group("ExportRosterService", (group) => {
     const lines = csv.trim().split("\r\n");
     assert.equal(
       lines[0],
-      "First Name,Last Name,Email,Bib #,Organization,Status",
+      "First Name,Last Name,Email,Bib #,Organization,Status"
     );
     assert.equal(lines.length, 3);
     assert.include(lines[1]!, "Alice");

@@ -20,7 +20,7 @@ export default class UpdateRosterController {
         ctx.params.id,
         ctx.params.rosterId,
         payload,
-        { eventId: ctx.params.id, actorId: user.id },
+        { eventId: ctx.params.id, actorId: user.id }
       );
       return ctx.response.ok(result);
     } catch (err) {

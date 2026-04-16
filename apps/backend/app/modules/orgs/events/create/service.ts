@@ -12,16 +12,19 @@ export class CreateEventService {
     // Create the event first in a transaction, then log the audit entry
     // using the new event's id as the eventId context
     return this.db.tx(async (tx) => {
-      const [ev] = await tx.insert(orgEvents).values({
-        orgId,
-        name: input.name,
-        startDate: input.startDate,
-        endDate: input.endDate,
-        venueName: input.venueName,
-        venueAddress: input.venueAddress,
-        contactEmail: input.contactEmail,
-        isActive: input.isActive ?? false,
-      }).returning();
+      const [ev] = await tx
+        .insert(orgEvents)
+        .values({
+          orgId,
+          name: input.name,
+          startDate: input.startDate,
+          endDate: input.endDate,
+          venueName: input.venueName,
+          venueAddress: input.venueAddress,
+          contactEmail: input.contactEmail,
+          isActive: input.isActive ?? false,
+        })
+        .returning();
 
       const audit = new AuditCollector();
       audit.log({

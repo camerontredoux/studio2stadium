@@ -7,12 +7,18 @@ import {
   type OrgMembership,
 } from "./org-context";
 
-export function OrgProvider({ slug, children }: { slug: string; children: ReactNode }) {
+export function OrgProvider({
+  slug,
+  children,
+}: {
+  slug: string;
+  children: ReactNode;
+}) {
   const { data } = useSuspenseQuery(orgQueries.org(slug));
 
   const features = (data.features ?? {}) as Record<string, boolean>;
   const membership =
-    ((data as { membership?: OrgMembership | null }).membership ?? null);
+    (data as { membership?: OrgMembership | null }).membership ?? null;
 
   const value = useMemo<OrgContextValue>(
     () => ({
@@ -35,8 +41,10 @@ export function OrgProvider({ slug, children }: { slug: string; children: ReactN
 
   useEffect(() => {
     const root = document.documentElement;
-    if (data.primaryColor) root.style.setProperty("--org-primary", data.primaryColor);
-    if (data.accentColor) root.style.setProperty("--org-accent", data.accentColor);
+    if (data.primaryColor)
+      root.style.setProperty("--org-primary", data.primaryColor);
+    if (data.accentColor)
+      root.style.setProperty("--org-accent", data.accentColor);
     return () => {
       root.style.removeProperty("--org-primary");
       root.style.removeProperty("--org-accent");

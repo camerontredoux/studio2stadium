@@ -5,10 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/menu";
-import {
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
+import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { useLocation, useNavigate, useParams } from "@tanstack/react-router";
 import { EyeIcon } from "lucide-react";
 
@@ -47,7 +44,7 @@ export function ViewSwitcher() {
           render={
             <SidebarMenuButton
               tooltip="Switch view"
-              className="rounded-none border-sidebar-border border-t-2 border-t-transparent px-3 py-3 hover:bg-sidebar-accent/20 group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:w-full! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-none group-data-[collapsible=icon]:border-b group-data-[collapsible=icon]:p-0!"
+              className="border-sidebar-border hover:bg-sidebar-accent/20 rounded-none border-t-2 border-t-transparent px-3 py-3 group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:w-full! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-none group-data-[collapsible=icon]:border-b group-data-[collapsible=icon]:p-0!"
             />
           }
         >
@@ -56,10 +53,7 @@ export function ViewSwitcher() {
         </DropdownMenuTrigger>
         <DropdownMenuContent side="top" align="start">
           {(["Admin", "Coach", "Dancer"] as View[]).map((view) => (
-            <DropdownMenuItem
-              key={view}
-              onClick={() => handleSelect(view)}
-            >
+            <DropdownMenuItem key={view} onClick={() => handleSelect(view)}>
               {view}
             </DropdownMenuItem>
           ))}

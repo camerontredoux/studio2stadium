@@ -7,9 +7,10 @@ import { schema } from "./validator.ts";
 export default class UploadCoachesController {
   @inject()
   async handle(ctx: HttpContext, service: UploadCoachesService) {
-    const { file } = await ctx.request.validateUsing(schema);
+    const { file, previewToken } = await ctx.request.validateUsing(schema);
     const user = ctx.auth.getUserOrFail();
-    const csv = (await readFile(file.tmpPath!)).toString("utf8");
+    const csvBuf = await readFile(file.tmpPath!);
+    const csv = csvBuf.toString("utf8");
     // Use a placeholder fileUrl — real S3/R2 upload can be wired up later
     const fileUrl = `uploads/org-csv/${ctx.org!.slug}/${Date.now()}.csv`;
     const result = await service.execute({
@@ -18,7 +19,11 @@ export default class UploadCoachesController {
       uploaderId: user.id,
       fileUrl,
       csv,
+      previewToken,
     });
+    if ("preconditionFailed" in result) {
+      return ctx.response.preconditionFailed(result);
+    }
     return ctx.response.ok(result);
   }
 }

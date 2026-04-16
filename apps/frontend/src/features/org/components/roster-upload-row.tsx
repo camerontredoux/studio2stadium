@@ -9,7 +9,10 @@ import { cn } from "@/components/utils/cn";
 import { CsvUploadDialog } from "./csv-upload-dialog";
 import { useAdminCommandListener } from "@/features/org/hooks/use-admin-commands";
 import type { CsvUploadSummary } from "@/features/org/api/admin-queries";
-import { rosterQueries, type RosterType } from "@/features/org/api/roster-queries";
+import {
+  rosterQueries,
+  type RosterType,
+} from "@/features/org/api/roster-queries";
 
 interface RosterUploadRowProps {
   orgSlug: string;
@@ -194,10 +197,10 @@ function buildMetadata(lastUpload: CsvUploadSummary | null): string {
   const when = formatDistanceToNow(new Date(lastUpload.createdAt), {
     addSuffix: true,
   });
-  const touched =
-    (lastUpload.rowsAdded ?? 0) + (lastUpload.rowsUpdated ?? 0);
+  const touched = (lastUpload.rowsAdded ?? 0) + (lastUpload.rowsUpdated ?? 0);
   const errors = lastUpload.rowsErrored ?? 0;
   const rowsPart = `${touched.toLocaleString()} row${touched === 1 ? "" : "s"}`;
-  const errorsPart = errors > 0 ? ` · ${errors} error${errors === 1 ? "" : "s"}` : "";
+  const errorsPart =
+    errors > 0 ? ` · ${errors} error${errors === 1 ? "" : "s"}` : "";
   return `Last upload ${when} · ${rowsPart}${errorsPart}`;
 }

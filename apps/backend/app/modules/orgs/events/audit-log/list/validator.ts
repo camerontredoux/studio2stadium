@@ -23,7 +23,7 @@ export const schema = vine.compile(
     from: vine.string().trim().minLength(1).optional(),
     to: vine.string().trim().minLength(1).optional(),
     sortDir: vine.enum(["asc", "desc"] as const).optional(),
-  }),
+  })
 );
 
 export type Validator = Infer<typeof schema>;

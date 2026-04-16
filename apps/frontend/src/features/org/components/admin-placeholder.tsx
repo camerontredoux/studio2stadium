@@ -84,7 +84,7 @@ export function SummaryStat({ label, value, hint }: SummaryStatProps) {
       <span className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
         {label}
       </span>
-      <span className="text-2xl font-semibold tabular-nums tracking-tight">
+      <span className="text-2xl font-semibold tracking-tight tabular-nums">
         {value}
       </span>
       {hint && <span className="text-muted-foreground text-xs">{hint}</span>}

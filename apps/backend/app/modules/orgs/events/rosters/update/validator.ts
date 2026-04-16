@@ -19,6 +19,6 @@ export const schema = vine.compile(
         bio: vine.string().trim().nullable().optional(),
       })
       .optional(),
-  }),
+  })
 );
 export type Validator = Infer<typeof schema>;

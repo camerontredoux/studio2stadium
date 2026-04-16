@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/sheet";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/components/utils/cn";
-import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
+import { adminQueries } from "@/features/org/api/admin-queries";
 import {
   auditQueries,
   type AuditAction,
@@ -39,7 +39,7 @@ import {
   SearchIcon,
   XIcon,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { DateRange } from "react-day-picker";
 
 export const Route = createFileRoute(
@@ -89,10 +89,15 @@ function generateSummary(entry: AuditLogEntry | AuditLogChildEntry): string {
       const added = (meta.rowsAdded as number) ?? 0;
       const updated = (meta.rowsUpdated as number) ?? 0;
       const errored = (meta.rowsErrored as number) ?? 0;
+      const rowsActivated = meta.rowsActivated as number | undefined;
+      const rowsPending = meta.rowsPending as number | undefined;
       const type = (meta.type as string) ?? entry.resource;
       const parts = [`Uploaded ${added} ${type}`];
       if (updated > 0) parts.push(`${updated} updated`);
       if (errored > 0) parts.push(`${errored} errors`);
+      if (rowsActivated !== undefined && rowsPending !== undefined) {
+        parts.push(`${rowsActivated} activated · ${rowsPending} pending`);
+      }
       return parts.join(", ");
     }
     case "create":
@@ -392,29 +397,12 @@ function ExpandedRow({
 // ── Right Sidebar ─────────────────────────────────────────────────────────────
 
 function AuditSidebar({
-  events,
-  selectedEventId,
-  onEventChange,
   stats,
   isLoadingStats,
 }: {
-  events: OrgEvent[];
-  selectedEventId: string;
-  onEventChange: (id: string) => void;
   stats: AuditLogStats | undefined;
   isLoadingStats: boolean;
 }) {
-  const sortedEvents = useMemo(
-    () =>
-      [...events].sort((a, b) => {
-        const byStart = b.startDate.localeCompare(a.startDate);
-        if (byStart !== 0) return byStart;
-        return b.createdAt.localeCompare(a.createdAt);
-      }),
-    [events],
-  );
-
-  const items = sortedEvents.map((e) => ({ value: e.id, label: e.name }));
   const totalActions = stats?.activity.thisMonth ?? 0;
   const maxBreakdownCount = Math.max(
     ...(stats?.actionBreakdown.map((a) => a.count) ?? [1]),
@@ -423,33 +411,6 @@ function AuditSidebar({
 
   return (
     <aside className="border-border hidden shrink-0 flex-col border-t xl:flex xl:w-[320px] xl:overflow-x-hidden xl:overflow-y-auto xl:border-t-0 xl:border-l">
-      {/* Event selector */}
-      <section className="border-border border-b">
-        <div className="px-4 pt-3 pb-2">
-          <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase 2xl:text-xs">
-            Event
-          </span>
-        </div>
-        <div className="px-4 pb-3">
-          <Select
-            items={items}
-            value={selectedEventId}
-            onValueChange={(v) => v && onEventChange(v)}
-          >
-            <SelectTrigger className="h-8 w-full text-xs 2xl:text-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectPopup>
-              {items.map((item) => (
-                <SelectItem key={item.value} value={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectPopup>
-          </Select>
-        </div>
-      </section>
-
       {/* Activity summary — matches dashboard StatCell pattern */}
       <section
         aria-label="Activity stats"
@@ -683,9 +644,7 @@ function AuditLogPage() {
   const { data: events } = useSuspenseQuery(adminQueries.events(orgSlug));
 
   const active = events?.find((e) => e.isActive);
-  const [selectedEventId, setSelectedEventId] = useState<string>(
-    active?.id ?? "",
-  );
+  const selectedEventId = active?.id ?? "";
 
   const [search, setSearch] = useState("");
   const [actionFilter, setActionFilter] = useState<AuditAction | "all">("all");
@@ -768,7 +727,7 @@ function AuditLogPage() {
               Audit Log
             </h1>
             <span className="text-muted-foreground text-xs tabular-nums 2xl:text-sm">
-              {events.find((e) => e.id === selectedEventId)?.name ?? ""}
+              {active?.name ?? ""}
             </span>
           </div>
         </header>
@@ -1025,7 +984,6 @@ function AuditLogPage() {
               </div>
             </PopoverPopup>
           </Popover>
-
         </div>
 
         {/* Active filter chips */}
@@ -1069,7 +1027,7 @@ function AuditLogPage() {
 
         {/* Table */}
         <div className="flex-1 overflow-auto pb-10">
-          <table className="w-full border-collapse whitespace-nowrap text-xs 2xl:text-sm">
+          <table className="w-full border-collapse text-xs whitespace-nowrap 2xl:text-sm">
             <thead className="bg-background sticky top-0 z-10">
               <tr>
                 {/* Expand column */}
@@ -1132,9 +1090,7 @@ function AuditLogPage() {
                       onClick={() => handleRowClick(entry)}
                     >
                       {/* Expand indicator */}
-                      <td
-                        className="px-2 py-1.5"
-                      >
+                      <td className="px-2 py-1.5">
                         {isComplexEntry(entry) ? (
                           <ChevronDownIcon className="text-muted-foreground size-3" />
                         ) : (
@@ -1212,14 +1168,6 @@ function AuditLogPage() {
 
       {/* ── Right sidebar ── */}
       <AuditSidebar
-        events={events}
-        selectedEventId={selectedEventId}
-        onEventChange={(id) => {
-          setSelectedEventId(id);
-          setPage(0);
-          setExpandedRowId(null);
-          setSheetOpen(false);
-        }}
         stats={statsQuery.data}
         isLoadingStats={statsQuery.isLoading}
       />

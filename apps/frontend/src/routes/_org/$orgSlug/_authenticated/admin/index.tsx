@@ -18,7 +18,7 @@ import {
   Trash2Icon,
   UploadIcon,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import {
   AlertDialog,
@@ -30,13 +30,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toastManager } from "@/components/ui/toast-manager";
 import { cn } from "@/components/utils/cn";
 import {
@@ -66,11 +59,9 @@ export const Route = createFileRoute("/_org/$orgSlug/_authenticated/admin/")({
 
 function AdminDashboard({
   orgSlug,
-  events,
   activeEvent,
 }: {
   orgSlug: string;
-  events: OrgEvent[];
   activeEvent: OrgEvent;
 }) {
   const { data: stats } = useSuspenseQuery(
@@ -84,7 +75,7 @@ function AdminDashboard({
     () => setEditOpen(true),
   );
 
-  const totalRoster = stats.coaches + stats.dancers;
+  const totalRoster = stats.coaches.total + stats.dancers.total;
   const activationPct =
     totalRoster === 0 ? 0 : Math.round((stats.registered / totalRoster) * 100);
 
@@ -107,10 +98,20 @@ function AdminDashboard({
           aria-label="Event stats"
           className="border-border flex items-stretch border-y"
         >
-          <StatCell label="Dancers" value={stats.dancers} />
-          <StatCell label="Coaches" value={stats.coaches} />
+          <SplitStatCell
+            label="Dancers"
+            activated={stats.dancers.activated}
+            pending={stats.dancers.pending}
+            total={stats.dancers.total}
+          />
+          <SplitStatCell
+            label="Coaches"
+            activated={stats.coaches.activated}
+            pending={stats.coaches.pending}
+            total={stats.coaches.total}
+          />
           <StatCell label="Pending" value={stats.pending} />
-          <StatCell label="Active" value={stats.registered} />
+          <StatCell label="Activated" value={stats.registered} />
         </section>
 
         <section
@@ -154,7 +155,6 @@ function AdminDashboard({
 
       <EventSidebar
         orgSlug={orgSlug}
-        events={events}
         activeEvent={activeEvent}
         phase={phase}
         stats={stats.recentUploads}
@@ -312,6 +312,32 @@ function StatCell({ label, value }: { label: string; value: number }) {
       </span>
       <span className="text-muted-foreground text-[10px] font-medium tracking-widest uppercase 2xl:text-xs">
         {label}
+      </span>
+    </div>
+  );
+}
+
+function SplitStatCell({
+  label,
+  activated,
+  pending,
+  total,
+}: {
+  label: string;
+  activated: number;
+  pending: number;
+  total: number;
+}) {
+  return (
+    <div className="border-border flex flex-1 flex-col justify-center gap-1 border-l px-4 py-3 first:border-l-0">
+      <span className="text-2xl leading-none font-semibold tracking-tight tabular-nums 2xl:text-3xl">
+        {total.toLocaleString()}
+      </span>
+      <span className="text-muted-foreground text-[10px] font-medium tracking-widest uppercase 2xl:text-xs">
+        {label}
+      </span>
+      <span className="text-muted-foreground text-[10px] tabular-nums">
+        {activated} activated · {pending} pending
       </span>
     </div>
   );
@@ -830,24 +856,17 @@ function TopSchoolsPanel() {
 
 function EventSidebar({
   orgSlug,
-  events,
   activeEvent,
   phase,
   stats,
 }: {
   orgSlug: string;
-  events: OrgEvent[];
   activeEvent: OrgEvent;
   phase: EventPhaseInfo;
   stats: CsvUploadSummary[];
 }) {
   return (
     <aside className="border-border flex w-full shrink-0 flex-col border-t xl:w-[320px] xl:overflow-x-hidden xl:overflow-y-auto xl:border-t-0 xl:border-l">
-      <SidebarEventSection
-        orgSlug={orgSlug}
-        events={events}
-        activeEvent={activeEvent}
-      />
       <SidebarPhaseSection phase={phase} />
       <SidebarDetailsSection event={activeEvent} />
       <SidebarActivitySection orgSlug={orgSlug} uploads={stats} />
@@ -874,101 +893,6 @@ function SidebarSection({
       </div>
       <div className="px-4 pb-3">{children}</div>
     </section>
-  );
-}
-
-function SidebarEventSection({
-  orgSlug,
-  events,
-  activeEvent,
-}: {
-  orgSlug: string;
-  events: OrgEvent[];
-  activeEvent: OrgEvent;
-}) {
-  const qc = useQueryClient();
-  const [createOpen, setCreateOpen] = useState(false);
-
-  const sortedEvents = useMemo(
-    () =>
-      [...events].sort((a, b) => {
-        const byStart = b.startDate.localeCompare(a.startDate);
-        if (byStart !== 0) return byStart;
-        return b.createdAt.localeCompare(a.createdAt);
-      }),
-    [events],
-  );
-
-  const items = sortedEvents.map((e) => ({
-    value: e.id,
-    label: e.name,
-  }));
-
-  const activate = useMutation({
-    mutationFn: async (eventId: string) => {
-      const raw = client as unknown as {
-        PATCH: (
-          path: string,
-          opts: { body: { isActive: boolean } },
-        ) => Promise<{ data: OrgEvent }>;
-      };
-      const res = await raw.PATCH(`/orgs/${orgSlug}/events/${eventId}`, {
-        body: { isActive: true },
-      });
-      return res.data;
-    },
-    onSuccess: () => {
-      qc.invalidateQueries(adminQueries.events(orgSlug));
-      toastManager.add({ title: "Active event updated", type: "success" });
-    },
-    onError: () => {
-      toastManager.add({ title: "Couldn't switch event", type: "error" });
-    },
-  });
-
-  return (
-    <>
-      <SidebarSection
-        title="Event"
-        action={
-          <Button
-            variant="ghost"
-            size="xs"
-            className="text-muted-foreground hover:text-foreground -mr-1.5 gap-1 px-1.5"
-            onClick={() => setCreateOpen(true)}
-          >
-            <PlusIcon className="size-3" />
-            New
-          </Button>
-        }
-      >
-        <Select
-          items={items}
-          value={activeEvent.id}
-          onValueChange={(value) => {
-            if (!value || value === activeEvent.id) return;
-            activate.mutate(value);
-          }}
-          disabled={activate.isPending}
-        >
-          <SelectTrigger className="h-8 w-full text-xs 2xl:text-sm">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {items.map((item) => (
-              <SelectItem key={item.value} value={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </SidebarSection>
-      <EventFormSheet
-        orgSlug={orgSlug}
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-      />
-    </>
   );
 }
 
@@ -1214,7 +1138,6 @@ function AdminHome() {
   return (
     <AdminDashboard
       orgSlug={orgSlug}
-      events={events}
       activeEvent={activeEvent}
     />
   );

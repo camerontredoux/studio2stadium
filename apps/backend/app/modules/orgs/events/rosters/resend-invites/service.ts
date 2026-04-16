@@ -2,14 +2,8 @@ import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { randomBytes } from "node:crypto";
 import { setTimeout as sleep } from "node:timers/promises";
-import {
-  eventRosters,
-  orgEvents,
-} from "#database/schema/org-events";
-import {
-  dancerInvites,
-  organizations,
-} from "#database/schema/organizations";
+import { eventRosters, orgEvents } from "#database/schema/org-events";
+import { dancerInvites, organizations } from "#database/schema/organizations";
 import { sendOrgInviteEmailOrThrow } from "#shared/org/invite-email";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
@@ -37,7 +31,7 @@ export class ResendInvitesService {
     eventId: string,
     input: Validator,
     auditCtx: AuditContext,
-    { pacingMs = RESEND_PACING_MS }: { pacingMs?: number } = {},
+    { pacingMs = RESEND_PACING_MS }: { pacingMs?: number } = {}
   ): Promise<ResendInvitesResult> {
     // Load matching rows: pending dancers only, scoped to event
     const rows = await this.db.use((db) =>
@@ -53,9 +47,9 @@ export class ResendInvitesService {
             eq(eventRosters.eventId, eventId),
             eq(eventRosters.type, "dancer"),
             isNull(eventRosters.userId),
-            inArray(eventRosters.id, input.ids),
-          ),
-        ),
+            inArray(eventRosters.id, input.ids)
+          )
+        )
     );
 
     const matchedIds = new Set(rows.map((r) => r.id));
@@ -68,14 +62,14 @@ export class ResendInvitesService {
           .select()
           .from(organizations)
           .where(eq(organizations.slug, orgSlug))
-          .then((r) => r[0] ?? null),
+          .then((r) => r[0] ?? null)
       ),
       this.db.use((db) =>
         db
           .select()
           .from(orgEvents)
           .where(eq(orgEvents.id, eventId))
-          .then((r) => r[0] ?? null),
+          .then((r) => r[0] ?? null)
       ),
     ]);
 
@@ -97,8 +91,8 @@ export class ResendInvitesService {
             .where(
               and(
                 eq(dancerInvites.orgId, org.id),
-                eq(dancerInvites.email, row.email),
-              ),
+                eq(dancerInvites.email, row.email)
+              )
             );
           await tx.insert(dancerInvites).values({
             orgId: org.id,

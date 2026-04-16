@@ -190,9 +190,7 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add Video</DialogTitle>
-          <DialogDescription>
-            Add a video to your profile.
-          </DialogDescription>
+          <DialogDescription>Add a video to your profile.</DialogDescription>
         </DialogHeader>
         <DialogPanel>
           <Tabs

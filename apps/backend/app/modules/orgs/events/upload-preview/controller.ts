@@ -15,7 +15,8 @@ export default class UploadPreviewController {
       });
     }
     const kind: UploadKind = type === "dancers" ? "dancer" : "coach";
-    const csv = (await readFile(file.tmpPath!)).toString("utf8");
+    const csvBuf = await readFile(file.tmpPath!);
+    const csv = csvBuf.toString("utf8");
     const result = await service.execute({
       orgId: ctx.org!.id,
       eventId: ctx.params.id,

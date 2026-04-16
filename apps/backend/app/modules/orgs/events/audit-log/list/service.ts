@@ -2,17 +2,7 @@ import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { eventAuditLog } from "#database/schema/org-events";
 import { users } from "#database/schema/users";
-import {
-  and,
-  asc,
-  count,
-  desc,
-  eq,
-  gte,
-  isNull,
-  lte,
-  sql,
-} from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, isNull, lte, sql } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 
 @inject()

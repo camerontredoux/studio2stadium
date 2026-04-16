@@ -27,7 +27,13 @@ interface EditSchoolDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type TabValue = "profile" | "account" | "avatar" | "skills" | "styles" | "sports";
+type TabValue =
+  | "profile"
+  | "account"
+  | "avatar"
+  | "skills"
+  | "styles"
+  | "sports";
 
 const TAB_LABELS: Record<TabValue, string> = {
   profile: "Save Profile",
@@ -51,9 +57,15 @@ interface EditSchoolDialogContentProps {
   onFooterStateChange: (state: FooterState) => void;
 }
 
-function EditSchoolDialogContent({ username, activeTab, onFooterStateChange }: EditSchoolDialogContentProps) {
+function EditSchoolDialogContent({
+  username,
+  activeTab,
+  onFooterStateChange,
+}: EditSchoolDialogContentProps) {
   const { data } = useSuspenseQuery(adminQueries.schoolEvents(username));
-  const [tabStates, setTabStates] = useState<Record<TabValue, { isDirty: boolean; isPending: boolean }>>({
+  const [tabStates, setTabStates] = useState<
+    Record<TabValue, { isDirty: boolean; isPending: boolean }>
+  >({
     profile: { isDirty: false, isPending: false },
     account: { isDirty: false, isPending: false },
     avatar: { isDirty: false, isPending: false },
@@ -78,9 +90,10 @@ function EditSchoolDialogContent({ username, activeTab, onFooterStateChange }: E
     sports: sportsRef,
   };
 
-  const handleStateChange = (tab: TabValue) => (state: { isDirty: boolean; isPending: boolean }) => {
-    setTabStates((prev) => ({ ...prev, [tab]: state }));
-  };
+  const handleStateChange =
+    (tab: TabValue) => (state: { isDirty: boolean; isPending: boolean }) => {
+      setTabStates((prev) => ({ ...prev, [tab]: state }));
+    };
 
   const activeState = tabStates[activeTab];
 
@@ -103,11 +116,21 @@ function EditSchoolDialogContent({ username, activeTab, onFooterStateChange }: E
   return (
     <>
       <TabsContent value="profile" className="flex-1 overflow-hidden">
-        <ProfileTab ref={profileRef} username={username} data={data} onStateChange={handleStateChange("profile")} />
+        <ProfileTab
+          ref={profileRef}
+          username={username}
+          data={data}
+          onStateChange={handleStateChange("profile")}
+        />
       </TabsContent>
 
       <TabsContent value="account" className="flex-1 overflow-hidden">
-        <AccountTab ref={accountRef} username={username} displayEmail={data.displayEmail} onStateChange={handleStateChange("account")} />
+        <AccountTab
+          ref={accountRef}
+          username={username}
+          displayEmail={data.displayEmail}
+          onStateChange={handleStateChange("account")}
+        />
       </TabsContent>
 
       <TabsContent value="avatar" className="flex-1 overflow-hidden">
@@ -121,15 +144,30 @@ function EditSchoolDialogContent({ username, activeTab, onFooterStateChange }: E
       </TabsContent>
 
       <TabsContent value="skills" className="flex-1 overflow-hidden">
-        <SkillsTab ref={skillsRef} username={username} selectedSkillIds={skillIds} onStateChange={handleStateChange("skills")} />
+        <SkillsTab
+          ref={skillsRef}
+          username={username}
+          selectedSkillIds={skillIds}
+          onStateChange={handleStateChange("skills")}
+        />
       </TabsContent>
 
       <TabsContent value="styles" className="flex-1 overflow-hidden">
-        <StylesTab ref={stylesRef} username={username} selectedStyleIds={styleIds} onStateChange={handleStateChange("styles")} />
+        <StylesTab
+          ref={stylesRef}
+          username={username}
+          selectedStyleIds={styleIds}
+          onStateChange={handleStateChange("styles")}
+        />
       </TabsContent>
 
       <TabsContent value="sports" className="flex-1 overflow-hidden">
-        <SportsTab ref={sportsRef} username={username} selectedSportIds={sportIds} onStateChange={handleStateChange("sports")} />
+        <SportsTab
+          ref={sportsRef}
+          username={username}
+          selectedSportIds={sportIds}
+          onStateChange={handleStateChange("sports")}
+        />
       </TabsContent>
     </>
   );
@@ -149,7 +187,10 @@ function EditSchoolDialogFallback() {
   );
 }
 
-export function EditSchoolDialog({ school, onOpenChange }: EditSchoolDialogProps) {
+export function EditSchoolDialog({
+  school,
+  onOpenChange,
+}: EditSchoolDialogProps) {
   const [footerState, setFooterState] = useState<FooterState | null>(null);
   const [activeTab, setActiveTab] = useState<TabValue>("profile");
 

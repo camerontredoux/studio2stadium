@@ -1,8 +1,5 @@
 import { AuthLayout } from "@/components/layouts/auth-layout";
-import {
-  CardDescription,
-  CardTitle,
-} from "@/components/ui/card";
+import { CardDescription, CardTitle } from "@/components/ui/card";
 import { useOrg } from "@/features/org/context/use-org";
 import type { ReactNode } from "react";
 
@@ -28,9 +25,7 @@ export function OrgAuthLayout({
           ) : (
             <CardTitle>{org.name}</CardTitle>
           )}
-          {description && (
-            <CardDescription>{description}</CardDescription>
-          )}
+          {description && <CardDescription>{description}</CardDescription>}
         </>
       }
     >

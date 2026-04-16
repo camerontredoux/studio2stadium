@@ -39,12 +39,11 @@ function SettingsPage() {
                 <span
                   className="border-border/60 inline-block size-5 rounded-full border"
                   style={{
-                    backgroundColor:
-                      org.primaryColor ?? "var(--color-primary)",
+                    backgroundColor: org.primaryColor ?? "var(--color-primary)",
                   }}
                   aria-hidden="true"
                 />
-                <span className="text-base font-mono">
+                <span className="font-mono text-base">
                   {org.primaryColor ?? "default"}
                 </span>
               </span>

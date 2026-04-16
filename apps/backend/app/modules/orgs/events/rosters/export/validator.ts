@@ -7,6 +7,6 @@ export const schema = vine.compile(
     search: vine.string().trim().minLength(1).optional(),
     status: vine.enum(["all", "active", "pending"] as const).optional(),
     org: vine.string().trim().minLength(1).optional(),
-  }),
+  })
 );
 export type Validator = Infer<typeof schema>;

@@ -59,7 +59,7 @@ export function RatingInput({
             aria-checked={optimistic === n}
             aria-label={`Rating ${n}`}
             onClick={() => onSet(n)}
-            className="flex size-10 items-center justify-center rounded-full transition-colors hover:bg-accent"
+            className="hover:bg-accent flex size-10 items-center justify-center rounded-full transition-colors"
           >
             <span
               className={`block size-4 rounded-full transition-colors ${

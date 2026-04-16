@@ -62,16 +62,38 @@ test.group("DeleteRosterService", (group) => {
     const rows = await db
       .insert(eventRosters)
       .values([
-        { eventId: event.id, type: "dancer", email: "a@example.com", firstName: "A", lastName: "A" },
-        { eventId: event.id, type: "dancer", email: "b@example.com", firstName: "B", lastName: "B" },
-        { eventId: event.id, type: "dancer", email: "c@example.com", firstName: "C", lastName: "C" },
+        {
+          eventId: event.id,
+          type: "dancer",
+          email: "a@example.com",
+          firstName: "A",
+          lastName: "A",
+        },
+        {
+          eventId: event.id,
+          type: "dancer",
+          email: "b@example.com",
+          firstName: "B",
+          lastName: "B",
+        },
+        {
+          eventId: event.id,
+          type: "dancer",
+          email: "c@example.com",
+          firstName: "C",
+          lastName: "C",
+        },
       ])
       .returning();
 
     const service = new DeleteRosterService();
-    const result = await service.execute(event.id, {
-      ids: [rows[0]!.id, rows[1]!.id],
-    }, { eventId: event.id, actorId: actor.id });
+    const result = await service.execute(
+      event.id,
+      {
+        ids: [rows[0]!.id, rows[1]!.id],
+      },
+      { eventId: event.id, actorId: actor.id }
+    );
     assert.equal(result.deletedCount, 2);
 
     const remaining = await db.select().from(eventRosters);
@@ -98,7 +120,11 @@ test.group("DeleteRosterService", (group) => {
     });
 
     const service = new DeleteRosterService();
-    await service.execute(event.id, { ids: [row!.id] }, { eventId: event.id, actorId: actor.id });
+    await service.execute(
+      event.id,
+      { ids: [row!.id] },
+      { eventId: event.id, actorId: actor.id }
+    );
 
     const profiles = await db
       .select()
@@ -124,7 +150,11 @@ test.group("DeleteRosterService", (group) => {
       .returning();
 
     const service = new DeleteRosterService();
-    const result = await service.execute(eventA.id, { ids: [rowB!.id] }, { eventId: eventA.id, actorId: actor.id });
+    const result = await service.execute(
+      eventA.id,
+      { ids: [rowB!.id] },
+      { eventId: eventA.id, actorId: actor.id }
+    );
     assert.equal(result.deletedCount, 0);
 
     const stillThere = await db

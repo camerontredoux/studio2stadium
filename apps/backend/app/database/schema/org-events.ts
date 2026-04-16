@@ -26,7 +26,8 @@ export const orgEvents = pg.pgTable(
   },
   (table) => [
     pg.index().on(table.orgId),
-    pg.uniqueIndex("org_events_one_active_per_org")
+    pg
+      .uniqueIndex("org_events_one_active_per_org")
       .on(table.orgId)
       .where(sql`is_active = true`),
   ]
@@ -53,7 +54,8 @@ export const eventRosters = pg.pgTable(
   },
   (table) => [
     pg.uniqueIndex().on(table.eventId, table.email),
-    pg.uniqueIndex("event_rosters_bib_per_event")
+    pg
+      .uniqueIndex("event_rosters_bib_per_event")
       .on(table.eventId, table.bibNumber)
       .where(sql`bib_number IS NOT NULL`),
     pg.index().on(table.eventId, table.type),
@@ -61,27 +63,24 @@ export const eventRosters = pg.pgTable(
   ]
 );
 
-export const eventDancerProfiles = pg.pgTable(
-  "event_dancer_profiles",
-  {
-    id: pg.uuid().primaryKey().defaultRandom(),
-    rosterId: pg
-      .uuid()
-      .notNull()
-      .unique()
-      .references(() => eventRosters.id, { onDelete: "cascade" }),
-    profilePhotoUrl: pg.text(),
-    gradYear: pg.integer(),
-    gpa: pg.doublePrecision(),
-    studio: pg.text(),
-    state: pg.text(),
-    height: pg.text(),
-    danceStyles: pg.text().array(),
-    bio: pg.text(),
-    extra: pg.jsonb(),
-    ...timestamps,
-  }
-);
+export const eventDancerProfiles = pg.pgTable("event_dancer_profiles", {
+  id: pg.uuid().primaryKey().defaultRandom(),
+  rosterId: pg
+    .uuid()
+    .notNull()
+    .unique()
+    .references(() => eventRosters.id, { onDelete: "cascade" }),
+  profilePhotoUrl: pg.text(),
+  gradYear: pg.integer(),
+  gpa: pg.doublePrecision(),
+  studio: pg.text(),
+  state: pg.text(),
+  height: pg.text(),
+  danceStyles: pg.text().array(),
+  bio: pg.text(),
+  extra: pg.jsonb(),
+  ...timestamps,
+});
 
 export const csvUploads = pg.pgTable(
   "csv_uploads",
@@ -120,7 +119,7 @@ export const eventChecklist = pg.pgTable(
     position: pg.integer().notNull().default(0),
     ...timestamps,
   },
-  (table) => [pg.index().on(table.eventId)],
+  (table) => [pg.index().on(table.eventId)]
 );
 
 export const eventAuditLog = pg.pgTable(
@@ -148,5 +147,5 @@ export const eventAuditLog = pg.pgTable(
     pg.index().on(table.eventId, table.createdAt),
     pg.index().on(table.parentId),
     pg.index().on(table.actorId),
-  ],
+  ]
 );

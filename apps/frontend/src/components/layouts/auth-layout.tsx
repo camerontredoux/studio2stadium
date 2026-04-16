@@ -30,9 +30,7 @@ export function AuthLayout({ children, cardHeader }: AuthLayoutProps) {
       <CardTitle className="p-2">
         <MainLogo className="h-5 dark:invert" />
       </CardTitle>
-      {description && (
-        <CardDescription>{description}</CardDescription>
-      )}
+      {description && <CardDescription>{description}</CardDescription>}
     </>
   );
 

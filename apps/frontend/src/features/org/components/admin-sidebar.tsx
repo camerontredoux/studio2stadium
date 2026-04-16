@@ -21,7 +21,12 @@ import {
 } from "@/components/ui/menu";
 import { useOrg } from "@/features/org/context/use-org";
 import { useSession } from "@/lib/session";
-import { Link, useLocation, useNavigate, useParams } from "@tanstack/react-router";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "@tanstack/react-router";
 import {
   ChevronDownIcon,
   ClipboardListIcon,
@@ -44,15 +49,31 @@ const navSections = [
   {
     title: "Rosters",
     items: [
-      { label: "Dancers", icon: UsersIcon, to: "/$orgSlug/admin/dancers" as const },
-      { label: "Coaches", icon: MicIcon, to: "/$orgSlug/admin/coaches" as const },
+      {
+        label: "Dancers",
+        icon: UsersIcon,
+        to: "/$orgSlug/admin/dancers" as const,
+      },
+      {
+        label: "Coaches",
+        icon: MicIcon,
+        to: "/$orgSlug/admin/coaches" as const,
+      },
     ],
   },
   {
     title: "Settings",
     items: [
-      { label: "Audit Log", icon: ClipboardListIcon, to: "/$orgSlug/admin/uploads" as const },
-      { label: "Settings", icon: SettingsIcon, to: "/$orgSlug/admin/settings" as const },
+      {
+        label: "Audit Log",
+        icon: ClipboardListIcon,
+        to: "/$orgSlug/admin/uploads" as const,
+      },
+      {
+        label: "Settings",
+        icon: SettingsIcon,
+        to: "/$orgSlug/admin/settings" as const,
+      },
     ],
   },
 ];
@@ -75,8 +96,19 @@ export function AdminSidebar() {
 
     return location.pathname.startsWith(to.replace("$orgSlug", orgSlug));
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const allNavItems = [dashboardItem, ...navSections.flatMap((section) => section.items as { label: string; icon: any; to: string; exact?: boolean }[])];
+
+  const allNavItems = [
+    dashboardItem,
+    ...navSections.flatMap(
+      (section) =>
+        section.items as {
+          label: string;
+          icon: any;
+          to: string;
+          exact?: boolean;
+        }[],
+    ),
+  ];
   const currentView = location.pathname.includes("/admin")
     ? "Admin"
     : location.pathname.includes("/coach")
@@ -107,26 +139,20 @@ export function AdminSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
-              className="h-12 rounded-none px-3 py-0"
+              className="h-12 rounded-none px-3 py-0 group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:w-full! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0!"
               render={<Link to="/$orgSlug/admin" params={{ orgSlug }} />}
             >
-              {org.logoUrl ? (
-                <img
-                  src={org.logoUrl}
-                  alt={org.name}
-                  className="size-8 rounded-none object-contain"
-                />
-              ) : (
-                <div
-                  className="flex size-8 items-center justify-center rounded-none text-sm font-semibold text-white"
+              <div className="hidden size-7 items-center justify-center rounded-md text-xs font-semibold text-white shadow-sm group-data-[collapsible=icon]:flex">
+                <span
+                  className="flex size-7 items-center justify-center rounded-md"
                   style={{
                     background:
                       "linear-gradient(135deg, var(--org-primary, var(--color-primary)), var(--org-accent, var(--color-primary)))",
                   }}
                 >
                   {org.name.charAt(0).toUpperCase()}
-                </div>
-              )}
+                </span>
+              </div>
               <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
                 <span className="truncate font-semibold">{org.name}</span>
                 <span className="text-muted-foreground truncate text-[10px] font-medium tracking-wide uppercase">
@@ -141,7 +167,7 @@ export function AdminSidebar() {
       <SidebarContent className="gap-0 p-0">
         <SidebarGroup className="p-0">
           <SidebarGroupContent className="p-0">
-            <div className="group-data-[collapsible=icon]:hidden border-sidebar-border flex flex-col border-b">
+            <div className="border-sidebar-border flex flex-col border-b group-data-[collapsible=icon]:hidden">
               <section className="border-sidebar-border bg-sidebar border-b last:border-b-0">
                 <SidebarGroupLabel className="text-muted-foreground px-3 pt-2 pb-1 text-[10px] font-semibold tracking-widest uppercase">
                   Overview
@@ -150,10 +176,10 @@ export function AdminSidebar() {
                   <Link
                     to={dashboardItem.to}
                     params={{ orgSlug }}
-                    className={`border-t-2 flex min-h-10 items-center gap-2 px-3 py-2 transition-colors ${
+                    className={`flex min-h-10 items-center gap-2 border-t-2 px-3 py-2 transition-colors ${
                       isItemActive(dashboardItem.to, dashboardItem.exact)
                         ? "border-primary text-primary bg-sidebar-accent/40"
-                        : "border-transparent text-sidebar-foreground hover:bg-sidebar-accent/20"
+                        : "text-sidebar-foreground hover:bg-sidebar-accent/20 border-transparent"
                     }`}
                   >
                     <DashboardIcon
@@ -163,7 +189,7 @@ export function AdminSidebar() {
                           : "text-muted-foreground"
                       }`}
                     />
-                    <span className="text-xs font-semibold leading-none">
+                    <span className="text-xs leading-none font-semibold">
                       {dashboardItem.label}
                     </span>
                   </Link>
@@ -186,18 +212,20 @@ export function AdminSidebar() {
                           key={label}
                           to={to}
                           params={{ orgSlug }}
-                          className={`border-sidebar-border border-t-2 border-r flex min-h-10 items-center gap-2 px-3 py-2 transition-colors even:border-r-0 ${
+                          className={`border-sidebar-border flex min-h-10 items-center gap-2 border-t-2 border-r px-3 py-2 transition-colors even:border-r-0 ${
                             isActive
                               ? "border-t-primary text-primary bg-sidebar-accent/40"
-                              : "border-t-transparent text-sidebar-foreground hover:bg-sidebar-accent/20"
+                              : "text-sidebar-foreground hover:bg-sidebar-accent/20 border-t-transparent"
                           }`}
                         >
                           <Icon
                             className={`size-3.5 shrink-0 ${
-                              isActive ? "text-primary/80" : "text-muted-foreground"
+                              isActive
+                                ? "text-primary/80"
+                                : "text-muted-foreground"
                             }`}
                           />
-                          <span className="text-xs font-semibold leading-none">
+                          <span className="text-xs leading-none font-semibold">
                             {label}
                           </span>
                         </Link>
@@ -218,10 +246,10 @@ export function AdminSidebar() {
                     params={{ orgSlug }}
                     title={label}
                     aria-label={label}
-                    className={`border-sidebar-border flex h-12 items-center justify-center border-b border-t-2 transition-colors ${
+                    className={`border-sidebar-border flex h-12 items-center justify-center border-t-2 border-b transition-colors ${
                       isActive
                         ? "border-t-primary bg-sidebar-accent/40 text-primary"
-                        : "border-t-transparent text-sidebar-foreground hover:bg-sidebar-accent/20"
+                        : "text-sidebar-foreground hover:bg-sidebar-accent/20 border-t-transparent"
                     }`}
                   >
                     <Icon
@@ -244,7 +272,7 @@ export function AdminSidebar() {
               <SidebarMenuButton
                 size="lg"
                 tooltip={displayName}
-                className="data-popup-open:bg-sidebar-accent rounded-none border-sidebar-border border-t-2 border-t-transparent px-3 py-3 hover:bg-sidebar-accent/20 group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:w-full! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-none group-data-[collapsible=icon]:p-0!"
+                className="data-popup-open:bg-sidebar-accent border-sidebar-border hover:bg-sidebar-accent/20 rounded-none border-t-2 border-t-transparent px-3 py-3 group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:w-full! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-none group-data-[collapsible=icon]:p-0!"
                 render={<MenuTrigger />}
               >
                 <Avatar className="size-8">
@@ -264,10 +292,13 @@ export function AdminSidebar() {
               <MenuPopup
                 side="top"
                 align="start"
-                className="w-64 min-w-64 max-w-80"
+                className="w-64 max-w-80 min-w-64"
               >
                 <MenuGroup>
-                  <MenuItem disabled className="min-h-0 flex-col items-start gap-0.5 py-2">
+                  <MenuItem
+                    disabled
+                    className="min-h-0 flex-col items-start gap-0.5 py-2"
+                  >
                     <span className="font-medium">{displayName}</span>
                     <span className="text-muted-foreground text-xs">
                       @{session.username}
@@ -283,7 +314,10 @@ export function AdminSidebar() {
                         Viewing as: {currentView}
                       </MenuItem>
                       {(["Admin", "Coach", "Dancer"] as const).map((view) => (
-                        <MenuItem key={view} onClick={() => handleSelectView(view)}>
+                        <MenuItem
+                          key={view}
+                          onClick={() => handleSelectView(view)}
+                        >
                           {view}
                         </MenuItem>
                       ))}

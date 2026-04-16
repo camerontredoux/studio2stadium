@@ -4,7 +4,10 @@ import { GetOrgService } from "./service.ts";
 
 export default class GetOrgController {
   @inject()
-  async handle({ params, response, auth }: HttpContext, service: GetOrgService) {
+  async handle(
+    { params, response, auth }: HttpContext,
+    service: GetOrgService
+  ) {
     // Opportunistically resolve the current user so we can attach their
     // membership to the response when signed in. The endpoint itself stays
     // public (login and landing pages hit it without a session).

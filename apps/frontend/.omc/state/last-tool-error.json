@@ -1,7 +1,7 @@
 {
-  "tool_name": "Read",
-  "tool_input_preview": "{\"file_path\":\"/home/cameron/Developer/studio2stadium/app/.worktrees/summit-04/apps/backend/app/modules/orgs/events/delete/service.ts\"}",
-  "error": "File does not exist. Note: your current working directory is /home/cameron/Developer/studio2stadium/app/.worktrees/summit-04/apps/frontend.",
-  "timestamp": "2026-04-15T18:01:35.938Z",
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"timeout 90 pnpm --silent --filter backend test --files \\\"app/shared/org/role-guard.spec.ts\\\" 2>&1 | tail -15\",\"timeout\":120000,\"description\":\"role-guard tests sequential\"}",
+  "error": "Exit code 143\nTerminated",
+  "timestamp": "2026-04-16T18:51:49.335Z",
   "retry_count": 1
 }

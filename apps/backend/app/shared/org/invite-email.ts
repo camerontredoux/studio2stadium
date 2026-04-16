@@ -55,7 +55,7 @@ class OrgInviteMail extends BaseMail {
 
 function formatDateRange(
   startYmd: string | null,
-  endYmd: string | null,
+  endYmd: string | null
 ): string | null {
   if (!startYmd) return null;
   const fmt = (ymd: string) => {
@@ -95,13 +95,13 @@ export async function sendOrgInviteEmail(opts: {
         eventDateLabel: event
           ? formatDateRange(
               event.startDate as string | null,
-              event.endDate as string | null,
+              event.endDate as string | null
             )
           : null,
         venueName: event?.venueName ?? null,
         type,
         token,
-      }),
+      })
     );
   } catch {
     // Fire-and-forget: email failures must not block the upload response.
@@ -128,12 +128,12 @@ export async function sendOrgInviteEmailOrThrow(opts: {
       eventDateLabel: event
         ? formatDateRange(
             event.startDate as string | null,
-            event.endDate as string | null,
+            event.endDate as string | null
           )
         : null,
       venueName: event?.venueName ?? null,
       type,
       token,
-    }),
+    })
   );
 }

@@ -59,7 +59,8 @@ export function computeEventPhase(
 
   if (today >= start && today <= end) {
     const liveDay = daysBetween(start, today) + 1;
-    const label = totalDays > 1 ? `Day ${liveDay} of ${totalDays}` : "Happening now";
+    const label =
+      totalDays > 1 ? `Day ${liveDay} of ${totalDays}` : "Happening now";
     return { phase: "live", label, daysUntilStart, liveDay, totalDays };
   }
 
@@ -73,7 +74,10 @@ export function computeEventPhase(
   return { phase: "wrapped", label, daysUntilStart, liveDay: null, totalDays };
 }
 
-export function useEventPhase(startDate: string, endDate: string): EventPhaseInfo {
+export function useEventPhase(
+  startDate: string,
+  endDate: string,
+): EventPhaseInfo {
   return useMemo(
     () => computeEventPhase(startDate, endDate),
     [startDate, endDate],

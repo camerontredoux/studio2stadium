@@ -10,7 +10,10 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
-import { adminQueries, type ChecklistItem } from "@/features/org/api/admin-queries";
+import {
+  adminQueries,
+  type ChecklistItem,
+} from "@/features/org/api/admin-queries";
 import { client } from "@/lib/api/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -73,13 +76,14 @@ export function ChecklistItemDialog({
         title: body.title,
         description: null,
         completed: false,
-        position: (prev?.length ?? 0),
+        position: prev?.length ?? 0,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      qc.setQueryData<ChecklistItem[]>(queryKey, (old) =>
-        [...(old ?? []), optimistic],
-      );
+      qc.setQueryData<ChecklistItem[]>(queryKey, (old) => [
+        ...(old ?? []),
+        optimistic,
+      ]);
       onOpenChange(false);
       return { prev };
     },
@@ -130,7 +134,9 @@ export function ChecklistItemDialog({
     reset({ title: item?.title ?? "" });
   }, [open, item, reset]);
 
-  const pending = isCreate ? createMutation.isPending : updateMutation.isPending;
+  const pending = isCreate
+    ? createMutation.isPending
+    : updateMutation.isPending;
 
   const onSubmit = (data: Schema) => {
     if (pending) return;
@@ -148,7 +154,9 @@ export function ChecklistItemDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isCreate ? "Add checklist item" : "Edit checklist item"}</DialogTitle>
+          <DialogTitle>
+            {isCreate ? "Add checklist item" : "Edit checklist item"}
+          </DialogTitle>
         </DialogHeader>
         <form
           id={FORM_ID}
@@ -161,7 +169,11 @@ export function ChecklistItemDialog({
             render={({ field, fieldState }) => (
               <Field name={field.name} invalid={fieldState.invalid}>
                 <FieldLabel>Title</FieldLabel>
-                <Input autoFocus placeholder="e.g. Venue confirmed" {...field} />
+                <Input
+                  autoFocus
+                  placeholder="e.g. Venue confirmed"
+                  {...field}
+                />
                 <FieldError error={fieldState.error} />
               </Field>
             )}

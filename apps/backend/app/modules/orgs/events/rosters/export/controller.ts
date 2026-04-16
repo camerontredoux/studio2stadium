@@ -12,7 +12,7 @@ export default class ExportRosterController {
     ctx.response.header("Content-Type", "text/csv; charset=utf-8");
     ctx.response.header(
       "Content-Disposition",
-      `attachment; filename="${filename}"`,
+      `attachment; filename="${filename}"`
     );
     return ctx.response.send(csv);
   }

@@ -33,8 +33,10 @@ export function CoachSidebar() {
             <SidebarMenuButton
               size="lg"
               render={
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                <Link to={"/$orgSlug/coach" as any} params={{ orgSlug } as any} />
+                <Link
+                  to={"/$orgSlug/coach" as any}
+                  params={{ orgSlug } as any}
+                />
               }
             >
               {org.logoUrl ? (

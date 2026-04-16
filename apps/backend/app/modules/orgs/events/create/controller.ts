@@ -13,8 +13,13 @@ export default class CreateEventController {
       const ev = await service.execute(ctx.org!.id, payload, user.id);
       return ctx.response.created(ev);
     } catch (err: any) {
-      if (err instanceof E_DATABASE_ERROR && err.code === "E_UNIQUE_VIOLATION") {
-        return ctx.response.conflict({ message: "Another event is already active. Deactivate it first." });
+      if (
+        err instanceof E_DATABASE_ERROR &&
+        err.code === "E_UNIQUE_VIOLATION"
+      ) {
+        return ctx.response.conflict({
+          message: "Another event is already active. Deactivate it first.",
+        });
       }
       throw err;
     }

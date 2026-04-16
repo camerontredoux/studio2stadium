@@ -6,7 +6,11 @@ import { dancerProfiles } from "#database/schema/dancers";
 import { schoolProfiles } from "#database/schema/schools";
 import { favorites } from "#database/schema/profiles";
 import { organizations } from "#database/schema/organizations";
-import { csvUploads, eventRosters, orgEvents } from "#database/schema/org-events";
+import {
+  csvUploads,
+  eventRosters,
+  orgEvents,
+} from "#database/schema/org-events";
 import { orgMemberships } from "#database/schema/organizations";
 import { seedOrganizations } from "#commands/backfill-organizations";
 import { backfillSchoolFavoritesOrg } from "#commands/backfill-school-favorites-org";

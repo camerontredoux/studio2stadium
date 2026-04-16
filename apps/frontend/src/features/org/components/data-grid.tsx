@@ -170,7 +170,9 @@ export function DataGrid<T extends { id: string }>({
   const columnsStorageKey = `s2s:datagrid:${storageKey}:columns`;
   const densityStorageKey = `s2s:datagrid:${storageKey}:density`;
 
-  const [columnVisibility, setColumnVisibility] = useState<Record<string, boolean>>(() => {
+  const [columnVisibility, setColumnVisibility] = useState<
+    Record<string, boolean>
+  >(() => {
     if (typeof window === "undefined") return {};
     try {
       const raw = window.localStorage.getItem(columnsStorageKey);
@@ -182,8 +184,13 @@ export function DataGrid<T extends { id: string }>({
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(columnsStorageKey, JSON.stringify(columnVisibility));
-    } catch { /* ignore */ }
+      window.localStorage.setItem(
+        columnsStorageKey,
+        JSON.stringify(columnVisibility),
+      );
+    } catch {
+      /* ignore */
+    }
   }, [columnVisibility, columnsStorageKey]);
 
   const [density, setDensity] = useState<Density>(() => {
@@ -199,7 +206,9 @@ export function DataGrid<T extends { id: string }>({
   useEffect(() => {
     try {
       window.localStorage.setItem(densityStorageKey, density);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, [density, densityStorageKey]);
 
   const allColumns: ColumnDef<T, unknown>[] = bulkActions
@@ -271,8 +280,7 @@ export function DataGrid<T extends { id: string }>({
     .getAllLeafColumns()
     .filter(
       (col) =>
-        col.id !== "select" &&
-        !(nonHideableColumnIds ?? []).includes(col.id),
+        col.id !== "select" && !(nonHideableColumnIds ?? []).includes(col.id),
     );
 
   const handleCellDoubleClick = useCallback(
@@ -355,7 +363,13 @@ export function DataGrid<T extends { id: string }>({
         {filters && filters.length > 0 && (
           <Popover>
             <PopoverTrigger
-              render={<Button size="xs" variant="ghost" className="h-7 gap-1 px-1.5 text-xs lg:hidden" />}
+              render={
+                <Button
+                  size="xs"
+                  variant="ghost"
+                  className="h-7 gap-1 px-1.5 text-xs lg:hidden"
+                />
+              }
             >
               <FilterIcon className="size-3.5" />
             </PopoverTrigger>
@@ -363,7 +377,9 @@ export function DataGrid<T extends { id: string }>({
               <div className="flex flex-col gap-3">
                 {filters.map((filter) => (
                   <div key={filter.id} className="flex flex-col gap-1">
-                    <span className="text-muted-foreground text-xs font-medium">{filter.label}</span>
+                    <span className="text-muted-foreground text-xs font-medium">
+                      {filter.label}
+                    </span>
                     <Select
                       items={filter.options}
                       value={filter.value}
@@ -393,9 +409,7 @@ export function DataGrid<T extends { id: string }>({
         <div className="ml-auto flex items-center gap-1.5">
           {/* Columns popover */}
           <Popover>
-            <PopoverTrigger
-              render={<Button size="icon-sm" variant="ghost" />}
-            >
+            <PopoverTrigger render={<Button size="icon-sm" variant="ghost" />}>
               <SlidersHorizontalIcon className="size-3.5" />
               <span className="sr-only">Columns</span>
             </PopoverTrigger>
@@ -414,7 +428,9 @@ export function DataGrid<T extends { id: string }>({
                     >
                       <Checkbox
                         checked={col.getIsVisible()}
-                        onCheckedChange={(checked) => col.toggleVisibility(!!checked)}
+                        onCheckedChange={(checked) =>
+                          col.toggleVisibility(!!checked)
+                        }
                       />
                       <span>{label}</span>
                     </label>
@@ -425,9 +441,7 @@ export function DataGrid<T extends { id: string }>({
           </Popover>
           {/* Density popover */}
           <Popover>
-            <PopoverTrigger
-              render={<Button size="icon-sm" variant="ghost" />}
-            >
+            <PopoverTrigger render={<Button size="icon-sm" variant="ghost" />}>
               <RowsIcon className="size-3.5" />
               <span className="sr-only">Density</span>
             </PopoverTrigger>
@@ -445,7 +459,9 @@ export function DataGrid<T extends { id: string }>({
                   >
                     <span className="capitalize">{d}</span>
                     {density === d && (
-                      <span className="text-muted-foreground text-[10px]">✓</span>
+                      <span className="text-muted-foreground text-[10px]">
+                        ✓
+                      </span>
                     )}
                   </button>
                 ))}
@@ -484,7 +500,9 @@ export function DataGrid<T extends { id: string }>({
                 <span className="font-medium">{activeLabel}</span>
                 <button
                   type="button"
-                  onClick={() => filter.onChange(filter.options[0]?.value ?? "")}
+                  onClick={() =>
+                    filter.onChange(filter.options[0]?.value ?? "")
+                  }
                   className="hover:text-foreground text-muted-foreground ml-0.5"
                   aria-label={`Clear ${filter.label} filter`}
                 >
@@ -537,10 +555,14 @@ export function DataGrid<T extends { id: string }>({
 
       {/* ── Scrollable Table ── */}
       <div data-density={density} className="flex-1 overflow-auto pb-10">
-        <table className={cn(
-          "w-full border-collapse whitespace-nowrap",
-          density === "compact" ? "text-[11px] 2xl:text-xs" : "text-xs 2xl:text-sm",
-        )}>
+        <table
+          className={cn(
+            "w-full border-collapse whitespace-nowrap",
+            density === "compact"
+              ? "text-[11px] 2xl:text-xs"
+              : "text-xs 2xl:text-sm",
+          )}
+        >
           <thead className="bg-background sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
@@ -780,4 +802,3 @@ export function StatusBadge({ isRegistered }: { isRegistered: boolean }) {
     </span>
   );
 }
-

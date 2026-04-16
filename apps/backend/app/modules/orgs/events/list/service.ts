@@ -9,7 +9,9 @@ export class ListEventsService {
 
   async execute(orgId: string) {
     return this.db.use((db) =>
-      db.select().from(orgEvents)
+      db
+        .select()
+        .from(orgEvents)
         .where(eq(orgEvents.orgId, orgId))
         .orderBy(desc(orgEvents.createdAt))
     );

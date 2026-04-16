@@ -14,56 +14,251 @@ const DeleteRosterController = () => import("./rosters/delete/controller.ts");
 const ExportRosterController = () => import("./rosters/export/controller.ts");
 const FiltersRosterController = () => import("./rosters/filters/controller.ts");
 const StatsRosterController = () => import("./rosters/stats/controller.ts");
-const ResendInvitesController = () => import("./rosters/resend-invites/controller.ts");
+const ResendInvitesController = () =>
+  import("./rosters/resend-invites/controller.ts");
 const ListChecklistController = () => import("./checklist/list/controller.ts");
-const CreateChecklistController = () => import("./checklist/create/controller.ts");
-const UpdateChecklistController = () => import("./checklist/update/controller.ts");
-const DeleteChecklistController = () => import("./checklist/delete/controller.ts");
+const CreateChecklistController = () =>
+  import("./checklist/create/controller.ts");
+const UpdateChecklistController = () =>
+  import("./checklist/update/controller.ts");
+const DeleteChecklistController = () =>
+  import("./checklist/delete/controller.ts");
 const ListAuditLogController = () => import("./audit-log/list/controller.ts");
 const AuditLogStatsController = () => import("./audit-log/stats/controller.ts");
-const ListAuditLogChildrenController = () => import("./audit-log/children/controller.ts");
+const ListAuditLogChildrenController = () =>
+  import("./audit-log/children/controller.ts");
+const ListReconciliationController = () =>
+  import("./reconciliation/list-controller.ts");
+const ResendInviteController = () =>
+  import("./reconciliation/resend-controller.ts");
+const RevokeInviteController = () =>
+  import("./reconciliation/revoke-controller.ts");
+const ManualMergeController = () =>
+  import("./reconciliation/merge-controller.ts");
+const SearchSchoolUsersController = () =>
+  import("./reconciliation/search-users-controller.ts");
 
-router.group(() => {
-  router.post(":slug/events", [CreateEventController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.patch(":slug/events/:id", [UpdateEventController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.get(":slug/events", [ListEventsController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.post(":slug/events/:id/upload/coaches", [UploadCoachesController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.post(":slug/events/:id/upload/dancers", [UploadDancersController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.post(":slug/events/:id/upload/:type/preview", [UploadPreviewController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.get(":slug/events/:id/stats", [EventStatsController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.get(":slug/events/:id/rosters/export", [ExportRosterController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.get(":slug/events/:id/rosters/filters", [FiltersRosterController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.get(":slug/events/:id/rosters/stats", [StatsRosterController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.get(":slug/events/:id/rosters", [ListRosterController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.patch(":slug/events/:id/rosters/:rosterId", [UpdateRosterController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.delete(":slug/events/:id/rosters", [DeleteRosterController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.post(":slug/events/:id/rosters/resend-invites", [ResendInvitesController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.get(":slug/events/:id/checklist", [ListChecklistController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.post(":slug/events/:id/checklist", [CreateChecklistController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.patch(":slug/events/:id/checklist/:itemId", [UpdateChecklistController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.delete(":slug/events/:id/checklist/:itemId", [DeleteChecklistController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.get(":slug/events/:id/audit-log/stats", [AuditLogStatsController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.get(":slug/events/:id/audit-log/:entryId/children", [ListAuditLogChildrenController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-  router.get(":slug/events/:id/audit-log", [ListAuditLogController])
-    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
-}).prefix("orgs");
+router
+  .group(() => {
+    router
+      .post(":slug/events", [CreateEventController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .patch(":slug/events/:id", [UpdateEventController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events", [ListEventsController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .post(":slug/events/:id/upload/coaches", [UploadCoachesController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .post(":slug/events/:id/upload/dancers", [UploadDancersController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .post(":slug/events/:id/upload/:type/preview", [UploadPreviewController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events/:id/stats", [EventStatsController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events/:id/rosters/export", [ExportRosterController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events/:id/rosters/filters", [FiltersRosterController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events/:id/rosters/stats", [StatsRosterController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events/:id/rosters", [ListRosterController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .patch(":slug/events/:id/rosters/:rosterId", [UpdateRosterController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .delete(":slug/events/:id/rosters", [DeleteRosterController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .post(":slug/events/:id/rosters/resend-invites", [
+        ResendInvitesController,
+      ])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events/:id/checklist", [ListChecklistController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .post(":slug/events/:id/checklist", [CreateChecklistController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .patch(":slug/events/:id/checklist/:itemId", [UpdateChecklistController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .delete(":slug/events/:id/checklist/:itemId", [DeleteChecklistController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events/:id/audit-log/stats", [AuditLogStatsController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events/:id/audit-log/:entryId/children", [
+        ListAuditLogChildrenController,
+      ])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events/:id/audit-log", [ListAuditLogController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events/:id/reconciliation", [ListReconciliationController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .post(":slug/events/:id/reconciliation/invites/:inviteId/resend", [
+        ResendInviteController,
+      ])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .delete(":slug/events/:id/reconciliation/invites/:inviteId", [
+        RevokeInviteController,
+      ])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .post(":slug/events/:id/reconciliation/rosters/:rosterId/merge", [
+        ManualMergeController,
+      ])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events/:id/reconciliation/school-users", [
+        SearchSchoolUsersController,
+      ])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+  })
+  .prefix("orgs");

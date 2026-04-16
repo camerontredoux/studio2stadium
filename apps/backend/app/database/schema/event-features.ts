@@ -21,7 +21,9 @@ export const eventFavorites = pg.pgTable(
     ...timestamps,
   },
   (table) => [
-    pg.uniqueIndex().on(table.eventId, table.coachRosterId, table.dancerRosterId),
+    pg
+      .uniqueIndex()
+      .on(table.eventId, table.coachRosterId, table.dancerRosterId),
     pg.index().on(table.coachRosterId),
   ]
 );
@@ -46,7 +48,9 @@ export const eventNotes = pg.pgTable(
     ...timestamps,
   },
   (table) => [
-    pg.uniqueIndex().on(table.eventId, table.coachRosterId, table.dancerRosterId),
+    pg
+      .uniqueIndex()
+      .on(table.eventId, table.coachRosterId, table.dancerRosterId),
     pg.index().on(table.coachRosterId),
   ]
 );
@@ -71,7 +75,9 @@ export const eventRatings = pg.pgTable(
     ...timestamps,
   },
   (table) => [
-    pg.uniqueIndex().on(table.eventId, table.coachRosterId, table.dancerRosterId),
+    pg
+      .uniqueIndex()
+      .on(table.eventId, table.coachRosterId, table.dancerRosterId),
     pg.index().on(table.coachRosterId),
   ]
 );

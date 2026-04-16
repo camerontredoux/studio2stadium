@@ -35,7 +35,9 @@ export default class OrgEventMiddleware {
       const [roster] = await db
         .select()
         .from(eventRosters)
-        .where(and(eq(eventRosters.eventId, ev.id), eq(eventRosters.userId, user.id)))
+        .where(
+          and(eq(eventRosters.eventId, ev.id), eq(eventRosters.userId, user.id))
+        )
         .limit(1);
       if (roster) ctx.orgRoster = roster;
     } catch {

@@ -21,7 +21,10 @@ function TableSkeleton() {
             </div>
           </div>
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="flex items-center justify-between border-b p-4 last:border-b-0">
+            <div
+              key={i}
+              className="flex items-center justify-between border-b p-4 last:border-b-0"
+            >
               <div className="flex items-center gap-3">
                 <Skeleton className="size-10 rounded-full" />
                 <Skeleton className="h-4 w-32" />

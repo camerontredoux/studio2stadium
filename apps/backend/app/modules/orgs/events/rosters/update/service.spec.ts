@@ -79,11 +79,16 @@ test.group("UpdateRosterService", (group) => {
       .returning();
 
     const service = new UpdateRosterService();
-    const result = await service.execute(event.id, row!.id, {
-      firstName: "Alice",
-      lastName: "New",
-      bibNumber: 2,
-    }, { eventId: event.id, actorId: actor.id });
+    const result = await service.execute(
+      event.id,
+      row!.id,
+      {
+        firstName: "Alice",
+        lastName: "New",
+        bibNumber: 2,
+      },
+      { eventId: event.id, actorId: actor.id }
+    );
 
     assert.equal(result.firstName, "Alice");
     assert.equal(result.lastName, "New");
@@ -107,14 +112,19 @@ test.group("UpdateRosterService", (group) => {
       .returning();
 
     const service = new UpdateRosterService();
-    const result = await service.execute(event.id, row!.id, {
-      profile: {
-        gradYear: 2028,
-        gpa: 3.5,
-        studio: "Studio X",
-        danceStyles: ["Jazz"],
+    const result = await service.execute(
+      event.id,
+      row!.id,
+      {
+        profile: {
+          gradYear: 2028,
+          gpa: 3.5,
+          studio: "Studio X",
+          danceStyles: ["Jazz"],
+        },
       },
-    }, { eventId: event.id, actorId: actor.id });
+      { eventId: event.id, actorId: actor.id }
+    );
 
     assert.equal(result.profile!.gradYear, 2028);
     assert.equal(result.profile!.gpa, 3.5);
@@ -152,8 +162,14 @@ test.group("UpdateRosterService", (group) => {
 
     const service = new UpdateRosterService();
     await assert.rejects(
-      () => service.execute(event.id, row!.id, { firstName: "Nope" }, { eventId: event.id, actorId: actor.id }),
-      RosterActiveReadonlyError.prototype.message,
+      () =>
+        service.execute(
+          event.id,
+          row!.id,
+          { firstName: "Nope" },
+          { eventId: event.id, actorId: actor.id }
+        ),
+      RosterActiveReadonlyError.prototype.message
     );
   });
 
@@ -174,17 +190,22 @@ test.group("UpdateRosterService", (group) => {
     const service = new UpdateRosterService();
     await assert.rejects(
       () =>
-        service.execute(event.id, row!.id, {
-          profile: { gradYear: 2026 },
-        }, { eventId: event.id, actorId: actor.id }),
-      CoachNoProfileError.prototype.message,
+        service.execute(
+          event.id,
+          row!.id,
+          {
+            profile: { gradYear: 2026 },
+          },
+          { eventId: event.id, actorId: actor.id }
+        ),
+      CoachNoProfileError.prototype.message
     );
   });
 
   test("rejects email collision within the same event", async ({ assert }) => {
     const actor = await makeActorUser();
     const { event } = await makeOrgAndEvent();
-    const [_a, b] = await db
+    const [, b] = await db
       .insert(eventRosters)
       .values([
         {
@@ -206,15 +227,21 @@ test.group("UpdateRosterService", (group) => {
 
     const service = new UpdateRosterService();
     await assert.rejects(
-      () => service.execute(event.id, b!.id, { email: "taken@example.com" }, { eventId: event.id, actorId: actor.id }),
-      RosterEmailConflictError.prototype.message,
+      () =>
+        service.execute(
+          event.id,
+          b!.id,
+          { email: "taken@example.com" },
+          { eventId: event.id, actorId: actor.id }
+        ),
+      RosterEmailConflictError.prototype.message
     );
   });
 
   test("rejects bib collision within the same event", async ({ assert }) => {
     const actor = await makeActorUser();
     const { event } = await makeOrgAndEvent();
-    const [_a, b] = await db
+    const [, b] = await db
       .insert(eventRosters)
       .values([
         {
@@ -238,8 +265,14 @@ test.group("UpdateRosterService", (group) => {
 
     const service = new UpdateRosterService();
     await assert.rejects(
-      () => service.execute(event.id, b!.id, { bibNumber: 99 }, { eventId: event.id, actorId: actor.id }),
-      RosterBibConflictError.prototype.message,
+      () =>
+        service.execute(
+          event.id,
+          b!.id,
+          { bibNumber: 99 },
+          { eventId: event.id, actorId: actor.id }
+        ),
+      RosterBibConflictError.prototype.message
     );
   });
 
@@ -260,10 +293,15 @@ test.group("UpdateRosterService", (group) => {
       .returning();
 
     const service = new UpdateRosterService();
-    const result = await service.execute(event.id, row!.id, {
-      organization: null,
-      bibNumber: null,
-    }, { eventId: event.id, actorId: actor.id });
+    const result = await service.execute(
+      event.id,
+      row!.id,
+      {
+        organization: null,
+        bibNumber: null,
+      },
+      { eventId: event.id, actorId: actor.id }
+    );
 
     assert.isNull(result.organization);
     assert.isNull(result.bibNumber);

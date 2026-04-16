@@ -1,7 +1,7 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { eventRosters, csvUploads } from "#database/schema/org-events";
-import { and, count, desc, eq, isNotNull } from "drizzle-orm";
+import { and, count, desc, eq, isNotNull, isNull } from "drizzle-orm";
 
 @inject()
 export class EventStatsService {
@@ -9,24 +9,50 @@ export class EventStatsService {
 
   async execute(eventId: string) {
     return this.db.use(async (db) => {
-      const [coachCount] = await db
-        .select({ v: count() })
-        .from(eventRosters)
-        .where(and(eq(eventRosters.eventId, eventId), eq(eventRosters.type, "coach")));
-
-      const [dancerCount] = await db
-        .select({ v: count() })
-        .from(eventRosters)
-        .where(and(eq(eventRosters.eventId, eventId), eq(eventRosters.type, "dancer")));
-
-      const [registeredCount] = await db
+      // All counts derived from eventRosters.userId per activation semantics:
+      // activated = userId IS NOT NULL, pending = userId IS NULL
+      const [coachActivated] = await db
         .select({ v: count() })
         .from(eventRosters)
         .where(
           and(
             eq(eventRosters.eventId, eventId),
-            isNotNull(eventRosters.userId),
-          ),
+            eq(eventRosters.type, "coach"),
+            isNotNull(eventRosters.userId)
+          )
+        );
+
+      const [coachPending] = await db
+        .select({ v: count() })
+        .from(eventRosters)
+        .where(
+          and(
+            eq(eventRosters.eventId, eventId),
+            eq(eventRosters.type, "coach"),
+            isNull(eventRosters.userId)
+          )
+        );
+
+      const [dancerActivated] = await db
+        .select({ v: count() })
+        .from(eventRosters)
+        .where(
+          and(
+            eq(eventRosters.eventId, eventId),
+            eq(eventRosters.type, "dancer"),
+            isNotNull(eventRosters.userId)
+          )
+        );
+
+      const [dancerPending] = await db
+        .select({ v: count() })
+        .from(eventRosters)
+        .where(
+          and(
+            eq(eventRosters.eventId, eventId),
+            eq(eventRosters.type, "dancer"),
+            isNull(eventRosters.userId)
+          )
         );
 
       const recentUploads = await db
@@ -36,15 +62,28 @@ export class EventStatsService {
         .orderBy(desc(csvUploads.createdAt))
         .limit(5);
 
-      const coaches = Number(coachCount?.v ?? 0);
-      const dancers = Number(dancerCount?.v ?? 0);
-      const registered = Number(registeredCount?.v ?? 0);
+      const coachActivatedN = Number(coachActivated?.v ?? 0);
+      const coachPendingN = Number(coachPending?.v ?? 0);
+      const dancerActivatedN = Number(dancerActivated?.v ?? 0);
+      const dancerPendingN = Number(dancerPending?.v ?? 0);
+
+      const coaches = {
+        activated: coachActivatedN,
+        pending: coachPendingN,
+        total: coachActivatedN + coachPendingN,
+      };
+      const dancers = {
+        activated: dancerActivatedN,
+        pending: dancerPendingN,
+        total: dancerActivatedN + dancerPendingN,
+      };
 
       return {
         coaches,
         dancers,
-        registered,
-        pending: coaches + dancers - registered,
+        // Flat aliases kept for any consumers that haven't migrated yet
+        registered: dancerActivatedN + coachActivatedN,
+        pending: dancerPendingN + coachPendingN,
         recentUploads,
       };
     });

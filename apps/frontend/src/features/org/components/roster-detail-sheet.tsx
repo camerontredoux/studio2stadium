@@ -217,8 +217,8 @@ export function RosterDetailSheet({
           <SheetContent>
             {isActive && (
               <div className="mx-4 mt-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
-                This {isDancer ? "dancer" : "coach"} has registered and connected
-                their profile. Admin edits are disabled.
+                This {isDancer ? "dancer" : "coach"} has registered and
+                connected their profile. Admin edits are disabled.
               </div>
             )}
             <form
@@ -259,7 +259,11 @@ export function RosterDetailSheet({
                   render={({ field, fieldState }) => (
                     <Field name={field.name} invalid={fieldState.invalid}>
                       <FieldLabel>Email</FieldLabel>
-                      <Input {...field} type="email" value={field.value ?? ""} />
+                      <Input
+                        {...field}
+                        type="email"
+                        value={field.value ?? ""}
+                      />
                       <FieldError error={fieldState.error} />
                     </Field>
                   )}
@@ -421,23 +425,11 @@ export function RosterDetailSheet({
                   />
                 </fieldset>
               )}
-            </form>
-          </SheetContent>
-          <SheetFooter>
-            <div className="flex w-full items-center justify-between">
-              <div className="flex items-center gap-2">
-                {!isActive && isDancer && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleResendInvite}
-                    disabled={resendMutation.isPending}
-                  >
-                    <MailIcon className="size-4" />
-                    Resend invite
-                  </Button>
-                )}
+
+              <div className="border-t pt-4">
+                <p className="text-muted-foreground mb-3 text-xs">
+                  Delete is permanent and cannot be undone.
+                </p>
                 <Button
                   type="button"
                   variant="ghost"
@@ -449,6 +441,22 @@ export function RosterDetailSheet({
                   Delete
                 </Button>
               </div>
+            </form>
+          </SheetContent>
+          <SheetFooter>
+            <div className="flex w-full items-center justify-end gap-2">
+              {!isActive && isDancer && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleResendInvite}
+                  disabled={resendMutation.isPending}
+                >
+                  <MailIcon className="size-4" />
+                  Resend invite
+                </Button>
+              )}
               <div className="flex items-center gap-2">
                 <SheetClose render={<Button variant="ghost" />}>
                   Cancel

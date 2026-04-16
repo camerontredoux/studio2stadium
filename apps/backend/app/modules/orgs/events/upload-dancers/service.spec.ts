@@ -1,24 +1,42 @@
 import { test } from "@japa/runner";
 import { db } from "#database/connection";
 import { users } from "#database/schema/users";
-import { organizations, orgMemberships, premiumGrants, dancerInvites } from "#database/schema/organizations";
-import { orgEvents, eventRosters, csvUploads } from "#database/schema/org-events";
+import { dancerProfiles } from "#database/schema/dancers";
+import {
+  organizations,
+  orgMemberships,
+  premiumGrants,
+  dancerInvites,
+} from "#database/schema/organizations";
+import {
+  orgEvents,
+  eventRosters,
+  csvUploads,
+} from "#database/schema/org-events";
 import { seedOrganizations } from "#commands/backfill-organizations";
 import { eq } from "drizzle-orm";
 import { UploadDancersService } from "./service.ts";
 
 async function createUser(attrs: { username: string; email: string }) {
-  const [u] = await db.insert(users).values({
-    username: attrs.username,
-    email: attrs.email,
-    displayEmail: attrs.email,
-    firstName: "Test",
-    lastName: "Dancer",
-    password: "x",
-    role: "user",
-    type: "dancer",
-    verified: true,
-  }).returning();
+  const [u] = await db
+    .insert(users)
+    .values({
+      username: attrs.username,
+      email: attrs.email,
+      displayEmail: attrs.email,
+      firstName: "Test",
+      lastName: "Dancer",
+      password: "x",
+      role: "user",
+      type: "dancer",
+      verified: true,
+    })
+    .returning();
+  await db.insert(dancerProfiles).values({
+    userId: u!.id,
+    birthday: "2000-01-01",
+    location: "Anywhere",
+  });
   return u!;
 }
 
@@ -34,26 +52,46 @@ test.group("UploadDancersService", (group) => {
     await db.delete(eventRosters).execute();
     await db.delete(orgEvents).execute();
     await db.delete(orgMemberships).execute();
+    await db.delete(dancerProfiles).execute();
     await db.delete(users).execute();
     await db.delete(organizations).execute();
     await seedOrganizations();
 
-    [summit] = await db.select().from(organizations).where(eq(organizations.slug, "summit"));
-    uploader = await createUser({ username: "uploader", email: "uploader@x.co" });
-    await db.insert(orgMemberships).values({ userId: uploader.id, orgId: summit.id, type: "coach", role: "admin" });
-
-    const [ev] = await db.insert(orgEvents).values({
+    [summit] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "summit"));
+    uploader = await createUser({
+      username: "uploader",
+      email: "uploader@x.co",
+    });
+    await db.insert(orgMemberships).values({
+      userId: uploader.id,
       orgId: summit.id,
-      name: "Summit 2026",
-      startDate: "2026-06-13",
-      endDate: "2026-06-14",
-      isActive: true,
-    }).returning();
+      type: "coach",
+      role: "admin",
+    });
+
+    const [ev] = await db
+      .insert(orgEvents)
+      .values({
+        orgId: summit.id,
+        name: "Summit 2026",
+        startDate: "2026-06-13",
+        endDate: "2026-06-14",
+        isActive: true,
+      })
+      .returning();
     event = ev!;
   });
 
-  test("matched dancer gets premium grant with sourceId=eventId", async ({ assert }) => {
-    const dancer = await createUser({ username: "dancer1", email: "dancer1@x.co" });
+  test("matched dancer gets premium grant with sourceId=eventId", async ({
+    assert,
+  }) => {
+    const dancer = await createUser({
+      username: "dancer1",
+      email: "dancer1@x.co",
+    });
 
     const csv = `email,firstName,lastName,bibNumber
 dancer1@x.co,Dancer,One,101`;
@@ -71,19 +109,27 @@ dancer1@x.co,Dancer,One,101`;
     assert.equal(result.rowsErrored, 0);
 
     // Roster row has userId and expirationDate set
-    const [roster] = await db.select().from(eventRosters).where(eq(eventRosters.email, "dancer1@x.co"));
+    const [roster] = await db
+      .select()
+      .from(eventRosters)
+      .where(eq(eventRosters.email, "dancer1@x.co"));
     assert.equal(roster!.userId, dancer.id);
     assert.isNotNull(roster!.userId);
     assert.isNotNull(roster!.expirationDate);
 
     // premium_grant created with sourceId = eventId
-    const [grant] = await db.select().from(premiumGrants).where(eq(premiumGrants.userId, dancer.id));
+    const [grant] = await db
+      .select()
+      .from(premiumGrants)
+      .where(eq(premiumGrants.userId, dancer.id));
     assert.equal(grant!.sourceType, "org_event");
     assert.equal(grant!.sourceId, event.id);
     assert.isAbove(grant!.expiresAt.getTime(), Date.now());
 
     // org_membership type=dancer created
-    const [mem] = await db.select().from(orgMemberships)
+    const [mem] = await db
+      .select()
+      .from(orgMemberships)
       .where(eq(orgMemberships.userId, dancer.id));
     assert.equal(mem!.type, "dancer");
   });
@@ -102,7 +148,9 @@ newghost@x.co,Ghost,Dancer,202`;
     });
 
     // Dancer invite created with a token
-    const [invite] = await db.select().from(dancerInvites)
+    const [invite] = await db
+      .select()
+      .from(dancerInvites)
       .where(eq(dancerInvites.email, "newghost@x.co"));
     assert.isNotNull(invite);
     assert.isNotNull(invite!.token);
@@ -110,7 +158,9 @@ newghost@x.co,Ghost,Dancer,202`;
     assert.isAbove(invite!.expiresAt.getTime(), Date.now());
   });
 
-  test("re-upload updates bib number on existing roster row", async ({ assert }) => {
+  test("re-upload updates bib number on existing roster row", async ({
+    assert,
+  }) => {
     await createUser({ username: "dancer3", email: "dancer3@x.co" });
 
     const csv1 = `email,firstName,lastName,bibNumber
@@ -119,25 +169,93 @@ dancer3@x.co,Dancer,Three,301`;
 dancer3@x.co,Dancer,Three,399`;
 
     const svc = new UploadDancersService();
-    const r1 = await svc.execute({ orgId: summit.id, eventId: event.id, uploaderId: uploader.id, fileUrl: "test://d3a.csv", csv: csv1 });
-    const r2 = await svc.execute({ orgId: summit.id, eventId: event.id, uploaderId: uploader.id, fileUrl: "test://d3b.csv", csv: csv2 });
+    const r1 = await svc.execute({
+      orgId: summit.id,
+      eventId: event.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://d3a.csv",
+      csv: csv1,
+    });
+    const r2 = await svc.execute({
+      orgId: summit.id,
+      eventId: event.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://d3b.csv",
+      csv: csv2,
+    });
 
     assert.equal(r1.rowsAdded, 1);
     assert.equal(r2.rowsUpdated, 1);
     assert.equal(r2.rowsAdded, 0);
 
-    const [roster] = await db.select().from(eventRosters).where(eq(eventRosters.email, "dancer3@x.co"));
+    const [roster] = await db
+      .select()
+      .from(eventRosters)
+      .where(eq(eventRosters.email, "dancer3@x.co"));
     assert.equal(roster!.bibNumber, 399);
   });
 
-  test("rows with missing bib are errored but valid rows are still inserted", async ({ assert }) => {
+  test("CSV with parse errors returns preconditionFailed — no partial commit", async ({
+    assert,
+  }) => {
     const csv = `email,firstName,lastName,bibNumber
 ,Missing,Email,101
 good@x.co,Good,Dancer,102`;
 
     const svc = new UploadDancersService();
-    const result = await svc.execute({ orgId: summit.id, eventId: event.id, uploaderId: uploader.id, fileUrl: "test://err.csv", csv });
-    assert.equal(result.rowsAdded, 1);
-    assert.equal(result.rowsErrored, 1);
+    const result = await svc.execute({
+      orgId: summit.id,
+      eventId: event.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://err.csv",
+      csv,
+    });
+    assert.isTrue("preconditionFailed" in result && result.preconditionFailed);
+
+    // No roster rows written
+    const rosters = await db
+      .select()
+      .from(eventRosters)
+      .where(eq(eventRosters.eventId, event.id));
+    assert.lengthOf(rosters, 0);
+  });
+
+  test("first upload to a brand-new event succeeds with no FK errors", async ({
+    assert,
+  }) => {
+    // Fresh event — no prior uploads, no roster rows, tests the audit parentId ordering fix
+    const [freshEvent] = await db
+      .insert(orgEvents)
+      .values({
+        orgId: summit.id,
+        name: "Brand New Event",
+        startDate: "2026-08-01",
+        endDate: "2026-08-02",
+        isActive: false,
+      })
+      .returning();
+
+    const csv = `email,firstName,lastName,bibNumber
+fresh1@x.co,Fresh,One,1
+fresh2@x.co,Fresh,Two,2`;
+
+    const svc = new UploadDancersService();
+    const result = await svc.execute({
+      orgId: summit.id,
+      eventId: freshEvent!.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://fresh.csv",
+      csv,
+    });
+
+    assert.equal(result.rowsAdded, 2);
+    assert.equal(result.rowsUpdated, 0);
+    assert.equal(result.rowsErrored, 0);
+
+    const rosters = await db
+      .select()
+      .from(eventRosters)
+      .where(eq(eventRosters.eventId, freshEvent!.id));
+    assert.lengthOf(rosters, 2);
   });
 });

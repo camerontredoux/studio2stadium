@@ -15,7 +15,10 @@ export interface GetOrgResult {
 export class GetOrgService {
   constructor(private db: DatabaseService) {}
 
-  async execute(slug: string, userId?: string | null): Promise<GetOrgResult | null> {
+  async execute(
+    slug: string,
+    userId?: string | null
+  ): Promise<GetOrgResult | null> {
     return this.db.use(async (db) => {
       const [org] = await db
         .select()
@@ -35,8 +38,8 @@ export class GetOrgService {
           .where(
             and(
               eq(orgMemberships.orgId, org.id),
-              eq(orgMemberships.userId, userId),
-            ),
+              eq(orgMemberships.userId, userId)
+            )
           )
           .limit(1);
         if (row) {

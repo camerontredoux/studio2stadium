@@ -13,11 +13,21 @@ export class DeleteChecklistService {
       const [before] = await tx
         .select()
         .from(eventChecklist)
-        .where(and(eq(eventChecklist.id, itemId), eq(eventChecklist.eventId, eventId)));
+        .where(
+          and(
+            eq(eventChecklist.id, itemId),
+            eq(eventChecklist.eventId, eventId)
+          )
+        );
 
       await tx
         .delete(eventChecklist)
-        .where(and(eq(eventChecklist.id, itemId), eq(eventChecklist.eventId, eventId)))
+        .where(
+          and(
+            eq(eventChecklist.id, itemId),
+            eq(eventChecklist.eventId, eventId)
+          )
+        )
         .execute();
 
       audit.log({

@@ -2,7 +2,13 @@ import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { useAdminUpdateSchoolSports } from "@/features/admin/api/mutations";
 import { SportsList } from "@/shared/sports/components/sports-list";
-import { forwardRef, Suspense, useEffect, useImperativeHandle, useState } from "react";
+import {
+  forwardRef,
+  Suspense,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import type { TabHandle } from "./types";
 
 interface SportsTabProps {
@@ -25,63 +31,64 @@ export const SportsTab = forwardRef<TabHandle, SportsTabProps>(
       useState<string[]>(selectedSportIds);
     const { mutate, isPending } = useAdminUpdateSchoolSports();
 
-  const handleToggle = (sportId: string) => {
-    setLocalSelectedSportIds((prev) =>
-      prev.includes(sportId)
-        ? prev.filter((id) => id !== sportId)
-        : [...prev, sportId],
-    );
-  };
+    const handleToggle = (sportId: string) => {
+      setLocalSelectedSportIds((prev) =>
+        prev.includes(sportId)
+          ? prev.filter((id) => id !== sportId)
+          : [...prev, sportId],
+      );
+    };
 
-  const handleSave = () => {
-    mutate(
-      {
-        params: { path: { username } },
-        body: { sports: localSelectedSportIds },
-      },
-      {
-        onSuccess: () => {
-          toastManager.add({
-            title: "Success",
-            description: "Sports updated successfully",
-            type: "success",
-          });
+    const handleSave = () => {
+      mutate(
+        {
+          params: { path: { username } },
+          body: { sports: localSelectedSportIds },
         },
-        onError: () => {
-          toastManager.add({
-            title: "Error",
-            description: "Failed to update sports",
-            type: "error",
-          });
+        {
+          onSuccess: () => {
+            toastManager.add({
+              title: "Success",
+              description: "Sports updated successfully",
+              type: "success",
+            });
+          },
+          onError: () => {
+            toastManager.add({
+              title: "Error",
+              description: "Failed to update sports",
+              type: "error",
+            });
+          },
         },
-      },
+      );
+    };
+
+    const hasChanges =
+      JSON.stringify([...selectedSportIds].sort()) !==
+      JSON.stringify([...localSelectedSportIds].sort());
+
+    useImperativeHandle(ref, () => ({
+      save: handleSave,
+      isDirty: hasChanges,
+      isPending,
+    }));
+
+    useEffect(() => {
+      onStateChange({ isDirty: hasChanges, isPending });
+    }, [hasChanges, isPending, onStateChange]);
+
+    return (
+      <div className="h-full overflow-auto">
+        <Suspense fallback={<SportsTabFallback />}>
+          <div className="flex-1 overflow-auto">
+            <SportsList
+              selectedSportIds={localSelectedSportIds}
+              onToggle={handleToggle}
+            />
+          </div>
+        </Suspense>
+      </div>
     );
-  };
-
-  const hasChanges =
-    JSON.stringify([...selectedSportIds].sort()) !==
-    JSON.stringify([...localSelectedSportIds].sort());
-
-  useImperativeHandle(ref, () => ({
-    save: handleSave,
-    isDirty: hasChanges,
-    isPending,
-  }));
-
-  useEffect(() => {
-    onStateChange({ isDirty: hasChanges, isPending });
-  }, [hasChanges, isPending, onStateChange]);
-
-  return (
-    <div className="h-full overflow-auto">
-      <Suspense fallback={<SportsTabFallback />}>
-        <div className="flex-1 overflow-auto">
-          <SportsList
-            selectedSportIds={localSelectedSportIds}
-            onToggle={handleToggle}
-          />
-        </div>
-      </Suspense>
-    </div>
-  );
-});
+  },
+);

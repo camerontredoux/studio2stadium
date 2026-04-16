@@ -22,18 +22,23 @@ const emailValidator = (value: string): string | null => {
   return ok ? null : "invalid email";
 };
 
-const nonEmpty = (field: string) => (value: string): string | null =>
-  value && value.trim().length > 0 ? null : `missing ${field}`;
+const nonEmpty =
+  (field: string) =>
+  (value: string): string | null =>
+    value && value.trim().length > 0 ? null : `missing ${field}`;
 
-const integerish = (field: string) => (value: string): string | null => {
-  if (!value) return null;
-  return /^\d+$/.test(value) ? null : `${field} must be a number`;
-};
+const integerish =
+  (field: string) =>
+  (value: string): string | null => {
+    if (!value) return null;
+    return /^\d+$/.test(value) ? null : `${field} must be a number`;
+  };
 
 export const dancerSchema: CsvSchema = {
   type: "dancer",
   label: "dancer",
-  uploadPath: (slug, eventId) => `/orgs/${slug}/events/${eventId}/upload/dancers`,
+  uploadPath: (slug, eventId) =>
+    `/orgs/${slug}/events/${eventId}/upload/dancers`,
   columns: [
     {
       key: "email",
@@ -41,8 +46,18 @@ export const dancerSchema: CsvSchema = {
       required: true,
       validate: (v) => nonEmpty("email")(v) ?? emailValidator(v),
     },
-    { key: "firstName", label: "firstName", required: true, validate: nonEmpty("first name") },
-    { key: "lastName", label: "lastName", required: true, validate: nonEmpty("last name") },
+    {
+      key: "firstName",
+      label: "firstName",
+      required: true,
+      validate: nonEmpty("first name"),
+    },
+    {
+      key: "lastName",
+      label: "lastName",
+      required: true,
+      validate: nonEmpty("last name"),
+    },
     {
       key: "bibNumber",
       label: "bibNumber",
@@ -56,7 +71,8 @@ export const dancerSchema: CsvSchema = {
 export const coachSchema: CsvSchema = {
   type: "coach",
   label: "coach",
-  uploadPath: (slug, eventId) => `/orgs/${slug}/events/${eventId}/upload/coaches`,
+  uploadPath: (slug, eventId) =>
+    `/orgs/${slug}/events/${eventId}/upload/coaches`,
   columns: [
     {
       key: "email",
@@ -64,8 +80,18 @@ export const coachSchema: CsvSchema = {
       required: true,
       validate: (v) => nonEmpty("email")(v) ?? emailValidator(v),
     },
-    { key: "firstName", label: "firstName", required: true, validate: nonEmpty("first name") },
-    { key: "lastName", label: "lastName", required: true, validate: nonEmpty("last name") },
+    {
+      key: "firstName",
+      label: "firstName",
+      required: true,
+      validate: nonEmpty("first name"),
+    },
+    {
+      key: "lastName",
+      label: "lastName",
+      required: true,
+      validate: nonEmpty("last name"),
+    },
     { key: "organization", label: "organization", required: false },
   ],
 };

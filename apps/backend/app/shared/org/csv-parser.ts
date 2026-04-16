@@ -1,10 +1,13 @@
 import { parse } from "csv-parse/sync";
+import { normalizeEmail } from "#utils/normalize-email";
 
 export interface CoachRow {
   email: string;
   firstName: string;
   lastName: string;
   organization: string;
+  /** 1-based index of the data row (header excluded). Row 1 = first dancer/coach. */
+  csvRow: number;
 }
 
 export interface DancerRow {
@@ -12,7 +15,7 @@ export interface DancerRow {
   firstName: string;
   lastName: string;
   bibNumber: number;
-  /** 1-based line number in the CSV file (header is row 1). */
+  /** 1-based index of the data row (header excluded). Row 1 = first dancer/coach. */
   csvRow: number;
 }
 
@@ -35,7 +38,7 @@ function parseCsv<T extends object>(
   const errors: RowError[] = [];
 
   raw.forEach((r, i) => {
-    const result = validateRow(r, i + 2); // +2: row 1 is header
+    const result = validateRow(r, i + 1); // data-row index, 1-based (header excluded)
     if ("reason" in result && typeof (result as RowError).reason === "string") {
       errors.push(result as RowError);
     } else {
@@ -46,17 +49,33 @@ function parseCsv<T extends object>(
   return { rows, errors };
 }
 
+/**
+ * Batch-normalizes the `email` field on every parsed row using the same
+ * vine normalizer as signup/login (`normalizeEmail`). Keeps the account
+ * lookups aligned with `users.email` (which is stored normalized) — this
+ * is what lets a CSV row `test+foo@gmail.com` match a user that signed
+ * up as `test@gmail.com`.
+ */
+export async function normalizeRowEmails<T extends { email: string }>(
+  rows: T[]
+): Promise<T[]> {
+  const normalized = await Promise.all(rows.map((r) => normalizeEmail(r.email)));
+  return rows.map((r, i) => ({ ...r, email: normalized[i]! }));
+}
+
 export function parseCoachCsv(csv: string) {
   return parseCsv<CoachRow>(csv, (r, row) => {
     if (!r["email"]?.trim()) return { row, reason: "missing email" };
     if (!r["firstName"]?.trim()) return { row, reason: "missing firstName" };
     if (!r["lastName"]?.trim()) return { row, reason: "missing lastName" };
-    if (!r["organization"]?.trim()) return { row, reason: "missing organization" };
+    if (!r["organization"]?.trim())
+      return { row, reason: "missing organization" };
     return {
       email: r["email"]!.toLowerCase().trim(),
       firstName: r["firstName"]!.trim(),
       lastName: r["lastName"]!.trim(),
       organization: r["organization"]!.trim(),
+      csvRow: row,
     };
   });
 }

@@ -2,7 +2,9 @@ import { queryOptions } from "@tanstack/react-query";
 import { client } from "@/lib/api/client";
 
 async function fetchJson<T>(path: string): Promise<T> {
-  const res = await (client as unknown as Record<string, (p: string) => Promise<{ data: T }>>)["GET"](path);
+  const res = await (
+    client as unknown as Record<string, (p: string) => Promise<{ data: T }>>
+  )["GET"](path);
   return res.data;
 }
 
@@ -31,10 +33,18 @@ export type CsvUploadSummary = {
   createdAt: string;
 };
 
+export type RosterSplit = {
+  activated: number;
+  pending: number;
+  total: number;
+};
+
 export type OrgEventStats = {
-  coaches: number;
-  dancers: number;
+  coaches: RosterSplit;
+  dancers: RosterSplit;
+  /** Cross-role total activated (backward compat) */
   registered: number;
+  /** Cross-role total pending (backward compat) */
   pending: number;
   recentUploads: CsvUploadSummary[];
 };
@@ -59,11 +69,13 @@ export const adminQueries = {
   stats: (slug: string, eventId: string) =>
     queryOptions({
       queryKey: ["orgs", slug, "events", eventId, "stats"],
-      queryFn: () => fetchJson<OrgEventStats>(`/orgs/${slug}/events/${eventId}/stats`),
+      queryFn: () =>
+        fetchJson<OrgEventStats>(`/orgs/${slug}/events/${eventId}/stats`),
     }),
   checklist: (slug: string, eventId: string) =>
     queryOptions({
       queryKey: ["orgs", slug, "events", eventId, "checklist"],
-      queryFn: () => fetchJson<ChecklistItem[]>(`/orgs/${slug}/events/${eventId}/checklist`),
+      queryFn: () =>
+        fetchJson<ChecklistItem[]>(`/orgs/${slug}/events/${eventId}/checklist`),
     }),
 };

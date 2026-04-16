@@ -4,8792 +4,9301 @@
  */
 
 export interface paths {
-    "/admin/applications": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get all applications
-         * @description Returns all school applications for admin review
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AdminApplicationsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/applications/{id}/status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update application status
-         * @description Updates a school application status to accepted or rejected
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AdminApplicationsIdStatusRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/admin/schools": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get all schools
-         * @description Returns all schools for admin dashboard
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AdminSchoolsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/schools/{username}/events": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Add event to school
-         * @description Creates an event for a school by username
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    username: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AdminSchoolsIdEventsRequest"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AdminSchoolsIdEventsResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/schools/{username}/profile": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update school program profile
-         * @description Updates a school's program profile (same fields as PATCH /schools/me for the school)
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    username: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AdminSchoolsIdProfileRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/admin/schools/{username}/skills": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update school skills
-         * @description Replaces the school's skills (same as PATCH /schools/me/skills)
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    username: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AdminSchoolsIdSkillsRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/admin/schools/{username}/styles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update school styles
-         * @description Replaces the school's styles (same as PATCH /schools/me/styles)
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    username: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AdminSchoolsIdStylesRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/admin/schools/{username}/sports": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update school sports
-         * @description Replaces the school's sports (same as PATCH /schools/me/sports)
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    username: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AdminSchoolsIdSportsRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/admin/schools/{username}/account": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update school account
-         * @description Updates the school user's account fields (email, name, phone, etc.; same as PATCH /users/account)
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    username: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AdminSchoolsIdAccountRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/admin/schools/{username}/avatar": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Set school avatar
-         * @description Sets the school user's avatar from an uploaded R2 key (same as POST /users/avatar)
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    username: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AdminSchoolsIdAvatarRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/events/global": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Add global event
-         * @description Creates a global dance event
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AdminEventsGlobalRequest"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AdminEventsGlobalResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/events/global/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Edit global event
-         * @description Updates a global event by ID
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AdminEventsGlobalIdRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AdminEventsGlobalIdResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/admin/events/school/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Edit school event
-         * @description Updates a school event by ID
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AdminEventsSchoolIdRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AdminEventsSchoolIdResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/admin/dancers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get all dancers
-         * @description Returns all dancers for admin dashboard
-         */
-        get: {
-            parameters: {
-                query?: {
-                    limit?: (string | number) | null;
-                    page?: (string | number) | null;
-                    sortBy?: ("location" | "email" | "username" | "firstName" | "lastName" | "verified" | "createdAt" | "gpa" | "gradYear") | null;
-                    sortDirection?: ("asc" | "desc") | null;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AdminDancersResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/dancers/stats": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get dancer signup stats
-         * @description Returns dancer signup statistics with DAU/WAU/MAU and percentage changes
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AdminDancersStatsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/blog": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Create blog post
-         * @description Creates a new blog post with title, content, and optional cover image
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AdminBlogRequest"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AdminBlogResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/blog/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Delete blog post
-         * @description Permanently deletes a blog post by ID
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/outbox/stats": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get outbox stats
-         * @description Returns aggregated counts of outbox items by type
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/outbox/stats/history": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get outbox stats history
-         * @description Returns historical outbox stats with daily, weekly, and monthly breakdowns
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AdminOutboxStatsHistoryResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/library/videos": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Add training video
-         * @description Adds a training video to the video library
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AdminLibraryVideosRequest"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AdminLibraryVideosResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/library/videos/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Delete training video
-         * @description Permanently deletes a training video by ID
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AdminLibraryVideosIdResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/application": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get application status
-         * @description Returns the school's application details
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ApplicationResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Submit application
-         * @description Submits the school's application
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["ApplicationRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update application
-         * @description Updates the school's application
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["ApplicationPatchRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/auth/signup": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Create user account
-         * @description Creates a new base user account.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AuthSignupRequest"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AuthSignupResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Start user session
-         * @description Logs in a user and creates a session in Redis.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AuthLoginRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AuthLoginResponse"];
-                    };
-                };
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-                /** @description Too Many Requests */
-                429: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/logout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * End user session
-         * @description Logs out the current user and deletes their session from Redis.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AuthLogoutResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/session": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get user session
-         * @description Retrieves the current session's user information.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AuthSessionResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/password/change": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Change password
-         * @description Changes the user's password
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AuthPasswordChangeRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/password/forgot": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Forgot password
-         * @description Sends a password reset email to the user
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AuthPasswordForgotRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/password/reset": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Reset password
-         * @description Resets the user's password
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["AuthPasswordResetRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AuthPasswordResetResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/blog": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get all posts
-         * @description Returns a list of all blog posts
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["BlogResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/feed": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get feed
-         * @description Returns the feed for the current user
-         */
-        get: {
-            parameters: {
-                query?: {
-                    cursor?: string | null;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["FeedResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["HealthResponse"];
-                    };
-                };
-                /** @description Service Unavailable */
-                503: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["HealthResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/library": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List tap in videos
-         * @description Returns a list of all tap in videos with their category
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["LibraryResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/library/{category}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List videos by category
-         * @description Returns a list of videos by category, paginated with 6 results at a time
-         */
-        get: {
-            parameters: {
-                query: {
-                    page: string | number;
-                };
-                header?: never;
-                path: {
-                    category: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["LibraryIdResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/notifications": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get notifications
-         * @description Returns the user's notifications with enriched data
-         */
-        get: {
-            parameters: {
-                query?: {
-                    cursor?: string | null;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["NotificationsResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/notifications/count": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get notification count
-         * @description Returns the count of unread notifications
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["NotificationsCountResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/notifications/stream": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Realtime notification stream
-         * @description SSE endpoint for realtime notifications
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/notifications/read-all": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Mark all notifications as read
-         * @description Marks all notifications as read by setting seenAt
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["NotificationsReadallResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/notifications/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Mark notification as read
-         * @description Marks a notification as read by setting seenAt
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["NotificationsIdResponse"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get organization
-         * @description Public org metadata + branding for the login and landing pages.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdResponse"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/events": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsResponse"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["OrgsIdEventsRequest"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsResponse"];
-                    };
-                };
-                /** @description Unknown Response */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/events/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["OrgsIdEventsIdRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdResponse"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/orgs/{slug}/events/{id}/upload/coaches": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["OrgsIdEventsIdUploadCoachesRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdUploadCoachesResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/events/{id}/upload/dancers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["OrgsIdEventsIdUploadDancersRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdUploadDancersResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/events/{id}/upload/{type}/preview": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                    type: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["OrgsIdEventsIdUploadIdPreviewRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdUploadIdPreviewResponse"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/events/{id}/stats": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdStatsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/events/{id}/rosters": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query: {
-                    search?: string | null;
-                    status?: ("pending" | "active" | "all") | null;
-                    limit?: (string | number) | null;
-                    org?: string | null;
-                    page?: (string | number) | null;
-                    sortBy?: ("email" | "firstName" | "lastName" | "createdAt" | "organization" | "bibNumber" | "isRegistered") | null;
-                    sortDir?: ("asc" | "desc") | null;
-                    type: components["schemas"]["UploadKind"];
-                };
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdRostersResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query: {
-                    ids: string[];
-                };
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdRostersResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/events/{id}/rosters/export": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query: {
-                    search?: string | null;
-                    status?: ("pending" | "active" | "all") | null;
-                    org?: string | null;
-                    type: components["schemas"]["UploadKind"];
-                };
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/events/{id}/rosters/filters": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query: {
-                    type: components["schemas"]["UploadKind"];
-                };
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdRostersFiltersResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/events/{id}/rosters/stats": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query: {
-                    type: components["schemas"]["UploadKind"];
-                };
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdRostersStatsResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/events/{id}/rosters/{rosterId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                    rosterId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["OrgsIdEventsIdRostersIdRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdRostersIdResponse"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-                /** @description Unknown Response */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/orgs/{slug}/events/{id}/rosters/resend-invites": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["OrgsIdEventsIdRostersResendinvitesRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdRostersResendinvitesResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/events/{id}/checklist": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdChecklistResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["OrgsIdEventsIdChecklistRequest"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdChecklistResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/events/{id}/checklist/{itemId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                    itemId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                    itemId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["OrgsIdEventsIdChecklistIdRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdChecklistIdResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/orgs/{slug}/events/{id}/audit-log": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: {
-                    search?: string | null;
-                    actorId?: string | null;
-                    action?: ("upload" | "create" | "update" | "delete" | "activate" | "resend_invite") | null;
-                    resource?: ("roster" | "event" | "checklist" | "csv_upload" | "invite") | null;
-                    from?: string | null;
-                    to?: string | null;
-                    limit?: (string | number) | null;
-                    page?: (string | number) | null;
-                    sortDir?: ("asc" | "desc") | null;
-                };
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdAuditlogResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/events/{id}/audit-log/stats": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdAuditlogStatsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/events/{id}/audit-log/{entryId}/children": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                    entryId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdAuditlogIdChildrenResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/dancers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List dancers in active event
-         * @description Coach-scoped dancer search by name or bib number.
-         */
-        get: {
-            parameters: {
-                query?: {
-                    search?: string | null;
-                    offset?: (string | number) | null;
-                    limit?: (string | number) | null;
-                    bib?: (string | number) | null;
-                };
-                header?: never;
-                path: {
-                    slug: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdDancersResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/dancers/{rosterId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    rosterId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdDancersIdResponse"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/dancers/{dancerRosterId}/notes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    dancerRosterId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["OrgsIdDancersIdNotesRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdDancersIdNotesResponse"];
-                    };
-                };
-                /** @description Unknown Response */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        post?: never;
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    dancerRosterId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unknown Response */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/dancers/{dancerRosterId}/rating": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    dancerRosterId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["OrgsIdDancersIdRatingRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdDancersIdRatingResponse"];
-                    };
-                };
-                /** @description Unknown Response */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/favorites": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdFavoritesResponse"];
-                    };
-                };
-                /** @description Unknown Response */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["OrgsIdFavoritesRequest"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdFavoritesResponse"];
-                    };
-                };
-                /** @description Unknown Response */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/favorites/{dancerRosterId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    dancerRosterId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unknown Response */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/rankings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdRankingsResponse"];
-                    };
-                };
-                /** @description Unknown Response */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/register": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Dancer self-registration via invite token
-         * @description Consumes a one-time invite token and creates a new dancer account with an org membership and a time-limited premium grant.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["OrgsIdRegisterRequest"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdRegisterResponse"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/skills": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get all skills
-         * @description Returns a list of all skills
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SkillsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/sports": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get all sports
-         * @description Returns a list of all sports
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SportsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/styles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get all styles
-         * @description Returns a list of all styles
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["StylesResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/subscriptions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get subscription status
-         * @description Gets the authenticated dancer's subscription status
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SubscriptionsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/subscriptions/checkout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Create a checkout session
-         * @description Creates a checkout session for the authenticated dancer
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SubscriptionsCheckoutRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SubscriptionsCheckoutResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/subscriptions/manage": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Manage a subscription
-         * @description Manages the authenticated dancer's subscription
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SubscriptionsManageResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/stripe/webhook": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["StripeWebhookResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/cloudflare/stream/webhook": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["CloudflareStreamWebhookResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/contact": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Contact us
-         * @description Sends a contact form message to the team
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["ContactRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/feedback": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Submit feedback
-         * @description Submits user feedback to the team
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["FeedbackRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dancers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get dancers
-         * @description Returns a list of dancers
-         */
-        get: {
-            parameters: {
-                query?: {
-                    name?: string | null;
-                    location?: ("ID" | "OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
-                    sports?: string | null;
-                    styles?: string | null;
-                    following?: (string | number | boolean) | null;
-                    limit?: (string | number) | null;
-                    page?: (string | number) | null;
-                    premium?: (string | number | boolean) | null;
-                    gpaRange?: Record<string, never>;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create a dancer
-         * @description Populate account with personal information to finish dancer signup
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["DancersRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dancers/filters": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get dancer filters
-         * @description Returns the filters to use when searching for dancers
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersFiltersResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dancers/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update my portfolio
-         * @description Updates the authenticated dancer's portfolio
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["DancersMeRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/dancers/me/skills": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get dancer skills
-         * @description Returns the dancer's skills
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersMeSkillsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update dancer skills
-         * @description Updates the dancer's skills
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["DancersMeSkillsRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/dancers/me/styles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get dancer styles
-         * @description Returns the dancer's styles
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersMeStylesResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update dancer styles
-         * @description Updates the dancer's styles
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["DancersMeStylesRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/dancers/me/sports": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get dancer sports
-         * @description Returns the dancer's sports
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersMeSportsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update dancer sports
-         * @description Updates the dancer's sports
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["DancersMeSportsRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/dancers/me/following": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get following list
-         * @description Returns the list of school's IDs I'm following
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersMeFollowingResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dancers/me/following/ids": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get following list IDs
-         * @description Returns the list of school's IDs I'm following
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersMeFollowingIdsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dancers/me/followers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get dancer followers
-         * @description Returns the schools that have favorited this dancer.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersMeFollowersResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dancers/me/checklist": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get dancer profile checklist
-         * @description Returns the dancer's profile checklist
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersMeChecklistResponse"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dancers/submissions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get dancer's CRV submissions
-         * @description Returns the common recruiting video submissions for the authenticated dancer
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersSubmissionsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create a CRV submission
-         * @description Creates a common recruiting video submission for the authenticated dancer
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["DancersSubmissionsRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dancers/submissions/video": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the dancer's submission video
-         * @description Returns the dancer's submission video
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersSubmissionsVideoResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Edit the dancer's submission video
-         * @description Updates the YouTube URL for the dancer's common recruiting video
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["DancersSubmissionsVideoRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/dancers/submissions/schools": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get schools that the dancer has not submitted to
-         * @description Returns the schools that the dancer has not submitted to
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersSubmissionsSchoolsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dancers/{username}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a dancer
-         * @description Returns the dancer's public profile
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    username: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersIdResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dancers/{id}/favorite": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Favorite a dancer
-         * @description Adds a dancer to the school's favorites list.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersIdFavoriteResponse"];
-                    };
-                };
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        /**
-         * Unfavorite a dancer
-         * @description Removes a dancer from the school's favorites list.
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dancers/{id}/metadata": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get dancer metadata
-         * @description Returns the dancer's metadata
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersIdMetadataResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dancers/references": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Create a reference
-         * @description Creates a reference for the authenticated dancer
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["DancersReferencesRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dancers/references/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Delete a reference
-         * @description Deletes a reference for the authenticated dancer
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Update a reference
-         * @description Updates a reference for the authenticated dancer
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["DancersReferencesIdRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/dancers/achievements/achievements": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Create an achievement
-         * @description Creates an achievement for the authenticated dancer
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["DancersAchievementsAchievementsRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dancers/achievements/achievements/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Delete an achievement
-         * @description Deletes an achievement for the authenticated dancer
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Update an achievement
-         * @description Updates an achievement for the authenticated dancer
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["DancersAchievementsAchievementsIdRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/events": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get all events
-         * @description Returns a list of all upcoming events
-         */
-        get: {
-            parameters: {
-                query?: {
-                    date?: string | null;
-                    location?: ("ID" | "OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
-                    schoolName?: string | null;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["EventsResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create event
-         * @description Creates a new school hosted event
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["EventsRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/events/filters": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get event filters
-         * @description Returns the filters to use when searching for events
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["EventsFiltersResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/events/upcoming": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get upcoming events
-         * @description Returns a list of upcoming events
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["EventsUpcomingResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/events/global": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get all global events
-         * @description Returns a list of all upcoming global events
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["EventsGlobalResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/events/global/upcoming": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get upcoming global events
-         * @description Returns a list of upcoming global events
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["EventsGlobalUpcomingResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/events/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get event by id
-         * @description Returns details about a specific event
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["EventsIdResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete event
-         * @description Deletes a school hosted event
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Edit event
-         * @description Edits a school hosted event
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["EventsIdRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/events/{id}/save": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Save event
-         * @description Saves an event for the current user
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["EventsIdSaveRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/events/{id}/unsave": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Unsave event
-         * @description Unsaves an event for the current user
-         */
-        delete: {
-            parameters: {
-                query?: {
-                    type?: string | null;
-                };
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/images": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Upload media to user's profile
-         * @description Posts an image to the user's profile and adds it to their followers' feeds
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["ImagesRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/images/presign": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Request one-time upload URL
-         * @description Makes a request to Cloudflare to create a one-time signed upload URL for the user's image
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["ImagesPresignRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ImagesPresignResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/images/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Delete an image
-         * @description Deletes an image from the user's profile and feed
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get schools
-         * @description Returns a list of schools
-         */
-        get: {
-            parameters: {
-                query?: {
-                    location?: ("ID" | "OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
-                    commonRecruiting?: (string | number | boolean) | null;
-                    teamSelection?: ("recruitment" | "audition" | "hybrid") | null;
-                    competitiveCircuit?: ("other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive") | null;
-                    division?: string | null;
-                    sports?: string | null;
-                    styles?: string | null;
-                    following?: (string | number | boolean) | null;
-                    gpaRange?: Record<string, never>;
-                    upcomingEvents?: (string | number | boolean) | null;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools/check-availability": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Check school name availability
-         * @description Checks if a school name is available for registration.
-         */
-        get: {
-            parameters: {
-                query: {
-                    schoolName: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsCheckavailabilityResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools/filters": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get school filters
-         * @description Returns the filters to use when searching for schools
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsFiltersResponse"];
-                    };
-                };
-                /** @description Unknown Response */
-                304: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools/recommended": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get recommended programs
-         * @description Returns a list of recommended programs
-         */
-        get: {
-            parameters: {
-                query?: {
-                    limit?: (string | number) | null;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsRecommendedResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update my school
-         * @description Updates the authenticated school's program information
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SchoolsMeRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/schools/me/followers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get school followers
-         * @description Returns the dancers that have followed this school.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsMeFollowersResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools/me/following": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get following list
-         * @description Returns the list of dancers this school has favorited.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsMeFollowingResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools/me/following/ids": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get following list IDs
-         * @description Returns the list of dancer's IDs this school has favorited
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsMeFollowingIdsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools/me/favorites": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get favorites data
-         * @description Returns the data for the school's favorites
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsMeFavoritesResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools/me/favorites/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update a favorite
-         * @description Updates a favorite for the school
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SchoolsMeFavoritesIdRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/schools/me/skills": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get school skills
-         * @description Returns the school's skills
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsMeSkillsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update school skills
-         * @description Updates the school's skills
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SchoolsMeSkillsRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/schools/me/styles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get school styles
-         * @description Returns the school's styles
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsMeStylesResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update school styles
-         * @description Updates the school's styles
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SchoolsMeStylesRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/schools/me/sports": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get school sports
-         * @description Returns the school's sports
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsMeSportsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update school sports
-         * @description Updates the school's sports
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SchoolsMeSportsRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/schools/me/submissions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get CRV submissions
-         * @description Returns dancer submissions to this school
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsMeSubmissionsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools/me/submissions/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update CRV submission
-         * @description Updates status or watched state of a submission
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SchoolsMeSubmissionsIdRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/schools/me/view-dancer/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Record profile view
-         * @description Records that the school viewed a dancer's profile
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools/{username}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a school
-         * @description Returns the school's public profile
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    username: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsIdResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools/{id}/follow": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Follow a school
-         * @description Follows the school's profile using the school ID
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsIdFollowResponse"];
-                    };
-                };
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        /**
-         * Unfollow a school
-         * @description Unfollows the school's profile using the school ID
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools/{id}/metadata": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get school metadata
-         * @description Returns the school's metadata
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsIdMetadataResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools/{id}/interest": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Show interest in a school
-         * @description A dancer can show interest in a school up to 3 times. This endpoint will increment the interest count for the school, and send a notification to the school.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SchoolsIdInterestResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/check-availability": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Check username availability
-         * @description Checks if a username is available for registration.
-         */
-        get: {
-            parameters: {
-                query: {
-                    username: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["UsersCheckavailabilityResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/account": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get account settings
-         * @description Returns the user's account settings
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["UsersAccountResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete account
-         * @description Deletes the user's account
-         */
-        delete: {
-            parameters: {
-                query?: {
-                    feedback?: string | null;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Update account settings
-         * @description Updates the user's account settings
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["UsersAccountRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/users/avatar": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Update user avatar
-         * @description Updates the image ID for the user's avatar from Cloudflare
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["UsersAvatarRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/activity": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get user activity
-         * @description Returns the user's activity
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["UsersActivityResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/videos/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Delete a video
-         * @description Deletes a video from the user's profile and feed
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/videos/tus": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Initiate TUS video upload
-         * @description Initiates a TUS resumable upload to Cloudflare Stream
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/videos/youtube": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Add YouTube video
-         * @description Add a YouTube video to the user's profile
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["VideosYoutubeRequest"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["VideosYoutubeResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+  "/admin/applications": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get all applications
+     * @description Returns all school applications for admin review
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AdminApplicationsResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/applications/{id}/status": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update application status
+     * @description Updates a school application status to accepted or rejected
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AdminApplicationsIdStatusRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/admin/schools": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get all schools
+     * @description Returns all schools for admin dashboard
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AdminSchoolsResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/schools/{username}/events": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Add event to school
+     * @description Creates an event for a school by username
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          username: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AdminSchoolsIdEventsRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AdminSchoolsIdEventsResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/schools/{username}/profile": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update school program profile
+     * @description Updates a school's program profile (same fields as PATCH /schools/me for the school)
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          username: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AdminSchoolsIdProfileRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/admin/schools/{username}/skills": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update school skills
+     * @description Replaces the school's skills (same as PATCH /schools/me/skills)
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          username: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AdminSchoolsIdSkillsRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/admin/schools/{username}/styles": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update school styles
+     * @description Replaces the school's styles (same as PATCH /schools/me/styles)
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          username: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AdminSchoolsIdStylesRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/admin/schools/{username}/sports": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update school sports
+     * @description Replaces the school's sports (same as PATCH /schools/me/sports)
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          username: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AdminSchoolsIdSportsRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/admin/schools/{username}/account": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update school account
+     * @description Updates the school user's account fields (email, name, phone, etc.; same as PATCH /users/account)
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          username: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AdminSchoolsIdAccountRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/admin/schools/{username}/avatar": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Set school avatar
+     * @description Sets the school user's avatar from an uploaded R2 key (same as POST /users/avatar)
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          username: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AdminSchoolsIdAvatarRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/events/global": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Add global event
+     * @description Creates a global dance event
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AdminEventsGlobalRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AdminEventsGlobalResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/events/global/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Edit global event
+     * @description Updates a global event by ID
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AdminEventsGlobalIdRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AdminEventsGlobalIdResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/admin/events/school/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Edit school event
+     * @description Updates a school event by ID
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AdminEventsSchoolIdRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AdminEventsSchoolIdResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/admin/dancers": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get all dancers
+     * @description Returns all dancers for admin dashboard
+     */
+    get: {
+      parameters: {
+        query?: {
+          limit?: (string | number) | null;
+          page?: (string | number) | null;
+          sortBy?:
+            | (
+                | "location"
+                | "email"
+                | "username"
+                | "firstName"
+                | "lastName"
+                | "verified"
+                | "createdAt"
+                | "gpa"
+                | "gradYear"
+              )
+            | null;
+          sortDirection?: ("asc" | "desc") | null;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AdminDancersResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/dancers/stats": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get dancer signup stats
+     * @description Returns dancer signup statistics with DAU/WAU/MAU and percentage changes
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AdminDancersStatsResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/blog": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Create blog post
+     * @description Creates a new blog post with title, content, and optional cover image
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AdminBlogRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AdminBlogResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/blog/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete blog post
+     * @description Permanently deletes a blog post by ID
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/outbox/stats": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get outbox stats
+     * @description Returns aggregated counts of outbox items by type
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/outbox/stats/history": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get outbox stats history
+     * @description Returns historical outbox stats with daily, weekly, and monthly breakdowns
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AdminOutboxStatsHistoryResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/library/videos": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Add training video
+     * @description Adds a training video to the video library
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AdminLibraryVideosRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AdminLibraryVideosResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/library/videos/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete training video
+     * @description Permanently deletes a training video by ID
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AdminLibraryVideosIdResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/application": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get application status
+     * @description Returns the school's application details
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ApplicationResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    /**
+     * Submit application
+     * @description Submits the school's application
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["ApplicationRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update application
+     * @description Updates the school's application
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["ApplicationPatchRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/auth/signup": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Create user account
+     * @description Creates a new base user account.
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AuthSignupRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AuthSignupResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/login": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Start user session
+     * @description Logs in a user and creates a session in Redis.
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AuthLoginRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AuthLoginResponse"];
+          };
+        };
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+        /** @description Too Many Requests */
+        429: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/logout": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * End user session
+     * @description Logs out the current user and deletes their session from Redis.
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AuthLogoutResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/session": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get user session
+     * @description Retrieves the current session's user information.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AuthSessionResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/password/change": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Change password
+     * @description Changes the user's password
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AuthPasswordChangeRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/password/forgot": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Forgot password
+     * @description Sends a password reset email to the user
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AuthPasswordForgotRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/password/reset": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Reset password
+     * @description Resets the user's password
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AuthPasswordResetRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AuthPasswordResetResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/blog": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get all posts
+     * @description Returns a list of all blog posts
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["BlogResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/feed": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get feed
+     * @description Returns the feed for the current user
+     */
+    get: {
+      parameters: {
+        query?: {
+          cursor?: string | null;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["FeedResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/health": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["HealthResponse"];
+          };
+        };
+        /** @description Service Unavailable */
+        503: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["HealthResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/library": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List tap in videos
+     * @description Returns a list of all tap in videos with their category
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["LibraryResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/library/{category}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List videos by category
+     * @description Returns a list of videos by category, paginated with 6 results at a time
+     */
+    get: {
+      parameters: {
+        query: {
+          page: string | number;
+        };
+        header?: never;
+        path: {
+          category: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["LibraryIdResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get notifications
+     * @description Returns the user's notifications with enriched data
+     */
+    get: {
+      parameters: {
+        query?: {
+          cursor?: string | null;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["NotificationsResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications/count": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get notification count
+     * @description Returns the count of unread notifications
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["NotificationsCountResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications/stream": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Realtime notification stream
+     * @description SSE endpoint for realtime notifications
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications/read-all": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Mark all notifications as read
+     * @description Marks all notifications as read by setting seenAt
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["NotificationsReadallResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Mark notification as read
+     * @description Marks a notification as read by setting seenAt
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["NotificationsIdResponse"];
+          };
+        };
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get organization
+     * @description Public org metadata + branding for the login and landing pages.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdResponse"];
+          };
+        };
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/events": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsResponse"];
+          };
+        };
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["OrgsIdEventsRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsResponse"];
+          };
+        };
+        /** @description Unknown Response */
+        409: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/events/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["OrgsIdEventsIdRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsIdResponse"];
+          };
+        };
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/orgs/{slug}/events/{id}/upload/coaches": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["OrgsIdEventsIdUploadCoachesRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsIdUploadCoachesResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/events/{id}/upload/dancers": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["OrgsIdEventsIdUploadDancersRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsIdUploadDancersResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/events/{id}/upload/{type}/preview": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+          type: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["OrgsIdEventsIdUploadIdPreviewRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsIdUploadIdPreviewResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/events/{id}/stats": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsIdStatsResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/events/{id}/rosters": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query: {
+          search?: string | null;
+          status?: ("pending" | "active" | "all") | null;
+          limit?: (string | number) | null;
+          org?: string | null;
+          page?: (string | number) | null;
+          sortBy?:
+            | (
+                | "email"
+                | "firstName"
+                | "lastName"
+                | "createdAt"
+                | "organization"
+                | "bibNumber"
+                | "isRegistered"
+              )
+            | null;
+          sortDir?: ("asc" | "desc") | null;
+          type: components["schemas"]["UploadKind"];
+        };
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsIdRostersResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete: {
+      parameters: {
+        query: {
+          ids: string[];
+        };
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsIdRostersResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/events/{id}/rosters/export": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query: {
+          search?: string | null;
+          status?: ("pending" | "active" | "all") | null;
+          org?: string | null;
+          type: components["schemas"]["UploadKind"];
+        };
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/events/{id}/rosters/filters": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query: {
+          type: components["schemas"]["UploadKind"];
+        };
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsIdRostersFiltersResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/events/{id}/rosters/stats": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query: {
+          type: components["schemas"]["UploadKind"];
+        };
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsIdRostersStatsResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/events/{id}/rosters/{rosterId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+          rosterId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["OrgsIdEventsIdRostersIdRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsIdRostersIdResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+        /** @description Unknown Response */
+        409: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/orgs/{slug}/events/{id}/rosters/resend-invites": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["OrgsIdEventsIdRostersResendinvitesRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsIdRostersResendinvitesResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/events/{id}/checklist": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsIdChecklistResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["OrgsIdEventsIdChecklistRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsIdChecklistResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/events/{id}/checklist/{itemId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+          itemId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+          itemId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["OrgsIdEventsIdChecklistIdRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsIdChecklistIdResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/orgs/{slug}/events/{id}/audit-log": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: {
+          search?: string | null;
+          actorId?: string | null;
+          action?:
+            | (
+                | "upload"
+                | "create"
+                | "update"
+                | "delete"
+                | "activate"
+                | "resend_invite"
+              )
+            | null;
+          resource?:
+            | ("roster" | "event" | "checklist" | "csv_upload" | "invite")
+            | null;
+          from?: string | null;
+          to?: string | null;
+          limit?: (string | number) | null;
+          page?: (string | number) | null;
+          sortDir?: ("asc" | "desc") | null;
+        };
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsIdAuditlogResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/events/{id}/audit-log/stats": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsIdAuditlogStatsResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/events/{id}/audit-log/{entryId}/children": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          id: string;
+          entryId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdEventsIdAuditlogIdChildrenResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/dancers": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List dancers in active event
+     * @description Coach-scoped dancer search by name or bib number.
+     */
+    get: {
+      parameters: {
+        query?: {
+          search?: string | null;
+          offset?: (string | number) | null;
+          limit?: (string | number) | null;
+          bib?: (string | number) | null;
+        };
+        header?: never;
+        path: {
+          slug: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdDancersResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/dancers/{rosterId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          rosterId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdDancersIdResponse"];
+          };
+        };
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/dancers/{dancerRosterId}/notes": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          dancerRosterId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["OrgsIdDancersIdNotesRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdDancersIdNotesResponse"];
+          };
+        };
+        /** @description Unknown Response */
+        409: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    post?: never;
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          dancerRosterId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unknown Response */
+        409: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/dancers/{dancerRosterId}/rating": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          dancerRosterId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["OrgsIdDancersIdRatingRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdDancersIdRatingResponse"];
+          };
+        };
+        /** @description Unknown Response */
+        409: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/favorites": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdFavoritesResponse"];
+          };
+        };
+        /** @description Unknown Response */
+        409: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["OrgsIdFavoritesRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdFavoritesResponse"];
+          };
+        };
+        /** @description Unknown Response */
+        409: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/favorites/{dancerRosterId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+          dancerRosterId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unknown Response */
+        409: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/rankings": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdRankingsResponse"];
+          };
+        };
+        /** @description Unknown Response */
+        409: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orgs/{slug}/register": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Dancer self-registration via invite token
+     * @description Consumes a one-time invite token and creates a new dancer account with an org membership and a time-limited premium grant.
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          slug: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["OrgsIdRegisterRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["OrgsIdRegisterResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/skills": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get all skills
+     * @description Returns a list of all skills
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SkillsResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/sports": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get all sports
+     * @description Returns a list of all sports
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SportsResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/styles": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get all styles
+     * @description Returns a list of all styles
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["StylesResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/subscriptions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get subscription status
+     * @description Gets the authenticated dancer's subscription status
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SubscriptionsResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/subscriptions/checkout": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Create a checkout session
+     * @description Creates a checkout session for the authenticated dancer
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["SubscriptionsCheckoutRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SubscriptionsCheckoutResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/subscriptions/manage": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Manage a subscription
+     * @description Manages the authenticated dancer's subscription
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SubscriptionsManageResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/stripe/webhook": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["StripeWebhookResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/cloudflare/stream/webhook": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["CloudflareStreamWebhookResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/contact": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Contact us
+     * @description Sends a contact form message to the team
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["ContactRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/feedback": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Submit feedback
+     * @description Submits user feedback to the team
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["FeedbackRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dancers": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get dancers
+     * @description Returns a list of dancers
+     */
+    get: {
+      parameters: {
+        query?: {
+          name?: string | null;
+          location?:
+            | (
+                | "ID"
+                | "OR"
+                | "AL"
+                | "AK"
+                | "AZ"
+                | "AR"
+                | "CA"
+                | "CO"
+                | "CT"
+                | "DE"
+                | "FL"
+                | "GA"
+                | "HI"
+                | "IL"
+                | "IN"
+                | "IA"
+                | "KS"
+                | "KY"
+                | "LA"
+                | "ME"
+                | "MD"
+                | "MA"
+                | "MI"
+                | "MN"
+                | "MS"
+                | "MO"
+                | "MT"
+                | "NE"
+                | "NV"
+                | "NH"
+                | "NJ"
+                | "NM"
+                | "NY"
+                | "NC"
+                | "ND"
+                | "OH"
+                | "OK"
+                | "PA"
+                | "RI"
+                | "SC"
+                | "SD"
+                | "TN"
+                | "TX"
+                | "UT"
+                | "VT"
+                | "VA"
+                | "WA"
+                | "WV"
+                | "WI"
+                | "WY"
+              )
+            | null;
+          sports?: string | null;
+          styles?: string | null;
+          following?: (string | number | boolean) | null;
+          limit?: (string | number) | null;
+          page?: (string | number) | null;
+          premium?: (string | number | boolean) | null;
+          gpaRange?: Record<string, never>;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DancersResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    /**
+     * Create a dancer
+     * @description Populate account with personal information to finish dancer signup
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["DancersRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dancers/filters": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get dancer filters
+     * @description Returns the filters to use when searching for dancers
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DancersFiltersResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dancers/me": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update my portfolio
+     * @description Updates the authenticated dancer's portfolio
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["DancersMeRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/dancers/me/skills": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get dancer skills
+     * @description Returns the dancer's skills
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DancersMeSkillsResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update dancer skills
+     * @description Updates the dancer's skills
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["DancersMeSkillsRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/dancers/me/styles": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get dancer styles
+     * @description Returns the dancer's styles
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DancersMeStylesResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update dancer styles
+     * @description Updates the dancer's styles
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["DancersMeStylesRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/dancers/me/sports": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get dancer sports
+     * @description Returns the dancer's sports
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DancersMeSportsResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update dancer sports
+     * @description Updates the dancer's sports
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["DancersMeSportsRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/dancers/me/following": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get following list
+     * @description Returns the list of school's IDs I'm following
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DancersMeFollowingResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dancers/me/following/ids": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get following list IDs
+     * @description Returns the list of school's IDs I'm following
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DancersMeFollowingIdsResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dancers/me/followers": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get dancer followers
+     * @description Returns the schools that have favorited this dancer.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DancersMeFollowersResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dancers/me/checklist": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get dancer profile checklist
+     * @description Returns the dancer's profile checklist
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DancersMeChecklistResponse"];
+          };
+        };
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dancers/submissions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get dancer's CRV submissions
+     * @description Returns the common recruiting video submissions for the authenticated dancer
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DancersSubmissionsResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    /**
+     * Create a CRV submission
+     * @description Creates a common recruiting video submission for the authenticated dancer
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["DancersSubmissionsRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dancers/submissions/video": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get the dancer's submission video
+     * @description Returns the dancer's submission video
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DancersSubmissionsVideoResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Edit the dancer's submission video
+     * @description Updates the YouTube URL for the dancer's common recruiting video
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["DancersSubmissionsVideoRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/dancers/submissions/schools": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get schools that the dancer has not submitted to
+     * @description Returns the schools that the dancer has not submitted to
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DancersSubmissionsSchoolsResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dancers/{username}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a dancer
+     * @description Returns the dancer's public profile
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          username: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DancersIdResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dancers/{id}/favorite": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Favorite a dancer
+     * @description Adds a dancer to the school's favorites list.
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DancersIdFavoriteResponse"];
+          };
+        };
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    /**
+     * Unfavorite a dancer
+     * @description Removes a dancer from the school's favorites list.
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dancers/{id}/metadata": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get dancer metadata
+     * @description Returns the dancer's metadata
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DancersIdMetadataResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dancers/references": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Create a reference
+     * @description Creates a reference for the authenticated dancer
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["DancersReferencesRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dancers/references/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete a reference
+     * @description Deletes a reference for the authenticated dancer
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    /**
+     * Update a reference
+     * @description Updates a reference for the authenticated dancer
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["DancersReferencesIdRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/dancers/achievements/achievements": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Create an achievement
+     * @description Creates an achievement for the authenticated dancer
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["DancersAchievementsAchievementsRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dancers/achievements/achievements/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete an achievement
+     * @description Deletes an achievement for the authenticated dancer
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    /**
+     * Update an achievement
+     * @description Updates an achievement for the authenticated dancer
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["DancersAchievementsAchievementsIdRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/events": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get all events
+     * @description Returns a list of all upcoming events
+     */
+    get: {
+      parameters: {
+        query?: {
+          date?: string | null;
+          location?:
+            | (
+                | "ID"
+                | "OR"
+                | "AL"
+                | "AK"
+                | "AZ"
+                | "AR"
+                | "CA"
+                | "CO"
+                | "CT"
+                | "DE"
+                | "FL"
+                | "GA"
+                | "HI"
+                | "IL"
+                | "IN"
+                | "IA"
+                | "KS"
+                | "KY"
+                | "LA"
+                | "ME"
+                | "MD"
+                | "MA"
+                | "MI"
+                | "MN"
+                | "MS"
+                | "MO"
+                | "MT"
+                | "NE"
+                | "NV"
+                | "NH"
+                | "NJ"
+                | "NM"
+                | "NY"
+                | "NC"
+                | "ND"
+                | "OH"
+                | "OK"
+                | "PA"
+                | "RI"
+                | "SC"
+                | "SD"
+                | "TN"
+                | "TX"
+                | "UT"
+                | "VT"
+                | "VA"
+                | "WA"
+                | "WV"
+                | "WI"
+                | "WY"
+              )
+            | null;
+          schoolName?: string | null;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["EventsResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    /**
+     * Create event
+     * @description Creates a new school hosted event
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["EventsRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/events/filters": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get event filters
+     * @description Returns the filters to use when searching for events
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["EventsFiltersResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/events/upcoming": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get upcoming events
+     * @description Returns a list of upcoming events
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["EventsUpcomingResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/events/global": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get all global events
+     * @description Returns a list of all upcoming global events
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["EventsGlobalResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/events/global/upcoming": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get upcoming global events
+     * @description Returns a list of upcoming global events
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["EventsGlobalUpcomingResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/events/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get event by id
+     * @description Returns details about a specific event
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["EventsIdResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    /**
+     * Delete event
+     * @description Deletes a school hosted event
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    /**
+     * Edit event
+     * @description Edits a school hosted event
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["EventsIdRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/events/{id}/save": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Save event
+     * @description Saves an event for the current user
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["EventsIdSaveRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/events/{id}/unsave": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Unsave event
+     * @description Unsaves an event for the current user
+     */
+    delete: {
+      parameters: {
+        query?: {
+          type?: string | null;
+        };
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/images": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Upload media to user's profile
+     * @description Posts an image to the user's profile and adds it to their followers' feeds
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["ImagesRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/images/presign": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Request one-time upload URL
+     * @description Makes a request to Cloudflare to create a one-time signed upload URL for the user's image
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["ImagesPresignRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ImagesPresignResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/images/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete an image
+     * @description Deletes an image from the user's profile and feed
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/schools": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get schools
+     * @description Returns a list of schools
+     */
+    get: {
+      parameters: {
+        query?: {
+          location?:
+            | (
+                | "ID"
+                | "OR"
+                | "AL"
+                | "AK"
+                | "AZ"
+                | "AR"
+                | "CA"
+                | "CO"
+                | "CT"
+                | "DE"
+                | "FL"
+                | "GA"
+                | "HI"
+                | "IL"
+                | "IN"
+                | "IA"
+                | "KS"
+                | "KY"
+                | "LA"
+                | "ME"
+                | "MD"
+                | "MA"
+                | "MI"
+                | "MN"
+                | "MS"
+                | "MO"
+                | "MT"
+                | "NE"
+                | "NV"
+                | "NH"
+                | "NJ"
+                | "NM"
+                | "NY"
+                | "NC"
+                | "ND"
+                | "OH"
+                | "OK"
+                | "PA"
+                | "RI"
+                | "SC"
+                | "SD"
+                | "TN"
+                | "TX"
+                | "UT"
+                | "VT"
+                | "VA"
+                | "WA"
+                | "WV"
+                | "WI"
+                | "WY"
+              )
+            | null;
+          commonRecruiting?: (string | number | boolean) | null;
+          teamSelection?: ("recruitment" | "audition" | "hybrid") | null;
+          competitiveCircuit?:
+            | ("other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive")
+            | null;
+          division?: string | null;
+          sports?: string | null;
+          styles?: string | null;
+          following?: (string | number | boolean) | null;
+          gpaRange?: Record<string, never>;
+          upcomingEvents?: (string | number | boolean) | null;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SchoolsResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/schools/check-availability": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Check school name availability
+     * @description Checks if a school name is available for registration.
+     */
+    get: {
+      parameters: {
+        query: {
+          schoolName: string;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SchoolsCheckavailabilityResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/schools/filters": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get school filters
+     * @description Returns the filters to use when searching for schools
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SchoolsFiltersResponse"];
+          };
+        };
+        /** @description Unknown Response */
+        304: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/schools/recommended": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get recommended programs
+     * @description Returns a list of recommended programs
+     */
+    get: {
+      parameters: {
+        query?: {
+          limit?: (string | number) | null;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SchoolsRecommendedResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/schools/me": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update my school
+     * @description Updates the authenticated school's program information
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["SchoolsMeRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/schools/me/followers": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get school followers
+     * @description Returns the dancers that have followed this school.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SchoolsMeFollowersResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/schools/me/following": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get following list
+     * @description Returns the list of dancers this school has favorited.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SchoolsMeFollowingResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/schools/me/following/ids": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get following list IDs
+     * @description Returns the list of dancer's IDs this school has favorited
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SchoolsMeFollowingIdsResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/schools/me/favorites": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get favorites data
+     * @description Returns the data for the school's favorites
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SchoolsMeFavoritesResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/schools/me/favorites/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update a favorite
+     * @description Updates a favorite for the school
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["SchoolsMeFavoritesIdRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/schools/me/skills": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get school skills
+     * @description Returns the school's skills
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SchoolsMeSkillsResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update school skills
+     * @description Updates the school's skills
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["SchoolsMeSkillsRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/schools/me/styles": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get school styles
+     * @description Returns the school's styles
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SchoolsMeStylesResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update school styles
+     * @description Updates the school's styles
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["SchoolsMeStylesRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/schools/me/sports": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get school sports
+     * @description Returns the school's sports
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SchoolsMeSportsResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update school sports
+     * @description Updates the school's sports
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["SchoolsMeSportsRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/schools/me/submissions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get CRV submissions
+     * @description Returns dancer submissions to this school
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SchoolsMeSubmissionsResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/schools/me/submissions/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update CRV submission
+     * @description Updates status or watched state of a submission
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["SchoolsMeSubmissionsIdRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/schools/me/view-dancer/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Record profile view
+     * @description Records that the school viewed a dancer's profile
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/schools/{username}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a school
+     * @description Returns the school's public profile
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          username: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SchoolsIdResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/schools/{id}/follow": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Follow a school
+     * @description Follows the school's profile using the school ID
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SchoolsIdFollowResponse"];
+          };
+        };
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    /**
+     * Unfollow a school
+     * @description Unfollows the school's profile using the school ID
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/schools/{id}/metadata": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get school metadata
+     * @description Returns the school's metadata
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SchoolsIdMetadataResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/schools/{id}/interest": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Show interest in a school
+     * @description A dancer can show interest in a school up to 3 times. This endpoint will increment the interest count for the school, and send a notification to the school.
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SchoolsIdInterestResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/users/check-availability": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Check username availability
+     * @description Checks if a username is available for registration.
+     */
+    get: {
+      parameters: {
+        query: {
+          username: string;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["UsersCheckavailabilityResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/users/account": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get account settings
+     * @description Returns the user's account settings
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["UsersAccountResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    /**
+     * Delete account
+     * @description Deletes the user's account
+     */
+    delete: {
+      parameters: {
+        query?: {
+          feedback?: string | null;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    /**
+     * Update account settings
+     * @description Updates the user's account settings
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["UsersAccountRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/users/avatar": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Update user avatar
+     * @description Updates the image ID for the user's avatar from Cloudflare
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["UsersAvatarRequest"];
+        };
+      };
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/users/activity": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get user activity
+     * @description Returns the user's activity
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["UsersActivityResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/videos/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete a video
+     * @description Deletes a video from the user's profile and feed
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/videos/tus": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Initiate TUS video upload
+     * @description Initiates a TUS resumable upload to Cloudflare Stream
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description No Content */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/videos/youtube": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Add YouTube video
+     * @description Add a YouTube video to the user's profile
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["VideosYoutubeRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["VideosYoutubeResponse"];
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["Error"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        Error: {
-            /** @description Human-readable error message suitable for display */
-            message: string;
-            /**
-             * @description Machine-readable error code for programmatic handling
-             * @example E_BAD_REQUEST
-             */
-            code: string;
-            /**
-             * @description HTTP status code returned by the server
-             * @example 429
-             */
-            status: number;
-            /**
-             * @description Seconds until the request can be retried
-             * @example 60
-             */
-            retryAfter?: number;
-            /** @description Additional context specific to the validation error */
-            errors?: components["schemas"]["ValidationError"][];
-            /**
-             * @description Additional context specific to the error type
-             * @example {
-             *       "userId": "123"
-             *     }
-             */
-            meta?: {
-                [key: string]: unknown;
-            };
-        };
-        ValidationError: {
-            /**
-             * @description Validation error field name
-             * @example email
-             */
-            field: string;
-            /**
-             * @description Validation error message
-             * @example Email is required
-             */
-            message: string;
-        };
-        /** @enum {string} */
-        UploadKind: "dancer" | "coach";
-        /** @enum {string} */
-        SubscriptionSource: "stripe" | "org_event" | "none";
-        /** @enum {string} */
-        DancerFilterParam: "name" | "location" | "sports" | "styles" | "following" | "premium" | "gpaRange";
-        /** @enum {string} */
-        EventFilterParam: "location" | "date" | "schoolName";
-        /** @enum {string} */
-        SchoolFilterParam: "name" | "location" | "sports" | "styles" | "following" | "gpaRange" | "commonRecruiting" | "teamSelection" | "competitiveCircuit" | "division" | "upcomingEvents";
-        MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
-        AdminApplicationsResponse: {
-            id: string;
-            /** @enum {string} */
-            status: "accepted" | "rejected" | "pending";
-            notes: string | null;
-            school: {
-                id: string;
-                user: {
-                    avatar: string | null;
-                    id: string;
-                    email: string;
-                    displayEmail: string;
-                    firstName: string;
-                    lastName: string;
-                    verified: boolean;
-                };
-                name: string;
-                location: string;
-            };
-            createdAt: string;
-            thumbnail: string | null;
-        }[];
-        AdminApplicationsIdStatusRequest: {
-            notes?: string | null;
-            /** @enum {string} */
-            status: "accepted" | "rejected";
-        };
-        AdminSchoolsResponse: {
-            id: string;
-            user: {
-                id: string;
-                username: string;
-                email: string;
-                avatar: string | null;
-                verified: boolean;
-                /** @enum {string} */
-                role: "user" | "admin" | "prodigy_admin";
-            };
-            createdAt: string;
-            name: string;
-            location: string;
-            division: string | null;
-        }[];
-        AdminSchoolsIdEventsRequest: {
-            website?: string | null;
-            address?: string | null;
-            tags?: string[] | null;
-            cost?: string | null;
-            /** @enum {string} */
-            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-            location: string;
-            title: string;
-            description: string;
-            startDatetime: string;
-            endDatetime: string;
-        };
-        AdminSchoolsIdEventsResponse: {
-            id: string;
-        };
-        AdminSchoolsIdProfileRequest: {
-            location?: string | null;
-            instagram?: string | null;
-            tiktok?: string | null;
-            gpa?: (string | number) | null;
-            city?: string | null;
-            commonRecruiting?: (string | number | boolean) | null;
-            teamSelection?: ("recruitment" | "audition" | "hybrid") | null;
-            competitiveCircuit?: ("other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive") | null;
-            division?: string | null;
-            benefits?: string | null;
-            about?: string | null;
-            website?: string | null;
-            timeCommitment?: string | null;
-            headCoach?: string | null;
-            assistantCoach?: string | null;
-            missionStatement?: string | null;
-            whatWeDo?: string | null;
-            size?: (string | number) | null;
-            schoolName?: string | null;
-        };
-        AdminSchoolsIdSkillsRequest: {
-            skills: string[];
-        };
-        AdminSchoolsIdStylesRequest: {
-            styles: string[];
-        };
-        AdminSchoolsIdSportsRequest: {
-            sports: string[];
-        };
-        AdminSchoolsIdAccountRequest: {
-            displayEmail?: string | null;
-            firstName?: string | null;
-            lastName?: string | null;
-            phone?: string | null;
-            notifications?: (string | number | boolean) | null;
-        };
-        AdminSchoolsIdAvatarRequest: {
-            key: string;
-        };
-        AdminEventsGlobalRequest: {
-            /** @enum {string} */
-            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-            location: string;
-            website: string;
-            title: string;
-            description: string;
-            startDatetime: string;
-            endDatetime: string;
-            thumbnail: string;
-            organization: string;
-        };
-        AdminEventsGlobalResponse: {
-            id: string;
-        };
-        AdminEventsGlobalIdRequest: {
-            type?: ("recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp") | null;
-            location?: string | null;
-            website?: string | null;
-            title?: string | null;
-            description?: string | null;
-            startDatetime?: string | null;
-            endDatetime?: string | null;
-            thumbnail?: string | null;
-            organization?: string | null;
-        };
-        AdminEventsGlobalIdResponse: {
-            id: string;
-        };
-        AdminEventsSchoolIdRequest: {
-            type?: ("recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp") | null;
-            location?: string | null;
-            website?: string | null;
-            title?: string | null;
-            description?: string | null;
-            address?: string | null;
-            tags?: string[] | null;
-            cost?: string | null;
-            startDatetime?: string | null;
-            endDatetime?: string | null;
-        };
-        AdminEventsSchoolIdResponse: {
-            id: string;
-        };
-        AdminDancersResponse: {
-            dancers: {
-                id: string;
-                user: {
-                    id: string;
-                    username: string;
-                    email: string;
-                    name: string;
-                    avatar: string | null;
-                    verified: boolean;
-                    /** @enum {string} */
-                    role: "user" | "admin" | "prodigy_admin";
-                };
-                createdAt: string;
-                location: string;
-                gpa: number | null;
-                gradYear: number | null;
-            }[];
-            pagination: {
-                total: number;
-                page: number;
-                limit: number;
-                totalPages: number;
-                hasNextPage: boolean;
-                hasPreviousPage: boolean;
-            };
-        };
-        AdminDancersStatsResponse: {
-            total: number;
-            daily: {
-                current: number;
-                previous: number;
-                change: number | null;
-            };
-            weekly: {
-                current: number;
-                previous: number;
-                change: number | null;
-            };
-            monthly: {
-                current: number;
-                previous: number;
-                change: number | null;
-            };
-            dailyBreakdown: {
-                date: string;
-                count: number;
-            }[];
-        };
-        AdminBlogRequest: {
-            tags?: string[] | null;
-            title: string;
-            description: string;
-            thumbnail: string;
-            content: string;
-        };
-        AdminBlogResponse: {
-            id: string;
-        };
-        AdminOutboxStatsHistoryResponse: {
-            daily: Record<string, never>;
-            weekly: Record<string, never>;
-            monthly: Record<string, never>;
-            dailyBreakdown: {
-                type: string;
-                date: string;
-                count: number;
-            }[];
-        };
-        AdminLibraryVideosRequest: {
-            url: string;
-            title: string;
-            category: string;
-        };
-        AdminLibraryVideosResponse: {
-            id: string;
-        };
-        AdminLibraryVideosIdResponse: {
-            success: boolean;
-        };
-        ApplicationResponse: {
-            id?: string;
-            /** @enum {string} */
-            status?: "accepted" | "rejected" | "pending";
-            notes?: string | null;
-            createdAt?: string;
-            updatedAt?: string;
-            schoolId?: string;
-            thumbnail: string | null;
-            mediaId?: string;
-        };
-        ApplicationRequest: {
-            phone: string;
-            mediaId: string;
-        };
-        ApplicationPatchRequest: {
-            mediaId?: string | null;
-        };
-        AuthSignupRequest: {
-            phone?: string | null;
-            name?: string | null;
-            location?: string | null;
-            city?: string | null;
-            email: string;
-            username: string;
-            /** @enum {string} */
-            type: "dancer" | "school";
-            firstName: string;
-            lastName: string;
-            password: string;
-            termsChecked: boolean;
-        };
-        AuthSignupResponse: {
-            id: string;
-            displayEmail: string;
-            firstName: string;
-            lastName: string;
-            /** @enum {string} */
-            type: "dancer" | "school";
-        };
-        AuthLoginRequest: {
-            email: string;
-            password: string;
-        };
-        AuthLoginResponse: {
-            user: {
-                id: string;
-                username: string;
-                /** @enum {string} */
-                role: "user" | "admin" | "prodigy_admin";
-                /** @enum {string} */
-                type: "dancer" | "school";
-                displayEmail: string;
-                firstName: string;
-                lastName: string;
-                avatar: string | null;
-                verified: boolean;
-                notifications: boolean;
-                profileId: string;
-                platforms: ("core" | "prodigy")[];
-            };
-            token: string;
-            expiresIn: number;
-        };
-        AuthLogoutResponse: {
-            message: string;
-        };
-        AuthSessionResponse: {
-            id: string;
-            username: string;
-            /** @enum {string} */
-            role: "user" | "admin" | "prodigy_admin";
-            /** @enum {string} */
-            type: "dancer" | "school";
-            displayEmail: string;
-            firstName: string;
-            lastName: string;
-            avatar: string | null;
-            verified: boolean;
-            notifications: boolean;
-            profileId: string;
-            platforms: ("core" | "prodigy")[];
-        };
-        AuthPasswordChangeRequest: {
-            currentPassword: string;
-            newPassword: string;
-        };
-        AuthPasswordForgotRequest: {
-            email: string;
-        };
-        AuthPasswordResetRequest: {
-            password: string;
-            userId: string;
-            token: string;
-        };
-        AuthPasswordResetResponse: {
-            message: string;
-        };
-        BlogResponse: {
-            id: string;
-            createdAt: string;
-            title: string;
-            description: string;
-            thumbnail: string;
-            slug: string;
-        }[];
-        FeedResponse: {
-            feed: {
-                id: string;
-                /** @enum {string} */
-                contentType: "image" | "video" | "profile" | "reference" | "achievement";
-                createdAt: string;
-                username: string;
-                avatar: string | null;
-                name: string | null;
-                caption: string | null;
-                content: string | null;
-                thumbnail: string | null;
-            }[];
-            nextCursor: string;
-        };
-        HealthResponse: {
-            /** @enum {string} */
-            status: "error" | "ok" | "warning";
-            isHealthy: boolean;
-            finishedAt: string;
-            debugInfo: {
-                pid: number;
-                ppid?: number;
-                uptime: number;
-                version: string;
-                platform: string;
-            };
-            checks: {
-                /** @enum {string} */
-                status: "error" | "ok" | "warning";
-                name: string;
-                meta?: Record<string, never>;
-                message: string;
-                finishedAt: string;
-                isCached: boolean;
-            }[];
-        };
-        LibraryResponse: {
-            category: string;
-            videos: {
-                id: string;
-                url: string;
-                createdAt: string;
-                updatedAt: string;
-                title: string;
-                category: string;
-            }[];
-        }[];
-        LibraryIdResponse: {
-            id: string;
-            url: string;
-            createdAt: string;
-            updatedAt: string;
-            title: string;
-            category: string;
-        }[];
-        NotificationsResponse: {
-            data: {
-                link: string | null;
-                id: string;
-                type: string;
-                createdAt: string;
-                metadata?: Record<string, never>;
-                actor: {
-                    name: string;
-                    username: string;
-                    avatar: string | null;
-                    profileUrl: string;
-                } | null;
-                message: string;
-                read: boolean;
-            }[];
-            nextCursor: string | null;
-        };
-        NotificationsCountResponse: {
-            count: number;
-        };
-        NotificationsReadallResponse: {
-            success: boolean;
-        };
-        NotificationsIdResponse: {
-            id: string;
-        };
-        OrgsIdResponse: {
-            id: string;
-            name: string;
-            slug: string;
-            logoUrl: string | null;
-            primaryColor: string | null;
-            accentColor: string | null;
-            features: Record<string, never>;
-            settings: Record<string, never>;
-            membership: {
-                /** @enum {string} */
-                role: "admin" | "member";
-                type: components["schemas"]["UploadKind"];
-            } | null;
-        };
-        OrgsIdEventsResponse: {
-            gpa: boolean;
-            location: boolean;
-            skills: boolean;
-            styles: boolean;
-            sports: boolean;
-        };
-        OrgsIdEventsRequest: {
-            venueName?: string | null;
-            venueAddress?: string | null;
-            contactEmail?: string | null;
-            isActive?: (string | number | boolean) | null;
-            name: string;
-            startDate: string;
-            endDate: string;
-        };
-        OrgsIdEventsIdRequest: {
-            name?: string | null;
-            startDate?: string | null;
-            endDate?: string | null;
-            venueName?: string | null;
-            venueAddress?: string | null;
-            contactEmail?: string | null;
-            isActive?: (string | number | boolean) | null;
-            schedulePdfUrl?: string | null;
-        };
-        OrgsIdEventsIdResponse: {
-            id: string;
-            createdAt: string;
-            updatedAt: string;
-            name: string;
-            orgId: string;
-            startDate: string;
-            endDate: string;
-            venueName: string | null;
-            venueAddress: string | null;
-            contactEmail: string | null;
-            isActive: boolean;
-            schedulePdfUrl: string | null;
-        };
-        OrgsIdEventsIdUploadCoachesRequest: {
-            file: Record<string, never>;
-        };
-        OrgsIdEventsIdUploadCoachesResponse: {
-            rowsAdded: number;
-            rowsUpdated: number;
-            rowsErrored: number;
-            errors: {
-                row: number;
-                reason: string;
-            }[];
-            uploadId: string;
-        };
-        OrgsIdEventsIdUploadDancersRequest: {
-            file: Record<string, never>;
-        };
-        OrgsIdEventsIdUploadDancersResponse: {
-            rowsAdded: number;
-            rowsUpdated: number;
-            rowsErrored: number;
-            errors: {
-                row: number;
-                reason: string;
-            }[];
-            uploadId: string;
-        };
-        OrgsIdEventsIdUploadIdPreviewRequest: {
-            file: Record<string, never>;
-        };
-        OrgsIdEventsIdUploadIdPreviewResponse: {
-            errors: {
-                row: number;
-                reason: string;
-            }[];
-            kind: components["schemas"]["UploadKind"];
-            totalRows: number;
-            acceptedRows: number;
-            willMatch: number;
-            willInvite: number;
-            willUpdate: number;
-            willError: number;
-        };
-        OrgsIdEventsIdStatsResponse: {
-            total: number;
-            daily: {
-                current: number;
-                previous: number;
-                change: number | null;
-            };
-            weekly: {
-                current: number;
-                previous: number;
-                change: number | null;
-            };
-            monthly: {
-                current: number;
-                previous: number;
-                change: number | null;
-            };
-            dailyBreakdown: {
-                date: string;
-                count: number;
-            }[];
-        };
-        OrgsIdEventsIdRostersResponse: {
-            data: {
-                id: string;
-                email: string;
-                type: components["schemas"]["UploadKind"];
-                firstName: string;
-                lastName: string;
-                createdAt: string;
-                profile: {
-                    studio: string | null;
-                    gpa: number | null;
-                    gradYear: number | null;
-                    profilePhotoUrl: string | null;
-                    state: string | null;
-                    height: string | null;
-                    danceStyles: string[] | null;
-                    bio: string | null;
-                } | null;
-                organization: string | null;
-                eventId: string;
-                bibNumber: number | null;
-                isRegistered: boolean;
-            }[];
-            total: number;
-        };
-        OrgsIdEventsIdRostersFiltersResponse: {
-            organizations: string[];
-        };
-        OrgsIdEventsIdRostersStatsResponse: {
-            total: number;
-            active: number;
-            pending: number;
-        };
-        OrgsIdEventsIdRostersIdRequest: {
-            email?: string | null;
-            firstName?: string | null;
-            lastName?: string | null;
-            profile?: {
-                studio?: string | null;
-                gpa?: (string | number) | null;
-                gradYear?: (string | number) | null;
-                state?: string | null;
-                height?: string | null;
-                danceStyles?: string[] | null;
-                bio?: string | null;
-            } | null;
-            organization?: string | null;
-            bibNumber?: (string | number) | null;
-        };
-        OrgsIdEventsIdRostersIdResponse: {
-            id: string;
-            email: string;
-            type: components["schemas"]["UploadKind"];
-            firstName: string;
-            lastName: string;
-            createdAt: string;
-            profile: {
-                studio: string | null;
-                gpa: number | null;
-                gradYear: number | null;
-                profilePhotoUrl: string | null;
-                state: string | null;
-                height: string | null;
-                danceStyles: string[] | null;
-                bio: string | null;
-            } | null;
-            organization: string | null;
-            eventId: string;
-            bibNumber: number | null;
-            isRegistered: boolean;
-        };
-        OrgsIdEventsIdRostersResendinvitesRequest: {
-            ids: string[];
-        };
-        OrgsIdEventsIdRostersResendinvitesResponse: {
-            failed: {
-                id: string;
-                reason: string;
-            }[];
-            sent: number;
-            skipped: number;
-        };
-        OrgsIdEventsIdChecklistResponse: {
-            id: string;
-            createdAt: string;
-            updatedAt: string;
-            title: string;
-            description: string | null;
-            eventId: string;
-            completed: boolean;
-            position: number;
-        }[];
-        OrgsIdEventsIdChecklistRequest: {
-            description?: string | null;
-            title: string;
-        };
-        OrgsIdEventsIdChecklistIdRequest: {
-            title?: string | null;
-            description?: string | null;
-            completed?: (string | number | boolean) | null;
-            position?: (string | number) | null;
-        };
-        OrgsIdEventsIdChecklistIdResponse: {
-            id: string;
-            createdAt: string;
-            updatedAt: string;
-            title: string;
-            description: string | null;
-            eventId: string;
-            completed: boolean;
-            position: number;
-        }[];
-        OrgsIdEventsIdAuditlogResponse: {
-            data: {
-                id: string;
-                createdAt: string;
-                eventId: string;
-                /** @enum {string} */
-                action: "upload" | "create" | "update" | "delete" | "activate" | "resend_invite";
-                /** @enum {string} */
-                resource: "roster" | "event" | "checklist" | "csv_upload" | "invite";
-                resourceId: string | null;
-                metadata: Record<string, never>;
-                parentId: string | null;
-                actor: {
-                    id: string;
-                    firstName: string;
-                    lastName: string;
-                    email: string;
-                    avatarUrl: string | null;
-                };
-                childCount: number;
-            }[];
-            total: number;
-        };
-        OrgsIdEventsIdAuditlogStatsResponse: {
-            recentErrors: number;
-            activity: {
-                today: number;
-                thisWeek: number;
-                thisMonth: number;
-            };
-            topActors: {
-                id: string;
-                name: string;
-                avatarUrl: string | null;
-                count: number;
-            }[];
-            uploadHealth: {
-                total: number;
-                successRate: number;
-                totalRows: number;
-                erroredRows: number;
-            };
-            actionBreakdown: {
-                /** @enum {string} */
-                action: "upload" | "create" | "update" | "delete" | "activate" | "resend_invite";
-                count: number;
-            }[];
-        };
-        OrgsIdEventsIdAuditlogIdChildrenResponse: {
-            data: {
-                id: string;
-                createdAt: string;
-                eventId: string;
-                /** @enum {string} */
-                action: "upload" | "create" | "update" | "delete" | "activate" | "resend_invite";
-                /** @enum {string} */
-                resource: "roster" | "event" | "checklist" | "csv_upload" | "invite";
-                resourceId: string | null;
-                metadata: Record<string, never>;
-                parentId: string | null;
-                actor: {
-                    id: string;
-                    firstName: string;
-                    lastName: string;
-                    email: string;
-                    avatarUrl: string | null;
-                };
-            }[];
-        };
-        OrgsIdDancersResponse: {
-            rosterId: string;
-            bibNumber: number | null;
-            firstName: string;
-            lastName: string;
-            organization: string | null;
-            isRegistered: boolean;
-            profilePhotoUrl: string | null;
-            gpa: number | null;
-            gradYear: number | null;
-            studio: string | null;
-            state: string | null;
-        }[];
-        OrgsIdDancersIdResponse: {
-            note: string | null;
-            firstName: string;
-            lastName: string;
-            location: string | null;
-            highSchool: string | null;
-            studio: string | null;
-            gpa: number | null;
-            gradYear: number | null;
-            organization: string | null;
-            rating: number | null;
-            bibNumber: number | null;
-            rosterId: string;
-            profilePhotoUrl: string | null;
-            state: string | null;
-            height: string | null;
-            danceStyles: string[] | null;
-            bio: string | null;
-            extra: Record<string, never>;
-            isRegistered: boolean;
-            isFavorited: boolean;
-            favoritedMyRosterId: null;
-        };
-        OrgsIdDancersIdNotesRequest: {
-            content: string;
-        };
-        OrgsIdDancersIdNotesResponse: {
-            id: string;
-            createdAt: string;
-            updatedAt: string;
-            eventId: string;
-            content: string;
-            coachRosterId: string;
-            dancerRosterId: string;
-        };
-        OrgsIdDancersIdRatingRequest: {
-            rating: string | number;
-        };
-        OrgsIdDancersIdRatingResponse: {
-            id: string;
-            createdAt: string;
-            updatedAt: string;
-            eventId: string;
-            rating: number;
-            coachRosterId: string;
-            dancerRosterId: string;
-        };
-        OrgsIdFavoritesResponse: {
-            rosterId: string;
-            bibNumber: number | null;
-            firstName: string;
-            lastName: string;
-            profilePhotoUrl: string | null;
-            gradYear: number | null;
-            studio: string | null;
-            state: string | null;
-            gpa: number | null;
-        }[];
-        OrgsIdFavoritesRequest: {
-            dancerRosterId: string;
-        };
-        OrgsIdRankingsResponse: {
-            note: string | null;
-            firstName: string;
-            lastName: string;
-            studio: string | null;
-            gpa: number | null;
-            gradYear: number | null;
-            organization: string | null;
-            rating: number | null;
-            bibNumber: number | null;
-            rosterId: string;
-            profilePhotoUrl: string | null;
-            state: string | null;
-            isRegistered: boolean;
-            isFavorited: boolean;
-            favoritedAt: string | null;
-        }[];
-        OrgsIdRegisterRequest: {
-            firstName: string;
-            lastName: string;
-            password: string;
-            token: string;
-        };
-        OrgsIdRegisterResponse: {
-            userId: string;
-        };
-        SkillsResponse: {
-            name: string;
-            slug: string;
-            category: string;
-        }[];
-        SportsResponse: {
-            name: string;
-            slug: string;
-        }[];
-        StylesResponse: {
-            name: string;
-            slug: string;
-        }[];
-        SubscriptionsResponse: {
-            source: components["schemas"]["SubscriptionSource"];
-            cancelAtPeriodEnd: boolean;
-            currentPeriodEnd: string | null;
-            subscribed: boolean;
-            grantedBy: string | null;
-        };
-        SubscriptionsCheckoutRequest: {
-            /** @enum {string} */
-            type: "monthly" | "yearly";
-        };
-        SubscriptionsCheckoutResponse: {
-            clientSecret: string;
-        };
-        SubscriptionsManageResponse: {
-            url: string;
-        };
-        StripeWebhookResponse: {
-            received: boolean;
-        };
-        CloudflareStreamWebhookResponse: {
-            received: boolean;
-        };
-        ContactRequest: {
-            email: string;
-            name: string;
-            message: string;
-            subject: string;
-        };
-        FeedbackRequest: {
-            page?: string | null;
-            /** @enum {string} */
-            type: "other" | "bug" | "feature" | "improvement";
-            message: string;
-        };
-        DancersResponse: {
-            dancers: {
-                id: string;
-                username: string;
-                avatar: string | null;
-                createdAt: string;
-                name: string;
-                birthday: string;
-                location: string;
-                gpa: number | null;
-                gradYear: number | null;
-                followers: number;
-                subscribed: boolean;
-            }[];
-            pagination: {
-                total: number;
-                page: number;
-                limit: number;
-                totalPages: number;
-                hasNextPage: boolean;
-                hasPreviousPage: boolean;
-            };
-        };
-        DancersRequest: {
-            phoneNumber?: string | null;
-            birthday: string | number;
-            location: string;
-            /** @enum {string} */
-            platform: "core" | "prodigy";
-        };
-        DancersFiltersResponse: {
-            id: string;
-            /** @enum {string} */
-            type: "select" | "input" | "toggle" | "multi-select" | "range";
-            options?: {
-                label: string;
-                value: string;
-            }[];
-            label: string;
-            paramKey: components["schemas"]["DancerFilterParam"];
-        }[];
-        DancersMeRequest: {
-            birthday?: string | null;
-            location?: string | null;
-            biography?: string | null;
-            instagram?: string | null;
-            tiktok?: string | null;
-            youtube?: string | null;
-            teamLevel?: string | null;
-            highSchool?: string | null;
-            studio?: string | null;
-            gpa?: (string | number) | null;
-            gradYear?: (string | number) | null;
-            trainingHours?: (string | number) | null;
-        };
-        DancersMeSkillsResponse: {
-            skillId: string;
-        }[];
-        DancersMeSkillsRequest: {
-            skills: string[];
-        };
-        DancersMeStylesResponse: {
-            styleId: string;
-        }[];
-        DancersMeStylesRequest: {
-            styles: string[];
-        };
-        DancersMeSportsResponse: {
-            sportId: string;
-        }[];
-        DancersMeSportsRequest: {
-            sports: string[];
-        };
-        DancersMeFollowingResponse: {
-            id: string;
-            username: string;
-            avatar: string | null;
-            name: string;
-        }[];
-        DancersMeFollowingIdsResponse: string[];
-        DancersMeFollowersResponse: {
-            id: string;
-            username: string;
-            avatar: string | null;
-            name: string;
-        }[];
-        DancersMeChecklistResponse: {
-            gpa: boolean;
-            location: boolean;
-            skills: boolean;
-            styles: boolean;
-            sports: boolean;
-        };
-        DancersSubmissionsResponse: {
-            id: string;
-            /** @enum {string} */
-            status: "accepted" | "pending" | "released" | "in_review";
-            school: {
-                avatar: string | null;
-                username: string;
-                id: string;
-                name: string;
-                location: string;
-            };
-            updatedAt: string;
-            watched: boolean;
-            watchedAt: string | null;
-        }[];
-        DancersSubmissionsRequest: {
-            schoolId: string[];
-            videoId: string;
-        };
-        DancersSubmissionsVideoResponse: {
-            youtubeId: string;
-        };
-        DancersSubmissionsVideoRequest: {
-            videoId: string;
-        };
-        DancersSubmissionsSchoolsResponse: {
-            username: string;
-            avatar: string | null;
-            id: string;
-            name: string;
-            location: string;
-        }[];
-        DancersIdResponse: {
-            id: string;
-            username: string;
-            displayEmail: string;
-            firstName: string;
-            lastName: string;
-            avatar: string | null;
-            phone: string | null;
-            birthday: string;
-            location: string;
-            biography: string | null;
-            instagram: string | null;
-            tiktok: string | null;
-            youtube: string | null;
-            teamLevel: string | null;
-            highSchool: string | null;
-            studio: string | null;
-            gpa: number | null;
-            gradYear: number | null;
-            trainingHours: number | null;
-            achievements: {
-                id: string;
-                createdAt: string;
-                updatedAt: string;
-                profileId: string;
-                title: string;
-                description: string;
-            }[];
-            references: {
-                id: string;
-                createdAt: string;
-                updatedAt: string;
-                name: string;
-                profileId: string;
-                title: string;
-                description: string | null;
-            }[];
-            videos: {
-                id: string;
-                /** @enum {string} */
-                type: "youtube" | "cloudflare";
-                createdAt: string;
-                updatedAt: string;
-                userId: string;
-                thumbnail: string | null;
-                mediaId: string;
-                caption: string | null;
-                mediaUrl: string;
-            }[];
-            images: {
-                id: string;
-                createdAt: string;
-                updatedAt: string;
-                userId: string;
-                thumbnail: string | null;
-                caption: string | null;
-                mediaUrl: string | null;
-            }[];
-            skills: {
-                name: string;
-                slug: string;
-                category: string;
-            }[];
-            sports: {
-                name: string;
-                slug: string;
-            }[];
-            styles: {
-                name: string;
-                slug: string;
-            }[];
-            events: {
-                id: string;
-                /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-                location: string;
-                title: string;
-                startDatetime: string;
-                endDatetime: string;
-                organizer: {
-                    name: string;
-                } | null;
-            }[];
-            globalEvents: {
-                id: string;
-                /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-                location: string;
-                title: string;
-                startDatetime: string;
-                endDatetime: string;
-            }[];
-            submission: {
-                id: string;
-                createdAt: string;
-                updatedAt: string;
-                dancerId: string;
-                youtubeId: string;
-            } | null;
-            subscribed: boolean;
-        };
-        DancersIdFavoriteResponse: {
-            created: boolean;
-        };
-        DancersIdMetadataResponse: {
-            followers: number;
-            favorited: boolean;
-        };
-        DancersReferencesRequest: {
-            name: string;
-            title: string;
-            description: string;
-        };
-        DancersReferencesIdRequest: {
-            name?: string | null;
-            title?: string | null;
-            description?: string | null;
-        };
-        DancersAchievementsAchievementsRequest: {
-            title: string;
-            description: string;
-        };
-        DancersAchievementsAchievementsIdRequest: {
-            title?: string | null;
-            description?: string | null;
-        };
-        EventsResponse: {
-            events: {
-                id: string;
-                /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-                date: string;
-                time: string;
-                location: string;
-                title: string;
-                organizer: {
-                    name: string;
-                    thumbnail: string | null;
-                };
-                attendees: {
-                    id: string;
-                }[];
-                saved: boolean;
-            }[];
-            month: string;
-        }[];
-        EventsRequest: {
-            website?: string | null;
-            address?: string | null;
-            tags?: string[] | null;
-            /** @enum {string} */
-            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-            location: string;
-            title: string;
-            description: string;
-            startDatetime: string;
-            endDatetime: string;
-        };
-        EventsFiltersResponse: {
-            id: string;
-            /** @enum {string} */
-            type: "date" | "select" | "input" | "toggle" | "multi-select" | "range";
-            options?: {
-                label: string;
-                value: string;
-            }[];
-            label: string;
-            paramKey: components["schemas"]["EventFilterParam"];
-        }[];
-        EventsUpcomingResponse: {
-            id: string;
-            /** @enum {string} */
-            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-            date: string;
-            time: string;
-            location: string;
-            title: string;
-            organizer: {
-                name: string;
-                thumbnail: string | null;
-            };
-        }[];
-        EventsGlobalResponse: {
-            thumbnail: string | null;
-            startTime: string;
-            endTime: string;
-            startDate: string;
-            endDate: string;
-            saved: boolean;
-            attendees: number;
-            id: string;
-            /** @enum {string} */
-            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-            location: string;
-            website: string;
-            title: string;
-            description: string;
-            organization: string;
-            eventAttendees: number;
-        }[];
-        EventsGlobalUpcomingResponse: {
-            thumbnail: string | null;
-            date: string;
-            time: string;
-            id: string;
-            /** @enum {string} */
-            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-            location: string;
-            title: string;
-        }[];
-        EventsIdResponse: {
-            id: string;
-            /** @enum {string} */
-            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-            createdAt: string;
-            updatedAt: string;
-            location: string;
-            website: string | null;
-            schoolId: string;
-            title: string;
-            description: string;
-            address: string | null;
-            tags: string[] | null;
-            cost: string | null;
-            schedule?: {
-                time: string;
-                activity: string;
-                description?: string;
-            }[];
-            startDate: string;
-            endDate: string;
-            organizer: {
-                name: string;
-                username: string;
-                avatar: string | null;
-                events: number;
-            };
-            attendees: number;
-            saved: boolean;
-            eventAttendees: number;
-            startTime: string;
-            endTime: string;
-        };
-        EventsIdRequest: {
-            type?: ("recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp") | null;
-            location?: string | null;
-            website?: string | null;
-            title?: string | null;
-            description?: string | null;
-            address?: string | null;
-            tags?: string[] | null;
-            cost?: string | null;
-            startDatetime?: string | null;
-            endDatetime?: string | null;
-        };
-        EventsIdSaveRequest: {
-            type?: string | null;
-        };
-        ImagesRequest: {
-            key: string;
-        };
-        ImagesPresignRequest: {
-            /** @enum {string} */
-            type: "id" | "avatar" | "feed" | "blog";
-            contentType: string;
-        };
-        ImagesPresignResponse: {
-            url: string;
-            key: string;
-        };
-        SchoolsResponse: {
-            id: string;
-            username: string;
-            avatar: string | null;
-            createdAt: string;
-            name: string;
-            location: string;
-            gpa: number | null;
-            division: string | null;
-            size: number | null;
-            events: number;
-            followers: number;
-        }[];
-        SchoolsCheckavailabilityResponse: {
-            available: boolean;
-        };
-        SchoolsFiltersResponse: {
-            id: string;
-            /** @enum {string} */
-            type: "select" | "input" | "toggle" | "multi-select" | "range";
-            options?: {
-                label: string;
-                value: string;
-            }[];
-            label: string;
-            paramKey: components["schemas"]["SchoolFilterParam"];
-        }[];
-        SchoolsRecommendedResponse: {
-            id: string;
-            debug?: {
-                schoolSkills: {
-                    skillId: string;
-                    weight: number;
-                    rarityBonus: number;
-                }[];
-                matchedSkills: {
-                    skillId: string;
-                    weight: number;
-                    rarityBonus: number;
-                }[];
-            };
-            username: string;
-            avatar: string | null;
-            name: string;
-            location: string;
-            gpa: number | null;
-            about: string | null;
-            size: number | null;
-            locationScore: number;
-            matchScore: number;
-            top3Matches: string[];
-            matchTier: components["schemas"]["MatchTier"];
-            matchedSkillsCount: number;
-            totalSchoolSkills: number;
-            matchedStylesCount: number;
-            totalSchoolStyles: number;
-            matchedSportsCount: number;
-            totalSchoolSports: number;
-            sameState: boolean;
-            meetsGpaRequirement: boolean;
-        }[];
-        SchoolsMeRequest: {
-            location?: string | null;
-            instagram?: string | null;
-            tiktok?: string | null;
-            gpa?: (string | number) | null;
-            city?: string | null;
-            commonRecruiting?: (string | number | boolean) | null;
-            teamSelection?: ("recruitment" | "audition" | "hybrid") | null;
-            competitiveCircuit?: ("other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive") | null;
-            division?: string | null;
-            benefits?: string | null;
-            about?: string | null;
-            website?: string | null;
-            timeCommitment?: string | null;
-            headCoach?: string | null;
-            assistantCoach?: string | null;
-            missionStatement?: string | null;
-            whatWeDo?: string | null;
-            size?: (string | number) | null;
-            schoolName?: string | null;
-        };
-        SchoolsMeFollowersResponse: {
-            id: string;
-            username: string;
-            avatar: string | null;
-            name: string;
-        }[];
-        SchoolsMeFollowingResponse: {
-            id: string;
-            username: string;
-            avatar: string | null;
-            name: string;
-        }[];
-        SchoolsMeFollowingIdsResponse: string[];
-        SchoolsMeFavoritesResponse: {
-            id: string;
-            username: string;
-            avatar: string | null;
-            createdAt: string;
-            name: string;
-            /** @enum {string} */
-            platformName: "core" | "prodigy";
-            comment: string | null;
-            rating: number | null;
-            lastContacted: string | null;
-        }[];
-        SchoolsMeFavoritesIdRequest: {
-            comment?: string | null;
-            rating?: (string | number) | null;
-        };
-        SchoolsMeSkillsResponse: {
-            skillId: string;
-        }[];
-        SchoolsMeSkillsRequest: {
-            skills: string[];
-        };
-        SchoolsMeStylesResponse: {
-            styleId: string;
-        }[];
-        SchoolsMeStylesRequest: {
-            styles: string[];
-        };
-        SchoolsMeSportsResponse: {
-            sportId: string;
-        }[];
-        SchoolsMeSportsRequest: {
-            sports: string[];
-        };
-        SchoolsMeSubmissionsResponse: {
-            id: string;
-            /** @enum {string} */
-            status: "accepted" | "pending" | "released" | "in_review";
-            dancer: {
-                id: string;
-                username: string;
-                avatar: string | null;
-                name: string;
-                gradYear: number | null;
-                location: string;
-            };
-            createdAt: string;
-            updatedAt: string;
-            watched: boolean;
-            watchedAt: string | null;
-            youtubeId: string | null;
-        }[];
-        SchoolsMeSubmissionsIdRequest: {
-            status?: ("accepted" | "pending" | "released" | "in_review") | null;
-            watched?: (string | number | boolean) | null;
-        };
-        SchoolsIdResponse: {
-            id: string;
-            username: string;
-            displayEmail: string;
-            avatar: string | null;
-            createdAt: string;
-            updatedAt: string;
-            name: string;
-            userId: string;
-            location: string;
-            instagram: string | null;
-            tiktok: string | null;
-            gpa: number | null;
-            city: string | null;
-            commonRecruiting: boolean;
-            /** @enum {string} */
-            teamSelection: "recruitment" | "audition" | "hybrid";
-            /** @enum {string} */
-            competitiveCircuit: "other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive";
-            division: string | null;
-            benefits: string | null;
-            about: string | null;
-            website: string | null;
-            timeCommitment: string | null;
-            headCoach: string | null;
-            assistantCoach: string | null;
-            missionStatement: string | null;
-            whatWeDo: string | null;
-            size: number | null;
-            videos: {
-                id: string;
-                /** @enum {string} */
-                type: "youtube" | "cloudflare";
-                createdAt: string;
-                updatedAt: string;
-                userId: string;
-                thumbnail: string | null;
-                mediaId: string;
-                caption: string | null;
-                mediaUrl: string;
-            }[];
-            images: {
-                id: string;
-                createdAt: string;
-                updatedAt: string;
-                userId: string;
-                thumbnail: string | null;
-                caption: string | null;
-                mediaUrl: string | null;
-            }[];
-            skills: {
-                name: string;
-                slug: string;
-                category: string;
-            }[];
-            sports: {
-                name: string;
-                slug: string;
-            }[];
-            styles: {
-                name: string;
-                slug: string;
-            }[];
-            events: {
-                id: string;
-                /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-                createdAt: string;
-                updatedAt: string;
-                location: string;
-                website: string | null;
-                schoolId: string;
-                title: string;
-                description: string;
-                address: string | null;
-                tags: string[] | null;
-                cost: string | null;
-                startDatetime: string;
-                endDatetime: string;
-            }[];
-            globalEvents: {
-                id: string;
-                /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-                createdAt: string;
-                updatedAt: string;
-                location: string;
-                website: string;
-                title: string;
-                description: string;
-                startDatetime: string;
-                endDatetime: string;
-                thumbnail: string;
-                organization: string;
-            }[];
-        };
-        SchoolsIdFollowResponse: {
-            created: boolean;
-        };
-        SchoolsIdMetadataResponse: {
-            following: boolean;
-            followers: number;
-            interested: number;
-        };
-        SchoolsIdInterestResponse: {
-            created: boolean;
-        };
-        UsersCheckavailabilityResponse: {
-            available: boolean;
-        };
-        UsersAccountResponse: {
-            displayEmail: string;
-            firstName: string;
-            lastName: string;
-            phone: string | null;
-            notifications: boolean;
-        };
-        UsersAccountRequest: {
-            displayEmail?: string | null;
-            firstName?: string | null;
-            lastName?: string | null;
-            phone?: string | null;
-            notifications?: (string | number | boolean) | null;
-        };
-        UsersAvatarRequest: {
-            key: string;
-        };
-        UsersActivityResponse: {
-            videos: number;
-            images: number;
-            following: number;
-            followers: number;
-        };
-        VideosYoutubeRequest: {
-            caption?: string | null;
-            videoId: string;
-        };
-        VideosYoutubeResponse: {
-            id: string;
-            mediaId: string;
-        };
+  schemas: {
+    Error: {
+      /** @description Human-readable error message suitable for display */
+      message: string;
+      /**
+       * @description Machine-readable error code for programmatic handling
+       * @example E_BAD_REQUEST
+       */
+      code: string;
+      /**
+       * @description HTTP status code returned by the server
+       * @example 429
+       */
+      status: number;
+      /**
+       * @description Seconds until the request can be retried
+       * @example 60
+       */
+      retryAfter?: number;
+      /** @description Additional context specific to the validation error */
+      errors?: components["schemas"]["ValidationError"][];
+      /**
+       * @description Additional context specific to the error type
+       * @example {
+       *       "userId": "123"
+       *     }
+       */
+      meta?: {
+        [key: string]: unknown;
+      };
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    ValidationError: {
+      /**
+       * @description Validation error field name
+       * @example email
+       */
+      field: string;
+      /**
+       * @description Validation error message
+       * @example Email is required
+       */
+      message: string;
+    };
+    /** @enum {string} */
+    UploadKind: "dancer" | "coach";
+    /** @enum {string} */
+    SubscriptionSource: "stripe" | "org_event" | "none";
+    /** @enum {string} */
+    DancerFilterParam:
+      | "name"
+      | "location"
+      | "sports"
+      | "styles"
+      | "following"
+      | "premium"
+      | "gpaRange";
+    /** @enum {string} */
+    EventFilterParam: "location" | "date" | "schoolName";
+    /** @enum {string} */
+    SchoolFilterParam:
+      | "name"
+      | "location"
+      | "sports"
+      | "styles"
+      | "following"
+      | "gpaRange"
+      | "commonRecruiting"
+      | "teamSelection"
+      | "competitiveCircuit"
+      | "division"
+      | "upcomingEvents";
+    MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
+    AdminApplicationsResponse: {
+      id: string;
+      /** @enum {string} */
+      status: "accepted" | "rejected" | "pending";
+      notes: string | null;
+      school: {
+        id: string;
+        user: {
+          avatar: string | null;
+          id: string;
+          email: string;
+          displayEmail: string;
+          firstName: string;
+          lastName: string;
+          verified: boolean;
+        };
+        name: string;
+        location: string;
+      };
+      createdAt: string;
+      thumbnail: string | null;
+    }[];
+    AdminApplicationsIdStatusRequest: {
+      notes?: string | null;
+      /** @enum {string} */
+      status: "accepted" | "rejected";
+    };
+    AdminSchoolsResponse: {
+      id: string;
+      user: {
+        id: string;
+        username: string;
+        email: string;
+        avatar: string | null;
+        verified: boolean;
+        /** @enum {string} */
+        role: "user" | "admin" | "prodigy_admin";
+      };
+      createdAt: string;
+      name: string;
+      location: string;
+      division: string | null;
+    }[];
+    AdminSchoolsIdEventsRequest: {
+      website?: string | null;
+      address?: string | null;
+      tags?: string[] | null;
+      cost?: string | null;
+      /** @enum {string} */
+      type:
+        | "recruitment"
+        | "audition"
+        | "other"
+        | "rehearsal"
+        | "recital"
+        | "showcase"
+        | "competition"
+        | "class"
+        | "intensive"
+        | "workshop"
+        | "fundraiser"
+        | "combine"
+        | "convention"
+        | "clinic"
+        | "deadline"
+        | "performance"
+        | "camp";
+      location: string;
+      title: string;
+      description: string;
+      startDatetime: string;
+      endDatetime: string;
+    };
+    AdminSchoolsIdEventsResponse: {
+      id: string;
+    };
+    AdminSchoolsIdProfileRequest: {
+      location?: string | null;
+      instagram?: string | null;
+      tiktok?: string | null;
+      gpa?: (string | number) | null;
+      city?: string | null;
+      commonRecruiting?: (string | number | boolean) | null;
+      teamSelection?: ("recruitment" | "audition" | "hybrid") | null;
+      competitiveCircuit?:
+        | ("other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive")
+        | null;
+      division?: string | null;
+      benefits?: string | null;
+      about?: string | null;
+      website?: string | null;
+      timeCommitment?: string | null;
+      headCoach?: string | null;
+      assistantCoach?: string | null;
+      missionStatement?: string | null;
+      whatWeDo?: string | null;
+      size?: (string | number) | null;
+      schoolName?: string | null;
+    };
+    AdminSchoolsIdSkillsRequest: {
+      skills: string[];
+    };
+    AdminSchoolsIdStylesRequest: {
+      styles: string[];
+    };
+    AdminSchoolsIdSportsRequest: {
+      sports: string[];
+    };
+    AdminSchoolsIdAccountRequest: {
+      displayEmail?: string | null;
+      firstName?: string | null;
+      lastName?: string | null;
+      phone?: string | null;
+      notifications?: (string | number | boolean) | null;
+    };
+    AdminSchoolsIdAvatarRequest: {
+      key: string;
+    };
+    AdminEventsGlobalRequest: {
+      /** @enum {string} */
+      type:
+        | "recruitment"
+        | "audition"
+        | "other"
+        | "rehearsal"
+        | "recital"
+        | "showcase"
+        | "competition"
+        | "class"
+        | "intensive"
+        | "workshop"
+        | "fundraiser"
+        | "combine"
+        | "convention"
+        | "clinic"
+        | "deadline"
+        | "performance"
+        | "camp";
+      location: string;
+      website: string;
+      title: string;
+      description: string;
+      startDatetime: string;
+      endDatetime: string;
+      thumbnail: string;
+      organization: string;
+    };
+    AdminEventsGlobalResponse: {
+      id: string;
+    };
+    AdminEventsGlobalIdRequest: {
+      type?:
+        | (
+            | "recruitment"
+            | "audition"
+            | "other"
+            | "rehearsal"
+            | "recital"
+            | "showcase"
+            | "competition"
+            | "class"
+            | "intensive"
+            | "workshop"
+            | "fundraiser"
+            | "combine"
+            | "convention"
+            | "clinic"
+            | "deadline"
+            | "performance"
+            | "camp"
+          )
+        | null;
+      location?: string | null;
+      website?: string | null;
+      title?: string | null;
+      description?: string | null;
+      startDatetime?: string | null;
+      endDatetime?: string | null;
+      thumbnail?: string | null;
+      organization?: string | null;
+    };
+    AdminEventsGlobalIdResponse: {
+      id: string;
+    };
+    AdminEventsSchoolIdRequest: {
+      type?:
+        | (
+            | "recruitment"
+            | "audition"
+            | "other"
+            | "rehearsal"
+            | "recital"
+            | "showcase"
+            | "competition"
+            | "class"
+            | "intensive"
+            | "workshop"
+            | "fundraiser"
+            | "combine"
+            | "convention"
+            | "clinic"
+            | "deadline"
+            | "performance"
+            | "camp"
+          )
+        | null;
+      location?: string | null;
+      website?: string | null;
+      title?: string | null;
+      description?: string | null;
+      address?: string | null;
+      tags?: string[] | null;
+      cost?: string | null;
+      startDatetime?: string | null;
+      endDatetime?: string | null;
+    };
+    AdminEventsSchoolIdResponse: {
+      id: string;
+    };
+    AdminDancersResponse: {
+      dancers: {
+        id: string;
+        user: {
+          id: string;
+          username: string;
+          email: string;
+          name: string;
+          avatar: string | null;
+          verified: boolean;
+          /** @enum {string} */
+          role: "user" | "admin" | "prodigy_admin";
+        };
+        createdAt: string;
+        location: string;
+        gpa: number | null;
+        gradYear: number | null;
+      }[];
+      pagination: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+        hasNextPage: boolean;
+        hasPreviousPage: boolean;
+      };
+    };
+    AdminDancersStatsResponse: {
+      total: number;
+      daily: {
+        current: number;
+        previous: number;
+        change: number | null;
+      };
+      weekly: {
+        current: number;
+        previous: number;
+        change: number | null;
+      };
+      monthly: {
+        current: number;
+        previous: number;
+        change: number | null;
+      };
+      dailyBreakdown: {
+        date: string;
+        count: number;
+      }[];
+    };
+    AdminBlogRequest: {
+      tags?: string[] | null;
+      title: string;
+      description: string;
+      thumbnail: string;
+      content: string;
+    };
+    AdminBlogResponse: {
+      id: string;
+    };
+    AdminOutboxStatsHistoryResponse: {
+      daily: Record<string, never>;
+      weekly: Record<string, never>;
+      monthly: Record<string, never>;
+      dailyBreakdown: {
+        type: string;
+        date: string;
+        count: number;
+      }[];
+    };
+    AdminLibraryVideosRequest: {
+      url: string;
+      title: string;
+      category: string;
+    };
+    AdminLibraryVideosResponse: {
+      id: string;
+    };
+    AdminLibraryVideosIdResponse: {
+      success: boolean;
+    };
+    ApplicationResponse: {
+      id?: string;
+      /** @enum {string} */
+      status?: "accepted" | "rejected" | "pending";
+      notes?: string | null;
+      createdAt?: string;
+      updatedAt?: string;
+      schoolId?: string;
+      thumbnail: string | null;
+      mediaId?: string;
+    };
+    ApplicationRequest: {
+      phone: string;
+      mediaId: string;
+    };
+    ApplicationPatchRequest: {
+      mediaId?: string | null;
+    };
+    AuthSignupRequest: {
+      phone?: string | null;
+      name?: string | null;
+      location?: string | null;
+      city?: string | null;
+      email: string;
+      username: string;
+      /** @enum {string} */
+      type: "dancer" | "school";
+      firstName: string;
+      lastName: string;
+      password: string;
+      termsChecked: boolean;
+    };
+    AuthSignupResponse: {
+      id: string;
+      displayEmail: string;
+      firstName: string;
+      lastName: string;
+      /** @enum {string} */
+      type: "dancer" | "school";
+    };
+    AuthLoginRequest: {
+      email: string;
+      password: string;
+    };
+    AuthLoginResponse: {
+      user: {
+        id: string;
+        username: string;
+        /** @enum {string} */
+        role: "user" | "admin" | "prodigy_admin";
+        /** @enum {string} */
+        type: "dancer" | "school";
+        displayEmail: string;
+        firstName: string;
+        lastName: string;
+        avatar: string | null;
+        verified: boolean;
+        notifications: boolean;
+        profileId: string;
+        platforms: ("core" | "prodigy")[];
+      };
+      token: string;
+      expiresIn: number;
+    };
+    AuthLogoutResponse: {
+      message: string;
+    };
+    AuthSessionResponse: {
+      id: string;
+      username: string;
+      /** @enum {string} */
+      role: "user" | "admin" | "prodigy_admin";
+      /** @enum {string} */
+      type: "dancer" | "school";
+      displayEmail: string;
+      firstName: string;
+      lastName: string;
+      avatar: string | null;
+      verified: boolean;
+      notifications: boolean;
+      profileId: string;
+      platforms: ("core" | "prodigy")[];
+    };
+    AuthPasswordChangeRequest: {
+      currentPassword: string;
+      newPassword: string;
+    };
+    AuthPasswordForgotRequest: {
+      email: string;
+    };
+    AuthPasswordResetRequest: {
+      password: string;
+      userId: string;
+      token: string;
+    };
+    AuthPasswordResetResponse: {
+      message: string;
+    };
+    BlogResponse: {
+      id: string;
+      createdAt: string;
+      title: string;
+      description: string;
+      thumbnail: string;
+      slug: string;
+    }[];
+    FeedResponse: {
+      feed: {
+        id: string;
+        /** @enum {string} */
+        contentType:
+          | "image"
+          | "video"
+          | "profile"
+          | "reference"
+          | "achievement";
+        createdAt: string;
+        username: string;
+        avatar: string | null;
+        name: string | null;
+        caption: string | null;
+        content: string | null;
+        thumbnail: string | null;
+      }[];
+      nextCursor: string;
+    };
+    HealthResponse: {
+      /** @enum {string} */
+      status: "error" | "ok" | "warning";
+      isHealthy: boolean;
+      finishedAt: string;
+      debugInfo: {
+        pid: number;
+        ppid?: number;
+        uptime: number;
+        version: string;
+        platform: string;
+      };
+      checks: {
+        /** @enum {string} */
+        status: "error" | "ok" | "warning";
+        name: string;
+        meta?: Record<string, never>;
+        message: string;
+        finishedAt: string;
+        isCached: boolean;
+      }[];
+    };
+    LibraryResponse: {
+      category: string;
+      videos: {
+        id: string;
+        url: string;
+        createdAt: string;
+        updatedAt: string;
+        title: string;
+        category: string;
+      }[];
+    }[];
+    LibraryIdResponse: {
+      id: string;
+      url: string;
+      createdAt: string;
+      updatedAt: string;
+      title: string;
+      category: string;
+    }[];
+    NotificationsResponse: {
+      data: {
+        link: string | null;
+        id: string;
+        type: string;
+        createdAt: string;
+        metadata?: Record<string, never>;
+        actor: {
+          name: string;
+          username: string;
+          avatar: string | null;
+          profileUrl: string;
+        } | null;
+        message: string;
+        read: boolean;
+      }[];
+      nextCursor: string | null;
+    };
+    NotificationsCountResponse: {
+      count: number;
+    };
+    NotificationsReadallResponse: {
+      success: boolean;
+    };
+    NotificationsIdResponse: {
+      id: string;
+    };
+    OrgsIdResponse: {
+      id: string;
+      name: string;
+      slug: string;
+      logoUrl: string | null;
+      primaryColor: string | null;
+      accentColor: string | null;
+      features: Record<string, never>;
+      settings: Record<string, never>;
+      membership: {
+        /** @enum {string} */
+        role: "admin" | "member";
+        type: components["schemas"]["UploadKind"];
+      } | null;
+    };
+    OrgsIdEventsResponse: {
+      gpa: boolean;
+      location: boolean;
+      skills: boolean;
+      styles: boolean;
+      sports: boolean;
+    };
+    OrgsIdEventsRequest: {
+      venueName?: string | null;
+      venueAddress?: string | null;
+      contactEmail?: string | null;
+      isActive?: (string | number | boolean) | null;
+      name: string;
+      startDate: string;
+      endDate: string;
+    };
+    OrgsIdEventsIdRequest: {
+      name?: string | null;
+      startDate?: string | null;
+      endDate?: string | null;
+      venueName?: string | null;
+      venueAddress?: string | null;
+      contactEmail?: string | null;
+      isActive?: (string | number | boolean) | null;
+      schedulePdfUrl?: string | null;
+    };
+    OrgsIdEventsIdResponse: {
+      id: string;
+      createdAt: string;
+      updatedAt: string;
+      name: string;
+      orgId: string;
+      startDate: string;
+      endDate: string;
+      venueName: string | null;
+      venueAddress: string | null;
+      contactEmail: string | null;
+      isActive: boolean;
+      schedulePdfUrl: string | null;
+    };
+    OrgsIdEventsIdUploadCoachesRequest: {
+      file: Record<string, never>;
+    };
+    OrgsIdEventsIdUploadCoachesResponse: {
+      rowsAdded: number;
+      rowsUpdated: number;
+      rowsErrored: number;
+      errors: {
+        row: number;
+        reason: string;
+      }[];
+      uploadId: string;
+    };
+    OrgsIdEventsIdUploadDancersRequest: {
+      file: Record<string, never>;
+    };
+    OrgsIdEventsIdUploadDancersResponse: {
+      rowsAdded: number;
+      rowsUpdated: number;
+      rowsErrored: number;
+      errors: {
+        row: number;
+        reason: string;
+      }[];
+      uploadId: string;
+    };
+    OrgsIdEventsIdUploadIdPreviewRequest: {
+      file: Record<string, never>;
+    };
+    OrgsIdEventsIdUploadIdPreviewResponse: {
+      errors: {
+        row: number;
+        reason: string;
+      }[];
+      kind: components["schemas"]["UploadKind"];
+      totalRows: number;
+      acceptedRows: number;
+      willMatch: number;
+      willInvite: number;
+      willUpdate: number;
+      willError: number;
+    };
+    OrgsIdEventsIdStatsResponse: {
+      total: number;
+      daily: {
+        current: number;
+        previous: number;
+        change: number | null;
+      };
+      weekly: {
+        current: number;
+        previous: number;
+        change: number | null;
+      };
+      monthly: {
+        current: number;
+        previous: number;
+        change: number | null;
+      };
+      dailyBreakdown: {
+        date: string;
+        count: number;
+      }[];
+    };
+    OrgsIdEventsIdRostersResponse: {
+      data: {
+        id: string;
+        email: string;
+        type: components["schemas"]["UploadKind"];
+        firstName: string;
+        lastName: string;
+        createdAt: string;
+        profile: {
+          studio: string | null;
+          gpa: number | null;
+          gradYear: number | null;
+          profilePhotoUrl: string | null;
+          state: string | null;
+          height: string | null;
+          danceStyles: string[] | null;
+          bio: string | null;
+        } | null;
+        organization: string | null;
+        eventId: string;
+        bibNumber: number | null;
+        isRegistered: boolean;
+      }[];
+      total: number;
+    };
+    OrgsIdEventsIdRostersFiltersResponse: {
+      organizations: string[];
+    };
+    OrgsIdEventsIdRostersStatsResponse: {
+      total: number;
+      active: number;
+      pending: number;
+    };
+    OrgsIdEventsIdRostersIdRequest: {
+      email?: string | null;
+      firstName?: string | null;
+      lastName?: string | null;
+      profile?: {
+        studio?: string | null;
+        gpa?: (string | number) | null;
+        gradYear?: (string | number) | null;
+        state?: string | null;
+        height?: string | null;
+        danceStyles?: string[] | null;
+        bio?: string | null;
+      } | null;
+      organization?: string | null;
+      bibNumber?: (string | number) | null;
+    };
+    OrgsIdEventsIdRostersIdResponse: {
+      id: string;
+      email: string;
+      type: components["schemas"]["UploadKind"];
+      firstName: string;
+      lastName: string;
+      createdAt: string;
+      profile: {
+        studio: string | null;
+        gpa: number | null;
+        gradYear: number | null;
+        profilePhotoUrl: string | null;
+        state: string | null;
+        height: string | null;
+        danceStyles: string[] | null;
+        bio: string | null;
+      } | null;
+      organization: string | null;
+      eventId: string;
+      bibNumber: number | null;
+      isRegistered: boolean;
+    };
+    OrgsIdEventsIdRostersResendinvitesRequest: {
+      ids: string[];
+    };
+    OrgsIdEventsIdRostersResendinvitesResponse: {
+      failed: {
+        id: string;
+        reason: string;
+      }[];
+      sent: number;
+      skipped: number;
+    };
+    OrgsIdEventsIdChecklistResponse: {
+      id: string;
+      createdAt: string;
+      updatedAt: string;
+      title: string;
+      description: string | null;
+      eventId: string;
+      completed: boolean;
+      position: number;
+    }[];
+    OrgsIdEventsIdChecklistRequest: {
+      description?: string | null;
+      title: string;
+    };
+    OrgsIdEventsIdChecklistIdRequest: {
+      title?: string | null;
+      description?: string | null;
+      completed?: (string | number | boolean) | null;
+      position?: (string | number) | null;
+    };
+    OrgsIdEventsIdChecklistIdResponse: {
+      id: string;
+      createdAt: string;
+      updatedAt: string;
+      title: string;
+      description: string | null;
+      eventId: string;
+      completed: boolean;
+      position: number;
+    }[];
+    OrgsIdEventsIdAuditlogResponse: {
+      data: {
+        id: string;
+        createdAt: string;
+        eventId: string;
+        /** @enum {string} */
+        action:
+          | "upload"
+          | "create"
+          | "update"
+          | "delete"
+          | "activate"
+          | "resend_invite";
+        /** @enum {string} */
+        resource: "roster" | "event" | "checklist" | "csv_upload" | "invite";
+        resourceId: string | null;
+        metadata: Record<string, never>;
+        parentId: string | null;
+        actor: {
+          id: string;
+          firstName: string;
+          lastName: string;
+          email: string;
+          avatarUrl: string | null;
+        };
+        childCount: number;
+      }[];
+      total: number;
+    };
+    OrgsIdEventsIdAuditlogStatsResponse: {
+      recentErrors: number;
+      activity: {
+        today: number;
+        thisWeek: number;
+        thisMonth: number;
+      };
+      topActors: {
+        id: string;
+        name: string;
+        avatarUrl: string | null;
+        count: number;
+      }[];
+      uploadHealth: {
+        total: number;
+        successRate: number;
+        totalRows: number;
+        erroredRows: number;
+      };
+      actionBreakdown: {
+        /** @enum {string} */
+        action:
+          | "upload"
+          | "create"
+          | "update"
+          | "delete"
+          | "activate"
+          | "resend_invite";
+        count: number;
+      }[];
+    };
+    OrgsIdEventsIdAuditlogIdChildrenResponse: {
+      data: {
+        id: string;
+        createdAt: string;
+        eventId: string;
+        /** @enum {string} */
+        action:
+          | "upload"
+          | "create"
+          | "update"
+          | "delete"
+          | "activate"
+          | "resend_invite";
+        /** @enum {string} */
+        resource: "roster" | "event" | "checklist" | "csv_upload" | "invite";
+        resourceId: string | null;
+        metadata: Record<string, never>;
+        parentId: string | null;
+        actor: {
+          id: string;
+          firstName: string;
+          lastName: string;
+          email: string;
+          avatarUrl: string | null;
+        };
+      }[];
+    };
+    OrgsIdDancersResponse: {
+      rosterId: string;
+      bibNumber: number | null;
+      firstName: string;
+      lastName: string;
+      organization: string | null;
+      isRegistered: boolean;
+      profilePhotoUrl: string | null;
+      gpa: number | null;
+      gradYear: number | null;
+      studio: string | null;
+      state: string | null;
+    }[];
+    OrgsIdDancersIdResponse: {
+      note: string | null;
+      firstName: string;
+      lastName: string;
+      location: string | null;
+      highSchool: string | null;
+      studio: string | null;
+      gpa: number | null;
+      gradYear: number | null;
+      organization: string | null;
+      rating: number | null;
+      bibNumber: number | null;
+      rosterId: string;
+      profilePhotoUrl: string | null;
+      state: string | null;
+      height: string | null;
+      danceStyles: string[] | null;
+      bio: string | null;
+      extra: Record<string, never>;
+      isRegistered: boolean;
+      isFavorited: boolean;
+      favoritedMyRosterId: null;
+    };
+    OrgsIdDancersIdNotesRequest: {
+      content: string;
+    };
+    OrgsIdDancersIdNotesResponse: {
+      id: string;
+      createdAt: string;
+      updatedAt: string;
+      eventId: string;
+      content: string;
+      coachRosterId: string;
+      dancerRosterId: string;
+    };
+    OrgsIdDancersIdRatingRequest: {
+      rating: string | number;
+    };
+    OrgsIdDancersIdRatingResponse: {
+      id: string;
+      createdAt: string;
+      updatedAt: string;
+      eventId: string;
+      rating: number;
+      coachRosterId: string;
+      dancerRosterId: string;
+    };
+    OrgsIdFavoritesResponse: {
+      rosterId: string;
+      bibNumber: number | null;
+      firstName: string;
+      lastName: string;
+      profilePhotoUrl: string | null;
+      gradYear: number | null;
+      studio: string | null;
+      state: string | null;
+      gpa: number | null;
+    }[];
+    OrgsIdFavoritesRequest: {
+      dancerRosterId: string;
+    };
+    OrgsIdRankingsResponse: {
+      note: string | null;
+      firstName: string;
+      lastName: string;
+      studio: string | null;
+      gpa: number | null;
+      gradYear: number | null;
+      organization: string | null;
+      rating: number | null;
+      bibNumber: number | null;
+      rosterId: string;
+      profilePhotoUrl: string | null;
+      state: string | null;
+      isRegistered: boolean;
+      isFavorited: boolean;
+      favoritedAt: string | null;
+    }[];
+    OrgsIdRegisterRequest: {
+      firstName: string;
+      lastName: string;
+      password: string;
+      token: string;
+    };
+    OrgsIdRegisterResponse: {
+      userId: string;
+    };
+    SkillsResponse: {
+      name: string;
+      slug: string;
+      category: string;
+    }[];
+    SportsResponse: {
+      name: string;
+      slug: string;
+    }[];
+    StylesResponse: {
+      name: string;
+      slug: string;
+    }[];
+    SubscriptionsResponse: {
+      source: components["schemas"]["SubscriptionSource"];
+      cancelAtPeriodEnd: boolean;
+      currentPeriodEnd: string | null;
+      subscribed: boolean;
+      grantedBy: string | null;
+    };
+    SubscriptionsCheckoutRequest: {
+      /** @enum {string} */
+      type: "monthly" | "yearly";
+    };
+    SubscriptionsCheckoutResponse: {
+      clientSecret: string;
+    };
+    SubscriptionsManageResponse: {
+      url: string;
+    };
+    StripeWebhookResponse: {
+      received: boolean;
+    };
+    CloudflareStreamWebhookResponse: {
+      received: boolean;
+    };
+    ContactRequest: {
+      email: string;
+      name: string;
+      message: string;
+      subject: string;
+    };
+    FeedbackRequest: {
+      page?: string | null;
+      /** @enum {string} */
+      type: "other" | "bug" | "feature" | "improvement";
+      message: string;
+    };
+    DancersResponse: {
+      dancers: {
+        id: string;
+        username: string;
+        avatar: string | null;
+        createdAt: string;
+        name: string;
+        birthday: string;
+        location: string;
+        gpa: number | null;
+        gradYear: number | null;
+        followers: number;
+        subscribed: boolean;
+      }[];
+      pagination: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+        hasNextPage: boolean;
+        hasPreviousPage: boolean;
+      };
+    };
+    DancersRequest: {
+      phoneNumber?: string | null;
+      birthday: string | number;
+      location: string;
+      /** @enum {string} */
+      platform: "core" | "prodigy";
+    };
+    DancersFiltersResponse: {
+      id: string;
+      /** @enum {string} */
+      type: "select" | "input" | "toggle" | "multi-select" | "range";
+      options?: {
+        label: string;
+        value: string;
+      }[];
+      label: string;
+      paramKey: components["schemas"]["DancerFilterParam"];
+    }[];
+    DancersMeRequest: {
+      birthday?: string | null;
+      location?: string | null;
+      biography?: string | null;
+      instagram?: string | null;
+      tiktok?: string | null;
+      youtube?: string | null;
+      teamLevel?: string | null;
+      highSchool?: string | null;
+      studio?: string | null;
+      gpa?: (string | number) | null;
+      gradYear?: (string | number) | null;
+      trainingHours?: (string | number) | null;
+    };
+    DancersMeSkillsResponse: {
+      skillId: string;
+    }[];
+    DancersMeSkillsRequest: {
+      skills: string[];
+    };
+    DancersMeStylesResponse: {
+      styleId: string;
+    }[];
+    DancersMeStylesRequest: {
+      styles: string[];
+    };
+    DancersMeSportsResponse: {
+      sportId: string;
+    }[];
+    DancersMeSportsRequest: {
+      sports: string[];
+    };
+    DancersMeFollowingResponse: {
+      id: string;
+      username: string;
+      avatar: string | null;
+      name: string;
+    }[];
+    DancersMeFollowingIdsResponse: string[];
+    DancersMeFollowersResponse: {
+      id: string;
+      username: string;
+      avatar: string | null;
+      name: string;
+    }[];
+    DancersMeChecklistResponse: {
+      gpa: boolean;
+      location: boolean;
+      skills: boolean;
+      styles: boolean;
+      sports: boolean;
+    };
+    DancersSubmissionsResponse: {
+      id: string;
+      /** @enum {string} */
+      status: "accepted" | "pending" | "released" | "in_review";
+      school: {
+        avatar: string | null;
+        username: string;
+        id: string;
+        name: string;
+        location: string;
+      };
+      updatedAt: string;
+      watched: boolean;
+      watchedAt: string | null;
+    }[];
+    DancersSubmissionsRequest: {
+      schoolId: string[];
+      videoId: string;
+    };
+    DancersSubmissionsVideoResponse: {
+      youtubeId: string;
+    };
+    DancersSubmissionsVideoRequest: {
+      videoId: string;
+    };
+    DancersSubmissionsSchoolsResponse: {
+      username: string;
+      avatar: string | null;
+      id: string;
+      name: string;
+      location: string;
+    }[];
+    DancersIdResponse: {
+      id: string;
+      username: string;
+      displayEmail: string;
+      firstName: string;
+      lastName: string;
+      avatar: string | null;
+      phone: string | null;
+      birthday: string;
+      location: string;
+      biography: string | null;
+      instagram: string | null;
+      tiktok: string | null;
+      youtube: string | null;
+      teamLevel: string | null;
+      highSchool: string | null;
+      studio: string | null;
+      gpa: number | null;
+      gradYear: number | null;
+      trainingHours: number | null;
+      achievements: {
+        id: string;
+        createdAt: string;
+        updatedAt: string;
+        profileId: string;
+        title: string;
+        description: string;
+      }[];
+      references: {
+        id: string;
+        createdAt: string;
+        updatedAt: string;
+        name: string;
+        profileId: string;
+        title: string;
+        description: string | null;
+      }[];
+      videos: {
+        id: string;
+        /** @enum {string} */
+        type: "youtube" | "cloudflare";
+        createdAt: string;
+        updatedAt: string;
+        userId: string;
+        thumbnail: string | null;
+        mediaId: string;
+        caption: string | null;
+        mediaUrl: string;
+      }[];
+      images: {
+        id: string;
+        createdAt: string;
+        updatedAt: string;
+        userId: string;
+        thumbnail: string | null;
+        caption: string | null;
+        mediaUrl: string | null;
+      }[];
+      skills: {
+        name: string;
+        slug: string;
+        category: string;
+      }[];
+      sports: {
+        name: string;
+        slug: string;
+      }[];
+      styles: {
+        name: string;
+        slug: string;
+      }[];
+      events: {
+        id: string;
+        /** @enum {string} */
+        type:
+          | "recruitment"
+          | "audition"
+          | "other"
+          | "rehearsal"
+          | "recital"
+          | "showcase"
+          | "competition"
+          | "class"
+          | "intensive"
+          | "workshop"
+          | "fundraiser"
+          | "combine"
+          | "convention"
+          | "clinic"
+          | "deadline"
+          | "performance"
+          | "camp";
+        location: string;
+        title: string;
+        startDatetime: string;
+        endDatetime: string;
+        organizer: {
+          name: string;
+        } | null;
+      }[];
+      globalEvents: {
+        id: string;
+        /** @enum {string} */
+        type:
+          | "recruitment"
+          | "audition"
+          | "other"
+          | "rehearsal"
+          | "recital"
+          | "showcase"
+          | "competition"
+          | "class"
+          | "intensive"
+          | "workshop"
+          | "fundraiser"
+          | "combine"
+          | "convention"
+          | "clinic"
+          | "deadline"
+          | "performance"
+          | "camp";
+        location: string;
+        title: string;
+        startDatetime: string;
+        endDatetime: string;
+      }[];
+      submission: {
+        id: string;
+        createdAt: string;
+        updatedAt: string;
+        dancerId: string;
+        youtubeId: string;
+      } | null;
+      subscribed: boolean;
+    };
+    DancersIdFavoriteResponse: {
+      created: boolean;
+    };
+    DancersIdMetadataResponse: {
+      followers: number;
+      favorited: boolean;
+    };
+    DancersReferencesRequest: {
+      name: string;
+      title: string;
+      description: string;
+    };
+    DancersReferencesIdRequest: {
+      name?: string | null;
+      title?: string | null;
+      description?: string | null;
+    };
+    DancersAchievementsAchievementsRequest: {
+      title: string;
+      description: string;
+    };
+    DancersAchievementsAchievementsIdRequest: {
+      title?: string | null;
+      description?: string | null;
+    };
+    EventsResponse: {
+      events: {
+        id: string;
+        /** @enum {string} */
+        type:
+          | "recruitment"
+          | "audition"
+          | "other"
+          | "rehearsal"
+          | "recital"
+          | "showcase"
+          | "competition"
+          | "class"
+          | "intensive"
+          | "workshop"
+          | "fundraiser"
+          | "combine"
+          | "convention"
+          | "clinic"
+          | "deadline"
+          | "performance"
+          | "camp";
+        date: string;
+        time: string;
+        location: string;
+        title: string;
+        organizer: {
+          name: string;
+          thumbnail: string | null;
+        };
+        attendees: {
+          id: string;
+        }[];
+        saved: boolean;
+      }[];
+      month: string;
+    }[];
+    EventsRequest: {
+      website?: string | null;
+      address?: string | null;
+      tags?: string[] | null;
+      /** @enum {string} */
+      type:
+        | "recruitment"
+        | "audition"
+        | "other"
+        | "rehearsal"
+        | "recital"
+        | "showcase"
+        | "competition"
+        | "class"
+        | "intensive"
+        | "workshop"
+        | "fundraiser"
+        | "combine"
+        | "convention"
+        | "clinic"
+        | "deadline"
+        | "performance"
+        | "camp";
+      location: string;
+      title: string;
+      description: string;
+      startDatetime: string;
+      endDatetime: string;
+    };
+    EventsFiltersResponse: {
+      id: string;
+      /** @enum {string} */
+      type: "date" | "select" | "input" | "toggle" | "multi-select" | "range";
+      options?: {
+        label: string;
+        value: string;
+      }[];
+      label: string;
+      paramKey: components["schemas"]["EventFilterParam"];
+    }[];
+    EventsUpcomingResponse: {
+      id: string;
+      /** @enum {string} */
+      type:
+        | "recruitment"
+        | "audition"
+        | "other"
+        | "rehearsal"
+        | "recital"
+        | "showcase"
+        | "competition"
+        | "class"
+        | "intensive"
+        | "workshop"
+        | "fundraiser"
+        | "combine"
+        | "convention"
+        | "clinic"
+        | "deadline"
+        | "performance"
+        | "camp";
+      date: string;
+      time: string;
+      location: string;
+      title: string;
+      organizer: {
+        name: string;
+        thumbnail: string | null;
+      };
+    }[];
+    EventsGlobalResponse: {
+      thumbnail: string | null;
+      startTime: string;
+      endTime: string;
+      startDate: string;
+      endDate: string;
+      saved: boolean;
+      attendees: number;
+      id: string;
+      /** @enum {string} */
+      type:
+        | "recruitment"
+        | "audition"
+        | "other"
+        | "rehearsal"
+        | "recital"
+        | "showcase"
+        | "competition"
+        | "class"
+        | "intensive"
+        | "workshop"
+        | "fundraiser"
+        | "combine"
+        | "convention"
+        | "clinic"
+        | "deadline"
+        | "performance"
+        | "camp";
+      location: string;
+      website: string;
+      title: string;
+      description: string;
+      organization: string;
+      eventAttendees: number;
+    }[];
+    EventsGlobalUpcomingResponse: {
+      thumbnail: string | null;
+      date: string;
+      time: string;
+      id: string;
+      /** @enum {string} */
+      type:
+        | "recruitment"
+        | "audition"
+        | "other"
+        | "rehearsal"
+        | "recital"
+        | "showcase"
+        | "competition"
+        | "class"
+        | "intensive"
+        | "workshop"
+        | "fundraiser"
+        | "combine"
+        | "convention"
+        | "clinic"
+        | "deadline"
+        | "performance"
+        | "camp";
+      location: string;
+      title: string;
+    }[];
+    EventsIdResponse: {
+      id: string;
+      /** @enum {string} */
+      type:
+        | "recruitment"
+        | "audition"
+        | "other"
+        | "rehearsal"
+        | "recital"
+        | "showcase"
+        | "competition"
+        | "class"
+        | "intensive"
+        | "workshop"
+        | "fundraiser"
+        | "combine"
+        | "convention"
+        | "clinic"
+        | "deadline"
+        | "performance"
+        | "camp";
+      createdAt: string;
+      updatedAt: string;
+      location: string;
+      website: string | null;
+      schoolId: string;
+      title: string;
+      description: string;
+      address: string | null;
+      tags: string[] | null;
+      cost: string | null;
+      schedule?: {
+        time: string;
+        activity: string;
+        description?: string;
+      }[];
+      startDate: string;
+      endDate: string;
+      organizer: {
+        name: string;
+        username: string;
+        avatar: string | null;
+        events: number;
+      };
+      attendees: number;
+      saved: boolean;
+      eventAttendees: number;
+      startTime: string;
+      endTime: string;
+    };
+    EventsIdRequest: {
+      type?:
+        | (
+            | "recruitment"
+            | "audition"
+            | "other"
+            | "rehearsal"
+            | "recital"
+            | "showcase"
+            | "competition"
+            | "class"
+            | "intensive"
+            | "workshop"
+            | "fundraiser"
+            | "combine"
+            | "convention"
+            | "clinic"
+            | "deadline"
+            | "performance"
+            | "camp"
+          )
+        | null;
+      location?: string | null;
+      website?: string | null;
+      title?: string | null;
+      description?: string | null;
+      address?: string | null;
+      tags?: string[] | null;
+      cost?: string | null;
+      startDatetime?: string | null;
+      endDatetime?: string | null;
+    };
+    EventsIdSaveRequest: {
+      type?: string | null;
+    };
+    ImagesRequest: {
+      key: string;
+    };
+    ImagesPresignRequest: {
+      /** @enum {string} */
+      type: "id" | "avatar" | "feed" | "blog";
+      contentType: string;
+    };
+    ImagesPresignResponse: {
+      url: string;
+      key: string;
+    };
+    SchoolsResponse: {
+      id: string;
+      username: string;
+      avatar: string | null;
+      createdAt: string;
+      name: string;
+      location: string;
+      gpa: number | null;
+      division: string | null;
+      size: number | null;
+      events: number;
+      followers: number;
+    }[];
+    SchoolsCheckavailabilityResponse: {
+      available: boolean;
+    };
+    SchoolsFiltersResponse: {
+      id: string;
+      /** @enum {string} */
+      type: "select" | "input" | "toggle" | "multi-select" | "range";
+      options?: {
+        label: string;
+        value: string;
+      }[];
+      label: string;
+      paramKey: components["schemas"]["SchoolFilterParam"];
+    }[];
+    SchoolsRecommendedResponse: {
+      id: string;
+      debug?: {
+        schoolSkills: {
+          skillId: string;
+          weight: number;
+          rarityBonus: number;
+        }[];
+        matchedSkills: {
+          skillId: string;
+          weight: number;
+          rarityBonus: number;
+        }[];
+      };
+      username: string;
+      avatar: string | null;
+      name: string;
+      location: string;
+      gpa: number | null;
+      about: string | null;
+      size: number | null;
+      locationScore: number;
+      matchScore: number;
+      top3Matches: string[];
+      matchTier: components["schemas"]["MatchTier"];
+      matchedSkillsCount: number;
+      totalSchoolSkills: number;
+      matchedStylesCount: number;
+      totalSchoolStyles: number;
+      matchedSportsCount: number;
+      totalSchoolSports: number;
+      sameState: boolean;
+      meetsGpaRequirement: boolean;
+    }[];
+    SchoolsMeRequest: {
+      location?: string | null;
+      instagram?: string | null;
+      tiktok?: string | null;
+      gpa?: (string | number) | null;
+      city?: string | null;
+      commonRecruiting?: (string | number | boolean) | null;
+      teamSelection?: ("recruitment" | "audition" | "hybrid") | null;
+      competitiveCircuit?:
+        | ("other" | "uda" | "dtu" | "nda" | "usa" | "non-competitive")
+        | null;
+      division?: string | null;
+      benefits?: string | null;
+      about?: string | null;
+      website?: string | null;
+      timeCommitment?: string | null;
+      headCoach?: string | null;
+      assistantCoach?: string | null;
+      missionStatement?: string | null;
+      whatWeDo?: string | null;
+      size?: (string | number) | null;
+      schoolName?: string | null;
+    };
+    SchoolsMeFollowersResponse: {
+      id: string;
+      username: string;
+      avatar: string | null;
+      name: string;
+    }[];
+    SchoolsMeFollowingResponse: {
+      id: string;
+      username: string;
+      avatar: string | null;
+      name: string;
+    }[];
+    SchoolsMeFollowingIdsResponse: string[];
+    SchoolsMeFavoritesResponse: {
+      id: string;
+      username: string;
+      avatar: string | null;
+      createdAt: string;
+      name: string;
+      /** @enum {string} */
+      platformName: "core" | "prodigy";
+      comment: string | null;
+      rating: number | null;
+      lastContacted: string | null;
+    }[];
+    SchoolsMeFavoritesIdRequest: {
+      comment?: string | null;
+      rating?: (string | number) | null;
+    };
+    SchoolsMeSkillsResponse: {
+      skillId: string;
+    }[];
+    SchoolsMeSkillsRequest: {
+      skills: string[];
+    };
+    SchoolsMeStylesResponse: {
+      styleId: string;
+    }[];
+    SchoolsMeStylesRequest: {
+      styles: string[];
+    };
+    SchoolsMeSportsResponse: {
+      sportId: string;
+    }[];
+    SchoolsMeSportsRequest: {
+      sports: string[];
+    };
+    SchoolsMeSubmissionsResponse: {
+      id: string;
+      /** @enum {string} */
+      status: "accepted" | "pending" | "released" | "in_review";
+      dancer: {
+        id: string;
+        username: string;
+        avatar: string | null;
+        name: string;
+        gradYear: number | null;
+        location: string;
+      };
+      createdAt: string;
+      updatedAt: string;
+      watched: boolean;
+      watchedAt: string | null;
+      youtubeId: string | null;
+    }[];
+    SchoolsMeSubmissionsIdRequest: {
+      status?: ("accepted" | "pending" | "released" | "in_review") | null;
+      watched?: (string | number | boolean) | null;
+    };
+    SchoolsIdResponse: {
+      id: string;
+      username: string;
+      displayEmail: string;
+      avatar: string | null;
+      createdAt: string;
+      updatedAt: string;
+      name: string;
+      userId: string;
+      location: string;
+      instagram: string | null;
+      tiktok: string | null;
+      gpa: number | null;
+      city: string | null;
+      commonRecruiting: boolean;
+      /** @enum {string} */
+      teamSelection: "recruitment" | "audition" | "hybrid";
+      /** @enum {string} */
+      competitiveCircuit:
+        | "other"
+        | "uda"
+        | "dtu"
+        | "nda"
+        | "usa"
+        | "non-competitive";
+      division: string | null;
+      benefits: string | null;
+      about: string | null;
+      website: string | null;
+      timeCommitment: string | null;
+      headCoach: string | null;
+      assistantCoach: string | null;
+      missionStatement: string | null;
+      whatWeDo: string | null;
+      size: number | null;
+      videos: {
+        id: string;
+        /** @enum {string} */
+        type: "youtube" | "cloudflare";
+        createdAt: string;
+        updatedAt: string;
+        userId: string;
+        thumbnail: string | null;
+        mediaId: string;
+        caption: string | null;
+        mediaUrl: string;
+      }[];
+      images: {
+        id: string;
+        createdAt: string;
+        updatedAt: string;
+        userId: string;
+        thumbnail: string | null;
+        caption: string | null;
+        mediaUrl: string | null;
+      }[];
+      skills: {
+        name: string;
+        slug: string;
+        category: string;
+      }[];
+      sports: {
+        name: string;
+        slug: string;
+      }[];
+      styles: {
+        name: string;
+        slug: string;
+      }[];
+      events: {
+        id: string;
+        /** @enum {string} */
+        type:
+          | "recruitment"
+          | "audition"
+          | "other"
+          | "rehearsal"
+          | "recital"
+          | "showcase"
+          | "competition"
+          | "class"
+          | "intensive"
+          | "workshop"
+          | "fundraiser"
+          | "combine"
+          | "convention"
+          | "clinic"
+          | "deadline"
+          | "performance"
+          | "camp";
+        createdAt: string;
+        updatedAt: string;
+        location: string;
+        website: string | null;
+        schoolId: string;
+        title: string;
+        description: string;
+        address: string | null;
+        tags: string[] | null;
+        cost: string | null;
+        startDatetime: string;
+        endDatetime: string;
+      }[];
+      globalEvents: {
+        id: string;
+        /** @enum {string} */
+        type:
+          | "recruitment"
+          | "audition"
+          | "other"
+          | "rehearsal"
+          | "recital"
+          | "showcase"
+          | "competition"
+          | "class"
+          | "intensive"
+          | "workshop"
+          | "fundraiser"
+          | "combine"
+          | "convention"
+          | "clinic"
+          | "deadline"
+          | "performance"
+          | "camp";
+        createdAt: string;
+        updatedAt: string;
+        location: string;
+        website: string;
+        title: string;
+        description: string;
+        startDatetime: string;
+        endDatetime: string;
+        thumbnail: string;
+        organization: string;
+      }[];
+    };
+    SchoolsIdFollowResponse: {
+      created: boolean;
+    };
+    SchoolsIdMetadataResponse: {
+      following: boolean;
+      followers: number;
+      interested: number;
+    };
+    SchoolsIdInterestResponse: {
+      created: boolean;
+    };
+    UsersCheckavailabilityResponse: {
+      available: boolean;
+    };
+    UsersAccountResponse: {
+      displayEmail: string;
+      firstName: string;
+      lastName: string;
+      phone: string | null;
+      notifications: boolean;
+    };
+    UsersAccountRequest: {
+      displayEmail?: string | null;
+      firstName?: string | null;
+      lastName?: string | null;
+      phone?: string | null;
+      notifications?: (string | number | boolean) | null;
+    };
+    UsersAvatarRequest: {
+      key: string;
+    };
+    UsersActivityResponse: {
+      videos: number;
+      images: number;
+      following: number;
+      followers: number;
+    };
+    VideosYoutubeRequest: {
+      caption?: string | null;
+      videoId: string;
+    };
+    VideosYoutubeResponse: {
+      id: string;
+      mediaId: string;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export type operations = Record<string, never>;

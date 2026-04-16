@@ -25,7 +25,7 @@ function Favorites() {
         </span>
       </div>
       {data.length === 0 ? (
-        <div className="text-muted-foreground rounded-lg border bg-card p-8 text-center text-sm">
+        <div className="text-muted-foreground bg-card rounded-lg border p-8 text-center text-sm">
           You haven't favorited any dancers yet. Tap the heart on a dancer to
           save them here.
         </div>

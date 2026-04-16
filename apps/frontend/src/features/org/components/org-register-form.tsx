@@ -30,7 +30,10 @@ export function OrgRegisterForm({
   onSuccess: () => void;
 }) {
   const { org } = useOrg();
-  const { mutate, isPending } = $api.useMutation("post", "/orgs/{slug}/register");
+  const { mutate, isPending } = $api.useMutation(
+    "post",
+    "/orgs/{slug}/register",
+  );
 
   const submitRef = useRef<HTMLButtonElement>(null);
   const errorToast = useAnchoredErrorToast(submitRef);

@@ -18,8 +18,8 @@ export class DeleteRosterService {
         .where(
           and(
             eq(eventRosters.eventId, eventId),
-            inArray(eventRosters.id, input.ids),
-          ),
+            inArray(eventRosters.id, input.ids)
+          )
         );
 
       const deleted = await tx
@@ -27,8 +27,8 @@ export class DeleteRosterService {
         .where(
           and(
             eq(eventRosters.eventId, eventId),
-            inArray(eventRosters.id, input.ids),
-          ),
+            inArray(eventRosters.id, input.ids)
+          )
         )
         .returning({ id: eventRosters.id });
 

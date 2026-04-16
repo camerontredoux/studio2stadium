@@ -3,7 +3,8 @@ import type { RosterStatus } from "@/features/org/api/roster-queries";
 
 export interface RosterPageHeaderStats {
   total: number;
-  active: number;
+  /** Rows where userId IS NOT NULL */
+  activated: number;
   pending: number;
   orgCount: number;
 }
@@ -26,13 +27,15 @@ export function RosterPageHeader({
   onStatusChange,
 }: RosterPageHeaderProps) {
   const activationPct =
-    stats.total === 0 ? 0 : Math.round((stats.active / stats.total) * 100);
+    stats.total === 0 ? 0 : Math.round((stats.activated / stats.total) * 100);
 
   return (
     <section aria-label={`${title} header`}>
       <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4">
         <div className="flex items-baseline gap-3">
-          <h1 className="text-lg font-semibold tracking-tight 2xl:text-xl">{title}</h1>
+          <h1 className="text-lg font-semibold tracking-tight 2xl:text-xl">
+            {title}
+          </h1>
           <span className="text-muted-foreground text-xs tabular-nums 2xl:text-sm">
             {eventName}
           </span>
@@ -40,7 +43,7 @@ export function RosterPageHeader({
         <div className="flex items-center gap-3">
           <div className="text-sm 2xl:text-base">
             <span className="font-semibold tabular-nums">
-              {isLoading ? "–" : stats.active.toLocaleString()}
+              {isLoading ? "–" : stats.activated.toLocaleString()}
             </span>
             <span className="text-muted-foreground">
               /{isLoading ? "–" : stats.total.toLocaleString()} activated
@@ -77,8 +80,8 @@ export function RosterPageHeader({
           onClick={() => onStatusChange("all")}
         />
         <FilterStatCell
-          label="Active"
-          value={stats.active}
+          label="Activated"
+          value={stats.activated}
           isLoading={isLoading}
           active={status === "active"}
           onClick={() => onStatusChange("active")}
@@ -123,7 +126,7 @@ function FilterStatCell({
       className={cn(
         "border-border relative flex flex-1 cursor-pointer flex-col justify-center gap-1 border-l px-4 py-3 text-left transition-colors first:border-l-0",
         "hover:bg-muted/30",
-        "before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-foreground before:opacity-0 before:transition-opacity",
+        "before:bg-foreground before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:opacity-0 before:transition-opacity",
         active && "before:opacity-100",
       )}
     >

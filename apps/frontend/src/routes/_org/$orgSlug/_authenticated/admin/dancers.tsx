@@ -277,7 +277,7 @@ function DancersPage() {
         eventName={active.name}
         stats={{
           total: statsQuery.data?.total ?? 0,
-          active: statsQuery.data?.active ?? 0,
+          activated: statsQuery.data?.active ?? 0,
           pending: statsQuery.data?.pending ?? 0,
           orgCount: filtersQuery.data?.organizations.length ?? 0,
         }}

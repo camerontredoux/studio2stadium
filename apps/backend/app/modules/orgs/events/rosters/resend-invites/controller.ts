@@ -12,7 +12,7 @@ export default class ResendInvitesController {
       ctx.params.slug,
       ctx.params.id,
       payload,
-      { eventId: ctx.params.id, actorId: user.id },
+      { eventId: ctx.params.id, actorId: user.id }
     );
     return ctx.response.ok(result);
   }

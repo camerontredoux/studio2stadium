@@ -33,7 +33,7 @@ export function RosterActivationRing({
           <span className="text-muted-foreground text-[11px] font-semibold tracking-[0.14em] uppercase">
             Activation
           </span>
-          <span className="text-foreground text-3xl leading-none font-semibold tabular-nums tracking-tight">
+          <span className="text-foreground text-3xl leading-none font-semibold tracking-tight tabular-nums">
             {clampedPct}
             <span className="text-base">%</span>
           </span>

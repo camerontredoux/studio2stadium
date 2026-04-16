@@ -8,10 +8,7 @@ import {
   eventRosters,
   orgEvents,
 } from "#database/schema/org-events";
-import {
-  dancerInvites,
-  organizations,
-} from "#database/schema/organizations";
+import { dancerInvites, organizations } from "#database/schema/organizations";
 import mail from "@adonisjs/mail/services/main";
 import { ResendInvitesService } from "./service.ts";
 
@@ -104,7 +101,7 @@ test.group("ResendInvitesService", (group) => {
       event.id,
       { ids: rows.map((r) => r.id) },
       { eventId: event.id, actorId: actor.id },
-      { pacingMs: 0 },
+      { pacingMs: 0 }
     );
 
     assert.equal(result.sent, 2);
@@ -183,7 +180,7 @@ test.group("ResendInvitesService", (group) => {
         ],
       },
       { eventId: event.id, actorId: actor.id },
-      { pacingMs: 0 },
+      { pacingMs: 0 }
     );
 
     assert.equal(result.sent, 1);

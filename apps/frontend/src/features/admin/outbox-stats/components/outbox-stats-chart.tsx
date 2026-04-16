@@ -13,11 +13,11 @@ const COLORS = [
   "hsl(221, 83%, 53%)", // blue
   "hsl(142, 71%, 45%)", // green
   "hsl(262, 83%, 58%)", // purple
-  "hsl(25, 95%, 53%)",  // orange
+  "hsl(25, 95%, 53%)", // orange
   "hsl(340, 82%, 52%)", // pink
   "hsl(187, 85%, 43%)", // cyan
-  "hsl(45, 93%, 47%)",  // yellow
-  "hsl(0, 84%, 60%)",   // red
+  "hsl(45, 93%, 47%)", // yellow
+  "hsl(0, 84%, 60%)", // red
   "hsl(280, 65%, 60%)", // violet
   "hsl(160, 60%, 45%)", // teal
 ];

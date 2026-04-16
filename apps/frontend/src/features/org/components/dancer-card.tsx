@@ -22,9 +22,9 @@ export function DancerCard({ dancer, slug, isFavorited }: DancerCardProps) {
     <Link
       to="/$orgSlug/coach/dancers/$rosterId"
       params={{ orgSlug: slug, rosterId: dancer.rosterId }}
-      className="flex items-center gap-3 rounded-lg border bg-card p-3 hover:bg-accent/50 transition-colors"
+      className="bg-card hover:bg-accent/50 flex items-center gap-3 rounded-lg border p-3 transition-colors"
     >
-      <div className="size-12 shrink-0 overflow-hidden rounded-full bg-muted">
+      <div className="bg-muted size-12 shrink-0 overflow-hidden rounded-full">
         {dancer.profilePhotoUrl ? (
           <img
             src={dancer.profilePhotoUrl}
@@ -36,7 +36,7 @@ export function DancerCard({ dancer, slug, isFavorited }: DancerCardProps) {
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           {dancer.bibNumber != null && (
-            <span className="text-sm font-mono text-muted-foreground">
+            <span className="text-muted-foreground font-mono text-sm">
               #{dancer.bibNumber}
             </span>
           )}

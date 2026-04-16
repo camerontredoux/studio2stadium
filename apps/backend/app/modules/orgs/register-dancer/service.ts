@@ -102,9 +102,9 @@ export class RegisterDancerService {
               tx
                 .select({ id: orgEvents.id })
                 .from(orgEvents)
-                .where(eq(orgEvents.orgId, org.id)),
-            ),
-          ),
+                .where(eq(orgEvents.orgId, org.id))
+            )
+          )
         );
 
       await tx

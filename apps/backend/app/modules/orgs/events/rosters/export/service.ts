@@ -1,16 +1,7 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { eventRosters } from "#database/schema/org-events";
-import {
-  and,
-  asc,
-  eq,
-  ilike,
-  isNotNull,
-  isNull,
-  or,
-  sql,
-} from "drizzle-orm";
+import { and, asc, eq, ilike, isNotNull, isNull, or, sql } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 
 function csvEscape(value: string | number | null): string {
@@ -62,10 +53,17 @@ export class ExportRosterService {
         })
         .from(eventRosters)
         .where(and(...filters))
-        .orderBy(asc(eventRosters.lastName), asc(eventRosters.firstName)),
+        .orderBy(asc(eventRosters.lastName), asc(eventRosters.firstName))
     );
 
-    const header = ["First Name", "Last Name", "Email", "Bib #", "Organization", "Status"];
+    const header = [
+      "First Name",
+      "Last Name",
+      "Email",
+      "Bib #",
+      "Organization",
+      "Status",
+    ];
     const lines = [header.map(csvEscape).join(",")];
     for (const r of rows) {
       lines.push(
@@ -76,7 +74,7 @@ export class ExportRosterService {
           csvEscape(r.bibNumber),
           csvEscape(r.organization),
           csvEscape(r.isRegistered ? "Active" : "Pending"),
-        ].join(","),
+        ].join(",")
       );
     }
     return lines.join("\r\n") + "\r\n";
