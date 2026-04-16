@@ -33,8 +33,6 @@ import { CrownIcon, VideoIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import type * as tus from "tus-js-client";
 
-const PREMIUM_VIDEO_LIMIT = 3;
-
 interface VideoUploadDialogProps {
   videoCount: number;
 }
@@ -143,18 +141,15 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
   };
 
   const isFreeTierDancer = !subscribed && type === "dancer";
-  const hasReachedLimit = videoCount >= PREMIUM_VIDEO_LIMIT;
 
-  if (isFreeTierDancer || hasReachedLimit) {
+  if (isFreeTierDancer) {
     return (
       <div className="border-border group flex aspect-square flex-1 flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed opacity-60">
         <div className="bg-muted rounded-full p-3">
           <VideoIcon className="text-muted-foreground size-6" />
         </div>
         <span className="text-muted-foreground text-sm font-medium">
-          {hasReachedLimit
-            ? `Limit ${PREMIUM_VIDEO_LIMIT}/${PREMIUM_VIDEO_LIMIT}`
-            : "Video"}
+          Video
         </span>
         {isFreeTierDancer && (
           <Button
