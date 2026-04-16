@@ -1,11 +1,15 @@
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import {
   ArrowRightIcon,
   CalendarIcon,
   CheckIcon,
+  CircleXIcon,
   ExternalLinkIcon,
   MailIcon,
   MapPinIcon,
@@ -14,6 +18,7 @@ import {
   Trash2Icon,
   UploadIcon,
 } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import {
   AlertDialog,
@@ -34,27 +39,26 @@ import {
 } from "@/components/ui/select";
 import { toastManager } from "@/components/ui/toast-manager";
 import { cn } from "@/components/utils/cn";
-import { client } from "@/lib/api/client";
 import {
   adminQueries,
   type ChecklistItem,
   type CsvUploadSummary,
   type OrgEvent,
 } from "@/features/org/api/admin-queries";
-import { ChecklistItemDialog } from "@/features/org/components/checklist-item-dialog";
 import {
   CreateEventForm,
   EventFormSheet,
 } from "@/features/org/components/event-form-sheet";
 import { RosterUploadRow } from "@/features/org/components/roster-upload-row";
 import {
-  useEventPhase,
-  type EventPhaseInfo,
-} from "@/features/org/hooks/use-event-phase";
-import {
   useAdminCommandListener,
   useAdminCommands,
 } from "@/features/org/hooks/use-admin-commands";
+import {
+  useEventPhase,
+  type EventPhaseInfo,
+} from "@/features/org/hooks/use-event-phase";
+import { client } from "@/lib/api/client";
 
 export const Route = createFileRoute("/_org/$orgSlug/_authenticated/admin/")({
   component: AdminHome,
@@ -88,8 +92,8 @@ function AdminDashboard({
   const dateRange = formatDateRange(activeEvent.startDate, activeEvent.endDate);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden xl:flex-row xl:overflow-hidden">
-      <div className="flex min-w-0 flex-col xl:min-h-0 xl:flex-1 xl:overflow-y-auto xl:overflow-x-hidden">
+    <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto xl:flex-row xl:overflow-hidden">
+      <div className="flex min-w-0 flex-col xl:min-h-0 xl:flex-1 xl:overflow-x-hidden xl:overflow-y-auto">
         <EventHeader
           name={activeEvent.name}
           phase={phase}
@@ -133,12 +137,16 @@ function AdminDashboard({
 
         <section
           aria-label="Event readiness"
-          className="grid grid-cols-1 gap-3 px-4 pb-4 lg:grid-cols-5 lg:grid-rows-[14rem]"
+          className="grid grid-cols-1 gap-3 px-4 pb-4 lg:auto-rows-fr lg:grid-cols-2"
         >
-          <div className="min-h-0 lg:col-span-2">
-            <PreEventChecklist orgSlug={orgSlug} eventId={activeEvent.id} phase={phase} />
+          <div className="min-h-0 lg:col-span-1">
+            <PreEventChecklist
+              orgSlug={orgSlug}
+              eventId={activeEvent.id}
+              phase={phase}
+            />
           </div>
-          <div className="min-h-0 lg:col-span-3">
+          <div className="min-h-0 lg:col-span-1">
             <TopSchoolsPanel />
           </div>
         </section>
@@ -180,7 +188,9 @@ function EventHeader({
   return (
     <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4">
       <div className="flex items-center gap-3">
-        <h1 className="text-lg font-semibold tracking-tight 2xl:text-xl">{name}</h1>
+        <h1 className="text-lg font-semibold tracking-tight 2xl:text-xl">
+          {name}
+        </h1>
         <PhaseBadge phase={phase} isActive />
         <span className="text-muted-foreground text-xs tabular-nums 2xl:text-sm">
           {dateRange}
@@ -227,7 +237,9 @@ function PhaseBadge({
       : phase.phase === "upcoming" || phase.phase === "imminent"
         ? "border-warning/60 text-warning"
         : "border-border/60 text-muted-foreground";
-  const badgeClass = isActive ? activeBadgeClass : "border-border/60 text-muted-foreground";
+  const badgeClass = isActive
+    ? activeBadgeClass
+    : "border-border/60 text-muted-foreground";
 
   if (phase.phase === "live") {
     return (
@@ -318,10 +330,14 @@ function PreEventChecklist({
 }) {
   const qc = useQueryClient();
   const queryKey = adminQueries.checklist(orgSlug, eventId).queryKey;
-  const { data: items } = useSuspenseQuery(adminQueries.checklist(orgSlug, eventId));
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editItem, setEditItem] = useState<ChecklistItem | undefined>();
+  const { data: items } = useSuspenseQuery(
+    adminQueries.checklist(orgSlug, eventId),
+  );
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editDraftTitle, setEditDraftTitle] = useState("");
   const [deleteItem, setDeleteItem] = useState<ChecklistItem | undefined>();
+  const [inlineCreateOpen, setInlineCreateOpen] = useState(false);
+  const [draftTitle, setDraftTitle] = useState("");
 
   const done = items.filter((i) => i.completed).length;
   const total = items.length;
@@ -337,6 +353,10 @@ function PreEventChecklist({
           : "done";
 
   const rawClient = client as unknown as {
+    POST: (
+      path: string,
+      opts: { body: unknown },
+    ) => Promise<{ data: ChecklistItem }>;
     PATCH: (
       path: string,
       opts: { body: Record<string, unknown> },
@@ -359,12 +379,49 @@ function PreEventChecklist({
       await qc.cancelQueries({ queryKey });
       const prev = qc.getQueryData<ChecklistItem[]>(queryKey);
       qc.setQueryData<ChecklistItem[]>(queryKey, (old) =>
-        old?.map((i) => (i.id === item.id ? { ...i, completed: !i.completed } : i)),
+        old?.map((i) =>
+          i.id === item.id ? { ...i, completed: !i.completed } : i,
+        ),
       );
       return { prev };
     },
     onError: (_err, _item, ctx) => {
       if (ctx?.prev) qc.setQueryData(queryKey, ctx.prev);
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (body: { title: string }) => {
+      const res = await rawClient.POST(
+        `/orgs/${orgSlug}/events/${eventId}/checklist`,
+        { body },
+      );
+      return res.data;
+    },
+    onMutate: async (body) => {
+      await qc.cancelQueries({ queryKey });
+      const prev = qc.getQueryData<ChecklistItem[]>(queryKey);
+      const optimistic: ChecklistItem = {
+        id: `optimistic-${Date.now()}`,
+        eventId,
+        title: body.title,
+        description: null,
+        completed: false,
+        position: prev?.length ?? 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      qc.setQueryData<ChecklistItem[]>(queryKey, (old) => [
+        ...(old ?? []),
+        optimistic,
+      ]);
+      setDraftTitle("");
+      setInlineCreateOpen(false);
+      return { prev };
+    },
+    onError: (_err, _body, ctx) => {
+      if (ctx?.prev) qc.setQueryData(queryKey, ctx.prev);
+      toastManager.add({ title: "Couldn't add item", type: "error" });
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey });
@@ -385,6 +442,69 @@ function PreEventChecklist({
       toastManager.add({ title: "Couldn't delete item", type: "error" });
     },
   });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({
+      itemId,
+      title,
+    }: {
+      itemId: string;
+      title: string;
+    }) => {
+      const res = await rawClient.PATCH(
+        `/orgs/${orgSlug}/events/${eventId}/checklist/${itemId}`,
+        { body: { title } },
+      );
+      return res.data;
+    },
+    onMutate: async ({ itemId, title }) => {
+      await qc.cancelQueries({ queryKey });
+      const prev = qc.getQueryData<ChecklistItem[]>(queryKey);
+      qc.setQueryData<ChecklistItem[]>(
+        queryKey,
+        (old) => old?.map((i) => (i.id === itemId ? { ...i, title } : i)) ?? [],
+      );
+      setEditingItemId(null);
+      setEditDraftTitle("");
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) qc.setQueryData(queryKey, ctx.prev);
+      toastManager.add({ title: "Couldn't update item", type: "error" });
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey });
+    },
+  });
+
+  const cancelInlineCreate = () => {
+    setInlineCreateOpen(false);
+    setDraftTitle("");
+  };
+
+  const submitInlineCreate = () => {
+    const trimmedTitle = draftTitle.trim();
+    if (!trimmedTitle || createMutation.isPending) return;
+    createMutation.mutate({
+      title: trimmedTitle,
+    });
+  };
+
+  const startInlineEdit = (item: ChecklistItem) => {
+    setEditingItemId(item.id);
+    setEditDraftTitle(item.title);
+  };
+
+  const cancelInlineEdit = () => {
+    setEditingItemId(null);
+    setEditDraftTitle("");
+  };
+
+  const submitInlineEdit = (itemId: string) => {
+    const trimmedTitle = editDraftTitle.trim();
+    if (!trimmedTitle || updateMutation.isPending) return;
+    updateMutation.mutate({ itemId, title: trimmedTitle });
+  };
 
   return (
     <div className="border-border flex h-full min-h-0 w-full flex-col rounded-md border">
@@ -407,93 +527,162 @@ function PreEventChecklist({
             size="icon"
             className="size-5"
             onClick={() => {
-              setEditItem(undefined);
-              setDialogOpen(true);
+              setInlineCreateOpen(true);
             }}
             aria-label="Add checklist item"
+            disabled={createMutation.isPending}
           >
             <PlusIcon className="size-3" />
           </Button>
         </div>
       </div>
 
-      <ul className="divide-border flex min-h-0 flex-1 flex-col divide-y overflow-y-auto">
-        {items.map((item) => (
-          <li
-            key={item.id}
-            role="button"
-            tabIndex={0}
-            onClick={() => toggleMutation.mutate(item)}
+      {inlineCreateOpen && (
+        <div className="border-border bg-muted/25 flex items-center gap-3 border-b px-3 py-2">
+          <input
+            type="text"
+            autoFocus
+            value={draftTitle}
+            placeholder="Add checklist item..."
+            onChange={(e) => setDraftTitle(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
+              if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                toggleMutation.mutate(item);
+                submitInlineCreate();
+              }
+              if (e.key === "Escape") {
+                cancelInlineCreate();
               }
             }}
-            className="hover:bg-muted/40 group flex w-full cursor-pointer items-center gap-3 px-3 py-2 transition-colors"
-          >
-            <span
-              className={cn(
-                "border-border flex size-4 shrink-0 items-center justify-center rounded-sm border transition-colors",
-                item.completed
-                  ? "bg-foreground border-foreground"
-                  : "bg-background",
-              )}
-              aria-hidden
+            className="text-foreground placeholder:text-muted-foreground min-w-0 flex-1 bg-transparent text-xs font-medium outline-none 2xl:text-sm"
+          />
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              className="text-muted-foreground hover:text-foreground shrink-0 p-1 transition-colors disabled:pointer-events-none disabled:opacity-50"
+              disabled={!draftTitle.trim() || createMutation.isPending}
+              onClick={submitInlineCreate}
+              aria-label="Add item"
             >
-              {item.completed && (
-                <CheckIcon className="text-background size-3" strokeWidth={3} />
-              )}
-            </span>
-            <div className="flex min-w-0 flex-1 flex-col">
+              <CheckIcon className="size-3" />
+            </button>
+            <button
+              type="button"
+              className="text-muted-foreground hover:text-foreground shrink-0 p-1 transition-colors disabled:pointer-events-none disabled:opacity-50"
+              onClick={cancelInlineCreate}
+              disabled={createMutation.isPending}
+              aria-label="Cancel adding item"
+            >
+              <CircleXIcon className="size-3" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      <ul className="divide-border max-h-46 min-h-0 divide-y overflow-y-auto">
+        {items.map((item) => {
+          const isEditing = editingItemId === item.id;
+          if (isEditing) {
+            return (
+              <li
+                key={item.id}
+                className="bg-muted/25 flex items-center gap-3 px-3 py-2"
+              >
+                <input
+                  type="text"
+                  autoFocus
+                  value={editDraftTitle}
+                  onChange={(e) => setEditDraftTitle(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      submitInlineEdit(item.id);
+                    }
+                    if (e.key === "Escape") {
+                      cancelInlineEdit();
+                    }
+                  }}
+                  className="text-foreground placeholder:text-muted-foreground min-w-0 flex-1 bg-transparent text-xs font-medium outline-none 2xl:text-sm"
+                />
+                <button
+                  type="button"
+                  className="text-muted-foreground hover:text-foreground shrink-0 p-1 transition-colors disabled:pointer-events-none disabled:opacity-50"
+                  disabled={!editDraftTitle.trim() || updateMutation.isPending}
+                  onClick={() => submitInlineEdit(item.id)}
+                  aria-label="Save item"
+                >
+                  <CheckIcon className="size-3" />
+                </button>
+              </li>
+            );
+          }
+
+          return (
+            <li
+              key={item.id}
+              role="button"
+              tabIndex={0}
+              onClick={() => toggleMutation.mutate(item)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  toggleMutation.mutate(item);
+                }
+              }}
+              className="hover:bg-muted/40 group flex w-full cursor-pointer items-center gap-3 px-3 py-2 transition-colors"
+            >
               <span
                 className={cn(
-                  "text-xs font-medium 2xl:text-sm",
-                  item.completed && "text-muted-foreground line-through",
+                  "border-border flex size-4 shrink-0 items-center justify-center rounded-sm border transition-colors",
+                  item.completed
+                    ? "bg-foreground border-foreground"
+                    : "bg-background",
                 )}
+                aria-hidden
               >
-                {item.title}
+                {item.completed && (
+                  <CheckIcon
+                    className="text-background size-3"
+                    strokeWidth={3}
+                  />
+                )}
               </span>
-              {item.description && (
-                <span className="text-muted-foreground truncate text-[11px] 2xl:text-xs">
-                  {item.description}
+              <div className="flex min-w-0 flex-1 flex-col">
+                <span
+                  className={cn(
+                    "text-xs font-medium 2xl:text-sm",
+                    item.completed && "text-muted-foreground line-through",
+                  )}
+                >
+                  {item.title}
                 </span>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setEditItem(item);
-                setDialogOpen(true);
-              }}
-              className="text-muted-foreground hover:text-foreground shrink-0 p-1 opacity-0 transition-all group-hover:opacity-100"
-              aria-label="Edit item"
-            >
-              <PencilIcon className="size-3" />
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setDeleteItem(item);
-              }}
-              className="text-muted-foreground hover:text-destructive shrink-0 p-1 opacity-0 transition-all group-hover:opacity-100"
-              aria-label="Delete item"
-            >
-              <Trash2Icon className="size-3" />
-            </button>
-          </li>
-        ))}
+              </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  startInlineEdit(item);
+                }}
+                className="text-muted-foreground hover:text-foreground shrink-0 p-0.5 opacity-0 transition-all group-hover:opacity-100"
+                aria-label="Edit item"
+              >
+                <PencilIcon className="size-3" />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteItem(item);
+                }}
+                className="text-muted-foreground hover:text-destructive shrink-0 p-0.5 opacity-0 transition-all group-hover:opacity-100"
+                aria-label="Delete item"
+              >
+                <Trash2Icon className="size-3" />
+              </button>
+            </li>
+          );
+        })}
       </ul>
-
-      <ChecklistItemDialog
-        orgSlug={orgSlug}
-        eventId={eventId}
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        item={editItem}
-      />
 
       <AlertDialog
         open={deleteItem !== undefined}
@@ -569,7 +758,7 @@ const MOCK_TOP_SCHOOLS: MockSchool[] = [
 function TopSchoolsPanel() {
   const maxCount = Math.max(...MOCK_TOP_SCHOOLS.map((s) => s.dancers));
   return (
-    <div className="border-border flex flex-col rounded-md border">
+    <div className="border-border flex h-full min-h-0 flex-col rounded-md border">
       <div className="border-border bg-muted/40 flex items-center justify-between gap-3 border-b px-3 py-2">
         <div className="flex min-w-0 flex-col">
           <span className="text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
@@ -584,53 +773,55 @@ function TopSchoolsPanel() {
         </span>
       </div>
 
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="border-border border-b">
-            <th className="text-muted-foreground px-3 py-1.5 text-left text-[10px] font-medium tracking-wide uppercase 2xl:text-xs">
-              Organization
-            </th>
-            <th className="text-muted-foreground w-12 px-3 py-1.5 text-right text-[10px] font-medium tracking-wide uppercase 2xl:text-xs">
-              Total
-            </th>
-            <th className="text-muted-foreground px-3 py-1.5 text-left text-[10px] font-medium tracking-wide uppercase 2xl:text-xs">
-              Activation
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {MOCK_TOP_SCHOOLS.map((school) => {
-            const pct = Math.round((school.activated / school.dancers) * 100);
-            const barPct = (school.dancers / maxCount) * 100;
-            return (
-              <tr
-                key={school.name}
-                className="border-border hover:bg-muted/30 border-b transition-colors last:border-b-0"
-              >
-                <td className="px-3 py-1.5 text-xs font-medium 2xl:text-sm">
-                  <span className="truncate">{school.name}</span>
-                </td>
-                <td className="px-3 py-1.5 text-right text-xs tabular-nums 2xl:text-sm">
-                  {school.dancers}
-                </td>
-                <td className="px-3 py-1.5">
-                  <div className="flex items-center gap-2">
-                    <div className="bg-muted relative h-1 flex-1 overflow-hidden rounded-full">
-                      <div
-                        className="bg-foreground/80 h-full"
-                        style={{ width: `${barPct}%` }}
-                      />
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="border-border border-b">
+              <th className="text-muted-foreground px-3 py-1.5 text-left text-[10px] font-medium tracking-wide uppercase 2xl:text-xs">
+                Organization
+              </th>
+              <th className="text-muted-foreground w-12 px-3 py-1.5 text-right text-[10px] font-medium tracking-wide uppercase 2xl:text-xs">
+                Total
+              </th>
+              <th className="text-muted-foreground px-3 py-1.5 text-left text-[10px] font-medium tracking-wide uppercase 2xl:text-xs">
+                Activation
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {MOCK_TOP_SCHOOLS.map((school) => {
+              const pct = Math.round((school.activated / school.dancers) * 100);
+              const barPct = (school.dancers / maxCount) * 100;
+              return (
+                <tr
+                  key={school.name}
+                  className="border-border hover:bg-muted/30 border-b transition-colors last:border-b-0"
+                >
+                  <td className="px-3 py-1.5 text-xs font-medium 2xl:text-sm">
+                    <span className="truncate">{school.name}</span>
+                  </td>
+                  <td className="px-3 py-1.5 text-right text-xs tabular-nums 2xl:text-sm">
+                    {school.dancers}
+                  </td>
+                  <td className="px-3 py-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="bg-muted relative h-1 flex-1 overflow-hidden rounded-full">
+                        <div
+                          className="bg-foreground/80 h-full"
+                          style={{ width: `${barPct}%` }}
+                        />
+                      </div>
+                      <span className="text-muted-foreground w-8 text-right text-[11px] tabular-nums 2xl:text-xs">
+                        {pct}%
+                      </span>
                     </div>
-                    <span className="text-muted-foreground w-8 text-right text-[11px] tabular-nums 2xl:text-xs">
-                      {pct}%
-                    </span>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -651,7 +842,7 @@ function EventSidebar({
   stats: CsvUploadSummary[];
 }) {
   return (
-    <aside className="border-border flex w-full shrink-0 flex-col border-t xl:w-[320px] xl:overflow-y-auto xl:overflow-x-hidden xl:border-t-0 xl:border-l">
+    <aside className="border-border flex w-full shrink-0 flex-col border-t xl:w-[320px] xl:overflow-x-hidden xl:overflow-y-auto xl:border-t-0 xl:border-l">
       <SidebarEventSection
         orgSlug={orgSlug}
         events={events}
@@ -781,14 +972,12 @@ function SidebarEventSection({
   );
 }
 
-function SidebarPhaseSection({
-  phase,
-}: {
-  phase: EventPhaseInfo;
-}) {
+function SidebarPhaseSection({ phase }: { phase: EventPhaseInfo }) {
   const progress = phaseProgressPct(phase);
   const isEventUnderway = phase.phase === "live" || phase.phase === "wrapped";
-  const progressLabel = isEventUnderway ? "Event progress" : "Approaching kickoff";
+  const progressLabel = isEventUnderway
+    ? "Event progress"
+    : "Approaching kickoff";
   const headline =
     phase.phase === "live"
       ? `Day ${phase.liveDay}`
@@ -818,7 +1007,7 @@ function SidebarPhaseSection({
           </span>
         </div>
         {phase.phase === "live" && (
-          <span className="text-success inline-flex items-center gap-1.5 rounded border border-success/40 px-2 py-0.5 text-[10px] font-semibold tracking-[0.12em] uppercase">
+          <span className="text-success border-success/40 inline-flex items-center gap-1.5 rounded border px-2 py-0.5 text-[10px] font-semibold tracking-[0.12em] uppercase">
             <LivePulse />
             Live now
           </span>
@@ -916,7 +1105,9 @@ function SidebarActivitySection({
   if (recent.length === 0) {
     return (
       <SidebarSection title="Recent activity">
-        <p className="text-muted-foreground text-xs 2xl:text-sm">No uploads yet.</p>
+        <p className="text-muted-foreground text-xs 2xl:text-sm">
+          No uploads yet.
+        </p>
       </SidebarSection>
     );
   }
@@ -924,10 +1115,12 @@ function SidebarActivitySection({
     <SidebarSection title="Recent activity">
       <ul className="flex flex-col gap-2">
         {recent.map((upload) => {
-          const touched =
-            (upload.rowsAdded ?? 0) + (upload.rowsUpdated ?? 0);
+          const touched = (upload.rowsAdded ?? 0) + (upload.rowsUpdated ?? 0);
           return (
-            <li key={upload.id} className="flex items-start gap-2 text-xs 2xl:text-sm">
+            <li
+              key={upload.id}
+              className="flex items-start gap-2 text-xs 2xl:text-sm"
+            >
               <UploadIcon className="text-muted-foreground mt-0.5 size-3 shrink-0" />
               <div className="flex min-w-0 flex-1 flex-col">
                 <span>

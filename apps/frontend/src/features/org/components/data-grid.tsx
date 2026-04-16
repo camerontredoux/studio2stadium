@@ -338,7 +338,7 @@ export function DataGrid<T extends { id: string }>({
           >
             <SelectTrigger
               size="sm"
-              className="hidden h-7 w-auto min-w-24 gap-1 text-xs lg:flex"
+              className="hidden h-7 w-auto min-w-24 gap-1 rounded-md text-xs lg:flex"
             >
               <SelectValue placeholder={filter.label} />
             </SelectTrigger>
@@ -369,7 +369,10 @@ export function DataGrid<T extends { id: string }>({
                       value={filter.value}
                       onValueChange={(v) => v && filter.onChange(v)}
                     >
-                      <SelectTrigger size="sm" className="h-7 w-full gap-1 text-xs">
+                      <SelectTrigger
+                        size="sm"
+                        className="h-7 w-full gap-1 rounded-md text-xs"
+                      >
                         <SelectValue placeholder={filter.label} />
                       </SelectTrigger>
                       <SelectPopup>
@@ -391,10 +394,10 @@ export function DataGrid<T extends { id: string }>({
           {/* Columns popover */}
           <Popover>
             <PopoverTrigger
-              render={<Button size="xs" variant="ghost" className="h-7 gap-1 px-1.5 text-xs" />}
+              render={<Button size="icon-sm" variant="ghost" />}
             >
               <SlidersHorizontalIcon className="size-3.5" />
-              <span className="hidden sm:inline">Columns</span>
+              <span className="sr-only">Columns</span>
             </PopoverTrigger>
             <PopoverPopup side="bottom" align="end" className="w-52">
               <div className="flex flex-col gap-1">
@@ -423,10 +426,10 @@ export function DataGrid<T extends { id: string }>({
           {/* Density popover */}
           <Popover>
             <PopoverTrigger
-              render={<Button size="xs" variant="ghost" className="h-7 gap-1 px-1.5 text-xs" />}
+              render={<Button size="icon-sm" variant="ghost" />}
             >
               <RowsIcon className="size-3.5" />
-              <span className="hidden sm:inline">Density</span>
+              <span className="sr-only">Density</span>
             </PopoverTrigger>
             <PopoverPopup side="bottom" align="end" className="w-40">
               <div className="flex flex-col gap-0.5">
@@ -452,13 +455,12 @@ export function DataGrid<T extends { id: string }>({
           {/* Export button */}
           {onExport && (
             <Button
-              size="xs"
+              size="icon-sm"
               variant="ghost"
               onClick={onExport}
-              className="h-7 gap-1 px-1.5 text-xs"
+              aria-label="Export"
             >
               <DownloadIcon className="size-3.5" />
-              <span className="hidden sm:inline">Export</span>
             </Button>
           )}
         </div>
@@ -683,7 +685,10 @@ export function DataGrid<T extends { id: string }>({
                   }
                 }}
               >
-                <SelectTrigger size="sm" className="w-auto min-w-0 gap-1">
+                <SelectTrigger
+                  size="sm"
+                  className="w-auto min-w-0 gap-1 rounded-md"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectPopup>

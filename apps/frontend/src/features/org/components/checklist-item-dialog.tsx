@@ -9,7 +9,6 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { Textarea } from "@/components/ui/textarea";
 import { toastManager } from "@/components/ui/toast-manager";
 import { adminQueries, type ChecklistItem } from "@/features/org/api/admin-queries";
 import { client } from "@/lib/api/client";
@@ -21,7 +20,6 @@ import { z } from "zod";
 
 const schema = z.object({
   title: z.string().min(1, "Required").max(160),
-  description: z.string().optional(),
 });
 
 type Schema = z.infer<typeof schema>;
@@ -59,7 +57,7 @@ export function ChecklistItemDialog({
   };
 
   const createMutation = useMutation({
-    mutationFn: async (body: { title: string; description?: string }) => {
+    mutationFn: async (body: { title: string }) => {
       const res = await rawClient.POST(
         `/orgs/${orgSlug}/events/${eventId}/checklist`,
         { body },
@@ -73,7 +71,7 @@ export function ChecklistItemDialog({
         id: `optimistic-${Date.now()}`,
         eventId,
         title: body.title,
-        description: body.description ?? null,
+        description: null,
         completed: false,
         position: (prev?.length ?? 0),
         createdAt: new Date().toISOString(),
@@ -95,7 +93,7 @@ export function ChecklistItemDialog({
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (body: { title: string; description?: string }) => {
+    mutationFn: async (body: { title: string }) => {
       if (!item) throw new Error("Item is required to update");
       const res = await rawClient.PATCH(
         `/orgs/${orgSlug}/events/${eventId}/checklist/${item.id}`,
@@ -108,11 +106,7 @@ export function ChecklistItemDialog({
       await qc.cancelQueries({ queryKey });
       const prev = qc.getQueryData<ChecklistItem[]>(queryKey);
       qc.setQueryData<ChecklistItem[]>(queryKey, (old) =>
-        old?.map((i) =>
-          i.id === item.id
-            ? { ...i, title: body.title, description: body.description ?? null }
-            : i,
-        ),
+        old?.map((i) => (i.id === item.id ? { ...i, title: body.title } : i)),
       );
       onOpenChange(false);
       return { prev };
@@ -128,12 +122,12 @@ export function ChecklistItemDialog({
 
   const { control, handleSubmit, reset } = useForm<Schema>({
     resolver: zodResolver(schema),
-    defaultValues: { title: item?.title ?? "", description: item?.description ?? "" },
+    defaultValues: { title: item?.title ?? "" },
   });
 
   useEffect(() => {
     if (!open) return;
-    reset({ title: item?.title ?? "", description: item?.description ?? "" });
+    reset({ title: item?.title ?? "" });
   }, [open, item, reset]);
 
   const pending = isCreate ? createMutation.isPending : updateMutation.isPending;
@@ -142,7 +136,6 @@ export function ChecklistItemDialog({
     if (pending) return;
     const payload = {
       title: data.title,
-      description: data.description || undefined,
     };
     if (isCreate) {
       createMutation.mutate(payload);
@@ -169,17 +162,6 @@ export function ChecklistItemDialog({
               <Field name={field.name} invalid={fieldState.invalid}>
                 <FieldLabel>Title</FieldLabel>
                 <Input autoFocus placeholder="e.g. Venue confirmed" {...field} />
-                <FieldError error={fieldState.error} />
-              </Field>
-            )}
-          />
-          <Controller
-            control={control}
-            name="description"
-            render={({ field, fieldState }) => (
-              <Field name={field.name} invalid={fieldState.invalid}>
-                <FieldLabel>Description (optional)</FieldLabel>
-                <Textarea {...field} rows={2} placeholder="Extra context or notes" />
                 <FieldError error={fieldState.error} />
               </Field>
             )}

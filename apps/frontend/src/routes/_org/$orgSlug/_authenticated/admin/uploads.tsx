@@ -17,18 +17,18 @@ import {
 } from "@/components/ui/sheet";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/components/utils/cn";
+import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
 import {
+  auditQueries,
   type AuditAction,
   type AuditLogChildEntry,
   type AuditLogEntry,
   type AuditLogStats,
   type AuditResource,
-  auditQueries,
 } from "@/features/org/api/audit-queries";
-import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { formatDistanceToNow, format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import {
   CalendarIcon,
   ChevronDownIcon,
@@ -36,9 +36,7 @@ import {
   ChevronRightIcon,
   ChevronRightIcon as ExpandIcon,
   FilterIcon,
-  RowsIcon,
   SearchIcon,
-  SlidersHorizontalIcon,
   XIcon,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -49,10 +47,6 @@ export const Route = createFileRoute(
 )({
   component: AuditLogPage,
 });
-
-// ── Types ──────────────────────────────────────────────────────────────────
-
-type Density = "comfortable" | "compact";
 
 const ACTION_LABELS: Record<AuditAction, string> = {
   upload: "Upload",
@@ -71,13 +65,13 @@ const RESOURCE_LABELS: Record<AuditResource, string> = {
   invite: "Invite",
 };
 
-const ACTION_COLORS: Record<AuditAction, string> = {
-  upload: "text-blue-600 bg-blue-50 border-blue-200",
-  create: "text-success-foreground bg-success/10 border-success/30",
-  update: "text-amber-600 bg-amber-50 border-amber-200",
-  delete: "text-destructive bg-destructive/10 border-destructive/30",
-  activate: "text-purple-600 bg-purple-50 border-purple-200",
-  resend_invite: "text-cyan-600 bg-cyan-50 border-cyan-200",
+const ACTION_COLORS: Record<AuditAction, { text: string; dot: string }> = {
+  upload: { text: "text-blue-600", dot: "bg-blue-500" },
+  create: { text: "text-success-foreground", dot: "bg-success" },
+  update: { text: "text-amber-600", dot: "bg-amber-500" },
+  delete: { text: "text-destructive", dot: "bg-destructive" },
+  activate: { text: "text-purple-600", dot: "bg-purple-500" },
+  resend_invite: { text: "text-cyan-600", dot: "bg-cyan-500" },
 };
 
 const PAGE_SIZE_OPTIONS = [
@@ -104,7 +98,9 @@ function generateSummary(entry: AuditLogEntry | AuditLogChildEntry): string {
     case "create":
       return `Created ${RESOURCE_LABELS[entry.resource].toLowerCase()}`;
     case "update": {
-      const diff = meta.diff as Record<string, { from: unknown; to: unknown }> | undefined;
+      const diff = meta.diff as
+        | Record<string, { from: unknown; to: unknown }>
+        | undefined;
       if (diff) {
         const fields = Object.keys(diff);
         if (fields.length === 1) {
@@ -141,10 +137,14 @@ function ActionBadge({ action }: { action: AuditAction }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase 2xl:text-xs",
-        ACTION_COLORS[action],
+        "inline-flex items-center gap-1.5 text-[10px] tracking-wide uppercase tabular-nums 2xl:text-xs",
+        ACTION_COLORS[action].text,
       )}
     >
+      <span
+        className={cn("size-1.5 rounded-full", ACTION_COLORS[action].dot)}
+        aria-hidden
+      />
       {ACTION_LABELS[action]}
     </span>
   );
@@ -153,9 +153,16 @@ function ActionBadge({ action }: { action: AuditAction }) {
 // ── Diff View ────────────────────────────────────────────────────────────────
 
 function DiffView({ metadata }: { metadata: Record<string, unknown> | null }) {
-  if (!metadata) return <span className="text-muted-foreground text-xs">No details recorded.</span>;
+  if (!metadata)
+    return (
+      <span className="text-muted-foreground text-xs">
+        No details recorded.
+      </span>
+    );
 
-  const diff = metadata.diff as Record<string, { from: unknown; to: unknown }> | undefined;
+  const diff = metadata.diff as
+    | Record<string, { from: unknown; to: unknown }>
+    | undefined;
   const before = metadata.before as Record<string, unknown> | undefined;
   const after = metadata.after as Record<string, unknown> | undefined;
   const counts = metadata.counts as Record<string, number> | undefined;
@@ -165,8 +172,12 @@ function DiffView({ metadata }: { metadata: Record<string, unknown> | null }) {
       <div className="grid grid-cols-3 gap-3">
         {Object.entries(counts).map(([k, v]) => (
           <div key={k} className="flex flex-col gap-0.5">
-            <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase">{k}</span>
-            <span className="tabular-nums text-sm font-semibold">{String(v)}</span>
+            <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase">
+              {k}
+            </span>
+            <span className="text-sm font-semibold tabular-nums">
+              {String(v)}
+            </span>
           </div>
         ))}
       </div>
@@ -178,17 +189,27 @@ function DiffView({ metadata }: { metadata: Record<string, unknown> | null }) {
       <table className="w-full border-collapse text-xs">
         <thead>
           <tr className="border-border border-b">
-            <th className="text-muted-foreground py-1 pr-3 text-left text-[10px] font-semibold tracking-widest uppercase">Field</th>
-            <th className="text-muted-foreground py-1 pr-3 text-left text-[10px] font-semibold tracking-widest uppercase">Before</th>
-            <th className="text-muted-foreground py-1 text-left text-[10px] font-semibold tracking-widest uppercase">After</th>
+            <th className="text-muted-foreground py-1 pr-3 text-left text-[10px] font-semibold tracking-widest uppercase">
+              Field
+            </th>
+            <th className="text-muted-foreground py-1 pr-3 text-left text-[10px] font-semibold tracking-widest uppercase">
+              Before
+            </th>
+            <th className="text-muted-foreground py-1 text-left text-[10px] font-semibold tracking-widest uppercase">
+              After
+            </th>
           </tr>
         </thead>
         <tbody>
           {Object.entries(diff).map(([field, { from, to }]) => (
             <tr key={field} className="border-border border-b last:border-b-0">
               <td className="py-1 pr-3 font-medium">{field}</td>
-              <td className="py-1 pr-3 font-mono text-destructive">{String(from ?? "—")}</td>
-              <td className="py-1 font-mono text-success-foreground">{String(to ?? "—")}</td>
+              <td className="text-destructive py-1 pr-3 font-mono">
+                {String(from ?? "—")}
+              </td>
+              <td className="text-success-foreground py-1 font-mono">
+                {String(to ?? "—")}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -226,7 +247,11 @@ function DiffView({ metadata }: { metadata: Record<string, unknown> | null }) {
     );
   }
 
-  return <span className="text-muted-foreground text-xs italic">No diff available.</span>;
+  return (
+    <span className="text-muted-foreground text-xs italic">
+      No diff available.
+    </span>
+  );
 }
 
 // ── Children Sheet ──────────────────────────────────────────────────────────
@@ -254,7 +279,7 @@ function ChildrenSheet({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetPopup className="w-full sm:max-w-xl">
-        <SheetHeader className="border-border border-b px-4 pb-3 pt-4">
+        <SheetHeader className="border-border border-b px-4 pt-4 pb-3">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               {entry && <ActionBadge action={entry.action} />}
@@ -262,7 +287,11 @@ function ChildrenSheet({
                 {entry ? generateSummary(entry) : "Detail"}
               </SheetTitle>
             </div>
-            <SheetClose render={<Button variant="ghost" size="icon-xs" className="size-6" />}>
+            <SheetClose
+              render={
+                <Button variant="ghost" size="icon-xs" className="size-6" />
+              }
+            >
               <XIcon className="size-3.5" />
             </SheetClose>
           </div>
@@ -294,7 +323,10 @@ function ChildrenSheet({
               {childrenQuery.isLoading ? (
                 <div className="space-y-2">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="bg-muted/40 h-8 animate-pulse rounded" />
+                    <div
+                      key={i}
+                      className="bg-muted/40 h-8 animate-pulse rounded"
+                    />
                   ))}
                 </div>
               ) : (
@@ -309,10 +341,14 @@ function ChildrenSheet({
                               {RESOURCE_LABELS[child.resource]}
                             </span>
                           </div>
-                          <span className="text-xs">{generateSummary(child)}</span>
+                          <span className="text-xs">
+                            {generateSummary(child)}
+                          </span>
                         </div>
                         <span className="text-muted-foreground shrink-0 text-[10px] tabular-nums">
-                          {formatDistanceToNow(new Date(child.createdAt), { addSuffix: true })}
+                          {formatDistanceToNow(new Date(child.createdAt), {
+                            addSuffix: true,
+                          })}
                         </span>
                       </div>
                       {child.metadata && (
@@ -343,7 +379,10 @@ function ExpandedRow({
 }) {
   return (
     <tr>
-      <td colSpan={colSpan} className="border-border bg-muted/20 border-b px-4 py-3">
+      <td
+        colSpan={colSpan}
+        className="border-border bg-muted/20 border-b px-4 py-3"
+      >
         <DiffView metadata={entry.metadata} />
       </td>
     </tr>
@@ -376,14 +415,14 @@ function AuditSidebar({
   );
 
   const items = sortedEvents.map((e) => ({ value: e.id, label: e.name }));
-  const totalActions = (stats?.activity.thisMonth ?? 0);
+  const totalActions = stats?.activity.thisMonth ?? 0;
   const maxBreakdownCount = Math.max(
     ...(stats?.actionBreakdown.map((a) => a.count) ?? [1]),
     1,
   );
 
   return (
-    <aside className="border-border flex w-full shrink-0 flex-col border-t xl:w-[280px] xl:overflow-y-auto xl:overflow-x-hidden xl:border-t-0 xl:border-l">
+    <aside className="border-border hidden shrink-0 flex-col border-t xl:flex xl:w-[320px] xl:overflow-x-hidden xl:overflow-y-auto xl:border-t-0 xl:border-l">
       {/* Event selector */}
       <section className="border-border border-b">
         <div className="px-4 pt-3 pb-2">
@@ -392,7 +431,11 @@ function AuditSidebar({
           </span>
         </div>
         <div className="px-4 pb-3">
-          <Select items={items} value={selectedEventId} onValueChange={(v) => v && onEventChange(v)}>
+          <Select
+            items={items}
+            value={selectedEventId}
+            onValueChange={(v) => v && onEventChange(v)}
+          >
             <SelectTrigger className="h-8 w-full text-xs 2xl:text-sm">
               <SelectValue />
             </SelectTrigger>
@@ -408,11 +451,17 @@ function AuditSidebar({
       </section>
 
       {/* Activity summary — matches dashboard StatCell pattern */}
-      <section aria-label="Activity stats" className="border-border flex items-stretch border-b">
+      <section
+        aria-label="Activity stats"
+        className="border-border flex items-stretch border-b"
+      >
         {isLoadingStats ? (
           <>
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="border-border flex flex-1 flex-col justify-center gap-1 border-l px-4 py-3 first:border-l-0">
+              <div
+                key={i}
+                className="border-border flex flex-1 flex-col justify-center gap-1 border-l px-4 py-3 first:border-l-0"
+              >
                 <div className="bg-muted/40 h-7 w-10 animate-pulse rounded" />
                 <div className="bg-muted/40 h-3 w-12 animate-pulse rounded" />
               </div>
@@ -425,7 +474,10 @@ function AuditSidebar({
               { label: "Week", value: stats?.activity.thisWeek ?? 0 },
               { label: "Month", value: stats?.activity.thisMonth ?? 0 },
             ].map(({ label, value }) => (
-              <div key={label} className="border-border flex flex-1 flex-col justify-center gap-1 border-l px-4 py-3 first:border-l-0">
+              <div
+                key={label}
+                className="border-border flex flex-1 flex-col justify-center gap-1 border-l px-4 py-3 first:border-l-0"
+              >
                 <span className="text-2xl leading-none font-semibold tracking-tight tabular-nums 2xl:text-3xl">
                   {value.toLocaleString()}
                 </span>
@@ -444,7 +496,9 @@ function AuditSidebar({
           <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase 2xl:text-xs">
             Recent errors
           </span>
-          <span className="text-[10px] text-muted-foreground uppercase tracking-widest 2xl:text-xs">7d</span>
+          <span className="text-muted-foreground text-[10px] tracking-widest uppercase 2xl:text-xs">
+            7d
+          </span>
         </div>
         <div className="px-4 pb-3">
           {isLoadingStats ? (
@@ -453,7 +507,9 @@ function AuditSidebar({
             <span
               className={cn(
                 "text-2xl font-semibold tabular-nums 2xl:text-3xl",
-                (stats?.recentErrors ?? 0) > 0 ? "text-destructive" : "text-foreground",
+                (stats?.recentErrors ?? 0) > 0
+                  ? "text-destructive"
+                  : "text-foreground",
               )}
             >
               {stats?.recentErrors ?? 0}
@@ -476,14 +532,17 @@ function AuditSidebar({
               <div className="bg-muted/40 h-1.5 animate-pulse rounded-full" />
             </div>
           ) : stats?.uploadHealth.total === 0 ? (
-            <span className="text-muted-foreground text-xs">No uploads yet</span>
+            <span className="text-muted-foreground text-xs">
+              No uploads yet
+            </span>
           ) : (
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">
-                  {stats?.uploadHealth.total} upload{(stats?.uploadHealth.total ?? 0) !== 1 ? "s" : ""}
+                <span className="text-muted-foreground text-xs">
+                  {stats?.uploadHealth.total} upload
+                  {(stats?.uploadHealth.total ?? 0) !== 1 ? "s" : ""}
                 </span>
-                <span className="font-semibold tabular-nums text-sm">
+                <span className="text-sm font-semibold tabular-nums">
                   {stats?.uploadHealth.successRate ?? 100}%
                 </span>
               </div>
@@ -497,11 +556,15 @@ function AuditSidebar({
                         ? "bg-warning"
                         : "bg-destructive",
                   )}
-                  style={{ width: `${stats?.uploadHealth.successRate ?? 100}%` }}
+                  style={{
+                    width: `${stats?.uploadHealth.successRate ?? 100}%`,
+                  }}
                 />
               </div>
               <span className="text-muted-foreground text-[10px]">
-                {(stats?.uploadHealth.totalRows ?? 0).toLocaleString()} rows · {(stats?.uploadHealth.erroredRows ?? 0).toLocaleString()} errored
+                {(stats?.uploadHealth.totalRows ?? 0).toLocaleString()} rows ·{" "}
+                {(stats?.uploadHealth.erroredRows ?? 0).toLocaleString()}{" "}
+                errored
               </span>
             </div>
           )}
@@ -520,20 +583,28 @@ function AuditSidebar({
             {isLoadingStats ? (
               <div className="space-y-2">
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="bg-muted/40 h-6 animate-pulse rounded" />
+                  <div
+                    key={i}
+                    className="bg-muted/40 h-6 animate-pulse rounded"
+                  />
                 ))}
               </div>
             ) : (
               <ul className="flex flex-col gap-1.5">
                 {stats?.topActors.map((actor, i) => (
-                  <li key={actor.id} className="flex items-center justify-between gap-2">
+                  <li
+                    key={actor.id}
+                    className="flex items-center justify-between gap-2"
+                  >
                     <div className="flex min-w-0 items-center gap-2">
-                      <span className="text-muted-foreground w-4 shrink-0 text-[10px] tabular-nums text-right">
+                      <span className="text-muted-foreground w-4 shrink-0 text-right text-[10px] tabular-nums">
                         {i + 1}.
                       </span>
-                      <span className="min-w-0 truncate text-xs font-medium">{actor.name}</span>
+                      <span className="min-w-0 truncate text-xs font-medium">
+                        {actor.name}
+                      </span>
                     </div>
-                    <span className="text-muted-foreground shrink-0 tabular-nums text-[11px]">
+                    <span className="text-muted-foreground shrink-0 text-[11px] tabular-nums">
                       {actor.count}
                     </span>
                   </li>
@@ -556,7 +627,10 @@ function AuditSidebar({
             {isLoadingStats ? (
               <div className="space-y-2">
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="bg-muted/40 h-5 animate-pulse rounded" />
+                  <div
+                    key={i}
+                    className="bg-muted/40 h-5 animate-pulse rounded"
+                  />
                 ))}
               </div>
             ) : (
@@ -566,7 +640,7 @@ function AuditSidebar({
                   return (
                     <li key={action}>
                       <div className="mb-0.5 flex items-center justify-between gap-2">
-                        <span className="text-[10px] font-medium uppercase tracking-wider">
+                        <span className="text-[10px] font-medium tracking-wider uppercase">
                           {ACTION_LABELS[action]}
                         </span>
                         <span className="text-muted-foreground text-[10px] tabular-nums">
@@ -575,7 +649,7 @@ function AuditSidebar({
                       </div>
                       <div className="bg-border relative h-1 overflow-hidden rounded-full">
                         <div
-                          className={cn("h-full", ACTION_COLORS[action].split(" ").find(c => c.startsWith("bg-")) ?? "bg-foreground/60")}
+                          className={cn("h-full", ACTION_COLORS[action].dot)}
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -589,11 +663,15 @@ function AuditSidebar({
       )}
 
       {/* Empty stats */}
-      {!isLoadingStats && totalActions === 0 && (stats?.actionBreakdown.length ?? 0) === 0 && (
-        <div className="px-4 py-6 text-center">
-          <span className="text-muted-foreground text-xs">No activity recorded yet.</span>
-        </div>
-      )}
+      {!isLoadingStats &&
+        totalActions === 0 &&
+        (stats?.actionBreakdown.length ?? 0) === 0 && (
+          <div className="px-4 py-6 text-center">
+            <span className="text-muted-foreground text-xs">
+              No activity recorded yet.
+            </span>
+          </div>
+        )}
     </aside>
   );
 }
@@ -605,19 +683,21 @@ function AuditLogPage() {
   const { data: events } = useSuspenseQuery(adminQueries.events(orgSlug));
 
   const active = events?.find((e) => e.isActive);
-  const [selectedEventId, setSelectedEventId] = useState<string>(active?.id ?? "");
+  const [selectedEventId, setSelectedEventId] = useState<string>(
+    active?.id ?? "",
+  );
 
   const [search, setSearch] = useState("");
   const [actionFilter, setActionFilter] = useState<AuditAction | "all">("all");
-  const [resourceFilter, setResourceFilter] = useState<AuditResource | "all">("all");
+  const [resourceFilter, setResourceFilter] = useState<AuditResource | "all">(
+    "all",
+  );
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(20);
-  const [density, setDensity] = useState<Density>("comfortable");
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const [sheetEntry, setSheetEntry] = useState<AuditLogEntry | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [columnVisibility, setColumnVisibility] = useState<Record<string, boolean>>({});
 
   const { state: sidebarState, isMobile } = useSidebar();
 
@@ -656,10 +736,7 @@ function AuditLogPage() {
     { id: "resource", label: "Resource" },
     { id: "summary", label: "Summary" },
   ];
-
-  const visibleColumns = columns.filter(
-    (c) => columnVisibility[c.id] !== false,
-  );
+  const tableColumnCount = columns.length + 1;
 
   const handleRowClick = (entry: AuditLogEntry) => {
     if (isComplexEntry(entry)) {
@@ -683,11 +760,13 @@ function AuditLogPage() {
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden xl:flex-row">
       {/* ── Main content ── */}
-      <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         {/* Page header — matches dashboard EventHeader */}
         <header className="border-border flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b px-4 py-4">
           <div className="flex items-baseline gap-3">
-            <h1 className="text-lg font-semibold tracking-tight 2xl:text-xl">Audit Log</h1>
+            <h1 className="text-lg font-semibold tracking-tight 2xl:text-xl">
+              Audit Log
+            </h1>
             <span className="text-muted-foreground text-xs tabular-nums 2xl:text-sm">
               {events.find((e) => e.id === selectedEventId)?.name ?? ""}
             </span>
@@ -715,7 +794,10 @@ function AuditLogPage() {
           <Select
             items={[
               { label: "All actions", value: "all" },
-              ...Object.entries(ACTION_LABELS).map(([v, l]) => ({ label: l, value: v })),
+              ...Object.entries(ACTION_LABELS).map(([v, l]) => ({
+                label: l,
+                value: v,
+              })),
             ]}
             value={actionFilter}
             onValueChange={(v) => {
@@ -725,13 +807,18 @@ function AuditLogPage() {
               }
             }}
           >
-            <SelectTrigger size="sm" className="hidden h-7 w-auto min-w-28 gap-1 text-xs lg:flex">
+            <SelectTrigger
+              size="sm"
+              className="hidden h-7 w-auto min-w-28 gap-1 rounded-md text-xs lg:flex"
+            >
               <SelectValue placeholder="All actions" />
             </SelectTrigger>
             <SelectPopup>
               <SelectItem value="all">All actions</SelectItem>
               {Object.entries(ACTION_LABELS).map(([v, l]) => (
-                <SelectItem key={v} value={v}>{l}</SelectItem>
+                <SelectItem key={v} value={v}>
+                  {l}
+                </SelectItem>
               ))}
             </SelectPopup>
           </Select>
@@ -740,7 +827,10 @@ function AuditLogPage() {
           <Select
             items={[
               { label: "All resources", value: "all" },
-              ...Object.entries(RESOURCE_LABELS).map(([v, l]) => ({ label: l, value: v })),
+              ...Object.entries(RESOURCE_LABELS).map(([v, l]) => ({
+                label: l,
+                value: v,
+              })),
             ]}
             value={resourceFilter}
             onValueChange={(v) => {
@@ -750,13 +840,18 @@ function AuditLogPage() {
               }
             }}
           >
-            <SelectTrigger size="sm" className="hidden h-7 w-auto min-w-28 gap-1 text-xs lg:flex">
+            <SelectTrigger
+              size="sm"
+              className="hidden h-6.5 w-auto min-w-28 gap-1 rounded-md text-xs lg:flex"
+            >
               <SelectValue placeholder="All resources" />
             </SelectTrigger>
             <SelectPopup>
               <SelectItem value="all">All resources</SelectItem>
               {Object.entries(RESOURCE_LABELS).map(([v, l]) => (
-                <SelectItem key={v} value={v}>{l}</SelectItem>
+                <SelectItem key={v} value={v}>
+                  {l}
+                </SelectItem>
               ))}
             </SelectPopup>
           </Select>
@@ -764,20 +859,23 @@ function AuditLogPage() {
           {/* Date range picker — hidden on small screens */}
           <Popover>
             <PopoverTrigger
-              render={
+              render={(props) => (
                 <Button
                   type="button"
-                  size="xs"
+                  size="sm"
                   variant="ghost"
-                  className="hidden h-7 gap-1 px-1.5 text-xs font-normal lg:flex"
+                  className="hidden rounded-md lg:flex"
+                  {...props}
                 />
-              }
+              )}
             >
               <CalendarIcon className="size-3.5" />
               {dateRange?.from ? (
                 <span>
                   {format(dateRange.from, "LLL dd, y")}
-                  {dateRange.to ? ` – ${format(dateRange.to, "LLL dd, y")}` : ""}
+                  {dateRange.to
+                    ? ` – ${format(dateRange.to, "LLL dd, y")}`
+                    : ""}
                 </span>
               ) : (
                 <span className="text-muted-foreground">Date range</span>
@@ -788,7 +886,10 @@ function AuditLogPage() {
                 mode="range"
                 numberOfMonths={2}
                 selected={dateRange}
-                onSelect={(range) => { setDateRange(range); setPage(0); }}
+                onSelect={(range) => {
+                  setDateRange(range);
+                  setPage(0);
+                }}
               />
             </PopoverPopup>
           </Popover>
@@ -796,64 +897,116 @@ function AuditLogPage() {
           {/* Mobile filter popover */}
           <Popover>
             <PopoverTrigger
-              render={<Button size="xs" variant="ghost" className="h-7 gap-1 px-1.5 text-xs lg:hidden" />}
+              render={
+                <Button
+                  size="xs"
+                  variant="ghost"
+                  className="h-7 gap-1 px-1.5 text-xs lg:hidden"
+                />
+              }
             >
               <FilterIcon className="size-3.5" />
             </PopoverTrigger>
             <PopoverPopup side="bottom" align="end" className="w-64">
               <div className="flex flex-col gap-3">
                 <div className="flex flex-col gap-1">
-                  <span className="text-muted-foreground text-xs font-medium">Action</span>
+                  <span className="text-muted-foreground text-xs font-medium">
+                    Action
+                  </span>
                   <Select
-                    items={[{ label: "All actions", value: "all" }, ...Object.entries(ACTION_LABELS).map(([v, l]) => ({ label: l, value: v }))]}
+                    items={[
+                      { label: "All actions", value: "all" },
+                      ...Object.entries(ACTION_LABELS).map(([v, l]) => ({
+                        label: l,
+                        value: v,
+                      })),
+                    ]}
                     value={actionFilter}
-                    onValueChange={(v) => { if (v) { setActionFilter(v as AuditAction | "all"); setPage(0); } }}
+                    onValueChange={(v) => {
+                      if (v) {
+                        setActionFilter(v as AuditAction | "all");
+                        setPage(0);
+                      }
+                    }}
                   >
-                    <SelectTrigger size="sm" className="h-7 w-full gap-1 text-xs">
+                    <SelectTrigger
+                      size="sm"
+                      className="h-7 w-full gap-1 rounded-md text-xs"
+                    >
                       <SelectValue placeholder="All actions" />
                     </SelectTrigger>
                     <SelectPopup>
                       <SelectItem value="all">All actions</SelectItem>
                       {Object.entries(ACTION_LABELS).map(([v, l]) => (
-                        <SelectItem key={v} value={v}>{l}</SelectItem>
+                        <SelectItem key={v} value={v}>
+                          {l}
+                        </SelectItem>
                       ))}
                     </SelectPopup>
                   </Select>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-muted-foreground text-xs font-medium">Resource</span>
+                  <span className="text-muted-foreground text-xs font-medium">
+                    Resource
+                  </span>
                   <Select
-                    items={[{ label: "All resources", value: "all" }, ...Object.entries(RESOURCE_LABELS).map(([v, l]) => ({ label: l, value: v }))]}
+                    items={[
+                      { label: "All resources", value: "all" },
+                      ...Object.entries(RESOURCE_LABELS).map(([v, l]) => ({
+                        label: l,
+                        value: v,
+                      })),
+                    ]}
                     value={resourceFilter}
-                    onValueChange={(v) => { if (v) { setResourceFilter(v as AuditResource | "all"); setPage(0); } }}
+                    onValueChange={(v) => {
+                      if (v) {
+                        setResourceFilter(v as AuditResource | "all");
+                        setPage(0);
+                      }
+                    }}
                   >
-                    <SelectTrigger size="sm" className="h-7 w-full gap-1 text-xs">
+                    <SelectTrigger
+                      size="sm"
+                      className="h-7 w-full gap-1 rounded-md text-xs"
+                    >
                       <SelectValue placeholder="All resources" />
                     </SelectTrigger>
                     <SelectPopup>
                       <SelectItem value="all">All resources</SelectItem>
                       {Object.entries(RESOURCE_LABELS).map(([v, l]) => (
-                        <SelectItem key={v} value={v}>{l}</SelectItem>
+                        <SelectItem key={v} value={v}>
+                          {l}
+                        </SelectItem>
                       ))}
                     </SelectPopup>
                   </Select>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-muted-foreground text-xs font-medium">Date range</span>
+                  <span className="text-muted-foreground text-xs font-medium">
+                    Date range
+                  </span>
                   <Popover>
                     <PopoverTrigger
                       render={
-                        <Button type="button" variant="outline" className="h-7 w-full justify-start text-xs font-normal" />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="h-7 w-full justify-start text-xs font-normal"
+                        />
                       }
                     >
                       <CalendarIcon className="size-3.5" />
                       {dateRange?.from ? (
                         <span>
                           {format(dateRange.from, "LLL dd")}
-                          {dateRange.to ? ` – ${format(dateRange.to, "LLL dd")}` : ""}
+                          {dateRange.to
+                            ? ` – ${format(dateRange.to, "LLL dd")}`
+                            : ""}
                         </span>
                       ) : (
-                        <span className="text-muted-foreground">Pick dates</span>
+                        <span className="text-muted-foreground">
+                          Pick dates
+                        </span>
                       )}
                     </PopoverTrigger>
                     <PopoverPopup side="bottom" align="start">
@@ -861,7 +1014,10 @@ function AuditLogPage() {
                         mode="range"
                         numberOfMonths={1}
                         selected={dateRange}
-                        onSelect={(range) => { setDateRange(range); setPage(0); }}
+                        onSelect={(range) => {
+                          setDateRange(range);
+                          setPage(0);
+                        }}
                       />
                     </PopoverPopup>
                   </Popover>
@@ -870,74 +1026,6 @@ function AuditLogPage() {
             </PopoverPopup>
           </Popover>
 
-          {/* Right side tools */}
-          <div className="ml-auto flex items-center gap-1.5">
-            {/* Column visibility */}
-            <Popover>
-              <PopoverTrigger
-                render={<Button size="xs" variant="ghost" className="h-7 gap-1 px-1.5 text-xs" />}
-              >
-                <SlidersHorizontalIcon className="size-3.5" />
-                <span className="hidden sm:inline">Columns</span>
-              </PopoverTrigger>
-              <PopoverPopup side="bottom" align="end" className="w-44">
-                <div className="flex flex-col gap-1">
-                  <span className="text-muted-foreground px-1 pb-1 text-[10px] font-semibold tracking-widest uppercase 2xl:text-xs">
-                    Toggle columns
-                  </span>
-                  {columns.map((col) => (
-                    <label
-                      key={col.id}
-                      className="hover:bg-muted/40 flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-xs"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={columnVisibility[col.id] !== false}
-                        onChange={(e) =>
-                          setColumnVisibility((prev) => ({
-                            ...prev,
-                            [col.id]: e.target.checked,
-                          }))
-                        }
-                        className="size-3"
-                      />
-                      <span>{col.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </PopoverPopup>
-            </Popover>
-
-            {/* Density */}
-            <Popover>
-              <PopoverTrigger
-                render={<Button size="xs" variant="ghost" className="h-7 gap-1 px-1.5 text-xs" />}
-              >
-                <RowsIcon className="size-3.5" />
-                <span className="hidden sm:inline">Density</span>
-              </PopoverTrigger>
-              <PopoverPopup side="bottom" align="end" className="w-40">
-                <div className="flex flex-col gap-0.5">
-                  {(["comfortable", "compact"] as const).map((d) => (
-                    <button
-                      key={d}
-                      type="button"
-                      onClick={() => setDensity(d)}
-                      className={cn(
-                        "hover:bg-muted/40 flex items-center justify-between rounded px-2 py-1 text-left text-xs",
-                        density === d && "bg-muted/40 font-medium",
-                      )}
-                    >
-                      <span className="capitalize">{d}</span>
-                      {density === d && (
-                        <span className="text-muted-foreground text-[10px]">✓</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </PopoverPopup>
-            </Popover>
-          </div>
         </div>
 
         {/* Active filter chips */}
@@ -950,21 +1038,30 @@ function AuditLogPage() {
               <FilterChip
                 label="Action"
                 value={ACTION_LABELS[actionFilter]}
-                onClear={() => { setActionFilter("all"); setPage(0); }}
+                onClear={() => {
+                  setActionFilter("all");
+                  setPage(0);
+                }}
               />
             )}
             {resourceFilter !== "all" && (
               <FilterChip
                 label="Resource"
                 value={RESOURCE_LABELS[resourceFilter]}
-                onClear={() => { setResourceFilter("all"); setPage(0); }}
+                onClear={() => {
+                  setResourceFilter("all");
+                  setPage(0);
+                }}
               />
             )}
             {dateRange?.from && (
               <FilterChip
                 label="Dates"
                 value={`${format(dateRange.from, "LLL dd, y")}${dateRange.to ? ` – ${format(dateRange.to, "LLL dd, y")}` : ""}`}
-                onClear={() => { setDateRange(undefined); setPage(0); }}
+                onClear={() => {
+                  setDateRange(undefined);
+                  setPage(0);
+                }}
               />
             )}
           </div>
@@ -972,22 +1069,17 @@ function AuditLogPage() {
 
         {/* Table */}
         <div className="flex-1 overflow-auto pb-10">
-          <table
-            className={cn(
-              "w-full border-collapse whitespace-nowrap",
-              density === "compact" ? "text-[11px] 2xl:text-xs" : "text-xs 2xl:text-sm",
-            )}
-          >
+          <table className="w-full border-collapse whitespace-nowrap text-xs 2xl:text-sm">
             <thead className="bg-background sticky top-0 z-10">
               <tr>
                 {/* Expand column */}
                 <th className="border-border w-8 border-b" />
-                {visibleColumns.map((col) => (
+                {columns.map((col) => (
                   <th
                     key={col.id}
                     className={cn(
                       "border-border text-muted-foreground border-b px-2 text-left text-[11px] font-medium tracking-wide uppercase 2xl:text-xs",
-                      density === "compact" ? "py-1" : "py-1.5",
+                      "py-1.5",
                       col.id === "actor" && "hidden sm:table-cell",
                       col.id === "resource" && "hidden md:table-cell",
                     )}
@@ -1001,7 +1093,7 @@ function AuditLogPage() {
               {!selectedEventId ? (
                 <tr>
                   <td
-                    colSpan={visibleColumns.length + 1}
+                    colSpan={tableColumnCount}
                     className="text-muted-foreground py-12 text-center text-sm"
                   >
                     Select an event to view audit log.
@@ -1010,7 +1102,10 @@ function AuditLogPage() {
               ) : listQuery.isLoading ? (
                 Array.from({ length: 8 }).map((_, i) => (
                   <tr key={i}>
-                    <td colSpan={visibleColumns.length + 1} className="border-border border-b px-2 py-2">
+                    <td
+                      colSpan={tableColumnCount}
+                      className="border-border border-b px-2 py-2"
+                    >
                       <div className="bg-muted/40 h-5 animate-pulse rounded" />
                     </td>
                   </tr>
@@ -1018,7 +1113,7 @@ function AuditLogPage() {
               ) : data.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={visibleColumns.length + 1}
+                    colSpan={tableColumnCount}
                     className="text-muted-foreground py-12 text-center text-sm"
                   >
                     No activity recorded.
@@ -1037,7 +1132,9 @@ function AuditLogPage() {
                       onClick={() => handleRowClick(entry)}
                     >
                       {/* Expand indicator */}
-                      <td className={cn("px-2", density === "compact" ? "py-1" : "py-1.5")}>
+                      <td
+                        className="px-2 py-1.5"
+                      >
                         {isComplexEntry(entry) ? (
                           <ChevronDownIcon className="text-muted-foreground size-3" />
                         ) : (
@@ -1051,55 +1148,50 @@ function AuditLogPage() {
                       </td>
 
                       {/* Timestamp */}
-                      {columnVisibility.timestamp !== false && (
-                        <td className={cn("px-2 tabular-nums", density === "compact" ? "py-1" : "py-1.5")}>
-                          <span
-                            title={format(new Date(entry.createdAt), "MMM d, yyyy 'at' h:mm:ss a")}
-                            className="text-muted-foreground"
-                          >
-                            {formatDistanceToNow(new Date(entry.createdAt), { addSuffix: true })}
-                          </span>
-                        </td>
-                      )}
+                      <td className="px-2 py-1.5 tabular-nums">
+                        <span
+                          title={format(
+                            new Date(entry.createdAt),
+                            "MMM d, yyyy 'at' h:mm:ss a",
+                          )}
+                          className="text-muted-foreground"
+                        >
+                          {formatDistanceToNow(new Date(entry.createdAt), {
+                            addSuffix: true,
+                          })}
+                        </span>
+                      </td>
 
                       {/* Actor */}
-                      {columnVisibility.actor !== false && (
-                        <td className={cn("hidden px-2 sm:table-cell", density === "compact" ? "py-1" : "py-1.5")}>
-                          <span className="font-medium">
-                            {entry.actor.firstName} {entry.actor.lastName}
-                          </span>
-                        </td>
-                      )}
+                      <td className="hidden px-2 py-1.5 sm:table-cell">
+                        <span className="font-medium">
+                          {entry.actor.firstName} {entry.actor.lastName}
+                        </span>
+                      </td>
 
                       {/* Action */}
-                      {columnVisibility.action !== false && (
-                        <td className={cn("px-2", density === "compact" ? "py-1" : "py-1.5")}>
-                          <ActionBadge action={entry.action} />
-                        </td>
-                      )}
+                      <td className="px-2 py-1.5">
+                        <ActionBadge action={entry.action} />
+                      </td>
 
                       {/* Resource */}
-                      {columnVisibility.resource !== false && (
-                        <td className={cn("hidden px-2 md:table-cell", density === "compact" ? "py-1" : "py-1.5")}>
-                          <span className="text-muted-foreground">
-                            {RESOURCE_LABELS[entry.resource]}
-                          </span>
-                        </td>
-                      )}
+                      <td className="hidden px-2 py-1.5 md:table-cell">
+                        <span className="text-muted-foreground">
+                          {RESOURCE_LABELS[entry.resource]}
+                        </span>
+                      </td>
 
                       {/* Summary */}
-                      {columnVisibility.summary !== false && (
-                        <td className={cn("px-2", density === "compact" ? "py-1" : "py-1.5")}>
-                          <span className="text-muted-foreground truncate max-w-xs inline-block">
-                            {generateSummary(entry)}
+                      <td className="px-2 py-1.5">
+                        <span className="text-muted-foreground inline-block max-w-xs truncate">
+                          {generateSummary(entry)}
+                        </span>
+                        {isComplexEntry(entry) && (
+                          <span className="text-muted-foreground ml-1.5 text-[10px]">
+                            +{entry.childCount} entries
                           </span>
-                          {isComplexEntry(entry) && (
-                            <span className="text-muted-foreground ml-1.5 text-[10px]">
-                              +{entry.childCount} entries
-                            </span>
-                          )}
-                        </td>
-                      )}
+                        )}
+                      </td>
                     </tr>
 
                     {/* Expanded row (simple entries only) */}
@@ -1107,7 +1199,7 @@ function AuditLogPage() {
                       <ExpandedRow
                         key={`${entry.id}-expanded`}
                         entry={entry}
-                        colSpan={visibleColumns.length + 1}
+                        colSpan={tableColumnCount}
                       />
                     )}
                   </>
@@ -1148,7 +1240,9 @@ function AuditLogPage() {
               : `${start}\u2013${end} of ${total.toLocaleString()} entries`}
           </span>
           <div className="bg-border mx-0.5 h-4 w-px" />
-          <span className="text-muted-foreground text-xs 2xl:text-sm">Rows per page</span>
+          <span className="text-muted-foreground text-xs 2xl:text-sm">
+            Rows per page
+          </span>
           <Select
             items={PAGE_SIZE_OPTIONS}
             value={String(limit)}
