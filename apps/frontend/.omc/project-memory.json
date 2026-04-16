@@ -172,6 +172,37 @@
       ]
     }
   },
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "src/routes/_org/$orgSlug/_authenticated/admin/index.tsx",
+      "accessCount": 16,
+      "lastAccessed": 1776281521940,
+      "type": "file"
+    },
+    {
+      "path": "src/routes/_org/$orgSlug/_authenticated/admin/uploads.tsx",
+      "accessCount": 9,
+      "lastAccessed": 1776305200380,
+      "type": "file"
+    },
+    {
+      "path": "src/features/org/api/admin-queries.ts",
+      "accessCount": 2,
+      "lastAccessed": 1776276396576,
+      "type": "file"
+    },
+    {
+      "path": "src/features/org/components/data-grid.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776281492704,
+      "type": "file"
+    },
+    {
+      "path": "src/features/org/components/roster-upload-row.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776281496800,
+      "type": "file"
+    }
+  ],
   "userDirectives": []
 }

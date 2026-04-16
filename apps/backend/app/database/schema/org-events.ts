@@ -1,7 +1,7 @@
 // apps/backend/app/database/schema/org-events.ts
 import { sql } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import { orgMemberType } from "./enums.ts";
+import { auditAction, auditResource, orgMemberType } from "./enums.ts";
 import { timestamps } from "./helpers/columns.ts";
 import { organizations } from "./organizations.ts";
 import { users } from "./users.ts";
@@ -121,4 +121,32 @@ export const eventChecklist = pg.pgTable(
     ...timestamps,
   },
   (table) => [pg.index().on(table.eventId)],
+);
+
+export const eventAuditLog = pg.pgTable(
+  "event_audit_log",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    eventId: pg
+      .uuid()
+      .notNull()
+      .references(() => orgEvents.id, { onDelete: "cascade" }),
+    actorId: pg
+      .uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    action: auditAction().notNull(),
+    resource: auditResource().notNull(),
+    resourceId: pg.uuid(),
+    metadata: pg.jsonb(),
+    parentId: pg.uuid().references((): pg.AnyPgColumn => eventAuditLog.id, {
+      onDelete: "cascade",
+    }),
+    createdAt: pg.timestamp().notNull().defaultNow(),
+  },
+  (table) => [
+    pg.index().on(table.eventId, table.createdAt),
+    pg.index().on(table.parentId),
+    pg.index().on(table.actorId),
+  ],
 );

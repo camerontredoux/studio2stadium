@@ -2,6 +2,7 @@ import { test } from "@japa/runner";
 import { db } from "#database/connection";
 import { users } from "#database/schema/users";
 import {
+  eventAuditLog,
   eventDancerProfiles,
   eventRosters,
   orgEvents,
@@ -14,6 +15,24 @@ import {
   RosterEmailConflictError,
   UpdateRosterService,
 } from "./service.ts";
+
+async function makeActorUser() {
+  const ts = `${Date.now()}_${Math.random()}`;
+  const [actor] = await db
+    .insert(users)
+    .values({
+      username: `actor_${ts}`,
+      email: `actor_${ts}@example.com`,
+      displayEmail: `actor_${ts}@example.com`,
+      firstName: "Actor",
+      lastName: "User",
+      password: "h",
+      role: "admin",
+      type: "dancer",
+    })
+    .returning();
+  return actor!;
+}
 
 async function makeOrgAndEvent() {
   const [org] = await db
@@ -34,6 +53,7 @@ async function makeOrgAndEvent() {
 
 test.group("UpdateRosterService", (group) => {
   group.each.setup(async () => {
+    await db.delete(eventAuditLog).execute();
     await db.delete(eventDancerProfiles).execute();
     await db.delete(eventRosters).execute();
     await db.delete(orgEvents).execute();
@@ -44,6 +64,7 @@ test.group("UpdateRosterService", (group) => {
   test("updates roster-level fields for a pending dancer", async ({
     assert,
   }) => {
+    const actor = await makeActorUser();
     const { event } = await makeOrgAndEvent();
     const [row] = await db
       .insert(eventRosters)
@@ -62,7 +83,7 @@ test.group("UpdateRosterService", (group) => {
       firstName: "Alice",
       lastName: "New",
       bibNumber: 2,
-    });
+    }, { eventId: event.id, actorId: actor.id });
 
     assert.equal(result.firstName, "Alice");
     assert.equal(result.lastName, "New");
@@ -72,6 +93,7 @@ test.group("UpdateRosterService", (group) => {
   test("upserts profile fields, inserting when no row exists", async ({
     assert,
   }) => {
+    const actor = await makeActorUser();
     const { event } = await makeOrgAndEvent();
     const [row] = await db
       .insert(eventRosters)
@@ -92,7 +114,7 @@ test.group("UpdateRosterService", (group) => {
         studio: "Studio X",
         danceStyles: ["Jazz"],
       },
-    });
+    }, { eventId: event.id, actorId: actor.id });
 
     assert.equal(result.profile!.gradYear, 2028);
     assert.equal(result.profile!.gpa, 3.5);
@@ -101,6 +123,7 @@ test.group("UpdateRosterService", (group) => {
   });
 
   test("rejects edits for an active roster entry", async ({ assert }) => {
+    const actor = await makeActorUser();
     const { event } = await makeOrgAndEvent();
     const [user] = await db
       .insert(users)
@@ -129,12 +152,13 @@ test.group("UpdateRosterService", (group) => {
 
     const service = new UpdateRosterService();
     await assert.rejects(
-      () => service.execute(event.id, row!.id, { firstName: "Nope" }),
+      () => service.execute(event.id, row!.id, { firstName: "Nope" }, { eventId: event.id, actorId: actor.id }),
       RosterActiveReadonlyError.prototype.message,
     );
   });
 
   test("rejects profile field updates for coaches", async ({ assert }) => {
+    const actor = await makeActorUser();
     const { event } = await makeOrgAndEvent();
     const [row] = await db
       .insert(eventRosters)
@@ -152,12 +176,13 @@ test.group("UpdateRosterService", (group) => {
       () =>
         service.execute(event.id, row!.id, {
           profile: { gradYear: 2026 },
-        }),
+        }, { eventId: event.id, actorId: actor.id }),
       CoachNoProfileError.prototype.message,
     );
   });
 
   test("rejects email collision within the same event", async ({ assert }) => {
+    const actor = await makeActorUser();
     const { event } = await makeOrgAndEvent();
     const [_a, b] = await db
       .insert(eventRosters)
@@ -181,12 +206,13 @@ test.group("UpdateRosterService", (group) => {
 
     const service = new UpdateRosterService();
     await assert.rejects(
-      () => service.execute(event.id, b!.id, { email: "taken@example.com" }),
+      () => service.execute(event.id, b!.id, { email: "taken@example.com" }, { eventId: event.id, actorId: actor.id }),
       RosterEmailConflictError.prototype.message,
     );
   });
 
   test("rejects bib collision within the same event", async ({ assert }) => {
+    const actor = await makeActorUser();
     const { event } = await makeOrgAndEvent();
     const [_a, b] = await db
       .insert(eventRosters)
@@ -212,12 +238,13 @@ test.group("UpdateRosterService", (group) => {
 
     const service = new UpdateRosterService();
     await assert.rejects(
-      () => service.execute(event.id, b!.id, { bibNumber: 99 }),
+      () => service.execute(event.id, b!.id, { bibNumber: 99 }, { eventId: event.id, actorId: actor.id }),
       RosterBibConflictError.prototype.message,
     );
   });
 
   test("allows setting nullable fields to null", async ({ assert }) => {
+    const actor = await makeActorUser();
     const { event } = await makeOrgAndEvent();
     const [row] = await db
       .insert(eventRosters)
@@ -236,7 +263,7 @@ test.group("UpdateRosterService", (group) => {
     const result = await service.execute(event.id, row!.id, {
       organization: null,
       bibNumber: null,
-    });
+    }, { eventId: event.id, actorId: actor.id });
 
     assert.isNull(result.organization);
     assert.isNull(result.bibNumber);

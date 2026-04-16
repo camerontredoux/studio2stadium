@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1775677964447,
-  "projectRoot": "/home/cameron/Developer/studio2stadium/app/.worktrees/summit-03",
+  "lastScanned": 1776278864809,
+  "projectRoot": "/home/cameron/Developer/studio2stadium/app/.worktrees/summit-04",
   "techStack": {
     "languages": [
       {
@@ -52,41 +52,101 @@
       "path": "apps",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1775677964439,
+      "lastAccessed": 1776278864798,
       "keyFiles": []
     },
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 0,
-      "lastAccessed": 1775677964440,
+      "lastAccessed": 1776278864798,
       "keyFiles": []
     },
     "packages": {
       "path": "packages",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1775677964443,
+      "lastAccessed": 1776278864805,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
-      "path": "apps/frontend/src/features/org/components/csv-upload-dialog.tsx",
-      "accessCount": 8,
-      "lastAccessed": 1775700707379,
-      "type": "file"
-    },
-    {
       "path": "apps/frontend/src/routes/_org/$orgSlug/_authenticated/admin/index.tsx",
-      "accessCount": 6,
-      "lastAccessed": 1775700129629,
+      "accessCount": 41,
+      "lastAccessed": 1776290108249,
       "type": "file"
     },
     {
       "path": "apps/frontend/src/features/org/components/admin-sidebar.tsx",
+      "accessCount": 20,
+      "lastAccessed": 1776291461886,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/components/data-grid.tsx",
+      "accessCount": 18,
+      "lastAccessed": 1776290088927,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/routes/_org/$orgSlug/_authenticated/admin/uploads.tsx",
+      "accessCount": 18,
+      "lastAccessed": 1776303511294,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 10,
+      "lastAccessed": 1776290945153,
+      "type": "directory"
+    },
+    {
+      "path": "apps/frontend/src/features/org/components/csv-upload-dialog.tsx",
+      "accessCount": 9,
+      "lastAccessed": 1776288413527,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/modules/orgs/events/routes.ts",
+      "accessCount": 8,
+      "lastAccessed": 1776291590843,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/components/roster-upload-row.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1776288398281,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/components/roster-page-header.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1776281354458,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/routes/_org/$orgSlug/_authenticated/admin/route.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1776288362418,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/routes/_org/$orgSlug/_authenticated/admin/dancers.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1776303517242,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src",
       "accessCount": 4,
-      "lastAccessed": 1775745557716,
+      "lastAccessed": 1776281176718,
+      "type": "directory"
+    },
+    {
+      "path": "apps/frontend/src/features/org/api/admin-queries.ts",
+      "accessCount": 4,
+      "lastAccessed": 1776290063997,
       "type": "file"
     },
     {
@@ -102,16 +162,28 @@
       "type": "file"
     },
     {
+      "path": "apps/backend/app/database/schema/index.ts",
+      "accessCount": 3,
+      "lastAccessed": 1776290048082,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/modules/orgs/events/update/service.ts",
+      "accessCount": 3,
+      "lastAccessed": 1776290320930,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/modules/orgs/events/update/controller.ts",
+      "accessCount": 3,
+      "lastAccessed": 1776290326992,
+      "type": "file"
+    },
+    {
       "path": "apps/frontend/src/components/ui/sidebar.tsx",
       "accessCount": 2,
       "lastAccessed": 1775677990605,
       "type": "file"
-    },
-    {
-      "path": "apps/frontend/src",
-      "accessCount": 2,
-      "lastAccessed": 1775699945945,
-      "type": "directory"
     },
     {
       "path": "apps/frontend/src/features/org/components/edit-event-sheet.tsx",
@@ -123,6 +195,24 @@
       "path": "apps/frontend/src/features/org/components/stat-card.tsx",
       "accessCount": 2,
       "lastAccessed": 1775700126909,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend",
+      "accessCount": 2,
+      "lastAccessed": 1776288375118,
+      "type": "directory"
+    },
+    {
+      "path": "apps/frontend/src/routes/_org/$orgSlug/_authenticated/admin/coaches.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776288383093,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/database/schema/users.ts",
+      "accessCount": 2,
+      "lastAccessed": 1776290048259,
       "type": "file"
     },
     {
@@ -150,12 +240,6 @@
       "type": "file"
     },
     {
-      "path": "apps/frontend/src/routes/_org/$orgSlug/_authenticated/admin/route.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1775678038715,
-      "type": "file"
-    },
-    {
       "path": "apps/backend/app/modules/orgs/events/list/service.ts",
       "accessCount": 1,
       "lastAccessed": 1775698941821,
@@ -180,27 +264,9 @@
       "type": "file"
     },
     {
-      "path": "apps/backend/app/modules/orgs/events/update/service.ts",
-      "accessCount": 1,
-      "lastAccessed": 1775698944163,
-      "type": "file"
-    },
-    {
-      "path": "apps/backend/app/modules/orgs/events/update/controller.ts",
-      "accessCount": 1,
-      "lastAccessed": 1775698945021,
-      "type": "file"
-    },
-    {
       "path": "apps/backend/app/modules/orgs/events/update/validator.ts",
       "accessCount": 1,
       "lastAccessed": 1775698945334,
-      "type": "file"
-    },
-    {
-      "path": "apps/backend/app/modules/orgs/events/routes.ts",
-      "accessCount": 1,
-      "lastAccessed": 1775698945966,
       "type": "file"
     },
     {
@@ -213,12 +279,6 @@
       "path": "apps/frontend/src/features/org/components/create-event-form.tsx",
       "accessCount": 1,
       "lastAccessed": 1775698971229,
-      "type": "file"
-    },
-    {
-      "path": "apps/frontend/src/features/org/api/admin-queries.ts",
-      "accessCount": 1,
-      "lastAccessed": 1775698989242,
       "type": "file"
     },
     {
@@ -261,6 +321,54 @@
       "path": "apps/frontend/src/components/ui/card.tsx",
       "accessCount": 1,
       "lastAccessed": 1775700116979,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/routes/_org/$orgSlug/_authenticated",
+      "accessCount": 1,
+      "lastAccessed": 1776278950251,
+      "type": "directory"
+    },
+    {
+      "path": "apps/frontend/src/routes/_org",
+      "accessCount": 1,
+      "lastAccessed": 1776278955190,
+      "type": "directory"
+    },
+    {
+      "path": "apps/frontend/src/routes/_org/route.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776278959616,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app",
+      "accessCount": 1,
+      "lastAccessed": 1776288374289,
+      "type": "directory"
+    },
+    {
+      "path": "apps/backend/app/database/schema/global.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776288386533,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/database/schema/media.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776288386561,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/database/schema/dancers.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776288389432,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/database/schema/events.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776288389642,
       "type": "file"
     }
   ],

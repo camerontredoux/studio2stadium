@@ -2702,6 +2702,286 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/events/{id}/checklist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdChecklistResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsIdChecklistRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdChecklistResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/checklist/{itemId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                    itemId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                    itemId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsIdChecklistIdRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdChecklistIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/audit-log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    search?: string | null;
+                    actorId?: string | null;
+                    action?: ("upload" | "create" | "update" | "delete" | "activate" | "resend_invite") | null;
+                    resource?: ("roster" | "event" | "checklist" | "csv_upload" | "invite") | null;
+                    from?: string | null;
+                    to?: string | null;
+                    limit?: (string | number) | null;
+                    page?: (string | number) | null;
+                    sortDir?: ("asc" | "desc") | null;
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdAuditlogResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/audit-log/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdAuditlogStatsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/audit-log/{entryId}/children": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                    entryId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdAuditlogIdChildrenResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/dancers": {
         parameters: {
             query?: never;
@@ -7348,15 +7628,15 @@ export interface components {
                 id: string;
                 type: string;
                 createdAt: string;
-                message: string;
-                read: boolean;
+                metadata?: Record<string, never>;
                 actor: {
                     name: string;
                     username: string;
                     avatar: string | null;
                     profileUrl: string;
                 } | null;
-                metadata?: Record<string, never>;
+                message: string;
+                read: boolean;
             }[];
             nextCursor: string | null;
         };
@@ -7569,6 +7849,105 @@ export interface components {
             }[];
             sent: number;
             skipped: number;
+        };
+        OrgsIdEventsIdChecklistResponse: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            title: string;
+            description: string | null;
+            eventId: string;
+            completed: boolean;
+            position: number;
+        }[];
+        OrgsIdEventsIdChecklistRequest: {
+            description?: string | null;
+            title: string;
+        };
+        OrgsIdEventsIdChecklistIdRequest: {
+            title?: string | null;
+            description?: string | null;
+            completed?: (string | number | boolean) | null;
+            position?: (string | number) | null;
+        };
+        OrgsIdEventsIdChecklistIdResponse: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            title: string;
+            description: string | null;
+            eventId: string;
+            completed: boolean;
+            position: number;
+        }[];
+        OrgsIdEventsIdAuditlogResponse: {
+            data: {
+                id: string;
+                createdAt: string;
+                eventId: string;
+                /** @enum {string} */
+                action: "upload" | "create" | "update" | "delete" | "activate" | "resend_invite";
+                /** @enum {string} */
+                resource: "roster" | "event" | "checklist" | "csv_upload" | "invite";
+                resourceId: string | null;
+                metadata: Record<string, never>;
+                parentId: string | null;
+                actor: {
+                    id: string;
+                    firstName: string;
+                    lastName: string;
+                    email: string;
+                    avatarUrl: string | null;
+                };
+                childCount: number;
+            }[];
+            total: number;
+        };
+        OrgsIdEventsIdAuditlogStatsResponse: {
+            recentErrors: number;
+            activity: {
+                today: number;
+                thisWeek: number;
+                thisMonth: number;
+            };
+            topActors: {
+                id: string;
+                name: string;
+                avatarUrl: string | null;
+                count: number;
+            }[];
+            uploadHealth: {
+                total: number;
+                successRate: number;
+                totalRows: number;
+                erroredRows: number;
+            };
+            actionBreakdown: {
+                /** @enum {string} */
+                action: "upload" | "create" | "update" | "delete" | "activate" | "resend_invite";
+                count: number;
+            }[];
+        };
+        OrgsIdEventsIdAuditlogIdChildrenResponse: {
+            data: {
+                id: string;
+                createdAt: string;
+                eventId: string;
+                /** @enum {string} */
+                action: "upload" | "create" | "update" | "delete" | "activate" | "resend_invite";
+                /** @enum {string} */
+                resource: "roster" | "event" | "checklist" | "csv_upload" | "invite";
+                resourceId: string | null;
+                metadata: Record<string, never>;
+                parentId: string | null;
+                actor: {
+                    id: string;
+                    firstName: string;
+                    lastName: string;
+                    email: string;
+                    avatarUrl: string | null;
+                };
+            }[];
         };
         OrgsIdDancersResponse: {
             rosterId: string;

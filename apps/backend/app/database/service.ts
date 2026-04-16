@@ -3,6 +3,7 @@ import { RuntimeException } from "@adonisjs/core/exceptions";
 import { DrizzleQueryError } from "drizzle-orm";
 import postgres from "postgres";
 import { db } from "./connection.ts";
+import { AuditCollector, type AuditContext } from "./audit.ts";
 
 type Client = typeof db;
 
@@ -19,6 +20,22 @@ export class DatabaseService {
     return await db.transaction(fn).catch((error) => {
       throw this.handleError(error);
     });
+  }
+
+  async withAudit<T>(
+    ctx: AuditContext,
+    fn: (tx: Transaction, audit: AuditCollector) => Promise<T>
+  ): Promise<T> {
+    return await db
+      .transaction(async (tx) => {
+        const audit = new AuditCollector();
+        const result = await fn(tx, audit);
+        await audit.flush(tx, ctx);
+        return result;
+      })
+      .catch((error) => {
+        throw this.handleError(error);
+      });
   }
 
   private handleError(error: unknown) {

@@ -13,6 +13,7 @@ import {
 import { sendOrgInviteEmailOrThrow } from "#shared/org/invite-email";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
+import type { AuditContext } from "#database/audit";
 
 function randomToken(): string {
   return randomBytes(32).toString("base64url");
@@ -35,6 +36,7 @@ export class ResendInvitesService {
     orgSlug: string,
     eventId: string,
     input: Validator,
+    auditCtx: AuditContext,
     { pacingMs = RESEND_PACING_MS }: { pacingMs?: number } = {},
   ): Promise<ResendInvitesResult> {
     // Load matching rows: pending dancers only, scoped to event
@@ -127,6 +129,20 @@ export class ResendInvitesService {
         await sleep(pacingMs);
       }
     }
+
+    // Log a single audit entry summarizing the resend operation
+    await this.db.withAudit(auditCtx, async (_tx, auditLog) => {
+      auditLog.log({
+        action: "resend_invite",
+        resource: "invite",
+        metadata: {
+          ids: input.ids,
+          sent,
+          skipped,
+          failed,
+        },
+      });
+    });
 
     return { sent, skipped, failed };
   }

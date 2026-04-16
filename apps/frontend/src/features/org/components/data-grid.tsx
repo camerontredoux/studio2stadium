@@ -7,7 +7,6 @@ import {
   AlertDialogPopup,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -325,7 +324,7 @@ export function DataGrid<T extends { id: string }>({
               value={search ?? ""}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder={searchPlaceholder}
-              className="bg-background border-border focus:border-ring h-7 w-full rounded-md border pr-2 pl-7 text-xs transition-colors outline-none"
+              className="bg-background border-border focus:border-ring h-7 w-full rounded-md border pr-2 pl-7 text-xs transition-colors outline-none 2xl:text-sm"
             />
           </div>
         )}
@@ -399,7 +398,7 @@ export function DataGrid<T extends { id: string }>({
             </PopoverTrigger>
             <PopoverPopup side="bottom" align="end" className="w-52">
               <div className="flex flex-col gap-1">
-                <span className="text-muted-foreground px-1 pb-1 text-[10px] font-semibold tracking-widest uppercase">
+                <span className="text-muted-foreground px-1 pb-1 text-[10px] font-semibold tracking-widest uppercase 2xl:text-xs">
                   Toggle columns
                 </span>
                 {hideableColumns.map((col) => {
@@ -467,7 +466,7 @@ export function DataGrid<T extends { id: string }>({
       {/* ── Active filter chips ── */}
       {hasActiveFilters && (
         <div className="border-border bg-background flex shrink-0 flex-wrap items-center gap-1.5 border-b px-3 py-1.5">
-          <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase">
+          <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase 2xl:text-xs">
             Filters
           </span>
           {activeFilters.map((filter) => {
@@ -477,7 +476,7 @@ export function DataGrid<T extends { id: string }>({
             return (
               <span
                 key={filter.id}
-                className="border-border bg-muted/40 inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px]"
+                className="border-border bg-muted/40 inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] 2xl:text-xs"
               >
                 <span className="text-muted-foreground">{filter.label}:</span>
                 <span className="font-medium">{activeLabel}</span>
@@ -538,7 +537,7 @@ export function DataGrid<T extends { id: string }>({
       <div data-density={density} className="flex-1 overflow-auto pb-10">
         <table className={cn(
           "w-full border-collapse whitespace-nowrap",
-          density === "compact" ? "text-[11px]" : "text-xs",
+          density === "compact" ? "text-[11px] 2xl:text-xs" : "text-xs 2xl:text-sm",
         )}>
           <thead className="bg-background sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -557,7 +556,7 @@ export function DataGrid<T extends { id: string }>({
                       key={header.id}
                       style={{ width: header.getSize() }}
                       className={cn(
-                        "border-border text-muted-foreground border-b px-2 text-left text-[11px] font-medium tracking-wide uppercase",
+                        "border-border text-muted-foreground border-b px-2 text-left text-[11px] font-medium tracking-wide uppercase 2xl:text-xs",
                         density === "compact" ? "py-1" : "py-1.5",
                         meta?.headerClassName,
                         canSort && "cursor-pointer select-none",
@@ -663,7 +662,7 @@ export function DataGrid<T extends { id: string }>({
         }}
       >
         <div className="flex items-center gap-2">
-          <span className="text-muted-foreground text-xs">
+          <span className="text-muted-foreground text-xs 2xl:text-sm">
             {total === 0
               ? `No ${itemLabel}`
               : `${start}\u2013${end} of ${total.toLocaleString()} ${itemLabel}`}
@@ -671,7 +670,7 @@ export function DataGrid<T extends { id: string }>({
           {onLimitChange && (
             <>
               <div className="bg-border mx-0.5 h-4 w-px" />
-              <span className="text-muted-foreground text-xs">
+              <span className="text-muted-foreground text-xs 2xl:text-sm">
                 Rows per page
               </span>
               <Select
@@ -699,7 +698,7 @@ export function DataGrid<T extends { id: string }>({
           )}
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-muted-foreground mr-1 text-xs">
+          <span className="text-muted-foreground mr-1 text-xs 2xl:text-sm">
             Page {page + 1} of {Math.max(1, totalPages)}
           </span>
           <Button
@@ -758,14 +757,22 @@ export function DataGrid<T extends { id: string }>({
 }
 
 export function StatusBadge({ isRegistered }: { isRegistered: boolean }) {
-  return isRegistered ? (
-    <Badge variant="success" size="sm">
-      Active
-    </Badge>
-  ) : (
-    <Badge variant="outline" size="sm">
-      Pending
-    </Badge>
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 text-[10px] tracking-wide uppercase tabular-nums",
+        isRegistered ? "text-success-foreground" : "text-muted-foreground",
+      )}
+    >
+      <span
+        className={cn(
+          "size-1.5 rounded-full",
+          isRegistered ? "bg-success" : "bg-muted-foreground/50",
+        )}
+        aria-hidden
+      />
+      {isRegistered ? "Active" : "Pending"}
+    </span>
   );
 }
 

@@ -1,0 +1,7 @@
+{
+  "tool_name": "Read",
+  "tool_input_preview": "{\"file_path\":\"/home/cameron/Developer/studio2stadium/app/.worktrees/summit-04/apps/backend/app/modules/orgs/events/delete/service.ts\"}",
+  "error": "File does not exist. Note: your current working directory is /home/cameron/Developer/studio2stadium/app/.worktrees/summit-04/apps/frontend.",
+  "timestamp": "2026-04-15T18:01:35.938Z",
+  "retry_count": 1
+}

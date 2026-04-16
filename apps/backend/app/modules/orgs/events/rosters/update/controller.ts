@@ -14,11 +14,13 @@ export default class UpdateRosterController {
   @inject()
   async handle(ctx: HttpContext, service: UpdateRosterService) {
     const payload = await ctx.request.validateUsing(schema);
+    const user = ctx.auth.getUserOrFail();
     try {
       const result = await service.execute(
         ctx.params.id,
         ctx.params.rosterId,
         payload,
+        { eventId: ctx.params.id, actorId: user.id },
       );
       return ctx.response.ok(result);
     } catch (err) {

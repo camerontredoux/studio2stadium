@@ -227,6 +227,34 @@ type OrgsIdEventsIdRostersResendinvitesPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/resend-invites/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/resend-invites/controller.ts').default['handle'], true>
 }
+type OrgsIdEventsIdChecklistGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/checklist/list/controller.ts').default['handle'], false>
+}
+type OrgsIdEventsIdChecklistPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/checklist/create/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/checklist/create/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdChecklistIdPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/checklist/update/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/checklist/update/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdChecklistIdDelete = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/checklist/delete/controller.ts').default['handle'], false>
+}
+type OrgsIdEventsIdAuditlogStatsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/audit-log/stats/controller.ts').default['handle'], false>
+}
+type OrgsIdEventsIdAuditlogIdChildrenGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/audit-log/children/controller.ts').default['handle'], false>
+}
+type OrgsIdEventsIdAuditlogGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/audit-log/list/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/audit-log/list/controller.ts').default['handle'], true>
+}
 type OrgsIdDancersGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/dancers/list/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/dancers/list/controller.ts').default['handle'], true>
@@ -916,6 +944,39 @@ export interface ApiDefinition {
               };
               '$post': OrgsIdEventsIdRostersResendinvitesPost;
             };
+          };
+          'checklist': {
+            '$url': {
+            };
+            '$get': OrgsIdEventsIdChecklistGetHead;
+            '$head': OrgsIdEventsIdChecklistGetHead;
+            '$post': OrgsIdEventsIdChecklistPost;
+            ':itemId': {
+              '$url': {
+              };
+              '$patch': OrgsIdEventsIdChecklistIdPatch;
+              '$delete': OrgsIdEventsIdChecklistIdDelete;
+            };
+          };
+          'audit-log': {
+            'stats': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdAuditlogStatsGetHead;
+              '$head': OrgsIdEventsIdAuditlogStatsGetHead;
+            };
+            ':entryId': {
+              'children': {
+                '$url': {
+                };
+                '$get': OrgsIdEventsIdAuditlogIdChildrenGetHead;
+                '$head': OrgsIdEventsIdAuditlogIdChildrenGetHead;
+              };
+            };
+            '$url': {
+            };
+            '$get': OrgsIdEventsIdAuditlogGetHead;
+            '$head': OrgsIdEventsIdAuditlogGetHead;
           };
         };
         '$get': OrgsIdEventsGetHead;

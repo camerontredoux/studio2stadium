@@ -133,7 +133,7 @@ export class UploadDancersService {
     // Track invite tokens for fire-and-forget emails after transaction
     const inviteTokens: { email: string; firstName: string; token: string }[] = [];
 
-    const result = await this.db.tx(async (tx) => {
+    const result = await this.db.withAudit({ eventId, actorId: uploaderId }, async (tx, audit) => {
       let added = 0;
       let updated = 0;
 
@@ -147,6 +147,20 @@ export class UploadDancersService {
         rowsErrored: errors.length,
         errorDetails: errors as any,
       }).returning();
+
+      // Log the parent csv_upload audit entry
+      audit.log({
+        action: "upload",
+        resource: "csv_upload",
+        resourceId: upload!.id,
+        metadata: {
+          type: "dancer",
+          rowsAdded: 0,
+          rowsUpdated: 0,
+          rowsErrored: errors.length,
+          errorDetails: errors,
+        },
+      });
 
       if (rowsToProcess.length > 0) {
         // Match only users with a dancer profile (same idea as coach CSV + school profile).
@@ -176,9 +190,16 @@ export class UploadDancersService {
               expirationDate: userId ? expirationDate : existing.expirationDate,
               csvUploadId: upload!.id,
             }).where(eq(eventRosters.id, existing.id));
+            audit.log({
+              action: "update",
+              resource: "roster",
+              resourceId: existing.id,
+              parentId: upload!.id,
+              metadata: { after: { firstName: r.firstName, lastName: r.lastName, bibNumber: r.bibNumber, email: r.email } },
+            });
             updated += 1;
           } else {
-            await tx.insert(eventRosters).values({
+            const [inserted] = await tx.insert(eventRosters).values({
               eventId,
               type: "dancer",
               email: r.email,
@@ -188,6 +209,13 @@ export class UploadDancersService {
               userId,
               expirationDate: userId ? expirationDate : null,
               csvUploadId: upload!.id,
+            }).returning();
+            audit.log({
+              action: "create",
+              resource: "roster",
+              resourceId: inserted!.id,
+              parentId: upload!.id,
+              metadata: { after: { firstName: r.firstName, lastName: r.lastName, bibNumber: r.bibNumber, email: r.email } },
             });
             added += 1;
           }

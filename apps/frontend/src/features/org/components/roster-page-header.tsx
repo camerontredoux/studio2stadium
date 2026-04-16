@@ -32,13 +32,13 @@ export function RosterPageHeader({
     <section aria-label={`${title} header`}>
       <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4">
         <div className="flex items-baseline gap-3">
-          <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
-          <span className="text-muted-foreground text-xs tabular-nums">
+          <h1 className="text-lg font-semibold tracking-tight 2xl:text-xl">{title}</h1>
+          <span className="text-muted-foreground text-xs tabular-nums 2xl:text-sm">
             {eventName}
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <div className="text-sm">
+          <div className="text-sm 2xl:text-base">
             <span className="font-semibold tabular-nums">
               {isLoading ? "–" : stats.active.toLocaleString()}
             </span>
@@ -59,7 +59,7 @@ export function RosterPageHeader({
               style={{ width: `${activationPct}%` }}
             />
           </div>
-          <span className="text-muted-foreground text-[11px] tabular-nums">
+          <span className="text-muted-foreground text-[11px] tabular-nums 2xl:text-xs">
             {activationPct}%
           </span>
         </div>
@@ -127,12 +127,12 @@ function FilterStatCell({
         active && "before:opacity-100",
       )}
     >
-      <span className="text-2xl leading-none font-semibold tracking-tight tabular-nums">
+      <span className="text-2xl leading-none font-semibold tracking-tight tabular-nums 2xl:text-3xl">
         {isLoading ? "–" : value.toLocaleString()}
       </span>
       <span
         className={cn(
-          "text-[10px] font-medium tracking-widest uppercase transition-colors",
+          "text-[10px] font-medium tracking-widest uppercase transition-colors 2xl:text-xs",
           active ? "text-foreground" : "text-muted-foreground",
         )}
       >
@@ -151,10 +151,10 @@ interface ReadOnlyStatCellProps {
 function ReadOnlyStatCell({ label, value, isLoading }: ReadOnlyStatCellProps) {
   return (
     <div className="border-border flex flex-1 flex-col justify-center gap-1 border-l px-4 py-3">
-      <span className="text-2xl leading-none font-semibold tracking-tight tabular-nums">
+      <span className="text-2xl leading-none font-semibold tracking-tight tabular-nums 2xl:text-3xl">
         {isLoading ? "–" : value.toLocaleString()}
       </span>
-      <span className="text-muted-foreground/80 text-[10px] font-medium tracking-widest uppercase">
+      <span className="text-muted-foreground/80 text-[10px] font-medium tracking-widest uppercase 2xl:text-xs">
         {label}
       </span>
     </div>

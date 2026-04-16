@@ -207,4 +207,22 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.schoolProfiles.id,
     }),
   },
+  eventAuditLog: {
+    event: r.one.orgEvents({
+      from: r.eventAuditLog.eventId,
+      to: r.orgEvents.id,
+    }),
+    actor: r.one.users({
+      from: r.eventAuditLog.actorId,
+      to: r.users.id,
+    }),
+    parent: r.one.eventAuditLog({
+      from: r.eventAuditLog.parentId,
+      to: r.eventAuditLog.id,
+    }),
+    children: r.many.eventAuditLog({
+      from: r.eventAuditLog.id,
+      to: r.eventAuditLog.parentId,
+    }),
+  },
 }));

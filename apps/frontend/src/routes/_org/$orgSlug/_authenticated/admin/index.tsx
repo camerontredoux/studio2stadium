@@ -88,8 +88,8 @@ function AdminDashboard({
   const dateRange = formatDateRange(activeEvent.startDate, activeEvent.endDate);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto xl:flex-row xl:overflow-hidden">
-      <div className="flex min-w-0 flex-col xl:min-h-0 xl:flex-1 xl:overflow-y-auto">
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden xl:flex-row xl:overflow-hidden">
+      <div className="flex min-w-0 flex-col xl:min-h-0 xl:flex-1 xl:overflow-y-auto xl:overflow-x-hidden">
         <EventHeader
           name={activeEvent.name}
           phase={phase}
@@ -150,7 +150,6 @@ function AdminDashboard({
         activeEvent={activeEvent}
         phase={phase}
         stats={stats.recentUploads}
-        totalRoster={totalRoster}
       />
 
       <EventFormSheet
@@ -180,15 +179,15 @@ function EventHeader({
 }) {
   return (
     <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4">
-      <div className="flex items-baseline gap-3">
-        <h1 className="text-lg font-semibold tracking-tight">{name}</h1>
-        <PhaseBadge phase={phase} />
-        <span className="text-muted-foreground text-xs tabular-nums">
+      <div className="flex items-center gap-3">
+        <h1 className="text-lg font-semibold tracking-tight 2xl:text-xl">{name}</h1>
+        <PhaseBadge phase={phase} isActive />
+        <span className="text-muted-foreground text-xs tabular-nums 2xl:text-sm">
           {dateRange}
         </span>
       </div>
       <div className="flex items-center gap-3">
-        <div className="text-sm">
+        <div className="text-sm 2xl:text-base">
           <span className="font-semibold tabular-nums">{registered}</span>
           <span className="text-muted-foreground">
             /{totalRoster} activated
@@ -207,7 +206,7 @@ function EventHeader({
             style={{ width: `${activationPct}%` }}
           />
         </div>
-        <span className="text-muted-foreground text-[11px] tabular-nums">
+        <span className="text-muted-foreground text-[11px] tabular-nums 2xl:text-xs">
           {activationPct}%
         </span>
       </div>
@@ -215,12 +214,31 @@ function EventHeader({
   );
 }
 
-function PhaseBadge({ phase }: { phase: EventPhaseInfo }) {
+function PhaseBadge({
+  phase,
+  isActive = false,
+}: {
+  phase: EventPhaseInfo;
+  isActive?: boolean;
+}) {
+  const activeBadgeClass =
+    phase.phase === "live"
+      ? "border-success/60 text-success"
+      : phase.phase === "upcoming" || phase.phase === "imminent"
+        ? "border-warning/60 text-warning"
+        : "border-border/60 text-muted-foreground";
+  const badgeClass = isActive ? activeBadgeClass : "border-border/60 text-muted-foreground";
+
   if (phase.phase === "live") {
     return (
-      <span className="border-border/60 inline-flex items-center gap-1.5 rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.14em] uppercase">
+      <span
+        className={cn(
+          "inline-flex items-center gap-1.5 rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.14em] uppercase",
+          badgeClass,
+        )}
+      >
         <LivePulse />
-        <span className="text-foreground">
+        <span className={cn(isActive ? "text-success" : "text-foreground")}>
           Day {phase.liveDay} of {phase.totalDays}
         </span>
       </span>
@@ -228,7 +246,12 @@ function PhaseBadge({ phase }: { phase: EventPhaseInfo }) {
   }
   if (phase.phase === "imminent") {
     return (
-      <span className="border-border/60 text-muted-foreground inline-flex items-center gap-1.5 rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.14em] uppercase">
+      <span
+        className={cn(
+          "inline-flex items-center gap-1.5 rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.14em] uppercase",
+          badgeClass,
+        )}
+      >
         <span className="bg-warning size-1.5 rounded-full" aria-hidden />
         {phase.daysUntilStart === 0
           ? "Starts today"
@@ -238,13 +261,23 @@ function PhaseBadge({ phase }: { phase: EventPhaseInfo }) {
   }
   if (phase.phase === "wrapped") {
     return (
-      <span className="border-border/60 text-muted-foreground inline-flex items-center gap-1.5 rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.14em] uppercase">
+      <span
+        className={cn(
+          "inline-flex items-center gap-1.5 rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.14em] uppercase",
+          badgeClass,
+        )}
+      >
         Wrapped
       </span>
     );
   }
   return (
-    <span className="border-border/60 text-muted-foreground inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.14em] uppercase tabular-nums">
+    <span
+      className={cn(
+        "inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.14em] uppercase tabular-nums",
+        badgeClass,
+      )}
+    >
       {phase.daysUntilStart}d out
     </span>
   );
@@ -262,10 +295,10 @@ function LivePulse() {
 function StatCell({ label, value }: { label: string; value: number }) {
   return (
     <div className="border-border flex flex-1 flex-col justify-center gap-1 border-l px-4 py-3 first:border-l-0">
-      <span className="text-2xl leading-none font-semibold tracking-tight tabular-nums">
+      <span className="text-2xl leading-none font-semibold tracking-tight tabular-nums 2xl:text-3xl">
         {value.toLocaleString()}
       </span>
-      <span className="text-muted-foreground text-[10px] font-medium tracking-widest uppercase">
+      <span className="text-muted-foreground text-[10px] font-medium tracking-widest uppercase 2xl:text-xs">
         {label}
       </span>
     </div>
@@ -357,16 +390,16 @@ function PreEventChecklist({
     <div className="border-border flex h-full min-h-0 w-full flex-col rounded-md border">
       <div className="border-border bg-muted/40 flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2">
         <div className="flex min-w-0 flex-col">
-          <span className="text-[11px] font-semibold tracking-wider uppercase">
+          <span className="text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
             Pre-event checklist
           </span>
-          <span className="text-muted-foreground text-[11px]">
+          <span className="text-muted-foreground text-[11px] 2xl:text-xs">
             {done}/{total} complete ·{" "}
             <UrgencyLabel urgency={urgency} days={phase.daysUntilStart} />
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-muted-foreground text-[11px] tabular-nums">
+          <span className="text-muted-foreground text-[11px] tabular-nums 2xl:text-xs">
             {pct}%
           </span>
           <Button
@@ -415,14 +448,14 @@ function PreEventChecklist({
             <div className="flex min-w-0 flex-1 flex-col">
               <span
                 className={cn(
-                  "text-xs font-medium",
+                  "text-xs font-medium 2xl:text-sm",
                   item.completed && "text-muted-foreground line-through",
                 )}
               >
                 {item.title}
               </span>
               {item.description && (
-                <span className="text-muted-foreground truncate text-[11px]">
+                <span className="text-muted-foreground truncate text-[11px] 2xl:text-xs">
                   {item.description}
                 </span>
               )}
@@ -539,14 +572,14 @@ function TopSchoolsPanel() {
     <div className="border-border flex flex-col rounded-md border">
       <div className="border-border bg-muted/40 flex items-center justify-between gap-3 border-b px-3 py-2">
         <div className="flex min-w-0 flex-col">
-          <span className="text-[11px] font-semibold tracking-wider uppercase">
+          <span className="text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
             Top schools
           </span>
-          <span className="text-muted-foreground text-[11px]">
+          <span className="text-muted-foreground text-[11px] 2xl:text-xs">
             Dancers by organization · this event
           </span>
         </div>
-        <span className="text-muted-foreground text-[10px] tracking-wide uppercase">
+        <span className="text-muted-foreground text-[10px] tracking-wide uppercase 2xl:text-xs">
           Mock
         </span>
       </div>
@@ -554,13 +587,13 @@ function TopSchoolsPanel() {
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-border border-b">
-            <th className="text-muted-foreground px-3 py-1.5 text-left text-[10px] font-medium tracking-wide uppercase">
+            <th className="text-muted-foreground px-3 py-1.5 text-left text-[10px] font-medium tracking-wide uppercase 2xl:text-xs">
               Organization
             </th>
-            <th className="text-muted-foreground w-12 px-3 py-1.5 text-right text-[10px] font-medium tracking-wide uppercase">
+            <th className="text-muted-foreground w-12 px-3 py-1.5 text-right text-[10px] font-medium tracking-wide uppercase 2xl:text-xs">
               Total
             </th>
-            <th className="text-muted-foreground px-3 py-1.5 text-left text-[10px] font-medium tracking-wide uppercase">
+            <th className="text-muted-foreground px-3 py-1.5 text-left text-[10px] font-medium tracking-wide uppercase 2xl:text-xs">
               Activation
             </th>
           </tr>
@@ -574,10 +607,10 @@ function TopSchoolsPanel() {
                 key={school.name}
                 className="border-border hover:bg-muted/30 border-b transition-colors last:border-b-0"
               >
-                <td className="px-3 py-1.5 text-xs font-medium">
+                <td className="px-3 py-1.5 text-xs font-medium 2xl:text-sm">
                   <span className="truncate">{school.name}</span>
                 </td>
-                <td className="px-3 py-1.5 text-right text-xs tabular-nums">
+                <td className="px-3 py-1.5 text-right text-xs tabular-nums 2xl:text-sm">
                   {school.dancers}
                 </td>
                 <td className="px-3 py-1.5">
@@ -588,7 +621,7 @@ function TopSchoolsPanel() {
                         style={{ width: `${barPct}%` }}
                       />
                     </div>
-                    <span className="text-muted-foreground w-8 text-right text-[11px] tabular-nums">
+                    <span className="text-muted-foreground w-8 text-right text-[11px] tabular-nums 2xl:text-xs">
                       {pct}%
                     </span>
                   </div>
@@ -610,23 +643,21 @@ function EventSidebar({
   activeEvent,
   phase,
   stats,
-  totalRoster,
 }: {
   orgSlug: string;
   events: OrgEvent[];
   activeEvent: OrgEvent;
   phase: EventPhaseInfo;
   stats: CsvUploadSummary[];
-  totalRoster: number;
 }) {
   return (
-    <aside className="border-border flex w-full shrink-0 flex-col border-t xl:w-[320px] xl:overflow-y-auto xl:border-t-0 xl:border-l">
+    <aside className="border-border flex w-full shrink-0 flex-col border-t xl:w-[320px] xl:overflow-y-auto xl:overflow-x-hidden xl:border-t-0 xl:border-l">
       <SidebarEventSection
         orgSlug={orgSlug}
         events={events}
         activeEvent={activeEvent}
       />
-      <SidebarPhaseSection phase={phase} totalRoster={totalRoster} />
+      <SidebarPhaseSection phase={phase} />
       <SidebarDetailsSection event={activeEvent} />
       <SidebarActivitySection orgSlug={orgSlug} uploads={stats} />
     </aside>
@@ -645,7 +676,7 @@ function SidebarSection({
   return (
     <section className="border-border border-b last:border-b-0">
       <div className="flex items-center justify-between gap-2 px-4 pt-3 pb-2">
-        <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase">
+        <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase 2xl:text-xs">
           {title}
         </span>
         {action}
@@ -729,7 +760,7 @@ function SidebarEventSection({
           }}
           disabled={activate.isPending}
         >
-          <SelectTrigger className="h-8 w-full text-xs">
+          <SelectTrigger className="h-8 w-full text-xs 2xl:text-sm">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -752,11 +783,12 @@ function SidebarEventSection({
 
 function SidebarPhaseSection({
   phase,
-  totalRoster,
 }: {
   phase: EventPhaseInfo;
-  totalRoster: number;
 }) {
+  const progress = phaseProgressPct(phase);
+  const isEventUnderway = phase.phase === "live" || phase.phase === "wrapped";
+  const progressLabel = isEventUnderway ? "Event progress" : "Approaching kickoff";
   const headline =
     phase.phase === "live"
       ? `Day ${phase.liveDay}`
@@ -767,7 +799,7 @@ function SidebarPhaseSection({
           : `${phase.daysUntilStart}d`;
   const subhead =
     phase.phase === "live"
-      ? `of ${phase.totalDays} · live now`
+      ? `of ${phase.totalDays}`
       : phase.phase === "wrapped"
         ? phase.label.toLowerCase()
         : phase.daysUntilStart === 1
@@ -776,23 +808,33 @@ function SidebarPhaseSection({
 
   return (
     <SidebarSection title="Countdown">
-      <div className="flex items-baseline gap-2">
-        {phase.phase === "live" && <LivePulse />}
-        <span className="text-foreground text-2xl leading-none font-semibold tracking-tight tabular-nums">
-          {headline}
-        </span>
-        <span className="text-muted-foreground text-[11px]">{subhead}</span>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-baseline gap-2">
+          <span className="text-foreground text-xl leading-none font-semibold tracking-tight tabular-nums 2xl:text-2xl">
+            {headline}
+          </span>
+          <span className="text-muted-foreground text-sm tabular-nums 2xl:text-base">
+            {subhead}
+          </span>
+        </div>
+        {phase.phase === "live" && (
+          <span className="text-success inline-flex items-center gap-1.5 rounded border border-success/40 px-2 py-0.5 text-[10px] font-semibold tracking-[0.12em] uppercase">
+            <LivePulse />
+            Live now
+          </span>
+        )}
       </div>
-      <div className="mt-3 flex items-center gap-2">
-        <div className="bg-border relative h-1 flex-1 overflow-hidden">
+      <div className="mt-3 flex items-center justify-between text-[10px] font-medium tracking-wider uppercase 2xl:text-xs">
+        <span className="text-muted-foreground">{progressLabel}</span>
+        <span className="text-muted-foreground tabular-nums">{progress}%</span>
+      </div>
+      <div className="mt-1.5 flex items-center gap-2">
+        <div className="bg-border relative h-1.5 flex-1 overflow-hidden rounded-full">
           <div
             className="bg-foreground h-full"
-            style={{ width: `${phaseProgressPct(phase)}%` }}
+            style={{ width: `${progress}%` }}
           />
         </div>
-        <span className="text-muted-foreground text-[10px] tabular-nums">
-          {totalRoster} on roster
-        </span>
       </div>
     </SidebarSection>
   );
@@ -814,7 +856,7 @@ function phaseProgressPct(phase: EventPhaseInfo): number {
 function SidebarDetailsSection({ event }: { event: OrgEvent }) {
   return (
     <SidebarSection title="Details">
-      <ul className="flex flex-col gap-2 text-xs">
+      <ul className="flex flex-col gap-2 text-xs 2xl:text-sm">
         <li className="flex items-start gap-2">
           <CalendarIcon className="text-muted-foreground mt-0.5 size-3.5 shrink-0" />
           <span className="tabular-nums">
@@ -874,7 +916,7 @@ function SidebarActivitySection({
   if (recent.length === 0) {
     return (
       <SidebarSection title="Recent activity">
-        <p className="text-muted-foreground text-xs">No uploads yet.</p>
+        <p className="text-muted-foreground text-xs 2xl:text-sm">No uploads yet.</p>
       </SidebarSection>
     );
   }
@@ -885,7 +927,7 @@ function SidebarActivitySection({
           const touched =
             (upload.rowsAdded ?? 0) + (upload.rowsUpdated ?? 0);
           return (
-            <li key={upload.id} className="flex items-start gap-2 text-xs">
+            <li key={upload.id} className="flex items-start gap-2 text-xs 2xl:text-sm">
               <UploadIcon className="text-muted-foreground mt-0.5 size-3 shrink-0" />
               <div className="flex min-w-0 flex-1 flex-col">
                 <span>
@@ -896,7 +938,7 @@ function SidebarActivitySection({
                     {upload.type === "dancer" ? "dancers" : "coaches"} uploaded
                   </span>
                 </span>
-                <span className="text-muted-foreground text-[10px]">
+                <span className="text-muted-foreground text-[10px] 2xl:text-xs">
                   {formatDistanceToNow(new Date(upload.createdAt), {
                     addSuffix: true,
                   })}
@@ -909,7 +951,7 @@ function SidebarActivitySection({
       <Link
         to="/$orgSlug/admin/uploads"
         params={{ orgSlug }}
-        className="text-foreground hover:text-brand mt-3 inline-flex items-center gap-1 text-[11px] font-medium"
+        className="text-foreground hover:text-brand mt-3 inline-flex items-center gap-1 text-[11px] font-medium 2xl:text-xs"
       >
         View all uploads
         <ArrowRightIcon className="size-3" />

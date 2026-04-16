@@ -19,6 +19,9 @@ const ListChecklistController = () => import("./checklist/list/controller.ts");
 const CreateChecklistController = () => import("./checklist/create/controller.ts");
 const UpdateChecklistController = () => import("./checklist/update/controller.ts");
 const DeleteChecklistController = () => import("./checklist/delete/controller.ts");
+const ListAuditLogController = () => import("./audit-log/list/controller.ts");
+const AuditLogStatsController = () => import("./audit-log/stats/controller.ts");
+const ListAuditLogChildrenController = () => import("./audit-log/children/controller.ts");
 
 router.group(() => {
   router.post(":slug/events", [CreateEventController])
@@ -56,5 +59,11 @@ router.group(() => {
   router.patch(":slug/events/:id/checklist/:itemId", [UpdateChecklistController])
     .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
   router.delete(":slug/events/:id/checklist/:itemId", [DeleteChecklistController])
+    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
+  router.get(":slug/events/:id/audit-log/stats", [AuditLogStatsController])
+    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
+  router.get(":slug/events/:id/audit-log/:entryId/children", [ListAuditLogChildrenController])
+    .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
+  router.get(":slug/events/:id/audit-log", [ListAuditLogController])
     .use([middleware.auth(), middleware.org(), middleware.orgMember(), middleware.orgAdmin()]);
 }).prefix("orgs");

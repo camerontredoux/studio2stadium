@@ -10,6 +10,14 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Frame, FramePanel } from "@/components/ui/frame";
 import { Input } from "@/components/ui/input";
@@ -25,7 +33,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useForm, type Control } from "react-hook-form";
 import type { DateRange } from "react-day-picker";
 import { z } from "zod";
@@ -216,6 +224,8 @@ export function EventFormSheet({
 }: EventFormSheetProps) {
   const qc = useQueryClient();
   const isCreate = event === undefined;
+  const [discardConfirmOpen, setDiscardConfirmOpen] = useState(false);
+  const bypassDirtyCheckRef = useRef(false);
 
   const rawClient = client as unknown as {
     POST: (path: string, opts: { body: unknown }) => Promise<{ data: OrgEvent }>;
@@ -248,6 +258,7 @@ export function EventFormSheet({
     onSuccess: () => {
       qc.invalidateQueries(adminQueries.events(orgSlug));
       toastManager.add({ title: "Event created", type: "success" });
+      bypassDirtyCheckRef.current = true;
       onOpenChange(false);
     },
     onError: () => {
@@ -269,6 +280,7 @@ export function EventFormSheet({
     onSuccess: () => {
       qc.invalidateQueries(adminQueries.events(orgSlug));
       toastManager.add({ title: "Event updated", type: "success" });
+      bypassDirtyCheckRef.current = true;
       onOpenChange(false);
     },
     onError: () => {
@@ -276,7 +288,12 @@ export function EventFormSheet({
     },
   });
 
-  const { control, handleSubmit, reset } = useForm<Schema>({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isDirty },
+  } = useForm<Schema>({
     resolver: zodResolver(schema),
     defaultValues: isCreate ? emptyDefaults() : defaultsFromEvent(event),
   });
@@ -287,6 +304,32 @@ export function EventFormSheet({
   }, [open, isCreate, event, reset]);
 
   const pending = isCreate ? createMutation.isPending : updateMutation.isPending;
+  const handleSheetOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      onOpenChange(true);
+      return;
+    }
+
+    if (bypassDirtyCheckRef.current) {
+      bypassDirtyCheckRef.current = false;
+      setDiscardConfirmOpen(false);
+      onOpenChange(false);
+      return;
+    }
+
+    if (isDirty && !pending) {
+      setDiscardConfirmOpen(true);
+      return;
+    }
+
+    onOpenChange(false);
+  };
+
+  const handleDiscardChanges = () => {
+    reset(isCreate ? emptyDefaults() : defaultsFromEvent(event));
+    setDiscardConfirmOpen(false);
+    onOpenChange(false);
+  };
 
   const onSubmit = (data: Schema) => {
     if (pending) return;
@@ -307,42 +350,67 @@ export function EventFormSheet({
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetPopup variant="inset">
-        <SheetHeader>
-          <SheetTitle>{isCreate ? "Create event" : "Edit event"}</SheetTitle>
-          <SheetDescription>
-            {isCreate
-              ? "The new event becomes active; your previous event stays in history and you can switch back anytime."
-              : `Update details for ${event.name}`}
-          </SheetDescription>
-        </SheetHeader>
-        <SheetContent>
-          <form
-            id={SHEET_FORM_ID}
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-5 px-4 pt-2 pb-4"
-          >
-            <EventFormFields
-              control={control}
-              calendarDisabledBeforeToday={isCreate}
-            />
-          </form>
-        </SheetContent>
-        <SheetFooter>
-          <SheetClose render={<Button variant="ghost" />}>Cancel</SheetClose>
-          <Button type="submit" form={SHEET_FORM_ID} disabled={pending}>
-            {pending ? (
-              <Spinner label={isCreate ? "Creating…" : "Saving…"} />
-            ) : isCreate ? (
-              "Create event"
-            ) : (
-              "Save changes"
-            )}
-          </Button>
-        </SheetFooter>
-      </SheetPopup>
-    </Sheet>
+    <>
+      <Sheet open={open} onOpenChange={handleSheetOpenChange}>
+        <SheetPopup variant="inset">
+          <SheetHeader>
+            <SheetTitle>{isCreate ? "Create event" : "Edit event"}</SheetTitle>
+            <SheetDescription>
+              {isCreate
+                ? "The new event becomes active; your previous event stays in history and you can switch back anytime."
+                : `Update details for ${event.name}`}
+            </SheetDescription>
+          </SheetHeader>
+          <SheetContent>
+            <form
+              id={SHEET_FORM_ID}
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex flex-col gap-5 px-4 pt-2 pb-4"
+            >
+              <EventFormFields
+                control={control}
+                calendarDisabledBeforeToday={isCreate}
+              />
+            </form>
+          </SheetContent>
+          <SheetFooter>
+            <SheetClose render={<Button variant="ghost" />}>Cancel</SheetClose>
+            <Button type="submit" form={SHEET_FORM_ID} disabled={pending}>
+              {pending ? (
+                <Spinner label={isCreate ? "Creating…" : "Saving…"} />
+              ) : isCreate ? (
+                "Create event"
+              ) : (
+                "Save changes"
+              )}
+            </Button>
+          </SheetFooter>
+        </SheetPopup>
+      </Sheet>
+      <AlertDialog open={discardConfirmOpen} onOpenChange={setDiscardConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Discard changes?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes to this event form. If you close now, your
+              edits will be lost.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDiscardConfirmOpen(false)}
+            >
+              Keep editing
+            </Button>
+            <Button type="button" variant="destructive" onClick={handleDiscardChanges}>
+              Discard changes
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
 

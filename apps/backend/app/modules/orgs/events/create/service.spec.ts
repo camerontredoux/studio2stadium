@@ -1,7 +1,7 @@
 import { test } from "@japa/runner";
 import { db } from "#database/connection";
 import { organizations, orgMemberships } from "#database/schema/organizations";
-import { orgEvents, eventRosters, csvUploads } from "#database/schema/org-events";
+import { orgEvents, eventRosters, csvUploads, eventAuditLog } from "#database/schema/org-events";
 import { users } from "#database/schema/users";
 import { seedOrganizations } from "#commands/backfill-organizations";
 import { CreateEventService } from "./service.ts";
@@ -13,8 +13,27 @@ import OrgAdminMiddleware from "#middleware/routes/org-admin";
 
 const svc = new CreateEventService(new DatabaseService());
 
+async function makeActorUser() {
+  const ts = `${Date.now()}_${Math.random()}`;
+  const [actor] = await db
+    .insert(users)
+    .values({
+      username: `actor_${ts}`,
+      email: `actor_${ts}@example.com`,
+      displayEmail: `actor_${ts}@example.com`,
+      firstName: "Actor",
+      lastName: "User",
+      password: "h",
+      role: "admin",
+      type: "dancer",
+    })
+    .returning();
+  return actor!;
+}
+
 test.group("CreateEventService", (group) => {
   group.each.setup(async () => {
+    await db.delete(eventAuditLog).execute();
     await db.delete(csvUploads).execute();
     await db.delete(eventRosters).execute();
     await db.delete(orgEvents).execute();
@@ -25,6 +44,7 @@ test.group("CreateEventService", (group) => {
   });
 
   test("creates an event for an org", async ({ assert }) => {
+    const actor = await makeActorUser();
     const [summit] = await db.select().from(organizations).where(eq(organizations.slug, "summit"));
     const ev = await svc.execute(summit!.id, {
       name: "Summit 2026",
@@ -32,13 +52,14 @@ test.group("CreateEventService", (group) => {
       endDate: "2026-06-14",
       venueName: "Boston Garden",
       isActive: true,
-    });
+    }, actor.id);
     assert.equal(ev.name, "Summit 2026");
     assert.isTrue(ev.isActive);
     assert.equal(ev.orgId, summit!.id);
   });
 
   test("throws E_UNIQUE_VIOLATION when a second active event is created", async ({ assert }) => {
+    const actor = await makeActorUser();
     const [summit] = await db.select().from(organizations).where(eq(organizations.slug, "summit"));
 
     await svc.execute(summit!.id, {
@@ -46,7 +67,7 @@ test.group("CreateEventService", (group) => {
       startDate: "2026-06-13",
       endDate: "2026-06-14",
       isActive: true,
-    });
+    }, actor.id);
 
     let caught: any;
     try {
@@ -55,7 +76,7 @@ test.group("CreateEventService", (group) => {
         startDate: "2026-07-01",
         endDate: "2026-07-02",
         isActive: true,
-      });
+      }, actor.id);
     } catch (err) {
       caught = err;
     }
@@ -64,6 +85,7 @@ test.group("CreateEventService", (group) => {
   });
 
   test("inactive events do not trigger the unique constraint", async ({ assert }) => {
+    const actor = await makeActorUser();
     const [summit] = await db.select().from(organizations).where(eq(organizations.slug, "summit"));
 
     const ev1 = await svc.execute(summit!.id, {
@@ -71,13 +93,13 @@ test.group("CreateEventService", (group) => {
       startDate: "2026-06-13",
       endDate: "2026-06-14",
       isActive: false,
-    });
+    }, actor.id);
     const ev2 = await svc.execute(summit!.id, {
       name: "Inactive B",
       startDate: "2026-07-01",
       endDate: "2026-07-02",
       isActive: false,
-    });
+    }, actor.id);
     assert.isFalse(ev1.isActive);
     assert.isFalse(ev2.isActive);
   });
@@ -85,6 +107,7 @@ test.group("CreateEventService", (group) => {
 
 test.group("POST /orgs/:slug/events middleware", (group) => {
   group.each.setup(async () => {
+    await db.delete(eventAuditLog).execute();
     await db.delete(csvUploads).execute();
     await db.delete(eventRosters).execute();
     await db.delete(orgEvents).execute();
@@ -114,6 +137,8 @@ test.group("CreateEventController mock", () => {
 
     const mockCtx: any = {
       org: { id: "test-org-id" },
+      params: { id: "" },
+      auth: { getUserOrFail: () => ({ id: "00000000-0000-0000-0000-000000000001" }) },
       request: {
         validateUsing: async () => ({
           name: "E",

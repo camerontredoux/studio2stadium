@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "#database/connection";
 import { users } from "#database/schema/users";
 import {
+  eventAuditLog,
   eventDancerProfiles,
   eventRosters,
   orgEvents,
@@ -13,6 +14,24 @@ import {
 } from "#database/schema/organizations";
 import mail from "@adonisjs/mail/services/main";
 import { ResendInvitesService } from "./service.ts";
+
+async function makeActorUser() {
+  const ts = `${Date.now()}_${Math.random()}`;
+  const [actor] = await db
+    .insert(users)
+    .values({
+      username: `actor_${ts}`,
+      email: `actor_${ts}@example.com`,
+      displayEmail: `actor_${ts}@example.com`,
+      firstName: "Actor",
+      lastName: "User",
+      password: "h",
+      role: "admin",
+      type: "dancer",
+    })
+    .returning();
+  return actor!;
+}
 
 async function makeOrgAndEvent() {
   const [org] = await db
@@ -33,6 +52,7 @@ async function makeOrgAndEvent() {
 
 test.group("ResendInvitesService", (group) => {
   group.each.setup(async () => {
+    await db.delete(eventAuditLog).execute();
     await db.delete(eventDancerProfiles).execute();
     await db.delete(eventRosters).execute();
     await db.delete(orgEvents).execute();
@@ -49,6 +69,7 @@ test.group("ResendInvitesService", (group) => {
   test("regenerates tokens and sends emails for pending dancers", async ({
     assert,
   }) => {
+    const actor = await makeActorUser();
     const { org, event } = await makeOrgAndEvent();
     const rows = await db
       .insert(eventRosters)
@@ -82,6 +103,7 @@ test.group("ResendInvitesService", (group) => {
       org.slug,
       event.id,
       { ids: rows.map((r) => r.id) },
+      { eventId: event.id, actorId: actor.id },
       { pacingMs: 0 },
     );
 
@@ -105,6 +127,7 @@ test.group("ResendInvitesService", (group) => {
   });
 
   test("skips coaches, active dancers, and unknown ids", async ({ assert }) => {
+    const actor = await makeActorUser();
     const { org, event } = await makeOrgAndEvent();
     const [user] = await db
       .insert(users)
@@ -159,6 +182,7 @@ test.group("ResendInvitesService", (group) => {
           "00000000-0000-0000-0000-000000000000", // unknown
         ],
       },
+      { eventId: event.id, actorId: actor.id },
       { pacingMs: 0 },
     );
 

@@ -44,7 +44,12 @@ export function ViewSwitcher() {
     <SidebarMenuItem>
       <DropdownMenu>
         <DropdownMenuTrigger
-          render={<SidebarMenuButton tooltip="Switch view" />}
+          render={
+            <SidebarMenuButton
+              tooltip="Switch view"
+              className="rounded-none border-sidebar-border border-t-2 border-t-transparent px-3 py-3 hover:bg-sidebar-accent/20 group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:w-full! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-none group-data-[collapsible=icon]:border-b group-data-[collapsible=icon]:p-0!"
+            />
+          }
         >
           <EyeIcon />
           <span>Viewing as: {current}</span>

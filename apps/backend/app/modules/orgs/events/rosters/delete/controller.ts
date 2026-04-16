@@ -7,7 +7,8 @@ export default class DeleteRosterController {
   @inject()
   async handle(ctx: HttpContext, service: DeleteRosterService) {
     const payload = await ctx.request.validateUsing(schema);
-    const result = await service.execute(ctx.params.id, payload);
+    const user = ctx.auth.getUserOrFail();
+    const result = await service.execute(ctx.params.id, payload, { eventId: ctx.params.id, actorId: user.id });
     return ctx.response.ok(result);
   }
 }

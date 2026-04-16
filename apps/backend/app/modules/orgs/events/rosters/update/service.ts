@@ -6,6 +6,7 @@ import {
 } from "#database/schema/org-events";
 import { and, eq, ne, sql } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
+import type { AuditContext } from "#database/audit";
 
 export class RosterActiveReadonlyError extends Error {
   code = "ROSTER_ACTIVE_READONLY" as const;
@@ -51,8 +52,8 @@ export class RosterNotFoundError extends Error {
 export class UpdateRosterService {
   constructor(private db: DatabaseService = new DatabaseService()) {}
 
-  async execute(eventId: string, rosterId: string, input: Validator) {
-    return this.db.tx(async (tx) => {
+  async execute(eventId: string, rosterId: string, input: Validator, audit: AuditContext) {
+    return this.db.withAudit(audit, async (tx, auditLog) => {
       const [row] = await tx
         .select()
         .from(eventRosters)
@@ -150,6 +151,29 @@ export class UpdateRosterService {
             },
           });
       }
+
+      // Log audit entry for the update
+      auditLog.log({
+        action: "update",
+        resource: "roster",
+        resourceId: rosterId,
+        metadata: {
+          before: {
+            firstName: row.firstName,
+            lastName: row.lastName,
+            email: row.email,
+            organization: row.organization,
+            bibNumber: row.bibNumber,
+          },
+          after: {
+            ...(input.firstName !== undefined && { firstName: input.firstName }),
+            ...(input.lastName !== undefined && { lastName: input.lastName }),
+            ...(input.email !== undefined && { email: input.email }),
+            ...(input.organization !== undefined && { organization: input.organization }),
+            ...(input.bibNumber !== undefined && { bibNumber: input.bibNumber }),
+          },
+        },
+      });
 
       // Refetch for response
       const [updated] = await tx

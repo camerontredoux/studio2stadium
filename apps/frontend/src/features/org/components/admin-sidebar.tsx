@@ -4,6 +4,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -19,14 +20,12 @@ import {
   MenuTrigger,
 } from "@/components/ui/menu";
 import { useOrg } from "@/features/org/context/use-org";
-import { useAdminCommands } from "@/features/org/hooks/use-admin-commands";
 import { useSession } from "@/lib/session";
-import { ViewSwitcher } from "@/features/org/components/view-switcher";
-import { Link, useLocation, useParams } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate, useParams } from "@tanstack/react-router";
 import {
-  CalendarIcon,
   ChevronDownIcon,
-  HistoryIcon,
+  ClipboardListIcon,
+  EyeIcon,
   LayoutDashboardIcon,
   LogOutIcon,
   MicIcon,
@@ -34,70 +33,92 @@ import {
   UsersIcon,
 } from "lucide-react";
 
-const navItems = [
+const dashboardItem = {
+  label: "Dashboard",
+  icon: LayoutDashboardIcon,
+  to: "/$orgSlug/admin" as const,
+  exact: true,
+};
+
+const navSections = [
   {
-    label: "Dashboard",
-    icon: LayoutDashboardIcon,
-    to: "/$orgSlug/admin" as const,
-    exact: true,
+    title: "Rosters",
+    items: [
+      { label: "Dancers", icon: UsersIcon, to: "/$orgSlug/admin/dancers" as const },
+      { label: "Coaches", icon: MicIcon, to: "/$orgSlug/admin/coaches" as const },
+    ],
   },
   {
-    label: "Event",
-    icon: CalendarIcon,
-    to: "/$orgSlug/admin" as const,
-    action: "edit-event" as const,
-  },
-  {
-    label: "Dancers",
-    icon: UsersIcon,
-    to: "/$orgSlug/admin/dancers" as const,
-  },
-  {
-    label: "Coaches",
-    icon: MicIcon,
-    to: "/$orgSlug/admin/coaches" as const,
-  },
-  {
-    label: "Uploads",
-    icon: HistoryIcon,
-    to: "/$orgSlug/admin/uploads" as const,
-  },
-  {
-    label: "Settings",
-    icon: SettingsIcon,
-    to: "/$orgSlug/admin/settings" as const,
+    title: "Settings",
+    items: [
+      { label: "Audit Log", icon: ClipboardListIcon, to: "/$orgSlug/admin/uploads" as const },
+      { label: "Settings", icon: SettingsIcon, to: "/$orgSlug/admin/settings" as const },
+    ],
   },
 ];
 
 export function AdminSidebar() {
   const session = useSession();
-  const { org } = useOrg();
+  const { org, membership } = useOrg();
   const { orgSlug } = useParams({ strict: false }) as { orgSlug: string };
   const location = useLocation();
-  const { dispatch } = useAdminCommands();
+  const navigate = useNavigate();
+  const DashboardIcon = dashboardItem.icon;
 
   const displayName =
     [session.firstName, session.lastName].filter(Boolean).join(" ").trim() ||
     session.username;
+  const isItemActive = (to: string, exact?: boolean) => {
+    if (exact) {
+      return location.pathname === `/${orgSlug}/admin`;
+    }
+
+    return location.pathname.startsWith(to.replace("$orgSlug", orgSlug));
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const allNavItems = [dashboardItem, ...navSections.flatMap((section) => section.items as { label: string; icon: any; to: string; exact?: boolean }[])];
+  const currentView = location.pathname.includes("/admin")
+    ? "Admin"
+    : location.pathname.includes("/coach")
+      ? "Coach"
+      : "Dancer";
+  const canSwitchView = membership?.role === "admin";
+
+  function handleSelectView(view: "Admin" | "Coach" | "Dancer") {
+    if (view === "Admin") {
+      void navigate({ to: "/$orgSlug/admin", params: { orgSlug } });
+      return;
+    }
+
+    if (view === "Coach") {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      void (navigate as any)({ to: "/$orgSlug/coach", params: { orgSlug } });
+      return;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    void (navigate as any)({ to: "/$orgSlug", params: { orgSlug } });
+  }
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <SidebarMenu>
+      <SidebarHeader className="border-sidebar-border h-12 border-b p-0">
+        <SidebarMenu className="p-0">
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
+              className="h-12 rounded-none px-3 py-0"
               render={<Link to="/$orgSlug/admin" params={{ orgSlug }} />}
             >
               {org.logoUrl ? (
                 <img
                   src={org.logoUrl}
                   alt={org.name}
-                  className="size-8 rounded object-contain"
+                  className="size-8 rounded-none object-contain"
                 />
               ) : (
                 <div
-                  className="flex size-8 items-center justify-center rounded text-sm font-semibold text-white"
+                  className="flex size-8 items-center justify-center rounded-none text-sm font-semibold text-white"
                   style={{
                     background:
                       "linear-gradient(135deg, var(--org-primary, var(--color-primary)), var(--org-accent, var(--color-primary)))",
@@ -117,61 +138,118 @@ export function AdminSidebar() {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map(({ label, icon: Icon, to, action, exact }) => {
-                const isActive = exact
-                  ? location.pathname === `/${orgSlug}/admin`
-                  : location.pathname.startsWith(
-                      to.replace("$orgSlug", orgSlug),
-                    );
-                if (action === "edit-event") {
-                  return (
-                    <SidebarMenuItem key={label}>
-                      <SidebarMenuButton
-                        tooltip={label}
-                        onClick={() => dispatch({ type: "open-edit-event" })}
-                      >
-                        <Icon />
-                        <span>{label}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                }
+      <SidebarContent className="gap-0 p-0">
+        <SidebarGroup className="p-0">
+          <SidebarGroupContent className="p-0">
+            <div className="group-data-[collapsible=icon]:hidden border-sidebar-border flex flex-col border-b">
+              <section className="border-sidebar-border bg-sidebar border-b last:border-b-0">
+                <SidebarGroupLabel className="text-muted-foreground px-3 pt-2 pb-1 text-[10px] font-semibold tracking-widest uppercase">
+                  Overview
+                </SidebarGroupLabel>
+                <div className="border-sidebar-border border-t">
+                  <Link
+                    to={dashboardItem.to}
+                    params={{ orgSlug }}
+                    className={`border-t-2 flex min-h-10 items-center gap-2 px-3 py-2 transition-colors ${
+                      isItemActive(dashboardItem.to, dashboardItem.exact)
+                        ? "border-primary text-primary bg-sidebar-accent/40"
+                        : "border-transparent text-sidebar-foreground hover:bg-sidebar-accent/20"
+                    }`}
+                  >
+                    <DashboardIcon
+                      className={`size-3.5 shrink-0 ${
+                        isItemActive(dashboardItem.to, dashboardItem.exact)
+                          ? "text-primary/80"
+                          : "text-muted-foreground"
+                      }`}
+                    />
+                    <span className="text-xs font-semibold leading-none">
+                      {dashboardItem.label}
+                    </span>
+                  </Link>
+                </div>
+              </section>
+
+              {navSections.map((section) => (
+                <section
+                  key={section.title}
+                  className="border-sidebar-border bg-sidebar border-b last:border-b-0"
+                >
+                  <SidebarGroupLabel className="text-muted-foreground px-3 pt-2 pb-1 text-[10px] font-semibold tracking-widest uppercase">
+                    {section.title}
+                  </SidebarGroupLabel>
+                  <div className="border-sidebar-border grid grid-cols-2 border-t">
+                    {section.items.map(({ label, icon: Icon, to }) => {
+                      const isActive = isItemActive(to);
+                      return (
+                        <Link
+                          key={label}
+                          to={to}
+                          params={{ orgSlug }}
+                          className={`border-sidebar-border border-t-2 border-r flex min-h-10 items-center gap-2 px-3 py-2 transition-colors even:border-r-0 ${
+                            isActive
+                              ? "border-t-primary text-primary bg-sidebar-accent/40"
+                              : "border-t-transparent text-sidebar-foreground hover:bg-sidebar-accent/20"
+                          }`}
+                        >
+                          <Icon
+                            className={`size-3.5 shrink-0 ${
+                              isActive ? "text-primary/80" : "text-muted-foreground"
+                            }`}
+                          />
+                          <span className="text-xs font-semibold leading-none">
+                            {label}
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </section>
+              ))}
+            </div>
+
+            <div className="border-sidebar-border hidden h-full flex-col border-t group-data-[collapsible=icon]:flex">
+              {allNavItems.map(({ label, icon: Icon, to, exact }) => {
+                const isActive = isItemActive(to, exact);
                 return (
-                  <SidebarMenuItem key={label}>
-                    <SidebarMenuButton
-                      tooltip={label}
-                      isActive={isActive}
-                      render={<Link to={to} params={{ orgSlug }} />}
-                    >
-                      <Icon />
-                      <span>{label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  <Link
+                    key={label}
+                    to={to}
+                    params={{ orgSlug }}
+                    title={label}
+                    aria-label={label}
+                    className={`border-sidebar-border flex h-12 items-center justify-center border-b border-t-2 transition-colors ${
+                      isActive
+                        ? "border-t-primary bg-sidebar-accent/40 text-primary"
+                        : "border-t-transparent text-sidebar-foreground hover:bg-sidebar-accent/20"
+                    }`}
+                  >
+                    <Icon
+                      className={`size-4 shrink-0 ${
+                        isActive ? "text-primary/80" : "text-muted-foreground"
+                      }`}
+                    />
+                  </Link>
                 );
               })}
-            </SidebarMenu>
+            </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
-        <SidebarMenu>
-          <ViewSwitcher />
+      <SidebarFooter className="p-0">
+        <SidebarMenu className="gap-0 p-0">
           <SidebarMenuItem>
             <Menu>
               <SidebarMenuButton
                 size="lg"
                 tooltip={displayName}
-                className="data-popup-open:bg-sidebar-accent"
+                className="data-popup-open:bg-sidebar-accent rounded-none border-sidebar-border border-t-2 border-t-transparent px-3 py-3 hover:bg-sidebar-accent/20 group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:w-full! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-none group-data-[collapsible=icon]:p-0!"
                 render={<MenuTrigger />}
               >
-                <Avatar className="size-8 rounded-lg">
+                <Avatar className="size-8">
                   <AvatarImage src={session.avatar || undefined} />
-                  <AvatarFallback className="rounded-lg text-xs">
+                  <AvatarFallback className="text-xs">
                     {session.username.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -186,7 +264,7 @@ export function AdminSidebar() {
               <MenuPopup
                 side="top"
                 align="start"
-                className="w-(--anchor-width) min-w-0 max-w-(--anchor-width)"
+                className="w-64 min-w-64 max-w-80"
               >
                 <MenuGroup>
                   <MenuItem disabled className="min-h-0 flex-col items-start gap-0.5 py-2">
@@ -196,6 +274,22 @@ export function AdminSidebar() {
                     </span>
                   </MenuItem>
                 </MenuGroup>
+                {canSwitchView ? (
+                  <>
+                    <MenuSeparator />
+                    <MenuGroup>
+                      <MenuItem disabled>
+                        <EyeIcon />
+                        Viewing as: {currentView}
+                      </MenuItem>
+                      {(["Admin", "Coach", "Dancer"] as const).map((view) => (
+                        <MenuItem key={view} onClick={() => handleSelectView(view)}>
+                          {view}
+                        </MenuItem>
+                      ))}
+                    </MenuGroup>
+                  </>
+                ) : null}
                 <MenuSeparator />
                 <MenuItem closeOnClick render={<Link to="/logout" />}>
                   <LogOutIcon />

@@ -35,7 +35,7 @@ export class UploadCoachesService {
       db.select().from(orgEvents).where(eq(orgEvents.id, eventId))
     );
 
-    const result = await this.db.tx(async (tx) => {
+    const result = await this.db.withAudit({ eventId, actorId: uploaderId }, async (tx, audit) => {
       let added = 0;
       let updated = 0;
 
@@ -49,6 +49,20 @@ export class UploadCoachesService {
         rowsErrored: errors.length,
         errorDetails: errors as any,
       }).returning();
+
+      // Log the parent csv_upload audit entry
+      audit.log({
+        action: "upload",
+        resource: "csv_upload",
+        resourceId: upload!.id,
+        metadata: {
+          type: "coach",
+          rowsAdded: 0,
+          rowsUpdated: 0,
+          rowsErrored: errors.length,
+          errorDetails: errors,
+        },
+      });
 
       if (rows.length > 0) {
         // Batch match users by email (join with schoolProfiles for coaches)
@@ -77,9 +91,16 @@ export class UploadCoachesService {
               userId,
               csvUploadId: upload!.id,
             }).where(eq(eventRosters.id, existing.id));
+            audit.log({
+              action: "update",
+              resource: "roster",
+              resourceId: existing.id,
+              parentId: upload!.id,
+              metadata: { after: { firstName: r.firstName, lastName: r.lastName, organization: r.organization, email: r.email } },
+            });
             updated += 1;
           } else {
-            await tx.insert(eventRosters).values({
+            const [inserted] = await tx.insert(eventRosters).values({
               eventId,
               type: "coach",
               email: r.email,
@@ -88,6 +109,13 @@ export class UploadCoachesService {
               organization: r.organization,
               userId,
               csvUploadId: upload!.id,
+            }).returning();
+            audit.log({
+              action: "create",
+              resource: "roster",
+              resourceId: inserted!.id,
+              parentId: upload!.id,
+              metadata: { after: { firstName: r.firstName, lastName: r.lastName, organization: r.organization, email: r.email } },
             });
             added += 1;
           }

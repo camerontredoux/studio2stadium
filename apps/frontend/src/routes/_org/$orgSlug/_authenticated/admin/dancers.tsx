@@ -17,7 +17,7 @@ import { RosterPageHeader } from "@/features/org/components/roster-page-header";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { type ColumnDef, type SortingState } from "@tanstack/react-table";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export const Route = createFileRoute(
   "/_org/$orgSlug/_authenticated/admin/dancers",
@@ -110,6 +110,7 @@ function DancersPage() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [selectedEntry, setSelectedEntry] = useState<RosterEntry | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const openSheetRafRef = useRef<number | null>(null);
 
   const sortBy = sorting[0]?.id as SortColumn | undefined;
   const sortDir = sorting[0]?.desc ? "desc" : "asc";
@@ -148,8 +149,22 @@ function DancersPage() {
 
   const handleRowClick = (row: RosterEntry) => {
     setSelectedEntry(row);
-    setSheetOpen(true);
+    if (openSheetRafRef.current !== null) {
+      cancelAnimationFrame(openSheetRafRef.current);
+    }
+    openSheetRafRef.current = requestAnimationFrame(() => {
+      setSheetOpen(true);
+      openSheetRafRef.current = null;
+    });
   };
+
+  useEffect(() => {
+    return () => {
+      if (openSheetRafRef.current !== null) {
+        cancelAnimationFrame(openSheetRafRef.current);
+      }
+    };
+  }, []);
 
   const handleCellEdit = useCallback(
     async (rowId: string, columnId: string, value: unknown) => {

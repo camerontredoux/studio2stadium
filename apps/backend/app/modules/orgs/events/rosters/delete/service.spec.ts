@@ -1,13 +1,33 @@
 import { test } from "@japa/runner";
 import { eq } from "drizzle-orm";
 import { db } from "#database/connection";
+import { users } from "#database/schema/users";
 import {
+  eventAuditLog,
   eventDancerProfiles,
   eventRosters,
   orgEvents,
 } from "#database/schema/org-events";
 import { organizations } from "#database/schema/organizations";
 import { DeleteRosterService } from "./service.ts";
+
+async function makeActorUser() {
+  const ts = `${Date.now()}_${Math.random()}`;
+  const [actor] = await db
+    .insert(users)
+    .values({
+      username: `actor_${ts}`,
+      email: `actor_${ts}@example.com`,
+      displayEmail: `actor_${ts}@example.com`,
+      firstName: "Actor",
+      lastName: "User",
+      password: "h",
+      role: "admin",
+      type: "dancer",
+    })
+    .returning();
+  return actor!;
+}
 
 async function makeOrgAndEvent(slug = `t-${Date.now()}-${Math.random()}`) {
   const [org] = await db
@@ -28,13 +48,16 @@ async function makeOrgAndEvent(slug = `t-${Date.now()}-${Math.random()}`) {
 
 test.group("DeleteRosterService", (group) => {
   group.each.setup(async () => {
+    await db.delete(eventAuditLog).execute();
     await db.delete(eventDancerProfiles).execute();
     await db.delete(eventRosters).execute();
     await db.delete(orgEvents).execute();
+    await db.delete(users).execute();
     await db.delete(organizations).execute();
   });
 
   test("bulk deletes rosters by id", async ({ assert }) => {
+    const actor = await makeActorUser();
     const { event } = await makeOrgAndEvent();
     const rows = await db
       .insert(eventRosters)
@@ -48,7 +71,7 @@ test.group("DeleteRosterService", (group) => {
     const service = new DeleteRosterService();
     const result = await service.execute(event.id, {
       ids: [rows[0]!.id, rows[1]!.id],
-    });
+    }, { eventId: event.id, actorId: actor.id });
     assert.equal(result.deletedCount, 2);
 
     const remaining = await db.select().from(eventRosters);
@@ -57,6 +80,7 @@ test.group("DeleteRosterService", (group) => {
   });
 
   test("cascades to event_dancer_profiles", async ({ assert }) => {
+    const actor = await makeActorUser();
     const { event } = await makeOrgAndEvent();
     const [row] = await db
       .insert(eventRosters)
@@ -74,7 +98,7 @@ test.group("DeleteRosterService", (group) => {
     });
 
     const service = new DeleteRosterService();
-    await service.execute(event.id, { ids: [row!.id] });
+    await service.execute(event.id, { ids: [row!.id] }, { eventId: event.id, actorId: actor.id });
 
     const profiles = await db
       .select()
@@ -84,6 +108,7 @@ test.group("DeleteRosterService", (group) => {
   });
 
   test("ignores ids belonging to a different event", async ({ assert }) => {
+    const actor = await makeActorUser();
     const { event: eventA } = await makeOrgAndEvent();
     const { event: eventB } = await makeOrgAndEvent();
 
@@ -99,7 +124,7 @@ test.group("DeleteRosterService", (group) => {
       .returning();
 
     const service = new DeleteRosterService();
-    const result = await service.execute(eventA.id, { ids: [rowB!.id] });
+    const result = await service.execute(eventA.id, { ids: [rowB!.id] }, { eventId: eventA.id, actorId: actor.id });
     assert.equal(result.deletedCount, 0);
 
     const stillThere = await db

@@ -7,7 +7,8 @@ export default class UpdateChecklistController {
   @inject()
   async handle(ctx: HttpContext, service: UpdateChecklistService) {
     const payload = await ctx.request.validateUsing(schema);
-    const result = await service.execute(ctx.params.id, ctx.params.itemId, payload);
+    const user = ctx.auth.getUserOrFail();
+    const result = await service.execute(ctx.params.id, ctx.params.itemId, payload, { eventId: ctx.params.id, actorId: user.id });
     return ctx.response.ok(result);
   }
 }

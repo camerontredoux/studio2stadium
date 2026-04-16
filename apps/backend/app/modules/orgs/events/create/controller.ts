@@ -8,8 +8,9 @@ export default class CreateEventController {
   @inject()
   async handle(ctx: HttpContext, service: CreateEventService) {
     const payload = await ctx.request.validateUsing(schema);
+    const user = ctx.auth.getUserOrFail();
     try {
-      const ev = await service.execute(ctx.org!.id, payload);
+      const ev = await service.execute(ctx.org!.id, payload, user.id);
       return ctx.response.created(ev);
     } catch (err: any) {
       if (err instanceof E_DATABASE_ERROR && err.code === "E_UNIQUE_VIOLATION") {
