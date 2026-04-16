@@ -50,9 +50,9 @@ export class UploadPreviewService {
   }): Promise<UploadPreviewResult> {
     const parsed =
       kind === "dancer" ? parseDancerCsv(csv) : parseCoachCsv(csv);
-    const rows = (await normalizeRowEmails(parsed.rows)) as
-      | CoachRow[]
-      | DancerRow[];
+    const rows = (await normalizeRowEmails(
+      parsed.rows as Array<CoachRow | DancerRow>,
+    )) as CoachRow[] | DancerRow[];
     const errors = parsed.errors;
 
     const parserErrors = errors as Array<{ row: number; reason: string }>;

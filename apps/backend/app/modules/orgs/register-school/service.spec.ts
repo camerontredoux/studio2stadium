@@ -383,7 +383,7 @@ test.group("School invite + activation paths", (group) => {
     });
 
     // Login and call GET /schools/me/pending-claims
-    const loginRes = await client.post("/auth/login").json({
+    await client.post("/auth/login").json({
       email: "different@example.com",
       password: "hash",
     });
@@ -451,20 +451,17 @@ test.group("School invite + activation paths", (group) => {
       location: "WA",
     });
 
-    const [actorUser] = await db
-      .insert(users)
-      .values({
-        username: "admin_actor",
-        email: "admin@example.com",
-        displayEmail: "admin@example.com",
-        firstName: "Admin",
-        lastName: "Actor",
-        password: "hash",
-        role: "admin",
-        type: "dancer",
-        verified: true,
-      })
-      .returning();
+    await db.insert(users).values({
+      username: "admin_actor",
+      email: "admin@example.com",
+      displayEmail: "admin@example.com",
+      firstName: "Admin",
+      lastName: "Actor",
+      password: "hash",
+      role: "admin",
+      type: "dancer",
+      verified: true,
+    });
 
     // Simulate manual merge at the DB level (controller/service tested via HTTP integration)
     await db
