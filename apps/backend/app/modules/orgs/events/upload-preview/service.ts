@@ -5,12 +5,15 @@ import { schoolProfiles } from "#database/schema/schools";
 import { users } from "#database/schema/users";
 import { eventRosters } from "#database/schema/org-events";
 import {
+  normalizeRowEmails,
   parseCoachCsv,
   parseDancerCsv,
   type CoachRow,
   type DancerRow,
 } from "#shared/org/csv-parser";
-import { and, eq, inArray, isNull } from "drizzle-orm";
+import { enforceEmailRole } from "#shared/org/role-guard";
+import { mintPreviewToken } from "#shared/org/preview-token";
+import { and, eq, inArray } from "drizzle-orm";
 
 export type UploadKind = "dancer" | "coach";
 
@@ -20,11 +23,15 @@ export interface UploadPreviewResult {
   totalRows: number;
   /** Rows that will be processed on upload (excludes parser failures and dancer school-account rejections). */
   acceptedRows: number;
-  willMatch: number;       // rows whose email belongs to an existing S2S account
-  willInvite: number;      // rows that will trigger an invite email
-  willUpdate: number;      // rows that already exist on this event roster
-  willError: number;       // parser errors + dancer rows rejected as school accounts
+  willMatch: number; // net-new rows whose email matches an existing S2S account (activate on upload)
+  willInvite: number; // net-new rows that will trigger an invite email
+  willUpdate: number; // rows that already exist on this event roster (will be refreshed)
+  willError: number; // parser errors + dancer rows rejected as school accounts
   errors: Array<{ row: number; reason: string }>;
+  /** CSV row indices that will update an existing roster entry. */
+  updateRows: number[];
+  /** Short-lived signed token — must be passed to the commit endpoint. */
+  previewToken: string;
 }
 
 @inject()
@@ -41,8 +48,12 @@ export class UploadPreviewService {
     kind: UploadKind;
     csv: string;
   }): Promise<UploadPreviewResult> {
-    const { rows, errors } =
+    const parsed =
       kind === "dancer" ? parseDancerCsv(csv) : parseCoachCsv(csv);
+    const rows = (await normalizeRowEmails(parsed.rows)) as
+      | CoachRow[]
+      | DancerRow[];
+    const errors = parsed.errors;
 
     const parserErrors = errors as Array<{ row: number; reason: string }>;
 
@@ -56,36 +67,37 @@ export class UploadPreviewService {
         willUpdate: 0,
         willError: parserErrors.length,
         errors: parserErrors,
+        updateRows: [],
+        previewToken: mintPreviewToken(eventId, kind),
       };
     }
 
     let rowsForCounts: CoachRow[] | DancerRow[] = rows;
     let accountErrors: Array<{ row: number; reason: string }> = [];
 
-    if (kind === "dancer") {
-      const dancerRows = rows as DancerRow[];
-      const emails = dancerRows.map((r) => r.email);
-      const schoolOnlyRows = await this.db.use((db) =>
-        db
-          .select({ email: users.email })
-          .from(users)
-          .innerJoin(schoolProfiles, eq(schoolProfiles.userId, users.id))
-          .leftJoin(dancerProfiles, eq(dancerProfiles.userId, users.id))
-          .where(and(inArray(users.email, emails), isNull(dancerProfiles.id))),
+    {
+      const emails = rows.map((r) => r.email);
+      const conflicts = await this.db.use((db) =>
+        enforceEmailRole(db, emails, kind === "coach" ? "coach" : "dancer")
       );
-      const schoolOnly = new Set(
-        schoolOnlyRows.map((u) => u.email.toLowerCase()),
+      const conflictSet = new Map(
+        conflicts.map((c) => [c.email.toLowerCase(), c.conflictingType])
       );
-      accountErrors = dancerRows
-        .filter((r) => schoolOnly.has(r.email.toLowerCase()))
-        .map((r) => ({
-          row: r.csvRow,
-          reason:
-            "email belongs to a school account, not a dancer — use the coach roster for staff",
-        }));
-      rowsForCounts = dancerRows.filter(
-        (r) => !schoolOnly.has(r.email.toLowerCase()),
-      );
+      if (conflictSet.size > 0) {
+        accountErrors = rows
+          .filter((r) => conflictSet.has(r.email.toLowerCase()))
+          .map((r) => {
+            const ct = conflictSet.get(r.email.toLowerCase());
+            const reason =
+              ct === "school"
+                ? "email belongs to a school account — use the coach roster for staff"
+                : "email belongs to a dancer account — use the dancer roster";
+            return { row: r.csvRow, reason };
+          });
+        rowsForCounts = rows.filter(
+          (r) => !conflictSet.has(r.email.toLowerCase())
+        ) as CoachRow[] | DancerRow[];
+      }
     }
 
     const emails = rowsForCounts.map((r) => r.email);
@@ -107,9 +119,7 @@ export class UploadPreviewService {
         .where(inArray(users.email, emails));
     });
 
-    const matchedSet = new Set(
-      matchedUsers.map((u) => u.email.toLowerCase()),
-    );
+    const matchedSet = new Set(matchedUsers.map((u) => u.email.toLowerCase()));
 
     // Rows already on this event's roster — these will be updates, not net-new invites.
     const existingRows =
@@ -122,17 +132,16 @@ export class UploadPreviewService {
               .where(
                 and(
                   eq(eventRosters.eventId, eventId),
-                  inArray(eventRosters.email, emails),
-                ),
-              ),
+                  inArray(eventRosters.email, emails)
+                )
+              )
           );
-    const existingSet = new Set(
-      existingRows.map((r) => r.email.toLowerCase()),
-    );
+    const existingSet = new Set(existingRows.map((r) => r.email.toLowerCase()));
 
     let willMatch = 0;
     let willInvite = 0;
     let willUpdate = 0;
+    const updateRows: number[] = [];
 
     for (const r of rowsForCounts) {
       const email = r.email.toLowerCase();
@@ -141,8 +150,7 @@ export class UploadPreviewService {
 
       if (isExistingRosterRow) {
         willUpdate += 1;
-        if (isMatchedUser) willMatch += 1;
-        // Already on roster — no new invite sent on re-upload
+        updateRows.push(r.csvRow);
         continue;
       }
 
@@ -164,6 +172,8 @@ export class UploadPreviewService {
       willUpdate,
       willError: allErrors.length,
       errors: allErrors,
+      updateRows,
+      previewToken: mintPreviewToken(eventId, kind),
     };
   }
 }

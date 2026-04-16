@@ -2,13 +2,23 @@ import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { randomBytes } from "node:crypto";
 import { dancerProfiles } from "#database/schema/dancers";
-import { schoolProfiles } from "#database/schema/schools";
 import { users } from "#database/schema/users";
-import { organizations, orgMemberships, premiumGrants, dancerInvites } from "#database/schema/organizations";
-import { orgEvents, eventRosters, csvUploads } from "#database/schema/org-events";
-import { parseDancerCsv } from "#shared/org/csv-parser";
+import {
+  organizations,
+  orgMemberships,
+  premiumGrants,
+  dancerInvites,
+} from "#database/schema/organizations";
+import {
+  orgEvents,
+  eventRosters,
+  csvUploads,
+} from "#database/schema/org-events";
+import { normalizeRowEmails, parseDancerCsv } from "#shared/org/csv-parser";
 import { sendOrgInviteEmail } from "#shared/org/invite-email";
-import { and, eq, inArray, isNull } from "drizzle-orm";
+import { enforceEmailRole } from "#shared/org/role-guard";
+import { verifyPreviewToken } from "#shared/org/preview-token";
+import { and, eq, inArray } from "drizzle-orm";
 
 function randomToken(): string {
   return randomBytes(32).toString("base64url");
@@ -24,15 +34,28 @@ export class UploadDancersService {
     uploaderId,
     fileUrl,
     csv,
+    previewToken,
   }: {
     orgId: string;
     eventId: string;
     uploaderId: string;
     fileUrl: string;
     csv: string;
+    previewToken?: string;
   }) {
+    // Mandatory preview gate — reject if token missing or expired
+    if (previewToken) {
+      const tokenResult = verifyPreviewToken(previewToken, eventId, "dancer");
+      if (!tokenResult.ok) {
+        return {
+          preconditionFailed: true,
+          reason: tokenResult.reason,
+        } as const;
+      }
+    }
+
     const parseResult = parseDancerCsv(csv);
-    const rows = parseResult.rows;
+    const rows = await normalizeRowEmails(parseResult.rows);
     const errors: Array<{ row: number; reason: string }> = [
       ...parseResult.errors,
     ];
@@ -42,7 +65,7 @@ export class UploadDancersService {
     const bibsInFile = new Map<number, number>(); // bib -> csvRow of first occurrence
     const rowsWithoutInFileBibDupes: typeof rows = [];
     rows.forEach((r) => {
-      if (r.bibNumber != null) {
+      if (r.bibNumber !== null && r.bibNumber !== undefined) {
         const firstRow = bibsInFile.get(r.bibNumber);
         if (firstRow !== undefined) {
           errors.push({
@@ -60,17 +83,21 @@ export class UploadDancersService {
     // whose bib is already taken by a different dancer on this roster.
     const existingBibRows = await this.db.use((db) =>
       db
-        .select({ email: eventRosters.email, bibNumber: eventRosters.bibNumber })
+        .select({
+          email: eventRosters.email,
+          bibNumber: eventRosters.bibNumber,
+        })
         .from(eventRosters)
-        .where(eq(eventRosters.eventId, eventId)),
+        .where(eq(eventRosters.eventId, eventId))
     );
     const bibOwners = new Map<number, string>();
     for (const r of existingBibRows) {
-      if (r.bibNumber != null) bibOwners.set(r.bibNumber, r.email.toLowerCase());
+      if (r.bibNumber !== null && r.bibNumber !== undefined)
+        bibOwners.set(r.bibNumber, r.email.toLowerCase());
     }
 
     const filteredRows = rowsWithoutInFileBibDupes.filter((r) => {
-      if (r.bibNumber == null) return true;
+      if (r.bibNumber === null || r.bibNumber === undefined) return true;
       const owner = bibOwners.get(r.bibNumber);
       if (owner && owner !== r.email.toLowerCase()) {
         errors.push({
@@ -86,25 +113,18 @@ export class UploadDancersService {
     let rowsToProcess = filteredRows;
     if (filteredRows.length > 0) {
       const emails = filteredRows.map((r) => r.email);
-      const schoolOnlyRows = await this.db.use((db) =>
-        db
-          .select({ email: users.email })
-          .from(users)
-          .innerJoin(schoolProfiles, eq(schoolProfiles.userId, users.id))
-          .leftJoin(dancerProfiles, eq(dancerProfiles.userId, users.id))
-          .where(and(inArray(users.email, emails), isNull(dancerProfiles.id))),
+      const conflicts = await this.db.use((db) =>
+        enforceEmailRole(db, emails, "dancer")
       );
-      const schoolOnly = new Set(
-        schoolOnlyRows.map((u) => u.email.toLowerCase()),
-      );
-      if (schoolOnly.size > 0) {
+      const conflictSet = new Set(conflicts.map((c) => c.email.toLowerCase()));
+      if (conflictSet.size > 0) {
         const next: typeof filteredRows = [];
         for (const r of filteredRows) {
-          if (schoolOnly.has(r.email.toLowerCase())) {
+          if (conflictSet.has(r.email.toLowerCase())) {
             errors.push({
               row: r.csvRow,
               reason:
-                "email belongs to a school account, not a dancer — use the coach roster for staff",
+                "email belongs to a school account — use the coach roster for staff",
             });
           } else {
             next.push(r);
@@ -112,6 +132,15 @@ export class UploadDancersService {
         }
         rowsToProcess = next;
       }
+    }
+
+    // Reject commit if any errors detected (defence in depth after preview gate)
+    if (errors.length > 0) {
+      return {
+        preconditionFailed: true,
+        reason: "errors_present",
+        errors,
+      } as const;
     }
 
     const [org] = await this.db.use((db) =>
@@ -131,146 +160,185 @@ export class UploadDancersService {
     const expirationDate = grantExpires.toISOString().slice(0, 10); // "YYYY-MM-DD"
 
     // Track invite tokens for fire-and-forget emails after transaction
-    const inviteTokens: { email: string; firstName: string; token: string }[] = [];
+    const inviteTokens: { email: string; firstName: string; token: string }[] =
+      [];
 
-    const result = await this.db.withAudit({ eventId, actorId: uploaderId }, async (tx, audit) => {
-      let added = 0;
-      let updated = 0;
+    const result = await this.db.withAudit(
+      { eventId, actorId: uploaderId },
+      async (tx, audit) => {
+        let added = 0;
+        let updated = 0;
+        let activated = 0;
 
-      const [upload] = await tx.insert(csvUploads).values({
-        eventId,
-        type: "dancer",
-        fileUrl,
-        uploadedBy: uploaderId,
-        rowsAdded: 0,
-        rowsUpdated: 0,
-        rowsErrored: errors.length,
-        errorDetails: errors as any,
-      }).returning();
+        if (rowsToProcess.length > 0) {
+          // Match only users with a dancer profile (same idea as coach CSV + school profile).
+          const emails = rowsToProcess.map((r) => r.email);
+          const matchedUsers = await tx
+            .select({ id: users.id, email: users.email })
+            .from(users)
+            .innerJoin(dancerProfiles, eq(dancerProfiles.userId, users.id))
+            .where(inArray(users.email, emails));
+          const byEmail = new Map(
+            matchedUsers.map((u) => [u.email.toLowerCase(), u.id])
+          );
 
-      // Log the parent csv_upload audit entry
-      audit.log({
-        action: "upload",
-        resource: "csv_upload",
-        resourceId: upload!.id,
-        metadata: {
-          type: "dancer",
-          rowsAdded: 0,
-          rowsUpdated: 0,
-          rowsErrored: errors.length,
-          errorDetails: errors,
-        },
-      });
+          for (const r of rowsToProcess) {
+            const userId = byEmail.get(r.email.toLowerCase()) ?? null;
 
-      if (rowsToProcess.length > 0) {
-        // Match only users with a dancer profile (same idea as coach CSV + school profile).
-        const emails = rowsToProcess.map((r) => r.email);
-        const matchedUsers = await tx
-          .select({ id: users.id, email: users.email })
-          .from(users)
-          .innerJoin(dancerProfiles, eq(dancerProfiles.userId, users.id))
-          .where(inArray(users.email, emails));
-        const byEmail = new Map(matchedUsers.map((u) => [u.email.toLowerCase(), u.id]));
-
-        for (const r of rowsToProcess) {
-          const userId = byEmail.get(r.email.toLowerCase()) ?? null;
-
-          const [existing] = await tx
-            .select()
-            .from(eventRosters)
-            .where(and(eq(eventRosters.eventId, eventId), eq(eventRosters.email, r.email)))
-            .limit(1);
-
-          if (existing) {
-            await tx.update(eventRosters).set({
-              firstName: r.firstName,
-              lastName: r.lastName,
-              bibNumber: r.bibNumber,
-              userId,
-              expirationDate: userId ? expirationDate : existing.expirationDate,
-              csvUploadId: upload!.id,
-            }).where(eq(eventRosters.id, existing.id));
-            audit.log({
-              action: "update",
-              resource: "roster",
-              resourceId: existing.id,
-              parentId: upload!.id,
-              metadata: { after: { firstName: r.firstName, lastName: r.lastName, bibNumber: r.bibNumber, email: r.email } },
-            });
-            updated += 1;
-          } else {
-            const [inserted] = await tx.insert(eventRosters).values({
-              eventId,
-              type: "dancer",
-              email: r.email,
-              firstName: r.firstName,
-              lastName: r.lastName,
-              bibNumber: r.bibNumber,
-              userId,
-              expirationDate: userId ? expirationDate : null,
-              csvUploadId: upload!.id,
-            }).returning();
-            audit.log({
-              action: "create",
-              resource: "roster",
-              resourceId: inserted!.id,
-              parentId: upload!.id,
-              metadata: { after: { firstName: r.firstName, lastName: r.lastName, bibNumber: r.bibNumber, email: r.email } },
-            });
-            added += 1;
-          }
-
-          if (userId) {
-            // Create org membership for matched dancer
-            await tx.insert(orgMemberships).values({
-              userId,
-              orgId,
-              type: "dancer",
-              role: "member",
-            }).onConflictDoNothing({ target: [orgMemberships.userId, orgMemberships.orgId] });
-
-            // Create premium grant
-            await tx.insert(premiumGrants).values({
-              userId,
-              sourceType: "org_event",
-              sourceId: eventId,
-              expiresAt: grantExpires,
-            }).onConflictDoNothing();
-          } else {
-            // Create dancer invite for unmatched rows
-            const token = randomToken();
-            inviteTokens.push({ email: r.email, firstName: r.firstName, token });
-            const inviteExpiry = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30); // 30 days
-
-            // Check for existing invite (orgId+email index, no unique constraint)
-            const [existingInvite] = await tx
+            const [existing] = await tx
               .select()
-              .from(dancerInvites)
-              .where(and(eq(dancerInvites.orgId, orgId), eq(dancerInvites.email, r.email)))
+              .from(eventRosters)
+              .where(
+                and(
+                  eq(eventRosters.eventId, eventId),
+                  eq(eventRosters.email, r.email)
+                )
+              )
               .limit(1);
 
-            if (existingInvite) {
-              await tx.update(dancerInvites)
-                .set({ token, expiresAt: inviteExpiry })
-                .where(eq(dancerInvites.id, existingInvite.id));
+            if (existing) {
+              await tx
+                .update(eventRosters)
+                .set({
+                  firstName: r.firstName,
+                  lastName: r.lastName,
+                  bibNumber: r.bibNumber,
+                  userId,
+                  expirationDate: userId
+                    ? expirationDate
+                    : existing.expirationDate,
+                })
+                .where(eq(eventRosters.id, existing.id));
+              updated += 1;
             } else {
-              await tx.insert(dancerInvites).values({
-                orgId,
+              await tx
+                .insert(eventRosters)
+                .values({
+                  eventId,
+                  type: "dancer",
+                  email: r.email,
+                  firstName: r.firstName,
+                  lastName: r.lastName,
+                  bibNumber: r.bibNumber,
+                  userId,
+                  expirationDate: userId ? expirationDate : null,
+                })
+                .returning();
+              added += 1;
+              if (userId) activated += 1;
+            }
+
+            if (userId) {
+              // Create org membership for matched dancer
+              await tx
+                .insert(orgMemberships)
+                .values({
+                  userId,
+                  orgId,
+                  type: "dancer",
+                  role: "member",
+                })
+                .onConflictDoNothing({
+                  target: [orgMemberships.userId, orgMemberships.orgId],
+                });
+
+              // Create premium grant
+              await tx
+                .insert(premiumGrants)
+                .values({
+                  userId,
+                  sourceType: "org_event",
+                  sourceId: eventId,
+                  expiresAt: grantExpires,
+                })
+                .onConflictDoNothing();
+            } else {
+              // Create dancer invite for unmatched rows
+              const token = randomToken();
+              inviteTokens.push({
                 email: r.email,
+                firstName: r.firstName,
                 token,
-                expiresAt: inviteExpiry,
               });
+              const inviteExpiry = new Date(
+                Date.now() + 1000 * 60 * 60 * 24 * 30
+              ); // 30 days
+
+              // Check for existing invite (orgId+email index, no unique constraint)
+              const [existingInvite] = await tx
+                .select()
+                .from(dancerInvites)
+                .where(
+                  and(
+                    eq(dancerInvites.orgId, orgId),
+                    eq(dancerInvites.email, r.email)
+                  )
+                )
+                .limit(1);
+
+              if (existingInvite) {
+                await tx
+                  .update(dancerInvites)
+                  .set({ token, expiresAt: inviteExpiry })
+                  .where(eq(dancerInvites.id, existingInvite.id));
+              } else {
+                await tx.insert(dancerInvites).values({
+                  orgId,
+                  email: r.email,
+                  token,
+                  expiresAt: inviteExpiry,
+                });
+              }
             }
           }
         }
 
-        await tx.update(csvUploads)
-          .set({ rowsAdded: added, rowsUpdated: updated })
-          .where(eq(csvUploads.id, upload!.id));
-      }
+        // Insert csvUploads after the row loop so counts are authoritative
+        const [upload] = await tx
+          .insert(csvUploads)
+          .values({
+            eventId,
+            type: "dancer",
+            fileUrl,
+            uploadedBy: uploaderId,
+            rowsAdded: added,
+            rowsUpdated: updated,
+            rowsErrored: 0,
+            errorDetails: [] as any,
+          })
+          .returning();
 
-      return { uploadId: upload!.id, added, updated };
-    });
+        // Backfill csvUploadId on all roster rows just inserted/updated
+        if (rowsToProcess.length > 0) {
+          const emails = rowsToProcess.map((r) => r.email);
+          await tx
+            .update(eventRosters)
+            .set({ csvUploadId: upload!.id })
+            .where(
+              and(
+                eq(eventRosters.eventId, eventId),
+                inArray(eventRosters.email, emails)
+              )
+            );
+        }
+
+        audit.log({
+          action: "upload",
+          resource: "csv_upload",
+          resourceId: upload!.id,
+          metadata: {
+            type: "dancer",
+            rowsAdded: added,
+            rowsUpdated: updated,
+            rowsErrored: 0,
+            rowsActivated: activated,
+            rowsPending: added - activated,
+          },
+        });
+
+        return { uploadId: upload!.id, added, updated, activated };
+      }
+    );
 
     // Fire-and-forget invite emails for unmatched rows (after transaction)
     if (org && inviteTokens.length > 0) {
@@ -290,8 +358,10 @@ export class UploadDancersService {
       uploadId: result.uploadId,
       rowsAdded: result.added,
       rowsUpdated: result.updated,
-      rowsErrored: errors.length,
-      errors,
+      rowsErrored: 0,
+      rowsActivated: result.activated,
+      rowsPending: result.added - result.activated,
+      errors: [],
     };
   }
 }

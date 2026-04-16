@@ -33,10 +33,34 @@ import {
 import Papa from "papaparse";
 import { useCallback, useMemo, useRef, useState } from "react";
 
+const ERROR_REASON_LABELS: Record<string, string> = {
+  "cross-role-school":
+    "Email belongs to a school account — remove from dancer roster",
+  "cross-role-dancer":
+    "Email belongs to a dancer account — remove from coach roster",
+  "cross-role-pending-school":
+    "Email has a pending school invite — cannot also be a dancer",
+  "cross-role-pending-dancer":
+    "Email has a pending dancer invite — cannot also be a coach",
+  "bib-collision":
+    "Bib number already assigned to another dancer in this event",
+  "duplicate-in-file": "Duplicate entry in this file",
+  "missing-required": "Missing required field",
+  errors_present: "File contains errors that must be fixed before uploading",
+};
+
+function formatErrorReason(reason: string): string {
+  return ERROR_REASON_LABELS[reason] ?? reason;
+}
+
 type UploadResult = {
   rowsAdded: number;
   rowsUpdated: number;
   rowsErrored: number;
+  /** Rows in inserted batch where userId IS NOT NULL (activated immediately) */
+  rowsActivated?: number;
+  /** Rows in inserted batch where userId IS NULL (pending invite) */
+  rowsPending?: number;
   errors: Array<{ row: number; reason: string }>;
 };
 
@@ -44,11 +68,17 @@ type ServerPreview = {
   totalRows: number;
   /** Rows the server will process (after parser + account checks). */
   acceptedRows: number;
+  /** Net-new rows that match an existing S2S account (will activate). */
   willMatch: number;
+  /** Net-new rows that will trigger an invite email. */
   willInvite: number;
+  /** Rows already on this event's roster (will be refreshed in place). */
   willUpdate: number;
   willError: number;
   errors?: Array<{ row: number; reason: string }>;
+  /** CSV row indices that will update existing roster entries. */
+  updateRows?: number[];
+  previewToken?: string;
 };
 
 function previewRowCounts(
@@ -127,9 +157,16 @@ export function CsvUploadDialog({
     [onOpenChange, reset],
   );
 
-  async function postForm<T>(path: string, file: File): Promise<T> {
+  async function postForm<T>(
+    path: string,
+    file: File,
+    extra?: Record<string, string>,
+  ): Promise<T> {
     const form = new FormData();
     form.append("file", file);
+    if (extra) {
+      for (const [k, v] of Object.entries(extra)) form.append(k, v);
+    }
     const baseUrl = (import.meta.env.VITE_API_URL as string) ?? "";
     const res = await fetch(`${baseUrl}${path}`, {
       method: "POST",
@@ -153,8 +190,18 @@ export function CsvUploadDialog({
   }
 
   const upload = useMutation({
-    mutationFn: (file: File) =>
-      postForm<UploadResult>(schema.uploadPath(orgSlug, eventId), file),
+    mutationFn: ({
+      file,
+      previewToken,
+    }: {
+      file: File;
+      previewToken?: string;
+    }) =>
+      postForm<UploadResult>(
+        schema.uploadPath(orgSlug, eventId),
+        file,
+        previewToken ? { previewToken } : undefined,
+      ),
     onSuccess: (data) => {
       setStep({ name: "done", result: data });
       qc.invalidateQueries(adminQueries.stats(orgSlug, eventId));
@@ -310,28 +357,12 @@ export function CsvUploadDialog({
               <Button
                 onClick={() => {
                   setStep({ name: "uploading" });
-                  upload.mutate(step.file);
+                  upload.mutate({
+                    file: step.file,
+                    previewToken: step.serverPreview?.previewToken,
+                  });
                 }}
-                disabled={
-                  (() => {
-                    const { acceptedRows } = previewRowCounts(
-                      step.parse,
-                      step.serverPreview,
-                      step.serverPreviewPending,
-                    );
-                    return (
-                      acceptedRows === 0 ||
-                      step.parse.duplicates.length > 0 ||
-                      step.serverPreviewPending
-                    );
-                  })()
-                }
-              >
-                {(() => {
-                  const dup = step.parse.duplicates.length;
-                  if (dup > 0) {
-                    return `Fix ${dup} duplicate${dup === 1 ? "" : "s"} to continue`;
-                  }
+                disabled={(() => {
                   const { acceptedRows } = previewRowCounts(
                     step.parse,
                     step.serverPreview,
@@ -339,7 +370,33 @@ export function CsvUploadDialog({
                   );
                   const sp = step.serverPreview;
                   const pending = step.serverPreviewPending;
-                  if (sp && !pending && sp.willInvite > 0) {
+                  return (
+                    acceptedRows === 0 ||
+                    step.parse.duplicates.length > 0 ||
+                    pending ||
+                    (sp !== null && sp.willError > 0)
+                  );
+                })()}
+              >
+                {(() => {
+                  const dup = step.parse.duplicates.length;
+                  if (dup > 0) {
+                    return `Fix ${dup} duplicate${dup === 1 ? "" : "s"} to continue`;
+                  }
+                  const sp = step.serverPreview;
+                  const pending = step.serverPreviewPending;
+                  if (pending) {
+                    return "Checking…";
+                  }
+                  if (sp && sp.willError > 0) {
+                    return `Fix ${sp.willError} error${sp.willError === 1 ? "" : "s"} to continue`;
+                  }
+                  const { acceptedRows } = previewRowCounts(
+                    step.parse,
+                    sp,
+                    pending,
+                  );
+                  if (sp && sp.willInvite > 0) {
                     return `Upload & send ${sp.willInvite.toLocaleString()} invites`;
                   }
                   return `Upload ${acceptedRows.toLocaleString()} rows`;
@@ -374,7 +431,6 @@ function PreviewView({
   step: Extract<DialogStep, { name: "preview" }>;
   schema: CsvSchema;
 }) {
-  const previewRows = step.parse.rows.slice(0, 10);
   const columns = step.parse.detectedColumns;
 
   const hasDuplicates = step.parse.duplicates.length > 0;
@@ -383,33 +439,60 @@ function PreviewView({
   const hasServerIssues = Boolean(sp && !pending && sp.willError > 0);
   const showImpactCards = !hasDuplicates && !hasServerIssues;
 
-  const { totalRows: rowTotal, acceptedRows: rowsToUpload } = previewRowCounts(
-    step.parse,
-    sp,
-    pending,
-  );
+  const serverErrorsByRow = (() => {
+    const map = new Map<number, string[]>();
+    if (!sp?.errors || pending) return map;
+    for (const e of sp.errors) {
+      const list = map.get(e.row) ?? [];
+      list.push(formatErrorReason(e.reason));
+      map.set(e.row, list);
+    }
+    return map;
+  })();
+
+  const previewRows = step.parse.rows.map((row) => {
+    const serverErrors = serverErrorsByRow.get(row.index) ?? [];
+    return { ...row, serverErrors };
+  });
+
+  const { totalRows: rowTotal } = previewRowCounts(step.parse, sp, pending);
+
+  const updateRowsSet = new Set(sp?.updateRows ?? []);
+  const willAdd = sp ? sp.willMatch + sp.willInvite : 0;
 
   return (
     <div className="flex min-h-0 flex-col gap-3 overflow-hidden">
-      {(hasDuplicates || hasServerIssues) && (
-        <PreviewIssuesBanner
-          duplicates={step.parse.duplicates}
-          serverPreview={sp}
-          serverPending={pending}
-          kind={schema.type}
-        />
-      )}
       {showImpactCards && (
-        <ImpactSummary
-          pending={pending}
-          preview={sp}
-          kind={schema.type}
-        />
+        <ImpactSummary pending={pending} preview={sp} />
       )}
 
-      <div className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
-        Preview · first 10 of {rowTotal.toLocaleString()} rows
-      </div>
+      {sp && !pending && (
+        <div className="flex items-center gap-3 text-[11px]">
+          <span className="text-muted-foreground font-semibold tracking-wider uppercase">
+            Preview
+          </span>
+          {willAdd > 0 && (
+            <span className="text-success-foreground font-medium tabular-nums">
+              {willAdd} will add
+            </span>
+          )}
+          {sp.willUpdate > 0 && (
+            <span className="text-muted-foreground tabular-nums">
+              {sp.willUpdate} will update
+            </span>
+          )}
+          {sp.willError > 0 && (
+            <span className="text-destructive font-medium tabular-nums">
+              {sp.willError} rejected
+            </span>
+          )}
+        </div>
+      )}
+      {(!sp || pending) && (
+        <div className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
+          Preview · {rowTotal.toLocaleString()} rows
+        </div>
+      )}
 
       <div className="min-h-0 flex-1 overflow-auto rounded-lg border">
         <table className="w-full text-xs">
@@ -417,6 +500,9 @@ function PreviewView({
             <tr>
               <th className="text-muted-foreground w-8 px-2 py-1.5 text-left font-medium">
                 #
+              </th>
+              <th className="text-muted-foreground w-20 px-2 py-1.5 text-left font-medium">
+                Status
               </th>
               {columns.map((col) => (
                 <th
@@ -429,47 +515,68 @@ function PreviewView({
             </tr>
           </thead>
           <tbody>
-            {previewRows.map((row) => (
-              <tr
-                key={row.index}
-                className={cn(
-                  "border-t transition-colors",
-                  row.errors.length > 0
-                    ? "bg-amber-500/5 hover:bg-amber-500/10"
-                    : "hover:bg-muted/30",
-                )}
-              >
-                <td className="text-muted-foreground w-8 px-2 py-1.5 font-mono">
-                  {row.errors.length > 0 ? (
-                    <AlertTriangleIcon className="size-3 text-amber-500" />
-                  ) : (
-                    row.index
+            {previewRows.map((row) => {
+              const combinedErrors = [...row.errors, ...row.serverErrors];
+              const hasError = combinedErrors.length > 0;
+              return (
+                <tr
+                  key={row.index}
+                  className={cn(
+                    "border-t transition-colors",
+                    hasError
+                      ? "bg-destructive/5 hover:bg-destructive/10"
+                      : "hover:bg-muted/30",
                   )}
-                </td>
-                {columns.map((col) => (
-                  <td
-                    key={col}
-                    className="max-w-[180px] truncate px-2 py-1.5"
-                    title={row.values[col] ?? ""}
-                  >
-                    {row.values[col] ?? (
-                      <span className="text-muted-foreground/50">—</span>
+                >
+                  <td className="text-muted-foreground w-8 px-2 py-1.5 font-mono">
+                    {row.index}
+                  </td>
+                  <td className="w-20 px-2 py-1.5">
+                    {hasError ? (
+                      <span
+                        className="text-destructive inline-flex items-center gap-1 text-[10px] font-medium"
+                        title={combinedErrors.join("\n")}
+                      >
+                        <AlertTriangleIcon className="size-3 shrink-0" />
+                        Rejected
+                      </span>
+                    ) : pending ? (
+                      <span className="text-muted-foreground text-[10px] font-medium">
+                        Checking…
+                      </span>
+                    ) : updateRowsSet.has(row.index) ? (
+                      <span className="text-muted-foreground text-[10px] font-medium">
+                        Will update
+                      </span>
+                    ) : (
+                      <span className="text-success-foreground text-[10px] font-medium">
+                        Will add
+                      </span>
                     )}
                   </td>
-                ))}
-              </tr>
-            ))}
+                  {columns.map((col) => (
+                    <td
+                      key={col}
+                      className="max-w-[180px] truncate px-2 py-1.5"
+                      title={row.values[col] ?? ""}
+                    >
+                      {row.values[col] ?? (
+                        <span className="text-muted-foreground/50">—</span>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
-      <p className="text-muted-foreground text-xs">
-        Showing 10 of {rowTotal.toLocaleString()} ·{" "}
-        {rowsToUpload.toLocaleString()} rows will upload
-        {hasDuplicates
-          ? " — upload stays disabled until duplicate values are fixed."
-          : ""}
-      </p>
+      {hasDuplicates && (
+        <p className="text-muted-foreground text-xs">
+          Upload stays disabled until duplicate values are fixed.
+        </p>
+      )}
 
       <ColumnChips
         schema={schema}
@@ -518,7 +625,7 @@ function UploadingView() {
     <div className="flex flex-col items-center justify-center gap-4 py-8">
       <FileSpreadsheetIcon className="text-muted-foreground size-12 animate-pulse" />
       <div className="bg-muted relative h-1.5 w-full max-w-sm overflow-hidden rounded-full">
-        <div className="bg-primary absolute inset-y-0 left-0 w-1/3 animate-[shimmer_1.4s_infinite_ease-in-out] rounded-full" />
+        <div className="bg-primary absolute inset-y-0 left-0 w-1/3 animate-[loading-bar_1.4s_infinite_ease-in-out] rounded-full" />
       </div>
       <p className="text-muted-foreground text-sm">Uploading to server…</p>
     </div>
@@ -529,36 +636,113 @@ function ResultView({ result }: { result: UploadResult }) {
   const added = result?.rowsAdded ?? 0;
   const updated = result?.rowsUpdated ?? 0;
   const errored = result?.rowsErrored ?? 0;
+  const activated = result?.rowsActivated ?? 0;
+  const pending = result?.rowsPending ?? 0;
   const errors = result?.errors ?? [];
+  const hasBreakdown =
+    result?.rowsActivated !== undefined && result?.rowsPending !== undefined;
+
+  const summary = buildResultSummary(added, updated, errored);
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-        <CheckCircle2Icon className="size-5" />
-        <span className="font-semibold">Roster processed</span>
+    <div className="flex min-h-0 flex-col gap-3 overflow-hidden">
+      <div className="flex flex-col gap-1 pb-1">
+        <h3 className="text-base leading-tight font-semibold tracking-tight">
+          Roster processed
+        </h3>
+        <p className="text-muted-foreground text-sm">{summary}</p>
       </div>
-      <div className="grid grid-cols-3 gap-3">
-        <ResultStat value={added} label="added" tone="success" />
-        <ResultStat value={updated} label="updated" tone="default" />
-        <ResultStat
-          value={errored}
-          label="errored"
-          tone={errored > 0 ? "error" : "default"}
-        />
+
+      <div
+        className={cn(
+          "grid gap-2",
+          hasBreakdown ? "sm:grid-cols-3" : "sm:grid-cols-2",
+        )}
+      >
+        {hasBreakdown ? (
+          <>
+            <ImpactCard
+              icon={<UserCheckIcon className="size-4" />}
+              value={activated}
+              label="activated"
+              hint={activated > 0 ? "matched existing accounts" : "none"}
+              tone={activated > 0 ? "success" : "muted"}
+            />
+            <ImpactCard
+              icon={<MailIcon className="size-4" />}
+              value={pending}
+              label="invited"
+              hint={pending > 0 ? "pending signup" : "none sent"}
+              tone={pending > 0 ? "warn" : "muted"}
+            />
+            <ImpactCard
+              icon={<RefreshCwIcon className="size-4" />}
+              value={updated}
+              label="updated"
+              hint={updated > 0 ? "refreshed in place" : "none"}
+              tone="muted"
+            />
+          </>
+        ) : (
+          <>
+            <ImpactCard
+              icon={<UserCheckIcon className="size-4" />}
+              value={added}
+              label={added === 1 ? "row added" : "rows added"}
+              hint={added > 0 ? "added to roster" : "none"}
+              tone={added > 0 ? "success" : "muted"}
+            />
+            <ImpactCard
+              icon={<RefreshCwIcon className="size-4" />}
+              value={updated}
+              label={updated === 1 ? "row updated" : "rows updated"}
+              hint={updated > 0 ? "refreshed in place" : "none"}
+              tone="muted"
+            />
+          </>
+        )}
       </div>
+
+      {errored > 0 && (
+        <div className="border-destructive/30 bg-destructive/5 flex items-center gap-2.5 rounded-xl border px-3 py-2.5">
+          <AlertTriangleIcon className="text-destructive size-4 shrink-0" />
+          <span className="text-destructive text-sm font-medium tabular-nums">
+            {errored.toLocaleString()} row{errored === 1 ? "" : "s"} rejected
+          </span>
+          {errors.length > 0 && (
+            <span className="text-muted-foreground text-xs">
+              see reasons below
+            </span>
+          )}
+        </div>
+      )}
+
       {errors.length > 0 && (
-        <div className="flex flex-col gap-2">
+        <div className="flex min-h-0 flex-1 flex-col gap-2">
           <div className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
-            Errors
+            Rejected rows
           </div>
-          <div className="max-h-40 overflow-auto rounded-lg border">
+          <div className="min-h-0 flex-1 overflow-auto rounded-lg border">
             <table className="w-full text-xs">
+              <thead className="bg-muted/40 sticky top-0">
+                <tr>
+                  <th className="text-muted-foreground w-12 px-2 py-1.5 text-left font-medium">
+                    #
+                  </th>
+                  <th className="text-muted-foreground px-2 py-1.5 text-left font-medium">
+                    Reason
+                  </th>
+                </tr>
+              </thead>
               <tbody>
                 {errors.map((err, i) => (
-                  <tr key={i} className="border-b last:border-b-0">
+                  <tr key={i} className="border-t">
                     <td className="text-muted-foreground w-12 px-2 py-1.5 font-mono">
                       {err.row}
                     </td>
-                    <td className="px-2 py-1.5">{err.reason}</td>
+                    <td className="px-2 py-1.5">
+                      {formatErrorReason(err.reason)}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -570,29 +754,17 @@ function ResultView({ result }: { result: UploadResult }) {
   );
 }
 
-function ResultStat({
-  value,
-  label,
-  tone,
-}: {
-  value: number;
-  label: string;
-  tone: "success" | "error" | "default";
-}) {
-  return (
-    <div
-      className={cn(
-        "flex flex-col items-center justify-center rounded-xl border py-4",
-        tone === "success" && "border-emerald-500/30 bg-emerald-500/5",
-        tone === "error" && "border-destructive/30 bg-destructive/5",
-      )}
-    >
-      <span className="text-3xl font-semibold tabular-nums">
-        {value.toLocaleString()}
-      </span>
-      <span className="text-muted-foreground text-xs">{label}</span>
-    </div>
-  );
+function buildResultSummary(
+  added: number,
+  updated: number,
+  errored: number,
+): string {
+  const parts: string[] = [];
+  if (added > 0) parts.push(`${added.toLocaleString()} added`);
+  if (updated > 0) parts.push(`${updated.toLocaleString()} updated`);
+  if (errored > 0) parts.push(`${errored.toLocaleString()} rejected`);
+  if (parts.length === 0) return "No rows processed";
+  return parts.join(" · ");
 }
 
 function StepIndicator({ step }: { step: DialogStep["name"] }) {
@@ -618,17 +790,21 @@ function StepIndicator({ step }: { step: DialogStep["name"] }) {
                   "flex size-5 items-center justify-center rounded-full border text-[10px] font-semibold tabular-nums transition-colors",
                   isActive &&
                     "border-primary bg-primary text-primary-foreground",
-                  isDone && "border-emerald-500 bg-emerald-500 text-white",
+                  isDone && "border-success bg-success text-success-foreground",
                   !isActive && !isDone && "border-border text-muted-foreground",
                 )}
               >
-                {isDone ? <CheckCircle2Icon className="size-3" /> : i + 1}
+                {isDone ? (
+                  <CheckCircle2Icon className="size-3 text-white" />
+                ) : (
+                  i + 1
+                )}
               </div>
               <span
                 className={cn(
                   "text-[11px] font-medium tracking-wide uppercase transition-colors",
                   isActive && "text-foreground",
-                  isDone && "text-emerald-700 dark:text-emerald-400",
+                  isDone && "text-success-foreground",
                   !isActive && !isDone && "text-muted-foreground/60",
                 )}
               >
@@ -639,7 +815,7 @@ function StepIndicator({ step }: { step: DialogStep["name"] }) {
               <div
                 className={cn(
                   "h-px w-6 transition-colors",
-                  i < activeIndex ? "bg-emerald-500/60" : "bg-border",
+                  i < activeIndex ? "bg-success/60" : "bg-border",
                 )}
               />
             )}
@@ -691,10 +867,8 @@ function IdleView({
         <div
           aria-hidden="true"
           className={cn(
-            "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,var(--color-primary),transparent_60%)] transition-opacity duration-300",
-            isDragging
-              ? "opacity-[0.10]"
-              : "opacity-0 group-hover:opacity-[0.06]",
+            "bg-primary/5 pointer-events-none absolute inset-0 transition-opacity duration-300",
+            isDragging ? "opacity-100" : "opacity-0 group-hover:opacity-100",
           )}
         />
 
@@ -765,9 +939,9 @@ function ExpectedColumns({
             <span
               key={col.key}
               className={cn(
-                "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-mono text-[11px] transition-colors",
+                "inline-flex h-5 items-center gap-1 rounded-full border px-2.5 font-mono text-[11px] leading-none transition-colors",
                 isMatched
-                  ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                  ? "border-success/40 bg-success/10 text-success-foreground"
                   : col.required
                     ? "border-border/80 bg-background text-foreground/80"
                     : "border-border/60 text-muted-foreground border-dashed bg-transparent",
@@ -786,98 +960,12 @@ function ExpectedColumns({
   );
 }
 
-function PreviewIssuesBanner({
-  duplicates,
-  serverPreview,
-  serverPending,
-  kind,
-}: {
-  duplicates: Array<{ column: string; value: string; rows: number[] }>;
-  serverPreview: ServerPreview | null;
-  serverPending: boolean;
-  kind: "dancer" | "coach";
-}) {
-  const hasDup = duplicates.length > 0;
-  const hasSrv =
-    serverPreview != null &&
-    !serverPending &&
-    (serverPreview.willError > 0 || (serverPreview.errors?.length ?? 0) > 0);
-
-  if (!hasDup && !hasSrv) return null;
-
-  return (
-    <div className="border-destructive/30 bg-destructive/5 flex flex-col gap-3 rounded-xl border p-3">
-      <div className="text-destructive flex items-center gap-2 text-sm font-semibold">
-        <XCircleIcon className="size-4 shrink-0" />
-        Fix these issues before uploading
-      </div>
-
-      {hasDup && (
-        <div className="flex flex-col gap-2">
-          <p className="text-foreground/90 text-xs font-medium">
-            {duplicates.length} duplicate {duplicates[0]?.column ?? "value"}
-            {duplicates.length === 1 ? "" : "s"} — each must be unique in this
-            file.
-          </p>
-          <ul className="flex max-h-24 flex-col gap-0.5 overflow-auto font-mono text-[11px]">
-            {duplicates.slice(0, 6).map((d) => (
-              <li key={`${d.column}-${d.value}`} className="text-foreground/80">
-                <span className="text-destructive font-semibold">{d.value}</span>{" "}
-                <span className="text-muted-foreground">
-                  — rows {d.rows.join(", ")}
-                </span>
-              </li>
-            ))}
-            {duplicates.length > 6 && (
-              <li className="text-muted-foreground">
-                …and {duplicates.length - 6} more
-              </li>
-            )}
-          </ul>
-        </div>
-      )}
-
-      {hasDup && hasSrv && (
-        <div className="bg-border/60 h-px w-full shrink-0" aria-hidden />
-      )}
-
-      {hasSrv && serverPreview && (
-        <div className="flex flex-col gap-2">
-          <p className="text-foreground/90 text-xs font-medium">
-            {serverPreview.willError} row
-            {serverPreview.willError === 1 ? "" : "s"} rejected in a server check
-            {kind === "dancer"
-              ? " (for example, school emails on a dancer roster)"
-              : ""}
-            .
-          </p>
-          <ul className="flex max-h-28 flex-col gap-0.5 overflow-auto text-[11px]">
-            {(serverPreview.errors ?? []).slice(0, 10).map((e, i) => (
-              <li key={i} className="text-foreground/80">
-                <span className="text-muted-foreground font-mono">Row {e.row}</span>{" "}
-                — {e.reason}
-              </li>
-            ))}
-          </ul>
-          {serverPreview.willError > 10 ? (
-            <p className="text-muted-foreground text-[11px]">
-              …and {serverPreview.willError - 10} more
-            </p>
-          ) : null}
-        </div>
-      )}
-    </div>
-  );
-}
-
 function ImpactSummary({
   pending,
   preview,
-  kind,
 }: {
   pending: boolean;
   preview: ServerPreview | null;
-  kind: "dancer" | "coach";
 }) {
   if (pending) {
     return (
@@ -895,34 +983,31 @@ function ImpactSummary({
     return null;
   }
 
+  const hasMatches = preview.willMatch > 0;
   const hasInvites = preview.willInvite > 0;
+  const hasUpdates = preview.willUpdate > 0;
 
   return (
-    <div
-      className={cn(
-        "grid gap-2 sm:grid-cols-3",
-        hasInvites && "sm:grid-cols-3",
-      )}
-    >
+    <div className="grid gap-2 sm:grid-cols-3">
       <ImpactCard
         icon={<UserCheckIcon className="size-4" />}
         value={preview.willMatch}
-        label={`existing ${kind}${preview.willMatch === 1 ? "" : "s"}`}
-        hint="already on S2S"
-        tone="success"
+        label={preview.willMatch === 1 ? "new match" : "new matches"}
+        hint={hasMatches ? "will activate on upload" : "none"}
+        tone={hasMatches ? "success" : "muted"}
       />
       <ImpactCard
         icon={<MailIcon className="size-4" />}
         value={preview.willInvite}
-        label={`invite email${preview.willInvite === 1 ? "" : "s"}`}
+        label={preview.willInvite === 1 ? "invite" : "invites"}
         hint={hasInvites ? "will send on upload" : "none needed"}
         tone={hasInvites ? "warn" : "muted"}
       />
       <ImpactCard
         icon={<RefreshCwIcon className="size-4" />}
         value={preview.willUpdate}
-        label="existing roster rows"
-        hint={preview.willUpdate > 0 ? "will update in place" : "none"}
+        label={preview.willUpdate === 1 ? "update" : "updates"}
+        hint={hasUpdates ? "already on roster" : "none"}
         tone="muted"
       />
     </div>
@@ -940,25 +1025,25 @@ function ImpactCard({
   value: number;
   label: string;
   hint: string;
-  tone: "success" | "warn" | "muted";
+  tone: "success" | "warn" | "muted" | "error";
 }) {
   return (
     <div
       className={cn(
         "relative flex items-center gap-3 overflow-hidden rounded-xl border p-3",
-        tone === "success" && "border-emerald-500/30 bg-emerald-500/5",
-        tone === "warn" && "border-amber-500/40 bg-amber-500/5",
+        tone === "success" && "border-success/30 bg-success/5",
+        tone === "warn" && "border-warning/40 bg-warning/5",
         tone === "muted" && "border-border/60 bg-muted/20",
+        tone === "error" && "border-destructive/30 bg-destructive/5",
       )}
     >
       <div
         className={cn(
           "flex size-8 shrink-0 items-center justify-center rounded-lg",
-          tone === "success" &&
-            "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-          tone === "warn" &&
-            "bg-amber-500/15 text-amber-700 dark:text-amber-400",
+          tone === "success" && "bg-success/15 text-success-foreground",
+          tone === "warn" && "bg-warning/15 text-warning-foreground",
           tone === "muted" && "text-muted-foreground bg-muted-foreground/10",
+          tone === "error" && "bg-destructive/15 text-destructive",
         )}
       >
         {icon}
@@ -995,9 +1080,9 @@ function ColumnChips({
           <span
             key={col.key}
             className={cn(
-              "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-mono text-[11px]",
+              "inline-flex h-5 items-center gap-1 rounded-full border px-2.5 font-mono text-[11px] leading-none",
               isMatched
-                ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                ? "border-success/40 bg-success/10 text-success-foreground"
                 : "border-border/60 text-muted-foreground",
             )}
           >
@@ -1007,7 +1092,7 @@ function ColumnChips({
         );
       })}
       {warningsCount > 0 && (
-        <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-400">
+        <span className="bg-warning/10 text-warning-foreground ml-auto inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium">
           <AlertTriangleIcon className="size-3" />
           {warningsCount} skipped
         </span>
