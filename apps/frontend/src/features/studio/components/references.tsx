@@ -13,10 +13,10 @@ import { MailIcon } from "lucide-react";
 
 export function References() {
   const references = [
-    { icon: <MailIcon className="size-4" />, label: "dance_studio@gmail.com" },
-    { icon: <AiOutlineInstagram className="size-5" />, label: "dance_studio" },
-    { icon: <AiOutlineTikTok className="size-5" />, label: "dance_studio" },
-    { icon: <AiOutlineYoutube className="size-5" />, label: "dance_studio" },
+    { icon: <MailIcon className="size-4" />, label: "5280DanceCo@gmail.com" },
+    { icon: <AiOutlineInstagram className="size-5" />, label: "DanceAt5280" },
+    { icon: <AiOutlineTikTok className="size-5" />, label: "DanceAt5280" },
+    { icon: <AiOutlineYoutube className="size-5" />, label: "DanceAt5280" },
   ];
 
   return (
