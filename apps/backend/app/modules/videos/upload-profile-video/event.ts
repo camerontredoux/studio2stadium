@@ -10,7 +10,7 @@ import { eq } from "drizzle-orm";
 
 interface VideoUploadEventData {
   profileId: string;
-  userType: "dancer" | "school";
+  userType: "dancer" | "school" | "studio";
 }
 
 export class VideoUploadEvent extends BaseEvent {

@@ -18,7 +18,7 @@ export const platformName = pgEnum("platform_name", ["core", "prodigy"]);
 
 export const role = pgEnum("role", ["admin", "prodigy_admin", "user"]);
 
-export const accountType = pgEnum("account_type", ["dancer", "school"]);
+export const accountType = pgEnum("account_type", ["dancer", "school", "studio"]);
 
 export const feedItemType = pgEnum("feed_item_type", [
   "image",
@@ -64,6 +64,12 @@ export const competitiveCircuitType = pgEnum("competitive_circuit_type", [
 ]);
 
 export const schoolApplicationStatus = pgEnum("school_application_status", [
+  "pending",
+  "accepted",
+  "rejected",
+]);
+
+export const studioApplicationStatus = pgEnum("studio_application_status", [
   "pending",
   "accepted",
   "rejected",

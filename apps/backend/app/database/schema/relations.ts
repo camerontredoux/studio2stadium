@@ -12,6 +12,10 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.users.id,
       to: r.schoolProfiles.userId,
     }),
+    studioProfile: r.one.studioProfiles({
+      from: r.users.id,
+      to: r.studioProfiles.userId,
+    }),
     subscription: r.one.subscriptions({
       from: r.users.id,
       to: r.subscriptions.userId,
@@ -45,6 +49,10 @@ export const relations = defineRelations(schema, (r) => ({
     user: r.one.users({
       from: r.dancerProfiles.userId,
       to: r.users.id,
+    }),
+    studioProfile: r.one.studioProfiles({
+      from: r.dancerProfiles.studioId,
+      to: r.studioProfiles.id,
     }),
     achievements: r.many.achievements({
       from: r.dancerProfiles.id,
@@ -207,4 +215,24 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.schoolProfiles.id,
     }),
   },
+  studioProfiles: {
+    user: r.one.users({
+      from: r.studioProfiles.userId,
+      to: r.users.id,
+    }),
+    dancers: r.many.dancerProfiles({
+      from: r.studioProfiles.id,
+      to: r.dancerProfiles.studioId,
+    }),
+    application: r.one.studioApplications({
+      from: r.studioProfiles.id,
+      to: r.studioApplications.studioId,
+    }),
+  },
+  studioApplications: {
+    studio: r.one.studioProfiles({
+      from: r.studioApplications.studioId,
+      to: r.studioProfiles.id,
+    }),
+  }
 }));
