@@ -1,46 +1,46 @@
 import { SidebarLayout } from "@/components/layouts/sidebar-layout";
 import { About } from "./components/about";
 import { Posts } from "./components/posts";
-import { Roster } from "./components/roster";
+import { Roster } from "./components/Roster";
 import { StudioBanner } from "./components/banner"
 import { References } from "./components/references";
 import { Tabs, TabsContent, TabsList, TabsTab } from "@/components/ui/tabs";
 import { useState } from "react";
 import type { Post, PostsProps } from "./types";
+import { Schedule } from "./components/schedule";
 
 const dummy_posts: Post[] = [
-  {
+{
     id: "1",
-    caption: "First post on the feed 🔥",
-    createdAt: "2026-04-07T10:00:00Z",
-    imageUrl: "https://picsum.photos/400/300?random=1",
+    caption: "Amber is this week's 5280 Senior Shoutout! 🔥",
+    createdAt: "04-07-2026",
+    imageUrl: "https://images.unsplash.com/photo-1590803246097-7be47831ab35?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8ZGFuY2VyfGVufDB8fDB8fHww",
   },
   {
     id: "2",
-    caption: "Training day at the studio",
-    createdAt: "2026-04-06T18:30:00Z",
-    imageUrl: "https://picsum.photos/400/300?random=2",
+    caption: "Putting in the work today at the studio",
+    createdAt: "04-06-2026",
+    imageUrl: "https://images.unsplash.com/photo-1560088161-ca82e528afc9?q=80&w=3132&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
     id: "3",
-    caption: "No image on this one, just vibes",
-    createdAt: "2026-04-05T14:15:00Z",
-    imageUrl: null,
+    caption: "Getting ready to rock it at regionals",
+    createdAt: "04-05-2026",
+    imageUrl: "https://images.unsplash.com/photo-1593105722399-0ee263656fdd?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGRhbmNlJTIwY2xhc3N8ZW58MHx8MHx8fDA%3D",
   },
   {
     id: "4",
     caption: "New roster announcements soon 👀",
-    createdAt: "2026-04-04T09:45:00Z",
-    imageUrl: "https://picsum.photos/400/300?random=3",
+    createdAt: "04-04-2026",
+    imageUrl: "https://images.unsplash.com/photo-1550026593-cb89847b168d?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGRhbmNlJTIwY2xhc3N8ZW58MHx8MHx8fDA%3D",
   },
   {
     id: "5",
-    caption: "Late night practice session",
-    createdAt: "2026-04-03T22:10:00Z",
-    imageUrl: null,
+    caption: "Natalie at last week's competition up in Lyons",
+    createdAt: "04-03-2026",
+    imageUrl: "https://images.unsplash.com/photo-1547153760-18fc86324498?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fGRhbmNpbmd8ZW58MHx8MHx8fDA%3D",
   },
 ];
-
 const studio_tabs = ["bio", "media", "roster"] as const;
 
 export function StudioPage() {
@@ -69,10 +69,15 @@ export function StudioPage() {
             <TabsTab value="roster" className="px-5 py-2 text-sm">
               Roster
             </TabsTab>
+            <TabsTab value="schedule" className="px-5 py-2 text-sm">
+              Schedule
+            </TabsTab>
           </TabsList>
 
           <TabsContent value="bio">
-            <About description="A Boulder-based dance studio focused on contemporary, ballet, and performance training. We create a supportive space for dancers to grow, train, and perform." />
+            <About description="We are a Boulder-based dance studio focused on contemporary, ballet, and performance training. Established in 2004, 5280 Dance Company provides 
+            dancers of all ages with a space to grow, train, and perform. We showcase our competitive dance team here on Studio2Stadium. If you are a recruiter looking to learn more about
+            any of our talent please reach out!" />
           </TabsContent>
 
           <TabsContent value="media">
@@ -81,6 +86,9 @@ export function StudioPage() {
 
           <TabsContent value="roster">
             <Roster />
+          </TabsContent>
+           <TabsContent value="schedule">
+            <Schedule />
           </TabsContent>
         </Tabs>
       </div>
