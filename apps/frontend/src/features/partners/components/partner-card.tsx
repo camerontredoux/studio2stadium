@@ -30,7 +30,7 @@ export function PartnerCard({ partner }: PartnerCardProps) {
         <div className="flex flex-col w-full items-start">
           <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <AlertDialogTrigger
-              render={<Button variant="secondary" size="lg" />}
+              render={<Button size="xs" />}
             >
               Read More
             </AlertDialogTrigger>
@@ -43,15 +43,39 @@ export function PartnerCard({ partner }: PartnerCardProps) {
                     {partner.discount && (
                       <p>Discount: {partner.discount}</p>
                     )}
-                    {partner.loginUrl && (
-                      <a href={partner.loginUrl} className="no-underline hover:underline">
-                        Login
-                      </a>
-                    )}
-                    {partner.website && (
-                      <a href={partner.website} className="no-underline hover:underline">
-                        Visit Partner
-                      </a>
+                    {(partner.loginUrl || partner.website) && (
+                      <div className="flex flex-wrap gap-2">
+                        {partner.loginUrl && (
+                          <Button
+                            variant="outline"
+                            size="xs"
+                            render={
+                              <a
+                                href={partner.loginUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              />
+                            }
+                          >
+                            Login
+                          </Button>
+                        )}
+                        {partner.website && (
+                          <Button
+                            variant="outline"
+                            size="xs"
+                            render={
+                              <a
+                                href={partner.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              />
+                            }
+                          >
+                            Visit Partner
+                          </Button>
+                        )}
+                      </div>
                     )}
                   </div>
                 </AlertDialogDescription>
