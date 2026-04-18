@@ -38,6 +38,7 @@ interface VideoUploadDialogProps {
 }
 
 export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
+  const CLOUD_FLARE_VIDEO_LIMIT = 3;
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"file" | "youtube">("file");
   const [youtubeUrl, setYoutubeUrl] = useState("");
@@ -45,6 +46,7 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
     data: { subscribed },
   } = useSubscribed();
   const { type, username } = useSession();
+  const hasReachedCloudflareLimit = videoCount >= CLOUD_FLARE_VIDEO_LIMIT;
   const { setIsProcessing } = useVideoProcessing();
   const queryClient = useQueryClient();
 
@@ -86,7 +88,7 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
       setUploading(false);
       setProgress(0);
       setYoutubeUrl("");
-      setTab("file");
+      setTab(hasReachedCloudflareLimit ? "youtube" : "file");
     }
   };
 
@@ -181,6 +183,11 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
         <span className="text-muted-foreground group-hover:text-foreground text-sm font-medium transition-colors">
           Video
         </span>
+        {hasReachedCloudflareLimit && (
+          <span className="text-muted-foreground text-xs font-medium">
+            Limit {CLOUD_FLARE_VIDEO_LIMIT}/{CLOUD_FLARE_VIDEO_LIMIT}
+          </span>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -195,7 +202,11 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
             onValueChange={(value) => setTab(value as "file" | "youtube")}
           >
             <TabsList className="w-full">
-              <TabsTrigger value="file" className="flex-1">
+              <TabsTrigger
+                value="file"
+                className="flex-1"
+                disabled={hasReachedCloudflareLimit}
+              >
                 Upload File
               </TabsTrigger>
               <TabsTrigger value="youtube" className="flex-1">
@@ -203,11 +214,18 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="file" className="mt-4">
-              <VideoUploadForm
-                isLoading={uploading}
-                progress={progress}
-                onSubmit={onSubmit}
-              />
+              {hasReachedCloudflareLimit ? (
+                <div className="bg-muted/40 text-muted-foreground rounded-md p-4 text-sm">
+                  You have reached your cloud upload limit. You can still add
+                  videos using a YouTube link.
+                </div>
+              ) : (
+                <VideoUploadForm
+                  isLoading={uploading}
+                  progress={progress}
+                  onSubmit={onSubmit}
+                />
+              )}
             </TabsContent>
             <TabsContent value="youtube" className="mt-4">
               <form id="youtube-upload-form" onSubmit={handleYoutubeSubmit}>

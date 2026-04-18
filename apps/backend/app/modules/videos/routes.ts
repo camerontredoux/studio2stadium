@@ -32,8 +32,7 @@ router
         summary: "Add YouTube video",
         description: "Add a YouTube video to the user's profile",
       })
-      .use(middleware.profile())
-      .use(middleware.subscribed());
+      .use([middleware.profile(), middleware.subscribed()]);
   })
   .use(middleware.auth())
   .prefix("videos")
