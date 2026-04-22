@@ -16,7 +16,7 @@ export function SkillsList({ username, ...props }: SkillsListProps) {
 
   const selectedSkillIds = (data ?? []).map((skill) => skill.skillId);
   const selectedWeights = new Map(
-    (data ?? []).map((skill) => [skill.skillId, (skill as any).weight ?? 1]),
+    (data ?? []).map((skill) => [skill.skillId, skill.weight ?? 1]),
   );
 
   const handleSave = async (skillIds: string[], weights?: Map<string, number>) => {
