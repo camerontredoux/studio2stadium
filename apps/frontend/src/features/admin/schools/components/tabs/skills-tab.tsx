@@ -1,13 +1,14 @@
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { useAdminUpdateSchoolSkills } from "@/features/admin/api/mutations";
-import { SkillsList } from "@/shared/skills/components/skills-list";
-import { forwardRef, Suspense, useEffect, useImperativeHandle, useState } from "react";
+import { SkillsWeightedList } from "@/shared/skills/components/skills-weighted-list";
+import { forwardRef, Suspense, useCallback, useEffect, useImperativeHandle, useState } from "react";
 import type { TabHandle } from "./types";
 
 interface SkillsTabProps {
   username: string;
   selectedSkillIds: string[];
+  selectedWeights?: Map<string, number>;
   onStateChange: (state: { isDirty: boolean; isPending: boolean }) => void;
 }
 
@@ -19,25 +20,39 @@ function SkillsTabFallback() {
   );
 }
 
+function serializeWeights(weights: Map<string, number>): string {
+  return JSON.stringify(
+    [...weights].sort(([a], [b]) => a.localeCompare(b)),
+  );
+}
+
 export const SkillsTab = forwardRef<TabHandle, SkillsTabProps>(
-  function SkillsTab({ username, selectedSkillIds, onStateChange }, ref) {
-    const [localSelectedSkillIds, setLocalSelectedSkillIds] =
-      useState<string[]>(selectedSkillIds);
+  function SkillsTab({ username, selectedSkillIds, selectedWeights, onStateChange }, ref) {
+    const initialWeights: Map<string, number> = selectedWeights
+      ? new Map(selectedWeights)
+      : new Map(selectedSkillIds.map((id) => [id, 1]));
+
+    const [localWeights, setLocalWeights] = useState<Map<string, number>>(initialWeights);
     const { mutate, isPending } = useAdminUpdateSchoolSkills();
 
-  const handleToggle = (skillId: string) => {
-    setLocalSelectedSkillIds((prev) =>
-      prev.includes(skillId)
-        ? prev.filter((id) => id !== skillId)
-        : [...prev, skillId],
-    );
-  };
+  const handleWeightChange = useCallback((skillId: string, weight: number | null) => {
+    setLocalWeights((prev) => {
+      const next = new Map(prev);
+      if (weight === null) {
+        next.delete(skillId);
+      } else {
+        next.set(skillId, weight);
+      }
+      return next;
+    });
+  }, []);
 
   const handleSave = () => {
+    const skills = [...localWeights].map(([skillId, weight]) => ({ skillId, weight }));
     mutate(
       {
         params: { path: { username } },
-        body: { skills: localSelectedSkillIds },
+        body: { skills },
       },
       {
         onSuccess: () => {
@@ -58,9 +73,7 @@ export const SkillsTab = forwardRef<TabHandle, SkillsTabProps>(
     );
   };
 
-  const hasChanges =
-    JSON.stringify([...selectedSkillIds].sort()) !==
-    JSON.stringify([...localSelectedSkillIds].sort());
+  const hasChanges = serializeWeights(initialWeights) !== serializeWeights(localWeights);
 
   useImperativeHandle(ref, () => ({
     save: handleSave,
@@ -75,9 +88,9 @@ export const SkillsTab = forwardRef<TabHandle, SkillsTabProps>(
   return (
     <div className="h-full overflow-auto">
       <Suspense fallback={<SkillsTabFallback />}>
-        <SkillsList
-          selectedSkillIds={localSelectedSkillIds}
-          onToggle={handleToggle}
+        <SkillsWeightedList
+          selectedSkills={localWeights}
+          onWeightChange={handleWeightChange}
         />
       </Suspense>
     </div>

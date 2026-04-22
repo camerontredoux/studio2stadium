@@ -6,6 +6,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import type { ReactNode } from "react";
 import { useState } from "react";
 import { skillQueries } from "../api/queries";
 import type { Skill } from "../types";
@@ -15,9 +16,14 @@ import { SkillsSummary } from "./skills-summary";
 interface SkillsListProps {
   selectedSkillIds: string[];
   onToggle: (skillId: string) => void;
+  summarySlot?: ReactNode;
 }
 
-export function SkillsList({ selectedSkillIds, onToggle }: SkillsListProps) {
+export function SkillsList({
+  selectedSkillIds,
+  onToggle,
+  summarySlot,
+}: SkillsListProps) {
   const { data } = useSuspenseQuery(skillQueries.all());
 
   const skillsByCategory = data.reduce(
@@ -61,11 +67,13 @@ export function SkillsList({ selectedSkillIds, onToggle }: SkillsListProps) {
           />
         )}
       </div>
-      <SkillsSummary
-        className="hidden md:flex"
-        selectedSkillIds={selectedSkillIds}
-        onRemove={onToggle}
-      />
+      {summarySlot ?? (
+        <SkillsSummary
+          className="hidden md:flex"
+          selectedSkillIds={selectedSkillIds}
+          onRemove={onToggle}
+        />
+      )}
     </div>
   );
 }
