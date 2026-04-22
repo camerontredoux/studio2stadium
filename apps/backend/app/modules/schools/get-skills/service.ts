@@ -9,7 +9,7 @@ export class Service {
     return await this.db.use((db) =>
       db.query.schoolSkills.findMany({
         where: { schoolId: profileId },
-        columns: { skillId: true },
+        columns: { skillId: true, weight: true },
       })
     );
   }
