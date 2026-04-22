@@ -6766,6 +6766,7 @@ export interface components {
                 name: string;
                 slug: string;
                 category: string;
+                weight: number;
             }[];
             sports: {
                 name: string;
