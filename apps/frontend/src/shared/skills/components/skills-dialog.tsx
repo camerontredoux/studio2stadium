@@ -36,43 +36,57 @@ function SkillsDialogContentFallback() {
   );
 }
 
-interface DancerContentProps {
+interface SkillsDialogContentProps {
   selectedSkillIds: string[];
+  selectedWeights?: Map<string, number>;
+  isSchool: boolean;
   onToggle: (skillId: string) => void;
+  onWeightChange: (skillId: string, weight: number | null) => void;
 }
 
-function DancerContent({ selectedSkillIds, onToggle }: DancerContentProps) {
-  return (
-    <>
-      <DialogPanel className="h-full">
-        <SkillsList selectedSkillIds={selectedSkillIds} onToggle={onToggle} />
-      </DialogPanel>
+function SkillsDialogContent({
+  selectedSkillIds,
+  selectedWeights,
+  isSchool,
+  onToggle,
+  onWeightChange,
+}: SkillsDialogContentProps) {
+  const desktopSummary =
+    isSchool && selectedWeights ? (
+      <SkillsWeightedList
+        className="hidden md:flex"
+        selectedSkills={selectedWeights}
+        onWeightChange={onWeightChange}
+      />
+    ) : undefined;
 
+  const mobileSummary =
+    isSchool && selectedWeights ? (
+      <SkillsWeightedList
+        className="mx-6 mb-2 md:hidden"
+        selectedSkills={selectedWeights}
+        onWeightChange={onWeightChange}
+      />
+    ) : (
       <SkillsSummary
         className="mx-6 mb-2 md:hidden"
         selectedSkillIds={selectedSkillIds}
         onRemove={onToggle}
       />
-    </>
-  );
-}
+    );
 
-interface SchoolContentProps {
-  selectedSkills: Map<string, number>;
-  onWeightChange: (skillId: string, weight: number | null) => void;
-}
-
-function SchoolContent({
-  selectedSkills,
-  onWeightChange,
-}: SchoolContentProps) {
   return (
-    <DialogPanel className="h-full">
-      <SkillsWeightedList
-        selectedSkills={selectedSkills}
-        onWeightChange={onWeightChange}
-      />
-    </DialogPanel>
+    <>
+      <DialogPanel className="h-full">
+        <SkillsList
+          selectedSkillIds={selectedSkillIds}
+          onToggle={onToggle}
+          summarySlot={desktopSummary}
+        />
+      </DialogPanel>
+
+      {mobileSummary}
+    </>
   );
 }
 
@@ -102,11 +116,21 @@ export function SkillsDialog({
   };
 
   const handleToggle = (skillId: string) => {
+    const removing = localSelectedSkillIds.includes(skillId);
     setLocalSelectedSkillIds((prev) =>
-      prev.includes(skillId)
-        ? prev.filter((id) => id !== skillId)
-        : [...prev, skillId],
+      removing ? prev.filter((id) => id !== skillId) : [...prev, skillId],
     );
+    if (isSchool) {
+      setLocalWeights((prev) => {
+        const next = new Map(prev);
+        if (removing) {
+          next.delete(skillId);
+        } else {
+          next.set(skillId, 1);
+        }
+        return next;
+      });
+    }
   };
 
   const handleWeightChange = useCallback(
@@ -161,17 +185,13 @@ export function SkillsDialog({
         </DialogHeader>
 
         <Suspense fallback={<SkillsDialogContentFallback />}>
-          {isSchool ? (
-            <SchoolContent
-              selectedSkills={localWeights}
-              onWeightChange={handleWeightChange}
-            />
-          ) : (
-            <DancerContent
-              selectedSkillIds={localSelectedSkillIds}
-              onToggle={handleToggle}
-            />
-          )}
+          <SkillsDialogContent
+            selectedSkillIds={localSelectedSkillIds}
+            selectedWeights={isSchool ? localWeights : undefined}
+            isSchool={isSchool}
+            onToggle={handleToggle}
+            onWeightChange={handleWeightChange}
+          />
         </Suspense>
 
         <DialogFooter>
