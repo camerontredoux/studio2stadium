@@ -15,10 +15,16 @@ export function SkillsList({ username, ...props }: SkillsListProps) {
   const { mutateAsync, isPending } = useUpdateSkills(username);
 
   const selectedSkillIds = (data ?? []).map((skill) => skill.skillId);
+  const selectedWeights = new Map(
+    (data ?? []).map((skill) => [skill.skillId, (skill as any).weight ?? 1]),
+  );
 
-  const handleSave = async (skillIds: string[]) => {
+  const handleSave = async (skillIds: string[], weights?: Map<string, number>) => {
+    const skillsPayload = weights
+      ? [...weights].map(([skillId, weight]) => ({ skillId, weight }))
+      : skillIds.map((skillId) => ({ skillId, weight: 1 }));
     await mutateAsync(
-      { body: { skills: skillIds } },
+      { body: { skills: skillsPayload } },
       {
         onSuccess: () => {
           toastManager.add({
@@ -50,6 +56,7 @@ export function SkillsList({ username, ...props }: SkillsListProps) {
   return (
     <SkillsDialog
       selectedSkillIds={selectedSkillIds}
+      selectedWeights={selectedWeights}
       onSave={handleSave}
       isPending={isPending}
       {...props}
