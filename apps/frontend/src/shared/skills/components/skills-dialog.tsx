@@ -13,13 +13,18 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { useSession } from "@/lib/session";
 import type { ButtonProps } from "@base-ui/react";
-import { Suspense, useState } from "react";
+import { Suspense, useCallback, useState } from "react";
 import { SkillsList } from "./skills-list";
 import { SkillsSummary } from "./skills-summary";
+import { SkillsWeightedList } from "./skills-weighted-list";
 
 interface SkillsDialogProps {
   selectedSkillIds: string[];
-  onSave: (skillIds: string[]) => Promise<void>;
+  selectedWeights?: Map<string, number>;
+  onSave: (
+    skillIds: string[],
+    weights?: Map<string, number>,
+  ) => Promise<void>;
   isPending?: boolean;
 }
 
@@ -31,15 +36,12 @@ function SkillsDialogContentFallback() {
   );
 }
 
-interface SkillsDialogContentProps {
+interface DancerContentProps {
   selectedSkillIds: string[];
   onToggle: (skillId: string) => void;
 }
 
-function SkillsDialogContent({
-  selectedSkillIds,
-  onToggle,
-}: SkillsDialogContentProps) {
+function DancerContent({ selectedSkillIds, onToggle }: DancerContentProps) {
   return (
     <>
       <DialogPanel className="h-full">
@@ -55,21 +57,46 @@ function SkillsDialogContent({
   );
 }
 
+interface SchoolContentProps {
+  selectedSkills: Map<string, number>;
+  onWeightChange: (skillId: string, weight: number | null) => void;
+}
+
+function SchoolContent({
+  selectedSkills,
+  onWeightChange,
+}: SchoolContentProps) {
+  return (
+    <DialogPanel className="h-full">
+      <SkillsWeightedList
+        selectedSkills={selectedSkills}
+        onWeightChange={onWeightChange}
+      />
+    </DialogPanel>
+  );
+}
+
 export function SkillsDialog({
   selectedSkillIds,
+  selectedWeights,
   onSave,
   isPending,
   ...props
 }: SkillsDialogProps & ButtonProps) {
   const session = useSession();
+  const isSchool = session.type === "school";
 
   const [open, setOpen] = useState(false);
   const [localSelectedSkillIds, setLocalSelectedSkillIds] =
     useState<string[]>(selectedSkillIds);
+  const [localWeights, setLocalWeights] = useState<Map<string, number>>(
+    () => new Map(selectedWeights),
+  );
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (nextOpen) {
       setLocalSelectedSkillIds(selectedSkillIds);
+      setLocalWeights(new Map(selectedWeights));
     }
     setOpen(nextOpen);
   };
@@ -82,8 +109,37 @@ export function SkillsDialog({
     );
   };
 
+  const handleWeightChange = useCallback(
+    (skillId: string, weight: number | null) => {
+      setLocalWeights((prev) => {
+        const next = new Map(prev);
+        if (weight === null) {
+          next.delete(skillId);
+        } else {
+          next.set(skillId, weight);
+        }
+        return next;
+      });
+
+      setLocalSelectedSkillIds((prev) => {
+        if (weight === null) {
+          return prev.filter((id) => id !== skillId);
+        }
+        if (!prev.includes(skillId)) {
+          return [...prev, skillId];
+        }
+        return prev;
+      });
+    },
+    [],
+  );
+
   const handleSave = async () => {
-    await onSave(localSelectedSkillIds);
+    if (isSchool) {
+      await onSave(localSelectedSkillIds, localWeights);
+    } else {
+      await onSave(localSelectedSkillIds);
+    }
     setOpen(false);
   };
 
@@ -105,10 +161,17 @@ export function SkillsDialog({
         </DialogHeader>
 
         <Suspense fallback={<SkillsDialogContentFallback />}>
-          <SkillsDialogContent
-            selectedSkillIds={localSelectedSkillIds}
-            onToggle={handleToggle}
-          />
+          {isSchool ? (
+            <SchoolContent
+              selectedSkills={localWeights}
+              onWeightChange={handleWeightChange}
+            />
+          ) : (
+            <DancerContent
+              selectedSkillIds={localSelectedSkillIds}
+              onToggle={handleToggle}
+            />
+          )}
         </Suspense>
 
         <DialogFooter>
