@@ -110,13 +110,13 @@ export function SkillsWeightedList({
                   <span className="text-muted-foreground text-xs font-medium">
                     {category}
                   </span>
-                  <div className="flex flex-col gap-0.5">
+                  <div className="flex flex-col">
                     {selectedByCategory[category].map((skill) => (
                       <div
                         key={skill.slug}
-                        className="flex items-center justify-between gap-3"
+                        className="flex items-center justify-between gap-2 py-0.5"
                       >
-                        <span className="truncate text-sm">{skill.name}</span>
+                        <span className="min-w-0 truncate text-sm">{skill.name}</span>
                         <SkillWeightDots
                           weight={selectedSkills.get(skill.slug) ?? 1}
                           onChange={(weight) =>
