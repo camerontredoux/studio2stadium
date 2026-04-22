@@ -19,14 +19,14 @@ export function SkillWeightDots({ weight, onChange }: SkillWeightDotsProps) {
           onClick={() => onChange(weight === dot ? null : dot)}
           aria-label={`Priority ${dot}`}
           aria-pressed={weight !== null && dot <= weight}
-          className="flex size-7 items-center justify-center"
+          className="flex size-7 cursor-pointer items-center justify-center"
         >
           <span
             className={cn(
-              "block size-2.5 rounded-full border-[1.5px] transition-colors",
+              "block size-2.5 rounded-full border-[1.5px] transition-all duration-150",
               weight !== null && dot <= weight
-                ? "border-brand bg-brand"
-                : "border-muted-foreground/40 bg-transparent",
+                ? "border-brand bg-brand scale-110"
+                : "border-muted-foreground/40 bg-transparent hover:border-muted-foreground/70 hover:scale-110",
             )}
           />
         </button>
