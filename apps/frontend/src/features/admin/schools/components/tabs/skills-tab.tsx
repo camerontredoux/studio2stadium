@@ -35,10 +35,14 @@ export const SkillsTab = forwardRef<TabHandle, SkillsTabProps>(
     const [localWeights, setLocalWeights] = useState<Map<string, number>>(initialWeights);
     const { mutate, isPending } = useAdminUpdateSchoolSkills();
 
-  const handleWeightChange = useCallback((skillId: string, weight: number) => {
+  const handleWeightChange = useCallback((skillId: string, weight: number | null) => {
     setLocalWeights((prev) => {
       const next = new Map(prev);
-      next.set(skillId, weight);
+      if (weight === null) {
+        next.delete(skillId);
+      } else {
+        next.set(skillId, weight);
+      }
       return next;
     });
   }, []);
@@ -85,7 +89,7 @@ export const SkillsTab = forwardRef<TabHandle, SkillsTabProps>(
     <div className="h-full overflow-auto">
       <Suspense fallback={<SkillsTabFallback />}>
         <SkillsWeightedList
-          weights={localWeights}
+          selectedSkills={localWeights}
           onWeightChange={handleWeightChange}
         />
       </Suspense>
