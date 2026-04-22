@@ -16,7 +16,8 @@ export class Service {
         await tx.insert(schoolSkills).values(
           data.skills.map((skill) => ({
             schoolId: profileId,
-            skillId: skill,
+            skillId: skill.skillId,
+            weight: skill.weight,
           }))
         );
       }
