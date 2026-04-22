@@ -3,7 +3,14 @@ import { type Infer } from "@vinejs/vine/types";
 
 export const schema = vine.create(
   vine.object({
-    skills: vine.array(vine.string()).minLength(1),
+    skills: vine
+      .array(
+        vine.object({
+          skillId: vine.string(),
+          weight: vine.number().min(1).max(5).parse((v) => Math.round(v as number)),
+        })
+      )
+      .minLength(1),
   })
 );
 
