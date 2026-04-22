@@ -5384,7 +5384,22 @@
           "skills": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "object",
+              "properties": {
+                "skillId": {
+                  "type": "string"
+                },
+                "weight": {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                }
+              },
+              "required": [
+                "skillId",
+                "weight"
+              ]
             }
           }
         },
@@ -10257,10 +10272,21 @@
           "properties": {
             "skillId": {
               "type": "string"
+            },
+            "weight": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "required": [
-            "skillId"
+            "skillId",
+            "weight"
           ]
         }
       },
@@ -10270,7 +10296,22 @@
           "skills": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "object",
+              "properties": {
+                "skillId": {
+                  "type": "string"
+                },
+                "weight": {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                }
+              },
+              "required": [
+                "skillId",
+                "weight"
+              ]
             }
           }
         },

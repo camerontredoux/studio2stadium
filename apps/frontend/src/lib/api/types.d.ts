@@ -5782,7 +5782,10 @@ export interface components {
             schoolName?: string | null;
         };
         AdminSchoolsIdSkillsRequest: {
-            skills: string[];
+            skills: {
+                skillId: string;
+                weight: string | number;
+            }[];
         };
         AdminSchoolsIdStylesRequest: {
             styles: string[];
@@ -6667,9 +6670,13 @@ export interface components {
         };
         SchoolsMeSkillsResponse: {
             skillId: string;
+            weight: number | null;
         }[];
         SchoolsMeSkillsRequest: {
-            skills: string[];
+            skills: {
+                skillId: string;
+                weight: string | number;
+            }[];
         };
         SchoolsMeStylesResponse: {
             styleId: string;
