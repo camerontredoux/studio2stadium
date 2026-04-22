@@ -133,6 +133,12 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.schoolApplications.schoolId,
     }),
   },
+  schoolSkills: {
+    skill: r.one.skills({
+      from: r.schoolSkills.skillId,
+      to: r.skills.slug,
+    }),
+  },
   danceEvents: {
     organizer: r.one.schoolProfiles({
       from: r.danceEvents.schoolId,

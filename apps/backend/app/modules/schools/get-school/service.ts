@@ -16,6 +16,12 @@ export class Service {
 
     if (!schoolProfile) return null;
 
+    const { schoolSkills, ...profile } = schoolProfile;
+    const skills = schoolSkills.flatMap((ss) => {
+      if (!ss.skill) return [];
+      return [{ name: ss.skill.name, slug: ss.skill.slug, category: ss.skill.category, weight: ss.weight ?? 1 }];
+    });
+
     const profileImages = images.map((image) => ({
       ...image,
       mediaUrl: imageUrl(image.mediaUrl, "feed"),
@@ -35,7 +41,8 @@ export class Service {
       images: profileImages,
       avatar: profilePicture,
       videos: profileVideos,
-      ...schoolProfile,
+      ...profile,
+      skills,
     };
   }
 
@@ -65,7 +72,9 @@ export class Service {
           videos: true,
           schoolProfile: {
             with: {
-              skills: true,
+              schoolSkills: {
+                with: { skill: true },
+              },
               styles: true,
               events: {
                 orderBy: {

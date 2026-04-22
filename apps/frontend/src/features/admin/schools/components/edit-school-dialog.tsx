@@ -97,6 +97,9 @@ function EditSchoolDialogContent({ username, activeTab, onFooterStateChange }: E
   }, [activeTab, activeState, activeRef, onFooterStateChange]);
 
   const skillIds = data.skills.map((s) => s.slug);
+  const skillWeights = new Map(
+    data.skills.map((s) => [s.slug, s.weight] as const),
+  );
   const styleIds = data.styles.map((s) => s.slug);
   const sportIds = data.sports.map((s) => s.slug);
 
@@ -121,7 +124,7 @@ function EditSchoolDialogContent({ username, activeTab, onFooterStateChange }: E
       </TabsContent>
 
       <TabsContent value="skills" className="flex-1 overflow-hidden">
-        <SkillsTab ref={skillsRef} username={username} selectedSkillIds={skillIds} onStateChange={handleStateChange("skills")} />
+        <SkillsTab ref={skillsRef} username={username} selectedSkillIds={skillIds} selectedWeights={skillWeights} onStateChange={handleStateChange("skills")} />
       </TabsContent>
 
       <TabsContent value="styles" className="flex-1 overflow-hidden">

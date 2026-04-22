@@ -1,6 +1,7 @@
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { useAdminUpdateSchoolSkills } from "@/features/admin/api/mutations";
+import { SkillsList } from "@/shared/skills/components/skills-list";
 import { SkillsWeightedList } from "@/shared/skills/components/skills-weighted-list";
 import { forwardRef, Suspense, useCallback, useEffect, useImperativeHandle, useState } from "react";
 import type { TabHandle } from "./types";
@@ -34,6 +35,20 @@ export const SkillsTab = forwardRef<TabHandle, SkillsTabProps>(
 
     const [localWeights, setLocalWeights] = useState<Map<string, number>>(initialWeights);
     const { mutate, isPending } = useAdminUpdateSchoolSkills();
+
+  const selectedSkillIdList = [...localWeights.keys()];
+
+  const handleToggle = useCallback((skillId: string) => {
+    setLocalWeights((prev) => {
+      const next = new Map(prev);
+      if (next.has(skillId)) {
+        next.delete(skillId);
+      } else {
+        next.set(skillId, 1);
+      }
+      return next;
+    });
+  }, []);
 
   const handleWeightChange = useCallback((skillId: string, weight: number | null) => {
     setLocalWeights((prev) => {
@@ -88,9 +103,16 @@ export const SkillsTab = forwardRef<TabHandle, SkillsTabProps>(
   return (
     <div className="h-full overflow-auto">
       <Suspense fallback={<SkillsTabFallback />}>
-        <SkillsWeightedList
-          selectedSkills={localWeights}
-          onWeightChange={handleWeightChange}
+        <SkillsList
+          selectedSkillIds={selectedSkillIdList}
+          onToggle={handleToggle}
+          summarySlot={
+            <SkillsWeightedList
+              className="hidden md:flex"
+              selectedSkills={localWeights}
+              onWeightChange={handleWeightChange}
+            />
+          }
         />
       </Suspense>
     </div>
