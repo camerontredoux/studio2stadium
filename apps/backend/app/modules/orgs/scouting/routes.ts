@@ -11,6 +11,11 @@ const DeleteNote = () => import("./notes/delete/controller.ts");
 const UpsertRating = () => import("./ratings/upsert/controller.ts");
 const ListRankings = () => import("./rankings/controller.ts");
 
+const ListSchools = () => import("./schools/list/controller.ts");
+const ListSelections = () => import("./selections/list/controller.ts");
+const CreateSelection = () => import("./selections/create/controller.ts");
+const DeleteSelection = () => import("./selections/delete/controller.ts");
+
 router
   .group(() => {
     router.get(":slug/dancers", [ListDancersController]).openapi({
@@ -35,3 +40,20 @@ router
     middleware.orgCoach(),
   ])
   .openapi({ tags: ["Org Scouting"] });
+
+router
+  .group(() => {
+    router.get(":slug/schools", [ListSchools]);
+    router.get(":slug/my-selections", [ListSelections]);
+    router.post(":slug/my-selections", [CreateSelection]);
+    router.delete(":slug/my-selections/:id", [DeleteSelection]);
+  })
+  .prefix("orgs")
+  .use([
+    middleware.auth(),
+    middleware.org(),
+    middleware.orgEvent(),
+    middleware.orgMember(),
+    middleware.orgDancer(),
+  ])
+  .openapi({ tags: ["Org School Selections"] });
