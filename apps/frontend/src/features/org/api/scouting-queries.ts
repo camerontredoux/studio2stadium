@@ -6,6 +6,7 @@ export const scoutingQueries = {
     params: {
       search?: string;
       bib?: number;
+      interested?: boolean;
       limit?: number;
       offset?: number;
     } = {},
@@ -26,6 +27,14 @@ export const scoutingQueries = {
     }),
   rankings: (slug: string) =>
     $api.queryOptions("get", "/orgs/{slug}/rankings", {
+      params: { path: { slug } },
+    }),
+  schools: (slug: string) =>
+    $api.queryOptions("get", "/orgs/{slug}/schools", {
+      params: { path: { slug } },
+    }),
+  mySelections: (slug: string) =>
+    $api.queryOptions("get", "/orgs/{slug}/my-selections", {
       params: { path: { slug } },
     }),
 };
