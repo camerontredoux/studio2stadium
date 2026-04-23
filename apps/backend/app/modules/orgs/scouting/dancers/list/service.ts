@@ -9,7 +9,7 @@ import type { Validator } from "./validator.ts";
 export class ListDancersService {
   constructor(private db: DatabaseService = new DatabaseService()) {}
 
-  async execute(eventId: string, q: Validator) {
+  async execute(eventId: string, coachRosterId: string | null, q: Validator) {
     return this.db.use((db) => {
       const filters = [
         eq(eventRosters.eventId, eventId),
@@ -26,6 +26,26 @@ export class ListDancersService {
             ilike(eventRosters.lastName, pattern),
             ilike(eventRosters.organization, pattern)
           )!
+        );
+      }
+
+      const interestedSubquery = coachRosterId
+        ? sql<boolean>`EXISTS (
+            SELECT 1 FROM event_school_selections ess
+            WHERE ess.dancer_roster_id = ${eventRosters.id}
+              AND ess.coach_roster_id = ${coachRosterId}
+              AND ess.event_id = ${eventId}
+          )`
+        : sql<boolean>`false`;
+
+      if (q.interested && coachRosterId) {
+        filters.push(
+          sql`EXISTS (
+            SELECT 1 FROM event_school_selections ess
+            WHERE ess.dancer_roster_id = ${eventRosters.id}
+              AND ess.coach_roster_id = ${coachRosterId}
+              AND ess.event_id = ${eventId}
+          )`
         );
       }
 
@@ -48,6 +68,7 @@ export class ListDancersService {
             string | null
           >`COALESCE(${eventDancerProfiles.studio}, ${dancerProfiles.studio})`,
           state: eventDancerProfiles.state,
+          interestedInMySchool: interestedSubquery,
         })
         .from(eventRosters)
         .leftJoin(

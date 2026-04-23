@@ -68,7 +68,7 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(event.id, {});
+    const rows = await svc.execute(event.id, null, {});
     assert.equal(rows.length, 2);
     assert.isTrue(rows.every((r) => r.bibNumber !== null));
   });
@@ -94,7 +94,7 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(event.id, { search: "alice" });
+    const rows = await svc.execute(event.id, null, { search: "alice" });
     assert.equal(rows.length, 1);
     assert.equal(rows[0]!.firstName, "Alice");
   });
@@ -120,7 +120,7 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(event.id, { search: "jones" });
+    const rows = await svc.execute(event.id, null, { search: "jones" });
     assert.equal(rows.length, 1);
     assert.equal(rows[0]!.lastName, "Jones");
   });
@@ -148,7 +148,7 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(event.id, { search: "acme" });
+    const rows = await svc.execute(event.id, null, { search: "acme" });
     assert.equal(rows.length, 1);
     assert.equal(rows[0]!.organization, "Acme Dance");
   });
@@ -174,7 +174,7 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(event.id, { bib: 101 });
+    const rows = await svc.execute(event.id, null, { bib: 101 });
     assert.equal(rows.length, 1);
     assert.equal(rows[0]!.bibNumber, 101);
   });
@@ -216,7 +216,7 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(event.id, {});
+    const rows = await svc.execute(event.id, null, {});
     const alice = rows.find((r) => r.firstName === "Alice");
     const bob = rows.find((r) => r.firstName === "Bob");
     assert.isTrue(alice!.isRegistered);
@@ -238,7 +238,7 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(event.id, {});
+    const rows = await svc.execute(event.id, null, {});
     assert.equal(rows.length, 1);
     assert.isNull(rows[0]!.profilePhotoUrl);
     assert.isNull(rows[0]!.studio);
@@ -271,7 +271,7 @@ test.group("ListDancersService", (group) => {
     });
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(event.id, {});
+    const rows = await svc.execute(event.id, null, {});
     assert.equal(rows.length, 1);
     assert.equal(rows[0]!.profilePhotoUrl, "https://cdn.example.com/photo.jpg");
     assert.equal(rows[0]!.studio, "Elite Dance");
@@ -290,8 +290,8 @@ test.group("ListDancersService", (group) => {
     await db.insert(eventRosters).values(dancers);
 
     const svc = new ListDancersService();
-    const page1 = await svc.execute(event.id, { limit: 2, offset: 0 });
-    const page2 = await svc.execute(event.id, { limit: 2, offset: 2 });
+    const page1 = await svc.execute(event.id, null, { limit: 2, offset: 0 });
+    const page2 = await svc.execute(event.id, null, { limit: 2, offset: 2 });
     assert.equal(page1.length, 2);
     assert.equal(page2.length, 2);
     assert.notDeepEqual(page1[0], page2[0]);
