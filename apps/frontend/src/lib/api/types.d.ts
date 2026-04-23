@@ -3233,6 +3233,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/events/attend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsAttendRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsAttendResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/dancers": {
         parameters: {
             query?: never;
@@ -8601,6 +8651,24 @@ export interface components {
             firstName: string;
             lastName: string;
         }[];
+        OrgsIdEventsAttendRequest: {
+            type: components["schemas"]["UploadKind"];
+        };
+        OrgsIdEventsAttendResponse: {
+            id: string;
+            email: string;
+            type: components["schemas"]["UploadKind"];
+            firstName: string;
+            lastName: string;
+            createdAt: string;
+            updatedAt: string;
+            userId: string | null;
+            organization: string | null;
+            eventId: string;
+            bibNumber: number | null;
+            expirationDate: string | null;
+            csvUploadId: string | null;
+        };
         OrgsIdDancersResponse: {
             rosterId: string;
             bibNumber: number | null;

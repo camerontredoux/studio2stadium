@@ -37,6 +37,7 @@ const ManualMergeController = () =>
   import("./reconciliation/merge-controller.ts");
 const SearchSchoolUsersController = () =>
   import("./reconciliation/search-users-controller.ts");
+const AttendEventController = () => import("./attend/controller.ts");
 
 router
   .group(() => {
@@ -257,6 +258,15 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .post(":slug/events/attend", [AttendEventController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgEvent(),
         middleware.orgMember(),
         middleware.orgAdmin(),
       ]);

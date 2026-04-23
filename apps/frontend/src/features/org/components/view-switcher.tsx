@@ -1,4 +1,5 @@
 import { useOrg } from "@/features/org/context/use-org";
+import { client } from "@/lib/api/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,7 +7,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/menu";
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { toastManager } from "@/components/ui/toast-manager";
 import { useLocation, useNavigate, useParams } from "@tanstack/react-router";
+import { useMutation } from "@tanstack/react-query";
 import { EyeIcon } from "lucide-react";
 
 type View = "Admin" | "Coach" | "Dancer";
@@ -16,6 +19,17 @@ export function ViewSwitcher() {
   const location = useLocation();
   const navigate = useNavigate();
   const { orgSlug } = useParams({ strict: false }) as { orgSlug: string };
+  const attendMutation = useMutation({
+    mutationFn: async (type: "coach" | "dancer") => {
+      const raw = client as unknown as {
+        POST: (
+          path: string,
+          opts: { body: { type: "coach" | "dancer" } },
+        ) => Promise<void>;
+      };
+      await raw.POST(`/orgs/${orgSlug}/events/attend`, { body: { type } });
+    },
+  });
 
   if (membership?.role !== "admin") return null;
 
@@ -25,17 +39,34 @@ export function ViewSwitcher() {
       ? "Coach"
       : "Dancer";
 
-  function handleSelect(view: View) {
-    if (view === "Admin") {
-      void navigate({ to: "/$orgSlug/admin", params: { orgSlug } });
-    } else if (view === "Coach") {
+  async function handleSelect(view: View) {
+    if (view === current) return;
+    try {
+      if (view === "Admin") {
+        await navigate({ to: "/$orgSlug/admin", params: { orgSlug } });
+        return;
+      }
+
+      if (view === "Coach") {
+        await attendMutation.mutateAsync("coach");
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (navigate as any)({ to: "/$orgSlug/coach", params: { orgSlug } });
+        return;
+      }
+
+      await attendMutation.mutateAsync("dancer");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      void (navigate as any)({ to: "/$orgSlug/coach", params: { orgSlug } });
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      void (navigate as any)({ to: "/$orgSlug", params: { orgSlug } });
+      await (navigate as any)({ to: "/$orgSlug", params: { orgSlug } });
+    } catch {
+      toastManager.add({
+        title: "Couldn't switch views",
+        description: "Unable to register you on the active event right now.",
+        type: "error",
+      });
     }
   }
+
+  const disabled = attendMutation.isPending;
 
   return (
     <SidebarMenuItem>
@@ -53,7 +84,13 @@ export function ViewSwitcher() {
         </DropdownMenuTrigger>
         <DropdownMenuContent side="top" align="start">
           {(["Admin", "Coach", "Dancer"] as View[]).map((view) => (
-            <DropdownMenuItem key={view} onClick={() => handleSelect(view)}>
+            <DropdownMenuItem
+              key={view}
+              disabled={disabled}
+              onClick={() => {
+                void handleSelect(view);
+              }}
+            >
               {view}
             </DropdownMenuItem>
           ))}

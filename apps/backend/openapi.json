@@ -3235,6 +3235,51 @@
         }
       }
     },
+    "/orgs/{slug}/events/attend": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsAttendRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsAttendResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/orgs/{slug}/dancers": {
       "get": {
         "parameters": [
@@ -11618,6 +11663,111 @@
             "lastName"
           ]
         }
+      },
+      "OrgsIdEventsAttendRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/UploadKind"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "OrgsIdEventsAttendResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UploadKind"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "userId": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "organization": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "bibNumber": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expirationDate": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "csvUploadId": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "type",
+          "firstName",
+          "lastName",
+          "createdAt",
+          "updatedAt",
+          "userId",
+          "organization",
+          "eventId",
+          "bibNumber",
+          "expirationDate",
+          "csvUploadId"
+        ]
       },
       "OrgsIdDancersResponse": {
         "type": "array",

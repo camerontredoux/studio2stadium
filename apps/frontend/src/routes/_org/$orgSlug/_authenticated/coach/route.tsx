@@ -7,6 +7,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { CoachSidebar } from "@/features/org/components/coach-sidebar";
 import { orgQueries } from "@/features/org/api/queries";
+import { client } from "@/lib/api/client";
 
 export const Route = createFileRoute("/_org/$orgSlug/_authenticated/coach")({
   beforeLoad: async ({ context, params }) => {
@@ -17,6 +18,20 @@ export const Route = createFileRoute("/_org/$orgSlug/_authenticated/coach")({
     const type = data?.membership?.type;
     if (role !== "admin" && type !== "coach") {
       throw redirect({ to: "/" });
+    }
+
+    // Admins can access coach routes; ensure they have an active-event coach
+    // roster row so scouting endpoints don't fail with "must be registered".
+    if (role === "admin") {
+      const raw = client as unknown as {
+        POST: (
+          path: string,
+          opts: { body: { type: "coach" } },
+        ) => Promise<unknown>;
+      };
+      await raw.POST(`/orgs/${params.orgSlug}/events/attend`, {
+        body: { type: "coach" },
+      });
     }
   },
   component: CoachLayout,
