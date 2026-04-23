@@ -81,3 +81,30 @@ export const eventRatings = pg.pgTable(
     pg.index().on(table.coachRosterId),
   ]
 );
+
+export const eventSchoolSelections = pg.pgTable(
+  "event_school_selections",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    eventId: pg
+      .uuid()
+      .notNull()
+      .references(() => orgEvents.id, { onDelete: "cascade" }),
+    dancerRosterId: pg
+      .uuid()
+      .notNull()
+      .references(() => eventRosters.id, { onDelete: "cascade" }),
+    coachRosterId: pg
+      .uuid()
+      .notNull()
+      .references(() => eventRosters.id, { onDelete: "cascade" }),
+    createdAt: pg.timestamp().notNull().defaultNow(),
+  },
+  (table) => [
+    pg
+      .uniqueIndex()
+      .on(table.eventId, table.dancerRosterId, table.coachRosterId),
+    pg.index().on(table.eventId, table.dancerRosterId),
+    pg.index().on(table.eventId, table.coachRosterId),
+  ]
+);
