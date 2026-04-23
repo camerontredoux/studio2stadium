@@ -1,3 +1,4 @@
+import { Rating, RatingItem } from "@/components/ui/rating";
 import { $api } from "@/lib/api/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
@@ -6,11 +7,9 @@ import { useOptimistic, useTransition } from "react";
 
 export function RatingInput({
   value,
-  max,
   dancerRosterId,
 }: {
   value: number | null;
-  max: number;
   dancerRosterId: string;
 }) {
   const { org } = useOrg();
@@ -35,43 +34,24 @@ export function RatingInput({
           body: { rating: n },
         });
         qc.invalidateQueries({
-          queryKey: scoutingQueries.dancer(org.slug, dancerRosterId).queryKey,
+          queryKey: scoutingQueries.rankings(org.slug).queryKey,
         });
       } catch {
-        // will revert on next render if the server query refetches
+        // reverts on next render via refetch
       }
     });
   };
 
   return (
-    <div
-      className="flex flex-wrap items-center gap-1"
-      role="radiogroup"
-      aria-label="Rating"
-    >
-      {Array.from({ length: max }, (_, i) => i + 1).map((n) => {
-        const active = optimistic !== null && optimistic >= n;
-        return (
-          <button
-            key={n}
-            type="button"
-            role="radio"
-            aria-checked={optimistic === n}
-            aria-label={`Rating ${n}`}
-            onClick={() => onSet(n)}
-            className="hover:bg-accent flex size-10 items-center justify-center rounded-full transition-colors"
-          >
-            <span
-              className={`block size-4 rounded-full transition-colors ${
-                active ? "bg-primary" : "bg-muted-foreground/30"
-              }`}
-            />
-          </button>
-        );
-      })}
-      {optimistic !== null && (
+    <div className="flex items-center gap-1">
+      <Rating value={optimistic ?? 0} onValueChange={onSet}>
+        {Array.from({ length: 5 }, (_, i) => (
+          <RatingItem key={i} index={i} />
+        ))}
+      </Rating>
+      {optimistic != null && (
         <span className="text-muted-foreground ml-2 text-sm">
-          {optimistic}/{max}
+          {optimistic}/5
         </span>
       )}
     </div>

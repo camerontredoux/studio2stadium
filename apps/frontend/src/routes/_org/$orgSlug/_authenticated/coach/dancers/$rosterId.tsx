@@ -4,7 +4,6 @@ import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { FavoriteButton } from "@/features/org/components/favorite-button";
 import { NotesEditor } from "@/features/org/components/notes-editor";
 import { RatingInput } from "@/features/org/components/rating-input";
-import { useOrg } from "@/features/org/context/use-org";
 
 export const Route = createFileRoute(
   "/_org/$orgSlug/_authenticated/coach/dancers/$rosterId",
@@ -16,12 +15,9 @@ function DancerProfile() {
   const { orgSlug, rosterId } = useParams({
     from: "/_org/$orgSlug/_authenticated/coach/dancers/$rosterId",
   });
-  const { settings } = useOrg();
   const { data: dancer } = useSuspenseQuery(
     scoutingQueries.dancer(orgSlug, rosterId),
   );
-  const ratingMax = (settings.rating_scale_max as number | undefined) ?? 10;
-
   return (
     <div className="flex flex-col gap-6">
       {/* Header: photo, name, bib, studio/state, favorite button */}
@@ -63,7 +59,6 @@ function DancerProfile() {
         <label className="text-sm font-medium">Rating</label>
         <RatingInput
           value={dancer.rating ?? null}
-          max={ratingMax}
           dancerRosterId={rosterId}
         />
       </section>
