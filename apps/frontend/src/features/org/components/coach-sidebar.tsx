@@ -12,10 +12,11 @@ import {
 import { useOrg } from "@/features/org/context/use-org";
 import { ViewSwitcher } from "@/features/org/components/view-switcher";
 import { Link, useLocation, useParams } from "@tanstack/react-router";
-import { HeartIcon, SearchIcon, TrophyIcon } from "lucide-react";
+import { CalendarIcon, HeartIcon, SearchIcon, TrophyIcon } from "lucide-react";
 
 const navItems = [
-  { label: "Search", icon: SearchIcon, to: "/$orgSlug/coach/dancers" },
+  { label: "Event Info", icon: CalendarIcon, to: "/$orgSlug/coach/event-info" },
+  { label: "Search Dancers", icon: SearchIcon, to: "/$orgSlug/coach/dancers" },
   { label: "Favorites", icon: HeartIcon, to: "/$orgSlug/coach/favorites" },
   { label: "Rankings", icon: TrophyIcon, to: "/$orgSlug/coach/rankings" },
 ];
