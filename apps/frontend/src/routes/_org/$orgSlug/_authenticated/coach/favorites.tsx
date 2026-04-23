@@ -1,7 +1,13 @@
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
-import { DancerCard } from "@/features/org/components/dancer-card";
+import { DancerTable } from "@/features/org/components/dancer-table/dancer-table";
+import { DancerCard } from "@/features/org/components/dancer-table/dancer-card";
+import { DancerSheet } from "@/features/org/components/dancer-sheet";
+import { useFavoritesColumns } from "@/features/org/components/dancer-table/use-dancer-columns";
+import type { FavoriteDancerRow } from "@/features/org/components/dancer-table/columns";
+import { HeartIcon } from "lucide-react";
 
 export const Route = createFileRoute(
   "/_org/$orgSlug/_authenticated/coach/favorites",
@@ -14,33 +20,63 @@ function Favorites() {
     from: "/_org/$orgSlug/_authenticated/coach/favorites",
   });
   const { data } = useSuspenseQuery(scoutingQueries.favorites(orgSlug));
-  const favoritedIds = new Set(data.map((d) => d.rosterId));
+
+  const columns = useFavoritesColumns();
+
+  const tableData: FavoriteDancerRow[] = (data ?? []).map((d) => ({
+    ...d,
+    rating: null,
+    hasNotes: false,
+  }));
+
+  const [sheetRosterId, setSheetRosterId] = useState<string | null>(null);
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-baseline justify-between">
-        <h1 className="text-xl font-semibold">Favorites</h1>
+        <h1 className="text-xl font-semibold">My Favorites</h1>
         <span className="text-muted-foreground text-sm">
-          {data.length} {data.length === 1 ? "dancer" : "dancers"}
+          {data?.length ?? 0}{" "}
+          {(data?.length ?? 0) === 1 ? "dancer" : "dancers"}
         </span>
       </div>
-      {data.length === 0 ? (
-        <div className="text-muted-foreground bg-card rounded-lg border p-8 text-center text-sm">
-          You haven't favorited any dancers yet. Tap the heart on a dancer to
-          save them here.
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {data.map((d) => (
-            <DancerCard
-              key={d.rosterId}
-              dancer={d}
-              slug={orgSlug}
-              isFavorited={favoritedIds.has(d.rosterId)}
-            />
-          ))}
-        </div>
-      )}
+
+      <DancerTable<FavoriteDancerRow>
+        data={tableData}
+        columns={columns}
+        isLoading={false}
+        sorting={[{ id: "rating", desc: true }]}
+        emptyState={
+          <div className="flex flex-col items-center gap-2 py-8">
+            <HeartIcon className="text-muted-foreground size-8" />
+            <p className="text-muted-foreground text-sm">
+              No favorites yet. Tap the heart on any dancer to add them here.
+            </p>
+            <Link
+              to="/$orgSlug/coach/dancers"
+              params={{ orgSlug }}
+              className="text-primary text-sm hover:underline"
+            >
+              Search Dancers
+            </Link>
+          </div>
+        }
+        onRowClick={(row) => setSheetRosterId(row.rosterId)}
+        renderCard={(row) => (
+          <DancerCard
+            dancer={{ ...row, isFavorited: true }}
+            onClick={() => setSheetRosterId(row.rosterId)}
+          />
+        )}
+      />
+
+      <DancerSheet
+        rosterId={sheetRosterId}
+        open={sheetRosterId !== null}
+        onOpenChange={(open) => {
+          if (!open) setSheetRosterId(null);
+        }}
+      />
     </div>
   );
 }
