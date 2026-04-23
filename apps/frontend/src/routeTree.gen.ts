@@ -66,6 +66,7 @@ import { Route as OrgOrgSlugAuthenticatedCoachIndexRouteImport } from './routes/
 import { Route as OrgOrgSlugAuthenticatedAdminIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/index'
 import { Route as OrgOrgSlugAuthenticatedCoachRankingsRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/rankings'
 import { Route as OrgOrgSlugAuthenticatedCoachFavoritesRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/favorites'
+import { Route as OrgOrgSlugAuthenticatedCoachEventInfoRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/event-info'
 import { Route as OrgOrgSlugAuthenticatedAdminUploadsRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/uploads'
 import { Route as OrgOrgSlugAuthenticatedAdminSettingsRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/settings'
 import { Route as OrgOrgSlugAuthenticatedAdminReconciliationRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/reconciliation'
@@ -381,6 +382,12 @@ const OrgOrgSlugAuthenticatedCoachFavoritesRoute =
     path: '/favorites',
     getParentRoute: () => OrgOrgSlugAuthenticatedCoachRouteRoute,
   } as any)
+const OrgOrgSlugAuthenticatedCoachEventInfoRoute =
+  OrgOrgSlugAuthenticatedCoachEventInfoRouteImport.update({
+    id: '/event-info',
+    path: '/event-info',
+    getParentRoute: () => OrgOrgSlugAuthenticatedCoachRouteRoute,
+  } as any)
 const OrgOrgSlugAuthenticatedAdminUploadsRoute =
   OrgOrgSlugAuthenticatedAdminUploadsRouteImport.update({
     id: '/uploads',
@@ -492,6 +499,7 @@ export interface FileRoutesByFullPath {
   '/$orgSlug/admin/reconciliation': typeof OrgOrgSlugAuthenticatedAdminReconciliationRoute
   '/$orgSlug/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
   '/$orgSlug/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
+  '/$orgSlug/coach/event-info': typeof OrgOrgSlugAuthenticatedCoachEventInfoRoute
   '/$orgSlug/coach/favorites': typeof OrgOrgSlugAuthenticatedCoachFavoritesRoute
   '/$orgSlug/coach/rankings': typeof OrgOrgSlugAuthenticatedCoachRankingsRoute
   '/$orgSlug/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
@@ -550,6 +558,7 @@ export interface FileRoutesByTo {
   '/$orgSlug/admin/reconciliation': typeof OrgOrgSlugAuthenticatedAdminReconciliationRoute
   '/$orgSlug/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
   '/$orgSlug/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
+  '/$orgSlug/coach/event-info': typeof OrgOrgSlugAuthenticatedCoachEventInfoRoute
   '/$orgSlug/coach/favorites': typeof OrgOrgSlugAuthenticatedCoachFavoritesRoute
   '/$orgSlug/coach/rankings': typeof OrgOrgSlugAuthenticatedCoachRankingsRoute
   '/$orgSlug/admin': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
@@ -619,6 +628,7 @@ export interface FileRoutesById {
   '/_org/$orgSlug/_authenticated/admin/reconciliation': typeof OrgOrgSlugAuthenticatedAdminReconciliationRoute
   '/_org/$orgSlug/_authenticated/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
   '/_org/$orgSlug/_authenticated/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
+  '/_org/$orgSlug/_authenticated/coach/event-info': typeof OrgOrgSlugAuthenticatedCoachEventInfoRoute
   '/_org/$orgSlug/_authenticated/coach/favorites': typeof OrgOrgSlugAuthenticatedCoachFavoritesRoute
   '/_org/$orgSlug/_authenticated/coach/rankings': typeof OrgOrgSlugAuthenticatedCoachRankingsRoute
   '/_org/$orgSlug/_authenticated/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
@@ -684,6 +694,7 @@ export interface FileRouteTypes {
     | '/$orgSlug/admin/reconciliation'
     | '/$orgSlug/admin/settings'
     | '/$orgSlug/admin/uploads'
+    | '/$orgSlug/coach/event-info'
     | '/$orgSlug/coach/favorites'
     | '/$orgSlug/coach/rankings'
     | '/$orgSlug/admin/'
@@ -742,6 +753,7 @@ export interface FileRouteTypes {
     | '/$orgSlug/admin/reconciliation'
     | '/$orgSlug/admin/settings'
     | '/$orgSlug/admin/uploads'
+    | '/$orgSlug/coach/event-info'
     | '/$orgSlug/coach/favorites'
     | '/$orgSlug/coach/rankings'
     | '/$orgSlug/admin'
@@ -810,6 +822,7 @@ export interface FileRouteTypes {
     | '/_org/$orgSlug/_authenticated/admin/reconciliation'
     | '/_org/$orgSlug/_authenticated/admin/settings'
     | '/_org/$orgSlug/_authenticated/admin/uploads'
+    | '/_org/$orgSlug/_authenticated/coach/event-info'
     | '/_org/$orgSlug/_authenticated/coach/favorites'
     | '/_org/$orgSlug/_authenticated/coach/rankings'
     | '/_org/$orgSlug/_authenticated/admin/'
@@ -1227,6 +1240,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgOrgSlugAuthenticatedCoachFavoritesRouteImport
       parentRoute: typeof OrgOrgSlugAuthenticatedCoachRouteRoute
     }
+    '/_org/$orgSlug/_authenticated/coach/event-info': {
+      id: '/_org/$orgSlug/_authenticated/coach/event-info'
+      path: '/event-info'
+      fullPath: '/$orgSlug/coach/event-info'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedCoachEventInfoRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedCoachRouteRoute
+    }
     '/_org/$orgSlug/_authenticated/admin/uploads': {
       id: '/_org/$orgSlug/_authenticated/admin/uploads'
       path: '/uploads'
@@ -1503,6 +1523,7 @@ const OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren =
   )
 
 interface OrgOrgSlugAuthenticatedCoachRouteRouteChildren {
+  OrgOrgSlugAuthenticatedCoachEventInfoRoute: typeof OrgOrgSlugAuthenticatedCoachEventInfoRoute
   OrgOrgSlugAuthenticatedCoachFavoritesRoute: typeof OrgOrgSlugAuthenticatedCoachFavoritesRoute
   OrgOrgSlugAuthenticatedCoachRankingsRoute: typeof OrgOrgSlugAuthenticatedCoachRankingsRoute
   OrgOrgSlugAuthenticatedCoachIndexRoute: typeof OrgOrgSlugAuthenticatedCoachIndexRoute
@@ -1512,6 +1533,8 @@ interface OrgOrgSlugAuthenticatedCoachRouteRouteChildren {
 
 const OrgOrgSlugAuthenticatedCoachRouteRouteChildren: OrgOrgSlugAuthenticatedCoachRouteRouteChildren =
   {
+    OrgOrgSlugAuthenticatedCoachEventInfoRoute:
+      OrgOrgSlugAuthenticatedCoachEventInfoRoute,
     OrgOrgSlugAuthenticatedCoachFavoritesRoute:
       OrgOrgSlugAuthenticatedCoachFavoritesRoute,
     OrgOrgSlugAuthenticatedCoachRankingsRoute:
