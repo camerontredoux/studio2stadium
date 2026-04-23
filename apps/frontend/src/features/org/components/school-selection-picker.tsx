@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,10 +21,10 @@ export function SchoolSelectionPicker() {
   const { org } = useOrg();
   const [search, setSearch] = useState("");
 
-  const { data: schools } = useSuspenseQuery(
+  const { data: schools } = useQuery(
     scoutingQueries.schools(org.slug),
   );
-  const { data: selections } = useSuspenseQuery(
+  const { data: selections } = useQuery(
     scoutingQueries.mySelections(org.slug),
   );
 

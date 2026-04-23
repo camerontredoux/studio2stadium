@@ -6,7 +6,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { useOrg } from "@/features/org/context/use-org";
 import { FavoriteButton } from "./favorite-button";
@@ -31,9 +31,17 @@ export function DancerSheet({ rosterId, open, onOpenChange }: DancerSheetProps) 
 
 function DancerSheetContent({ rosterId }: { rosterId: string }) {
   const { org } = useOrg();
-  const { data: dancer } = useSuspenseQuery(
+  const { data: dancer, isLoading } = useQuery(
     scoutingQueries.dancer(org.slug, rosterId),
   );
+
+  if (isLoading || !dancer) {
+    return (
+      <SheetHeader>
+        <SheetTitle>Loading...</SheetTitle>
+      </SheetHeader>
+    );
+  }
 
   return (
     <>

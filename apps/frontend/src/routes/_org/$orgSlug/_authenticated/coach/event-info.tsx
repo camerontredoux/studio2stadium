@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   CalendarIcon,
@@ -29,7 +29,7 @@ export const Route = createFileRoute(
 
 function EventInfo() {
   const { orgSlug } = Route.useParams();
-  const { data: events } = useSuspenseQuery(adminQueries.events(orgSlug));
+  const { data: events } = useQuery(adminQueries.events(orgSlug));
   const activeEvent = events?.find((e) => e.isActive) ?? null;
 
   if (!activeEvent) {
@@ -51,8 +51,8 @@ function EventInfoDashboard({
   event: OrgEvent;
 }) {
   const { org } = useOrg();
-  const { data: dancers } = useSuspenseQuery(scoutingQueries.dancers(orgSlug));
-  const { data: favorites } = useSuspenseQuery(
+  const { data: dancers } = useQuery(scoutingQueries.dancers(orgSlug));
+  const { data: favorites } = useQuery(
     scoutingQueries.favorites(orgSlug),
   );
 

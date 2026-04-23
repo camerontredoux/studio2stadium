@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { DancerTable } from "@/features/org/components/dancer-table/dancer-table";
@@ -19,7 +19,7 @@ function Favorites() {
   const { orgSlug } = useParams({
     from: "/_org/$orgSlug/_authenticated/coach/favorites",
   });
-  const { data } = useSuspenseQuery(scoutingQueries.favorites(orgSlug));
+  const { data, isLoading } = useQuery(scoutingQueries.favorites(orgSlug));
 
   const columns = useFavoritesColumns();
 
@@ -44,7 +44,7 @@ function Favorites() {
       <DancerTable<FavoriteDancerRow>
         data={tableData}
         columns={columns}
-        isLoading={false}
+        isLoading={isLoading}
         sorting={[{ id: "rating", desc: true }]}
         emptyState={
           <div className="flex flex-col items-center gap-2 py-8">

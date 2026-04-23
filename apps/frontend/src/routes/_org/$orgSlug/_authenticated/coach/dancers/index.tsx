@@ -1,5 +1,5 @@
 import { createFileRoute, useParams } from "@tanstack/react-router";
-import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDeferredValue, useCallback, useState } from "react";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import {
@@ -31,10 +31,10 @@ function DancerSearch() {
   const [interested, setInterested] = useState(false);
   const deferredSearch = useDeferredValue(search);
 
-  const { data: dancers } = useSuspenseQuery(
+  const { data: dancers, isLoading } = useQuery(
     scoutingQueries.dancers(orgSlug, { interested: interested || undefined }),
   );
-  const { data: favorites } = useSuspenseQuery(
+  const { data: favorites } = useQuery(
     scoutingQueries.favorites(orgSlug),
   );
 
@@ -89,7 +89,7 @@ function DancerSearch() {
       <DancerTable<SearchDancerRow>
         data={tableData}
         columns={columns}
-        isLoading={false}
+        isLoading={isLoading}
         globalFilter={deferredSearch}
         emptyState={
           <p className="text-muted-foreground text-sm">

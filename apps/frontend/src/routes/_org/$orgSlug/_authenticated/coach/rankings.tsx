@@ -1,5 +1,5 @@
 import { createFileRoute, useParams } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toastManager } from "@/components/ui/toast-manager";
@@ -21,7 +21,7 @@ function Rankings() {
   const { orgSlug } = useParams({
     from: "/_org/$orgSlug/_authenticated/coach/rankings",
   });
-  const { data } = useSuspenseQuery(scoutingQueries.rankings(orgSlug));
+  const { data, isLoading } = useQuery(scoutingQueries.rankings(orgSlug));
 
   const columns = useRankingsColumns();
 
@@ -79,7 +79,7 @@ function Rankings() {
       <DancerTable<RankedDancerRow>
         data={tableData}
         columns={columns}
-        isLoading={false}
+        isLoading={isLoading}
         sorting={[{ id: "rating", desc: true }]}
         emptyState={
           <div className="flex flex-col items-center gap-2 py-8">
