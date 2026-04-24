@@ -28,11 +28,6 @@ export class Service {
               role: true,
             },
           },
-          application: {
-            columns: {
-              status: true,
-            },
-          },
         },
         orderBy: {
           createdAt: "desc",
@@ -44,8 +39,7 @@ export class Service {
       .filter(
         (school) =>
           school.user &&
-          school.user.verified &&
-          school.application?.status === "accepted"
+          school.user.verified
       )
       .map((school) => ({
         id: school.id,
