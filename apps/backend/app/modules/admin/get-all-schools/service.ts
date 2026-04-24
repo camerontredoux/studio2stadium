@@ -44,8 +44,8 @@ export class Service {
       .filter(
         (school) =>
           school.user &&
-          school.application?.status !== "pending" &&
-          school.application?.status !== "rejected"
+          school.user.verified &&
+          school.application?.status === "accepted"
       )
       .map((school) => ({
         id: school.id,

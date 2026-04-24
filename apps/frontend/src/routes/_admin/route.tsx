@@ -36,7 +36,7 @@ const navLinks = [
   { to: "/admin/dashboard", label: "Dashboard" },
   { to: "/admin/applications", label: "Applications" },
   { to: "/admin/dancers", label: "Dancers" },
-  { to: "/admin/school-events", label: "School Events" },
+  { to: "/admin/school-events", label: "Schools" },
   { to: "/admin/global-events", label: "Global Events" },
   { to: "/admin/blog", label: "Blog" },
   { to: "/admin/video-library", label: "Video Library" },

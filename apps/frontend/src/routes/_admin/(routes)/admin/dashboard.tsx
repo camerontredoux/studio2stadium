@@ -21,8 +21,8 @@ const adminLinks = [
   },
   {
     to: "/admin/school-events",
-    label: "School Events",
-    description: "Add events to school profiles",
+    label: "Schools",
+    description: "Manage school profiles and events",
     icon: LuSchool,
   },
   {
