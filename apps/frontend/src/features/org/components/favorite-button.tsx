@@ -14,31 +14,74 @@ export function FavoriteButton({
 }) {
   const { org } = useOrg();
   const qc = useQueryClient();
-  const add = $api.useMutation("post", "/orgs/{slug}/favorites");
+  const dancerKey = scoutingQueries.dancer(org.slug, dancerRosterId).queryKey;
+  const favKey = scoutingQueries.favorites(org.slug).queryKey;
+
+  const add = $api.useMutation("post", "/orgs/{slug}/favorites", {
+    onMutate: async () => {
+      await qc.cancelQueries({ queryKey: dancerKey });
+      const previousDancer = qc.getQueryData(dancerKey);
+      qc.setQueryData(dancerKey, (old: any) => {
+        if (!old) return old;
+        return { ...old, isFavorited: true };
+      });
+      return { previousDancer };
+    },
+    onError: (_err, _variables, context: any) => {
+      if (context?.previousDancer) {
+        qc.setQueryData(dancerKey, context.previousDancer);
+      }
+    },
+    meta: {
+      invalidateQueries: [
+        favKey,
+        scoutingQueries.dancers(org.slug).queryKey,
+        scoutingQueries.rankings(org.slug).queryKey,
+      ],
+    },
+  });
+
   const remove = $api.useMutation(
     "delete",
     "/orgs/{slug}/favorites/{dancerRosterId}",
+    {
+      onMutate: async () => {
+        await qc.cancelQueries({ queryKey: dancerKey });
+        const previousDancer = qc.getQueryData(dancerKey);
+        qc.setQueryData(dancerKey, (old: any) => {
+          if (!old) return old;
+          return { ...old, isFavorited: false };
+        });
+        return { previousDancer };
+      },
+      onError: (_err, _variables, context: any) => {
+        if (context?.previousDancer) {
+          qc.setQueryData(dancerKey, context.previousDancer);
+        }
+      },
+      meta: {
+        invalidateQueries: [
+          favKey,
+          scoutingQueries.dancers(org.slug).queryKey,
+          scoutingQueries.rankings(org.slug).queryKey,
+        ],
+      },
+    },
   );
 
-  const toggle = async (e: MouseEvent) => {
+  const toggle = (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     navigator.vibrate?.(10);
-    const favKey = scoutingQueries.favorites(org.slug).queryKey;
-    try {
-      if (isFavorited) {
-        await remove.mutateAsync({
-          params: { path: { slug: org.slug, dancerRosterId } },
-        });
-      } else {
-        await add.mutateAsync({
-          params: { path: { slug: org.slug } },
-          body: { dancerRosterId },
-        });
-      }
-      qc.invalidateQueries({ queryKey: favKey });
-    } catch {
-      // Will be retried on next click; a toast could be added later
+    if (isFavorited) {
+      remove.mutate({
+        params: { path: { slug: org.slug, dancerRosterId } },
+      });
+    } else {
+      add.mutate({
+        params: { path: { slug: org.slug } },
+        body: { dancerRosterId },
+      });
     }
   };
 

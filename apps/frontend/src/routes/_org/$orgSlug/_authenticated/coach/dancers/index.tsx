@@ -1,5 +1,5 @@
 import { createFileRoute, useParams } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useDeferredValue, useCallback, useState } from "react";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import {
@@ -25,7 +25,6 @@ function DancerSearch() {
     from: "/_org/$orgSlug/_authenticated/coach/dancers/",
   });
   const { org } = useOrg();
-  const qc = useQueryClient();
 
   const [search, setSearch] = useState("");
   const [interested, setInterested] = useState(false);
@@ -46,25 +45,19 @@ function DancerSearch() {
   const removeFav = useRemoveFavorite(orgSlug);
 
   const handleFavoriteToggle = useCallback(
-    async (rosterId: string, current: boolean) => {
+    (rosterId: string, current: boolean) => {
       if (current) {
-        await removeFav.mutateAsync({
+        removeFav.mutate({
           params: { path: { slug: orgSlug, dancerRosterId: rosterId } },
         });
       } else {
-        await addFav.mutateAsync({
+        addFav.mutate({
           params: { path: { slug: orgSlug } },
           body: { dancerRosterId: rosterId },
         });
       }
-      qc.invalidateQueries({
-        queryKey: scoutingQueries.favorites(orgSlug).queryKey,
-      });
-      qc.invalidateQueries({
-        queryKey: scoutingQueries.dancers(orgSlug).queryKey,
-      });
     },
-    [orgSlug, addFav, removeFav, qc],
+    [orgSlug, addFav, removeFav],
   );
 
   const columns = useSearchColumns(handleFavoriteToggle);
