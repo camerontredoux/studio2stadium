@@ -80,7 +80,7 @@ interface ProfileTabProps {
 
 export const ProfileTab = forwardRef<TabHandle, ProfileTabProps>(
   function ProfileTab({ username, data, onStateChange }, ref) {
-    const { mutate, isPending } = useAdminUpdateSchoolProfile();
+    const { mutate, isPending } = useAdminUpdateSchoolProfile(username);
 
   const form = useForm({
     resolver: zodResolver(profileSchema),

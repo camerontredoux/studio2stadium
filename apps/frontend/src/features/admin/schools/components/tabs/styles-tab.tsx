@@ -23,7 +23,7 @@ export const StylesTab = forwardRef<TabHandle, StylesTabProps>(
   function StylesTab({ username, selectedStyleIds, onStateChange }, ref) {
     const [localSelectedStyleIds, setLocalSelectedStyleIds] =
       useState<string[]>(selectedStyleIds);
-    const { mutate, isPending } = useAdminUpdateSchoolStyles();
+    const { mutate, isPending } = useAdminUpdateSchoolStyles(username);
 
   const handleToggle = (styleId: string) => {
     setLocalSelectedStyleIds((prev) =>

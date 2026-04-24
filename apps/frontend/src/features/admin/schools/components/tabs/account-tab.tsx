@@ -25,7 +25,7 @@ interface AccountTabProps {
 
 export const AccountTab = forwardRef<TabHandle, AccountTabProps>(
   function AccountTab({ username, displayEmail, onStateChange }, ref) {
-    const { mutate, isPending } = useAdminUpdateSchoolAccount();
+    const { mutate, isPending } = useAdminUpdateSchoolAccount(username);
 
   const form = useForm<AccountFormData>({
     resolver: zodResolver(accountSchema),

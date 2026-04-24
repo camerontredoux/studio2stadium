@@ -23,7 +23,7 @@ export const SportsTab = forwardRef<TabHandle, SportsTabProps>(
   function SportsTab({ username, selectedSportIds, onStateChange }, ref) {
     const [localSelectedSportIds, setLocalSelectedSportIds] =
       useState<string[]>(selectedSportIds);
-    const { mutate, isPending } = useAdminUpdateSchoolSports();
+    const { mutate, isPending } = useAdminUpdateSchoolSports(username);
 
   const handleToggle = (sportId: string) => {
     setLocalSelectedSportIds((prev) =>

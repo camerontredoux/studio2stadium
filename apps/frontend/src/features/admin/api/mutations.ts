@@ -29,50 +29,50 @@ export function useEditSchoolEvent(username: string) {
   });
 }
 
-export function useAdminUpdateSchoolProfile() {
+export function useAdminUpdateSchoolProfile(username: string) {
   return $api.useMutation("patch", "/admin/schools/{username}/profile", {
     meta: {
-      invalidateQueries: [adminQueries.schools().queryKey],
+      invalidateQueries: [adminQueries.schools().queryKey, adminQueries.schoolEvents(username).queryKey],
     },
   });
 }
 
-export function useAdminUpdateSchoolAccount() {
+export function useAdminUpdateSchoolAccount(username: string) {
   return $api.useMutation("patch", "/admin/schools/{username}/account", {
     meta: {
-      invalidateQueries: [adminQueries.schools().queryKey],
+      invalidateQueries: [adminQueries.schools().queryKey, adminQueries.schoolEvents(username).queryKey],
     },
   });
 }
 
-export function useAdminUpdateSchoolSkills() {
+export function useAdminUpdateSchoolSkills(username: string) {
   return $api.useMutation("patch", "/admin/schools/{username}/skills", {
     meta: {
-      invalidateQueries: [adminQueries.schools().queryKey],
+      invalidateQueries: [adminQueries.schools().queryKey, adminQueries.schoolEvents(username).queryKey],
     },
   });
 }
 
-export function useAdminUpdateSchoolStyles() {
+export function useAdminUpdateSchoolStyles(username: string) {
   return $api.useMutation("patch", "/admin/schools/{username}/styles", {
     meta: {
-      invalidateQueries: [adminQueries.schools().queryKey],
+      invalidateQueries: [adminQueries.schools().queryKey, adminQueries.schoolEvents(username).queryKey],
     },
   });
 }
 
-export function useAdminUpdateSchoolSports() {
+export function useAdminUpdateSchoolSports(username: string) {
   return $api.useMutation("patch", "/admin/schools/{username}/sports", {
     meta: {
-      invalidateQueries: [adminQueries.schools().queryKey],
+      invalidateQueries: [adminQueries.schools().queryKey, adminQueries.schoolEvents(username).queryKey],
     },
   });
 }
 
-export function useAdminUpdateSchoolAvatar() {
+export function useAdminUpdateSchoolAvatar(username: string) {
   return $api.useMutation("post", "/admin/schools/{username}/avatar", {
     meta: {
-      invalidateQueries: [adminQueries.schools().queryKey],
+      invalidateQueries: [adminQueries.schools().queryKey, adminQueries.schoolEvents(username).queryKey],
     },
   });
 }

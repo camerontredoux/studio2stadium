@@ -34,7 +34,7 @@ export const SkillsTab = forwardRef<TabHandle, SkillsTabProps>(
       : new Map(selectedSkillIds.map((id) => [id, 1]));
 
     const [localWeights, setLocalWeights] = useState<Map<string, number>>(initialWeights);
-    const { mutate, isPending } = useAdminUpdateSchoolSkills();
+    const { mutate, isPending } = useAdminUpdateSchoolSkills(username);
 
   const selectedSkillIdList = [...localWeights.keys()];
 

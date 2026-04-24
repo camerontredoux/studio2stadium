@@ -35,7 +35,7 @@ interface AvatarTabProps {
 export const AvatarTab = forwardRef<TabHandle, AvatarTabProps>(
   function AvatarTab({ username, currentAvatar, schoolName, onStateChange }, ref) {
     const { mutate: requestUpload, isPending: isRequesting } = useRequestUpload();
-    const { mutate: updateAvatar, isPending: isUpdating } = useAdminUpdateSchoolAvatar();
+    const { mutate: updateAvatar, isPending: isUpdating } = useAdminUpdateSchoolAvatar(username);
 
     const [uploading, setUploading] = useState(false);
     const [progress, setProgress] = useState(0);
