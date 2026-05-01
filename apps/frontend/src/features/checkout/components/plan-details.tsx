@@ -56,19 +56,19 @@ export function PlanDetails({
                     "bg-[#e3e3e3] text-black dark:bg-[#3c3c3e] dark:text-white",
                 )}
               >
-                Save $50
+                Save $100
               </Badge>
             </div>
             <div className="flex w-full flex-col items-start">
               <p className="text-muted-foreground text-sm font-light">Yearly</p>
               <p className="text-muted-foreground text-sm">
                 <span className="text-primary text-lg font-semibold">
-                  $20.83
+                  $16.67
                 </span>
                 /mo
               </p>
               <p className="text-muted-foreground text-xs font-light">
-                Billed at $250/yr
+                Billed at $200/yr
               </p>
             </div>
           </Button>
