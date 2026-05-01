@@ -357,7 +357,7 @@ export const StudentWelcomeMessageFreemium = `
 
     <div class="upgrade-box">
     <h1 style="font-weight: normal;">Want to go further, <span style="font-weight:bold;">faster</span>?</h1>
-      <h2>Upgrade to Premium ($20/month) to:</h2>
+      <h2>Upgrade to Premium ($25/month) to:</h2>
       <ul>
         <li>✓ Upload unlimited videos</li>
         <li>✓ See which schools are viewing your profile</li>

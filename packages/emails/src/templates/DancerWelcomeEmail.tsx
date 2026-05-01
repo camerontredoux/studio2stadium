@@ -203,7 +203,7 @@ export function DancerWelcomeEmail({
           Want to go further, <span style={{ fontWeight: "bold" }}>faster</span>
           ?
         </Text>
-        <Text style={upgradeHeading}>Upgrade to Premium ($20/month) to:</Text>
+        <Text style={upgradeHeading}>Upgrade to Premium ($25/month) to:</Text>
         <Text style={upgradeListItem}>✓ Upload unlimited videos</Text>
         <Text style={upgradeListItem}>
           ✓ See which schools are viewing your profile
