@@ -15,6 +15,11 @@ export {
 } from "./templates/SchoolWelcomeEmail.js";
 
 export {
+  SchoolRejectedEmail,
+  type SchoolRejectedEmailProps,
+} from "./templates/SchoolRejectedEmail.js";
+
+export {
   DancerWelcomeEmail,
   type DancerWelcomeEmailProps,
 } from "./templates/DancerWelcomeEmail.js";

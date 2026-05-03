@@ -4,7 +4,7 @@ import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { eq } from "drizzle-orm";
-import { SchoolApprovedEvent } from "./event.ts";
+import { SchoolApprovedEvent, SchoolRejectedEvent } from "./event.ts";
 import { Validator } from "./validator.ts";
 
 @inject()
@@ -55,6 +55,12 @@ export class Service {
         userId: school.userId,
         schoolId: school.id,
         schoolName: school.name,
+      });
+    } else if (status === "rejected") {
+      SchoolRejectedEvent.dispatch({
+        userId: school.userId,
+        schoolName: school.name,
+        reason: notes,
       });
     }
 

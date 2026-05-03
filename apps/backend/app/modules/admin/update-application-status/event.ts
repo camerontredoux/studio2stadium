@@ -4,6 +4,7 @@ import { BaseEvent } from "@adonisjs/core/events";
 import emitter from "@adonisjs/core/services/emitter";
 import mail from "@adonisjs/mail/services/main";
 import SchoolWelcomeEmail from "./email.ts";
+import SchoolRejectedEmail from "./rejected-email.ts";
 
 interface SchoolApprovedEventData {
   userId: string;
@@ -50,3 +51,44 @@ class SchoolApprovedHandler {
 }
 
 emitter.listen(SchoolApprovedEvent, [SchoolApprovedHandler]);
+
+interface SchoolRejectedEventData {
+  userId: string;
+  schoolName: string;
+  reason?: string;
+}
+
+export class SchoolRejectedEvent extends BaseEvent {
+  constructor(public data: SchoolRejectedEventData) {
+    super();
+  }
+}
+
+class SchoolRejectedHandler {
+  async handle(event: SchoolRejectedEvent) {
+    const { userId, schoolName, reason } = event.data;
+
+    const user = await db.query.users.findFirst({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return;
+    }
+
+    if (!user.notifications) {
+      return;
+    }
+
+    await mail.send(
+      new SchoolRejectedEmail({
+        email: user.displayEmail,
+        firstName: user.firstName,
+        schoolName,
+        reason,
+      })
+    );
+  }
+}
+
+emitter.listen(SchoolRejectedEvent, [SchoolRejectedHandler]);
