@@ -15,7 +15,7 @@ export const schema = vine.compile(
     venueName: vine.string().trim().optional(),
     venueAddress: vine.string().trim().optional(),
     contactEmail: vine.string().email().optional(),
-    schedulePdfUrl: vine.string().url().optional(),
+    schedulePdfUrl: vine.string().optional().nullable(),
     isActive: vine.boolean().optional(),
   })
 );

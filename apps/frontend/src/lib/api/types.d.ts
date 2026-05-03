@@ -9240,7 +9240,7 @@ export interface components {
         };
         ImagesPresignRequest: {
             /** @enum {string} */
-            type: "id" | "avatar" | "feed" | "blog";
+            type: "id" | "avatar" | "feed" | "blog" | "schedule";
             contentType: string;
         };
         ImagesPresignResponse: {

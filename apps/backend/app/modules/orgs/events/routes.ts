@@ -38,6 +38,7 @@ const ManualMergeController = () =>
 const SearchSchoolUsersController = () =>
   import("./reconciliation/search-users-controller.ts");
 const AttendEventController = () => import("./attend/controller.ts");
+const ScheduleController = () => import("./schedule/controller.ts");
 
 router
   .group(() => {
@@ -269,6 +270,13 @@ router
         middleware.orgEvent(),
         middleware.orgMember(),
         middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events/:id/schedule", [ScheduleController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
       ]);
   })
   .prefix("orgs");

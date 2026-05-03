@@ -3,7 +3,7 @@ import { type Infer } from "@vinejs/vine/types";
 
 export const schema = vine.create(
   vine.object({
-    type: vine.enum(["avatar", "feed", "id", "blog"]),
+    type: vine.enum(["avatar", "feed", "id", "blog", "schedule"]),
     contentType: vine.string(),
   })
 );

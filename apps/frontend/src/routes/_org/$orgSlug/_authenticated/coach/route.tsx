@@ -27,17 +27,17 @@ export const Route = createFileRoute("/_org/$orgSlug/_authenticated/coach")({
 
 function CoachLayout() {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="h-svh">
       <CoachSidebar />
-      <SidebarInset>
-        <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
+      <SidebarInset className="overflow-hidden">
+        <header className="bg-sidebar text-sidebar-foreground flex h-12 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
-          <span className="text-muted-foreground text-sm font-medium">
+          <span className="text-muted-foreground text-sm font-medium 2xl:text-base">
             Coach
           </span>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <Outlet />
         </div>
       </SidebarInset>

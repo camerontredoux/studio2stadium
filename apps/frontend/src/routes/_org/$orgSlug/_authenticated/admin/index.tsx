@@ -7,16 +7,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import {
   ArrowRightIcon,
-  CalendarIcon,
   CheckIcon,
   CircleXIcon,
-  ExternalLinkIcon,
-  MailIcon,
-  MapPinIcon,
+  CloudUploadIcon,
+  ExpandIcon,
+  FileTextIcon,
   PencilIcon,
   PlusIcon,
   Trash2Icon,
   UploadIcon,
+  XIcon,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -30,6 +30,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toastManager } from "@/components/ui/toast-manager";
 import { cn } from "@/components/utils/cn";
 import {
@@ -38,6 +44,15 @@ import {
   type CsvUploadSummary,
   type OrgEvent,
 } from "@/features/org/api/admin-queries";
+import {
+  DashboardHeader,
+  SidebarDetailsSection,
+  SidebarPhaseSection,
+  SidebarSection,
+  StatCell,
+  formatDateRange,
+  scheduleFileUrl,
+} from "@/features/org/components/dashboard-shared";
 import {
   CreateEventForm,
   EventFormSheet,
@@ -51,6 +66,19 @@ import {
   useEventPhase,
   type EventPhaseInfo,
 } from "@/features/org/hooks/use-event-phase";
+import {
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadItem,
+  FileUploadItemDelete,
+  FileUploadItemMetadata,
+  FileUploadItemPreview,
+  FileUploadList,
+  FileUploadTrigger,
+} from "@/components/ui/file-upload";
+import { Progress } from "@/components/ui/progress";
+import { useRequestUpload } from "@/shared/images/api/mutations";
+import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
 import { client } from "@/lib/api/client";
 
 export const Route = createFileRoute("/_org/$orgSlug/_authenticated/admin/")({
@@ -85,13 +113,38 @@ function AdminDashboard({
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto xl:flex-row xl:overflow-hidden">
       <div className="flex min-w-0 flex-col xl:min-h-0 xl:flex-1 xl:overflow-x-hidden xl:overflow-y-auto">
-        <EventHeader
+        <DashboardHeader
           name={activeEvent.name}
           phase={phase}
           dateRange={dateRange}
-          registered={stats.registered}
-          totalRoster={totalRoster}
-          activationPct={activationPct}
+          actions={
+            <div className="flex items-center gap-3">
+              <div className="text-sm 2xl:text-base">
+                <span className="font-semibold tabular-nums">
+                  {stats.registered}
+                </span>
+                <span className="text-muted-foreground">
+                  /{totalRoster} activated
+                </span>
+              </div>
+              <div
+                className="bg-border h-0.5 w-[120px] overflow-hidden"
+                role="progressbar"
+                aria-valuenow={activationPct}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label="Roster activation progress"
+              >
+                <div
+                  className="bg-foreground h-full"
+                  style={{ width: `${activationPct}%` }}
+                />
+              </div>
+              <span className="text-muted-foreground text-[11px] tabular-nums 2xl:text-xs">
+                {activationPct}%
+              </span>
+            </div>
+          }
         />
 
         <section
@@ -148,7 +201,11 @@ function AdminDashboard({
             />
           </div>
           <div className="min-h-0 lg:col-span-1">
-            <TopSchoolsPanel />
+            <ScheduleUploadPanel
+              orgSlug={orgSlug}
+              eventId={activeEvent.id}
+              scheduleKey={activeEvent.schedulePdfUrl}
+            />
           </div>
         </section>
       </div>
@@ -170,152 +227,6 @@ function AdminDashboard({
   );
 }
 
-function EventHeader({
-  name,
-  phase,
-  dateRange,
-  registered,
-  totalRoster,
-  activationPct,
-}: {
-  name: string;
-  phase: EventPhaseInfo;
-  dateRange: string;
-  registered: number;
-  totalRoster: number;
-  activationPct: number;
-}) {
-  return (
-    <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4">
-      <div className="flex items-center gap-3">
-        <h1 className="text-lg font-semibold tracking-tight 2xl:text-xl">
-          {name}
-        </h1>
-        <PhaseBadge phase={phase} isActive />
-        <span className="text-muted-foreground text-xs tabular-nums 2xl:text-sm">
-          {dateRange}
-        </span>
-      </div>
-      <div className="flex items-center gap-3">
-        <div className="text-sm 2xl:text-base">
-          <span className="font-semibold tabular-nums">{registered}</span>
-          <span className="text-muted-foreground">
-            /{totalRoster} activated
-          </span>
-        </div>
-        <div
-          className="bg-border h-0.5 w-[120px] overflow-hidden"
-          role="progressbar"
-          aria-valuenow={activationPct}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label="Roster activation progress"
-        >
-          <div
-            className="bg-foreground h-full"
-            style={{ width: `${activationPct}%` }}
-          />
-        </div>
-        <span className="text-muted-foreground text-[11px] tabular-nums 2xl:text-xs">
-          {activationPct}%
-        </span>
-      </div>
-    </header>
-  );
-}
-
-function PhaseBadge({
-  phase,
-  isActive = false,
-}: {
-  phase: EventPhaseInfo;
-  isActive?: boolean;
-}) {
-  const activeBadgeClass =
-    phase.phase === "live"
-      ? "border-success/60 text-success"
-      : phase.phase === "upcoming" || phase.phase === "imminent"
-        ? "border-warning/60 text-warning"
-        : "border-border/60 text-muted-foreground";
-  const badgeClass = isActive
-    ? activeBadgeClass
-    : "border-border/60 text-muted-foreground";
-
-  if (phase.phase === "live") {
-    return (
-      <span
-        className={cn(
-          "inline-flex items-center gap-1.5 rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.14em] uppercase",
-          badgeClass,
-        )}
-      >
-        <LivePulse />
-        <span className={cn(isActive ? "text-success" : "text-foreground")}>
-          Day {phase.liveDay} of {phase.totalDays}
-        </span>
-      </span>
-    );
-  }
-  if (phase.phase === "imminent") {
-    return (
-      <span
-        className={cn(
-          "inline-flex items-center gap-1.5 rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.14em] uppercase",
-          badgeClass,
-        )}
-      >
-        <span className="bg-warning size-1.5 rounded-full" aria-hidden />
-        {phase.daysUntilStart === 0
-          ? "Starts today"
-          : `${phase.daysUntilStart}d out`}
-      </span>
-    );
-  }
-  if (phase.phase === "wrapped") {
-    return (
-      <span
-        className={cn(
-          "inline-flex items-center gap-1.5 rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.14em] uppercase",
-          badgeClass,
-        )}
-      >
-        Wrapped
-      </span>
-    );
-  }
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.14em] uppercase tabular-nums",
-        badgeClass,
-      )}
-    >
-      {phase.daysUntilStart}d out
-    </span>
-  );
-}
-
-function LivePulse() {
-  return (
-    <span className="relative inline-flex size-2" aria-hidden>
-      <span className="bg-success absolute inline-flex h-full w-full rounded-full opacity-75 motion-safe:animate-ping" />
-      <span className="bg-success relative inline-flex size-2 rounded-full" />
-    </span>
-  );
-}
-
-function StatCell({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="border-border flex flex-1 flex-col justify-center gap-1 border-l px-4 py-3 first:border-l-0">
-      <span className="text-2xl leading-none font-semibold tracking-tight tabular-nums 2xl:text-3xl">
-        {value.toLocaleString()}
-      </span>
-      <span className="text-muted-foreground text-[10px] font-medium tracking-widest uppercase 2xl:text-xs">
-        {label}
-      </span>
-    </div>
-  );
-}
 
 function SplitStatCell({
   label,
@@ -765,90 +676,298 @@ function UrgencyLabel({
   return <span>on track</span>;
 }
 
-/* ---------- Top schools panel (mock) ---------- */
+/* ---------- Schedule upload panel ---------- */
 
-type MockSchool = {
-  name: string;
-  dancers: number;
-  activated: number;
-};
+function ScheduleUploadPanel({
+  orgSlug,
+  eventId,
+  scheduleKey,
+}: {
+  orgSlug: string;
+  eventId: string;
+  scheduleKey: string | null;
+}) {
+  const qc = useQueryClient();
+  const { mutateAsync: requestUpload } = useRequestUpload();
+  const [files, setFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
-const MOCK_TOP_SCHOOLS: MockSchool[] = [
-  { name: "Alabama Crimson Tide", dancers: 42, activated: 38 },
-  { name: "Louisiana State University", dancers: 36, activated: 29 },
-  { name: "University of Texas", dancers: 31, activated: 22 },
-  { name: "University of Oklahoma", dancers: 24, activated: 18 },
-  { name: "Ohio State University", dancers: 19, activated: 11 },
-];
+  const rawClient = client as unknown as {
+    PATCH: (
+      path: string,
+      opts: { body: Record<string, unknown> },
+    ) => Promise<{ data: unknown }>;
+  };
 
-function TopSchoolsPanel() {
-  const maxCount = Math.max(...MOCK_TOP_SCHOOLS.map((s) => s.dancers));
+  const uploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const { key, url } = await requestUpload({
+        body: { contentType: file.type, type: "schedule" },
+      });
+
+      setUploading(true);
+      await uploadToCloudflare(url, file, setProgress);
+
+      await rawClient.PATCH(`/orgs/${orgSlug}/events/${eventId}`, {
+        body: { schedulePdfUrl: key },
+      });
+
+      return key;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["orgs", orgSlug, "events"] });
+      setFiles([]);
+      setProgress(0);
+      setUploading(false);
+      toastManager.add({
+        title: "Schedule uploaded",
+        type: "success",
+      });
+    },
+    onError: () => {
+      setUploading(false);
+      setProgress(0);
+      toastManager.add({
+        title: "Failed to upload schedule",
+        type: "error",
+      });
+    },
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: async () => {
+      await rawClient.PATCH(`/orgs/${orgSlug}/events/${eventId}`, {
+        body: { schedulePdfUrl: null },
+      });
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["orgs", orgSlug, "events"] });
+      toastManager.add({ title: "Schedule removed", type: "success" });
+    },
+  });
+
+  const isLoading = uploadMutation.isPending || uploading;
+  const fileUrl = scheduleKey ? scheduleFileUrl(orgSlug, eventId) : null;
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
   return (
-    <div className="border-border flex h-full min-h-0 flex-col rounded-md border">
-      <div className="border-border bg-muted/40 flex items-center justify-between gap-3 border-b px-3 py-2">
-        <div className="flex min-w-0 flex-col">
-          <span className="text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
-            Top schools
-          </span>
-          <span className="text-muted-foreground text-[11px] 2xl:text-xs">
-            Dancers by organization · this event
-          </span>
+    <>
+      <div className="border-border flex h-full min-h-0 flex-col rounded-md border">
+        <div className="border-border bg-muted/40 flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2">
+          <div className="flex min-w-0 flex-col">
+            <span className="text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
+              Event Schedule
+            </span>
+            <span className="text-muted-foreground text-[11px] 2xl:text-xs">
+              PDF or image · visible to attendees
+            </span>
+          </div>
+          {scheduleKey && (
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-5"
+                onClick={() => setExpanded(true)}
+                aria-label="Expand schedule"
+              >
+                <ExpandIcon className="size-3" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-5"
+                onClick={() => setConfirmRemove(true)}
+                disabled={removeMutation.isPending}
+                aria-label="Remove schedule"
+              >
+                <XIcon className="size-3" />
+              </Button>
+            </div>
+          )}
         </div>
-        <span className="text-muted-foreground text-[10px] tracking-wide uppercase 2xl:text-xs">
-          Mock
-        </span>
+
+        <div className="flex min-h-0 flex-1 flex-col">
+          {scheduleKey && fileUrl ? (
+            <div className="relative min-h-0 flex-1">
+              {scheduleKey.endsWith(".pdf") ? (
+                <iframe
+                  src={fileUrl}
+                  className="h-full w-full"
+                  title="Event schedule"
+                />
+              ) : (
+                <img
+                  src={fileUrl}
+                  alt="Event schedule"
+                  className="h-full w-full object-contain"
+                />
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-1 flex-col items-center justify-center p-4">
+              {files.length > 0 ? (
+                <div className="flex w-full flex-col gap-3">
+                  <FileUpload
+                    value={files}
+                    onValueChange={setFiles}
+                    accept="image/*,.pdf,application/pdf"
+                    maxFiles={1}
+                    maxSize={25 * 1024 * 1024}
+                    onFileReject={(_, message) => {
+                      toastManager.add({
+                        title: "Error",
+                        description: message,
+                        type: "error",
+                      });
+                    }}
+                  >
+                    <FileUploadList>
+                      {files.map((file, i) => (
+                        <FileUploadItem
+                          key={i}
+                          value={file}
+                          className="flex-col"
+                        >
+                          <div className="flex w-full items-center gap-2">
+                            <FileUploadItemPreview
+                              className="size-10"
+                              render={(f, fallback) =>
+                                f.type === "application/pdf" ? (
+                                  <FileTextIcon className="text-muted-foreground size-5" />
+                                ) : (
+                                  fallback()
+                                )
+                              }
+                            />
+                            <FileUploadItemMetadata size="sm" />
+                            <FileUploadItemDelete asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-6"
+                              >
+                                <XIcon className="size-3" />
+                              </Button>
+                            </FileUploadItemDelete>
+                          </div>
+                          {isLoading && (
+                            <Progress value={progress} className="w-full" />
+                          )}
+                        </FileUploadItem>
+                      ))}
+                    </FileUploadList>
+                  </FileUpload>
+                  <Button
+                    size="sm"
+                    disabled={isLoading}
+                    onClick={() => {
+                      if (files[0]) uploadMutation.mutate(files[0]);
+                    }}
+                  >
+                    {isLoading ? "Uploading..." : "Upload schedule"}
+                  </Button>
+                </div>
+              ) : (
+                <FileUpload
+                  value={files}
+                  onValueChange={setFiles}
+                  accept="image/*,.pdf,application/pdf"
+                  maxFiles={1}
+                  maxSize={25 * 1024 * 1024}
+                  onFileReject={(_, message) => {
+                    toastManager.add({
+                      title: "Error",
+                      description: message,
+                      type: "error",
+                    });
+                  }}
+                  className="w-full"
+                >
+                  <FileUploadDropzone className="flex-col gap-2 border-dashed py-6 text-center">
+                    <CloudUploadIcon className="text-muted-foreground size-6" />
+                    <div className="text-muted-foreground text-xs">
+                      Drag and drop or{" "}
+                      <FileUploadTrigger asChild>
+                        <Button variant="secondary" size="xs">
+                          Browse
+                        </Button>
+                      </FileUploadTrigger>
+                    </div>
+                    <span className="text-muted-foreground/60 text-[10px]">
+                      PDF or image, up to 25MB
+                    </span>
+                  </FileUploadDropzone>
+                </FileUpload>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="border-border border-b">
-              <th className="text-muted-foreground px-3 py-1.5 text-left text-[10px] font-medium tracking-wide uppercase 2xl:text-xs">
-                Organization
-              </th>
-              <th className="text-muted-foreground w-12 px-3 py-1.5 text-right text-[10px] font-medium tracking-wide uppercase 2xl:text-xs">
-                Total
-              </th>
-              <th className="text-muted-foreground px-3 py-1.5 text-left text-[10px] font-medium tracking-wide uppercase 2xl:text-xs">
-                Activation
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {MOCK_TOP_SCHOOLS.map((school) => {
-              const pct = Math.round((school.activated / school.dancers) * 100);
-              const barPct = (school.dancers / maxCount) * 100;
-              return (
-                <tr
-                  key={school.name}
-                  className="border-border hover:bg-muted/30 border-b transition-colors last:border-b-0"
-                >
-                  <td className="px-3 py-1.5 text-xs font-medium 2xl:text-sm">
-                    <span className="truncate">{school.name}</span>
-                  </td>
-                  <td className="px-3 py-1.5 text-right text-xs tabular-nums 2xl:text-sm">
-                    {school.dancers}
-                  </td>
-                  <td className="px-3 py-1.5">
-                    <div className="flex items-center gap-2">
-                      <div className="bg-muted relative h-1 flex-1 overflow-hidden rounded-full">
-                        <div
-                          className="bg-foreground/80 h-full"
-                          style={{ width: `${barPct}%` }}
-                        />
-                      </div>
-                      <span className="text-muted-foreground w-8 text-right text-[11px] tabular-nums 2xl:text-xs">
-                        {pct}%
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <AlertDialog
+        open={confirmRemove}
+        onOpenChange={(open) => {
+          if (!open) setConfirmRemove(false);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove schedule</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove the event schedule? You can upload a
+              new one at any time.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose render={<Button variant="ghost" />}>
+              Cancel
+            </AlertDialogClose>
+            <Button
+              variant="destructive"
+              disabled={removeMutation.isPending}
+              onClick={() => {
+                removeMutation.mutate(undefined, {
+                  onSuccess: () => setConfirmRemove(false),
+                });
+              }}
+            >
+              Remove
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {fileUrl && (
+        <Dialog open={expanded} onOpenChange={setExpanded}>
+          <DialogContent
+            className="max-w-5xl"
+            bottomStickOnMobile={false}
+          >
+            <DialogHeader>
+              <DialogTitle>Event Schedule</DialogTitle>
+            </DialogHeader>
+            <div className="h-[80vh] w-full px-6 pb-6">
+              {scheduleKey?.endsWith(".pdf") ? (
+                <iframe
+                  src={fileUrl}
+                  className="h-full w-full rounded-md border"
+                  title="Event schedule"
+                />
+              ) : (
+                <img
+                  src={fileUrl}
+                  alt="Event schedule"
+                  className="h-full w-full rounded-md object-contain"
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 }
 
@@ -868,153 +987,9 @@ function EventSidebar({
   return (
     <aside className="border-border flex w-full shrink-0 flex-col border-t xl:w-[320px] xl:overflow-x-hidden xl:overflow-y-auto xl:border-t-0 xl:border-l">
       <SidebarPhaseSection phase={phase} />
-      <SidebarDetailsSection event={activeEvent} />
+      <SidebarDetailsSection orgSlug={orgSlug} event={activeEvent} />
       <SidebarActivitySection orgSlug={orgSlug} uploads={stats} />
     </aside>
-  );
-}
-
-function SidebarSection({
-  title,
-  children,
-  action,
-}: {
-  title: string;
-  children: React.ReactNode;
-  action?: React.ReactNode;
-}) {
-  return (
-    <section className="border-border border-b last:border-b-0">
-      <div className="flex items-center justify-between gap-2 px-4 pt-3 pb-2">
-        <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase 2xl:text-xs">
-          {title}
-        </span>
-        {action}
-      </div>
-      <div className="px-4 pb-3">{children}</div>
-    </section>
-  );
-}
-
-function SidebarPhaseSection({ phase }: { phase: EventPhaseInfo }) {
-  const progress = phaseProgressPct(phase);
-  const isEventUnderway = phase.phase === "live" || phase.phase === "wrapped";
-  const progressLabel = isEventUnderway
-    ? "Event progress"
-    : "Approaching kickoff";
-  const headline =
-    phase.phase === "live"
-      ? `Day ${phase.liveDay}`
-      : phase.phase === "wrapped"
-        ? "Wrapped"
-        : phase.daysUntilStart === 0
-          ? "Today"
-          : `${phase.daysUntilStart}d`;
-  const subhead =
-    phase.phase === "live"
-      ? `of ${phase.totalDays}`
-      : phase.phase === "wrapped"
-        ? phase.label.toLowerCase()
-        : phase.daysUntilStart === 1
-          ? "until kickoff"
-          : "until kickoff";
-
-  return (
-    <SidebarSection title="Countdown">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-baseline gap-2">
-          <span className="text-foreground text-xl leading-none font-semibold tracking-tight tabular-nums 2xl:text-2xl">
-            {headline}
-          </span>
-          <span className="text-muted-foreground text-sm tabular-nums 2xl:text-base">
-            {subhead}
-          </span>
-        </div>
-        {phase.phase === "live" && (
-          <span className="text-success border-success/40 inline-flex items-center gap-1.5 rounded border px-2 py-0.5 text-[10px] font-semibold tracking-[0.12em] uppercase">
-            <LivePulse />
-            Live now
-          </span>
-        )}
-      </div>
-      <div className="mt-3 flex items-center justify-between text-[10px] font-medium tracking-wider uppercase 2xl:text-xs">
-        <span className="text-muted-foreground">{progressLabel}</span>
-        <span className="text-muted-foreground tabular-nums">{progress}%</span>
-      </div>
-      <div className="mt-1.5 flex items-center gap-2">
-        <div className="bg-border relative h-1.5 flex-1 overflow-hidden rounded-full">
-          <div
-            className="bg-foreground h-full"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
-    </SidebarSection>
-  );
-}
-
-function phaseProgressPct(phase: EventPhaseInfo): number {
-  if (phase.phase === "live" && phase.liveDay) {
-    return Math.round((phase.liveDay / phase.totalDays) * 100);
-  }
-  if (phase.phase === "wrapped") return 100;
-  if (phase.phase === "upcoming" || phase.phase === "imminent") {
-    const horizon = 60;
-    const elapsed = horizon - Math.min(horizon, phase.daysUntilStart);
-    return Math.round((elapsed / horizon) * 100);
-  }
-  return 0;
-}
-
-function SidebarDetailsSection({ event }: { event: OrgEvent }) {
-  return (
-    <SidebarSection title="Details">
-      <ul className="flex flex-col gap-2 text-xs 2xl:text-sm">
-        <li className="flex items-start gap-2">
-          <CalendarIcon className="text-muted-foreground mt-0.5 size-3.5 shrink-0" />
-          <span className="tabular-nums">
-            {formatLongDateRange(event.startDate, event.endDate)}
-          </span>
-        </li>
-        {event.venueName && (
-          <li className="flex items-start gap-2">
-            <MapPinIcon className="text-muted-foreground mt-0.5 size-3.5 shrink-0" />
-            <div className="flex min-w-0 flex-col">
-              <span>{event.venueName}</span>
-              {event.venueAddress && (
-                <span className="text-muted-foreground truncate">
-                  {event.venueAddress}
-                </span>
-              )}
-            </div>
-          </li>
-        )}
-        {event.contactEmail && (
-          <li className="flex items-center gap-2">
-            <MailIcon className="text-muted-foreground size-3.5 shrink-0" />
-            <a
-              href={`mailto:${event.contactEmail}`}
-              className="hover:text-brand truncate"
-            >
-              {event.contactEmail}
-            </a>
-          </li>
-        )}
-        {event.schedulePdfUrl && (
-          <li className="flex items-center gap-2">
-            <ExternalLinkIcon className="text-muted-foreground size-3.5 shrink-0" />
-            <a
-              href={event.schedulePdfUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-brand truncate"
-            >
-              View schedule PDF
-            </a>
-          </li>
-        )}
-      </ul>
-    </SidebarSection>
   );
 }
 
@@ -1075,45 +1050,6 @@ function SidebarActivitySection({
       </Link>
     </SidebarSection>
   );
-}
-
-/* ---------- Date helpers ---------- */
-
-function formatDateRange(startYmd: string, endYmd: string): string {
-  const start = parseYmd(startYmd);
-  const end = parseYmd(endYmd);
-  const sameMonth =
-    start.getFullYear() === end.getFullYear() &&
-    start.getMonth() === end.getMonth();
-  const sameDay = sameMonth && start.getDate() === end.getDate();
-  const month = (d: Date) => d.toLocaleString(undefined, { month: "short" });
-  const year = (d: Date) => d.getFullYear();
-
-  if (sameDay) return `${month(start)} ${start.getDate()}, ${year(start)}`;
-  if (sameMonth)
-    return `${month(start)} ${start.getDate()}–${end.getDate()}, ${year(start)}`;
-  if (start.getFullYear() === end.getFullYear())
-    return `${month(start)} ${start.getDate()} – ${month(end)} ${end.getDate()}, ${year(start)}`;
-  return `${month(start)} ${start.getDate()}, ${year(start)} – ${month(end)} ${end.getDate()}, ${year(end)}`;
-}
-
-function formatLongDateRange(startYmd: string, endYmd: string): string {
-  const start = parseYmd(startYmd);
-  const end = parseYmd(endYmd);
-  const opts: Intl.DateTimeFormatOptions = {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  };
-  const startLabel = start.toLocaleDateString(undefined, opts);
-  const endLabel = end.toLocaleDateString(undefined, opts);
-  if (startLabel === endLabel) return `${startLabel}, ${start.getFullYear()}`;
-  return `${startLabel} – ${endLabel}, ${end.getFullYear()}`;
-}
-
-function parseYmd(ymd: string): Date {
-  const [y, m, d] = ymd.split("-").map(Number);
-  return new Date(y, (m ?? 1) - 1, d ?? 1);
 }
 
 function AdminHome() {

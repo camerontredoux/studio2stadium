@@ -1,25 +1,26 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { formatDistanceToNow } from "date-fns";
 import {
-  CalendarIcon,
-  ExternalLinkIcon,
-  FileTextIcon,
+  ArrowRightIcon,
   HeartIcon,
-  MailIcon,
-  MapPinIcon,
   SearchIcon,
+  StarIcon,
   TrophyIcon,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Frame, FramePanel } from "@/components/ui/frame";
 import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
-import { useOrg } from "@/features/org/context/use-org";
 import {
-  useEventPhase,
-  type EventPhaseInfo,
-} from "@/features/org/hooks/use-event-phase";
+  DashboardHeader,
+  formatDateRange,
+  SidebarDetailsSection,
+  SidebarPhaseSection,
+  SidebarSection,
+  StatCell,
+} from "@/features/org/components/dashboard-shared";
+import { useEventPhase } from "@/features/org/hooks/use-event-phase";
+import type { EventPhaseInfo } from "@/features/org/hooks/use-event-phase";
 
 export const Route = createFileRoute(
   "/_org/$orgSlug/_authenticated/coach/event-info",
@@ -40,273 +41,334 @@ function EventInfo() {
     );
   }
 
-  return <EventInfoDashboard orgSlug={orgSlug} event={activeEvent} />;
+  return <CoachDashboard orgSlug={orgSlug} event={activeEvent} />;
 }
 
-function EventInfoDashboard({
+function CoachDashboard({
   orgSlug,
   event,
 }: {
   orgSlug: string;
   event: OrgEvent;
 }) {
-  const { org } = useOrg();
   const { data: dancers } = useQuery(scoutingQueries.dancers(orgSlug));
-  const { data: favorites } = useQuery(
-    scoutingQueries.favorites(orgSlug),
-  );
+  const { data: favorites } = useQuery(scoutingQueries.favorites(orgSlug));
+  const { data: schools } = useQuery(scoutingQueries.schools(orgSlug));
+  const { data: rankings } = useQuery(scoutingQueries.rankings(orgSlug));
 
   const phase = useEventPhase(event.startDate, event.endDate);
+  const dateRange = formatDateRange(event.startDate, event.endDate);
 
   const dancerCount = dancers?.length ?? 0;
   const favCount = favorites?.length ?? 0;
+  const schoolCount = schools?.length ?? 0;
 
-  const dateRange = formatDateRange(event.startDate, event.endDate);
+  const recentFavorites = (rankings ?? [])
+    .filter((d) => d.isFavorited && d.favoritedAt)
+    .sort(
+      (a, b) =>
+        new Date(b.favoritedAt!).getTime() -
+        new Date(a.favoritedAt!).getTime(),
+    )
+    .slice(0, 4);
+
+  const topRanked = (rankings ?? [])
+    .filter((d) => d.rating != null)
+    .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+    .slice(0, 5);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto xl:flex-row xl:overflow-hidden">
-      {/* Main content */}
-      <div className="flex min-w-0 flex-col gap-4 xl:flex-1 xl:overflow-y-auto">
-        {/* Event header */}
-        <div>
-          <h1 className="text-2xl font-semibold">{event.name}</h1>
-          <div className="mt-1 flex items-center gap-2">
-            <PhaseBadge phase={phase} />
-            <span className="text-muted-foreground text-sm">{dateRange}</span>
-          </div>
-        </div>
+    <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto xl:flex-row xl:overflow-hidden">
+      <div className="flex min-w-0 flex-col xl:min-h-0 xl:flex-1 xl:overflow-x-hidden xl:overflow-y-auto">
+        <DashboardHeader
+          name={event.name}
+          phase={phase}
+          dateRange={dateRange}
+        />
 
-        {/* Stat cells */}
-        <div className="border-border grid grid-cols-3 divide-x border-y">
+        <section
+          aria-label="Event stats"
+          className="border-border flex items-stretch border-y"
+        >
           <StatCell label="Dancers" value={dancerCount} />
-          <StatCell label="Schools" value="—" />
+          <StatCell label="Schools" value={schoolCount || "—"} />
           <StatCell label="Your Favorites" value={favCount} />
-        </div>
+        </section>
 
-        {/* Quick links */}
-        <Frame>
-          <FramePanel>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <QuickLink
-                orgSlug={orgSlug}
-                to="/$orgSlug/coach/dancers"
-                icon={SearchIcon}
-                label="Search Dancers"
-              />
-              <QuickLink
-                orgSlug={orgSlug}
-                to="/$orgSlug/coach/favorites"
-                icon={HeartIcon}
-                label="My Favorites"
-              />
-              <QuickLink
-                orgSlug={orgSlug}
-                to="/$orgSlug/coach/rankings"
-                icon={TrophyIcon}
-                label="My Rankings"
-              />
-              <Button
-                variant="outline"
-                className="h-10 gap-2"
-                render={
-                  <a
-                    href="https://studio2stadium.com/settings"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  />
-                }
-              >
-                <ExternalLinkIcon className="size-4" />
-                Edit Profile
-              </Button>
-            </div>
-          </FramePanel>
-        </Frame>
+        <section
+          aria-label="Scouting tools"
+          className="grid grid-cols-1 gap-3 p-4 lg:grid-cols-2"
+        >
+          <QuickNavPanel
+            orgSlug={orgSlug}
+            dancerCount={dancerCount}
+            favCount={favCount}
+          />
+          <TopRankedPanel orgSlug={orgSlug} ranked={topRanked} />
+        </section>
       </div>
 
-      {/* Right sidebar */}
-      <aside className="w-full border-t p-4 xl:w-80 xl:shrink-0 xl:overflow-y-auto xl:border-t-0 xl:border-l">
-        <div className="flex flex-col gap-6">
-          {/* Countdown */}
-          <div>
-            <p className="text-2xl font-bold tabular-nums">{phase.label}</p>
-            {phase.phase === "live" && phase.totalDays > 1 && (
-              <div className="mt-2">
-                <div className="bg-muted h-1.5 rounded-full">
-                  <div
-                    className="bg-primary h-1.5 rounded-full transition-all"
-                    style={{
-                      width: `${((phase.liveDay ?? 1) / phase.totalDays) * 100}%`,
-                    }}
-                  />
-                </div>
-                <p className="text-muted-foreground mt-1 text-xs">
-                  {Math.round(
-                    ((phase.liveDay ?? 1) / phase.totalDays) * 100,
-                  )}
-                  % complete
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Details */}
-          <div className="flex flex-col gap-3">
-            <h3 className="text-sm font-semibold">Details</h3>
-            <div className="text-muted-foreground flex items-start gap-2 text-sm">
-              <CalendarIcon className="mt-0.5 size-4 shrink-0" />
-              <span>{dateRange}</span>
-            </div>
-            {event.venueName && (
-              <div className="text-muted-foreground flex items-start gap-2 text-sm">
-                <MapPinIcon className="mt-0.5 size-4 shrink-0" />
-                <div>
-                  <p>{event.venueName}</p>
-                  {event.venueAddress && (
-                    <p className="text-xs">{event.venueAddress}</p>
-                  )}
-                </div>
-              </div>
-            )}
-            {event.contactEmail && (
-              <div className="text-muted-foreground flex items-start gap-2 text-sm">
-                <MailIcon className="mt-0.5 size-4 shrink-0" />
-                <a
-                  href={`mailto:${event.contactEmail}`}
-                  className="hover:underline"
-                >
-                  {event.contactEmail}
-                </a>
-              </div>
-            )}
-            {event.schedulePdfUrl && (
-              <div className="text-muted-foreground flex items-start gap-2 text-sm">
-                <FileTextIcon className="mt-0.5 size-4 shrink-0" />
-                <a
-                  href={event.schedulePdfUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline"
-                >
-                  Download schedule PDF
-                </a>
-              </div>
-            )}
-          </div>
-
-          {/* Coach program card */}
-          <div className="rounded-lg border p-3">
-            <h3 className="text-sm font-semibold">Your Program</h3>
-            <div className="mt-2 flex items-center gap-2">
-              {org.logoUrl ? (
-                <img
-                  src={org.logoUrl}
-                  alt={org.name}
-                  className="size-8 rounded object-contain"
-                />
-              ) : (
-                <div className="bg-primary flex size-8 items-center justify-center rounded text-sm font-semibold text-white">
-                  {org.name.charAt(0).toUpperCase()}
-                </div>
-              )}
-              <span className="text-sm font-medium">{org.name}</span>
-            </div>
-          </div>
-        </div>
-      </aside>
+      <CoachSidebarPanel
+        orgSlug={orgSlug}
+        event={event}
+        phase={phase}
+        recentFavorites={recentFavorites}
+      />
     </div>
   );
 }
 
-/* ---------- Sub-components ---------- */
-
-function PhaseBadge({ phase }: { phase: EventPhaseInfo }) {
-  const badgeClass = {
-    upcoming: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
-    imminent:
-      "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
-    live: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
-    wrapped: "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
-  }[phase.phase];
-
-  const label =
-    phase.phase === "live"
-      ? `Day ${phase.liveDay} of ${phase.totalDays}`
-      : phase.phase.charAt(0).toUpperCase() + phase.phase.slice(1);
-
-  return (
-    <span
-      className={`rounded-full px-2 py-0.5 text-xs font-medium ${badgeClass}`}
-    >
-      {phase.phase === "live" && (
-        <span className="mr-1 inline-block size-1.5 rounded-full bg-emerald-500" />
-      )}
-      {label}
-    </span>
-  );
-}
-
-function StatCell({
-  label,
-  value,
-}: {
-  label: string;
-  value: number | string;
-}) {
-  return (
-    <div className="flex flex-col items-center justify-center px-4 py-3">
-      <span className="text-2xl font-bold tabular-nums">{value}</span>
-      <span className="text-muted-foreground text-xs uppercase tracking-wide">
-        {label}
-      </span>
-    </div>
-  );
-}
-
-function QuickLink({
+function QuickNavPanel({
   orgSlug,
-  to,
-  icon: Icon,
-  label,
+  dancerCount,
+  favCount,
 }: {
   orgSlug: string;
-  to: string;
-  icon: React.ElementType;
-  label: string;
+  dancerCount: number;
+  favCount: number;
 }) {
+  const navItems = [
+    {
+      icon: SearchIcon,
+      label: "Search Dancers",
+      to: "/$orgSlug/coach/dancers",
+      description: `${dancerCount} dancers registered`,
+    },
+    {
+      icon: HeartIcon,
+      label: "My Favorites",
+      to: "/$orgSlug/coach/favorites",
+      description: `${favCount} dancers saved`,
+    },
+    {
+      icon: TrophyIcon,
+      label: "My Rankings",
+      to: "/$orgSlug/coach/rankings",
+      description: "Review your ranked dancers",
+    },
+  ];
+
   return (
-    <Button
-      variant="outline"
-      className="h-10 gap-2"
-      render={<Link to={to} params={{ orgSlug } as any} />}
-    >
-      <Icon className="size-4" />
-      {label}
-    </Button>
+    <div className="border-border flex h-full min-h-0 w-full flex-col rounded-md border">
+      <div className="border-border bg-muted/40 flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2">
+        <div className="flex min-w-0 flex-col">
+          <span className="text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
+            Scouting tools
+          </span>
+          <span className="text-muted-foreground text-[11px] 2xl:text-xs">
+            Jump to key sections
+          </span>
+        </div>
+      </div>
+      <ul className="divide-border divide-y">
+        {navItems.map((item) => (
+          <li key={item.label}>
+            <Link
+              to={item.to}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              params={{ orgSlug } as any}
+              className="hover:bg-muted/40 group flex items-center gap-3 px-3 py-2.5 transition-colors"
+            >
+              <span className="border-border bg-background flex size-7 items-center justify-center rounded-md border">
+                <item.icon className="text-muted-foreground size-3.5" />
+              </span>
+              <div className="flex min-w-0 flex-1 flex-col">
+                <span className="text-xs font-medium 2xl:text-sm">
+                  {item.label}
+                </span>
+                <span className="text-muted-foreground text-[11px] 2xl:text-xs">
+                  {item.description}
+                </span>
+              </div>
+              <ArrowRightIcon className="text-muted-foreground size-3 opacity-0 transition-opacity group-hover:opacity-100" />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
-/* ---------- Date helpers ---------- */
+type RankedDancer = {
+  rosterId: string;
+  firstName: string;
+  lastName: string;
+  bibNumber: number | null;
+  studio: string | null;
+  rating: number | null;
+  profilePhotoUrl: string | null;
+};
 
-function parseYmd(ymd: string): Date {
-  const [y, m, d] = ymd.split("-").map(Number);
-  return new Date(y, (m ?? 1) - 1, d ?? 1);
+function TopRankedPanel({
+  orgSlug,
+  ranked,
+}: {
+  orgSlug: string;
+  ranked: RankedDancer[];
+}) {
+  return (
+    <div className="border-border flex h-full min-h-0 w-full flex-col rounded-md border">
+      <div className="border-border bg-muted/40 flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2">
+        <div className="flex min-w-0 flex-col">
+          <span className="text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
+            Top ranked
+          </span>
+          <span className="text-muted-foreground text-[11px] 2xl:text-xs">
+            Your highest-rated dancers
+          </span>
+        </div>
+        {ranked.length > 0 && (
+          <Link
+            to="/$orgSlug/coach/rankings"
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            params={{ orgSlug } as any}
+            className="text-muted-foreground hover:text-foreground text-[11px] font-medium transition-colors 2xl:text-xs"
+          >
+            View all
+          </Link>
+        )}
+      </div>
+      {ranked.length === 0 ? (
+        <div className="text-muted-foreground px-3 py-4 text-center text-xs">
+          No rated dancers yet. Start scouting to build your rankings.
+        </div>
+      ) : (
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-border border-b">
+                <th className="text-muted-foreground px-3 py-1.5 text-left text-[10px] font-medium tracking-wide uppercase 2xl:text-xs">
+                  Dancer
+                </th>
+                <th className="text-muted-foreground w-16 px-3 py-1.5 text-right text-[10px] font-medium tracking-wide uppercase 2xl:text-xs">
+                  Rating
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {ranked.map((dancer) => (
+                <tr
+                  key={dancer.rosterId}
+                  className="border-border hover:bg-muted/30 border-b transition-colors last:border-b-0"
+                >
+                  <td className="px-3 py-1.5">
+                    <div className="flex items-center gap-2">
+                      {dancer.profilePhotoUrl ? (
+                        <img
+                          src={dancer.profilePhotoUrl}
+                          alt=""
+                          className="size-6 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="bg-muted flex size-6 items-center justify-center rounded-full text-[10px] font-medium">
+                          {dancer.firstName.charAt(0)}
+                          {dancer.lastName.charAt(0)}
+                        </div>
+                      )}
+                      <div className="flex min-w-0 flex-col">
+                        <span className="truncate text-xs font-medium 2xl:text-sm">
+                          {dancer.firstName} {dancer.lastName}
+                        </span>
+                        {dancer.bibNumber && (
+                          <span className="text-muted-foreground text-[10px] tabular-nums 2xl:text-xs">
+                            #{dancer.bibNumber}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-3 py-1.5 text-right">
+                    <div className="inline-flex items-center gap-1">
+                      <StarIcon className="text-warning size-3 fill-current" />
+                      <span className="text-xs font-medium tabular-nums 2xl:text-sm">
+                        {dancer.rating}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
 }
 
-function formatDateRange(startYmd: string, endYmd: string): string {
-  const start = parseYmd(startYmd);
-  const end = parseYmd(endYmd);
-  const sameMonth =
-    start.getFullYear() === end.getFullYear() &&
-    start.getMonth() === end.getMonth();
-  const sameDay = sameMonth && start.getDate() === end.getDate();
-  const month = (d: Date) => d.toLocaleString(undefined, { month: "short" });
-  const year = (d: Date) => d.getFullYear();
+type FavoriteDancer = {
+  rosterId: string;
+  firstName: string;
+  lastName: string;
+  bibNumber: number | null;
+  profilePhotoUrl: string | null;
+  studio: string | null;
+  favoritedAt: string | null;
+};
 
-  if (sameDay) return `${month(start)} ${start.getDate()}, ${year(start)}`;
-  if (sameMonth)
-    return `${month(start)} ${start.getDate()}–${end.getDate()}, ${year(start)}`;
-  if (start.getFullYear() === end.getFullYear())
-    return `${month(start)} ${start.getDate()} – ${month(end)} ${end.getDate()}, ${year(start)}`;
-  return `${month(start)} ${start.getDate()}, ${year(start)} – ${month(end)} ${end.getDate()}, ${year(end)}`;
+function CoachSidebarPanel({
+  orgSlug,
+  event,
+  phase,
+  recentFavorites,
+}: {
+  orgSlug: string;
+  event: OrgEvent;
+  phase: EventPhaseInfo;
+  recentFavorites: FavoriteDancer[];
+}) {
+  return (
+    <aside className="border-border flex w-full shrink-0 flex-col border-t xl:w-[320px] xl:overflow-x-hidden xl:overflow-y-auto xl:border-t-0 xl:border-l">
+      <SidebarPhaseSection phase={phase} />
+      <SidebarDetailsSection orgSlug={orgSlug} event={event} />
+      <SidebarSection title="Recent favorites">
+        {recentFavorites.length === 0 ? (
+          <p className="text-muted-foreground text-xs 2xl:text-sm">
+            No favorites yet.
+          </p>
+        ) : (
+          <>
+            <ul className="flex flex-col gap-2">
+              {recentFavorites.map((dancer) => (
+                <li
+                  key={dancer.rosterId}
+                  className="flex items-start gap-2 text-xs 2xl:text-sm"
+                >
+                  <HeartIcon className="text-muted-foreground mt-0.5 size-3 shrink-0" />
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <span>
+                      <span className="font-medium">
+                        {dancer.firstName} {dancer.lastName}
+                      </span>
+                      {dancer.bibNumber && (
+                        <span className="text-muted-foreground">
+                          {" "}
+                          #{dancer.bibNumber}
+                        </span>
+                      )}
+                    </span>
+                    {dancer.favoritedAt && (
+                      <span className="text-muted-foreground text-[10px] 2xl:text-xs">
+                        {formatDistanceToNow(new Date(dancer.favoritedAt), {
+                          addSuffix: true,
+                        })}
+                      </span>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <Link
+              to="/$orgSlug/coach/favorites"
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              params={{ orgSlug } as any}
+              className="text-foreground hover:text-brand mt-3 inline-flex items-center gap-1 text-[11px] font-medium 2xl:text-xs"
+            >
+              View all favorites
+              <ArrowRightIcon className="size-3" />
+            </Link>
+          </>
+        )}
+      </SidebarSection>
+    </aside>
+  );
 }

@@ -1,6 +1,6 @@
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useDeferredValue, useCallback, useState } from "react";
+import { useCallback, useDeferredValue, useState } from "react";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import {
   useAddFavorite,
@@ -13,6 +13,7 @@ import { DancerSheet } from "@/features/org/components/dancer-sheet";
 import { DancerSearchForm } from "@/features/org/components/dancer-search-form";
 import { useSearchColumns } from "@/features/org/components/dancer-table/use-dancer-columns";
 import type { SearchDancerRow } from "@/features/org/components/dancer-table/columns";
+import { StatCell } from "@/features/org/components/dashboard-shared";
 
 export const Route = createFileRoute(
   "/_org/$orgSlug/_authenticated/coach/dancers/",
@@ -33,9 +34,8 @@ function DancerSearch() {
   const { data: dancers, isLoading } = useQuery(
     scoutingQueries.dancers(orgSlug, { interested: interested || undefined }),
   );
-  const { data: favorites } = useQuery(
-    scoutingQueries.favorites(orgSlug),
-  );
+  const { data: favorites } = useQuery(scoutingQueries.favorites(orgSlug));
+  const { data: schools } = useQuery(scoutingQueries.schools(orgSlug));
 
   const favoritedIds = new Set(
     Array.isArray(favorites) ? favorites.map((f) => f.rosterId) : [],
@@ -71,35 +71,61 @@ function DancerSearch() {
 
   const [sheetRosterId, setSheetRosterId] = useState<string | null>(null);
 
-  return (
-    <div className="flex flex-col gap-4">
-      <DancerSearchForm
-        schoolName={org.name}
-        onSearchChange={setSearch}
-        onInterestedChange={setInterested}
-      />
+  const dancerCount = dancers?.length ?? 0;
+  const schoolCount = schools?.length ?? 0;
+  const favCount = favorites?.length ?? 0;
 
-      <DancerTable<SearchDancerRow>
-        data={tableData}
-        columns={columns}
-        isLoading={isLoading}
-        globalFilter={deferredSearch}
-        emptyState={
-          <p className="text-muted-foreground text-sm">
-            {deferredSearch
-              ? `No dancers matched "${deferredSearch}".`
-              : "No dancers registered for this event yet."}
-          </p>
-        }
-        onRowClick={(row) => setSheetRosterId(row.rosterId)}
-        renderCard={(row) => (
-          <DancerCard
-            dancer={row}
-            onClick={() => setSheetRosterId(row.rosterId)}
-          />
-        )}
-        sorting={[{ id: "bibNumber", desc: false }]}
-      />
+  return (
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+      <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4">
+        <div className="flex items-baseline gap-3">
+          <h1 className="text-lg font-semibold tracking-tight 2xl:text-xl">
+            Dancers
+          </h1>
+          <span className="text-muted-foreground text-xs tabular-nums 2xl:text-sm">
+            {dancerCount} registered
+          </span>
+        </div>
+      </header>
+
+      <section
+        aria-label="Dancer stats"
+        className="border-border flex items-stretch border-y"
+      >
+        <StatCell label="Total" value={dancerCount} />
+        <StatCell label="Schools" value={schoolCount || "—"} />
+        <StatCell label="Favorited" value={favCount} />
+      </section>
+
+      <div className="flex min-h-0 flex-1 flex-col gap-3 p-4">
+        <DancerSearchForm
+          schoolName={org.name}
+          onSearchChange={setSearch}
+          onInterestedChange={setInterested}
+        />
+
+        <DancerTable<SearchDancerRow>
+          data={tableData}
+          columns={columns}
+          isLoading={isLoading}
+          globalFilter={deferredSearch}
+          emptyState={
+            <p className="text-muted-foreground text-sm">
+              {deferredSearch
+                ? `No dancers matched "${deferredSearch}".`
+                : "No dancers registered for this event yet."}
+            </p>
+          }
+          onRowClick={(row) => setSheetRosterId(row.rosterId)}
+          renderCard={(row) => (
+            <DancerCard
+              dancer={row}
+              onClick={() => setSheetRosterId(row.rosterId)}
+            />
+          )}
+          sorting={[{ id: "bibNumber", desc: false }]}
+        />
+      </div>
 
       <DancerSheet
         rosterId={sheetRosterId}
