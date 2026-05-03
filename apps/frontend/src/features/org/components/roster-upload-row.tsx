@@ -60,7 +60,7 @@ export function RosterUploadRow({
 
   return (
     <>
-      <div className="border-border flex min-h-0 flex-col overflow-hidden rounded-md border">
+      <div className="border-border flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border">
         <div className="border-border bg-muted/40 flex items-center justify-between gap-3 border-b px-3 py-2">
           <div className="flex min-w-0 flex-col">
             <div className="flex items-center gap-2">

@@ -112,7 +112,7 @@ function AdminDashboard({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto xl:flex-row xl:overflow-hidden">
-      <div className="flex min-w-0 flex-col xl:min-h-0 xl:flex-1 xl:overflow-x-hidden xl:overflow-y-auto">
+      <div className="flex min-w-0 flex-col xl:min-h-0 xl:flex-1 xl:overflow-hidden">
         <DashboardHeader
           name={activeEvent.name}
           phase={phase}
@@ -168,39 +168,37 @@ function AdminDashboard({
         </section>
 
         <section
-          aria-label="Roster uploads"
-          className="grid grid-cols-1 gap-3 p-4 lg:grid-cols-2"
+          aria-label="Event panels"
+          className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-4 lg:grid-cols-2 lg:grid-rows-2"
         >
-          <RosterUploadRow
-            orgSlug={orgSlug}
-            eventId={activeEvent.id}
-            type="dancer"
-            lastUpload={
-              stats.recentUploads.find((u) => u.type === "dancer") ?? null
-            }
-          />
-          <RosterUploadRow
-            orgSlug={orgSlug}
-            eventId={activeEvent.id}
-            type="coach"
-            lastUpload={
-              stats.recentUploads.find((u) => u.type === "coach") ?? null
-            }
-          />
-        </section>
-
-        <section
-          aria-label="Event readiness"
-          className="grid grid-cols-1 gap-3 px-4 pb-4 lg:auto-rows-fr lg:grid-cols-2"
-        >
-          <div className="min-h-0 lg:col-span-1">
+          <div className="flex min-h-0 flex-col overflow-hidden">
+            <RosterUploadRow
+              orgSlug={orgSlug}
+              eventId={activeEvent.id}
+              type="dancer"
+              lastUpload={
+                stats.recentUploads.find((u) => u.type === "dancer") ?? null
+              }
+            />
+          </div>
+          <div className="flex min-h-0 flex-col overflow-hidden">
+            <RosterUploadRow
+              orgSlug={orgSlug}
+              eventId={activeEvent.id}
+              type="coach"
+              lastUpload={
+                stats.recentUploads.find((u) => u.type === "coach") ?? null
+              }
+            />
+          </div>
+          <div className="flex min-h-0 flex-col overflow-hidden">
             <PreEventChecklist
               orgSlug={orgSlug}
               eventId={activeEvent.id}
               phase={phase}
             />
           </div>
-          <div className="min-h-0 lg:col-span-1">
+          <div className="flex min-h-0 flex-col overflow-hidden">
             <ScheduleUploadPanel
               orgSlug={orgSlug}
               eventId={activeEvent.id}
