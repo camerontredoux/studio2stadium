@@ -45,7 +45,10 @@ import {
   type OrgEvent,
 } from "@/features/org/api/admin-queries";
 import {
+  AccentDot,
+  ACCENT_VALUE,
   DashboardHeader,
+  type PanelAccent,
   SidebarDetailsSection,
   SidebarPhaseSection,
   SidebarSection,
@@ -156,15 +159,17 @@ function AdminDashboard({
             activated={stats.dancers.activated}
             pending={stats.dancers.pending}
             total={stats.dancers.total}
+            accent="blue"
           />
           <SplitStatCell
             label="Coaches"
             activated={stats.coaches.activated}
             pending={stats.coaches.pending}
             total={stats.coaches.total}
+            accent="purple"
           />
-          <StatCell label="Pending" value={stats.pending} />
-          <StatCell label="Activated" value={stats.registered} />
+          <StatCell label="Pending" value={stats.pending} accent="amber" />
+          <StatCell label="Activated" value={stats.registered} accent="green" />
         </section>
 
         <section
@@ -176,6 +181,7 @@ function AdminDashboard({
               orgSlug={orgSlug}
               eventId={activeEvent.id}
               type="dancer"
+              accent="blue"
               lastUpload={
                 stats.recentUploads.find((u) => u.type === "dancer") ?? null
               }
@@ -186,6 +192,7 @@ function AdminDashboard({
               orgSlug={orgSlug}
               eventId={activeEvent.id}
               type="coach"
+              accent="purple"
               lastUpload={
                 stats.recentUploads.find((u) => u.type === "coach") ?? null
               }
@@ -231,18 +238,26 @@ function SplitStatCell({
   activated,
   pending,
   total,
+  accent,
 }: {
   label: string;
   activated: number;
   pending: number;
   total: number;
+  accent?: PanelAccent;
 }) {
   return (
     <div className="border-border flex flex-1 flex-col justify-center gap-1 border-l px-4 py-3 first:border-l-0">
-      <span className="text-2xl leading-none font-semibold tracking-tight tabular-nums 2xl:text-3xl">
+      <span
+        className={cn(
+          "text-2xl leading-none font-semibold tracking-tight tabular-nums 2xl:text-3xl",
+          accent && ACCENT_VALUE[accent],
+        )}
+      >
         {total.toLocaleString()}
       </span>
-      <span className="text-muted-foreground text-[10px] font-medium tracking-widest uppercase 2xl:text-xs">
+      <span className="text-muted-foreground inline-flex items-center gap-1.5 text-[10px] font-medium tracking-widest uppercase 2xl:text-xs">
+        {accent && <AccentDot accent={accent} />}
         {label}
       </span>
       <span className="text-muted-foreground text-[10px] tabular-nums">
@@ -445,7 +460,8 @@ function PreEventChecklist({
     <div className="border-border flex h-full min-h-0 w-full flex-col rounded-md border">
       <div className="border-border bg-muted/40 flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2">
         <div className="flex min-w-0 flex-col">
-          <span className="text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
+            <AccentDot accent="amber" />
             Pre-event checklist
           </span>
           <span className="text-muted-foreground text-[11px] 2xl:text-xs">
@@ -755,7 +771,8 @@ function ScheduleUploadPanel({
       <div className="border-border flex h-full min-h-0 flex-col rounded-md border">
         <div className="border-border bg-muted/40 flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2">
           <div className="flex min-w-0 flex-col">
-            <span className="text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
+              <AccentDot accent="green" />
               Event Schedule
             </span>
             <span className="text-muted-foreground text-[11px] 2xl:text-xs">
@@ -1001,7 +1018,7 @@ function SidebarActivitySection({
   const recent = uploads.slice(0, 4);
   if (recent.length === 0) {
     return (
-      <SidebarSection title="Recent activity">
+      <SidebarSection title="Recent activity" accent="green">
         <p className="text-muted-foreground text-xs 2xl:text-sm">
           No uploads yet.
         </p>
@@ -1009,7 +1026,7 @@ function SidebarActivitySection({
     );
   }
   return (
-    <SidebarSection title="Recent activity">
+    <SidebarSection title="Recent activity" accent="green">
       <ul className="flex flex-col gap-2">
         {recent.map((upload) => {
           const touched = (upload.rowsAdded ?? 0) + (upload.rowsUpdated ?? 0);
@@ -1018,7 +1035,7 @@ function SidebarActivitySection({
               key={upload.id}
               className="flex items-start gap-2 text-xs 2xl:text-sm"
             >
-              <UploadIcon className="text-muted-foreground mt-0.5 size-3 shrink-0" />
+              <UploadIcon className="text-emerald-500 mt-0.5 size-3 shrink-0" />
               <div className="flex min-w-0 flex-1 flex-col">
                 <span>
                   <span className="font-medium tabular-nums">

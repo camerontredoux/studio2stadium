@@ -9,6 +9,41 @@ import { cn } from "@/components/utils/cn";
 import type { OrgEvent } from "@/features/org/api/admin-queries";
 import type { EventPhaseInfo } from "@/features/org/hooks/use-event-phase";
 
+export type PanelAccent =
+  | "blue"
+  | "purple"
+  | "amber"
+  | "green"
+  | "rose"
+  | "cyan";
+
+const ACCENT_DOT: Record<PanelAccent, string> = {
+  blue: "bg-blue-500",
+  purple: "bg-purple-500",
+  amber: "bg-amber-500",
+  green: "bg-emerald-500",
+  rose: "bg-rose-500",
+  cyan: "bg-cyan-500",
+};
+
+export const ACCENT_VALUE: Record<PanelAccent, string> = {
+  blue: "text-blue-600 dark:text-blue-400",
+  purple: "text-purple-600 dark:text-purple-400",
+  amber: "text-amber-600 dark:text-amber-400",
+  green: "text-emerald-600 dark:text-emerald-400",
+  rose: "text-rose-600 dark:text-rose-400",
+  cyan: "text-cyan-600 dark:text-cyan-400",
+};
+
+export function AccentDot({ accent }: { accent: PanelAccent }) {
+  return (
+    <span
+      className={cn("size-1.5 shrink-0 rounded-full", ACCENT_DOT[accent])}
+      aria-hidden
+    />
+  );
+}
+
 export function LivePulse() {
   return (
     <span className="relative inline-flex size-2" aria-hidden>
@@ -92,16 +127,24 @@ export function PhaseBadge({
 export function StatCell({
   label,
   value,
+  accent,
 }: {
   label: string;
   value: number | string;
+  accent?: PanelAccent;
 }) {
   return (
     <div className="border-border flex flex-1 flex-col justify-center gap-1 border-l px-4 py-3 first:border-l-0">
-      <span className="text-2xl leading-none font-semibold tracking-tight tabular-nums 2xl:text-3xl">
+      <span
+        className={cn(
+          "text-2xl leading-none font-semibold tracking-tight tabular-nums 2xl:text-3xl",
+          accent && ACCENT_VALUE[accent],
+        )}
+      >
         {typeof value === "number" ? value.toLocaleString() : value}
       </span>
-      <span className="text-muted-foreground text-[10px] font-medium tracking-widest uppercase 2xl:text-xs">
+      <span className="text-muted-foreground inline-flex items-center gap-1.5 text-[10px] font-medium tracking-widest uppercase 2xl:text-xs">
+        {accent && <AccentDot accent={accent} />}
         {label}
       </span>
     </div>
@@ -139,15 +182,18 @@ export function SidebarSection({
   title,
   children,
   action,
+  accent,
 }: {
   title: string;
   children: React.ReactNode;
   action?: React.ReactNode;
+  accent?: PanelAccent;
 }) {
   return (
     <section className="border-border border-b last:border-b-0">
       <div className="flex items-center justify-between gap-2 px-4 pt-3 pb-2">
-        <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase 2xl:text-xs">
+        <span className="text-muted-foreground inline-flex items-center gap-1.5 text-[10px] font-semibold tracking-widest uppercase 2xl:text-xs">
+          {accent && <AccentDot accent={accent} />}
           {title}
         </span>
         {action}
@@ -192,7 +238,7 @@ export function SidebarPhaseSection({ phase }: { phase: EventPhaseInfo }) {
         : "until kickoff";
 
   return (
-    <SidebarSection title="Countdown">
+    <SidebarSection title="Countdown" accent="blue">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-baseline gap-2">
           <span className="text-foreground text-xl leading-none font-semibold tracking-tight tabular-nums 2xl:text-2xl">

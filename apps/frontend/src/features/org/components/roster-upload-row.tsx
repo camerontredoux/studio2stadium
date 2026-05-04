@@ -7,6 +7,10 @@ import { ArrowRightIcon, UploadIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/utils/cn";
 import { CsvUploadDialog } from "./csv-upload-dialog";
+import {
+  AccentDot,
+  type PanelAccent,
+} from "@/features/org/components/dashboard-shared";
 import { useAdminCommandListener } from "@/features/org/hooks/use-admin-commands";
 import type { CsvUploadSummary } from "@/features/org/api/admin-queries";
 import {
@@ -19,6 +23,7 @@ interface RosterUploadRowProps {
   eventId: string;
   type: RosterType;
   lastUpload: CsvUploadSummary | null;
+  accent?: PanelAccent;
 }
 
 const TITLES: Record<RosterType, string> = {
@@ -33,6 +38,7 @@ export function RosterUploadRow({
   eventId,
   type,
   lastUpload,
+  accent,
 }: RosterUploadRowProps) {
   const [open, setOpen] = useState(false);
 
@@ -64,7 +70,8 @@ export function RosterUploadRow({
         <div className="border-border bg-muted/40 flex items-center justify-between gap-3 border-b px-3 py-2">
           <div className="flex min-w-0 flex-col">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
+                {accent && <AccentDot accent={accent} />}
                 {title}
               </span>
               <span className="text-muted-foreground text-[11px] tabular-nums 2xl:text-xs">
