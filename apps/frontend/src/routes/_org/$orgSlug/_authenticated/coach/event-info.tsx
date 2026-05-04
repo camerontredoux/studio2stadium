@@ -21,6 +21,7 @@ import {
 import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import {
+  AccentDot,
   DashboardHeader,
   formatDateRange,
   scheduleFileUrl,
@@ -100,9 +101,9 @@ function CoachDashboard({
           aria-label="Event stats"
           className="border-border flex items-stretch border-y"
         >
-          <StatCell label="Dancers" value={dancerCount} />
-          <StatCell label="Schools" value={schoolCount || "—"} />
-          <StatCell label="Your Favorites" value={favCount} />
+          <StatCell label="Dancers" value={dancerCount} accent="blue" />
+          <StatCell label="Schools" value={schoolCount || "—"} accent="purple" />
+          <StatCell label="Your Favorites" value={favCount} accent="rose" />
         </section>
 
         <section
@@ -156,18 +157,21 @@ function QuickNavPanel({
       label: "Search Dancers",
       to: "/$orgSlug/coach/dancers",
       description: `${dancerCount} dancers registered`,
+      iconClass: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
     },
     {
       icon: HeartIcon,
       label: "My Favorites",
       to: "/$orgSlug/coach/favorites",
       description: `${favCount} dancers saved`,
+      iconClass: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
     },
     {
       icon: TrophyIcon,
       label: "My Rankings",
       to: "/$orgSlug/coach/rankings",
       description: "Review your ranked dancers",
+      iconClass: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
     },
   ];
 
@@ -175,7 +179,8 @@ function QuickNavPanel({
     <div className="border-border flex h-full min-h-0 w-full flex-col rounded-md border">
       <div className="border-border bg-muted/40 flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2">
         <div className="flex min-w-0 flex-col">
-          <span className="text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
+            <AccentDot accent="blue" />
             Scouting tools
           </span>
           <span className="text-muted-foreground text-[11px] 2xl:text-xs">
@@ -192,8 +197,8 @@ function QuickNavPanel({
               params={{ orgSlug } as any}
               className="hover:bg-muted/40 group flex items-center gap-3 px-3 py-2.5 transition-colors"
             >
-              <span className="border-border bg-background flex size-7 items-center justify-center rounded-md border">
-                <item.icon className="text-muted-foreground size-3.5" />
+              <span className={`flex size-7 items-center justify-center rounded-md border ${item.iconClass}`}>
+                <item.icon className="size-3.5" />
               </span>
               <div className="flex min-w-0 flex-1 flex-col">
                 <span className="text-xs font-medium 2xl:text-sm">
@@ -233,7 +238,8 @@ function TopRankedPanel({
     <div className="border-border flex h-full min-h-0 w-full flex-col rounded-md border">
       <div className="border-border bg-muted/40 flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2">
         <div className="flex min-w-0 flex-col">
-          <span className="text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
+            <AccentDot accent="amber" />
             Top ranked
           </span>
           <span className="text-muted-foreground text-[11px] 2xl:text-xs">
@@ -346,11 +352,12 @@ function SchedulePreviewPanel({
       <div className="border-border flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border">
         <div className="border-border bg-muted/40 flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2">
           <div className="flex min-w-0 flex-col">
-            <span className="text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
+              <AccentDot accent="green" />
               Event Schedule
             </span>
             <span className="text-muted-foreground text-[11px] 2xl:text-xs">
-              PDF or image
+              Uploaded by organizer
             </span>
           </div>
           <Button
@@ -421,7 +428,7 @@ function CoachSidebarPanel({
     <aside className="border-border flex w-full shrink-0 flex-col border-t xl:w-[320px] xl:overflow-x-hidden xl:overflow-y-auto xl:border-t-0 xl:border-l">
       <SidebarPhaseSection phase={phase} />
       <SidebarDetailsSection orgSlug={orgSlug} event={event} />
-      <SidebarSection title="Recent favorites">
+      <SidebarSection title="Recent favorites" accent="rose">
         {recentFavorites.length === 0 ? (
           <p className="text-muted-foreground text-xs 2xl:text-sm">
             No favorites yet.
@@ -434,7 +441,7 @@ function CoachSidebarPanel({
                   key={dancer.rosterId}
                   className="flex items-start gap-2 text-xs 2xl:text-sm"
                 >
-                  <HeartIcon className="text-muted-foreground mt-0.5 size-3 shrink-0" />
+                  <HeartIcon className="text-rose-500 mt-0.5 size-3 shrink-0" />
                   <div className="flex min-w-0 flex-1 flex-col">
                     <span>
                       <span className="font-medium">

@@ -17,6 +17,9 @@ import {
   MenuItem,
   MenuPopup,
   MenuSeparator,
+  MenuSub,
+  MenuSubPopup,
+  MenuSubTrigger,
   MenuTrigger,
 } from "@/components/ui/menu";
 import { useOrg } from "@/features/org/context/use-org";
@@ -28,15 +31,21 @@ import {
   useParams,
 } from "@tanstack/react-router";
 import {
+  CheckIcon,
   ChevronDownIcon,
   ClipboardListIcon,
   EyeIcon,
   LayoutDashboardIcon,
   LogOutIcon,
   MicIcon,
+  MonitorIcon,
+  MoonIcon,
   SettingsIcon,
+  SunIcon,
+  UserIcon,
   UsersIcon,
 } from "lucide-react";
+import { useTernaryDarkMode, type TernaryDarkMode } from "usehooks-ts";
 
 const dashboardItem = {
   label: "Dashboard",
@@ -86,6 +95,9 @@ export function AdminSidebar() {
   const navigate = useNavigate();
   const DashboardIcon = dashboardItem.icon;
 
+  const { ternaryDarkMode, setTernaryDarkMode } = useTernaryDarkMode({
+    localStorageKey: "theme",
+  });
   const displayName =
     [session.firstName, session.lastName].filter(Boolean).join(" ").trim() ||
     session.username;
@@ -265,14 +277,14 @@ export function AdminSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-0">
+      <SidebarFooter className="p-2">
         <SidebarMenu className="gap-0 p-0">
           <SidebarMenuItem>
             <Menu>
               <SidebarMenuButton
                 size="lg"
                 tooltip={displayName}
-                className="data-popup-open:bg-sidebar-accent border-sidebar-border hover:bg-sidebar-accent/20 rounded-none border-t-2 border-t-transparent px-3 py-3 group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:w-full! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-none group-data-[collapsible=icon]:p-0!"
+                className="data-popup-open:bg-sidebar-accent border-sidebar-border hover:bg-sidebar-accent/20 rounded-md border-t-2 border-t-transparent p-2 group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:w-full! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-none group-data-[collapsible=icon]:p-0!"
                 render={<MenuTrigger />}
               >
                 <Avatar className="size-8">
@@ -305,6 +317,21 @@ export function AdminSidebar() {
                     </span>
                   </MenuItem>
                 </MenuGroup>
+                <MenuSeparator />
+                <MenuGroup>
+                  <MenuItem
+                    closeOnClick
+                    render={
+                      <Link
+                        to={session.type === "school" ? "/explore/$username" : "/$username"}
+                        params={{ username: session.username }}
+                      />
+                    }
+                  >
+                    <UserIcon />
+                    Profile
+                  </MenuItem>
+                </MenuGroup>
                 {canSwitchView ? (
                   <>
                     <MenuSeparator />
@@ -325,6 +352,38 @@ export function AdminSidebar() {
                   </>
                 ) : null}
                 <MenuSeparator />
+                <MenuGroup>
+                  <MenuSub>
+                    <MenuSubTrigger>
+                      <SunIcon />
+                      Theme
+                    </MenuSubTrigger>
+                    <MenuSubPopup>
+                      {(
+                        [
+                          { value: "light", label: "Light", icon: SunIcon },
+                          { value: "dark", label: "Dark", icon: MoonIcon },
+                          { value: "system", label: "System", icon: MonitorIcon },
+                        ] as const
+                      ).map(({ value, label, icon: Icon }) => (
+                        <MenuItem
+                          key={value}
+                          closeOnClick={false}
+                          onClick={() =>
+                            setTernaryDarkMode(value as TernaryDarkMode)
+                          }
+                        >
+                          <Icon />
+                          {label}
+                          {ternaryDarkMode === value && (
+                            <CheckIcon className="ms-auto" />
+                          )}
+                        </MenuItem>
+                      ))}
+                    </MenuSubPopup>
+                  </MenuSub>
+                </MenuGroup>
+                <MenuSeparator />
                 <MenuItem closeOnClick render={<Link to="/logout" />}>
                   <LogOutIcon />
                   Log out
@@ -337,3 +396,4 @@ export function AdminSidebar() {
     </Sidebar>
   );
 }
+
