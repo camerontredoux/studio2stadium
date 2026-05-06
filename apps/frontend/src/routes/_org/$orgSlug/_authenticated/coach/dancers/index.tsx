@@ -61,16 +61,13 @@ function DancerSearch() {
   const [gpaFilter, setGpaFilter] = useState<string | null>(null);
   const [stateFilter, setStateFilter] = useState<string | null>(null);
   const [interested, setInterested] = useState(false);
-  const [favorited, setFavorited] = useState(false);
-  const [rated, setRated] = useState(false);
-  const [hasNotes, setHasNotes] = useState(false);
   const deferredSearch = useDeferredValue(search);
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   useEffect(() => {
     setRowSelection({});
-  }, [yearFilter, gpaFilter, stateFilter, interested, favorited, rated, hasNotes]);
+  }, [yearFilter, gpaFilter, stateFilter, interested]);
 
   /* --- Data --- */
   const { data: dancers, isLoading } = useQuery(
@@ -249,7 +246,6 @@ function DancerSearch() {
   const columns = useSearchColumns(handleFavoriteToggle, {
     enableSelection: true,
     onRate: handleRate,
-    onOpenNotes: handleOpenNotes,
   });
 
   /* --- Derived filter options --- */
@@ -295,17 +291,8 @@ function DancerSearch() {
     if (stateFilter !== null) {
       result = result.filter((d) => d.state === stateFilter);
     }
-    if (favorited) {
-      result = result.filter((d) => d.isFavorited);
-    }
-    if (rated) {
-      result = result.filter((d) => d.rating != null);
-    }
-    if (hasNotes) {
-      result = result.filter((d) => d.hasNote);
-    }
     return result;
-  }, [dancers, yearFilter, gpaFilter, stateFilter, favorited, rated, hasNotes]);
+  }, [dancers, yearFilter, gpaFilter, stateFilter]);
 
   const selectedRosterIds = useMemo(() => {
     return Object.keys(rowSelection)
@@ -466,12 +453,6 @@ function DancerSearch() {
               onStateFilterChange={setStateFilter}
               interested={interested}
               onInterestedChange={setInterested}
-              favorited={favorited}
-              onFavoritedChange={setFavorited}
-              rated={rated}
-              onRatedChange={setRated}
-              hasNotes={hasNotes}
-              onHasNotesChange={setHasNotes}
               schoolName={org.name}
               availableYears={availableYears}
               availableStates={availableStates}
