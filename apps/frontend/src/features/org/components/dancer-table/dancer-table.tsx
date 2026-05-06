@@ -218,7 +218,7 @@ export function DancerTable<T extends { rosterId: string }>({
       </div>
 
       {/* Desktop Table View */}
-      <Frame className="hidden w-full sm:block">
+      <Frame className="relative hidden w-full flex-1 sm:flex sm:flex-col *:data-[slot=table-container]:flex-1">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -276,26 +276,17 @@ export function DancerTable<T extends { rosterId: string }>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody className="relative">
+          <TableBody>
             {isLoading ? (
-              <>
-                {Array.from({ length: 5 }, (_, i) => (
-                  <TableRow key={`placeholder-${i}`} className="pointer-events-none opacity-0">
-                    {Array.from({ length: columns.length }, (_, j) => (
-                      <TableCell key={`placeholder-${i}-${j}`}>
-                        &nbsp;
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-                <tr className="absolute inset-0">
-                  <td>
-                    <div className="flex h-full items-center justify-center">
-                      <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
-                    </div>
-                  </td>
-                </tr>
-              </>
+              Array.from({ length: 5 }, (_, i) => (
+                <TableRow key={`placeholder-${i}`} className="pointer-events-none opacity-0">
+                  {Array.from({ length: columns.length }, (_, j) => (
+                    <TableCell key={`placeholder-${i}-${j}`}>
+                      &nbsp;
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
             ) : paginatedRows.length ? (
               paginatedRows.map((row) => (
                 <TableRow
@@ -325,6 +316,11 @@ export function DancerTable<T extends { rosterId: string }>({
             )}
           </TableBody>
         </Table>
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+          </div>
+        )}
         <FrameFooter className="p-2">
           <div className="flex items-center justify-between gap-2">
             {/* Results range selector */}
