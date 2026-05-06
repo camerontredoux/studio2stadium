@@ -75,50 +75,52 @@ function DancerSheetContent({ rosterId }: { rosterId: string }) {
     if (!isDirty || isSaving) return;
     setIsSaving(true);
 
-    const pathParams = { slug: org.slug, dancerRosterId: rosterId };
-    const trimmedNotes = currentNotes.trim();
+    try {
+      const pathParams = { slug: org.slug, dancerRosterId: rosterId };
+      const trimmedNotes = currentNotes.trim();
 
-    const [notesResult, ratingResult] = await Promise.allSettled([
-      trimmedNotes === ""
-        ? deleteNotes.mutateAsync({ params: { path: pathParams } })
-        : upsertNotes.mutateAsync({
-            params: { path: pathParams },
-            body: { content: currentNotes },
-          }),
-      upsertRating.mutateAsync({
-        params: { path: pathParams },
-        body: { rating: currentRating ?? 0 },
-      }),
-    ]);
+      const [notesResult, ratingResult] = await Promise.allSettled([
+        trimmedNotes === ""
+          ? deleteNotes.mutateAsync({ params: { path: pathParams } })
+          : upsertNotes.mutateAsync({
+              params: { path: pathParams },
+              body: { content: currentNotes },
+            }),
+        upsertRating.mutateAsync({
+          params: { path: pathParams },
+          body: { rating: currentRating ?? 0 },
+        }),
+      ]);
 
-    const notesFailed = notesResult.status === "rejected";
-    const ratingFailed = ratingResult.status === "rejected";
+      const notesFailed = notesResult.status === "rejected";
+      const ratingFailed = ratingResult.status === "rejected";
 
-    if (notesFailed || ratingFailed) {
-      const failed = [notesFailed && "notes", ratingFailed && "rating"]
-        .filter(Boolean)
-        .join(" and ");
-      toastManager.add({
-        title: "Save failed",
-        description: `Could not save ${failed}. Please try again.`,
-        type: "error",
+      if (notesFailed || ratingFailed) {
+        const failed = [notesFailed && "notes", ratingFailed && "rating"]
+          .filter(Boolean)
+          .join(" and ");
+        toastManager.add({
+          title: "Save failed",
+          description: `Could not save ${failed}. Please try again.`,
+          type: "error",
+        });
+      }
+
+      if (!notesFailed) setNotes(null);
+      if (!ratingFailed) setRating(undefined);
+
+      qc.invalidateQueries({
+        queryKey: scoutingQueries.dancers(org.slug).queryKey,
       });
+      qc.invalidateQueries({
+        queryKey: scoutingQueries.dancer(org.slug, rosterId).queryKey,
+      });
+      qc.invalidateQueries({
+        queryKey: scoutingQueries.rankings(org.slug).queryKey,
+      });
+    } finally {
+      setIsSaving(false);
     }
-
-    if (!notesFailed) setNotes(null);
-    if (!ratingFailed) setRating(undefined);
-
-    qc.invalidateQueries({
-      queryKey: scoutingQueries.dancers(org.slug).queryKey,
-    });
-    qc.invalidateQueries({
-      queryKey: scoutingQueries.dancer(org.slug, rosterId).queryKey,
-    });
-    qc.invalidateQueries({
-      queryKey: scoutingQueries.rankings(org.slug).queryKey,
-    });
-
-    setIsSaving(false);
   }
 
   if (isLoading || !dancer) {
