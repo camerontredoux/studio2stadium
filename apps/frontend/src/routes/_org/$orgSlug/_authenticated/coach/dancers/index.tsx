@@ -1,6 +1,6 @@
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import {
   HeartIcon,
@@ -21,6 +21,10 @@ import { StatCell, SidebarSection } from "@/features/org/components/dashboard-sh
 import { Rating, RatingItem } from "@/components/ui/rating";
 import type { RowSelectionState } from "@tanstack/react-table";
 import { FloatingActionBar } from "@/features/org/components/floating-action-bar";
+import { CompareView } from "@/features/org/components/compare-view";
+import { toastManager } from "@/components/ui/toast-manager";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute(
   "/_org/$orgSlug/_authenticated/coach/dancers/",
@@ -57,13 +61,16 @@ function DancerSearch() {
   const [gpaFilter, setGpaFilter] = useState<string | null>(null);
   const [stateFilter, setStateFilter] = useState<string | null>(null);
   const [interested, setInterested] = useState(false);
+  const [favorited, setFavorited] = useState(false);
+  const [rated, setRated] = useState(false);
+  const [hasNotes, setHasNotes] = useState(false);
   const deferredSearch = useDeferredValue(search);
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   useEffect(() => {
     setRowSelection({});
-  }, [yearFilter, gpaFilter, stateFilter, interested]);
+  }, [yearFilter, gpaFilter, stateFilter, interested, favorited, rated, hasNotes]);
 
   /* --- Data --- */
   const { data: dancers, isLoading } = useQuery(
@@ -82,6 +89,14 @@ function DancerSearch() {
           : prev,
     );
   }, []);
+
+  const [compareMode, setCompareMode] = useState(false);
+
+  useEffect(() => {
+    if (compareIds.length < 2) setCompareMode(false);
+  }, [compareIds.length]);
+
+  const searchRef = useRef<HTMLInputElement>(null);
 
   /* --- Activity feed --- */
   const [activity, setActivity] = useState<ActivityItem[]>([]);
@@ -111,6 +126,7 @@ function DancerSearch() {
     },
     onError: (_err, _vars, ctx: any) => {
       if (ctx?.previous) qc.setQueryData(dancersKey, ctx.previous);
+      toastManager.add({ title: "Couldn't favorite dancer", type: "error" });
     },
     meta: {
       invalidateQueries: [
@@ -136,6 +152,7 @@ function DancerSearch() {
     },
     onError: (_err, _vars, ctx: any) => {
       if (ctx?.previous) qc.setQueryData(dancersKey, ctx.previous);
+      toastManager.add({ title: "Couldn't remove favorite", type: "error" });
     },
     meta: {
       invalidateQueries: [
@@ -166,6 +183,7 @@ function DancerSearch() {
       },
       onError: (_err, _vars, ctx: any) => {
         if (ctx?.previous) qc.setQueryData(dancersKey, ctx.previous);
+        toastManager.add({ title: "Couldn't save rating", type: "error" });
       },
       meta: {
         invalidateQueries: [
@@ -277,8 +295,17 @@ function DancerSearch() {
     if (stateFilter !== null) {
       result = result.filter((d) => d.state === stateFilter);
     }
+    if (favorited) {
+      result = result.filter((d) => d.isFavorited);
+    }
+    if (rated) {
+      result = result.filter((d) => d.rating != null);
+    }
+    if (hasNotes) {
+      result = result.filter((d) => d.hasNote);
+    }
     return result;
-  }, [dancers, yearFilter, gpaFilter, stateFilter]);
+  }, [dancers, yearFilter, gpaFilter, stateFilter, favorited, rated, hasNotes]);
 
   const selectedRosterIds = useMemo(() => {
     return Object.keys(rowSelection)
@@ -292,7 +319,7 @@ function DancerSearch() {
   const handleBulkFavorite = useCallback(async () => {
     setIsBulkLoading(true);
     try {
-      await Promise.allSettled(
+      const results = await Promise.allSettled(
         selectedRosterIds.map((rosterId) => {
           const dancer = dancers?.find((d) => d.rosterId === rosterId);
           if (dancer) {
@@ -309,6 +336,13 @@ function DancerSearch() {
           });
         }),
       );
+      const failures = results.filter((r) => r.status === "rejected");
+      if (failures.length > 0) {
+        toastManager.add({
+          title: `${failures.length} of ${selectedRosterIds.length} favorites failed`,
+          type: "error",
+        });
+      }
     } finally {
       setIsBulkLoading(false);
       setRowSelection({});
@@ -319,7 +353,7 @@ function DancerSearch() {
     async (rating: number) => {
       setIsBulkLoading(true);
       try {
-        await Promise.allSettled(
+        const results = await Promise.allSettled(
           selectedRosterIds.map((rosterId) => {
             const dancer = dancers?.find((d) => d.rosterId === rosterId);
             if (dancer) {
@@ -337,6 +371,13 @@ function DancerSearch() {
             });
           }),
         );
+        const failures = results.filter((r) => r.status === "rejected");
+        if (failures.length > 0) {
+          toastManager.add({
+            title: `${failures.length} of ${selectedRosterIds.length} ratings failed`,
+            type: "error",
+          });
+        }
       } finally {
         setIsBulkLoading(false);
         setRowSelection({});
@@ -344,6 +385,25 @@ function DancerSearch() {
     },
     [selectedRosterIds, dancers, upsertRating, orgSlug, addActivity],
   );
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement)?.tagName;
+      const isInput = tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable;
+
+      if (e.key === "/" && !isInput) {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+
+      if (e.key === "Escape" && !isInput && selectedRosterIds.length > 0) {
+        setRowSelection({});
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [selectedRosterIds.length]);
 
   /* --- Stats --- */
   const dancerCount = dancers?.length ?? 0;
@@ -375,57 +435,77 @@ function DancerSearch() {
           </div>
         </header>
 
-        <section
-          aria-label="Scouting stats"
-          className="border-border flex items-stretch border-y"
-        >
-          <StatCell label="To Review" value={toReviewCount} accent="blue" />
-          <StatCell label="Favorited" value={favCount} />
-          <StatCell label="Avg GPA" value={avgGpa} />
-        </section>
-
-        <DancerFilterToolbar
-          search={search}
-          onSearchChange={setSearch}
-          yearFilter={yearFilter}
-          onYearFilterChange={setYearFilter}
-          gpaFilter={gpaFilter}
-          onGpaFilterChange={setGpaFilter}
-          stateFilter={stateFilter}
-          onStateFilterChange={setStateFilter}
-          interested={interested}
-          onInterestedChange={setInterested}
-          schoolName={org.name}
-          availableYears={availableYears}
-          availableStates={availableStates}
-        />
-
-        <div className="flex min-h-0 flex-1 flex-col gap-3 p-4">
-          <DancerTable<SearchDancerRow>
-            data={filteredData}
-            columns={columns}
-            isLoading={isLoading}
-            globalFilter={deferredSearch}
-            emptyState={
-              <p className="text-muted-foreground text-sm">
-                {deferredSearch
-                  ? `No dancers matched "${deferredSearch}".`
-                  : "No dancers registered for this event yet."}
-              </p>
+        {compareMode ? (
+          <CompareView
+            compareIds={compareIds}
+            onRemove={(id) =>
+              setCompareIds((prev) => prev.filter((c) => c !== id))
             }
-            onRowClick={(row) => setSheetRosterId(row.rosterId)}
-            renderCard={(row) => (
-              <DancerCard
-                dancer={row}
-                onClick={() => setSheetRosterId(row.rosterId)}
-              />
-            )}
-            sorting={[{ id: "name", desc: false }]}
-            enableSelection
-            rowSelection={rowSelection}
-            onRowSelectionChange={setRowSelection}
+            onBack={() => setCompareMode(false)}
+            onOpenSheet={(rosterId) => setSheetRosterId(rosterId)}
           />
-        </div>
+        ) : (
+          <>
+            <section
+              aria-label="Scouting stats"
+              className="border-border flex items-stretch border-y"
+            >
+              <StatCell label="To Review" value={toReviewCount} accent="blue" />
+              <StatCell label="Favorited" value={favCount} />
+              <StatCell label="Avg GPA" value={avgGpa} />
+            </section>
+
+            <DancerFilterToolbar
+              search={search}
+              onSearchChange={setSearch}
+              yearFilter={yearFilter}
+              onYearFilterChange={setYearFilter}
+              gpaFilter={gpaFilter}
+              onGpaFilterChange={setGpaFilter}
+              stateFilter={stateFilter}
+              onStateFilterChange={setStateFilter}
+              interested={interested}
+              onInterestedChange={setInterested}
+              favorited={favorited}
+              onFavoritedChange={setFavorited}
+              rated={rated}
+              onRatedChange={setRated}
+              hasNotes={hasNotes}
+              onHasNotesChange={setHasNotes}
+              schoolName={org.name}
+              availableYears={availableYears}
+              availableStates={availableStates}
+              searchRef={searchRef}
+            />
+
+            <div className="flex min-h-0 flex-1 flex-col gap-3 p-4">
+              <DancerTable<SearchDancerRow>
+                data={filteredData}
+                columns={columns}
+                isLoading={isLoading}
+                globalFilter={deferredSearch}
+                emptyState={
+                  <p className="text-muted-foreground text-sm">
+                    {deferredSearch
+                      ? `No dancers matched "${deferredSearch}".`
+                      : "No dancers registered for this event yet."}
+                  </p>
+                }
+                onRowClick={(row) => setSheetRosterId(row.rosterId)}
+                renderCard={(row) => (
+                  <DancerCard
+                    dancer={row}
+                    onClick={() => setSheetRosterId(row.rosterId)}
+                  />
+                )}
+                sorting={[{ id: "name", desc: false }]}
+                enableSelection
+                rowSelection={rowSelection}
+                onRowSelectionChange={setRowSelection}
+              />
+            </div>
+          </>
+        )}
       </div>
 
       <FloatingActionBar
@@ -440,6 +520,7 @@ function DancerSearch() {
       {/* Sidebar */}
       <ScoutingSidebar
         dancers={dancers ?? []}
+        isLoading={isLoading}
         filteredUnreviewedCount={filteredData.filter(
           (d) => !d.isFavorited && d.rating == null && !d.hasNote,
         ).length}
@@ -449,6 +530,7 @@ function DancerSearch() {
         onRemoveCompare={(id) =>
           setCompareIds((prev) => prev.filter((c) => c !== id))
         }
+        onViewCompare={() => setCompareMode(true)}
         activity={activity}
         onActivityClick={(rosterId) => setSheetRosterId(rosterId)}
       />
@@ -486,30 +568,35 @@ type DancerData = {
 
 function ScoutingSidebar({
   dancers,
+  isLoading,
   filteredUnreviewedCount,
   reviewedCount,
   totalCount,
   compareIds,
   onRemoveCompare,
+  onViewCompare,
   activity,
   onActivityClick,
 }: {
   dancers: DancerData[];
+  isLoading: boolean;
   filteredUnreviewedCount: number;
   reviewedCount: number;
   totalCount: number;
   compareIds: string[];
   onRemoveCompare: (id: string) => void;
+  onViewCompare: () => void;
   activity: ActivityItem[];
   onActivityClick: (rosterId: string) => void;
 }) {
   return (
     <aside className="border-border flex w-full shrink-0 flex-col border-t xl:w-[320px] xl:overflow-x-hidden xl:overflow-y-auto xl:border-t-0 xl:border-l">
-      <TalentPoolBreakdown dancers={dancers} />
+      <TalentPoolBreakdown dancers={dancers} isLoading={isLoading} />
       <CompareClipboard
         dancers={dancers}
         compareIds={compareIds}
         onRemove={onRemoveCompare}
+        onViewCompare={onViewCompare}
       />
       <ScoutingSession
         reviewedCount={reviewedCount}
@@ -517,6 +604,7 @@ function ScoutingSidebar({
         filteredUnreviewed={filteredUnreviewedCount}
         activity={activity}
         onActivityClick={onActivityClick}
+        isLoading={isLoading}
       />
     </aside>
   );
@@ -526,7 +614,28 @@ function ScoutingSidebar({
 /*  Sidebar: Talent Pool Breakdown                                     */
 /* ------------------------------------------------------------------ */
 
-function TalentPoolBreakdown({ dancers }: { dancers: DancerData[] }) {
+function TalentPoolBreakdown({ dancers, isLoading }: { dancers: DancerData[]; isLoading?: boolean }) {
+  if (isLoading) {
+    return (
+      <SidebarSection title="Talent pool">
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: 3 }, (_, section) => (
+            <div key={section} className="flex flex-col gap-1">
+              <Skeleton className="mb-1.5 h-2.5 w-16 rounded" />
+              {Array.from({ length: 3 }, (_, row) => (
+                <div key={row} className="flex items-center gap-2">
+                  <Skeleton className="h-3 w-10 rounded" />
+                  <Skeleton className="h-1.5 flex-1 rounded-full" />
+                  <Skeleton className="h-3 w-6 rounded" />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </SidebarSection>
+    );
+  }
+
   const yearDist = useMemo(() => {
     const counts = new Map<number, number>();
     for (const d of dancers) {
@@ -666,10 +775,12 @@ function CompareClipboard({
   dancers,
   compareIds,
   onRemove,
+  onViewCompare,
 }: {
   dancers: DancerData[];
   compareIds: string[];
   onRemove: (id: string) => void;
+  onViewCompare: () => void;
 }) {
   const pinned = compareIds
     .map((id) => dancers.find((d) => d.rosterId === id))
@@ -725,6 +836,16 @@ function CompareClipboard({
           ))}
         </ul>
       )}
+      {pinned.length >= 2 && (
+        <Button
+          variant="default"
+          size="sm"
+          className="mt-2 w-full"
+          onClick={onViewCompare}
+        >
+          View Comparison
+        </Button>
+      )}
     </SidebarSection>
   );
 }
@@ -745,13 +866,32 @@ function ScoutingSession({
   filteredUnreviewed,
   activity,
   onActivityClick,
+  isLoading,
 }: {
   reviewedCount: number;
   totalCount: number;
   filteredUnreviewed: number;
   activity: ActivityItem[];
   onActivityClick: (rosterId: string) => void;
+  isLoading?: boolean;
 }) {
+  if (isLoading) {
+    return (
+      <SidebarSection title="Your session">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1.5">
+            <div className="flex justify-between">
+              <Skeleton className="h-3 w-32 rounded" />
+              <Skeleton className="h-2.5 w-8 rounded" />
+            </div>
+            <Skeleton className="h-1.5 w-full rounded-full" />
+          </div>
+          <Skeleton className="h-3 w-48 rounded" />
+        </div>
+      </SidebarSection>
+    );
+  }
+
   const pct = totalCount > 0 ? Math.round((reviewedCount / totalCount) * 100) : 0;
 
   return (
