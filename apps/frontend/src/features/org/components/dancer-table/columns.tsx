@@ -1,8 +1,22 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Heart, PencilIcon, StarIcon } from "lucide-react";
 import { Rating, RatingItem } from "@/components/ui/rating";
+import { Tooltip, TooltipPopup, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/components/utils/cn";
+
+function NotesIndicator() {
+  return (
+    <TooltipProvider delay={0}>
+      <Tooltip>
+        <TooltipTrigger render={<span className="flex items-center justify-center" />}>
+          <PencilIcon className="text-primary size-4" />
+        </TooltipTrigger>
+        <TooltipPopup>You have notes for this dancer</TooltipPopup>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
 
 export interface DancerRow {
   rosterId: string;
@@ -123,7 +137,7 @@ export const notesIndicatorColumn: ColumnDef<{
   note?: string | null;
 }> = {
   id: "notes",
-  header: () => <span title="Notes"><PencilIcon className="size-3.5 text-muted-foreground" /></span>,
+  header: () => <span className="flex items-center justify-center" title="Notes"><PencilIcon className="size-4 text-muted-foreground" /></span>,
   size: 40,
   enableSorting: false,
   cell: ({ row }) => {
@@ -131,9 +145,7 @@ export const notesIndicatorColumn: ColumnDef<{
       (row.original as { hasNote?: boolean }).hasNote ??
       (row.original as { hasNotes?: boolean }).hasNotes ??
       (row.original as { note?: string | null }).note != null;
-    return has ? (
-      <span className="bg-primary inline-block size-2 rounded-full" />
-    ) : null;
+    return has ? <NotesIndicator /> : null;
   },
 };
 
@@ -154,23 +166,25 @@ export function selectColumn<T>(): ColumnDef<T> {
     size: 40,
     enableSorting: false,
     header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        indeterminate={table.getIsSomePageRowsSelected()}
-        onCheckedChange={(checked) =>
-          table.toggleAllPageRowsSelected(!!checked)
-        }
-        onClick={(e: React.MouseEvent) => e.stopPropagation()}
-        aria-label="Select all"
-      />
+      <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          indeterminate={table.getIsSomePageRowsSelected()}
+          onCheckedChange={(checked) =>
+            table.toggleAllPageRowsSelected(!!checked)
+          }
+          aria-label="Select all"
+        />
+      </div>
     ),
     cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(checked) => row.toggleSelected(!!checked)}
-        onClick={(e: React.MouseEvent) => e.stopPropagation()}
-        aria-label="Select row"
-      />
+      <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(checked) => row.toggleSelected(!!checked)}
+          aria-label="Select row"
+        />
+      </div>
     ),
   };
 }
