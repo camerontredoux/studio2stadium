@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { useOrg } from "@/features/org/context/use-org";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { FavoriteButton } from "./favorite-button";
 import { RatingInput } from "./rating-input";
 import { NotesEditor } from "./notes-editor";
@@ -60,9 +61,30 @@ function DancerSheetContent({
 
   if (isLoading || !dancer) {
     return (
-      <SheetHeader>
-        <SheetTitle>Loading...</SheetTitle>
-      </SheetHeader>
+      <>
+        <SheetHeader>
+          <div className="flex items-start gap-3">
+            <Skeleton className="size-16 rounded-lg" />
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-5 w-40 rounded" />
+              <Skeleton className="h-4 w-56 rounded" />
+            </div>
+          </div>
+        </SheetHeader>
+        <SheetContent className="px-4 py-3">
+          <div className="flex flex-col gap-5">
+            <Skeleton className="h-10 w-24 rounded" />
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-4 w-16 rounded" />
+              <Skeleton className="h-5 w-32 rounded" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-4 w-16 rounded" />
+              <Skeleton className="h-24 w-full rounded" />
+            </div>
+          </div>
+        </SheetContent>
+      </>
     );
   }
 
