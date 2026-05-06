@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { $api } from "@/lib/api/client";
+import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { useOrg } from "@/features/org/context/use-org";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -11,6 +13,7 @@ export function NotesEditor({
   initial: string | null;
 }) {
   const { org } = useOrg();
+  const qc = useQueryClient();
   const [content, setContent] = useState(initial ?? "");
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [saving, setSaving] = useState(false);
@@ -44,6 +47,8 @@ export function NotesEditor({
       }
       lastSavedRef.current = content;
       setSavedAt(new Date());
+      qc.invalidateQueries({ queryKey: scoutingQueries.dancers(org.slug).queryKey });
+      qc.invalidateQueries({ queryKey: scoutingQueries.dancer(org.slug, dancerRosterId).queryKey });
     } catch {
       // keep dirty; user can try again
     } finally {

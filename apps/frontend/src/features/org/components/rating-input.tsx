@@ -34,7 +34,10 @@ export function RatingInput({
         }
       },
       meta: {
-        invalidateQueries: [scoutingQueries.rankings(org.slug).queryKey],
+        invalidateQueries: [
+          scoutingQueries.rankings(org.slug).queryKey,
+          scoutingQueries.dancers(org.slug).queryKey,
+        ],
       },
     },
   );

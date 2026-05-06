@@ -1,5 +1,5 @@
 import { createFileRoute, useParams } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -8,11 +8,8 @@ import {
   StarIcon,
   XIcon,
 } from "lucide-react";
+import { $api } from "@/lib/api/client";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
-import {
-  useAddFavorite,
-  useRemoveFavorite,
-} from "@/features/org/api/scouting-mutations";
 import { useOrg } from "@/features/org/context/use-org";
 import { DancerTable } from "@/features/org/components/dancer-table/dancer-table";
 import { DancerCard } from "@/features/org/components/dancer-table/dancer-card";
@@ -84,9 +81,59 @@ function DancerSearch() {
     setActivity((prev) => [{ ...item, timestamp: new Date() }, ...prev].slice(0, 5));
   }, []);
 
-  /* --- Favorite toggle --- */
-  const addFav = useAddFavorite(orgSlug);
-  const removeFav = useRemoveFavorite(orgSlug);
+  /* --- Favorite toggle (optimistic on dancers list) --- */
+  const qc = useQueryClient();
+  const dancersKey = scoutingQueries.dancers(orgSlug, { interested: interested || undefined }).queryKey;
+
+  const addFav = $api.useMutation("post", "/orgs/{slug}/favorites", {
+    onMutate: async ({ body }) => {
+      await qc.cancelQueries({ queryKey: dancersKey });
+      const previous = qc.getQueryData(dancersKey);
+      qc.setQueryData(dancersKey, (old: any) =>
+        Array.isArray(old)
+          ? old.map((d: any) =>
+              d.rosterId === body?.dancerRosterId ? { ...d, isFavorited: true } : d,
+            )
+          : old,
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, ctx: any) => {
+      if (ctx?.previous) qc.setQueryData(dancersKey, ctx.previous);
+    },
+    meta: {
+      invalidateQueries: [
+        scoutingQueries.favorites(orgSlug).queryKey,
+        dancersKey,
+        scoutingQueries.rankings(orgSlug).queryKey,
+      ],
+    },
+  });
+
+  const removeFav = $api.useMutation("delete", "/orgs/{slug}/favorites/{dancerRosterId}", {
+    onMutate: async ({ params }) => {
+      await qc.cancelQueries({ queryKey: dancersKey });
+      const previous = qc.getQueryData(dancersKey);
+      qc.setQueryData(dancersKey, (old: any) =>
+        Array.isArray(old)
+          ? old.map((d: any) =>
+              d.rosterId === params?.path?.dancerRosterId ? { ...d, isFavorited: false } : d,
+            )
+          : old,
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, ctx: any) => {
+      if (ctx?.previous) qc.setQueryData(dancersKey, ctx.previous);
+    },
+    meta: {
+      invalidateQueries: [
+        scoutingQueries.favorites(orgSlug).queryKey,
+        dancersKey,
+        scoutingQueries.rankings(orgSlug).queryKey,
+      ],
+    },
+  });
 
   const handleFavoriteToggle = useCallback(
     (rosterId: string, current: boolean) => {
@@ -100,14 +147,14 @@ function DancerSearch() {
           params: { path: { slug: orgSlug } },
           body: { dancerRosterId: rosterId },
         });
-        if (dancer) {
-          addActivity({
-            type: "favorite",
-            rosterId,
-            dancerName: `${dancer.firstName} ${dancer.lastName}`,
-            bibNumber: dancer.bibNumber,
-          });
-        }
+      }
+      if (dancer && !current) {
+        addActivity({
+          type: "favorite",
+          rosterId,
+          dancerName: `${dancer.firstName} ${dancer.lastName}`,
+          bibNumber: dancer.bibNumber,
+        });
       }
     },
     [orgSlug, addFav, removeFav, dancers, addActivity],
