@@ -90,15 +90,6 @@ function DancerSearch() {
 
   /* --- Compare clipboard --- */
   const [compareIds, setCompareIds] = useState<string[]>([]);
-  const handleToggleCompare = useCallback((rosterId: string) => {
-    setCompareIds((prev) =>
-      prev.includes(rosterId)
-        ? prev.filter((id) => id !== rosterId)
-        : prev.length < 3
-          ? [...prev, rosterId]
-          : prev,
-    );
-  }, []);
 
   const [compareMode, setCompareMode] = useState(false);
 
@@ -552,8 +543,6 @@ function DancerSearch() {
         onOpenChange={(open) => {
           if (!open) setSheetRosterId(null);
         }}
-        compareIds={compareIds}
-        onToggleCompare={handleToggleCompare}
       />
     </div>
   );

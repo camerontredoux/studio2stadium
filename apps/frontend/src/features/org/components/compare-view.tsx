@@ -180,7 +180,7 @@ function CompareColumn({
           Rating
         </span>
         <div className={cn("mt-1", !isTopRating && dancer.rating != null && "opacity-60")}>
-          <RatingInput value={dancer.rating ?? null} dancerRosterId={rosterId} />
+          <RatingInput value={dancer.rating ?? null} onChange={() => {}} />
         </div>
       </div>
 
