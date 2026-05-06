@@ -1,7 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { CheckIcon, Heart, PencilIcon, StarIcon } from "lucide-react";
+import { Heart, PencilIcon, StarIcon } from "lucide-react";
 import { Rating, RatingItem } from "@/components/ui/rating";
-import { Tooltip, TooltipPopup, TooltipTrigger } from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/components/utils/cn";
 
@@ -133,12 +132,7 @@ export const notesIndicatorColumn: ColumnDef<{
       (row.original as { hasNotes?: boolean }).hasNotes ??
       (row.original as { note?: string | null }).note != null;
     return has ? (
-      <Tooltip delay={0}>
-        <TooltipTrigger render={<span />}>
-          <CheckIcon className="text-primary size-3.5" />
-        </TooltipTrigger>
-        <TooltipPopup>You have notes for this dancer</TooltipPopup>
-      </Tooltip>
+      <span className="bg-primary inline-block size-2 rounded-full" />
     ) : null;
   },
 };
