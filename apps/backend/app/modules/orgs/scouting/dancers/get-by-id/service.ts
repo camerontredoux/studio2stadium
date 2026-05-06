@@ -7,6 +7,7 @@ import {
   eventNotes,
   eventRatings,
 } from "#database/schema/event-features";
+import { users } from "#database/schema/users";
 import { and, eq, sql } from "drizzle-orm";
 
 @inject()
@@ -27,6 +28,7 @@ export class GetDancerByIdService {
           lastName: eventRosters.lastName,
           organization: eventRosters.organization,
           isRegistered: sql<boolean>`${eventRosters.userId} IS NOT NULL`,
+          username: users.username,
           profilePhotoUrl: eventDancerProfiles.profilePhotoUrl,
           gradYear: sql<
             number | null
@@ -54,6 +56,7 @@ export class GetDancerByIdService {
           dancerProfiles,
           eq(dancerProfiles.userId, eventRosters.userId)
         )
+        .leftJoin(users, eq(users.id, eventRosters.userId))
         .where(
           and(
             eq(eventRosters.id, dancerRosterId),
