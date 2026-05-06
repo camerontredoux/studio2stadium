@@ -19,7 +19,7 @@ import { useSearchColumns } from "@/features/org/components/dancer-table/use-dan
 import type { SearchDancerRow } from "@/features/org/components/dancer-table/columns";
 import { StatCell, SidebarSection } from "@/features/org/components/dashboard-shared";
 import { Rating, RatingItem } from "@/components/ui/rating";
-import type { RowSelectionState } from "@tanstack/react-table";
+import type { RowSelectionState, SortingState } from "@tanstack/react-table";
 import { FloatingActionBar } from "@/features/org/components/floating-action-bar";
 import { CompareView } from "@/features/org/components/compare-view";
 import { toastManager } from "@/components/ui/toast-manager";
@@ -71,6 +71,16 @@ function DancerSearch() {
   useEffect(() => {
     setRowSelection({});
   }, [yearFilter, gpaFilter, stateFilter, interested, favorited, rated, hasNotes]);
+
+  const [sorting, setSorting] = useState<SortingState>([{ id: "name", desc: false }]);
+
+  useEffect(() => {
+    if (rated) {
+      setSorting([{ id: "rating", desc: true }]);
+    } else {
+      setSorting([{ id: "name", desc: false }]);
+    }
+  }, [rated]);
 
   /* --- Data --- */
   const { data: dancers, isLoading } = useQuery(
@@ -250,6 +260,7 @@ function DancerSearch() {
     enableSelection: true,
     onRate: handleRate,
     onOpenNotes: handleOpenNotes,
+    showRank: rated,
   });
 
   /* --- Derived filter options --- */
@@ -497,7 +508,8 @@ function DancerSearch() {
                     onClick={() => setSheetRosterId(row.rosterId)}
                   />
                 )}
-                sorting={[{ id: "name", desc: false }]}
+                sorting={sorting}
+                onSortingChange={setSorting}
                 enableSelection
                 rowSelection={rowSelection}
                 onRowSelectionChange={setRowSelection}

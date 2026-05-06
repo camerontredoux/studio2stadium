@@ -22,6 +22,7 @@ export function useSearchColumns(
     enableSelection?: boolean;
     onRate?: (rosterId: string, rating: number) => void;
     onOpenNotes?: (rosterId: string) => void;
+    showRank?: boolean;
   },
 ): ColumnDef<SearchDancerRow>[] {
   return useMemo(() => {
@@ -29,6 +30,10 @@ export function useSearchColumns(
 
     if (opts?.enableSelection) {
       cols.push(selectColumn<SearchDancerRow>());
+    }
+
+    if (opts?.showRank) {
+      cols.push(rankColumn<SearchDancerRow>());
     }
 
     cols.push(
@@ -54,5 +59,5 @@ export function useSearchColumns(
     cols.push(schoolInterestColumn);
 
     return cols;
-  }, [onFavoriteToggle, opts?.enableSelection, opts?.onRate, opts?.onOpenNotes]);
+  }, [onFavoriteToggle, opts?.enableSelection, opts?.onRate, opts?.onOpenNotes, opts?.showRank]);
 }
