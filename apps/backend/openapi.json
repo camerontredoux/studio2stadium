@@ -3235,6 +3235,43 @@
         }
       }
     },
+    "/orgs/{slug}/events/{id}/schedule": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/orgs/{slug}/events/attend": {
       "post": {
         "requestBody": {
@@ -11858,6 +11895,22 @@
             },
             "interestedInMySchool": {
               "type": "boolean"
+            },
+            "isFavorited": {
+              "type": "boolean"
+            },
+            "rating": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "hasNote": {
+              "type": "boolean"
             }
           },
           "required": [
@@ -11872,7 +11925,10 @@
             "gradYear",
             "studio",
             "state",
-            "interestedInMySchool"
+            "interestedInMySchool",
+            "isFavorited",
+            "rating",
+            "hasNote"
           ]
         }
       },
@@ -15026,6 +15082,7 @@
             "enum": [
               "id",
               "avatar",
+              "schedule",
               "feed",
               "blog"
             ]

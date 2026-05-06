@@ -58,9 +58,6 @@ function DancerSheetContent({
     scoutingQueries.dancer(org.slug, rosterId),
   );
 
-  const isCompared = compareIds.includes(rosterId);
-  const compareFull = compareIds.length >= 3;
-
   if (isLoading || !dancer) {
     return (
       <SheetHeader>
@@ -68,6 +65,9 @@ function DancerSheetContent({
       </SheetHeader>
     );
   }
+
+  const isCompared = compareIds.includes(rosterId);
+  const compareFull = compareIds.length >= 3;
 
   return (
     <>

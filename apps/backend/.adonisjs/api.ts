@@ -279,6 +279,10 @@ type OrgsIdEventsAttendPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/attend/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/events/attend/controller.ts').default['handle'], true>
 }
+type OrgsIdEventsIdScheduleGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/schedule/controller.ts').default['handle'], false>
+}
 type OrgsIdDancersGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/dancers/list/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/dancers/list/controller.ts').default['handle'], true>
@@ -1066,6 +1070,12 @@ export interface ApiDefinition {
               '$get': OrgsIdEventsIdReconciliationSchoolusersGetHead;
               '$head': OrgsIdEventsIdReconciliationSchoolusersGetHead;
             };
+          };
+          'schedule': {
+            '$url': {
+            };
+            '$get': OrgsIdEventsIdScheduleGetHead;
+            '$head': OrgsIdEventsIdScheduleGetHead;
           };
         };
         '$get': OrgsIdEventsGetHead;
