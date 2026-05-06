@@ -45,7 +45,7 @@ interface DancerTableProps<T> {
   columns: ColumnDef<T>[];
   isLoading: boolean;
   emptyState: ReactNode;
-  onRowClick: (row: T) => void;
+  onRowClick?: (row: T) => void;
   renderCard: (row: T) => ReactNode;
   globalFilter?: string;
   sorting?: SortingState;
@@ -289,9 +289,9 @@ export function DancerTable<T extends { rosterId: string }>({
             ) : paginatedRows.length ? (
               paginatedRows.map((row) => (
                 <TableRow
-                  className="group/row cursor-pointer"
+                  className={`group/row${onRowClick ? " cursor-pointer" : ""}`}
                   key={row.id}
-                  onClick={() => onRowClick(row.original)}
+                  onClick={onRowClick ? () => onRowClick(row.original) : undefined}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

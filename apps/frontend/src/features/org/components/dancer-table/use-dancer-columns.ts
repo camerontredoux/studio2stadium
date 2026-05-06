@@ -14,7 +14,6 @@ import {
   notePreviewColumn,
   selectColumn,
   ratingQuickActionColumn,
-  notesQuickActionColumn,
   type SearchDancerRow,
   type FavoriteDancerRow,
   type RankedDancerRow,
@@ -25,7 +24,6 @@ export function useSearchColumns(
   opts?: {
     enableSelection?: boolean;
     onRate?: (rosterId: string, rating: number) => void;
-    onOpenNotes?: (rosterId: string) => void;
   },
 ): ColumnDef<SearchDancerRow>[] {
   return useMemo(() => {
@@ -50,17 +48,11 @@ export function useSearchColumns(
     }
 
     cols.push(favoriteToggleColumn(onFavoriteToggle));
-
-    if (opts?.onOpenNotes) {
-      cols.push(notesQuickActionColumn(opts.onOpenNotes));
-    } else {
-      cols.push(notesIndicatorColumn as ColumnDef<SearchDancerRow>);
-    }
-
+    cols.push(notesIndicatorColumn as ColumnDef<SearchDancerRow>);
     cols.push(schoolInterestColumn);
 
     return cols;
-  }, [onFavoriteToggle, opts?.enableSelection, opts?.onRate, opts?.onOpenNotes]);
+  }, [onFavoriteToggle, opts?.enableSelection, opts?.onRate]);
 }
 
 export function useFavoritesColumns(): ColumnDef<FavoriteDancerRow>[] {
