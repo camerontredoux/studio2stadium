@@ -1,3 +1,4 @@
+import type { RefObject } from "react";
 import { SearchIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +36,7 @@ interface DancerFilterToolbarProps {
   schoolName: string | null;
   availableYears: number[];
   availableStates: string[];
+  searchRef?: RefObject<HTMLInputElement | null>;
 }
 
 export function DancerFilterToolbar({
@@ -51,6 +53,7 @@ export function DancerFilterToolbar({
   schoolName,
   availableYears,
   availableStates,
+  searchRef,
 }: DancerFilterToolbarProps) {
   const hasActiveFilters =
     yearFilter !== null ||
@@ -72,6 +75,7 @@ export function DancerFilterToolbar({
           <SearchIcon />
         </InputGroupAddon>
         <InputGroupInput
+          ref={searchRef}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search by name or bib #..."
