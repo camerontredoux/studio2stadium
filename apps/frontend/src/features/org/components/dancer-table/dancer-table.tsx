@@ -48,6 +48,7 @@ interface DancerTableProps<T> {
   renderCard: (row: T) => ReactNode;
   globalFilter?: string;
   sorting?: SortingState;
+  onSortingChange?: OnChangeFn<SortingState>;
   pageSize?: number;
   enableSelection?: boolean;
   rowSelection?: RowSelectionState;
@@ -62,7 +63,8 @@ export function DancerTable<T extends { rosterId: string }>({
   onRowClick,
   renderCard,
   globalFilter,
-  sorting: initialSorting,
+  sorting: sortingProp,
+  onSortingChange: onSortingChangeProp,
   pageSize = 25,
   enableSelection,
   rowSelection,
@@ -72,7 +74,10 @@ export function DancerTable<T extends { rosterId: string }>({
     pageIndex: 0,
     pageSize,
   });
-  const [sorting, setSorting] = useState<SortingState>(initialSorting ?? []);
+  const [internalSorting, setInternalSorting] = useState<SortingState>(sortingProp ?? []);
+  const isControlled = onSortingChangeProp !== undefined;
+  const sorting = isControlled ? (sortingProp ?? []) : internalSorting;
+  const setSorting = isControlled ? onSortingChangeProp : setInternalSorting;
 
   const table = useReactTable({
     columns,
