@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Heart } from "lucide-react";
+import { Heart, PencilIcon, StarIcon } from "lucide-react";
 import { Rating, RatingItem } from "@/components/ui/rating";
 
 export interface DancerRow {
@@ -17,7 +17,8 @@ export interface DancerRow {
 export interface SearchDancerRow extends DancerRow {
   interestedInMySchool: boolean;
   isFavorited: boolean;
-  hasNotes: boolean;
+  hasNote: boolean;
+  rating: number | null;
 }
 
 export interface FavoriteDancerRow extends DancerRow {
@@ -87,7 +88,7 @@ export function favoriteToggleColumn(
 ): ColumnDef<SearchDancerRow> {
   return {
     id: "favorite",
-    header: () => <Heart className="text-muted-foreground size-4" />,
+    header: () => <Heart className="text-muted-foreground size-4" title="Favorite" />,
     size: 40,
     enableSorting: false,
     cell: ({ row }) => (
@@ -116,14 +117,16 @@ export function favoriteToggleColumn(
 
 export const notesIndicatorColumn: ColumnDef<{
   hasNotes?: boolean;
+  hasNote?: boolean;
   note?: string | null;
 }> = {
   id: "notes",
-  header: () => <span className="text-muted-foreground text-xs">{"✎"}</span>,
+  header: () => <PencilIcon className="size-3.5 text-muted-foreground" title="Notes" />,
   size: 40,
   enableSorting: false,
   cell: ({ row }) => {
     const has =
+      (row.original as { hasNote?: boolean }).hasNote ??
       (row.original as { hasNotes?: boolean }).hasNotes ??
       (row.original as { note?: string | null }).note != null;
     return has ? (
@@ -134,7 +137,7 @@ export const notesIndicatorColumn: ColumnDef<{
 
 export const schoolInterestColumn: ColumnDef<SearchDancerRow> = {
   id: "schoolInterest",
-  header: () => <span className="text-muted-foreground text-xs">{"⭐"}</span>,
+  header: () => <StarIcon className="size-3.5 text-muted-foreground" title="Interested in your school" />,
   size: 40,
   enableSorting: false,
   cell: ({ row }) =>

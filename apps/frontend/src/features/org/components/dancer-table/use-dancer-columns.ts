@@ -27,6 +27,7 @@ export function useSearchColumns(
       gradYearColumn as ColumnDef<SearchDancerRow>,
       studioColumn as ColumnDef<SearchDancerRow>,
       gpaColumn as ColumnDef<SearchDancerRow>,
+      ratingDisplayColumn() as ColumnDef<SearchDancerRow>,
       favoriteToggleColumn(onFavoriteToggle),
       notesIndicatorColumn as ColumnDef<SearchDancerRow>,
       schoolInterestColumn,
