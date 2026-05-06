@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery } from "@tanstack/react-query";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { useOrg } from "@/features/org/context/use-org";
+import { Button } from "@/components/ui/button";
 import { FavoriteButton } from "./favorite-button";
 import { RatingInput } from "./rating-input";
 import { NotesEditor } from "./notes-editor";
@@ -17,23 +18,48 @@ interface DancerSheetProps {
   rosterId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  compareIds?: string[];
+  onToggleCompare?: (rosterId: string) => void;
 }
 
-export function DancerSheet({ rosterId, open, onOpenChange }: DancerSheetProps) {
+export function DancerSheet({
+  rosterId,
+  open,
+  onOpenChange,
+  compareIds = [],
+  onToggleCompare,
+}: DancerSheetProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetPopup side="right" variant="inset">
-        {rosterId && open && <DancerSheetContent rosterId={rosterId} />}
+        {rosterId && open && (
+          <DancerSheetContent
+            rosterId={rosterId}
+            compareIds={compareIds}
+            onToggleCompare={onToggleCompare}
+          />
+        )}
       </SheetPopup>
     </Sheet>
   );
 }
 
-function DancerSheetContent({ rosterId }: { rosterId: string }) {
+function DancerSheetContent({
+  rosterId,
+  compareIds,
+  onToggleCompare,
+}: {
+  rosterId: string;
+  compareIds: string[];
+  onToggleCompare?: (rosterId: string) => void;
+}) {
   const { org } = useOrg();
   const { data: dancer, isLoading } = useQuery(
     scoutingQueries.dancer(org.slug, rosterId),
   );
+
+  const isCompared = compareIds.includes(rosterId);
+  const compareFull = compareIds.length >= 3;
 
   if (isLoading || !dancer) {
     return (
@@ -84,6 +110,19 @@ function DancerSheetContent({ rosterId }: { rosterId: string }) {
               dancerRosterId={rosterId}
               isFavorited={dancer.isFavorited}
             />
+            {onToggleCompare && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onToggleCompare(rosterId)}
+                disabled={compareFull && !isCompared}
+                title={
+                  compareFull && !isCompared ? "Max 3 dancers" : undefined
+                }
+              >
+                {isCompared ? "Remove from Compare" : "Compare"}
+              </Button>
+            )}
           </div>
 
           <div>
