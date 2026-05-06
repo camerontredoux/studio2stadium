@@ -1,6 +1,7 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { eventRosters, eventDancerProfiles } from "#database/schema/org-events";
+import { eventFavorites, eventRatings, eventNotes } from "#database/schema/event-features";
 import { dancerProfiles } from "#database/schema/dancers";
 import { and, eq, ilike, or, sql } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
@@ -38,6 +39,34 @@ export class ListDancersService {
           )`
         : sql<boolean>`false`;
 
+      const isFavoritedSubquery = coachRosterId
+        ? sql<boolean>`EXISTS (
+            SELECT 1 FROM ${eventFavorites}
+            WHERE ${eventFavorites.dancerRosterId} = ${eventRosters.id}
+              AND ${eventFavorites.coachRosterId} = ${coachRosterId}
+              AND ${eventFavorites.eventId} = ${eventId}
+          )`
+        : sql<boolean>`false`;
+
+      const ratingSubquery = coachRosterId
+        ? sql<number | null>`(
+            SELECT ${eventRatings.rating} FROM ${eventRatings}
+            WHERE ${eventRatings.dancerRosterId} = ${eventRosters.id}
+              AND ${eventRatings.coachRosterId} = ${coachRosterId}
+              AND ${eventRatings.eventId} = ${eventId}
+            LIMIT 1
+          )`
+        : sql<number | null>`NULL`;
+
+      const hasNoteSubquery = coachRosterId
+        ? sql<boolean>`EXISTS (
+            SELECT 1 FROM ${eventNotes}
+            WHERE ${eventNotes.dancerRosterId} = ${eventRosters.id}
+              AND ${eventNotes.coachRosterId} = ${coachRosterId}
+              AND ${eventNotes.eventId} = ${eventId}
+          )`
+        : sql<boolean>`false`;
+
       if (q.interested && coachRosterId) {
         filters.push(
           sql`EXISTS (
@@ -69,6 +98,9 @@ export class ListDancersService {
           >`COALESCE(${eventDancerProfiles.studio}, ${dancerProfiles.studio})`,
           state: eventDancerProfiles.state,
           interestedInMySchool: interestedSubquery,
+          isFavorited: isFavoritedSubquery,
+          rating: ratingSubquery,
+          hasNote: hasNoteSubquery,
         })
         .from(eventRosters)
         .leftJoin(
