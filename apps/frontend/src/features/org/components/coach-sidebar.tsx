@@ -30,13 +30,11 @@ import {
   CheckIcon,
   ChevronDownIcon,
   EyeIcon,
-  HeartIcon,
   LogOutIcon,
   MonitorIcon,
   MoonIcon,
   SearchIcon,
   SunIcon,
-  TrophyIcon,
   UserIcon,
 } from "lucide-react";
 import { useTernaryDarkMode, type TernaryDarkMode } from "usehooks-ts";
@@ -56,21 +54,6 @@ const navSections = [
         label: "Dancers",
         icon: SearchIcon,
         to: "/$orgSlug/coach/dancers" as const,
-      },
-    ],
-  },
-  {
-    title: "My Lists",
-    items: [
-      {
-        label: "Favorites",
-        icon: HeartIcon,
-        to: "/$orgSlug/coach/favorites" as const,
-      },
-      {
-        label: "Rankings",
-        icon: TrophyIcon,
-        to: "/$orgSlug/coach/rankings" as const,
       },
     ],
   },
