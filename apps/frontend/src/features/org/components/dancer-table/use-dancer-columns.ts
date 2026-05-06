@@ -12,6 +12,9 @@ import {
   ratingDisplayColumn,
   rankColumn,
   notePreviewColumn,
+  selectColumn,
+  ratingQuickActionColumn,
+  notesQuickActionColumn,
   type SearchDancerRow,
   type FavoriteDancerRow,
   type RankedDancerRow,
@@ -19,21 +22,45 @@ import {
 
 export function useSearchColumns(
   onFavoriteToggle: (rosterId: string, current: boolean) => void,
+  opts?: {
+    enableSelection?: boolean;
+    onRate?: (rosterId: string, rating: number) => void;
+    onOpenNotes?: (rosterId: string) => void;
+  },
 ): ColumnDef<SearchDancerRow>[] {
-  return useMemo(
-    () => [
+  return useMemo(() => {
+    const cols: ColumnDef<SearchDancerRow>[] = [];
+
+    if (opts?.enableSelection) {
+      cols.push(selectColumn<SearchDancerRow>());
+    }
+
+    cols.push(
       bibColumn as ColumnDef<SearchDancerRow>,
       nameColumn as ColumnDef<SearchDancerRow>,
       gradYearColumn as ColumnDef<SearchDancerRow>,
       studioColumn as ColumnDef<SearchDancerRow>,
       gpaColumn as ColumnDef<SearchDancerRow>,
-      ratingDisplayColumn() as ColumnDef<SearchDancerRow>,
-      favoriteToggleColumn(onFavoriteToggle),
-      notesIndicatorColumn as ColumnDef<SearchDancerRow>,
-      schoolInterestColumn,
-    ],
-    [onFavoriteToggle],
-  );
+    );
+
+    if (opts?.onRate) {
+      cols.push(ratingQuickActionColumn(opts.onRate));
+    } else {
+      cols.push(ratingDisplayColumn() as ColumnDef<SearchDancerRow>);
+    }
+
+    cols.push(favoriteToggleColumn(onFavoriteToggle));
+
+    if (opts?.onOpenNotes) {
+      cols.push(notesQuickActionColumn(opts.onOpenNotes));
+    } else {
+      cols.push(notesIndicatorColumn as ColumnDef<SearchDancerRow>);
+    }
+
+    cols.push(schoolInterestColumn);
+
+    return cols;
+  }, [onFavoriteToggle, opts?.enableSelection, opts?.onRate, opts?.onOpenNotes]);
 }
 
 export function useFavoritesColumns(): ColumnDef<FavoriteDancerRow>[] {
