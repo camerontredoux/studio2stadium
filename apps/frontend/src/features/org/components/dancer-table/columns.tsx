@@ -1,6 +1,9 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Heart, PencilIcon, StarIcon } from "lucide-react";
+import { CheckIcon, Heart, PencilIcon, StarIcon } from "lucide-react";
 import { Rating, RatingItem } from "@/components/ui/rating";
+import { Tooltip, TooltipPopup, TooltipTrigger } from "@/components/ui/tooltip";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/components/utils/cn";
 
 export interface DancerRow {
   rosterId: string;
@@ -98,7 +101,7 @@ export function favoriteToggleColumn(
           e.stopPropagation();
           onToggle(row.original.rosterId, row.original.isFavorited);
         }}
-        className="flex items-center justify-center"
+        className="flex cursor-pointer items-center justify-center"
         aria-label={
           row.original.isFavorited ? "Unfavorite" : "Favorite"
         }
@@ -130,7 +133,12 @@ export const notesIndicatorColumn: ColumnDef<{
       (row.original as { hasNotes?: boolean }).hasNotes ??
       (row.original as { note?: string | null }).note != null;
     return has ? (
-      <span className="bg-primary inline-block size-2 rounded-full" />
+      <Tooltip delay={0}>
+        <TooltipTrigger render={<span />}>
+          <CheckIcon className="text-primary size-3.5" />
+        </TooltipTrigger>
+        <TooltipPopup>You have notes for this dancer</TooltipPopup>
+      </Tooltip>
     ) : null;
   },
 };
@@ -145,6 +153,109 @@ export const schoolInterestColumn: ColumnDef<SearchDancerRow> = {
       <span className="text-amber-500">{"★"}</span>
     ) : null,
 };
+
+export function selectColumn<T>(): ColumnDef<T> {
+  return {
+    id: "select",
+    size: 40,
+    enableSorting: false,
+    header: ({ table }) => (
+      <Checkbox
+        checked={table.getIsAllPageRowsSelected()}
+        indeterminate={table.getIsSomePageRowsSelected()}
+        onCheckedChange={(checked) =>
+          table.toggleAllPageRowsSelected(!!checked)
+        }
+        onClick={(e: React.MouseEvent) => e.stopPropagation()}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(checked) => row.toggleSelected(!!checked)}
+        onClick={(e: React.MouseEvent) => e.stopPropagation()}
+        aria-label="Select row"
+      />
+    ),
+  };
+}
+
+export function ratingQuickActionColumn(
+  onRate: (rosterId: string, rating: number) => void,
+): ColumnDef<SearchDancerRow> {
+  return {
+    accessorKey: "rating",
+    header: "Rating",
+    size: 120,
+    cell: ({ row }) => {
+      const rating = row.original.rating;
+      return (
+        <div
+          className="flex items-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {rating == null && (
+            <span className="text-muted-foreground text-sm group-hover/row:hidden group-focus-within/row:hidden">
+              —
+            </span>
+          )}
+          <Rating
+            size="sm"
+            value={rating ?? 0}
+            onValueChange={(v) => onRate(row.original.rosterId, v)}
+            className={cn(
+              "transition-opacity",
+              rating == null
+                ? "hidden group-hover/row:flex group-focus-within/row:flex"
+                : "pointer-events-none group-hover/row:pointer-events-auto group-focus-within/row:pointer-events-auto",
+            )}
+          >
+            {Array.from({ length: 5 }, (_, i) => (
+              <RatingItem key={i} index={i} />
+            ))}
+          </Rating>
+        </div>
+      );
+    },
+  };
+}
+
+export function notesQuickActionColumn(
+  onOpenNotes: (rosterId: string) => void,
+): ColumnDef<SearchDancerRow> {
+  return {
+    id: "notes",
+    header: () => (
+      <span title="Notes">
+        <PencilIcon className="text-muted-foreground size-3.5" />
+      </span>
+    ),
+    size: 40,
+    enableSorting: false,
+    cell: ({ row }) => {
+      const hasNote = row.original.hasNote;
+      return (
+        <div className="flex items-center justify-center">
+          {hasNote && (
+            <span className="bg-primary inline-block size-2 rounded-full group-hover/row:hidden group-focus-within/row:hidden" />
+          )}
+          <button
+            type="button"
+            className="hidden items-center justify-center group-hover/row:flex group-focus-within/row:flex"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenNotes(row.original.rosterId);
+            }}
+            aria-label="Edit notes"
+          >
+            <PencilIcon className="text-muted-foreground hover:text-foreground size-3.5 transition-colors" />
+          </button>
+        </div>
+      );
+    },
+  };
+}
 
 export function ratingDisplayColumn(): ColumnDef<{ rating: number | null }> {
   return {
