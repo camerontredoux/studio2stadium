@@ -224,7 +224,7 @@ export function DancerTable<T extends { rosterId: string }>({
 
       {/* Desktop Table View */}
       <Frame className="relative hidden w-full flex-1 sm:flex sm:flex-col *:data-[slot=table-container]:flex-1">
-        <Table>
+        <Table className={!isLoading && !paginatedRows.length ? "h-full" : ""}>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow className="hover:bg-transparent" key={headerGroup.id}>
@@ -312,7 +312,7 @@ export function DancerTable<T extends { rosterId: string }>({
             ) : (
               <TableRow>
                 <TableCell
-                  className="h-24 text-center"
+                  className="h-full text-center"
                   colSpan={columns.length}
                 >
                   {emptyState}

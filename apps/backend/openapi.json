@@ -11945,6 +11945,16 @@
               }
             ]
           },
+          "username": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "firstName": {
             "type": "string"
           },
@@ -12103,6 +12113,7 @@
         },
         "required": [
           "note",
+          "username",
           "firstName",
           "lastName",
           "location",

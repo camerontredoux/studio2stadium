@@ -25,23 +25,41 @@ interface DancerSheetProps {
   rosterId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onFavoriteToggle?: (rosterId: string, current: boolean) => void;
+  onSave?: (rosterId: string, saved: { rating?: number; hasNote?: boolean }) => void;
 }
 
 export function DancerSheet({
   rosterId,
   open,
   onOpenChange,
+  onFavoriteToggle,
+  onSave,
 }: DancerSheetProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetPopup side="right" variant="inset">
-        {rosterId && open && <DancerSheetContent rosterId={rosterId} />}
+        {rosterId && open && (
+          <DancerSheetContent
+            rosterId={rosterId}
+            onFavoriteToggle={onFavoriteToggle}
+            onSave={onSave}
+          />
+        )}
       </SheetPopup>
     </Sheet>
   );
 }
 
-function DancerSheetContent({ rosterId }: { rosterId: string }) {
+function DancerSheetContent({
+  rosterId,
+  onFavoriteToggle,
+  onSave,
+}: {
+  rosterId: string;
+  onFavoriteToggle?: (rosterId: string, current: boolean) => void;
+  onSave?: (rosterId: string, saved: { rating?: number; hasNote?: boolean }) => void;
+}) {
   const { org } = useOrg();
   const qc = useQueryClient();
   const { data: dancer, isLoading } = useQuery(
@@ -106,15 +124,32 @@ function DancerSheetContent({ rosterId }: { rosterId: string }) {
         });
       }
 
-      if (!notesFailed) setNotes(null);
-      if (!ratingFailed) setRating(undefined);
+      const dancerQueryKey = scoutingQueries.dancer(org.slug, rosterId).queryKey;
+
+      if (!notesFailed) {
+        qc.setQueryData(dancerQueryKey, (old: any) =>
+          old ? { ...old, note: trimmedNotes === "" ? null : currentNotes } : old,
+        );
+        setNotes(null);
+      }
+      if (!ratingFailed) {
+        qc.setQueryData(dancerQueryKey, (old: any) =>
+          old ? { ...old, rating: currentRating ?? 0 } : old,
+        );
+        setRating(undefined);
+      }
+
+      if (onSave) {
+        onSave(rosterId, {
+          rating: !ratingFailed ? (currentRating ?? 0) : undefined,
+          hasNote: !notesFailed ? trimmedNotes !== "" : undefined,
+        });
+      }
 
       qc.invalidateQueries({
         queryKey: scoutingQueries.dancers(org.slug).queryKey,
       });
-      qc.invalidateQueries({
-        queryKey: scoutingQueries.dancer(org.slug, rosterId).queryKey,
-      });
+      qc.invalidateQueries({ queryKey: dancerQueryKey });
       qc.invalidateQueries({
         queryKey: scoutingQueries.rankings(org.slug).queryKey,
       });
@@ -131,8 +166,7 @@ function DancerSheetContent({ rosterId }: { rosterId: string }) {
     );
   }
 
-  // username is added in backend but types haven't been regenerated yet
-  const username = (dancer as Record<string, unknown>).username as string | undefined;
+  const username = dancer.username;
 
   return (
     <>
@@ -179,8 +213,8 @@ function DancerSheetContent({ rosterId }: { rosterId: string }) {
         </div>
       </SheetHeader>
 
-      <SheetContent className="flex flex-col gap-4 px-4 py-3">
-        <div className="flex items-center">
+      <SheetContent className="flex flex-col gap-4 px-4 pt-5 pb-3">
+        <div className="flex items-center pt-2">
           <div className="flex-1">
             <RatingInput
               value={currentRating}
@@ -190,6 +224,7 @@ function DancerSheetContent({ rosterId }: { rosterId: string }) {
           <FavoriteButton
             dancerRosterId={rosterId}
             isFavorited={dancer.isFavorited}
+            onToggle={onFavoriteToggle}
           />
         </div>
 

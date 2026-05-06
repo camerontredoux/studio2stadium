@@ -8733,6 +8733,7 @@ export interface components {
         }[];
         OrgsIdDancersIdResponse: {
             note: string | null;
+            username: string | null;
             firstName: string;
             lastName: string;
             location: string | null;

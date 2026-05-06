@@ -8,29 +8,57 @@ import type { MouseEvent } from "react";
 export function FavoriteButton({
   dancerRosterId,
   isFavorited,
+  onToggle,
 }: {
   dancerRosterId: string;
   isFavorited: boolean;
+  onToggle?: (rosterId: string, current: boolean) => void;
 }) {
   const { org } = useOrg();
   const qc = useQueryClient();
   const dancerKey = scoutingQueries.dancer(org.slug, dancerRosterId).queryKey;
   const favKey = scoutingQueries.favorites(org.slug).queryKey;
 
+  const dancersPrefix = ["get", "/orgs/{slug}/dancers"] as const;
+
+  function setFavoritedInList(value: boolean) {
+    qc.setQueriesData({ queryKey: [...dancersPrefix] }, (old: any) =>
+      Array.isArray(old)
+        ? old.map((d: any) =>
+            d.rosterId === dancerRosterId ? { ...d, isFavorited: value } : d,
+          )
+        : old,
+    );
+  }
+
   const add = $api.useMutation("post", "/orgs/{slug}/favorites", {
     onMutate: async () => {
       await qc.cancelQueries({ queryKey: dancerKey });
+      await qc.cancelQueries({ queryKey: [...dancersPrefix] });
+      await qc.cancelQueries({ queryKey: favKey });
       const previousDancer = qc.getQueryData(dancerKey);
+      const previousFavs = qc.getQueryData(favKey);
       qc.setQueryData(dancerKey, (old: any) => {
         if (!old) return old;
         return { ...old, isFavorited: true };
       });
-      return { previousDancer };
+      setFavoritedInList(true);
+      qc.setQueryData(favKey, (old: any) => {
+        if (!Array.isArray(old)) return old;
+        const dancer = qc.getQueryData(dancerKey) as any;
+        if (!dancer) return old;
+        return [...old, { rosterId: dancerRosterId, bibNumber: dancer.bibNumber, firstName: dancer.firstName, lastName: dancer.lastName, profilePhotoUrl: dancer.profilePhotoUrl, gradYear: dancer.gradYear, studio: dancer.studio, state: dancer.state, gpa: dancer.gpa }];
+      });
+      return { previousDancer, previousFavs };
     },
     onError: (_err, _variables, context: any) => {
       if (context?.previousDancer) {
         qc.setQueryData(dancerKey, context.previousDancer);
       }
+      if (context?.previousFavs) {
+        qc.setQueryData(favKey, context.previousFavs);
+      }
+      setFavoritedInList(false);
     },
     meta: {
       invalidateQueries: [
@@ -47,17 +75,28 @@ export function FavoriteButton({
     {
       onMutate: async () => {
         await qc.cancelQueries({ queryKey: dancerKey });
+        await qc.cancelQueries({ queryKey: [...dancersPrefix] });
+        await qc.cancelQueries({ queryKey: favKey });
         const previousDancer = qc.getQueryData(dancerKey);
+        const previousFavs = qc.getQueryData(favKey);
         qc.setQueryData(dancerKey, (old: any) => {
           if (!old) return old;
           return { ...old, isFavorited: false };
         });
-        return { previousDancer };
+        setFavoritedInList(false);
+        qc.setQueryData(favKey, (old: any) =>
+          Array.isArray(old) ? old.filter((d: any) => d.rosterId !== dancerRosterId) : old,
+        );
+        return { previousDancer, previousFavs };
       },
       onError: (_err, _variables, context: any) => {
         if (context?.previousDancer) {
           qc.setQueryData(dancerKey, context.previousDancer);
         }
+        if (context?.previousFavs) {
+          qc.setQueryData(favKey, context.previousFavs);
+        }
+        setFavoritedInList(true);
       },
       meta: {
         invalidateQueries: [
@@ -73,6 +112,7 @@ export function FavoriteButton({
     e.preventDefault();
     e.stopPropagation();
     navigator.vibrate?.(10);
+    onToggle?.(dancerRosterId, isFavorited);
     if (isFavorited) {
       remove.mutate({
         params: { path: { slug: org.slug, dancerRosterId } },
@@ -89,12 +129,12 @@ export function FavoriteButton({
     <button
       type="button"
       onClick={toggle}
-      className="hover:bg-accent flex size-11 items-center justify-center rounded-full transition-colors"
+      className="cursor-pointer"
       aria-label={isFavorited ? "Unfavorite" : "Favorite"}
       aria-pressed={isFavorited}
     >
       <Heart
-        className={`size-5 ${isFavorited ? "fill-current text-red-500" : "text-muted-foreground"}`}
+        className={`size-5 transition-colors ${isFavorited ? "fill-red-500 text-red-500" : "text-muted-foreground hover:text-red-500"}`}
       />
     </button>
   );

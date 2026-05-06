@@ -112,10 +112,15 @@ function DancerSearch() {
   const qc = useQueryClient();
   const dancersKey = scoutingQueries.dancers(orgSlug, { interested: interested || undefined }).queryKey;
 
+  const favKey = scoutingQueries.favorites(orgSlug).queryKey;
+
   const addFav = $api.useMutation("post", "/orgs/{slug}/favorites", {
     onMutate: async ({ body }) => {
       await qc.cancelQueries({ queryKey: dancersKey });
+      await qc.cancelQueries({ queryKey: favKey });
       const previous = qc.getQueryData(dancersKey);
+      const previousFavs = qc.getQueryData(favKey);
+      const dancer = (dancers ?? []).find((d) => d.rosterId === body?.dancerRosterId);
       qc.setQueryData(dancersKey, (old: any) =>
         Array.isArray(old)
           ? old.map((d: any) =>
@@ -123,10 +128,16 @@ function DancerSearch() {
             )
           : old,
       );
-      return { previous };
+      if (dancer) {
+        qc.setQueryData(favKey, (old: any) =>
+          Array.isArray(old) ? [...old, { rosterId: dancer.rosterId, bibNumber: dancer.bibNumber, firstName: dancer.firstName, lastName: dancer.lastName, profilePhotoUrl: dancer.profilePhotoUrl, gradYear: dancer.gradYear, studio: dancer.studio, state: dancer.state, gpa: dancer.gpa }] : old,
+        );
+      }
+      return { previous, previousFavs };
     },
     onError: (_err, _vars, ctx: any) => {
       if (ctx?.previous) qc.setQueryData(dancersKey, ctx.previous);
+      if (ctx?.previousFavs) qc.setQueryData(favKey, ctx.previousFavs);
       toastManager.add({ title: "Couldn't favorite dancer", type: "error" });
     },
     meta: {
@@ -141,7 +152,9 @@ function DancerSearch() {
   const removeFav = $api.useMutation("delete", "/orgs/{slug}/favorites/{dancerRosterId}", {
     onMutate: async ({ params }) => {
       await qc.cancelQueries({ queryKey: dancersKey });
+      await qc.cancelQueries({ queryKey: favKey });
       const previous = qc.getQueryData(dancersKey);
+      const previousFavs = qc.getQueryData(favKey);
       qc.setQueryData(dancersKey, (old: any) =>
         Array.isArray(old)
           ? old.map((d: any) =>
@@ -149,10 +162,14 @@ function DancerSearch() {
             )
           : old,
       );
-      return { previous };
+      qc.setQueryData(favKey, (old: any) =>
+        Array.isArray(old) ? old.filter((d: any) => d.rosterId !== params?.path?.dancerRosterId) : old,
+      );
+      return { previous, previousFavs };
     },
     onError: (_err, _vars, ctx: any) => {
       if (ctx?.previous) qc.setQueryData(dancersKey, ctx.previous);
+      if (ctx?.previousFavs) qc.setQueryData(favKey, ctx.previousFavs);
       toastManager.add({ title: "Couldn't remove favorite", type: "error" });
     },
     meta: {
@@ -542,6 +559,28 @@ function DancerSearch() {
         open={sheetRosterId !== null}
         onOpenChange={(open) => {
           if (!open) setSheetRosterId(null);
+        }}
+        onFavoriteToggle={(rosterId, current) => {
+          const dancer = dancers?.find((d) => d.rosterId === rosterId);
+          if (dancer && !current) {
+            addActivity({
+              type: "favorite",
+              rosterId,
+              dancerName: `${dancer.firstName} ${dancer.lastName}`,
+              bibNumber: dancer.bibNumber,
+            });
+          }
+        }}
+        onSave={(rosterId, saved) => {
+          const dancer = dancers?.find((d) => d.rosterId === rosterId);
+          if (!dancer) return;
+          const meta = {
+            rosterId,
+            dancerName: `${dancer.firstName} ${dancer.lastName}`,
+            bibNumber: dancer.bibNumber,
+          };
+          if (saved.rating != null) addActivity({ ...meta, type: "rate", rating: saved.rating });
+          if (saved.hasNote) addActivity({ ...meta, type: "note" });
         }}
       />
     </div>
