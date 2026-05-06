@@ -88,7 +88,7 @@ export function favoriteToggleColumn(
 ): ColumnDef<SearchDancerRow> {
   return {
     id: "favorite",
-    header: () => <Heart className="text-muted-foreground size-4" title="Favorite" />,
+    header: () => <span title="Favorite"><Heart className="text-muted-foreground size-4" /></span>,
     size: 40,
     enableSorting: false,
     cell: ({ row }) => (
@@ -121,7 +121,7 @@ export const notesIndicatorColumn: ColumnDef<{
   note?: string | null;
 }> = {
   id: "notes",
-  header: () => <PencilIcon className="size-3.5 text-muted-foreground" title="Notes" />,
+  header: () => <span title="Notes"><PencilIcon className="size-3.5 text-muted-foreground" /></span>,
   size: 40,
   enableSorting: false,
   cell: ({ row }) => {
@@ -137,7 +137,7 @@ export const notesIndicatorColumn: ColumnDef<{
 
 export const schoolInterestColumn: ColumnDef<SearchDancerRow> = {
   id: "schoolInterest",
-  header: () => <StarIcon className="size-3.5 text-muted-foreground" title="Interested in your school" />,
+  header: () => <span title="Interested in your school"><StarIcon className="size-3.5 text-muted-foreground" /></span>,
   size: 40,
   enableSorting: false,
   cell: ({ row }) =>
