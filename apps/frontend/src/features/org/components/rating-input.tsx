@@ -20,23 +20,32 @@ export function RatingInput({
     "/orgs/{slug}/dancers/{dancerRosterId}/rating",
     {
       onMutate: async (variables) => {
+        const dancersPrefix = ["get", "/orgs/{slug}/dancers"] as const;
         await qc.cancelQueries({ queryKey: dancerKey });
-        const previous = qc.getQueryData(dancerKey);
-        qc.setQueryData(dancerKey, (old: any) => {
-          if (!old) return old;
-          return { ...old, rating: variables.body?.rating ?? null };
-        });
-        return { previous };
+        await qc.cancelQueries({ queryKey: [...dancersPrefix] });
+        const previousDancer = qc.getQueryData(dancerKey);
+        const rating = variables.body?.rating ?? null;
+        qc.setQueryData(dancerKey, (old: any) =>
+          old ? { ...old, rating } : old,
+        );
+        qc.setQueriesData({ queryKey: [...dancersPrefix] }, (old: any) =>
+          Array.isArray(old)
+            ? old.map((d: any) =>
+                d.rosterId === dancerRosterId ? { ...d, rating } : d,
+              )
+            : old,
+        );
+        return { previousDancer };
       },
       onError: (_err, _variables, context: any) => {
-        if (context?.previous) {
-          qc.setQueryData(dancerKey, context.previous);
+        if (context?.previousDancer) {
+          qc.setQueryData(dancerKey, context.previousDancer);
         }
+        qc.invalidateQueries({ queryKey: ["get", "/orgs/{slug}/dancers"] });
       },
       meta: {
         invalidateQueries: [
           scoutingQueries.rankings(org.slug).queryKey,
-          scoutingQueries.dancers(org.slug).queryKey,
         ],
       },
     },
