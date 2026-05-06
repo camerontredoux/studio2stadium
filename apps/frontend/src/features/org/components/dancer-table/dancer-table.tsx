@@ -6,7 +6,9 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  type OnChangeFn,
   type PaginationState,
+  type RowSelectionState,
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
@@ -47,6 +49,9 @@ interface DancerTableProps<T> {
   globalFilter?: string;
   sorting?: SortingState;
   pageSize?: number;
+  enableSelection?: boolean;
+  rowSelection?: RowSelectionState;
+  onRowSelectionChange?: OnChangeFn<RowSelectionState>;
 }
 
 export function DancerTable<T extends { rosterId: string }>({
@@ -59,6 +64,9 @@ export function DancerTable<T extends { rosterId: string }>({
   globalFilter,
   sorting: initialSorting,
   pageSize = 25,
+  enableSelection,
+  rowSelection,
+  onRowSelectionChange,
 }: DancerTableProps<T>) {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -70,17 +78,20 @@ export function DancerTable<T extends { rosterId: string }>({
     columns,
     data,
     enableSortingRemoval: false,
+    enableRowSelection: enableSelection,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onPaginationChange: setPagination,
+    onRowSelectionChange,
     onSortingChange: setSorting,
     globalFilterFn: "includesString",
     state: {
       pagination,
       sorting,
       globalFilter,
+      ...(rowSelection !== undefined && { rowSelection }),
     },
   });
 
@@ -271,7 +282,7 @@ export function DancerTable<T extends { rosterId: string }>({
             ) : paginatedRows.length ? (
               paginatedRows.map((row) => (
                 <TableRow
-                  className="cursor-pointer"
+                  className="group/row cursor-pointer"
                   key={row.id}
                   onClick={() => onRowClick(row.original)}
                 >
