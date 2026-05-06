@@ -12,11 +12,10 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon, Loader2Icon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Frame, FrameFooter } from "@/components/ui/frame";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Pagination,
   PaginationContent,
@@ -103,20 +102,22 @@ export function DancerTable<T extends { rosterId: string }>({
       {/* Mobile Card View */}
       <div className="flex flex-col gap-2 sm:hidden">
         {isLoading ? (
-          <div className="flex flex-col gap-2">
-            {Array.from({ length: 3 }, (_, i) => (
-              <div
-                key={`skeleton-card-${i}`}
-                className="flex flex-col gap-2 rounded-lg border p-3"
-              >
-                <div className="flex items-center justify-between">
-                  <Skeleton className="h-4 w-10 rounded" />
-                  <Skeleton className="size-4 rounded" />
+          <div className="relative">
+            <div className="pointer-events-none select-none blur-[2px] opacity-40">
+              {Array.from({ length: 3 }, (_, i) => (
+                <div
+                  key={`placeholder-${i}`}
+                  className="mb-2 rounded-lg border p-3"
+                >
+                  <div className="h-4 w-20 rounded bg-transparent" />
+                  <div className="mt-2 h-4 w-3/4 rounded bg-transparent" />
+                  <div className="mt-1 h-3 w-1/2 rounded bg-transparent" />
                 </div>
-                <Skeleton className="h-4 w-3/4 rounded" />
-                <Skeleton className="h-3 w-1/2 rounded" />
-              </div>
-            ))}
+              ))}
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+            </div>
           </div>
         ) : paginatedRows.length ? (
           <>
@@ -275,17 +276,26 @@ export function DancerTable<T extends { rosterId: string }>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
+          <TableBody className="relative">
             {isLoading ? (
-              Array.from({ length: 5 }, (_, i) => (
-                <TableRow key={`skeleton-${i}`} className="pointer-events-none">
-                  {Array.from({ length: columns.length }, (_, j) => (
-                    <TableCell key={`skeleton-${i}-${j}`}>
-                      <Skeleton className="h-4 w-full rounded" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+              <>
+                {Array.from({ length: 5 }, (_, i) => (
+                  <TableRow key={`placeholder-${i}`} className="pointer-events-none opacity-0">
+                    {Array.from({ length: columns.length }, (_, j) => (
+                      <TableCell key={`placeholder-${i}-${j}`}>
+                        &nbsp;
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+                <tr className="absolute inset-0">
+                  <td>
+                    <div className="flex h-full items-center justify-center">
+                      <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+                    </div>
+                  </td>
+                </tr>
+              </>
             ) : paginatedRows.length ? (
               paginatedRows.map((row) => (
                 <TableRow
