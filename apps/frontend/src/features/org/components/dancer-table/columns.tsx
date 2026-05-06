@@ -37,16 +37,6 @@ export interface SearchDancerRow extends DancerRow {
   rating: number | null;
 }
 
-export interface FavoriteDancerRow extends DancerRow {
-  rating: number | null;
-  hasNotes: boolean;
-}
-
-export interface RankedDancerRow extends DancerRow {
-  rating: number | null;
-  note: string | null;
-  isFavorited: boolean;
-}
 
 export const bibColumn: ColumnDef<DancerRow> = {
   accessorKey: "bibNumber",
@@ -283,26 +273,16 @@ export function ratingDisplayColumn(): ColumnDef<{ rating: number | null }> {
   };
 }
 
-export const rankColumn: ColumnDef<RankedDancerRow> = {
-  id: "rank",
-  header: "#",
-  size: 40,
-  enableSorting: false,
-  cell: ({ row }) => (
-    <span className="text-muted-foreground font-mono text-sm">
-      {row.index + 1}
-    </span>
-  ),
-};
-
-export const notePreviewColumn: ColumnDef<RankedDancerRow> = {
-  id: "notePreview",
-  header: "Note",
-  enableSorting: false,
-  cell: ({ row }) =>
-    row.original.note ? (
-      <span className="text-muted-foreground line-clamp-1 text-sm">
-        {row.original.note}
+export function rankColumn<T>(): ColumnDef<T> {
+  return {
+    id: "rank",
+    header: "#",
+    size: 40,
+    enableSorting: false,
+    cell: ({ row }) => (
+      <span className="text-muted-foreground font-mono text-sm">
+        {row.index + 1}
       </span>
-    ) : null,
-};
+    ),
+  };
+}

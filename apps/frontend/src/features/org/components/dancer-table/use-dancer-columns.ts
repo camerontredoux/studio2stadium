@@ -7,17 +7,13 @@ import {
   studioColumn,
   gpaColumn,
   favoriteToggleColumn,
-  notesIndicatorColumn,
   notesQuickActionColumn,
   schoolInterestColumn,
-  ratingDisplayColumn,
   rankColumn,
-  notePreviewColumn,
   selectColumn,
   ratingQuickActionColumn,
+  ratingDisplayColumn,
   type SearchDancerRow,
-  type FavoriteDancerRow,
-  type RankedDancerRow,
 } from "./columns";
 
 export function useSearchColumns(
@@ -53,42 +49,10 @@ export function useSearchColumns(
 
     if (opts?.onOpenNotes) {
       cols.push(notesQuickActionColumn(opts.onOpenNotes) as ColumnDef<SearchDancerRow>);
-    } else {
-      cols.push(notesIndicatorColumn as ColumnDef<SearchDancerRow>);
     }
 
     cols.push(schoolInterestColumn);
 
     return cols;
   }, [onFavoriteToggle, opts?.enableSelection, opts?.onRate, opts?.onOpenNotes]);
-}
-
-export function useFavoritesColumns(): ColumnDef<FavoriteDancerRow>[] {
-  return useMemo(
-    () => [
-      bibColumn as ColumnDef<FavoriteDancerRow>,
-      nameColumn as ColumnDef<FavoriteDancerRow>,
-      gradYearColumn as ColumnDef<FavoriteDancerRow>,
-      studioColumn as ColumnDef<FavoriteDancerRow>,
-      gpaColumn as ColumnDef<FavoriteDancerRow>,
-      ratingDisplayColumn() as ColumnDef<FavoriteDancerRow>,
-      notesIndicatorColumn as ColumnDef<FavoriteDancerRow>,
-    ],
-    [],
-  );
-}
-
-export function useRankingsColumns(): ColumnDef<RankedDancerRow>[] {
-  return useMemo(
-    () => [
-      rankColumn,
-      bibColumn as ColumnDef<RankedDancerRow>,
-      nameColumn as ColumnDef<RankedDancerRow>,
-      gradYearColumn as ColumnDef<RankedDancerRow>,
-      gpaColumn as ColumnDef<RankedDancerRow>,
-      ratingDisplayColumn() as ColumnDef<RankedDancerRow>,
-      notePreviewColumn,
-    ],
-    [],
-  );
 }
