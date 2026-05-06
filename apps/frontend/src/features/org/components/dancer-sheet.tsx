@@ -162,7 +162,9 @@ function DancerSheetContent({ rosterId }: { rosterId: string }) {
                 .filter(Boolean)
                 .join(" · ")}
             </p>
-            {dancer.isRegistered && username ? (
+            {!dancer.isRegistered ? (
+              <Badge variant="error">Unregistered</Badge>
+            ) : username ? (
               <Link
                 to="/$username"
                 params={{ username }}
@@ -170,9 +172,7 @@ function DancerSheetContent({ rosterId }: { rosterId: string }) {
               >
                 Visit Profile →
               </Link>
-            ) : (
-              <Badge variant="error">Unregistered</Badge>
-            )}
+            ) : null}
           </div>
         </div>
       </SheetHeader>
