@@ -1,6 +1,6 @@
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useDeferredValue, useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import {
   HeartIcon,
@@ -19,6 +19,8 @@ import { useSearchColumns } from "@/features/org/components/dancer-table/use-dan
 import type { SearchDancerRow } from "@/features/org/components/dancer-table/columns";
 import { StatCell, SidebarSection } from "@/features/org/components/dashboard-shared";
 import { Rating, RatingItem } from "@/components/ui/rating";
+import type { RowSelectionState } from "@tanstack/react-table";
+import { FloatingActionBar } from "@/features/org/components/floating-action-bar";
 
 export const Route = createFileRoute(
   "/_org/$orgSlug/_authenticated/coach/dancers/",
@@ -57,6 +59,12 @@ function DancerSearch() {
   const [interested, setInterested] = useState(false);
   const deferredSearch = useDeferredValue(search);
 
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
+  useEffect(() => {
+    setRowSelection({});
+  }, [yearFilter, gpaFilter, stateFilter, interested]);
+
   /* --- Data --- */
   const { data: dancers, isLoading } = useQuery(
     scoutingQueries.dancers(orgSlug, { interested: interested || undefined }),
@@ -80,6 +88,9 @@ function DancerSearch() {
   const addActivity = useCallback((item: Omit<ActivityItem, "timestamp">) => {
     setActivity((prev) => [{ ...item, timestamp: new Date() }, ...prev].slice(0, 5));
   }, []);
+
+  /* --- Sheet --- */
+  const [sheetRosterId, setSheetRosterId] = useState<string | null>(null);
 
   /* --- Favorite toggle (optimistic on dancers list) --- */
   const qc = useQueryClient();
@@ -135,6 +146,36 @@ function DancerSearch() {
     },
   });
 
+  const upsertRating = $api.useMutation(
+    "put",
+    "/orgs/{slug}/dancers/{dancerRosterId}/rating",
+    {
+      onMutate: async ({ params, body }) => {
+        await qc.cancelQueries({ queryKey: dancersKey });
+        const previous = qc.getQueryData(dancersKey);
+        qc.setQueryData(dancersKey, (old: any) =>
+          Array.isArray(old)
+            ? old.map((d: any) =>
+                d.rosterId === params?.path?.dancerRosterId
+                  ? { ...d, rating: body?.rating ?? null }
+                  : d,
+              )
+            : old,
+        );
+        return { previous };
+      },
+      onError: (_err, _vars, ctx: any) => {
+        if (ctx?.previous) qc.setQueryData(dancersKey, ctx.previous);
+      },
+      meta: {
+        invalidateQueries: [
+          dancersKey,
+          scoutingQueries.rankings(orgSlug).queryKey,
+        ],
+      },
+    },
+  );
+
   const handleFavoriteToggle = useCallback(
     (rosterId: string, current: boolean) => {
       const dancer = dancers?.find((d) => d.rosterId === rosterId);
@@ -160,7 +201,38 @@ function DancerSearch() {
     [orgSlug, addFav, removeFav, dancers, addActivity],
   );
 
-  const columns = useSearchColumns(handleFavoriteToggle);
+  const handleRate = useCallback(
+    (rosterId: string, rating: number) => {
+      const dancer = dancers?.find((d) => d.rosterId === rosterId);
+      upsertRating.mutate({
+        params: { path: { slug: orgSlug, dancerRosterId: rosterId } },
+        body: { rating },
+      });
+      if (dancer) {
+        addActivity({
+          type: "rate",
+          rosterId,
+          dancerName: `${dancer.firstName} ${dancer.lastName}`,
+          bibNumber: dancer.bibNumber,
+          rating,
+        });
+      }
+    },
+    [orgSlug, upsertRating, dancers, addActivity],
+  );
+
+  const handleOpenNotes = useCallback(
+    (rosterId: string) => {
+      setSheetRosterId(rosterId);
+    },
+    [],
+  );
+
+  const columns = useSearchColumns(handleFavoriteToggle, {
+    enableSelection: true,
+    onRate: handleRate,
+    onOpenNotes: handleOpenNotes,
+  });
 
   /* --- Derived filter options --- */
   const availableYears = useMemo(() => {
@@ -208,6 +280,71 @@ function DancerSearch() {
     return result;
   }, [dancers, yearFilter, gpaFilter, stateFilter]);
 
+  const selectedRosterIds = useMemo(() => {
+    return Object.keys(rowSelection)
+      .filter((k) => rowSelection[k])
+      .map((idx) => filteredData[Number(idx)]?.rosterId)
+      .filter(Boolean);
+  }, [rowSelection, filteredData]);
+
+  const [isBulkLoading, setIsBulkLoading] = useState(false);
+
+  const handleBulkFavorite = useCallback(async () => {
+    setIsBulkLoading(true);
+    try {
+      await Promise.allSettled(
+        selectedRosterIds.map((rosterId) => {
+          const dancer = dancers?.find((d) => d.rosterId === rosterId);
+          if (dancer) {
+            addActivity({
+              type: "favorite",
+              rosterId,
+              dancerName: `${dancer.firstName} ${dancer.lastName}`,
+              bibNumber: dancer.bibNumber,
+            });
+          }
+          return addFav.mutateAsync({
+            params: { path: { slug: orgSlug } },
+            body: { dancerRosterId: rosterId },
+          });
+        }),
+      );
+    } finally {
+      setIsBulkLoading(false);
+      setRowSelection({});
+    }
+  }, [selectedRosterIds, dancers, addFav, orgSlug, addActivity]);
+
+  const handleBulkRate = useCallback(
+    async (rating: number) => {
+      setIsBulkLoading(true);
+      try {
+        await Promise.allSettled(
+          selectedRosterIds.map((rosterId) => {
+            const dancer = dancers?.find((d) => d.rosterId === rosterId);
+            if (dancer) {
+              addActivity({
+                type: "rate",
+                rosterId,
+                dancerName: `${dancer.firstName} ${dancer.lastName}`,
+                bibNumber: dancer.bibNumber,
+                rating,
+              });
+            }
+            return upsertRating.mutateAsync({
+              params: { path: { slug: orgSlug, dancerRosterId: rosterId } },
+              body: { rating },
+            });
+          }),
+        );
+      } finally {
+        setIsBulkLoading(false);
+        setRowSelection({});
+      }
+    },
+    [selectedRosterIds, dancers, upsertRating, orgSlug, addActivity],
+  );
+
   /* --- Stats --- */
   const dancerCount = dancers?.length ?? 0;
   const favCount = favorites?.length ?? 0;
@@ -222,9 +359,6 @@ function DancerSearch() {
   }, [dancers]);
 
   const reviewedCount = dancerCount - toReviewCount;
-
-  /* --- Sheet --- */
-  const [sheetRosterId, setSheetRosterId] = useState<string | null>(null);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto xl:flex-row xl:overflow-hidden">
@@ -287,9 +421,21 @@ function DancerSearch() {
               />
             )}
             sorting={[{ id: "name", desc: false }]}
+            enableSelection
+            rowSelection={rowSelection}
+            onRowSelectionChange={setRowSelection}
           />
         </div>
       </div>
+
+      <FloatingActionBar
+        selectedCount={selectedRosterIds.length}
+        isVisible={selectedRosterIds.length > 0}
+        onFavoriteAll={handleBulkFavorite}
+        onRateAll={handleBulkRate}
+        onClear={() => setRowSelection({})}
+        isLoading={isBulkLoading}
+      />
 
       {/* Sidebar */}
       <ScoutingSidebar
