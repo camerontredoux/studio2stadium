@@ -236,13 +236,6 @@ function DancerSearch() {
     [orgSlug, upsertRating, dancers, addActivity],
   );
 
-  const handleOpenNotes = useCallback(
-    (rosterId: string) => {
-      setSheetRosterId(rosterId);
-    },
-    [],
-  );
-
   const columns = useSearchColumns(handleFavoriteToggle, {
     enableSelection: true,
     onRate: handleRate,
@@ -472,7 +465,6 @@ function DancerSearch() {
                       : "No dancers registered for this event yet."}
                   </p>
                 }
-                onRowClick={(row) => setSheetRosterId(row.rosterId)}
                 renderCard={(row) => (
                   <DancerCard
                     dancer={row}
@@ -596,27 +588,6 @@ function ScoutingSidebar({
 /* ------------------------------------------------------------------ */
 
 function TalentPoolBreakdown({ dancers, isLoading }: { dancers: DancerData[]; isLoading?: boolean }) {
-  if (isLoading) {
-    return (
-      <SidebarSection title="Talent pool">
-        <div className="flex flex-col gap-3">
-          {Array.from({ length: 3 }, (_, section) => (
-            <div key={section} className="flex flex-col gap-1">
-              <Skeleton className="mb-1.5 h-2.5 w-16 rounded" />
-              {Array.from({ length: 3 }, (_, row) => (
-                <div key={row} className="flex items-center gap-2">
-                  <Skeleton className="h-3 w-10 rounded" />
-                  <Skeleton className="h-1.5 flex-1 rounded-full" />
-                  <Skeleton className="h-3 w-6 rounded" />
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      </SidebarSection>
-    );
-  }
-
   const yearDist = useMemo(() => {
     const counts = new Map<number, number>();
     for (const d of dancers) {
@@ -657,6 +628,27 @@ function TalentPoolBreakdown({ dancers, isLoading }: { dancers: DancerData[]; is
     const remaining = sorted.length - 5;
     return { top5, remaining };
   }, [dancers]);
+
+  if (isLoading) {
+    return (
+      <SidebarSection title="Talent pool">
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: 3 }, (_, section) => (
+            <div key={section} className="flex flex-col gap-1">
+              <Skeleton className="mb-1.5 h-2.5 w-16 rounded" />
+              {Array.from({ length: 3 }, (_, row) => (
+                <div key={row} className="flex items-center gap-2">
+                  <Skeleton className="h-3 w-10 rounded" />
+                  <Skeleton className="h-1.5 flex-1 rounded-full" />
+                  <Skeleton className="h-3 w-6 rounded" />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </SidebarSection>
+    );
+  }
 
   if (dancers.length === 0) return null;
 
