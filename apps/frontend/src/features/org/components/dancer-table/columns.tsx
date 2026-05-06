@@ -235,7 +235,7 @@ export function notesQuickActionColumn(
   return {
     id: "notes",
     header: () => (
-      <span title="Notes">
+      <span className="flex items-center justify-center" title="Notes">
         <PencilIcon className="text-muted-foreground size-3.5" />
       </span>
     ),
@@ -248,7 +248,7 @@ export function notesQuickActionColumn(
         <div className="flex items-center justify-center">
           <button
             type="button"
-            className="text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
+            className="text-muted-foreground hover:text-foreground flex cursor-pointer items-center justify-center transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               onOpenNotes(row.original.rosterId);

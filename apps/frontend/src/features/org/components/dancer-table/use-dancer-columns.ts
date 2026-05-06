@@ -8,6 +8,7 @@ import {
   gpaColumn,
   favoriteToggleColumn,
   notesIndicatorColumn,
+  notesQuickActionColumn,
   schoolInterestColumn,
   ratingDisplayColumn,
   rankColumn,
@@ -24,6 +25,7 @@ export function useSearchColumns(
   opts?: {
     enableSelection?: boolean;
     onRate?: (rosterId: string, rating: number) => void;
+    onOpenNotes?: (rosterId: string) => void;
   },
 ): ColumnDef<SearchDancerRow>[] {
   return useMemo(() => {
@@ -48,11 +50,17 @@ export function useSearchColumns(
     }
 
     cols.push(favoriteToggleColumn(onFavoriteToggle));
-    cols.push(notesIndicatorColumn as ColumnDef<SearchDancerRow>);
+
+    if (opts?.onOpenNotes) {
+      cols.push(notesQuickActionColumn(opts.onOpenNotes) as ColumnDef<SearchDancerRow>);
+    } else {
+      cols.push(notesIndicatorColumn as ColumnDef<SearchDancerRow>);
+    }
+
     cols.push(schoolInterestColumn);
 
     return cols;
-  }, [onFavoriteToggle, opts?.enableSelection, opts?.onRate]);
+  }, [onFavoriteToggle, opts?.enableSelection, opts?.onRate, opts?.onOpenNotes]);
 }
 
 export function useFavoritesColumns(): ColumnDef<FavoriteDancerRow>[] {
