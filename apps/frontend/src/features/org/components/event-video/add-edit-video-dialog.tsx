@@ -113,7 +113,7 @@ export function AddEditVideoDialog({
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Hip Hop Combo – Week 1"
             />
-            <FieldError error={errors.title ? { message: errors.title } : undefined} />
+            <FieldError error={errors.title ? { type: "validate", message: errors.title } : undefined} />
           </Field>
 
           <Field invalid={!!errors.categoryId}>
@@ -134,7 +134,7 @@ export function AddEditVideoDialog({
                 ))}
               </SelectContent>
             </Select>
-            <FieldError error={errors.categoryId ? { message: errors.categoryId } : undefined} />
+            <FieldError error={errors.categoryId ? { type: "validate", message: errors.categoryId } : undefined} />
           </Field>
 
           <Field invalid={!!errors.youtubeUrl}>
@@ -144,7 +144,7 @@ export function AddEditVideoDialog({
               onChange={(e) => setYoutubeUrl(e.target.value)}
               placeholder="https://www.youtube.com/watch?v=..."
             />
-            <FieldError error={errors.youtubeUrl ? { message: errors.youtubeUrl } : undefined} />
+            <FieldError error={errors.youtubeUrl ? { type: "validate", message: errors.youtubeUrl } : undefined} />
           </Field>
 
           {youtubeId && (
