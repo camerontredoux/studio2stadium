@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useDeferredValue, useMemo, useState } from "react";
 import { StatCell } from "@/features/org/components/dashboard-shared";
 import { EventVideoGrid } from "@/features/org/components/event-video/event-video-grid";
@@ -37,10 +37,10 @@ function AdminVideoLibrary() {
   const activeEvent = events.find((e) => e.isActive);
   const eventId = activeEvent?.id ?? "";
 
-  const { data: categories = [] } = useSuspenseQuery(
+  const { data: categories = [] } = useQuery(
     videoQueries.categories(orgSlug, eventId),
   );
-  const { data: videos = [] } = useSuspenseQuery(
+  const { data: videos = [] } = useQuery(
     videoQueries.videos(orgSlug, eventId),
   );
 
