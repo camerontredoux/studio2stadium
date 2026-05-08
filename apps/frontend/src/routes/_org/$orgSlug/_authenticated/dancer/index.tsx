@@ -5,8 +5,9 @@ export const Route = createFileRoute(
 )({
   beforeLoad: ({ params }) => {
     throw redirect({
-      to: "/$orgSlug/dancer/video-library",
-      params: { orgSlug: params.orgSlug },
+      to: "/$orgSlug/dancer/video-library" as any,
+      params: { orgSlug: params.orgSlug } as any,
     });
   },
+  component: () => null,
 });
