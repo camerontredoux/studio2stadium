@@ -152,7 +152,7 @@ export function AdminSidebar() {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    void (navigate as any)({ to: "/$orgSlug", params: { orgSlug } });
+    void (navigate as any)({ to: "/$orgSlug/dancer", params: { orgSlug } });
   }
 
   return (
