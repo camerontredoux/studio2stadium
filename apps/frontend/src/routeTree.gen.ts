@@ -60,8 +60,10 @@ import { Route as AdminroutesAdminDashboardRouteImport } from './routes/_admin/(
 import { Route as AdminroutesAdminDancersRouteImport } from './routes/_admin/(routes)/admin/dancers'
 import { Route as AdminroutesAdminBlogRouteImport } from './routes/_admin/(routes)/admin/blog'
 import { Route as AdminroutesAdminApplicationsRouteImport } from './routes/_admin/(routes)/admin/applications'
+import { Route as OrgOrgSlugAuthenticatedDancerRouteRouteImport } from './routes/_org/$orgSlug/_authenticated/dancer/route'
 import { Route as OrgOrgSlugAuthenticatedCoachRouteRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/route'
 import { Route as OrgOrgSlugAuthenticatedAdminRouteRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/route'
+import { Route as OrgOrgSlugAuthenticatedDancerIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/dancer/index'
 import { Route as OrgOrgSlugAuthenticatedCoachIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/index'
 import { Route as OrgOrgSlugAuthenticatedAdminIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/index'
 import { Route as OrgOrgSlugAuthenticatedCoachEventInfoRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/event-info'
@@ -343,6 +345,12 @@ const AdminroutesAdminApplicationsRoute =
     path: '/admin/applications',
     getParentRoute: () => AdminRouteRoute,
   } as any)
+const OrgOrgSlugAuthenticatedDancerRouteRoute =
+  OrgOrgSlugAuthenticatedDancerRouteRouteImport.update({
+    id: '/dancer',
+    path: '/dancer',
+    getParentRoute: () => OrgOrgSlugAuthenticatedRouteRoute,
+  } as any)
 const OrgOrgSlugAuthenticatedCoachRouteRoute =
   OrgOrgSlugAuthenticatedCoachRouteRouteImport.update({
     id: '/coach',
@@ -354,6 +362,12 @@ const OrgOrgSlugAuthenticatedAdminRouteRoute =
     id: '/admin',
     path: '/admin',
     getParentRoute: () => OrgOrgSlugAuthenticatedRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedDancerIndexRoute =
+  OrgOrgSlugAuthenticatedDancerIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => OrgOrgSlugAuthenticatedDancerRouteRoute,
   } as any)
 const OrgOrgSlugAuthenticatedCoachIndexRoute =
   OrgOrgSlugAuthenticatedCoachIndexRouteImport.update({
@@ -442,6 +456,7 @@ export interface FileRoutesByFullPath {
   '/$orgSlug/register': typeof OrgOrgSlugRegisterRoute
   '/$orgSlug/admin': typeof OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren
   '/$orgSlug/coach': typeof OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren
+  '/$orgSlug/dancer': typeof OrgOrgSlugAuthenticatedDancerRouteRouteWithChildren
   '/admin/applications': typeof AdminroutesAdminApplicationsRoute
   '/admin/blog': typeof AdminroutesAdminBlogRoute
   '/admin/dancers': typeof AdminroutesAdminDancersRoute
@@ -481,6 +496,7 @@ export interface FileRoutesByFullPath {
   '/$orgSlug/coach/event-info': typeof OrgOrgSlugAuthenticatedCoachEventInfoRoute
   '/$orgSlug/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
   '/$orgSlug/coach/': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
+  '/$orgSlug/dancer/': typeof OrgOrgSlugAuthenticatedDancerIndexRoute
   '/$orgSlug/coach/dancers/': typeof OrgOrgSlugAuthenticatedCoachDancersIndexRoute
 }
 export interface FileRoutesByTo {
@@ -537,6 +553,7 @@ export interface FileRoutesByTo {
   '/$orgSlug/coach/event-info': typeof OrgOrgSlugAuthenticatedCoachEventInfoRoute
   '/$orgSlug/admin': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
   '/$orgSlug/coach': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
+  '/$orgSlug/dancer': typeof OrgOrgSlugAuthenticatedDancerIndexRoute
   '/$orgSlug/coach/dancers': typeof OrgOrgSlugAuthenticatedCoachDancersIndexRoute
 }
 export interface FileRoutesById {
@@ -565,6 +582,7 @@ export interface FileRoutesById {
   '/_app/(routes)/': typeof ApproutesIndexRoute
   '/_org/$orgSlug/_authenticated/admin': typeof OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren
   '/_org/$orgSlug/_authenticated/coach': typeof OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren
+  '/_org/$orgSlug/_authenticated/dancer': typeof OrgOrgSlugAuthenticatedDancerRouteRouteWithChildren
   '/_admin/(routes)/admin/applications': typeof AdminroutesAdminApplicationsRoute
   '/_admin/(routes)/admin/blog': typeof AdminroutesAdminBlogRoute
   '/_admin/(routes)/admin/dancers': typeof AdminroutesAdminDancersRoute
@@ -604,6 +622,7 @@ export interface FileRoutesById {
   '/_org/$orgSlug/_authenticated/coach/event-info': typeof OrgOrgSlugAuthenticatedCoachEventInfoRoute
   '/_org/$orgSlug/_authenticated/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
   '/_org/$orgSlug/_authenticated/coach/': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
+  '/_org/$orgSlug/_authenticated/dancer/': typeof OrgOrgSlugAuthenticatedDancerIndexRoute
   '/_org/$orgSlug/_authenticated/coach/dancers/': typeof OrgOrgSlugAuthenticatedCoachDancersIndexRoute
 }
 export interface FileRouteTypes {
@@ -628,6 +647,7 @@ export interface FileRouteTypes {
     | '/$orgSlug/register'
     | '/$orgSlug/admin'
     | '/$orgSlug/coach'
+    | '/$orgSlug/dancer'
     | '/admin/applications'
     | '/admin/blog'
     | '/admin/dancers'
@@ -667,6 +687,7 @@ export interface FileRouteTypes {
     | '/$orgSlug/coach/event-info'
     | '/$orgSlug/admin/'
     | '/$orgSlug/coach/'
+    | '/$orgSlug/dancer/'
     | '/$orgSlug/coach/dancers/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -723,6 +744,7 @@ export interface FileRouteTypes {
     | '/$orgSlug/coach/event-info'
     | '/$orgSlug/admin'
     | '/$orgSlug/coach'
+    | '/$orgSlug/dancer'
     | '/$orgSlug/coach/dancers'
   id:
     | '__root__'
@@ -750,6 +772,7 @@ export interface FileRouteTypes {
     | '/_app/(routes)/'
     | '/_org/$orgSlug/_authenticated/admin'
     | '/_org/$orgSlug/_authenticated/coach'
+    | '/_org/$orgSlug/_authenticated/dancer'
     | '/_admin/(routes)/admin/applications'
     | '/_admin/(routes)/admin/blog'
     | '/_admin/(routes)/admin/dancers'
@@ -789,6 +812,7 @@ export interface FileRouteTypes {
     | '/_org/$orgSlug/_authenticated/coach/event-info'
     | '/_org/$orgSlug/_authenticated/admin/'
     | '/_org/$orgSlug/_authenticated/coach/'
+    | '/_org/$orgSlug/_authenticated/dancer/'
     | '/_org/$orgSlug/_authenticated/coach/dancers/'
   fileRoutesById: FileRoutesById
 }
@@ -1159,6 +1183,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminroutesAdminApplicationsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/_org/$orgSlug/_authenticated/dancer': {
+      id: '/_org/$orgSlug/_authenticated/dancer'
+      path: '/dancer'
+      fullPath: '/$orgSlug/dancer'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedDancerRouteRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedRouteRoute
+    }
     '/_org/$orgSlug/_authenticated/coach': {
       id: '/_org/$orgSlug/_authenticated/coach'
       path: '/coach'
@@ -1172,6 +1203,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$orgSlug/admin'
       preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRouteImport
       parentRoute: typeof OrgOrgSlugAuthenticatedRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/dancer/': {
+      id: '/_org/$orgSlug/_authenticated/dancer/'
+      path: '/'
+      fullPath: '/$orgSlug/dancer/'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedDancerIndexRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedDancerRouteRoute
     }
     '/_org/$orgSlug/_authenticated/coach/': {
       id: '/_org/$orgSlug/_authenticated/coach/'
@@ -1483,9 +1521,25 @@ const OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren =
     OrgOrgSlugAuthenticatedCoachRouteRouteChildren,
   )
 
+interface OrgOrgSlugAuthenticatedDancerRouteRouteChildren {
+  OrgOrgSlugAuthenticatedDancerIndexRoute: typeof OrgOrgSlugAuthenticatedDancerIndexRoute
+}
+
+const OrgOrgSlugAuthenticatedDancerRouteRouteChildren: OrgOrgSlugAuthenticatedDancerRouteRouteChildren =
+  {
+    OrgOrgSlugAuthenticatedDancerIndexRoute:
+      OrgOrgSlugAuthenticatedDancerIndexRoute,
+  }
+
+const OrgOrgSlugAuthenticatedDancerRouteRouteWithChildren =
+  OrgOrgSlugAuthenticatedDancerRouteRoute._addFileChildren(
+    OrgOrgSlugAuthenticatedDancerRouteRouteChildren,
+  )
+
 interface OrgOrgSlugAuthenticatedRouteRouteChildren {
   OrgOrgSlugAuthenticatedAdminRouteRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren
   OrgOrgSlugAuthenticatedCoachRouteRoute: typeof OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren
+  OrgOrgSlugAuthenticatedDancerRouteRoute: typeof OrgOrgSlugAuthenticatedDancerRouteRouteWithChildren
 }
 
 const OrgOrgSlugAuthenticatedRouteRouteChildren: OrgOrgSlugAuthenticatedRouteRouteChildren =
@@ -1494,6 +1548,8 @@ const OrgOrgSlugAuthenticatedRouteRouteChildren: OrgOrgSlugAuthenticatedRouteRou
       OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren,
     OrgOrgSlugAuthenticatedCoachRouteRoute:
       OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren,
+    OrgOrgSlugAuthenticatedDancerRouteRoute:
+      OrgOrgSlugAuthenticatedDancerRouteRouteWithChildren,
   }
 
 const OrgOrgSlugAuthenticatedRouteRouteWithChildren =
