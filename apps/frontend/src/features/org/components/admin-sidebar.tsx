@@ -40,6 +40,7 @@ import {
   MicIcon,
   MonitorIcon,
   MoonIcon,
+  PlayCircleIcon,
   SettingsIcon,
   SunIcon,
   UserIcon,
@@ -67,6 +68,16 @@ const navSections = [
         label: "Coaches",
         icon: MicIcon,
         to: "/$orgSlug/admin/coaches" as const,
+      },
+    ],
+  },
+  {
+    title: "Content",
+    items: [
+      {
+        label: "Video Library",
+        icon: PlayCircleIcon,
+        to: "/$orgSlug/admin/video-library" as const,
       },
     ],
   },
@@ -216,7 +227,7 @@ export function AdminSidebar() {
                   <SidebarGroupLabel className="text-muted-foreground px-3 pt-2 pb-1 text-[10px] font-semibold tracking-widest uppercase">
                     {section.title}
                   </SidebarGroupLabel>
-                  <div className="border-sidebar-border grid grid-cols-2 border-t">
+                  <div className={`border-sidebar-border border-t ${section.items.length > 1 ? "grid grid-cols-2" : ""}`}>
                     {section.items.map(({ label, icon: Icon, to }) => {
                       const isActive = isItemActive(to);
                       return (
