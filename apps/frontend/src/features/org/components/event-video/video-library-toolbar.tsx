@@ -77,10 +77,10 @@ export function VideoLibraryToolbar({
             onCategoryFilterChange(null);
           }}
           title="Clear filters"
-          className="sm:w-auto sm:px-3"
+          className="lg:w-auto lg:px-3"
         >
           <XIcon className="size-3" />
-          <span className="hidden sm:inline">Clear</span>
+          <span className="hidden lg:inline">Clear</span>
         </Button>
       )}
 
@@ -93,10 +93,10 @@ export function VideoLibraryToolbar({
               size="icon-sm"
               onClick={onManageCategories}
               title="Manage Categories"
-              className="sm:w-auto sm:gap-1.5 sm:px-3"
+              className="lg:w-auto lg:gap-1.5 lg:px-3"
             >
-              <SettingsIcon className="size-3.5 sm:size-3" />
-              <span className="hidden sm:inline">Manage Categories</span>
+              <SettingsIcon className="size-3.5 lg:size-3" />
+              <span className="hidden lg:inline">Manage Categories</span>
             </Button>
           )}
           {onAddVideo && (
@@ -104,10 +104,10 @@ export function VideoLibraryToolbar({
               size="icon-sm"
               onClick={onAddVideo}
               title="Add Video"
-              className="sm:w-auto sm:gap-1.5 sm:px-3"
+              className="lg:w-auto lg:gap-1.5 lg:px-3"
             >
-              <PlusIcon className="size-3.5 sm:size-3" />
-              <span className="hidden sm:inline">Add Video</span>
+              <PlusIcon className="size-3.5 lg:size-3" />
+              <span className="hidden lg:inline">Add Video</span>
             </Button>
           )}
         </>
