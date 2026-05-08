@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_org/$orgSlug/_authenticated/dancer")({
       ))) as { membership?: { role: string; type: string } | null } | null;
     const role = data?.membership?.role;
     const type = data?.membership?.type;
-    if (role !== "admin" && type !== "dancer") {
+    if (role !== "admin" && role !== "owner" && type !== "dancer") {
       throw redirect({ to: "/" });
     }
   },
