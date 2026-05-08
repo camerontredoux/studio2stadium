@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { getYouTubeId } from "@/utils/get-youtube-id";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useRef, useState } from "react";
 import type {
   EventVideo,
   VideoCategory,
@@ -49,26 +49,27 @@ export function AddEditVideoDialog({
   const updateVideo = useUpdateVideo(slug, eventId);
   const isPending = createVideo.isPending || updateVideo.isPending;
 
+  const prevOpenRef = useRef(open);
   const [title, setTitle] = useState("");
   const [categoryId, setCategoryId] = useState<string>("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    if (open && editingVideo) {
+  if (open && !prevOpenRef.current) {
+    if (editingVideo) {
       setTitle(editingVideo.title);
       setCategoryId(editingVideo.categoryId);
       setYoutubeUrl(
         `https://www.youtube.com/watch?v=${editingVideo.youtubeId}`,
       );
-      setErrors({});
-    } else if (open) {
+    } else {
       setTitle("");
       setCategoryId("");
       setYoutubeUrl("");
-      setErrors({});
     }
-  }, [open, editingVideo]);
+    setErrors({});
+  }
+  prevOpenRef.current = open;
 
   const youtubeId = useMemo(() => getYouTubeId(youtubeUrl), [youtubeUrl]);
 
