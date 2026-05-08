@@ -16,7 +16,9 @@ export type AuditResource =
   | "event"
   | "checklist"
   | "csv_upload"
-  | "invite";
+  | "invite"
+  | "video_category"
+  | "video";
 
 export interface AuditContext {
   eventId: string;

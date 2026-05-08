@@ -37,6 +37,16 @@ const ManualMergeController = () =>
   import("./reconciliation/merge-controller.ts");
 const SearchSchoolUsersController = () =>
   import("./reconciliation/search-users-controller.ts");
+const ListVideoCategoriesController = () =>
+  import("./video-categories/list/controller.ts");
+const CreateVideoCategoryController = () =>
+  import("./video-categories/create/controller.ts");
+const DeleteVideoCategoryController = () =>
+  import("./video-categories/delete/controller.ts");
+const ListVideosController = () => import("./videos/list/controller.ts");
+const CreateVideoController = () => import("./videos/create/controller.ts");
+const UpdateVideoController = () => import("./videos/update/controller.ts");
+const DeleteVideoController = () => import("./videos/delete/controller.ts");
 const AttendEventController = () => import("./attend/controller.ts");
 const ScheduleController = () => import("./schedule/controller.ts");
 
@@ -277,6 +287,70 @@ router
         middleware.auth(),
         middleware.org(),
         middleware.orgMember(),
+      ]);
+
+    // Video categories
+    router
+      .get(":slug/events/:id/video-categories", [
+        ListVideoCategoriesController,
+      ])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+      ]);
+    router
+      .post(":slug/events/:id/video-categories", [
+        CreateVideoCategoryController,
+      ])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .delete(":slug/events/:id/video-categories/:categoryId", [
+        DeleteVideoCategoryController,
+      ])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+
+    // Videos
+    router
+      .get(":slug/events/:id/videos", [ListVideosController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+      ]);
+    router
+      .post(":slug/events/:id/videos", [CreateVideoController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .patch(":slug/events/:id/videos/:videoId", [UpdateVideoController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .delete(":slug/events/:id/videos/:videoId", [DeleteVideoController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
       ]);
   })
   .prefix("orgs");

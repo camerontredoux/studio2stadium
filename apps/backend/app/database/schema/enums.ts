@@ -97,4 +97,6 @@ export const auditResource = pgEnum("audit_resource", [
   "checklist",
   "csv_upload",
   "invite",
+  "video_category",
+  "video",
 ]);

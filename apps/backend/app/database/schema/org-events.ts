@@ -105,6 +105,47 @@ export const csvUploads = pg.pgTable(
   (table) => [pg.index().on(table.eventId, table.createdAt)]
 );
 
+export const eventVideoCategories = pg.pgTable(
+  "event_video_categories",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    eventId: pg
+      .uuid()
+      .notNull()
+      .references(() => orgEvents.id, { onDelete: "cascade" }),
+    name: pg.varchar({ length: 160 }).notNull(),
+    sortOrder: pg.integer().notNull().default(0),
+    createdAt: pg.timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    pg.index().on(table.eventId),
+    pg.uniqueIndex().on(table.eventId, table.name),
+  ]
+);
+
+export const eventVideos = pg.pgTable(
+  "event_videos",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    eventId: pg
+      .uuid()
+      .notNull()
+      .references(() => orgEvents.id, { onDelete: "cascade" }),
+    categoryId: pg
+      .uuid()
+      .notNull()
+      .references(() => eventVideoCategories.id, { onDelete: "restrict" }),
+    title: pg.varchar({ length: 300 }).notNull(),
+    youtubeId: pg.varchar({ length: 20 }).notNull(),
+    sortOrder: pg.integer().notNull().default(0),
+    ...timestamps,
+  },
+  (table) => [
+    pg.index().on(table.eventId),
+    pg.index().on(table.categoryId),
+  ]
+);
+
 export const eventChecklist = pg.pgTable(
   "event_checklist",
   {
