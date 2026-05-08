@@ -36,8 +36,8 @@ export function VideoLibraryToolbar({
   const hasActiveFilters = search.length > 0 || categoryFilter !== null;
 
   return (
-    <div className="border-border flex items-center gap-2 border-b px-3 py-2">
-      <InputGroup className="w-48 shrink-0">
+    <div className="border-border flex flex-wrap items-center gap-2 border-b px-3 py-2">
+      <InputGroup className="w-40 shrink-0 sm:w-48">
         <InputGroupAddon>
           <SearchIcon />
         </InputGroupAddon>
@@ -50,7 +50,7 @@ export function VideoLibraryToolbar({
         />
       </InputGroup>
 
-      <div className="bg-border h-5 w-px shrink-0" />
+      <div className="bg-border hidden h-5 w-px shrink-0 sm:block" />
 
       <Select
         value={categoryFilter}
@@ -69,20 +69,19 @@ export function VideoLibraryToolbar({
       </Select>
 
       {hasActiveFilters && (
-        <>
-          <div className="bg-border h-5 w-px shrink-0" />
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              onSearchChange("");
-              onCategoryFilterChange(null);
-            }}
-          >
-            <XIcon className="size-3" />
-            Clear
-          </Button>
-        </>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => {
+            onSearchChange("");
+            onCategoryFilterChange(null);
+          }}
+          title="Clear filters"
+          className="sm:w-auto sm:px-3"
+        >
+          <XIcon className="size-3" />
+          <span className="hidden sm:inline">Clear</span>
+        </Button>
       )}
 
       {(onManageCategories || onAddVideo) && (
@@ -91,18 +90,24 @@ export function VideoLibraryToolbar({
           {onManageCategories && (
             <Button
               variant="outline"
-              size="sm"
+              size="icon-sm"
               onClick={onManageCategories}
-              className="gap-1.5"
+              title="Manage Categories"
+              className="sm:w-auto sm:gap-1.5 sm:px-3"
             >
-              <SettingsIcon className="size-3" />
-              Manage Categories
+              <SettingsIcon className="size-3.5 sm:size-3" />
+              <span className="hidden sm:inline">Manage Categories</span>
             </Button>
           )}
           {onAddVideo && (
-            <Button size="sm" onClick={onAddVideo} className="gap-1.5">
-              <PlusIcon className="size-3" />
-              Add Video
+            <Button
+              size="icon-sm"
+              onClick={onAddVideo}
+              title="Add Video"
+              className="sm:w-auto sm:gap-1.5 sm:px-3"
+            >
+              <PlusIcon className="size-3.5 sm:size-3" />
+              <span className="hidden sm:inline">Add Video</span>
             </Button>
           )}
         </>
