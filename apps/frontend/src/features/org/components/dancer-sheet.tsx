@@ -16,6 +16,7 @@ import { useOrg } from "@/features/org/context/use-org";
 import { $api } from "@/lib/api/client";
 import { Loader2Icon } from "lucide-react";
 import { FavoriteButton } from "./favorite-button";
+import { CallbackButton } from "./callback-button";
 import { RatingInput } from "./rating-input";
 import { NotesEditor } from "./notes-editor";
 import { toastManager } from "@/components/ui/toast-manager";
@@ -60,7 +61,7 @@ function DancerSheetContent({
   onFavoriteToggle?: (rosterId: string, current: boolean) => void;
   onSave?: (rosterId: string, saved: { rating?: number; hasNote?: boolean }) => void;
 }) {
-  const { org } = useOrg();
+  const { org, hasFeature } = useOrg();
   const qc = useQueryClient();
   const { data: dancer, isLoading } = useQuery(
     scoutingQueries.dancer(org.slug, rosterId),
@@ -214,13 +215,19 @@ function DancerSheetContent({
       </SheetHeader>
 
       <SheetContent className="flex flex-col gap-4 px-4 pt-5 pb-3">
-        <div className="flex items-center pt-2">
+        <div className="flex items-center gap-2 pt-2">
           <div className="flex-1">
             <RatingInput
               value={currentRating}
               onChange={(v) => setRating(v)}
             />
           </div>
+          {hasFeature("callbacks") && (
+            <CallbackButton
+              dancerRosterId={rosterId}
+              isCalledBack={dancer.isCalledBack ?? false}
+            />
+          )}
           <FavoriteButton
             dancerRosterId={rosterId}
             isFavorited={dancer.isFavorited}
