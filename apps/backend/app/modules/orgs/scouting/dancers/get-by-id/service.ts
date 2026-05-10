@@ -3,6 +3,7 @@ import { inject } from "@adonisjs/core";
 import { eventRosters, eventDancerProfiles } from "#database/schema/org-events";
 import { dancerProfiles } from "#database/schema/dancers";
 import {
+  eventCallbacks,
   eventFavorites,
   eventNotes,
   eventRatings,
@@ -74,9 +75,10 @@ export class GetDancerByIdService {
     let note: string | null = null;
     let rating: number | null = null;
     let isFavorited = false;
+    let isCalledBack = false;
 
     if (coachRosterId !== null) {
-      const [noteRow, ratingRow, favoriteRow] = await Promise.all([
+      const [noteRow, ratingRow, favoriteRow, callbackRow] = await Promise.all([
         this.db.use((db) =>
           db
             .select({ content: eventNotes.content })
@@ -116,11 +118,25 @@ export class GetDancerByIdService {
             )
             .limit(1)
         ),
+        this.db.use((db) =>
+          db
+            .select({ id: eventCallbacks.id })
+            .from(eventCallbacks)
+            .where(
+              and(
+                eq(eventCallbacks.eventId, eventId),
+                eq(eventCallbacks.coachRosterId, coachRosterId),
+                eq(eventCallbacks.dancerRosterId, dancerRosterId)
+              )
+            )
+            .limit(1)
+        ),
       ]);
 
       note = noteRow[0]?.content ?? null;
       rating = ratingRow[0]?.rating ?? null;
       isFavorited = favoriteRow.length > 0;
+      isCalledBack = callbackRow.length > 0;
     }
 
     return {
@@ -128,6 +144,7 @@ export class GetDancerByIdService {
       note,
       rating,
       isFavorited,
+      isCalledBack,
       favoritedMyRosterId: null,
     };
   }
