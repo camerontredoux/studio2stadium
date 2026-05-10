@@ -1179,7 +1179,7 @@ function AuditLogPage() {
 
       {/* ── Fixed footer ── */}
       <div
-        className="border-border bg-background fixed right-0 bottom-0 z-30 flex items-center justify-between border-t px-3 py-1.5 transition-[left] duration-200 ease-linear"
+        className="border-border bg-background fixed right-0 bottom-0 z-30 flex items-center justify-between border-t px-3 py-1.5 transition-[left] duration-200 ease-linear xl:right-[320px]"
         style={{
           left: isMobile
             ? 0
