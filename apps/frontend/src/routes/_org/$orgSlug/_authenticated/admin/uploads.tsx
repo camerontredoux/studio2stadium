@@ -36,6 +36,7 @@ import {
   ChevronRightIcon,
   ChevronRightIcon as ExpandIcon,
   FilterIcon,
+  Loader2Icon,
   SearchIcon,
   XIcon,
 } from "lucide-react";
@@ -57,12 +58,14 @@ const ACTION_LABELS: Record<AuditAction, string> = {
   resend_invite: "Resend invite",
 };
 
-const RESOURCE_LABELS: Record<AuditResource, string> = {
+const RESOURCE_LABELS: Record<string, string> = {
   roster: "Roster",
   event: "Event",
   checklist: "Checklist",
   csv_upload: "CSV Upload",
   invite: "Invite",
+  video_category: "Video Category",
+  video: "Video",
 };
 
 const ACTION_COLORS: Record<AuditAction, { text: string; dot: string }> = {
@@ -101,7 +104,7 @@ function generateSummary(entry: AuditLogEntry | AuditLogChildEntry): string {
       return parts.join(", ");
     }
     case "create":
-      return `Created ${RESOURCE_LABELS[entry.resource].toLowerCase()}`;
+      return `Created ${(RESOURCE_LABELS[entry.resource] ?? entry.resource).toLowerCase()}`;
     case "update": {
       const diff = meta.diff as
         | Record<string, { from: unknown; to: unknown }>
@@ -115,11 +118,11 @@ function generateSummary(entry: AuditLogEntry | AuditLogChildEntry): string {
         }
         return `Updated ${fields.join(", ")}`;
       }
-      return `Updated ${RESOURCE_LABELS[entry.resource].toLowerCase()}`;
+      return `Updated ${(RESOURCE_LABELS[entry.resource] ?? entry.resource).toLowerCase()}`;
     }
     case "delete": {
       const count = (meta.count as number) ?? 1;
-      return `Deleted ${count} ${RESOURCE_LABELS[entry.resource].toLowerCase()}${count !== 1 ? "s" : ""}`;
+      return `Deleted ${count} ${(RESOURCE_LABELS[entry.resource] ?? entry.resource).toLowerCase()}${count !== 1 ? "s" : ""}`;
     }
     case "activate":
       return "Activated event";
@@ -343,7 +346,7 @@ function ChildrenSheet({
                           <div className="flex items-center gap-1.5">
                             <ActionBadge action={child.action} />
                             <span className="text-muted-foreground text-[10px]">
-                              {RESOURCE_LABELS[child.resource]}
+                              {RESOURCE_LABELS[child.resource] ?? child.resource}
                             </span>
                           </div>
                           <span className="text-xs">
@@ -1026,7 +1029,7 @@ function AuditLogPage() {
         )}
 
         {/* Table */}
-        <div className="flex-1 overflow-auto pb-10">
+        <div className="relative flex-1 overflow-auto pb-10">
           <table className="w-full border-collapse text-xs whitespace-nowrap 2xl:text-sm">
             <thead className="bg-background sticky top-0 z-10">
               <tr>
@@ -1059,13 +1062,10 @@ function AuditLogPage() {
                 </tr>
               ) : listQuery.isLoading ? (
                 Array.from({ length: 8 }).map((_, i) => (
-                  <tr key={i}>
-                    <td
-                      colSpan={tableColumnCount}
-                      className="border-border border-b px-2 py-2"
-                    >
-                      <div className="bg-muted/40 h-5 animate-pulse rounded" />
-                    </td>
+                  <tr key={i} className="pointer-events-none opacity-0">
+                    {Array.from({ length: tableColumnCount }).map((_, j) => (
+                      <td key={j}>&nbsp;</td>
+                    ))}
                   </tr>
                 ))
               ) : data.length === 0 ? (
@@ -1133,7 +1133,7 @@ function AuditLogPage() {
                       {/* Resource */}
                       <td className="hidden px-2 py-1.5 md:table-cell">
                         <span className="text-muted-foreground">
-                          {RESOURCE_LABELS[entry.resource]}
+                          {RESOURCE_LABELS[entry.resource] ?? entry.resource}
                         </span>
                       </td>
 
@@ -1163,6 +1163,11 @@ function AuditLogPage() {
               )}
             </tbody>
           </table>
+          {listQuery.isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
+            </div>
+          )}
         </div>
       </div>
 
