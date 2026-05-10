@@ -86,8 +86,8 @@ export function EventVideoCard({ video, category, onEdit, onDelete }: EventVideo
       </Frame>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-3xl p-0">
-          <div className="aspect-video w-full">
+        <DialogContent className="max-w-3xl overflow-hidden p-0">
+          <div className="aspect-video min-h-0 w-full flex-1">
             <iframe
               src={embedUrl}
               title={video.title}

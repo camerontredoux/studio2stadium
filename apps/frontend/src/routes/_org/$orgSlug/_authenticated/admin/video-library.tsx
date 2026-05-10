@@ -120,14 +120,11 @@ function AdminVideoLibrary() {
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-      <header className="flex items-baseline gap-3 px-4 py-4">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <header className="px-4 py-4">
         <h1 className="text-lg font-semibold tracking-tight 2xl:text-xl">
           Video Library
         </h1>
-        <span className="text-muted-foreground text-xs tabular-nums 2xl:text-sm">
-          {videos.length} videos · {categories.length} categories
-        </span>
       </header>
 
       <section
@@ -152,7 +149,7 @@ function AdminVideoLibrary() {
         }}
       />
 
-      <div className="flex-1 pb-8">
+      <div className="min-h-0 flex-1 overflow-y-auto pb-8">
         <EventVideoGrid
           groups={groups}
           onEdit={handleEdit}

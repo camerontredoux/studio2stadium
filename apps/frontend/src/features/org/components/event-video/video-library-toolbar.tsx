@@ -34,6 +34,7 @@ export function VideoLibraryToolbar({
   onAddVideo,
 }: VideoLibraryToolbarProps) {
   const hasActiveFilters = search.length > 0 || categoryFilter !== null;
+  const categoryItems = categories.map((c) => ({ value: c.id, label: c.name }));
 
   return (
     <div className="border-border flex flex-wrap items-center gap-2 border-b px-3 py-2">
@@ -53,6 +54,7 @@ export function VideoLibraryToolbar({
       <div className="bg-border hidden h-5 w-px shrink-0 sm:block" />
 
       <Select
+        items={categoryItems}
         value={categoryFilter}
         onValueChange={(v) => onCategoryFilterChange(v as string | null)}
       >
@@ -60,9 +62,9 @@ export function VideoLibraryToolbar({
           <SelectValue placeholder="Category" />
         </SelectTrigger>
         <SelectPopup>
-          {categories.map((c) => (
-            <SelectItem key={c.id} value={c.id}>
-              {c.name}
+          {categoryItems.map((item) => (
+            <SelectItem key={item.value} value={item.value}>
+              {item.label}
             </SelectItem>
           ))}
         </SelectPopup>

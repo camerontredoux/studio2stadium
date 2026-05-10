@@ -1,3 +1,12 @@
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -36,6 +45,7 @@ export function ManageCategoriesDialog({
   eventId,
 }: ManageCategoriesDialogProps) {
   const [newName, setNewName] = useState("");
+  const [deletingCategory, setDeletingCategory] = useState<VideoCategory | null>(null);
   const createCategory = useCreateCategory(slug, eventId);
   const deleteCategory = useDeleteCategory(slug, eventId);
 
@@ -58,7 +68,7 @@ export function ManageCategoriesDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-3 px-6 py-2">
+        <div className="flex flex-col gap-2 px-6 pb-4">
           {categories.length === 0 && (
             <p className="text-muted-foreground text-center text-sm py-4">
               No categories yet. Add one below.
@@ -85,7 +95,7 @@ export function ManageCategoriesDialog({
                   variant="ghost"
                   size="icon-xs"
                   disabled={hasVideos || deleteCategory.isPending}
-                  onClick={() => deleteCategory.mutate(cat.id)}
+                  onClick={() => setDeletingCategory(cat)}
                   title={hasVideos ? "Remove videos first" : "Delete category"}
                 >
                   {deleteCategory.isPending ? (
@@ -99,7 +109,7 @@ export function ManageCategoriesDialog({
           })}
         </div>
 
-        <div className="flex gap-2 px-6">
+        <div className="flex gap-2 px-6 pb-4">
           <Input
             placeholder="New category name"
             value={newName}
@@ -110,7 +120,6 @@ export function ManageCategoriesDialog({
             className="flex-1"
           />
           <Button
-            size="sm"
             onClick={handleAdd}
             disabled={!newName.trim() || createCategory.isPending}
           >
@@ -118,12 +127,50 @@ export function ManageCategoriesDialog({
           </Button>
         </div>
 
-        <DialogFooter variant="bare">
-          <DialogClose render={<Button variant="outline" size="sm" />}>
+        <DialogFooter>
+          <DialogClose render={<Button variant="outline" />}>
             Done
           </DialogClose>
         </DialogFooter>
       </DialogContent>
+
+      <AlertDialog
+        open={!!deletingCategory}
+        onOpenChange={(open) => {
+          if (!open) setDeletingCategory(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete category</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deletingCategory?.name}"? This
+              action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose render={<Button variant="outline" />}>
+              Cancel
+            </AlertDialogClose>
+            <Button
+              variant="destructive"
+              disabled={deleteCategory.isPending}
+              onClick={() => {
+                if (!deletingCategory) return;
+                deleteCategory.mutate(deletingCategory.id, {
+                  onSuccess: () => setDeletingCategory(null),
+                });
+              }}
+            >
+              {deleteCategory.isPending ? (
+                <Spinner label="Deleting..." />
+              ) : (
+                "Delete"
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }
