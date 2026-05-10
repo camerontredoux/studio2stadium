@@ -1,7 +1,7 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { eventRosters, eventDancerProfiles } from "#database/schema/org-events";
-import { eventFavorites, eventRatings, eventNotes } from "#database/schema/event-features";
+import { eventFavorites, eventRatings, eventNotes, eventCallbacks } from "#database/schema/event-features";
 import { dancerProfiles } from "#database/schema/dancers";
 import { and, eq, ilike, or, sql } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
@@ -67,6 +67,15 @@ export class ListDancersService {
           )`
         : sql<boolean>`false`;
 
+      const isCalledBackSubquery = coachRosterId
+        ? sql<boolean>`EXISTS (
+            SELECT 1 FROM ${eventCallbacks}
+            WHERE ${eventCallbacks.dancerRosterId} = ${eventRosters.id}
+              AND ${eventCallbacks.coachRosterId} = ${coachRosterId}
+              AND ${eventCallbacks.eventId} = ${eventId}
+          )`
+        : sql<boolean>`false`;
+
       if (q.interested && coachRosterId) {
         filters.push(
           sql`EXISTS (
@@ -101,6 +110,7 @@ export class ListDancersService {
           isFavorited: isFavoritedSubquery,
           rating: ratingSubquery,
           hasNote: hasNoteSubquery,
+          isCalledBack: isCalledBackSubquery,
         })
         .from(eventRosters)
         .leftJoin(
