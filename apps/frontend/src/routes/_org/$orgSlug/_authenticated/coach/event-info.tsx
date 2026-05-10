@@ -108,7 +108,7 @@ function CoachDashboard({
 
         <section
           aria-label="Scouting tools"
-          className="grid grid-cols-1 gap-3 p-4 lg:grid-cols-2"
+          className="grid grid-cols-1 gap-3 p-4 lg:auto-rows-[260px] lg:grid-cols-2"
         >
           <QuickNavPanel
             orgSlug={orgSlug}
@@ -116,20 +116,16 @@ function CoachDashboard({
             favCount={favCount}
           />
           <TopRankedPanel orgSlug={orgSlug} ranked={topRanked} />
+          {event.schedulePdfUrl && (
+            <div className="h-full min-h-0 lg:col-span-2">
+              <SchedulePreviewPanel
+                orgSlug={orgSlug}
+                eventId={event.id}
+                scheduleKey={event.schedulePdfUrl}
+              />
+            </div>
+          )}
         </section>
-
-        {event.schedulePdfUrl && (
-          <section
-            aria-label="Event schedule"
-            className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-4"
-          >
-            <SchedulePreviewPanel
-              orgSlug={orgSlug}
-              eventId={event.id}
-              scheduleKey={event.schedulePdfUrl}
-            />
-          </section>
-        )}
       </div>
 
       <CoachSidebarPanel
@@ -349,7 +345,7 @@ function SchedulePreviewPanel({
 
   return (
     <>
-      <div className="border-border flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border">
+      <div className="border-border flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-md border">
         <div className="border-border bg-muted/40 flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2">
           <div className="flex min-w-0 flex-col">
             <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">

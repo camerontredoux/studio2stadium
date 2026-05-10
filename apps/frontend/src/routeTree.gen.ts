@@ -66,7 +66,9 @@ import { Route as OrgOrgSlugAuthenticatedAdminRouteRouteImport } from './routes/
 import { Route as OrgOrgSlugAuthenticatedDancerIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/dancer/index'
 import { Route as OrgOrgSlugAuthenticatedCoachIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/index'
 import { Route as OrgOrgSlugAuthenticatedAdminIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/index'
+import { Route as OrgOrgSlugAuthenticatedDancerVideoLibraryRouteImport } from './routes/_org/$orgSlug/_authenticated/dancer/video-library'
 import { Route as OrgOrgSlugAuthenticatedCoachEventInfoRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/event-info'
+import { Route as OrgOrgSlugAuthenticatedAdminVideoLibraryRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/video-library'
 import { Route as OrgOrgSlugAuthenticatedAdminUploadsRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/uploads'
 import { Route as OrgOrgSlugAuthenticatedAdminSettingsRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/settings'
 import { Route as OrgOrgSlugAuthenticatedAdminReconciliationRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/reconciliation'
@@ -381,11 +383,23 @@ const OrgOrgSlugAuthenticatedAdminIndexRoute =
     path: '/',
     getParentRoute: () => OrgOrgSlugAuthenticatedAdminRouteRoute,
   } as any)
+const OrgOrgSlugAuthenticatedDancerVideoLibraryRoute =
+  OrgOrgSlugAuthenticatedDancerVideoLibraryRouteImport.update({
+    id: '/video-library',
+    path: '/video-library',
+    getParentRoute: () => OrgOrgSlugAuthenticatedDancerRouteRoute,
+  } as any)
 const OrgOrgSlugAuthenticatedCoachEventInfoRoute =
   OrgOrgSlugAuthenticatedCoachEventInfoRouteImport.update({
     id: '/event-info',
     path: '/event-info',
     getParentRoute: () => OrgOrgSlugAuthenticatedCoachRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedAdminVideoLibraryRoute =
+  OrgOrgSlugAuthenticatedAdminVideoLibraryRouteImport.update({
+    id: '/video-library',
+    path: '/video-library',
+    getParentRoute: () => OrgOrgSlugAuthenticatedAdminRouteRoute,
   } as any)
 const OrgOrgSlugAuthenticatedAdminUploadsRoute =
   OrgOrgSlugAuthenticatedAdminUploadsRouteImport.update({
@@ -493,7 +507,9 @@ export interface FileRoutesByFullPath {
   '/$orgSlug/admin/reconciliation': typeof OrgOrgSlugAuthenticatedAdminReconciliationRoute
   '/$orgSlug/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
   '/$orgSlug/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
+  '/$orgSlug/admin/video-library': typeof OrgOrgSlugAuthenticatedAdminVideoLibraryRoute
   '/$orgSlug/coach/event-info': typeof OrgOrgSlugAuthenticatedCoachEventInfoRoute
+  '/$orgSlug/dancer/video-library': typeof OrgOrgSlugAuthenticatedDancerVideoLibraryRoute
   '/$orgSlug/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
   '/$orgSlug/coach/': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
   '/$orgSlug/dancer/': typeof OrgOrgSlugAuthenticatedDancerIndexRoute
@@ -550,7 +566,9 @@ export interface FileRoutesByTo {
   '/$orgSlug/admin/reconciliation': typeof OrgOrgSlugAuthenticatedAdminReconciliationRoute
   '/$orgSlug/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
   '/$orgSlug/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
+  '/$orgSlug/admin/video-library': typeof OrgOrgSlugAuthenticatedAdminVideoLibraryRoute
   '/$orgSlug/coach/event-info': typeof OrgOrgSlugAuthenticatedCoachEventInfoRoute
+  '/$orgSlug/dancer/video-library': typeof OrgOrgSlugAuthenticatedDancerVideoLibraryRoute
   '/$orgSlug/admin': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
   '/$orgSlug/coach': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
   '/$orgSlug/dancer': typeof OrgOrgSlugAuthenticatedDancerIndexRoute
@@ -619,7 +637,9 @@ export interface FileRoutesById {
   '/_org/$orgSlug/_authenticated/admin/reconciliation': typeof OrgOrgSlugAuthenticatedAdminReconciliationRoute
   '/_org/$orgSlug/_authenticated/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
   '/_org/$orgSlug/_authenticated/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
+  '/_org/$orgSlug/_authenticated/admin/video-library': typeof OrgOrgSlugAuthenticatedAdminVideoLibraryRoute
   '/_org/$orgSlug/_authenticated/coach/event-info': typeof OrgOrgSlugAuthenticatedCoachEventInfoRoute
+  '/_org/$orgSlug/_authenticated/dancer/video-library': typeof OrgOrgSlugAuthenticatedDancerVideoLibraryRoute
   '/_org/$orgSlug/_authenticated/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
   '/_org/$orgSlug/_authenticated/coach/': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
   '/_org/$orgSlug/_authenticated/dancer/': typeof OrgOrgSlugAuthenticatedDancerIndexRoute
@@ -684,7 +704,9 @@ export interface FileRouteTypes {
     | '/$orgSlug/admin/reconciliation'
     | '/$orgSlug/admin/settings'
     | '/$orgSlug/admin/uploads'
+    | '/$orgSlug/admin/video-library'
     | '/$orgSlug/coach/event-info'
+    | '/$orgSlug/dancer/video-library'
     | '/$orgSlug/admin/'
     | '/$orgSlug/coach/'
     | '/$orgSlug/dancer/'
@@ -741,7 +763,9 @@ export interface FileRouteTypes {
     | '/$orgSlug/admin/reconciliation'
     | '/$orgSlug/admin/settings'
     | '/$orgSlug/admin/uploads'
+    | '/$orgSlug/admin/video-library'
     | '/$orgSlug/coach/event-info'
+    | '/$orgSlug/dancer/video-library'
     | '/$orgSlug/admin'
     | '/$orgSlug/coach'
     | '/$orgSlug/dancer'
@@ -809,7 +833,9 @@ export interface FileRouteTypes {
     | '/_org/$orgSlug/_authenticated/admin/reconciliation'
     | '/_org/$orgSlug/_authenticated/admin/settings'
     | '/_org/$orgSlug/_authenticated/admin/uploads'
+    | '/_org/$orgSlug/_authenticated/admin/video-library'
     | '/_org/$orgSlug/_authenticated/coach/event-info'
+    | '/_org/$orgSlug/_authenticated/dancer/video-library'
     | '/_org/$orgSlug/_authenticated/admin/'
     | '/_org/$orgSlug/_authenticated/coach/'
     | '/_org/$orgSlug/_authenticated/dancer/'
@@ -1225,12 +1251,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminIndexRouteImport
       parentRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRoute
     }
+    '/_org/$orgSlug/_authenticated/dancer/video-library': {
+      id: '/_org/$orgSlug/_authenticated/dancer/video-library'
+      path: '/video-library'
+      fullPath: '/$orgSlug/dancer/video-library'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedDancerVideoLibraryRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedDancerRouteRoute
+    }
     '/_org/$orgSlug/_authenticated/coach/event-info': {
       id: '/_org/$orgSlug/_authenticated/coach/event-info'
       path: '/event-info'
       fullPath: '/$orgSlug/coach/event-info'
       preLoaderRoute: typeof OrgOrgSlugAuthenticatedCoachEventInfoRouteImport
       parentRoute: typeof OrgOrgSlugAuthenticatedCoachRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/admin/video-library': {
+      id: '/_org/$orgSlug/_authenticated/admin/video-library'
+      path: '/video-library'
+      fullPath: '/$orgSlug/admin/video-library'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminVideoLibraryRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRoute
     }
     '/_org/$orgSlug/_authenticated/admin/uploads': {
       id: '/_org/$orgSlug/_authenticated/admin/uploads'
@@ -1476,6 +1516,7 @@ interface OrgOrgSlugAuthenticatedAdminRouteRouteChildren {
   OrgOrgSlugAuthenticatedAdminReconciliationRoute: typeof OrgOrgSlugAuthenticatedAdminReconciliationRoute
   OrgOrgSlugAuthenticatedAdminSettingsRoute: typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
   OrgOrgSlugAuthenticatedAdminUploadsRoute: typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
+  OrgOrgSlugAuthenticatedAdminVideoLibraryRoute: typeof OrgOrgSlugAuthenticatedAdminVideoLibraryRoute
   OrgOrgSlugAuthenticatedAdminIndexRoute: typeof OrgOrgSlugAuthenticatedAdminIndexRoute
 }
 
@@ -1491,6 +1532,8 @@ const OrgOrgSlugAuthenticatedAdminRouteRouteChildren: OrgOrgSlugAuthenticatedAdm
       OrgOrgSlugAuthenticatedAdminSettingsRoute,
     OrgOrgSlugAuthenticatedAdminUploadsRoute:
       OrgOrgSlugAuthenticatedAdminUploadsRoute,
+    OrgOrgSlugAuthenticatedAdminVideoLibraryRoute:
+      OrgOrgSlugAuthenticatedAdminVideoLibraryRoute,
     OrgOrgSlugAuthenticatedAdminIndexRoute:
       OrgOrgSlugAuthenticatedAdminIndexRoute,
   }
@@ -1522,11 +1565,14 @@ const OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren =
   )
 
 interface OrgOrgSlugAuthenticatedDancerRouteRouteChildren {
+  OrgOrgSlugAuthenticatedDancerVideoLibraryRoute: typeof OrgOrgSlugAuthenticatedDancerVideoLibraryRoute
   OrgOrgSlugAuthenticatedDancerIndexRoute: typeof OrgOrgSlugAuthenticatedDancerIndexRoute
 }
 
 const OrgOrgSlugAuthenticatedDancerRouteRouteChildren: OrgOrgSlugAuthenticatedDancerRouteRouteChildren =
   {
+    OrgOrgSlugAuthenticatedDancerVideoLibraryRoute:
+      OrgOrgSlugAuthenticatedDancerVideoLibraryRoute,
     OrgOrgSlugAuthenticatedDancerIndexRoute:
       OrgOrgSlugAuthenticatedDancerIndexRoute,
   }

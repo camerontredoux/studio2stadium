@@ -442,7 +442,7 @@ function DancerSearch() {
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto xl:flex-row xl:overflow-hidden">
       {/* Main column */}
-      <div className="flex min-w-0 flex-col xl:min-h-0 xl:flex-1 xl:overflow-y-auto">
+      <div className="flex min-w-0 flex-col xl:min-h-0 xl:flex-1 xl:overflow-hidden">
         <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4">
           <div className="flex items-baseline gap-3">
             <h1 className="text-lg font-semibold tracking-tight 2xl:text-xl">

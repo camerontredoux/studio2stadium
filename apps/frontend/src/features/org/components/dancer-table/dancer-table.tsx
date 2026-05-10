@@ -13,7 +13,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronDownIcon, ChevronUpIcon, Loader2Icon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Frame, FrameFooter } from "@/components/ui/frame";
 import {
@@ -70,10 +70,24 @@ export function DancerTable<T extends { rosterId: string }>({
   rowSelection,
   onRowSelectionChange,
 }: DancerTableProps<T>) {
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize,
   });
+
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return;
+    const container = frame.querySelector('[data-slot="table-container"]');
+    if (!container) return;
+
+    const onScroll = () => setIsScrolled(container.scrollTop > 0);
+    container.addEventListener("scroll", onScroll, { passive: true });
+    return () => container.removeEventListener("scroll", onScroll);
+  }, []);
+
   const [internalSorting, setInternalSorting] = useState<SortingState>(sortingProp ?? []);
   const isControlled = onSortingChangeProp !== undefined;
   const sorting = isControlled ? (sortingProp ?? []) : internalSorting;
@@ -223,9 +237,9 @@ export function DancerTable<T extends { rosterId: string }>({
       </div>
 
       {/* Desktop Table View */}
-      <Frame className="relative hidden w-full flex-1 sm:flex sm:flex-col *:data-[slot=table-container]:flex-1">
-        <Table className={!isLoading && !paginatedRows.length ? "h-full" : ""}>
-          <TableHeader>
+      <Frame ref={frameRef} className="relative hidden w-full min-h-0 flex-1 sm:flex sm:flex-col *:data-[slot=table-container]:min-h-0 *:data-[slot=table-container]:flex-1 *:data-[slot=table-container]:overflow-y-auto *:data-[slot=table-container]:[scrollbar-width:thin]">
+        <Table className={isLoading || !paginatedRows.length ? "h-full" : ""}>
+          <TableHeader className={`sticky top-0 z-10 [&_th]:transition-colors ${isScrolled ? "[&_th]:bg-[#f8f8f8] dark:[&_th]:bg-[#18181A]" : ""}`}>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow className="hover:bg-transparent" key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
