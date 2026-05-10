@@ -108,3 +108,30 @@ export const eventSchoolSelections = pg.pgTable(
     pg.index().on(table.eventId, table.coachRosterId),
   ]
 );
+
+export const eventCallbacks = pg.pgTable(
+  "event_callbacks",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    eventId: pg
+      .uuid()
+      .notNull()
+      .references(() => orgEvents.id, { onDelete: "cascade" }),
+    coachRosterId: pg
+      .uuid()
+      .notNull()
+      .references(() => eventRosters.id, { onDelete: "cascade" }),
+    dancerRosterId: pg
+      .uuid()
+      .notNull()
+      .references(() => eventRosters.id, { onDelete: "cascade" }),
+    ...timestamps,
+  },
+  (table) => [
+    pg
+      .uniqueIndex()
+      .on(table.eventId, table.coachRosterId, table.dancerRosterId),
+    pg.index().on(table.eventId, table.dancerRosterId),
+    pg.index().on(table.coachRosterId),
+  ]
+);
