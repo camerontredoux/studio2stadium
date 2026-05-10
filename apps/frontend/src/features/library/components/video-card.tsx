@@ -101,16 +101,15 @@ export function VideoCard({ video }: VideoCardProps) {
             <DialogFooter>
               {isAdmin && (
                 <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
-                  <AlertDialogTrigger
-                    render={<Button variant="destructive" />}
-                  >
+                  <AlertDialogTrigger render={<Button variant="destructive" />}>
                     Delete
                   </AlertDialogTrigger>
                   <AlertDialogPopup>
                     <AlertDialogHeader>
                       <AlertDialogTitle>Delete Video</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Are you sure you want to delete "{video.title}"? This action cannot be undone.
+                        Are you sure you want to delete "{video.title}"? This
+                        action cannot be undone.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

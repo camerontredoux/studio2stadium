@@ -28,7 +28,8 @@ export class Service {
     const sortBy = params.sortBy ?? "createdAt";
     const sortDirection = params.sortDirection ?? "desc";
     const sortColumn = sortColumnMap[sortBy];
-    const orderBy = sortDirection === "asc" ? asc(sortColumn) : desc(sortColumn);
+    const orderBy =
+      sortDirection === "asc" ? asc(sortColumn) : desc(sortColumn);
 
     const [data, countResult] = await Promise.all([
       this.db.use((db) =>

@@ -1,4 +1,4 @@
-import { defineConfig } from "@adonisjs/core/app";
+import { defineConfig } from "@adonisjs/core/app"
 
 export default defineConfig({
   /*
@@ -60,6 +60,7 @@ export default defineConfig({
     () => import("@adonisjs/cache/cache_provider"),
     () => import("@adonisjs/drive/drive_provider"),
     () => import("#payments/stripe/provider"),
+    () => import('@adonisjs/transmit/transmit_provider')
   ],
 
   /*
@@ -75,6 +76,7 @@ export default defineConfig({
     () => import("#start/kernel"),
     () => import("#start/events"),
     () => import("#start/payments"),
+    () => import("#start/transmit"),
     {
       file: () => import("#start/cron"),
       environment: ["web"],
@@ -101,6 +103,9 @@ export default defineConfig({
         files: [
           "tests/functional/**/*.spec(.ts|.js)",
           "app/modules/**/*.spec.ts",
+          "app/middleware/**/*.spec.ts",
+          "app/shared/**/*.spec.ts",
+          "commands/**/*.spec.ts",
         ],
         name: "functional",
         timeout: 30000,
@@ -108,4 +113,4 @@ export default defineConfig({
     ],
     forceExit: false,
   },
-});
+})

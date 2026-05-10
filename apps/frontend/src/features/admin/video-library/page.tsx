@@ -57,10 +57,19 @@ export function VideoLibraryPage() {
           <CardTitle>Add Training Video</CardTitle>
         </CardHeader>
         <CardContent>
-          <VideoForm key={formKey} onSubmit={handleSubmit} formId="video-form" />
+          <VideoForm
+            key={formKey}
+            onSubmit={handleSubmit}
+            formId="video-form"
+          />
         </CardContent>
         <CardFooter className="justify-end">
-          <Button type="submit" size="sm" form="video-form" disabled={isPending}>
+          <Button
+            type="submit"
+            size="sm"
+            form="video-form"
+            disabled={isPending}
+          >
             {isPending ? <Spinner label="Adding..." /> : "Add Video"}
           </Button>
         </CardFooter>

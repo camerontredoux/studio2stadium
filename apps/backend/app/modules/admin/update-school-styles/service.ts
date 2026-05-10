@@ -17,7 +17,10 @@ export class Service {
 
   async execute(payload: Validator) {
     const { params, ...stylesPayload } = payload;
-    const resolved = await resolveSchoolUserByUsername(this.db, params.username);
+    const resolved = await resolveSchoolUserByUsername(
+      this.db,
+      params.username
+    );
     if (!resolved.ok) {
       return { error: resolved.error };
     }

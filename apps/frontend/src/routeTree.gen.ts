@@ -9,11 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as OrgRouteRouteImport } from './routes/_org/route'
 import { Route as OnboardingRouteRouteImport } from './routes/_onboarding/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AdminRouteRouteImport } from './routes/_admin/route'
 import { Route as ApproutesIndexRouteImport } from './routes/_app/(routes)/index'
+import { Route as OrgOrgSlugRegisterRouteImport } from './routes/_org/$orgSlug/register'
+import { Route as OrgOrgSlugLoginRouteImport } from './routes/_org/$orgSlug/login'
 import { Route as AuthroutesResetRouteImport } from './routes/_auth/(routes)/reset'
 import { Route as AuthroutesLoginRouteImport } from './routes/_auth/(routes)/login'
 import { Route as AuthroutesForgotRouteImport } from './routes/_auth/(routes)/forgot'
@@ -24,6 +27,7 @@ import { Route as ApproutesFeedRouteImport } from './routes/_app/(routes)/feed'
 import { Route as ApproutesDancersRouteImport } from './routes/_app/(routes)/dancers'
 import { Route as ApproutesCheckoutRouteImport } from './routes/_app/(routes)/checkout'
 import { Route as ApproutesUsernameRouteImport } from './routes/_app/(routes)/$username'
+import { Route as OrgOrgSlugAuthenticatedRouteRouteImport } from './routes/_org/$orgSlug/_authenticated/route'
 import { Route as ApproutesSettingsRouteRouteImport } from './routes/_app/(routes)/settings/route'
 import { Route as ApproutesResourcesRouteRouteImport } from './routes/_app/(routes)/resources/route'
 import { Route as ApproutesRecruitingRouteRouteImport } from './routes/_app/(routes)/recruiting/route'
@@ -57,9 +61,29 @@ import { Route as AdminroutesAdminDashboardRouteImport } from './routes/_admin/(
 import { Route as AdminroutesAdminDancersRouteImport } from './routes/_admin/(routes)/admin/dancers'
 import { Route as AdminroutesAdminBlogRouteImport } from './routes/_admin/(routes)/admin/blog'
 import { Route as AdminroutesAdminApplicationsRouteImport } from './routes/_admin/(routes)/admin/applications'
+import { Route as OrgOrgSlugAuthenticatedDancerRouteRouteImport } from './routes/_org/$orgSlug/_authenticated/dancer/route'
+import { Route as OrgOrgSlugAuthenticatedCoachRouteRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/route'
+import { Route as OrgOrgSlugAuthenticatedAdminRouteRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/route'
+import { Route as OrgOrgSlugAuthenticatedDancerIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/dancer/index'
+import { Route as OrgOrgSlugAuthenticatedCoachIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/index'
+import { Route as OrgOrgSlugAuthenticatedAdminIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/index'
+import { Route as OrgOrgSlugAuthenticatedDancerVideoLibraryRouteImport } from './routes/_org/$orgSlug/_authenticated/dancer/video-library'
+import { Route as OrgOrgSlugAuthenticatedCoachEventInfoRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/event-info'
+import { Route as OrgOrgSlugAuthenticatedAdminVideoLibraryRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/video-library'
+import { Route as OrgOrgSlugAuthenticatedAdminUploadsRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/uploads'
+import { Route as OrgOrgSlugAuthenticatedAdminSettingsRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/settings'
+import { Route as OrgOrgSlugAuthenticatedAdminReconciliationRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/reconciliation'
+import { Route as OrgOrgSlugAuthenticatedAdminDancersRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/dancers'
+import { Route as OrgOrgSlugAuthenticatedAdminCoachesRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/coaches'
+import { Route as OrgOrgSlugAuthenticatedAdminCallbacksRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/callbacks'
 import { Route as AdminroutesAdminDashboardMetricsRouteImport } from './routes/_admin/(routes)/admin/dashboard/metrics'
 import { Route as AdminroutesAdminDashboardAssetsRouteImport } from './routes/_admin/(routes)/admin/dashboard/assets'
+import { Route as OrgOrgSlugAuthenticatedCoachDancersIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/dancers/index'
 
+const OrgRouteRoute = OrgRouteRouteImport.update({
+  id: '/_org',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRouteRoute = OnboardingRouteRouteImport.update({
   id: '/_onboarding',
   getParentRoute: () => rootRouteImport,
@@ -80,6 +104,16 @@ const ApproutesIndexRoute = ApproutesIndexRouteImport.update({
   id: '/(routes)/',
   path: '/',
   getParentRoute: () => AppRouteRoute,
+} as any)
+const OrgOrgSlugRegisterRoute = OrgOrgSlugRegisterRouteImport.update({
+  id: '/$orgSlug/register',
+  path: '/$orgSlug/register',
+  getParentRoute: () => OrgRouteRoute,
+} as any)
+const OrgOrgSlugLoginRoute = OrgOrgSlugLoginRouteImport.update({
+  id: '/$orgSlug/login',
+  path: '/$orgSlug/login',
+  getParentRoute: () => OrgRouteRoute,
 } as any)
 const AuthroutesResetRoute = AuthroutesResetRouteImport.update({
   id: '/(routes)/reset',
@@ -131,6 +165,12 @@ const ApproutesUsernameRoute = ApproutesUsernameRouteImport.update({
   path: '/$username',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const OrgOrgSlugAuthenticatedRouteRoute =
+  OrgOrgSlugAuthenticatedRouteRouteImport.update({
+    id: '/$orgSlug/_authenticated',
+    path: '/$orgSlug',
+    getParentRoute: () => OrgRouteRoute,
+  } as any)
 const ApproutesSettingsRouteRoute = ApproutesSettingsRouteRouteImport.update({
   id: '/(routes)/settings',
   path: '/settings',
@@ -315,6 +355,96 @@ const AdminroutesAdminApplicationsRoute =
     path: '/admin/applications',
     getParentRoute: () => AdminRouteRoute,
   } as any)
+const OrgOrgSlugAuthenticatedDancerRouteRoute =
+  OrgOrgSlugAuthenticatedDancerRouteRouteImport.update({
+    id: '/dancer',
+    path: '/dancer',
+    getParentRoute: () => OrgOrgSlugAuthenticatedRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedCoachRouteRoute =
+  OrgOrgSlugAuthenticatedCoachRouteRouteImport.update({
+    id: '/coach',
+    path: '/coach',
+    getParentRoute: () => OrgOrgSlugAuthenticatedRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedAdminRouteRoute =
+  OrgOrgSlugAuthenticatedAdminRouteRouteImport.update({
+    id: '/admin',
+    path: '/admin',
+    getParentRoute: () => OrgOrgSlugAuthenticatedRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedDancerIndexRoute =
+  OrgOrgSlugAuthenticatedDancerIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => OrgOrgSlugAuthenticatedDancerRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedCoachIndexRoute =
+  OrgOrgSlugAuthenticatedCoachIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => OrgOrgSlugAuthenticatedCoachRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedAdminIndexRoute =
+  OrgOrgSlugAuthenticatedAdminIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => OrgOrgSlugAuthenticatedAdminRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedDancerVideoLibraryRoute =
+  OrgOrgSlugAuthenticatedDancerVideoLibraryRouteImport.update({
+    id: '/video-library',
+    path: '/video-library',
+    getParentRoute: () => OrgOrgSlugAuthenticatedDancerRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedCoachEventInfoRoute =
+  OrgOrgSlugAuthenticatedCoachEventInfoRouteImport.update({
+    id: '/event-info',
+    path: '/event-info',
+    getParentRoute: () => OrgOrgSlugAuthenticatedCoachRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedAdminVideoLibraryRoute =
+  OrgOrgSlugAuthenticatedAdminVideoLibraryRouteImport.update({
+    id: '/video-library',
+    path: '/video-library',
+    getParentRoute: () => OrgOrgSlugAuthenticatedAdminRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedAdminUploadsRoute =
+  OrgOrgSlugAuthenticatedAdminUploadsRouteImport.update({
+    id: '/uploads',
+    path: '/uploads',
+    getParentRoute: () => OrgOrgSlugAuthenticatedAdminRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedAdminSettingsRoute =
+  OrgOrgSlugAuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => OrgOrgSlugAuthenticatedAdminRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedAdminReconciliationRoute =
+  OrgOrgSlugAuthenticatedAdminReconciliationRouteImport.update({
+    id: '/reconciliation',
+    path: '/reconciliation',
+    getParentRoute: () => OrgOrgSlugAuthenticatedAdminRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedAdminDancersRoute =
+  OrgOrgSlugAuthenticatedAdminDancersRouteImport.update({
+    id: '/dancers',
+    path: '/dancers',
+    getParentRoute: () => OrgOrgSlugAuthenticatedAdminRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedAdminCoachesRoute =
+  OrgOrgSlugAuthenticatedAdminCoachesRouteImport.update({
+    id: '/coaches',
+    path: '/coaches',
+    getParentRoute: () => OrgOrgSlugAuthenticatedAdminRouteRoute,
+  } as any)
+const OrgOrgSlugAuthenticatedAdminCallbacksRoute =
+  OrgOrgSlugAuthenticatedAdminCallbacksRouteImport.update({
+    id: '/callbacks',
+    path: '/callbacks',
+    getParentRoute: () => OrgOrgSlugAuthenticatedAdminRouteRoute,
+  } as any)
 const AdminroutesAdminDashboardMetricsRoute =
   AdminroutesAdminDashboardMetricsRouteImport.update({
     id: '/metrics',
@@ -327,12 +457,19 @@ const AdminroutesAdminDashboardAssetsRoute =
     path: '/assets',
     getParentRoute: () => AdminroutesAdminDashboardRoute,
   } as any)
+const OrgOrgSlugAuthenticatedCoachDancersIndexRoute =
+  OrgOrgSlugAuthenticatedCoachDancersIndexRouteImport.update({
+    id: '/dancers/',
+    path: '/dancers/',
+    getParentRoute: () => OrgOrgSlugAuthenticatedCoachRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof ApproutesIndexRoute
   '/recruiting': typeof ApproutesRecruitingRouteRouteWithChildren
   '/resources': typeof ApproutesResourcesRouteRouteWithChildren
   '/settings': typeof ApproutesSettingsRouteRouteWithChildren
+  '/$orgSlug': typeof OrgOrgSlugAuthenticatedRouteRouteWithChildren
   '/$username': typeof ApproutesUsernameRoute
   '/checkout': typeof ApproutesCheckoutRoute
   '/dancers': typeof ApproutesDancersRoute
@@ -343,6 +480,11 @@ export interface FileRoutesByFullPath {
   '/forgot': typeof AuthroutesForgotRoute
   '/login': typeof AuthroutesLoginRoute
   '/reset': typeof AuthroutesResetRoute
+  '/$orgSlug/login': typeof OrgOrgSlugLoginRoute
+  '/$orgSlug/register': typeof OrgOrgSlugRegisterRoute
+  '/$orgSlug/admin': typeof OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren
+  '/$orgSlug/coach': typeof OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren
+  '/$orgSlug/dancer': typeof OrgOrgSlugAuthenticatedDancerRouteRouteWithChildren
   '/admin/applications': typeof AdminroutesAdminApplicationsRoute
   '/admin/blog': typeof AdminroutesAdminBlogRoute
   '/admin/dancers': typeof AdminroutesAdminDancersRoute
@@ -375,9 +517,23 @@ export interface FileRoutesByFullPath {
   '/onboarding/': typeof OnboardingroutesOnboardingIndexRoute
   '/admin/dashboard/assets': typeof AdminroutesAdminDashboardAssetsRoute
   '/admin/dashboard/metrics': typeof AdminroutesAdminDashboardMetricsRoute
+  '/$orgSlug/admin/callbacks': typeof OrgOrgSlugAuthenticatedAdminCallbacksRoute
+  '/$orgSlug/admin/coaches': typeof OrgOrgSlugAuthenticatedAdminCoachesRoute
+  '/$orgSlug/admin/dancers': typeof OrgOrgSlugAuthenticatedAdminDancersRoute
+  '/$orgSlug/admin/reconciliation': typeof OrgOrgSlugAuthenticatedAdminReconciliationRoute
+  '/$orgSlug/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
+  '/$orgSlug/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
+  '/$orgSlug/admin/video-library': typeof OrgOrgSlugAuthenticatedAdminVideoLibraryRoute
+  '/$orgSlug/coach/event-info': typeof OrgOrgSlugAuthenticatedCoachEventInfoRoute
+  '/$orgSlug/dancer/video-library': typeof OrgOrgSlugAuthenticatedDancerVideoLibraryRoute
+  '/$orgSlug/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
+  '/$orgSlug/coach/': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
+  '/$orgSlug/dancer/': typeof OrgOrgSlugAuthenticatedDancerIndexRoute
+  '/$orgSlug/coach/dancers/': typeof OrgOrgSlugAuthenticatedCoachDancersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof ApproutesIndexRoute
+  '/$orgSlug': typeof OrgOrgSlugAuthenticatedRouteRouteWithChildren
   '/$username': typeof ApproutesUsernameRoute
   '/checkout': typeof ApproutesCheckoutRoute
   '/dancers': typeof ApproutesDancersRoute
@@ -388,6 +544,8 @@ export interface FileRoutesByTo {
   '/forgot': typeof AuthroutesForgotRoute
   '/login': typeof AuthroutesLoginRoute
   '/reset': typeof AuthroutesResetRoute
+  '/$orgSlug/login': typeof OrgOrgSlugLoginRoute
+  '/$orgSlug/register': typeof OrgOrgSlugRegisterRoute
   '/admin/applications': typeof AdminroutesAdminApplicationsRoute
   '/admin/blog': typeof AdminroutesAdminBlogRoute
   '/admin/dancers': typeof AdminroutesAdminDancersRoute
@@ -420,6 +578,19 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingroutesOnboardingIndexRoute
   '/admin/dashboard/assets': typeof AdminroutesAdminDashboardAssetsRoute
   '/admin/dashboard/metrics': typeof AdminroutesAdminDashboardMetricsRoute
+  '/$orgSlug/admin/callbacks': typeof OrgOrgSlugAuthenticatedAdminCallbacksRoute
+  '/$orgSlug/admin/coaches': typeof OrgOrgSlugAuthenticatedAdminCoachesRoute
+  '/$orgSlug/admin/dancers': typeof OrgOrgSlugAuthenticatedAdminDancersRoute
+  '/$orgSlug/admin/reconciliation': typeof OrgOrgSlugAuthenticatedAdminReconciliationRoute
+  '/$orgSlug/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
+  '/$orgSlug/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
+  '/$orgSlug/admin/video-library': typeof OrgOrgSlugAuthenticatedAdminVideoLibraryRoute
+  '/$orgSlug/coach/event-info': typeof OrgOrgSlugAuthenticatedCoachEventInfoRoute
+  '/$orgSlug/dancer/video-library': typeof OrgOrgSlugAuthenticatedDancerVideoLibraryRoute
+  '/$orgSlug/admin': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
+  '/$orgSlug/coach': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
+  '/$orgSlug/dancer': typeof OrgOrgSlugAuthenticatedDancerIndexRoute
+  '/$orgSlug/coach/dancers': typeof OrgOrgSlugAuthenticatedCoachDancersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -427,9 +598,11 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteRouteWithChildren
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_onboarding': typeof OnboardingRouteRouteWithChildren
+  '/_org': typeof OrgRouteRouteWithChildren
   '/_app/(routes)/recruiting': typeof ApproutesRecruitingRouteRouteWithChildren
   '/_app/(routes)/resources': typeof ApproutesResourcesRouteRouteWithChildren
   '/_app/(routes)/settings': typeof ApproutesSettingsRouteRouteWithChildren
+  '/_org/$orgSlug/_authenticated': typeof OrgOrgSlugAuthenticatedRouteRouteWithChildren
   '/_app/(routes)/$username': typeof ApproutesUsernameRoute
   '/_app/(routes)/checkout': typeof ApproutesCheckoutRoute
   '/_app/(routes)/dancers': typeof ApproutesDancersRoute
@@ -440,7 +613,12 @@ export interface FileRoutesById {
   '/_auth/(routes)/forgot': typeof AuthroutesForgotRoute
   '/_auth/(routes)/login': typeof AuthroutesLoginRoute
   '/_auth/(routes)/reset': typeof AuthroutesResetRoute
+  '/_org/$orgSlug/login': typeof OrgOrgSlugLoginRoute
+  '/_org/$orgSlug/register': typeof OrgOrgSlugRegisterRoute
   '/_app/(routes)/': typeof ApproutesIndexRoute
+  '/_org/$orgSlug/_authenticated/admin': typeof OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren
+  '/_org/$orgSlug/_authenticated/coach': typeof OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren
+  '/_org/$orgSlug/_authenticated/dancer': typeof OrgOrgSlugAuthenticatedDancerRouteRouteWithChildren
   '/_admin/(routes)/admin/applications': typeof AdminroutesAdminApplicationsRoute
   '/_admin/(routes)/admin/blog': typeof AdminroutesAdminBlogRoute
   '/_admin/(routes)/admin/dancers': typeof AdminroutesAdminDancersRoute
@@ -473,6 +651,19 @@ export interface FileRoutesById {
   '/_onboarding/(routes)/onboarding/': typeof OnboardingroutesOnboardingIndexRoute
   '/_admin/(routes)/admin/dashboard/assets': typeof AdminroutesAdminDashboardAssetsRoute
   '/_admin/(routes)/admin/dashboard/metrics': typeof AdminroutesAdminDashboardMetricsRoute
+  '/_org/$orgSlug/_authenticated/admin/callbacks': typeof OrgOrgSlugAuthenticatedAdminCallbacksRoute
+  '/_org/$orgSlug/_authenticated/admin/coaches': typeof OrgOrgSlugAuthenticatedAdminCoachesRoute
+  '/_org/$orgSlug/_authenticated/admin/dancers': typeof OrgOrgSlugAuthenticatedAdminDancersRoute
+  '/_org/$orgSlug/_authenticated/admin/reconciliation': typeof OrgOrgSlugAuthenticatedAdminReconciliationRoute
+  '/_org/$orgSlug/_authenticated/admin/settings': typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
+  '/_org/$orgSlug/_authenticated/admin/uploads': typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
+  '/_org/$orgSlug/_authenticated/admin/video-library': typeof OrgOrgSlugAuthenticatedAdminVideoLibraryRoute
+  '/_org/$orgSlug/_authenticated/coach/event-info': typeof OrgOrgSlugAuthenticatedCoachEventInfoRoute
+  '/_org/$orgSlug/_authenticated/dancer/video-library': typeof OrgOrgSlugAuthenticatedDancerVideoLibraryRoute
+  '/_org/$orgSlug/_authenticated/admin/': typeof OrgOrgSlugAuthenticatedAdminIndexRoute
+  '/_org/$orgSlug/_authenticated/coach/': typeof OrgOrgSlugAuthenticatedCoachIndexRoute
+  '/_org/$orgSlug/_authenticated/dancer/': typeof OrgOrgSlugAuthenticatedDancerIndexRoute
+  '/_org/$orgSlug/_authenticated/coach/dancers/': typeof OrgOrgSlugAuthenticatedCoachDancersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -481,6 +672,7 @@ export interface FileRouteTypes {
     | '/recruiting'
     | '/resources'
     | '/settings'
+    | '/$orgSlug'
     | '/$username'
     | '/checkout'
     | '/dancers'
@@ -491,6 +683,11 @@ export interface FileRouteTypes {
     | '/forgot'
     | '/login'
     | '/reset'
+    | '/$orgSlug/login'
+    | '/$orgSlug/register'
+    | '/$orgSlug/admin'
+    | '/$orgSlug/coach'
+    | '/$orgSlug/dancer'
     | '/admin/applications'
     | '/admin/blog'
     | '/admin/dancers'
@@ -523,9 +720,23 @@ export interface FileRouteTypes {
     | '/onboarding/'
     | '/admin/dashboard/assets'
     | '/admin/dashboard/metrics'
+    | '/$orgSlug/admin/callbacks'
+    | '/$orgSlug/admin/coaches'
+    | '/$orgSlug/admin/dancers'
+    | '/$orgSlug/admin/reconciliation'
+    | '/$orgSlug/admin/settings'
+    | '/$orgSlug/admin/uploads'
+    | '/$orgSlug/admin/video-library'
+    | '/$orgSlug/coach/event-info'
+    | '/$orgSlug/dancer/video-library'
+    | '/$orgSlug/admin/'
+    | '/$orgSlug/coach/'
+    | '/$orgSlug/dancer/'
+    | '/$orgSlug/coach/dancers/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$orgSlug'
     | '/$username'
     | '/checkout'
     | '/dancers'
@@ -536,6 +747,8 @@ export interface FileRouteTypes {
     | '/forgot'
     | '/login'
     | '/reset'
+    | '/$orgSlug/login'
+    | '/$orgSlug/register'
     | '/admin/applications'
     | '/admin/blog'
     | '/admin/dancers'
@@ -568,15 +781,30 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/admin/dashboard/assets'
     | '/admin/dashboard/metrics'
+    | '/$orgSlug/admin/callbacks'
+    | '/$orgSlug/admin/coaches'
+    | '/$orgSlug/admin/dancers'
+    | '/$orgSlug/admin/reconciliation'
+    | '/$orgSlug/admin/settings'
+    | '/$orgSlug/admin/uploads'
+    | '/$orgSlug/admin/video-library'
+    | '/$orgSlug/coach/event-info'
+    | '/$orgSlug/dancer/video-library'
+    | '/$orgSlug/admin'
+    | '/$orgSlug/coach'
+    | '/$orgSlug/dancer'
+    | '/$orgSlug/coach/dancers'
   id:
     | '__root__'
     | '/_admin'
     | '/_app'
     | '/_auth'
     | '/_onboarding'
+    | '/_org'
     | '/_app/(routes)/recruiting'
     | '/_app/(routes)/resources'
     | '/_app/(routes)/settings'
+    | '/_org/$orgSlug/_authenticated'
     | '/_app/(routes)/$username'
     | '/_app/(routes)/checkout'
     | '/_app/(routes)/dancers'
@@ -587,7 +815,12 @@ export interface FileRouteTypes {
     | '/_auth/(routes)/forgot'
     | '/_auth/(routes)/login'
     | '/_auth/(routes)/reset'
+    | '/_org/$orgSlug/login'
+    | '/_org/$orgSlug/register'
     | '/_app/(routes)/'
+    | '/_org/$orgSlug/_authenticated/admin'
+    | '/_org/$orgSlug/_authenticated/coach'
+    | '/_org/$orgSlug/_authenticated/dancer'
     | '/_admin/(routes)/admin/applications'
     | '/_admin/(routes)/admin/blog'
     | '/_admin/(routes)/admin/dancers'
@@ -620,6 +853,19 @@ export interface FileRouteTypes {
     | '/_onboarding/(routes)/onboarding/'
     | '/_admin/(routes)/admin/dashboard/assets'
     | '/_admin/(routes)/admin/dashboard/metrics'
+    | '/_org/$orgSlug/_authenticated/admin/callbacks'
+    | '/_org/$orgSlug/_authenticated/admin/coaches'
+    | '/_org/$orgSlug/_authenticated/admin/dancers'
+    | '/_org/$orgSlug/_authenticated/admin/reconciliation'
+    | '/_org/$orgSlug/_authenticated/admin/settings'
+    | '/_org/$orgSlug/_authenticated/admin/uploads'
+    | '/_org/$orgSlug/_authenticated/admin/video-library'
+    | '/_org/$orgSlug/_authenticated/coach/event-info'
+    | '/_org/$orgSlug/_authenticated/dancer/video-library'
+    | '/_org/$orgSlug/_authenticated/admin/'
+    | '/_org/$orgSlug/_authenticated/coach/'
+    | '/_org/$orgSlug/_authenticated/dancer/'
+    | '/_org/$orgSlug/_authenticated/coach/dancers/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -627,10 +873,18 @@ export interface RootRouteChildren {
   AppRouteRoute: typeof AppRouteRouteWithChildren
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   OnboardingRouteRoute: typeof OnboardingRouteRouteWithChildren
+  OrgRouteRoute: typeof OrgRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_org': {
+      id: '/_org'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof OrgRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_onboarding': {
       id: '/_onboarding'
       path: ''
@@ -665,6 +919,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof ApproutesIndexRouteImport
       parentRoute: typeof AppRouteRoute
+    }
+    '/_org/$orgSlug/register': {
+      id: '/_org/$orgSlug/register'
+      path: '/$orgSlug/register'
+      fullPath: '/$orgSlug/register'
+      preLoaderRoute: typeof OrgOrgSlugRegisterRouteImport
+      parentRoute: typeof OrgRouteRoute
+    }
+    '/_org/$orgSlug/login': {
+      id: '/_org/$orgSlug/login'
+      path: '/$orgSlug/login'
+      fullPath: '/$orgSlug/login'
+      preLoaderRoute: typeof OrgOrgSlugLoginRouteImport
+      parentRoute: typeof OrgRouteRoute
     }
     '/_auth/(routes)/reset': {
       id: '/_auth/(routes)/reset'
@@ -735,6 +1003,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$username'
       preLoaderRoute: typeof ApproutesUsernameRouteImport
       parentRoute: typeof AppRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated': {
+      id: '/_org/$orgSlug/_authenticated'
+      path: '/$orgSlug'
+      fullPath: '/$orgSlug'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedRouteRouteImport
+      parentRoute: typeof OrgRouteRoute
     }
     '/_app/(routes)/settings': {
       id: '/_app/(routes)/settings'
@@ -967,6 +1242,111 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminroutesAdminApplicationsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/_org/$orgSlug/_authenticated/dancer': {
+      id: '/_org/$orgSlug/_authenticated/dancer'
+      path: '/dancer'
+      fullPath: '/$orgSlug/dancer'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedDancerRouteRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/coach': {
+      id: '/_org/$orgSlug/_authenticated/coach'
+      path: '/coach'
+      fullPath: '/$orgSlug/coach'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedCoachRouteRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/admin': {
+      id: '/_org/$orgSlug/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/$orgSlug/admin'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/dancer/': {
+      id: '/_org/$orgSlug/_authenticated/dancer/'
+      path: '/'
+      fullPath: '/$orgSlug/dancer/'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedDancerIndexRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedDancerRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/coach/': {
+      id: '/_org/$orgSlug/_authenticated/coach/'
+      path: '/'
+      fullPath: '/$orgSlug/coach/'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedCoachIndexRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedCoachRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/admin/': {
+      id: '/_org/$orgSlug/_authenticated/admin/'
+      path: '/'
+      fullPath: '/$orgSlug/admin/'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminIndexRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/dancer/video-library': {
+      id: '/_org/$orgSlug/_authenticated/dancer/video-library'
+      path: '/video-library'
+      fullPath: '/$orgSlug/dancer/video-library'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedDancerVideoLibraryRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedDancerRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/coach/event-info': {
+      id: '/_org/$orgSlug/_authenticated/coach/event-info'
+      path: '/event-info'
+      fullPath: '/$orgSlug/coach/event-info'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedCoachEventInfoRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedCoachRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/admin/video-library': {
+      id: '/_org/$orgSlug/_authenticated/admin/video-library'
+      path: '/video-library'
+      fullPath: '/$orgSlug/admin/video-library'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminVideoLibraryRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/admin/uploads': {
+      id: '/_org/$orgSlug/_authenticated/admin/uploads'
+      path: '/uploads'
+      fullPath: '/$orgSlug/admin/uploads'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminUploadsRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/admin/settings': {
+      id: '/_org/$orgSlug/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/$orgSlug/admin/settings'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/admin/reconciliation': {
+      id: '/_org/$orgSlug/_authenticated/admin/reconciliation'
+      path: '/reconciliation'
+      fullPath: '/$orgSlug/admin/reconciliation'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminReconciliationRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/admin/dancers': {
+      id: '/_org/$orgSlug/_authenticated/admin/dancers'
+      path: '/dancers'
+      fullPath: '/$orgSlug/admin/dancers'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminDancersRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/admin/coaches': {
+      id: '/_org/$orgSlug/_authenticated/admin/coaches'
+      path: '/coaches'
+      fullPath: '/$orgSlug/admin/coaches'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminCoachesRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRoute
+    }
+    '/_org/$orgSlug/_authenticated/admin/callbacks': {
+      id: '/_org/$orgSlug/_authenticated/admin/callbacks'
+      path: '/callbacks'
+      fullPath: '/$orgSlug/admin/callbacks'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminCallbacksRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRoute
+    }
     '/_admin/(routes)/admin/dashboard/metrics': {
       id: '/_admin/(routes)/admin/dashboard/metrics'
       path: '/metrics'
@@ -980,6 +1360,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/dashboard/assets'
       preLoaderRoute: typeof AdminroutesAdminDashboardAssetsRouteImport
       parentRoute: typeof AdminroutesAdminDashboardRoute
+    }
+    '/_org/$orgSlug/_authenticated/coach/dancers/': {
+      id: '/_org/$orgSlug/_authenticated/coach/dancers/'
+      path: '/dancers'
+      fullPath: '/$orgSlug/coach/dancers/'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedCoachDancersIndexRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedCoachRouteRoute
     }
   }
 }
@@ -1165,11 +1552,125 @@ const OnboardingRouteRouteWithChildren = OnboardingRouteRoute._addFileChildren(
   OnboardingRouteRouteChildren,
 )
 
+interface OrgOrgSlugAuthenticatedAdminRouteRouteChildren {
+  OrgOrgSlugAuthenticatedAdminCallbacksRoute: typeof OrgOrgSlugAuthenticatedAdminCallbacksRoute
+  OrgOrgSlugAuthenticatedAdminCoachesRoute: typeof OrgOrgSlugAuthenticatedAdminCoachesRoute
+  OrgOrgSlugAuthenticatedAdminDancersRoute: typeof OrgOrgSlugAuthenticatedAdminDancersRoute
+  OrgOrgSlugAuthenticatedAdminReconciliationRoute: typeof OrgOrgSlugAuthenticatedAdminReconciliationRoute
+  OrgOrgSlugAuthenticatedAdminSettingsRoute: typeof OrgOrgSlugAuthenticatedAdminSettingsRoute
+  OrgOrgSlugAuthenticatedAdminUploadsRoute: typeof OrgOrgSlugAuthenticatedAdminUploadsRoute
+  OrgOrgSlugAuthenticatedAdminVideoLibraryRoute: typeof OrgOrgSlugAuthenticatedAdminVideoLibraryRoute
+  OrgOrgSlugAuthenticatedAdminIndexRoute: typeof OrgOrgSlugAuthenticatedAdminIndexRoute
+}
+
+const OrgOrgSlugAuthenticatedAdminRouteRouteChildren: OrgOrgSlugAuthenticatedAdminRouteRouteChildren =
+  {
+    OrgOrgSlugAuthenticatedAdminCallbacksRoute:
+      OrgOrgSlugAuthenticatedAdminCallbacksRoute,
+    OrgOrgSlugAuthenticatedAdminCoachesRoute:
+      OrgOrgSlugAuthenticatedAdminCoachesRoute,
+    OrgOrgSlugAuthenticatedAdminDancersRoute:
+      OrgOrgSlugAuthenticatedAdminDancersRoute,
+    OrgOrgSlugAuthenticatedAdminReconciliationRoute:
+      OrgOrgSlugAuthenticatedAdminReconciliationRoute,
+    OrgOrgSlugAuthenticatedAdminSettingsRoute:
+      OrgOrgSlugAuthenticatedAdminSettingsRoute,
+    OrgOrgSlugAuthenticatedAdminUploadsRoute:
+      OrgOrgSlugAuthenticatedAdminUploadsRoute,
+    OrgOrgSlugAuthenticatedAdminVideoLibraryRoute:
+      OrgOrgSlugAuthenticatedAdminVideoLibraryRoute,
+    OrgOrgSlugAuthenticatedAdminIndexRoute:
+      OrgOrgSlugAuthenticatedAdminIndexRoute,
+  }
+
+const OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren =
+  OrgOrgSlugAuthenticatedAdminRouteRoute._addFileChildren(
+    OrgOrgSlugAuthenticatedAdminRouteRouteChildren,
+  )
+
+interface OrgOrgSlugAuthenticatedCoachRouteRouteChildren {
+  OrgOrgSlugAuthenticatedCoachEventInfoRoute: typeof OrgOrgSlugAuthenticatedCoachEventInfoRoute
+  OrgOrgSlugAuthenticatedCoachIndexRoute: typeof OrgOrgSlugAuthenticatedCoachIndexRoute
+  OrgOrgSlugAuthenticatedCoachDancersIndexRoute: typeof OrgOrgSlugAuthenticatedCoachDancersIndexRoute
+}
+
+const OrgOrgSlugAuthenticatedCoachRouteRouteChildren: OrgOrgSlugAuthenticatedCoachRouteRouteChildren =
+  {
+    OrgOrgSlugAuthenticatedCoachEventInfoRoute:
+      OrgOrgSlugAuthenticatedCoachEventInfoRoute,
+    OrgOrgSlugAuthenticatedCoachIndexRoute:
+      OrgOrgSlugAuthenticatedCoachIndexRoute,
+    OrgOrgSlugAuthenticatedCoachDancersIndexRoute:
+      OrgOrgSlugAuthenticatedCoachDancersIndexRoute,
+  }
+
+const OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren =
+  OrgOrgSlugAuthenticatedCoachRouteRoute._addFileChildren(
+    OrgOrgSlugAuthenticatedCoachRouteRouteChildren,
+  )
+
+interface OrgOrgSlugAuthenticatedDancerRouteRouteChildren {
+  OrgOrgSlugAuthenticatedDancerVideoLibraryRoute: typeof OrgOrgSlugAuthenticatedDancerVideoLibraryRoute
+  OrgOrgSlugAuthenticatedDancerIndexRoute: typeof OrgOrgSlugAuthenticatedDancerIndexRoute
+}
+
+const OrgOrgSlugAuthenticatedDancerRouteRouteChildren: OrgOrgSlugAuthenticatedDancerRouteRouteChildren =
+  {
+    OrgOrgSlugAuthenticatedDancerVideoLibraryRoute:
+      OrgOrgSlugAuthenticatedDancerVideoLibraryRoute,
+    OrgOrgSlugAuthenticatedDancerIndexRoute:
+      OrgOrgSlugAuthenticatedDancerIndexRoute,
+  }
+
+const OrgOrgSlugAuthenticatedDancerRouteRouteWithChildren =
+  OrgOrgSlugAuthenticatedDancerRouteRoute._addFileChildren(
+    OrgOrgSlugAuthenticatedDancerRouteRouteChildren,
+  )
+
+interface OrgOrgSlugAuthenticatedRouteRouteChildren {
+  OrgOrgSlugAuthenticatedAdminRouteRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren
+  OrgOrgSlugAuthenticatedCoachRouteRoute: typeof OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren
+  OrgOrgSlugAuthenticatedDancerRouteRoute: typeof OrgOrgSlugAuthenticatedDancerRouteRouteWithChildren
+}
+
+const OrgOrgSlugAuthenticatedRouteRouteChildren: OrgOrgSlugAuthenticatedRouteRouteChildren =
+  {
+    OrgOrgSlugAuthenticatedAdminRouteRoute:
+      OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren,
+    OrgOrgSlugAuthenticatedCoachRouteRoute:
+      OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren,
+    OrgOrgSlugAuthenticatedDancerRouteRoute:
+      OrgOrgSlugAuthenticatedDancerRouteRouteWithChildren,
+  }
+
+const OrgOrgSlugAuthenticatedRouteRouteWithChildren =
+  OrgOrgSlugAuthenticatedRouteRoute._addFileChildren(
+    OrgOrgSlugAuthenticatedRouteRouteChildren,
+  )
+
+interface OrgRouteRouteChildren {
+  OrgOrgSlugAuthenticatedRouteRoute: typeof OrgOrgSlugAuthenticatedRouteRouteWithChildren
+  OrgOrgSlugLoginRoute: typeof OrgOrgSlugLoginRoute
+  OrgOrgSlugRegisterRoute: typeof OrgOrgSlugRegisterRoute
+}
+
+const OrgRouteRouteChildren: OrgRouteRouteChildren = {
+  OrgOrgSlugAuthenticatedRouteRoute:
+    OrgOrgSlugAuthenticatedRouteRouteWithChildren,
+  OrgOrgSlugLoginRoute: OrgOrgSlugLoginRoute,
+  OrgOrgSlugRegisterRoute: OrgOrgSlugRegisterRoute,
+}
+
+const OrgRouteRouteWithChildren = OrgRouteRoute._addFileChildren(
+  OrgRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   AdminRouteRoute: AdminRouteRouteWithChildren,
   AppRouteRoute: AppRouteRouteWithChildren,
   AuthRouteRoute: AuthRouteRouteWithChildren,
   OnboardingRouteRoute: OnboardingRouteRouteWithChildren,
+  OrgRouteRoute: OrgRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -4,10 +4,11 @@ import logger from "@adonisjs/core/services/logger";
 import { DrizzleQueryError } from "drizzle-orm";
 import postgres from "postgres";
 import { db } from "./connection.ts";
+import { AuditCollector, type AuditContext } from "./audit.ts";
 
 type Client = typeof db;
 
-type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+export type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 export class DatabaseService {
   async use<T>(fn: (db: Client) => Promise<T>): Promise<T> {
@@ -20,6 +21,22 @@ export class DatabaseService {
     return await db.transaction(fn).catch((error) => {
       throw this.handleError(error);
     });
+  }
+
+  async withAudit<T>(
+    ctx: AuditContext,
+    fn: (tx: Transaction, audit: AuditCollector) => Promise<T>
+  ): Promise<T> {
+    return await db
+      .transaction(async (tx) => {
+        const audit = new AuditCollector();
+        const result = await fn(tx, audit);
+        await audit.flush(tx, ctx);
+        return result;
+      })
+      .catch((error) => {
+        throw this.handleError(error);
+      });
   }
 
   private handleError(error: unknown) {
@@ -37,8 +54,16 @@ export class DatabaseService {
             code: "E_UNIQUE_VIOLATION",
             cause: field,
           });
-        case "23503":
-          throw new RuntimeException("Foreign key violation");
+        case "23503": {
+          const detail = (cause as { detail?: string }).detail ?? "";
+          const constraint =
+            (cause as { constraint?: string }).constraint ?? "unknown";
+          console.error("FK violation", { constraint, detail });
+          throw new E_DATABASE_ERROR(
+            `Foreign key violation on ${constraint}: ${detail}`,
+            { code: "E_FK_VIOLATION", cause: constraint }
+          );
+        }
         case "23502":
           throw new E_DATABASE_ERROR(
             `Missing required field: ${cause.column_name}`,

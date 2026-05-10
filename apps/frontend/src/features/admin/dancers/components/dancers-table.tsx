@@ -112,17 +112,13 @@ const columns: ColumnDef<Dancer>[] = [
     accessorKey: "location",
     header: "Location",
     cell: ({ row }) =>
-      row.original.location || (
-        <span className="text-muted-foreground">-</span>
-      ),
+      row.original.location || <span className="text-muted-foreground">-</span>,
   },
   {
     accessorKey: "gradYear",
     header: "Grad Year",
     cell: ({ row }) =>
-      row.original.gradYear ?? (
-        <span className="text-muted-foreground">-</span>
-      ),
+      row.original.gradYear ?? <span className="text-muted-foreground">-</span>,
   },
   {
     accessorKey: "gpa",
@@ -240,10 +236,7 @@ export function DancersTable({
                         className={`flex h-full items-center justify-between gap-2 select-none ${canSort ? "cursor-pointer" : ""}`}
                         onClick={() => canSort && handleSort(header.id)}
                         onKeyDown={(e) => {
-                          if (
-                            canSort &&
-                            (e.key === "Enter" || e.key === " ")
-                          ) {
+                          if (canSort && (e.key === "Enter" || e.key === " ")) {
                             e.preventDefault();
                             handleSort(header.id);
                           }

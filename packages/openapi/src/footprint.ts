@@ -212,6 +212,53 @@ function shouldPreserveAlias(aliasName: string, type: Type): boolean {
   return false
 }
 
+/**
+ * Names of built-in/host object types that should be treated as opaque and
+ * never expanded. Expanding them produces exponentially large output (their
+ * methods return instances of themselves, e.g. `ArrayBuffer.slice(): ArrayBuffer`,
+ * `Response.clone(): Response`) which explodes past V8's max string length.
+ */
+const OPAQUE_TYPE_NAMES = new Set([
+  'ArrayBuffer',
+  'SharedArrayBuffer',
+  'Buffer',
+  'DataView',
+  'Uint8Array',
+  'Uint8ClampedArray',
+  'Uint16Array',
+  'Uint32Array',
+  'Int8Array',
+  'Int16Array',
+  'Int32Array',
+  'Float32Array',
+  'Float64Array',
+  'BigInt64Array',
+  'BigUint64Array',
+  'Blob',
+  'File',
+  'FormData',
+  'Headers',
+  'Request',
+  'Response',
+  'URL',
+  'URLSearchParams',
+  'ReadableStream',
+  'WritableStream',
+  'TransformStream',
+  'AbortController',
+  'AbortSignal',
+])
+
+function isOpaqueBuiltIn(type: Type): boolean {
+  const symbol = type.getSymbol() ?? type.getAliasSymbol()
+  const name = symbol?.getName()
+  if (name && OPAQUE_TYPE_NAMES.has(name)) return true
+  // Fallback: check getText() for constructed references
+  const text = type.getText()
+  if (OPAQUE_TYPE_NAMES.has(text)) return true
+  return false
+}
+
 function footprintOfType(params: {
   type: Type
   node: Node
@@ -221,13 +268,35 @@ function footprintOfType(params: {
   callStackLevel?: number
   /** When true, we're expanding an alias - don't check for alias again */
   expandingAlias?: boolean
+  /** Stack of type identities currently being expanded, for cycle detection */
+  visitedTypes?: Set<unknown>
 }): string {
-  const { type, node, overrides, collectedAliases, flags = [], callStackLevel = 0, expandingAlias = false } = params
+  const {
+    type,
+    node,
+    overrides,
+    collectedAliases,
+    flags = [],
+    callStackLevel = 0,
+    expandingAlias = false,
+    visitedTypes = new Set<unknown>(),
+  } = params
 
-  if (callStackLevel > 20) {
-    // too deep?
+  if (callStackLevel > 15) {
+    // too deep - bail to avoid exponential explosion
     return "'...'"
   }
+
+  // Cycle detection: if we're already expanding this exact type in the current
+  // recursion path, return a stub. Uses the ts compiler Type identity.
+  const typeId = type.compilerType as unknown
+  if (visitedTypes.has(typeId)) {
+    return "{ /* recursive */ }"
+  }
+
+  // Build the extended visited set once so child `next` calls share it.
+  const nextVisited = new Set(visitedTypes)
+  nextVisited.add(typeId)
 
   const next = (nextType: Type, nextFlags: FormatFlags[] = [], forceExpand = false) => {
     return footprintOfType({
@@ -238,6 +307,7 @@ function footprintOfType(params: {
       flags: nextFlags,
       callStackLevel: callStackLevel + 1,
       expandingAlias: forceExpand,
+      visitedTypes: nextVisited,
     })
   }
 
@@ -265,7 +335,18 @@ function footprintOfType(params: {
       // If we haven't collected this alias yet, expand it now
       if (!collectedAliases.has(aliasName)) {
         // Generate the expanded type (force expansion to avoid infinite recursion)
-        const expandedType = next(type, [], true)
+        // NOTE: alias expansion starts a fresh visitedTypes scope so unrelated
+        // types processed later still expand normally.
+        const expandedType = footprintOfType({
+          type,
+          node,
+          overrides,
+          collectedAliases,
+          flags: [],
+          callStackLevel: callStackLevel + 1,
+          expandingAlias: true,
+          visitedTypes: new Set<unknown>(),
+        })
         collectedAliases.set(aliasName, { name: aliasName, expandedType })
       }
       // Return just the alias name as a reference
@@ -277,8 +358,11 @@ function footprintOfType(params: {
     return defaultFormat()
   }
 
-  if (type.getText() === 'Blob') {
-    return defaultFormat()
+  // Built-in host/binary types we never want to expand (ArrayBuffer, Buffer,
+  // TypedArrays, Blob, Response, etc.). Rendering them as `unknown` keeps the
+  // generated type tractable — these are not meaningful in an HTTP API surface.
+  if (isOpaqueBuiltIn(type)) {
+    return 'unknown'
   }
 
   if (type.isArray()) {

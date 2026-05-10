@@ -1,0 +1,2 @@
+ALTER TABLE "school_favorites" ADD COLUMN "source_org_id" uuid;--> statement-breakpoint
+ALTER TABLE "school_favorites" ADD CONSTRAINT "school_favorites_source_org_id_organizations_id_fkey" FOREIGN KEY ("source_org_id") REFERENCES "organizations"("id") ON DELETE SET NULL;

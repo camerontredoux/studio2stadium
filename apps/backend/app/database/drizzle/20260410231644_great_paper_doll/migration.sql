@@ -1,0 +1,1 @@
+ALTER TABLE "event_rosters" DROP COLUMN "is_registered";

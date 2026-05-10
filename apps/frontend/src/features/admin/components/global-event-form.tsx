@@ -11,7 +11,10 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { TimePicker } from "@/components/ui/time-picker";
-import { schemas, type GlobalEventFormData } from "@/features/admin/api/schemas";
+import {
+  schemas,
+  type GlobalEventFormData,
+} from "@/features/admin/api/schemas";
 import { EVENT_TYPE_ITEMS } from "@/utils/constants/event-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, FormProvider, useForm } from "react-hook-form";
@@ -219,7 +222,11 @@ export function GlobalEventForm({
           render={({ field, fieldState }) => (
             <Field name={field.name} invalid={fieldState.invalid}>
               <FieldLabel>Thumbnail</FieldLabel>
-              <ThumbnailUpload value={field.value} onChange={field.onChange} returnKey />
+              <ThumbnailUpload
+                value={field.value}
+                onChange={field.onChange}
+                returnKey
+              />
               <FieldError error={fieldState.error} />
             </Field>
           )}
