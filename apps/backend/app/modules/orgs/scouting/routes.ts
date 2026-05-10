@@ -16,6 +16,11 @@ const ListSelections = () => import("./selections/list/controller.ts");
 const CreateSelection = () => import("./selections/create/controller.ts");
 const DeleteSelection = () => import("./selections/delete/controller.ts");
 
+const ListCallbacks = () => import("./callbacks/list/controller.ts");
+const CreateCallback = () => import("./callbacks/create/controller.ts");
+const DeleteCallback = () => import("./callbacks/delete/controller.ts");
+const AdminCallbackBoard = () => import("./callbacks/admin-board/controller.ts");
+
 router
   .group(() => {
     router.get(":slug/dancers", [ListDancersController]).openapi({
@@ -57,3 +62,35 @@ router
     middleware.orgDancer(),
   ])
   .openapi({ tags: ["Org School Selections"] });
+
+router
+  .group(() => {
+    router.get(":slug/callbacks", [ListCallbacks]);
+    router.post(":slug/callbacks", [CreateCallback]);
+    router.delete(":slug/callbacks/:dancerRosterId", [DeleteCallback]);
+  })
+  .prefix("orgs")
+  .use([
+    middleware.auth(),
+    middleware.org(),
+    middleware.orgEvent(),
+    middleware.orgMember(),
+    middleware.orgCoach(),
+    middleware.orgFeature("callbacks"),
+  ])
+  .openapi({ tags: ["Org Callbacks"] });
+
+router
+  .group(() => {
+    router.get(":slug/admin/callbacks", [AdminCallbackBoard]);
+  })
+  .prefix("orgs")
+  .use([
+    middleware.auth(),
+    middleware.org(),
+    middleware.orgEvent(),
+    middleware.orgMember(),
+    middleware.orgAdmin(),
+    middleware.orgFeature("callbacks"),
+  ])
+  .openapi({ tags: ["Org Admin Callbacks"] });
