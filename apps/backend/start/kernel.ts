@@ -51,4 +51,11 @@ export const middleware = router.named({
   school: () => import("#middleware/routes/school"),
   subscribed: () => import("#middleware/routes/subscribed"),
   profile: () => import("#middleware/routes/profile"),
+  org: () => import("#middleware/routes/org"),
+  orgMember: () => import("#middleware/routes/org-member"),
+  orgAdmin: () => import("#middleware/routes/org-admin"),
+  orgCoach: () => import("#middleware/routes/org-coach"),
+  orgDancer: () => import("#middleware/routes/org-dancer"),
+  orgFeature: () => import("#middleware/routes/org-feature"),
+  orgEvent: () => import("#middleware/routes/org-event"),
 });

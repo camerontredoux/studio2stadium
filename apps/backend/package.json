@@ -41,7 +41,8 @@
     "#config/*": "./config/*.js",
     "#auth/*": "./app/auth/*.js",
     "#shared/*": "./app/shared/*.js",
-    "#payments/*": "./app/payments/*.js"
+    "#payments/*": "./app/payments/*.js",
+    "#commands/*": "./commands/*.js"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^7.8.2",
@@ -79,6 +80,7 @@
     "@adonisjs/limiter": "^3.0.0-next.1",
     "@adonisjs/mail": "^10.0.0-next.1",
     "@adonisjs/redis": "^10.0.0-next.1",
+    "@adonisjs/transmit": "^3.0.1",
     "@aws-sdk/client-s3": "^3.958.0",
     "@aws-sdk/client-ses": "^3.943.0",
     "@aws-sdk/client-sqs": "^3.1000.0",
@@ -90,6 +92,7 @@
     "@vinejs/vine": "^4.1.0",
     "argon2": "^0.43.0",
     "cron": "^4.4.0",
+    "csv-parse": "^6.2.1",
     "drizzle-orm": "1.0.0-beta.12-a5629fb",
     "luxon": "^3.7.2",
     "postgres": "^3.4.8",

@@ -13,7 +13,11 @@ interface ThumbnailUploadProps {
   returnKey?: boolean;
 }
 
-export function ThumbnailUpload({ value, onChange, returnKey = false }: ThumbnailUploadProps) {
+export function ThumbnailUpload({
+  value,
+  onChange,
+  returnKey = false,
+}: ThumbnailUploadProps) {
   const { mutateAsync: requestUpload } = useRequestUpload();
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -69,7 +73,7 @@ export function ThumbnailUpload({ value, onChange, returnKey = false }: Thumbnai
           type="button"
           variant="secondary"
           size="icon"
-          className="absolute -right-2 -top-2 size-6"
+          className="absolute -top-2 -right-2 size-6"
           onClick={() => onChange("")}
         >
           <XIcon className="size-3" />

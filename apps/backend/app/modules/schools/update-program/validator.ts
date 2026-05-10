@@ -26,6 +26,8 @@ export const updateProgramFields = {
   city: vine.string().nullable().optional(),
 };
 
-export const updateProgramSchema = vine.create(vine.object(updateProgramFields));
+export const updateProgramSchema = vine.create(
+  vine.object(updateProgramFields)
+);
 
 export type UpdateProgramSchema = Infer<typeof updateProgramSchema>;

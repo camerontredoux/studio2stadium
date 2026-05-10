@@ -50,17 +50,14 @@ export function DancersPagination({
 
   return (
     <div className="flex w-full items-center justify-between gap-2">
-      <p className="text-muted-foreground whitespace-nowrap text-sm">
+      <p className="text-muted-foreground text-sm whitespace-nowrap">
         Showing{" "}
         <strong className="text-foreground font-medium">
           {pagination.page * pagination.limit + 1}
         </strong>
         -
         <strong className="text-foreground font-medium">
-          {Math.min(
-            (pagination.page + 1) * pagination.limit,
-            pagination.total,
-          )}
+          {Math.min((pagination.page + 1) * pagination.limit, pagination.total)}
         </strong>{" "}
         of{" "}
         <strong className="text-foreground font-medium">

@@ -97,7 +97,7 @@ export function NotificationItem({
               </Link>{" "}
             </>
           )}
-{isSystemNotification && notification.metadata?.slug ? (
+          {isSystemNotification && notification.metadata?.slug ? (
             <a
               href={`https://studio2stadium.com/blog/${notification.metadata.slug}`}
               onClick={(e) => e.stopPropagation()}

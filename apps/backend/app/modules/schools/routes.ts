@@ -33,6 +33,12 @@ const GetSubmissionsController = () =>
 const UpdateSubmissionController = () =>
   import("./update-submission/controller.ts");
 const ViewDancerController = () => import("./view-dancer/controller.ts");
+const ListPendingClaimsController = () =>
+  import("./pending-claims/controller.ts");
+const ClaimRosterController = () =>
+  import("./pending-claims/claim-controller.ts");
+const DismissClaimController = () =>
+  import("./pending-claims/dismiss-controller.ts");
 
 router
   .group(() => {
@@ -133,6 +139,25 @@ router
           summary: "Record profile view",
           description: "Records that the school viewed a dancer's profile",
         });
+        router.get("pending-claims", [ListPendingClaimsController]).openapi({
+          summary: "List pending roster claims",
+          description:
+            "Returns pending coach roster rows that may belong to this school (Path D claim banner).",
+        });
+        router
+          .post("pending-claims/:rosterId/claim", [ClaimRosterController])
+          .openapi({
+            summary: "Claim a roster row",
+            description:
+              "Links a pending coach roster row to the authenticated school account.",
+          });
+        router
+          .post("pending-claims/:rosterId/dismiss", [DismissClaimController])
+          .openapi({
+            summary: "Dismiss a suggested claim",
+            description:
+              "Records that the school dismissed a suggested roster claim.",
+          });
       })
       .prefix("me")
       .use([middleware.school()]);

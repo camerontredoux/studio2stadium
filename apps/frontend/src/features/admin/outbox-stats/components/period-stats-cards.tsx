@@ -51,7 +51,8 @@ function sumStats(stats: PeriodStats) {
     current += value.current;
     previous += value.previous;
   }
-  const change = previous === 0 ? null : ((current - previous) / previous) * 100;
+  const change =
+    previous === 0 ? null : ((current - previous) / previous) * 100;
   return { current, previous, change };
 }
 
@@ -104,7 +105,7 @@ function ChangeIndicator({ change }: { change: number | null }) {
         "flex items-center gap-0.5 text-xs font-medium",
         isPositive && "text-green-600 dark:text-green-500",
         isNegative && "text-red-600 dark:text-red-500",
-        !isPositive && !isNegative && "text-muted-foreground"
+        !isPositive && !isNegative && "text-muted-foreground",
       )}
     >
       {isPositive && <LuArrowUp className="size-3" />}

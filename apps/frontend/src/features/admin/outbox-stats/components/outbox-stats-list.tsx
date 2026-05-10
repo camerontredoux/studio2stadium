@@ -14,7 +14,9 @@ export function OutboxStatsList({ stats }: OutboxStatsListProps) {
           key={stat.type}
           className="flex items-center justify-between gap-4 py-3"
         >
-          <span className="text-sm font-medium">{formatEventName(stat.type)}</span>
+          <span className="text-sm font-medium">
+            {formatEventName(stat.type)}
+          </span>
           <span className="text-muted-foreground tabular-nums">
             {stat.count.toLocaleString()}
           </span>

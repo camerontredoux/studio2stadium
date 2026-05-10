@@ -1,0 +1,319 @@
+import type { ColumnDef } from "@tanstack/react-table";
+import { Heart, Megaphone, PencilIcon, PlusIcon, StarIcon } from "lucide-react";
+import { Rating, RatingItem } from "@/components/ui/rating";
+import { Tooltip, TooltipPopup, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/components/utils/cn";
+
+function NotesIndicator() {
+  return (
+    <TooltipProvider delay={0}>
+      <Tooltip>
+        <TooltipTrigger render={<span className="flex items-center justify-center" />}>
+          <PencilIcon className="text-primary size-4" />
+        </TooltipTrigger>
+        <TooltipPopup>You have notes for this dancer</TooltipPopup>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+export interface DancerRow {
+  rosterId: string;
+  bibNumber: number | null;
+  firstName: string;
+  lastName: string;
+  gradYear: number | null;
+  studio: string | null;
+  gpa: number | null;
+  profilePhotoUrl: string | null;
+  state: string | null;
+}
+
+export interface SearchDancerRow extends DancerRow {
+  interestedInMySchool: boolean;
+  isFavorited: boolean;
+  isCalledBack: boolean;
+  hasNote: boolean;
+  rating: number | null;
+}
+
+
+export const bibColumn: ColumnDef<DancerRow> = {
+  accessorKey: "bibNumber",
+  header: "Bib",
+  size: 60,
+  cell: ({ getValue }) => {
+    const bib = getValue<number | null>();
+    return (
+      <span className="font-mono text-sm">
+        {bib != null ? String(bib).padStart(2, "0") : "—"}
+      </span>
+    );
+  },
+};
+
+export const nameColumn: ColumnDef<DancerRow> = {
+  id: "name",
+  accessorFn: (row) => `${row.lastName}, ${row.firstName}`,
+  header: "Name",
+  cell: ({ row }) => (
+    <span className="truncate font-medium">
+      {row.original.lastName}, {row.original.firstName}
+    </span>
+  ),
+};
+
+export const gradYearColumn: ColumnDef<DancerRow> = {
+  accessorKey: "gradYear",
+  header: "Year",
+  size: 70,
+  cell: ({ getValue }) => getValue<number | null>() ?? "—",
+};
+
+export const studioColumn: ColumnDef<DancerRow> = {
+  accessorKey: "studio",
+  header: "Studio",
+  enableSorting: false,
+  cell: ({ getValue }) => (
+    <span className="truncate">{getValue<string | null>() ?? "—"}</span>
+  ),
+};
+
+export const gpaColumn: ColumnDef<DancerRow> = {
+  accessorKey: "gpa",
+  header: "GPA",
+  size: 60,
+  cell: ({ getValue }) => {
+    const gpa = getValue<number | null>();
+    return gpa != null ? gpa.toFixed(1) : "—";
+  },
+};
+
+export function favoriteToggleColumn(
+  onToggle: (rosterId: string, current: boolean) => void,
+): ColumnDef<SearchDancerRow> {
+  return {
+    id: "favorite",
+    header: () => <span title="Favorite"><Heart className="text-muted-foreground size-4" /></span>,
+    size: 40,
+    enableSorting: false,
+    cell: ({ row }) => (
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggle(row.original.rosterId, row.original.isFavorited);
+        }}
+        className="flex cursor-pointer items-center justify-center"
+        aria-label={
+          row.original.isFavorited ? "Unfavorite" : "Favorite"
+        }
+      >
+        <Heart
+          className={`size-4 ${
+            row.original.isFavorited
+              ? "fill-current text-red-500"
+              : "text-muted-foreground"
+          }`}
+        />
+      </button>
+    ),
+  };
+}
+
+export function callbackToggleColumn(
+  onToggle: (rosterId: string, current: boolean) => void,
+): ColumnDef<SearchDancerRow> {
+  return {
+    id: "callback",
+    header: "Callback",
+    size: 100,
+    enableSorting: false,
+    cell: ({ row }) => (
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggle(row.original.rosterId, row.original.isCalledBack);
+        }}
+        className={`flex cursor-pointer items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold transition-colors ${
+          row.original.isCalledBack
+            ? "bg-foreground text-background"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+        aria-label={row.original.isCalledBack ? "Remove callback" : "Call back"}
+        aria-pressed={row.original.isCalledBack}
+      >
+        <Megaphone className="size-3" />
+        {row.original.isCalledBack ? "Called" : "Call"}
+      </button>
+    ),
+  };
+}
+
+export const notesIndicatorColumn: ColumnDef<{
+  hasNotes?: boolean;
+  hasNote?: boolean;
+  note?: string | null;
+}> = {
+  id: "notes",
+  header: () => <span className="flex items-center justify-center" title="Notes"><PencilIcon className="size-4 text-muted-foreground" /></span>,
+  size: 40,
+  enableSorting: false,
+  cell: ({ row }) => {
+    const has =
+      (row.original as { hasNote?: boolean }).hasNote ??
+      (row.original as { hasNotes?: boolean }).hasNotes ??
+      (row.original as { note?: string | null }).note != null;
+    return has ? <NotesIndicator /> : null;
+  },
+};
+
+export const schoolInterestColumn: ColumnDef<SearchDancerRow> = {
+  id: "schoolInterest",
+  header: () => <span title="Interested in your school"><StarIcon className="size-3.5 text-muted-foreground" /></span>,
+  size: 40,
+  enableSorting: false,
+  cell: ({ row }) =>
+    row.original.interestedInMySchool ? (
+      <span className="text-amber-500">{"★"}</span>
+    ) : null,
+};
+
+export function selectColumn<T>(): ColumnDef<T> {
+  return {
+    id: "select",
+    size: 40,
+    enableSorting: false,
+    header: ({ table }) => (
+      <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          indeterminate={table.getIsSomePageRowsSelected()}
+          onCheckedChange={(checked) =>
+            table.toggleAllPageRowsSelected(!!checked)
+          }
+          aria-label="Select all"
+        />
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(checked) => row.toggleSelected(!!checked)}
+          aria-label="Select row"
+        />
+      </div>
+    ),
+  };
+}
+
+export function ratingQuickActionColumn(
+  onRate: (rosterId: string, rating: number) => void,
+): ColumnDef<SearchDancerRow> {
+  return {
+    accessorKey: "rating",
+    header: "Rating",
+    size: 120,
+    cell: ({ row }) => {
+      const rating = row.original.rating;
+      return (
+        <div
+          className="flex items-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {rating == null && (
+            <span className="text-muted-foreground text-sm group-hover/row:hidden group-focus-within/row:hidden">
+              —
+            </span>
+          )}
+          <Rating
+            size="sm"
+            value={rating ?? 0}
+            onValueChange={(v) => onRate(row.original.rosterId, v)}
+            className={cn(
+              "transition-opacity",
+              rating == null
+                ? "hidden group-hover/row:flex group-focus-within/row:flex"
+                : "pointer-events-none group-hover/row:pointer-events-auto group-focus-within/row:pointer-events-auto",
+            )}
+          >
+            {Array.from({ length: 5 }, (_, i) => (
+              <RatingItem key={i} index={i} />
+            ))}
+          </Rating>
+        </div>
+      );
+    },
+  };
+}
+
+export function notesQuickActionColumn(
+  onOpenNotes: (rosterId: string) => void,
+): ColumnDef<SearchDancerRow> {
+  return {
+    id: "notes",
+    header: () => (
+      <span className="flex items-center justify-center" title="Notes">
+        <PencilIcon className="text-muted-foreground size-3.5" />
+      </span>
+    ),
+    size: 40,
+    enableSorting: false,
+    cell: ({ row }) => {
+      const hasNote = row.original.hasNote;
+      const Icon = hasNote ? PencilIcon : PlusIcon;
+      return (
+        <div className="flex items-center justify-center">
+          <button
+            type="button"
+            className="text-muted-foreground hover:text-foreground flex cursor-pointer items-center justify-center transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenNotes(row.original.rosterId);
+            }}
+            aria-label={hasNote ? "Edit notes" : "Add notes"}
+          >
+            <Icon className="size-3.5" />
+          </button>
+        </div>
+      );
+    },
+  };
+}
+
+export function ratingDisplayColumn(): ColumnDef<{ rating: number | null }> {
+  return {
+    accessorKey: "rating",
+    header: "Rating",
+    size: 120,
+    cell: ({ getValue }) => {
+      const rating = getValue<number | null>();
+      if (rating == null)
+        return <span className="text-muted-foreground text-sm">{"—"}</span>;
+      return (
+        <Rating disabled size="sm" value={rating}>
+          {Array.from({ length: 5 }, (_, i) => (
+            <RatingItem key={i} index={i} />
+          ))}
+        </Rating>
+      );
+    },
+  };
+}
+
+export function rankColumn<T>(): ColumnDef<T> {
+  return {
+    id: "rank",
+    header: "#",
+    size: 40,
+    enableSorting: false,
+    cell: ({ row }) => (
+      <span className="text-muted-foreground font-mono text-sm">
+        {row.index + 1}
+      </span>
+    ),
+  };
+}

@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1775593808029,
-  "projectRoot": "/home/cameron/Developer/studio2stadium/app",
+  "lastScanned": 1776365547164,
+  "projectRoot": "/home/cameron/Developer/studio2stadium/app/.worktrees/summit-04",
   "techStack": {
     "languages": [
       {
@@ -52,323 +52,323 @@
       "path": "apps",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1775593808015,
+      "lastAccessed": 1776365547156,
       "keyFiles": []
     },
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 0,
-      "lastAccessed": 1775593808016,
+      "lastAccessed": 1776365547157,
       "keyFiles": []
     },
     "packages": {
       "path": "packages",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1775593808021,
+      "lastAccessed": 1776365547160,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/create/service.spec.ts",
-      "accessCount": 16,
-      "lastAccessed": 1775665627775,
+      "path": "apps/frontend/src/features/org/components/csv-upload-dialog.tsx",
+      "accessCount": 82,
+      "lastAccessed": 1776366397831,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/routes.ts",
-      "accessCount": 12,
-      "lastAccessed": 1775666845282,
+      "path": "apps/frontend/src/routes/_org/$orgSlug/_authenticated/admin/index.tsx",
+      "accessCount": 49,
+      "lastAccessed": 1776362083794,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/database/schema/org-events.ts",
+      "path": "",
+      "accessCount": 38,
+      "lastAccessed": 1776365612583,
+      "type": "directory"
+    },
+    {
+      "path": "apps/frontend/src/routes/_org/$orgSlug/_authenticated/admin/uploads.tsx",
+      "accessCount": 21,
+      "lastAccessed": 1776362228691,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/components/admin-sidebar.tsx",
+      "accessCount": 20,
+      "lastAccessed": 1776291461886,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/components/data-grid.tsx",
+      "accessCount": 19,
+      "lastAccessed": 1776363025207,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/modules/orgs/events/routes.ts",
+      "accessCount": 13,
+      "lastAccessed": 1776362340461,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/components/roster-page-header.tsx",
+      "accessCount": 11,
+      "lastAccessed": 1776362102372,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/routes/_org/$orgSlug/_authenticated/admin/dancers.tsx",
       "accessCount": 10,
-      "lastAccessed": 1775666746389,
+      "lastAccessed": 1776362111355,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/upload-coaches/service.ts",
-      "accessCount": 9,
-      "lastAccessed": 1775666062508,
+      "path": "apps/frontend/src/features/org/api/admin-queries.ts",
+      "accessCount": 10,
+      "lastAccessed": 1776362593688,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03",
-      "accessCount": 6,
-      "lastAccessed": 1775666055246,
+      "path": "apps/frontend/src/features/org/components/roster-upload-row.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1776356527231,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src",
+      "accessCount": 7,
+      "lastAccessed": 1776356726046,
       "type": "directory"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/shared/org/csv-parser.ts",
-      "accessCount": 6,
-      "lastAccessed": 1775666072392,
+      "path": "apps/frontend/src/routes/_org/$orgSlug/_authenticated/admin/coaches.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1776362213689,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/upload-coaches/service.spec.ts",
+      "path": "apps/backend",
+      "accessCount": 7,
+      "lastAccessed": 1776366417200,
+      "type": "directory"
+    },
+    {
+      "path": "apps/frontend/src/routes/_org/$orgSlug/_authenticated/admin/route.tsx",
       "accessCount": 5,
-      "lastAccessed": 1775666068541,
+      "lastAccessed": 1776288362418,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/database/schema/organizations.ts",
+      "path": "apps/backend/app/modules/orgs/events/stats/service.ts",
       "accessCount": 5,
-      "lastAccessed": 1775666235216,
+      "lastAccessed": 1776362044493,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/database/schema/index.ts",
-      "accessCount": 4,
-      "lastAccessed": 1775663133980,
+      "path": "apps/backend/app/database/schema/users.ts",
+      "accessCount": 5,
+      "lastAccessed": 1776362061438,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend",
+      "path": "apps/backend/app/database/schema/index.ts",
       "accessCount": 4,
-      "lastAccessed": 1775663166853,
+      "lastAccessed": 1776358301743,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/routes/_app/route.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1775677995092,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/components/csv-upload-trigger-card.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1775700193820,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/modules/orgs/events/update/service.ts",
+      "accessCount": 3,
+      "lastAccessed": 1776290320930,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/modules/orgs/events/update/controller.ts",
+      "accessCount": 3,
+      "lastAccessed": 1776290326992,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app/database/schema/dancers.ts",
+      "accessCount": 3,
+      "lastAccessed": 1776359238042,
+      "type": "file"
+    },
+    {
+      "path": "apps/backend/app",
+      "accessCount": 3,
+      "lastAccessed": 1776364408568,
       "type": "directory"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/start/kernel.ts",
-      "accessCount": 4,
-      "lastAccessed": 1775663728649,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/app/database/service.ts",
-      "accessCount": 4,
-      "lastAccessed": 1775666746663,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/app/database/schema/enums.ts",
-      "accessCount": 3,
-      "lastAccessed": 1775662712181,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/routes.ts",
-      "accessCount": 3,
-      "lastAccessed": 1775664234433,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/create/controller.ts",
-      "accessCount": 3,
-      "lastAccessed": 1775664345169,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/organizations/backfill-school-favorites-org.spec.ts",
-      "accessCount": 3,
-      "lastAccessed": 1775665428424,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/upload-coaches/controller.ts",
-      "accessCount": 3,
-      "lastAccessed": 1775666062932,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/upload-coaches/validator.ts",
-      "accessCount": 3,
-      "lastAccessed": 1775666063973,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/app/shared/org/invite-email.ts",
-      "accessCount": 3,
-      "lastAccessed": 1775666072813,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/app/middleware/routes/org.spec.ts",
+      "path": "apps/frontend/src/components/ui/sidebar.tsx",
       "accessCount": 2,
-      "lastAccessed": 1775662817290,
+      "lastAccessed": 1775677990605,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/database/drizzle/20260408153741_jittery_mandarin/migration.sql",
+      "path": "apps/frontend/src/features/org/components/edit-event-sheet.tsx",
       "accessCount": 2,
-      "lastAccessed": 1775663174562,
+      "lastAccessed": 1775700052981,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/middleware/routes/org-event.ts",
+      "path": "apps/frontend/src/features/org/components/stat-card.tsx",
       "accessCount": 2,
-      "lastAccessed": 1775663580666,
+      "lastAccessed": 1775700126909,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/middleware/routes/org-event.spec.ts",
+      "path": "apps/backend/app/modules/orgs/events/stats/controller.ts",
       "accessCount": 2,
-      "lastAccessed": 1775663581065,
+      "lastAccessed": 1776362020890,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/middleware/routes/org.ts",
-      "accessCount": 2,
-      "lastAccessed": 1775663733076,
+      "path": "apps/frontend/src/components/layouts/sidebar-layout.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775677998055,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/get-org/controller.ts",
-      "accessCount": 2,
-      "lastAccessed": 1775663733557,
+      "path": "apps/frontend/src/components/shared/sidebar-wrapper.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775677998176,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/get-org/service.spec.ts",
-      "accessCount": 2,
-      "lastAccessed": 1775663959632,
+      "path": "apps/frontend/src/routes/_org/$orgSlug/_authenticated/route.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775678013641,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/create/validator.ts",
-      "accessCount": 2,
-      "lastAccessed": 1775664237426,
+      "path": "apps/frontend/src/features/org/context/use-org.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775678014269,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/create/service.ts",
-      "accessCount": 2,
-      "lastAccessed": 1775664239808,
+      "path": "apps/backend/app/modules/orgs/events/list/service.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775698941821,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/update/validator.ts",
-      "accessCount": 2,
-      "lastAccessed": 1775664240363,
+      "path": "apps/backend/app/modules/orgs/events/list/controller.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775698942135,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/update/service.ts",
-      "accessCount": 2,
-      "lastAccessed": 1775664240506,
+      "path": "apps/backend/app/modules/orgs/events/update/validator.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775698945334,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/update/controller.ts",
-      "accessCount": 2,
-      "lastAccessed": 1775664241818,
+      "path": "apps/frontend/src/features/org/context/org-provider.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775698969835,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/list/service.ts",
-      "accessCount": 2,
-      "lastAccessed": 1775664241862,
+      "path": "apps/frontend/src/features/org/components/create-event-form.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775698971229,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/events/list/controller.ts",
-      "accessCount": 2,
-      "lastAccessed": 1775664242570,
+      "path": "apps/frontend/src/features/org/hooks/use-event-phase.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775699006947,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/database/schema",
-      "accessCount": 2,
-      "lastAccessed": 1775664250477,
+      "path": "apps/frontend/src/features/org/components/roster-activation-ring.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775699018129,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/components/event-hero.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775699057694,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/hooks/use-admin-commands.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775699092088,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/org/hooks/use-admin-commands.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775699119269,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/features/events/components/filters/filter-sheet.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775699952534,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/components/ui/card.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775700116979,
+      "type": "file"
+    },
+    {
+      "path": "apps/frontend/src/routes/_org/$orgSlug/_authenticated",
+      "accessCount": 1,
+      "lastAccessed": 1776278950251,
       "type": "directory"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/middleware/routes/org-admin.ts",
-      "accessCount": 2,
-      "lastAccessed": 1775664341756,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/app/database",
-      "accessCount": 2,
-      "lastAccessed": 1775664348867,
+      "path": "apps/frontend/src/routes/_org",
+      "accessCount": 1,
+      "lastAccessed": 1776278955190,
       "type": "directory"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/adonisrc.ts",
-      "accessCount": 2,
-      "lastAccessed": 1775664579324,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/commands/backfill-organizations.ts",
-      "accessCount": 2,
-      "lastAccessed": 1775664905419,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/organizations/backfill-memberships.spec.ts",
-      "accessCount": 2,
-      "lastAccessed": 1775665419688,
-      "type": "file"
-    },
-    {
-      "path": "docs/superpowers/specs/2026-04-01-multi-tenant-org-platform-design.md",
+      "path": "apps/frontend/src/routes/_org/route.tsx",
       "accessCount": 1,
-      "lastAccessed": 1775593830471,
+      "lastAccessed": 1776278959616,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/database/schema/helpers/columns.ts",
+      "path": "apps/backend/app/database/schema/global.ts",
       "accessCount": 1,
-      "lastAccessed": 1775662616518,
+      "lastAccessed": 1776288386533,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/app/database/drizzle",
+      "path": "apps/backend/app/database/schema/media.ts",
       "accessCount": 1,
-      "lastAccessed": 1775662720131,
-      "type": "directory"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/drizzle.config.ts",
-      "accessCount": 1,
-      "lastAccessed": 1775663129944,
+      "lastAccessed": 1776288386561,
       "type": "file"
     },
     {
-      "path": ".worktrees/summit-03/apps/backend/package.json",
+      "path": "apps/backend/app/database/schema/events.ts",
       "accessCount": 1,
-      "lastAccessed": 1775663130305,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/app/database/drizzle/20260408020717_talented_black_queen/migration.sql",
-      "accessCount": 1,
-      "lastAccessed": 1775663174942,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/app/modules/orgs/register-dancer/service.ts",
-      "accessCount": 1,
-      "lastAccessed": 1775663621456,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/app/middleware/routes/subscribed.spec.ts",
-      "accessCount": 1,
-      "lastAccessed": 1775663648644,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/app/auth/guard.ts",
-      "accessCount": 1,
-      "lastAccessed": 1775663987724,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/app/exceptions/database.ts",
-      "accessCount": 1,
-      "lastAccessed": 1775664341591,
-      "type": "file"
-    },
-    {
-      "path": ".worktrees/summit-03/apps/backend/app/shared/org/csv-parser.spec.ts",
-      "accessCount": 1,
-      "lastAccessed": 1775664608401,
+      "lastAccessed": 1776288389642,
       "type": "file"
     }
   ],

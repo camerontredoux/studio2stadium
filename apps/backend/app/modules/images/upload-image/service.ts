@@ -10,6 +10,18 @@ import { type Validator } from "./validator.ts";
 
 const FREE_TIER_IMAGE_LIMIT = 4;
 
+const MIME_TO_EXT: Record<string, string> = {
+  "application/pdf": ".pdf",
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "image/gif": ".gif",
+  "image/webp": ".webp",
+};
+
+function extFromMime(mime: string): string {
+  return MIME_TO_EXT[mime] ?? "";
+}
+
 @inject()
 export class UploadImageService {
   constructor(private db: DatabaseService) {}
@@ -62,10 +74,11 @@ export class UploadImageService {
 
     const disk = drive.use("r2");
 
+    const ext = type === "schedule" ? extFromMime(contentType) : "";
     const key =
       type === "blog"
         ? `blog/${randomUUID()}`
-        : `${type}/${userId}/${randomUUID()}`;
+        : `${type}/${userId}/${randomUUID()}${ext}`;
 
     const signedUrl = await disk.getSignedUploadUrl(key, {
       expiresIn: "15 mins",

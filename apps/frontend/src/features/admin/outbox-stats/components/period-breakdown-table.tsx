@@ -55,7 +55,9 @@ export function PeriodBreakdownTable({
         <tbody>
           {rows.map((row) => (
             <tr key={row.type} className="border-border border-b last:border-0">
-              <td className="py-2.5 font-medium">{formatEventName(row.type)}</td>
+              <td className="py-2.5 font-medium">
+                {formatEventName(row.type)}
+              </td>
               <td className="py-2.5 text-right">
                 <StatCell
                   current={row.daily.current}
@@ -98,7 +100,7 @@ function StatCell({
             "flex items-center text-xs",
             change > 0 && "text-green-600 dark:text-green-500",
             change < 0 && "text-red-600 dark:text-red-500",
-            change === 0 && "text-muted-foreground"
+            change === 0 && "text-muted-foreground",
           )}
         >
           {change > 0 && <LuArrowUp className="size-3" />}

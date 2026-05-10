@@ -32,9 +32,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
         <span
           className={`absolute size-full animate-ping rounded-full ${config.dotColor}`}
         />
-        <span
-          className={`relative size-1.5 rounded-full ${config.dotColor}`}
-        />
+        <span className={`relative size-1.5 rounded-full ${config.dotColor}`} />
       </span>
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </Badge>

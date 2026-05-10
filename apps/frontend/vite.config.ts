@@ -42,6 +42,11 @@ export default defineConfig({
           Connection: "keep-alive",
         },
       },
+      "/__transmit": {
+        target: "http://localhost:3333",
+        changeOrigin: true,
+        cookieDomainRewrite: "localhost",
+      },
     },
   },
   plugins: [

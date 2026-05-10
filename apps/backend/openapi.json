@@ -1532,6 +1532,3055 @@
         "description": "Marks a notification as read by setting seenAt"
       }
     },
+    "/orgs/{slug}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "Get organization",
+        "description": "Public org metadata + branding for the login and landing pages."
+      }
+    },
+    "/orgs/{slug}/events": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsIdRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/upload/coaches": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsIdUploadCoachesRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdUploadCoachesResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/upload/dancers": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsIdUploadDancersRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdUploadDancersResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/upload/{type}/preview": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsIdUploadIdPreviewRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdUploadIdPreviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/stats": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdStatsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/rosters": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "active",
+                    "all"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "org",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "email",
+                    "firstName",
+                    "lastName",
+                    "createdAt",
+                    "organization",
+                    "bibNumber",
+                    "isRegistered"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UploadKind"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdRostersResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdRostersResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/rosters/export": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "active",
+                    "all"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "org",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UploadKind"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/rosters/filters": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UploadKind"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdRostersFiltersResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/rosters/stats": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UploadKind"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdRostersStatsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/rosters/{rosterId}": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsIdRostersIdRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdRostersIdResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/rosters/resend-invites": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsIdRostersResendinvitesRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdRostersResendinvitesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/checklist": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdChecklistResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsIdChecklistRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdChecklistResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/checklist/{itemId}": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsIdChecklistIdRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdChecklistIdResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/audit-log": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "actorId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "upload",
+                    "create",
+                    "update",
+                    "delete",
+                    "activate",
+                    "resend_invite"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "resource",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "roster",
+                    "event",
+                    "checklist",
+                    "csv_upload",
+                    "invite"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdAuditlogResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/audit-log/stats": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdAuditlogStatsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/audit-log/{entryId}/children": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdAuditlogIdChildrenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/reconciliation": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdReconciliationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/reconciliation/invites/{inviteId}": {
+      "delete": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "inviteId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdReconciliationInvitesIdResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/reconciliation/invites/{inviteId}/resend": {
+      "post": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "inviteId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdReconciliationInvitesIdResendResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/reconciliation/rosters/{rosterId}/merge": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsIdReconciliationRostersIdMergeRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdReconciliationRostersIdMergeResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/reconciliation/school-users": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdReconciliationSchoolusersResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/schedule": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/video-categories": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdVideocategoriesResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsIdVideocategoriesRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdVideocategoriesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/video-categories/{categoryId}": {
+      "delete": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/videos": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdVideosResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsIdVideosRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdVideosResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/videos/{videoId}": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsIdVideosIdRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "videoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdVideosIdResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "videoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/attend": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsAttendRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsAttendResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/dancers": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "interested",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "bib",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdDancersResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Scouting"
+        ],
+        "summary": "List dancers in active event",
+        "description": "Coach-scoped dancer search by name or bib number."
+      }
+    },
+    "/orgs/{slug}/dancers/{rosterId}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdDancersIdResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Scouting"
+        ]
+      }
+    },
+    "/orgs/{slug}/dancers/{dancerRosterId}/notes": {
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdDancersIdNotesRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dancerRosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdDancersIdNotesResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Scouting"
+        ]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dancerRosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Scouting"
+        ]
+      }
+    },
+    "/orgs/{slug}/dancers/{dancerRosterId}/rating": {
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdDancersIdRatingRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dancerRosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdDancersIdRatingResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Scouting"
+        ]
+      }
+    },
+    "/orgs/{slug}/favorites": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdFavoritesResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Scouting"
+        ]
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdFavoritesRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdFavoritesResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Scouting"
+        ]
+      }
+    },
+    "/orgs/{slug}/favorites/{dancerRosterId}": {
+      "delete": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dancerRosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Scouting"
+        ]
+      }
+    },
+    "/orgs/{slug}/rankings": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdRankingsResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Scouting"
+        ]
+      }
+    },
+    "/orgs/{slug}/schools": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdSchoolsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org School Selections"
+        ]
+      }
+    },
+    "/orgs/{slug}/my-selections": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdMyselectionsResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org School Selections"
+        ]
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdMyselectionsRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdMyselectionsResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org School Selections"
+        ]
+      }
+    },
+    "/orgs/{slug}/my-selections/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdMyselectionsIdResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org School Selections"
+        ]
+      }
+    },
+    "/orgs/{slug}/callbacks": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdCallbacksResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Callbacks"
+        ]
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdCallbacksRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdCallbacksResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Callbacks"
+        ]
+      }
+    },
+    "/orgs/{slug}/callbacks/{dancerRosterId}": {
+      "delete": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dancerRosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Callbacks"
+        ]
+      }
+    },
+    "/orgs/{slug}/admin/callbacks": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdAdminCallbacksResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Admin Callbacks"
+        ]
+      }
+    },
+    "/orgs/{slug}/register": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdRegisterRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdRegisterResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "Dancer self-registration via invite token",
+        "description": "Consumes a one-time invite token and creates a new dancer account with an org membership and a time-limited premium grant."
+      }
+    },
+    "/orgs/register/school": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsRegisterSchoolRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsRegisterSchoolResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "School self-registration via invite token",
+        "description": "Consumes a one-time school invite token, creates a school account with profile + membership, and links pending coach roster rows."
+      }
+    },
     "/skills": {
       "get": {
         "parameters": [],
@@ -4214,6 +7263,93 @@
         "description": "Records that the school viewed a dancer's profile"
       }
     },
+    "/schools/me/pending-claims": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "List pending roster claims",
+        "description": "Returns pending coach roster rows that may belong to this school (Path D claim banner)."
+      }
+    },
+    "/schools/me/pending-claims/{rosterId}/claim": {
+      "post": {
+        "parameters": [
+          {
+            "name": "rosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsMePendingclaimsIdClaimResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Claim a roster row",
+        "description": "Links a pending coach roster row to the authenticated school account."
+      }
+    },
+    "/schools/me/pending-claims/{rosterId}/dismiss": {
+      "post": {
+        "parameters": [
+          {
+            "name": "rosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsMePendingclaimsIdDismissResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Dismiss a suggested claim",
+        "description": "Records that the school dismissed a suggested roster claim."
+      }
+    },
     "/schools/{username}": {
       "get": {
         "parameters": [
@@ -4784,6 +7920,21 @@
         "required": [
           "field",
           "message"
+        ]
+      },
+      "UploadKind": {
+        "type": "string",
+        "enum": [
+          "dancer",
+          "coach"
+        ]
+      },
+      "SubscriptionSource": {
+        "type": "string",
+        "enum": [
+          "stripe",
+          "org_event",
+          "none"
         ]
       },
       "DancerFilterParam": {
@@ -6997,11 +10148,9 @@
                 "createdAt": {
                   "type": "string"
                 },
-                "message": {
-                  "type": "string"
-                },
-                "read": {
-                  "type": "boolean"
+                "metadata": {
+                  "type": "object",
+                  "properties": {}
                 },
                 "actor": {
                   "oneOf": [
@@ -7040,9 +10189,11 @@
                     }
                   ]
                 },
-                "metadata": {
-                  "type": "object",
-                  "properties": {}
+                "message": {
+                  "type": "string"
+                },
+                "read": {
+                  "type": "boolean"
                 }
               },
               "required": [
@@ -7050,9 +10201,9 @@
                 "id",
                 "type",
                 "createdAt",
+                "actor",
                 "message",
-                "read",
-                "actor"
+                "read"
               ]
             }
           },
@@ -7103,6 +10254,3226 @@
         },
         "required": [
           "id"
+        ]
+      },
+      "OrgsIdResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "primaryColor": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "accentColor": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "features": {
+            "type": "object",
+            "properties": {}
+          },
+          "settings": {
+            "type": "object",
+            "properties": {}
+          },
+          "membership": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "admin",
+                      "member"
+                    ]
+                  },
+                  "type": {
+                    "$ref": "#/components/schemas/UploadKind"
+                  }
+                },
+                "required": [
+                  "role",
+                  "type"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "logoUrl",
+          "primaryColor",
+          "accentColor",
+          "features",
+          "settings",
+          "membership"
+        ]
+      },
+      "OrgsIdEventsResponse": {
+        "type": "object",
+        "properties": {
+          "gpa": {
+            "type": "boolean"
+          },
+          "location": {
+            "type": "boolean"
+          },
+          "skills": {
+            "type": "boolean"
+          },
+          "styles": {
+            "type": "boolean"
+          },
+          "sports": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "gpa",
+          "location",
+          "skills",
+          "styles",
+          "sports"
+        ]
+      },
+      "OrgsIdEventsRequest": {
+        "type": "object",
+        "properties": {
+          "venueName": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "venueAddress": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "contactEmail": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "isActive": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "startDate",
+          "endDate"
+        ]
+      },
+      "OrgsIdEventsIdRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "startDate": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "endDate": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "venueName": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "venueAddress": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "contactEmail": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "isActive": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "schedulePdfUrl": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "OrgsIdEventsIdResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "orgId": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "venueName": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "venueAddress": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "contactEmail": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "schedulePdfUrl": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "name",
+          "orgId",
+          "startDate",
+          "endDate",
+          "venueName",
+          "venueAddress",
+          "contactEmail",
+          "isActive",
+          "schedulePdfUrl"
+        ]
+      },
+      "OrgsIdEventsIdUploadCoachesRequest": {
+        "type": "object",
+        "properties": {
+          "previewToken": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "file": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "required": [
+          "file"
+        ]
+      },
+      "OrgsIdEventsIdUploadCoachesResponse": {
+        "type": "object",
+        "properties": {
+          "rowsAdded": {
+            "type": "number"
+          },
+          "rowsUpdated": {
+            "type": "number"
+          },
+          "rowsErrored": {
+            "type": "number"
+          },
+          "uploadId": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "rowsActivated": {
+            "type": "number"
+          },
+          "rowsPending": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rowsAdded",
+          "rowsUpdated",
+          "rowsErrored",
+          "uploadId",
+          "errors",
+          "rowsActivated",
+          "rowsPending"
+        ]
+      },
+      "OrgsIdEventsIdUploadDancersRequest": {
+        "type": "object",
+        "properties": {
+          "previewToken": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "file": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "required": [
+          "file"
+        ]
+      },
+      "OrgsIdEventsIdUploadDancersResponse": {
+        "type": "object",
+        "properties": {
+          "rowsAdded": {
+            "type": "number"
+          },
+          "rowsUpdated": {
+            "type": "number"
+          },
+          "rowsErrored": {
+            "type": "number"
+          },
+          "uploadId": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "rowsActivated": {
+            "type": "number"
+          },
+          "rowsPending": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rowsAdded",
+          "rowsUpdated",
+          "rowsErrored",
+          "uploadId",
+          "errors",
+          "rowsActivated",
+          "rowsPending"
+        ]
+      },
+      "OrgsIdEventsIdUploadIdPreviewRequest": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "required": [
+          "file"
+        ]
+      },
+      "OrgsIdEventsIdUploadIdPreviewResponse": {
+        "type": "object",
+        "properties": {
+          "previewToken": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "row": {
+                  "type": "number"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "row",
+                "reason"
+              ]
+            }
+          },
+          "kind": {
+            "$ref": "#/components/schemas/UploadKind"
+          },
+          "totalRows": {
+            "type": "number"
+          },
+          "acceptedRows": {
+            "type": "number"
+          },
+          "willMatch": {
+            "type": "number"
+          },
+          "willInvite": {
+            "type": "number"
+          },
+          "willUpdate": {
+            "type": "number"
+          },
+          "willError": {
+            "type": "number"
+          },
+          "updateRows": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "previewToken",
+          "errors",
+          "kind",
+          "totalRows",
+          "acceptedRows",
+          "willMatch",
+          "willInvite",
+          "willUpdate",
+          "willError",
+          "updateRows"
+        ]
+      },
+      "OrgsIdEventsIdStatsResponse": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "daily": {
+            "type": "object",
+            "properties": {
+              "current": {
+                "type": "number"
+              },
+              "previous": {
+                "type": "number"
+              },
+              "change": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "current",
+              "previous",
+              "change"
+            ]
+          },
+          "weekly": {
+            "type": "object",
+            "properties": {
+              "current": {
+                "type": "number"
+              },
+              "previous": {
+                "type": "number"
+              },
+              "change": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "current",
+              "previous",
+              "change"
+            ]
+          },
+          "monthly": {
+            "type": "object",
+            "properties": {
+              "current": {
+                "type": "number"
+              },
+              "previous": {
+                "type": "number"
+              },
+              "change": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "current",
+              "previous",
+              "change"
+            ]
+          },
+          "dailyBreakdown": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "date",
+                "count"
+              ]
+            }
+          }
+        },
+        "required": [
+          "total",
+          "daily",
+          "weekly",
+          "monthly",
+          "dailyBreakdown"
+        ]
+      },
+      "OrgsIdEventsIdRostersResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "type": {
+                  "$ref": "#/components/schemas/UploadKind"
+                },
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "profile": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "studio": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "gpa": {
+                          "oneOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "gradYear": {
+                          "oneOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "profilePhotoUrl": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "state": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "height": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "danceStyles": {
+                          "oneOf": [
+                            {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "bio": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "studio",
+                        "gpa",
+                        "gradYear",
+                        "profilePhotoUrl",
+                        "state",
+                        "height",
+                        "danceStyles",
+                        "bio"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "organization": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "eventId": {
+                  "type": "string"
+                },
+                "bibNumber": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "isRegistered": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "email",
+                "type",
+                "firstName",
+                "lastName",
+                "createdAt",
+                "profile",
+                "organization",
+                "eventId",
+                "bibNumber",
+                "isRegistered"
+              ]
+            }
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total"
+        ]
+      },
+      "OrgsIdEventsIdRostersFiltersResponse": {
+        "type": "object",
+        "properties": {
+          "organizations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "organizations"
+        ]
+      },
+      "OrgsIdEventsIdRostersStatsResponse": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "active": {
+            "type": "number"
+          },
+          "pending": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total",
+          "active",
+          "pending"
+        ]
+      },
+      "OrgsIdEventsIdRostersIdRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "firstName": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lastName": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "profile": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "studio": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "gpa": {
+                    "oneOf": [
+                      {
+                        "type": [
+                          "string",
+                          "number"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "gradYear": {
+                    "oneOf": [
+                      {
+                        "type": [
+                          "string",
+                          "number"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "state": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "height": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "danceStyles": {
+                    "oneOf": [
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "bio": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "organization": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bibNumber": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "OrgsIdEventsIdRostersIdResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UploadKind"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "profile": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "studio": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "gpa": {
+                    "oneOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "gradYear": {
+                    "oneOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "profilePhotoUrl": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "state": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "height": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "danceStyles": {
+                    "oneOf": [
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "bio": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "studio",
+                  "gpa",
+                  "gradYear",
+                  "profilePhotoUrl",
+                  "state",
+                  "height",
+                  "danceStyles",
+                  "bio"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "organization": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "bibNumber": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "isRegistered": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "type",
+          "firstName",
+          "lastName",
+          "createdAt",
+          "profile",
+          "organization",
+          "eventId",
+          "bibNumber",
+          "isRegistered"
+        ]
+      },
+      "OrgsIdEventsIdRostersResendinvitesRequest": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "OrgsIdEventsIdRostersResendinvitesResponse": {
+        "type": "object",
+        "properties": {
+          "failed": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "reason"
+              ]
+            }
+          },
+          "sent": {
+            "type": "number"
+          },
+          "skipped": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "failed",
+          "sent",
+          "skipped"
+        ]
+      },
+      "OrgsIdEventsIdChecklistResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "updatedAt": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "eventId": {
+              "type": "string"
+            },
+            "completed": {
+              "type": "boolean"
+            },
+            "position": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "id",
+            "createdAt",
+            "updatedAt",
+            "title",
+            "description",
+            "eventId",
+            "completed",
+            "position"
+          ]
+        }
+      },
+      "OrgsIdEventsIdChecklistRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "OrgsIdEventsIdChecklistIdRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "completed": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "position": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "OrgsIdEventsIdChecklistIdResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "updatedAt": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "eventId": {
+              "type": "string"
+            },
+            "completed": {
+              "type": "boolean"
+            },
+            "position": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "id",
+            "createdAt",
+            "updatedAt",
+            "title",
+            "description",
+            "eventId",
+            "completed",
+            "position"
+          ]
+        }
+      },
+      "OrgsIdEventsIdAuditlogResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "eventId": {
+                  "type": "string"
+                },
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "upload",
+                    "create",
+                    "update",
+                    "delete",
+                    "activate",
+                    "resend_invite"
+                  ]
+                },
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "video",
+                    "roster",
+                    "event",
+                    "checklist",
+                    "csv_upload",
+                    "invite",
+                    "video_category"
+                  ]
+                },
+                "resourceId": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "metadata": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "parentId": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "actor": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "firstName": {
+                      "type": "string"
+                    },
+                    "lastName": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "avatarUrl": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "firstName",
+                    "lastName",
+                    "email",
+                    "avatarUrl"
+                  ]
+                },
+                "childCount": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "createdAt",
+                "eventId",
+                "action",
+                "resource",
+                "resourceId",
+                "metadata",
+                "parentId",
+                "actor",
+                "childCount"
+              ]
+            }
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total"
+        ]
+      },
+      "OrgsIdEventsIdAuditlogStatsResponse": {
+        "type": "object",
+        "properties": {
+          "recentErrors": {
+            "type": "number"
+          },
+          "activity": {
+            "type": "object",
+            "properties": {
+              "today": {
+                "type": "number"
+              },
+              "thisWeek": {
+                "type": "number"
+              },
+              "thisMonth": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "today",
+              "thisWeek",
+              "thisMonth"
+            ]
+          },
+          "topActors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "avatarUrl": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "count": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "avatarUrl",
+                "count"
+              ]
+            }
+          },
+          "uploadHealth": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "number"
+              },
+              "successRate": {
+                "type": "number"
+              },
+              "totalRows": {
+                "type": "number"
+              },
+              "erroredRows": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "total",
+              "successRate",
+              "totalRows",
+              "erroredRows"
+            ]
+          },
+          "actionBreakdown": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "upload",
+                    "create",
+                    "update",
+                    "delete",
+                    "activate",
+                    "resend_invite"
+                  ]
+                },
+                "count": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "action",
+                "count"
+              ]
+            }
+          }
+        },
+        "required": [
+          "recentErrors",
+          "activity",
+          "topActors",
+          "uploadHealth",
+          "actionBreakdown"
+        ]
+      },
+      "OrgsIdEventsIdAuditlogIdChildrenResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "eventId": {
+                  "type": "string"
+                },
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "upload",
+                    "create",
+                    "update",
+                    "delete",
+                    "activate",
+                    "resend_invite"
+                  ]
+                },
+                "resource": {
+                  "type": "string",
+                  "enum": [
+                    "video",
+                    "roster",
+                    "event",
+                    "checklist",
+                    "csv_upload",
+                    "invite",
+                    "video_category"
+                  ]
+                },
+                "resourceId": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "metadata": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "parentId": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "actor": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "firstName": {
+                      "type": "string"
+                    },
+                    "lastName": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "avatarUrl": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "firstName",
+                    "lastName",
+                    "email",
+                    "avatarUrl"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "createdAt",
+                "eventId",
+                "action",
+                "resource",
+                "resourceId",
+                "metadata",
+                "parentId",
+                "actor"
+              ]
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "OrgsIdEventsIdReconciliationResponse": {
+        "type": "object",
+        "properties": {
+          "invites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "organization": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "expiresAt": {
+                  "type": "string"
+                },
+                "token": {
+                  "type": "string"
+                },
+                "consumedAt": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "email",
+                "createdAt",
+                "organization",
+                "expiresAt",
+                "token",
+                "consumedAt"
+              ]
+            }
+          },
+          "orphanRosters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "organization": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "email",
+                "firstName",
+                "lastName",
+                "organization"
+              ]
+            }
+          }
+        },
+        "required": [
+          "invites",
+          "orphanRosters"
+        ]
+      },
+      "OrgsIdEventsIdReconciliationInvitesIdResponse": {
+        "type": "object",
+        "properties": {
+          "revoked": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "revoked"
+        ]
+      },
+      "OrgsIdEventsIdReconciliationInvitesIdResendResponse": {
+        "type": "object",
+        "properties": {
+          "resent": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "resent"
+        ]
+      },
+      "OrgsIdEventsIdReconciliationRostersIdMergeRequest": {
+        "type": "object",
+        "properties": {
+          "targetUserId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "targetUserId"
+        ]
+      },
+      "OrgsIdEventsIdReconciliationRostersIdMergeResponse": {
+        "type": "object",
+        "properties": {
+          "merged": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "merged"
+        ]
+      },
+      "OrgsIdEventsIdReconciliationSchoolusersResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "email",
+            "firstName",
+            "lastName"
+          ]
+        }
+      },
+      "OrgsIdEventsIdVideocategoriesResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "eventId": {
+              "type": "string"
+            },
+            "sortOrder": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "id",
+            "createdAt",
+            "name",
+            "eventId",
+            "sortOrder"
+          ]
+        }
+      },
+      "OrgsIdEventsIdVideocategoriesRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "OrgsIdEventsIdVideosResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "updatedAt": {
+              "type": "string"
+            },
+            "youtubeId": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "eventId": {
+              "type": "string"
+            },
+            "sortOrder": {
+              "type": "number"
+            },
+            "categoryId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "createdAt",
+            "updatedAt",
+            "youtubeId",
+            "title",
+            "eventId",
+            "sortOrder",
+            "categoryId"
+          ]
+        }
+      },
+      "OrgsIdEventsIdVideosRequest": {
+        "type": "object",
+        "properties": {
+          "youtubeId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "youtubeId",
+          "title",
+          "categoryId"
+        ]
+      },
+      "OrgsIdEventsIdVideosIdRequest": {
+        "type": "object",
+        "properties": {
+          "youtubeId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "youtubeId",
+          "title",
+          "categoryId"
+        ]
+      },
+      "OrgsIdEventsIdVideosIdResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "youtubeId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "number"
+          },
+          "categoryId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "youtubeId",
+          "title",
+          "eventId",
+          "sortOrder",
+          "categoryId"
+        ]
+      },
+      "OrgsIdEventsAttendRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/UploadKind"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "OrgsIdEventsAttendResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UploadKind"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "userId": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "organization": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "bibNumber": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expirationDate": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "csvUploadId": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "type",
+          "firstName",
+          "lastName",
+          "createdAt",
+          "updatedAt",
+          "userId",
+          "organization",
+          "eventId",
+          "bibNumber",
+          "expirationDate",
+          "csvUploadId"
+        ]
+      },
+      "OrgsIdDancersResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "rosterId": {
+              "type": "string"
+            },
+            "bibNumber": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "organization": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "isRegistered": {
+              "type": "boolean"
+            },
+            "profilePhotoUrl": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "gpa": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "gradYear": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "studio": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "state": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "interestedInMySchool": {
+              "type": "boolean"
+            },
+            "isFavorited": {
+              "type": "boolean"
+            },
+            "rating": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "hasNote": {
+              "type": "boolean"
+            },
+            "isCalledBack": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "rosterId",
+            "bibNumber",
+            "firstName",
+            "lastName",
+            "organization",
+            "isRegistered",
+            "profilePhotoUrl",
+            "gpa",
+            "gradYear",
+            "studio",
+            "state",
+            "interestedInMySchool",
+            "isFavorited",
+            "rating",
+            "hasNote",
+            "isCalledBack"
+          ]
+        }
+      },
+      "OrgsIdDancersIdResponse": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "username": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "location": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "highSchool": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "studio": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "gpa": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "gradYear": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "organization": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rating": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bibNumber": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rosterId": {
+            "type": "string"
+          },
+          "profilePhotoUrl": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "height": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "danceStyles": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bio": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "extra": {
+            "type": "object",
+            "properties": {}
+          },
+          "isRegistered": {
+            "type": "boolean"
+          },
+          "isFavorited": {
+            "type": "boolean"
+          },
+          "isCalledBack": {
+            "type": "boolean"
+          },
+          "favoritedMyRosterId": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "note",
+          "username",
+          "firstName",
+          "lastName",
+          "location",
+          "highSchool",
+          "studio",
+          "gpa",
+          "gradYear",
+          "organization",
+          "rating",
+          "bibNumber",
+          "rosterId",
+          "profilePhotoUrl",
+          "state",
+          "height",
+          "danceStyles",
+          "bio",
+          "extra",
+          "isRegistered",
+          "isFavorited",
+          "isCalledBack",
+          "favoritedMyRosterId"
+        ]
+      },
+      "OrgsIdDancersIdNotesRequest": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "content"
+        ]
+      },
+      "OrgsIdDancersIdNotesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "coachRosterId": {
+            "type": "string"
+          },
+          "dancerRosterId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "eventId",
+          "content",
+          "coachRosterId",
+          "dancerRosterId"
+        ]
+      },
+      "OrgsIdDancersIdRatingRequest": {
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": [
+              "string",
+              "number"
+            ]
+          }
+        },
+        "required": [
+          "rating"
+        ]
+      },
+      "OrgsIdDancersIdRatingResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "number"
+          },
+          "coachRosterId": {
+            "type": "string"
+          },
+          "dancerRosterId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "eventId",
+          "rating",
+          "coachRosterId",
+          "dancerRosterId"
+        ]
+      },
+      "OrgsIdFavoritesResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "rosterId": {
+              "type": "string"
+            },
+            "bibNumber": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "profilePhotoUrl": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "gradYear": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "studio": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "state": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "gpa": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "rosterId",
+            "bibNumber",
+            "firstName",
+            "lastName",
+            "profilePhotoUrl",
+            "gradYear",
+            "studio",
+            "state",
+            "gpa"
+          ]
+        }
+      },
+      "OrgsIdFavoritesRequest": {
+        "type": "object",
+        "properties": {
+          "dancerRosterId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dancerRosterId"
+        ]
+      },
+      "OrgsIdRankingsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "note": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "studio": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "gpa": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "gradYear": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "organization": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rating": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "bibNumber": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rosterId": {
+              "type": "string"
+            },
+            "profilePhotoUrl": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "state": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "isRegistered": {
+              "type": "boolean"
+            },
+            "isFavorited": {
+              "type": "boolean"
+            },
+            "favoritedAt": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "note",
+            "firstName",
+            "lastName",
+            "studio",
+            "gpa",
+            "gradYear",
+            "organization",
+            "rating",
+            "bibNumber",
+            "rosterId",
+            "profilePhotoUrl",
+            "state",
+            "isRegistered",
+            "isFavorited",
+            "favoritedAt"
+          ]
+        }
+      },
+      "OrgsIdSchoolsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "rosterId": {
+              "type": "string"
+            },
+            "organization": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "rosterId",
+            "organization",
+            "firstName",
+            "lastName"
+          ]
+        }
+      },
+      "OrgsIdMyselectionsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "organization": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "coachRosterId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "createdAt",
+            "organization",
+            "coachRosterId"
+          ]
+        }
+      },
+      "OrgsIdMyselectionsRequest": {
+        "type": "object",
+        "properties": {
+          "coachRosterId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "coachRosterId"
+        ]
+      },
+      "OrgsIdMyselectionsIdResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "coachRosterId": {
+            "type": "string"
+          },
+          "dancerRosterId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "eventId",
+          "coachRosterId",
+          "dancerRosterId"
+        ]
+      },
+      "OrgsIdCallbacksResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "rosterId": {
+              "type": "string"
+            },
+            "bibNumber": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "profilePhotoUrl": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "gradYear": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "studio": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "state": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "gpa": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "rosterId",
+            "bibNumber",
+            "firstName",
+            "lastName",
+            "profilePhotoUrl",
+            "gradYear",
+            "studio",
+            "state",
+            "gpa"
+          ]
+        }
+      },
+      "OrgsIdCallbacksRequest": {
+        "type": "object",
+        "properties": {
+          "dancerRosterId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dancerRosterId"
+        ]
+      },
+      "OrgsIdAdminCallbacksResponse": {
+        "type": "object",
+        "properties": {
+          "totalSchools": {
+            "type": "number"
+          },
+          "totalDancers": {
+            "type": "number"
+          },
+          "bibs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "dancerRosterId": {
+                  "type": "string"
+                },
+                "bibNumber": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "coachCount": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "dancerRosterId",
+                "bibNumber",
+                "firstName",
+                "lastName",
+                "coachCount"
+              ]
+            }
+          },
+          "uniqueCallbacks": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "totalSchools",
+          "totalDancers",
+          "bibs",
+          "uniqueCallbacks"
+        ]
+      },
+      "OrgsIdRegisterRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "password",
+          "token"
+        ]
+      },
+      "OrgsIdRegisterResponse": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      },
+      "OrgsRegisterSchoolRequest": {
+        "type": "object",
+        "properties": {
+          "city": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "password",
+          "name",
+          "location",
+          "token"
+        ]
+      },
+      "OrgsRegisterSchoolResponse": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId"
         ]
       },
       "SkillsResponse": {
@@ -7166,6 +13537,9 @@
       "SubscriptionsResponse": {
         "type": "object",
         "properties": {
+          "source": {
+            "$ref": "#/components/schemas/SubscriptionSource"
+          },
           "cancelAtPeriodEnd": {
             "type": "boolean"
           },
@@ -7181,12 +13555,24 @@
           },
           "subscribed": {
             "type": "boolean"
+          },
+          "grantedBy": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
+          "source",
           "cancelAtPeriodEnd",
           "currentPeriodEnd",
-          "subscribed"
+          "subscribed",
+          "grantedBy"
         ]
       },
       "SubscriptionsCheckoutRequest": {
@@ -9287,6 +15673,12 @@
               ]
             }
           },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
           "organizer": {
             "type": "object",
             "properties": {
@@ -9331,12 +15723,6 @@
           },
           "endTime": {
             "type": "string"
-          },
-          "startDate": {
-            "type": "string"
-          },
-          "endDate": {
-            "type": "string"
           }
         },
         "required": [
@@ -9352,14 +15738,14 @@
           "address",
           "tags",
           "cost",
+          "startDate",
+          "endDate",
           "organizer",
           "attendees",
           "saved",
           "eventAttendees",
           "startTime",
-          "endTime",
-          "startDate",
-          "endDate"
+          "endTime"
         ]
       },
       "EventsIdRequest": {
@@ -9523,6 +15909,7 @@
             "enum": [
               "id",
               "avatar",
+              "schedule",
               "feed",
               "blog"
             ]
@@ -10513,6 +16900,28 @@
             ]
           }
         }
+      },
+      "SchoolsMePendingclaimsIdClaimResponse": {
+        "type": "object",
+        "properties": {
+          "claimed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "claimed"
+        ]
+      },
+      "SchoolsMePendingclaimsIdDismissResponse": {
+        "type": "object",
+        "properties": {
+          "dismissed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "dismissed"
+        ]
       },
       "SchoolsIdResponse": {
         "type": "object",

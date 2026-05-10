@@ -6,6 +6,7 @@ import {
 } from "./enums.ts";
 import { timestamps } from "./helpers/columns.ts";
 import { users } from "./users.ts";
+import { orgEvents, eventRosters } from "./org-events.ts";
 
 export const schoolProfiles = pg.pgTable(
   "school_profiles",
@@ -61,3 +62,45 @@ export const schoolApplications = pg.pgTable("school_applications", {
   notes: pg.text(),
   ...timestamps,
 });
+
+export const schoolInvites = pg.pgTable(
+  "school_invites",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    eventId: pg
+      .uuid()
+      .notNull()
+      .references(() => orgEvents.id, { onDelete: "cascade" }),
+    email: pg.text().notNull(),
+    organization: pg.text(),
+    token: pg.text().notNull().unique(),
+    expiresAt: pg.timestamp({ withTimezone: true }).notNull(),
+    consumedAt: pg.timestamp({ withTimezone: true }),
+    createdAt: pg.timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    pg.uniqueIndex("school_invites_event_email").on(t.eventId, t.email),
+    pg.index().on(t.token),
+  ]
+);
+
+export const suggestedClaimDismissals = pg.pgTable(
+  "suggested_claim_dismissals",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    userId: pg
+      .uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    rosterId: pg
+      .uuid()
+      .notNull()
+      .references(() => eventRosters.id, { onDelete: "cascade" }),
+    createdAt: pg.timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    pg
+      .uniqueIndex("suggested_claim_dismissals_user_roster")
+      .on(t.userId, t.rosterId),
+  ]
+);

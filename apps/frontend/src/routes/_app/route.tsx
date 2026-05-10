@@ -39,7 +39,11 @@ export const Route = createFileRoute("/_app")({
           }
 
           // Schools with an application can access settings, their profile, and logout
-          const allowedPaths = ["/settings", `/explore/${session.username}`, "/logout"];
+          const allowedPaths = [
+            "/settings",
+            `/explore/${session.username}`,
+            "/logout",
+          ];
           const isAllowed = allowedPaths.some((path) =>
             location.pathname.startsWith(path),
           );

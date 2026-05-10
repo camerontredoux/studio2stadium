@@ -44,7 +44,10 @@ export function DailyBreakdownChart({ data }: DailyBreakdownChartProps) {
   const selectItems = useMemo(() => {
     return [
       { value: "all", label: "All Events" },
-      ...eventTypes.map((type) => ({ value: type, label: formatEventName(type) })),
+      ...eventTypes.map((type) => ({
+        value: type,
+        label: formatEventName(type),
+      })),
     ];
   }, [eventTypes]);
 
@@ -83,13 +86,20 @@ export function DailyBreakdownChart({ data }: DailyBreakdownChartProps) {
   }
 
   const dataKey = selectedType === "all" ? "total" : selectedType;
-  const color = selectedType === "all" ? COLORS[0] : COLORS[eventTypes.indexOf(selectedType) % COLORS.length];
+  const color =
+    selectedType === "all"
+      ? COLORS[0]
+      : COLORS[eventTypes.indexOf(selectedType) % COLORS.length];
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-medium">Daily Event Counts</h4>
-        <Select value={selectedType} onValueChange={(v) => setSelectedType(v ?? "all")} items={selectItems}>
+        <Select
+          value={selectedType}
+          onValueChange={(v) => setSelectedType(v ?? "all")}
+          items={selectItems}
+        >
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Select event type" />
           </SelectTrigger>
@@ -104,7 +114,10 @@ export function DailyBreakdownChart({ data }: DailyBreakdownChartProps) {
       </div>
 
       <ResponsiveContainer width="100%" height={250}>
-        <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+        <AreaChart
+          data={chartData}
+          margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+        >
           <defs>
             <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor={color} stopOpacity={0.3} />
@@ -127,7 +140,10 @@ export function DailyBreakdownChart({ data }: DailyBreakdownChartProps) {
             tickFormatter={(v) => v.toLocaleString()}
           />
           <Tooltip
-            cursor={{ stroke: "var(--muted-foreground)", strokeDasharray: "4 4" }}
+            cursor={{
+              stroke: "var(--muted-foreground)",
+              strokeDasharray: "4 4",
+            }}
             content={({ active, payload, label }) => {
               if (active && payload && payload.length) {
                 const value = payload[0].value as number;

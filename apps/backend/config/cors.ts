@@ -12,7 +12,7 @@ const corsConfig = defineConfig({
   origin: app.inProduction
     ? ["https://api.studio2stadium.com", "https://app.studio2stadium.com"]
     : true,
-  methods: ["GET", "HEAD", "POST", "PATCH", "DELETE", "OPTIONS"],
+  methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   headers: app.inProduction
     ? [
         "Content-Type",

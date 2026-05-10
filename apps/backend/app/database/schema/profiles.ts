@@ -2,6 +2,7 @@ import * as pg from "drizzle-orm/pg-core";
 import { dancerProfiles } from "./dancers.ts";
 import { platformName } from "./enums.ts";
 import { timestamps } from "./helpers/columns.ts";
+import { organizations } from "./organizations.ts";
 import { schoolProfiles } from "./schools.ts";
 
 export const favorites = pg.pgTable(
@@ -17,6 +18,9 @@ export const favorites = pg.pgTable(
       .notNull()
       .references(() => dancerProfiles.id, { onDelete: "cascade" }),
     platformName: platformName().notNull(),
+    sourceOrgId: pg
+      .uuid()
+      .references(() => organizations.id, { onDelete: "set null" }),
     comment: pg.text(),
     rating: pg.smallint(),
     lastContacted: pg.timestamp({ withTimezone: true }),

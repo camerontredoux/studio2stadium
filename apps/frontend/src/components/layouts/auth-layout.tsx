@@ -15,9 +15,24 @@ const descriptions: Record<string, string> = {
   "/login": "Sign in to your account to continue",
 };
 
-export function AuthLayout({ children }: { children: React.ReactNode }) {
+type AuthLayoutProps = {
+  children: React.ReactNode;
+  /** When set, replaces the default main logo and pathname-based description. */
+  cardHeader?: React.ReactNode;
+};
+
+export function AuthLayout({ children, cardHeader }: AuthLayoutProps) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const description = descriptions[pathname];
+
+  const defaultCardHeader = (
+    <>
+      <CardTitle className="p-2">
+        <MainLogo className="h-5 dark:invert" />
+      </CardTitle>
+      {description && <CardDescription>{description}</CardDescription>}
+    </>
+  );
 
   return (
     <AnchoredToastProvider>
@@ -28,12 +43,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
 
             <Card>
               <CardHeader className="flex flex-col items-center text-center">
-                <CardTitle className="p-2">
-                  <MainLogo className="h-5 dark:invert" />
-                </CardTitle>
-                {description && (
-                  <CardDescription>{description}</CardDescription>
-                )}
+                {cardHeader ?? defaultCardHeader}
               </CardHeader>
 
               <CardContent>{children}</CardContent>
