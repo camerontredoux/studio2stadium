@@ -37,6 +37,7 @@ import {
   EyeIcon,
   LayoutDashboardIcon,
   LogOutIcon,
+  Megaphone,
   MicIcon,
   MonitorIcon,
   MoonIcon,
@@ -46,6 +47,7 @@ import {
   UserIcon,
   UsersIcon,
 } from "lucide-react";
+import { useMemo } from "react";
 import { useTernaryDarkMode, type TernaryDarkMode } from "usehooks-ts";
 
 const dashboardItem = {
@@ -55,52 +57,72 @@ const dashboardItem = {
   exact: true,
 };
 
-const navSections = [
-  {
-    title: "Rosters",
-    items: [
-      {
-        label: "Dancers",
-        icon: UsersIcon,
-        to: "/$orgSlug/admin/dancers" as const,
-      },
-      {
-        label: "Coaches",
-        icon: MicIcon,
-        to: "/$orgSlug/admin/coaches" as const,
-      },
-    ],
-  },
-  {
-    title: "Content",
-    items: [
-      {
-        label: "Video Library",
-        icon: PlayCircleIcon,
-        to: "/$orgSlug/admin/video-library" as const,
-      },
-    ],
-  },
-  {
-    title: "Settings",
-    items: [
-      {
-        label: "Audit Log",
-        icon: ClipboardListIcon,
-        to: "/$orgSlug/admin/uploads" as const,
-      },
-      {
-        label: "Settings",
-        icon: SettingsIcon,
-        to: "/$orgSlug/admin/settings" as const,
-      },
-    ],
-  },
-];
-
 export function AdminSidebar() {
   const session = useSession();
-  const { org, membership } = useOrg();
+  const { org, membership, hasFeature } = useOrg();
+
+  const navSections = useMemo(() => {
+    const sections: { title: string; items: { label: string; icon: any; to: string }[] }[] = [
+      {
+        title: "Rosters",
+        items: [
+          {
+            label: "Dancers",
+            icon: UsersIcon,
+            to: "/$orgSlug/admin/dancers",
+          },
+          {
+            label: "Coaches",
+            icon: MicIcon,
+            to: "/$orgSlug/admin/coaches",
+          },
+        ],
+      },
+    ];
+
+    if (hasFeature("callbacks")) {
+      sections.push({
+        title: "Live Event",
+        items: [
+          {
+            label: "Callbacks",
+            icon: Megaphone,
+            to: "/$orgSlug/admin/callbacks",
+          },
+        ],
+      });
+    }
+
+    sections.push(
+      {
+        title: "Content",
+        items: [
+          {
+            label: "Video Library",
+            icon: PlayCircleIcon,
+            to: "/$orgSlug/admin/video-library",
+          },
+        ],
+      },
+      {
+        title: "Settings",
+        items: [
+          {
+            label: "Audit Log",
+            icon: ClipboardListIcon,
+            to: "/$orgSlug/admin/uploads",
+          },
+          {
+            label: "Settings",
+            icon: SettingsIcon,
+            to: "/$orgSlug/admin/settings",
+          },
+        ],
+      },
+    );
+
+    return sections;
+  }, [hasFeature]);
   const { orgSlug } = useParams({ strict: false }) as { orgSlug: string };
   const location = useLocation();
   const navigate = useNavigate();
