@@ -1,5 +1,4 @@
 import { E_DATABASE_ERROR } from "#exceptions/database";
-import { RuntimeException } from "@adonisjs/core/exceptions";
 import logger from "@adonisjs/core/services/logger";
 import { DrizzleQueryError } from "drizzle-orm";
 import postgres from "postgres";
