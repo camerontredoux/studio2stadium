@@ -74,6 +74,7 @@ import { Route as OrgOrgSlugAuthenticatedAdminSettingsRouteImport } from './rout
 import { Route as OrgOrgSlugAuthenticatedAdminReconciliationRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/reconciliation'
 import { Route as OrgOrgSlugAuthenticatedAdminDancersRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/dancers'
 import { Route as OrgOrgSlugAuthenticatedAdminCoachesRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/coaches'
+import { Route as OrgOrgSlugAuthenticatedAdminCallbacksRouteImport } from './routes/_org/$orgSlug/_authenticated/admin/callbacks'
 import { Route as AdminroutesAdminDashboardMetricsRouteImport } from './routes/_admin/(routes)/admin/dashboard/metrics'
 import { Route as AdminroutesAdminDashboardAssetsRouteImport } from './routes/_admin/(routes)/admin/dashboard/assets'
 import { Route as OrgOrgSlugAuthenticatedCoachDancersIndexRouteImport } from './routes/_org/$orgSlug/_authenticated/coach/dancers/index'
@@ -431,6 +432,12 @@ const OrgOrgSlugAuthenticatedAdminCoachesRoute =
     path: '/coaches',
     getParentRoute: () => OrgOrgSlugAuthenticatedAdminRouteRoute,
   } as any)
+const OrgOrgSlugAuthenticatedAdminCallbacksRoute =
+  OrgOrgSlugAuthenticatedAdminCallbacksRouteImport.update({
+    id: '/callbacks',
+    path: '/callbacks',
+    getParentRoute: () => OrgOrgSlugAuthenticatedAdminRouteRoute,
+  } as any)
 const AdminroutesAdminDashboardMetricsRoute =
   AdminroutesAdminDashboardMetricsRouteImport.update({
     id: '/metrics',
@@ -502,6 +509,7 @@ export interface FileRoutesByFullPath {
   '/onboarding/': typeof OnboardingroutesOnboardingIndexRoute
   '/admin/dashboard/assets': typeof AdminroutesAdminDashboardAssetsRoute
   '/admin/dashboard/metrics': typeof AdminroutesAdminDashboardMetricsRoute
+  '/$orgSlug/admin/callbacks': typeof OrgOrgSlugAuthenticatedAdminCallbacksRoute
   '/$orgSlug/admin/coaches': typeof OrgOrgSlugAuthenticatedAdminCoachesRoute
   '/$orgSlug/admin/dancers': typeof OrgOrgSlugAuthenticatedAdminDancersRoute
   '/$orgSlug/admin/reconciliation': typeof OrgOrgSlugAuthenticatedAdminReconciliationRoute
@@ -561,6 +569,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingroutesOnboardingIndexRoute
   '/admin/dashboard/assets': typeof AdminroutesAdminDashboardAssetsRoute
   '/admin/dashboard/metrics': typeof AdminroutesAdminDashboardMetricsRoute
+  '/$orgSlug/admin/callbacks': typeof OrgOrgSlugAuthenticatedAdminCallbacksRoute
   '/$orgSlug/admin/coaches': typeof OrgOrgSlugAuthenticatedAdminCoachesRoute
   '/$orgSlug/admin/dancers': typeof OrgOrgSlugAuthenticatedAdminDancersRoute
   '/$orgSlug/admin/reconciliation': typeof OrgOrgSlugAuthenticatedAdminReconciliationRoute
@@ -632,6 +641,7 @@ export interface FileRoutesById {
   '/_onboarding/(routes)/onboarding/': typeof OnboardingroutesOnboardingIndexRoute
   '/_admin/(routes)/admin/dashboard/assets': typeof AdminroutesAdminDashboardAssetsRoute
   '/_admin/(routes)/admin/dashboard/metrics': typeof AdminroutesAdminDashboardMetricsRoute
+  '/_org/$orgSlug/_authenticated/admin/callbacks': typeof OrgOrgSlugAuthenticatedAdminCallbacksRoute
   '/_org/$orgSlug/_authenticated/admin/coaches': typeof OrgOrgSlugAuthenticatedAdminCoachesRoute
   '/_org/$orgSlug/_authenticated/admin/dancers': typeof OrgOrgSlugAuthenticatedAdminDancersRoute
   '/_org/$orgSlug/_authenticated/admin/reconciliation': typeof OrgOrgSlugAuthenticatedAdminReconciliationRoute
@@ -699,6 +709,7 @@ export interface FileRouteTypes {
     | '/onboarding/'
     | '/admin/dashboard/assets'
     | '/admin/dashboard/metrics'
+    | '/$orgSlug/admin/callbacks'
     | '/$orgSlug/admin/coaches'
     | '/$orgSlug/admin/dancers'
     | '/$orgSlug/admin/reconciliation'
@@ -758,6 +769,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/admin/dashboard/assets'
     | '/admin/dashboard/metrics'
+    | '/$orgSlug/admin/callbacks'
     | '/$orgSlug/admin/coaches'
     | '/$orgSlug/admin/dancers'
     | '/$orgSlug/admin/reconciliation'
@@ -828,6 +840,7 @@ export interface FileRouteTypes {
     | '/_onboarding/(routes)/onboarding/'
     | '/_admin/(routes)/admin/dashboard/assets'
     | '/_admin/(routes)/admin/dashboard/metrics'
+    | '/_org/$orgSlug/_authenticated/admin/callbacks'
     | '/_org/$orgSlug/_authenticated/admin/coaches'
     | '/_org/$orgSlug/_authenticated/admin/dancers'
     | '/_org/$orgSlug/_authenticated/admin/reconciliation'
@@ -1307,6 +1320,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminCoachesRouteImport
       parentRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRoute
     }
+    '/_org/$orgSlug/_authenticated/admin/callbacks': {
+      id: '/_org/$orgSlug/_authenticated/admin/callbacks'
+      path: '/callbacks'
+      fullPath: '/$orgSlug/admin/callbacks'
+      preLoaderRoute: typeof OrgOrgSlugAuthenticatedAdminCallbacksRouteImport
+      parentRoute: typeof OrgOrgSlugAuthenticatedAdminRouteRoute
+    }
     '/_admin/(routes)/admin/dashboard/metrics': {
       id: '/_admin/(routes)/admin/dashboard/metrics'
       path: '/metrics'
@@ -1511,6 +1531,7 @@ const OnboardingRouteRouteWithChildren = OnboardingRouteRoute._addFileChildren(
 )
 
 interface OrgOrgSlugAuthenticatedAdminRouteRouteChildren {
+  OrgOrgSlugAuthenticatedAdminCallbacksRoute: typeof OrgOrgSlugAuthenticatedAdminCallbacksRoute
   OrgOrgSlugAuthenticatedAdminCoachesRoute: typeof OrgOrgSlugAuthenticatedAdminCoachesRoute
   OrgOrgSlugAuthenticatedAdminDancersRoute: typeof OrgOrgSlugAuthenticatedAdminDancersRoute
   OrgOrgSlugAuthenticatedAdminReconciliationRoute: typeof OrgOrgSlugAuthenticatedAdminReconciliationRoute
@@ -1522,6 +1543,8 @@ interface OrgOrgSlugAuthenticatedAdminRouteRouteChildren {
 
 const OrgOrgSlugAuthenticatedAdminRouteRouteChildren: OrgOrgSlugAuthenticatedAdminRouteRouteChildren =
   {
+    OrgOrgSlugAuthenticatedAdminCallbacksRoute:
+      OrgOrgSlugAuthenticatedAdminCallbacksRoute,
     OrgOrgSlugAuthenticatedAdminCoachesRoute:
       OrgOrgSlugAuthenticatedAdminCoachesRoute,
     OrgOrgSlugAuthenticatedAdminDancersRoute:

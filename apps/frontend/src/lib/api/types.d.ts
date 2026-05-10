@@ -9230,6 +9230,7 @@ export interface components {
             extra: Record<string, never>;
             isRegistered: boolean;
             isFavorited: boolean;
+            isCalledBack: boolean;
             favoritedMyRosterId: null;
         };
         OrgsIdDancersIdNotesRequest: {

@@ -283,6 +283,34 @@ type OrgsIdEventsIdScheduleGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/schedule/controller.ts').default['handle'], false>
 }
+type OrgsIdEventsIdVideocategoriesGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/video-categories/list/controller.ts').default['handle'], false>
+}
+type OrgsIdEventsIdVideocategoriesPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/video-categories/create/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/video-categories/create/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdVideocategoriesIdDelete = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/video-categories/delete/controller.ts').default['handle'], false>
+}
+type OrgsIdEventsIdVideosGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/videos/list/controller.ts').default['handle'], false>
+}
+type OrgsIdEventsIdVideosPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/videos/create/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/videos/create/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdVideosIdPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/videos/update/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/videos/update/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdVideosIdDelete = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/videos/delete/controller.ts').default['handle'], false>
+}
 type OrgsIdDancersGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/dancers/list/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/dancers/list/controller.ts').default['handle'], true>
@@ -334,6 +362,22 @@ type OrgsIdMyselectionsPost = {
 type OrgsIdMyselectionsIdDelete = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/selections/delete/controller.ts').default['handle'], false>
+}
+type OrgsIdCallbacksGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/list/controller.ts').default['handle'], false>
+}
+type OrgsIdCallbacksPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/callbacks/create/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/create/controller.ts').default['handle'], true>
+}
+type OrgsIdCallbacksIdDelete = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/delete/controller.ts').default['handle'], false>
+}
+type OrgsIdAdminCallbacksGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/admin-board/controller.ts').default['handle'], false>
 }
 type OrgsIdGetHead = {
   request: unknown
@@ -1077,6 +1121,31 @@ export interface ApiDefinition {
             '$get': OrgsIdEventsIdScheduleGetHead;
             '$head': OrgsIdEventsIdScheduleGetHead;
           };
+          'video-categories': {
+            '$url': {
+            };
+            '$get': OrgsIdEventsIdVideocategoriesGetHead;
+            '$head': OrgsIdEventsIdVideocategoriesGetHead;
+            '$post': OrgsIdEventsIdVideocategoriesPost;
+            ':categoryId': {
+              '$url': {
+              };
+              '$delete': OrgsIdEventsIdVideocategoriesIdDelete;
+            };
+          };
+          'videos': {
+            '$url': {
+            };
+            '$get': OrgsIdEventsIdVideosGetHead;
+            '$head': OrgsIdEventsIdVideosGetHead;
+            '$post': OrgsIdEventsIdVideosPost;
+            ':videoId': {
+              '$url': {
+              };
+              '$patch': OrgsIdEventsIdVideosIdPatch;
+              '$delete': OrgsIdEventsIdVideosIdDelete;
+            };
+          };
         };
         '$get': OrgsIdEventsGetHead;
         '$head': OrgsIdEventsGetHead;
@@ -1145,6 +1214,26 @@ export interface ApiDefinition {
           '$url': {
           };
           '$delete': OrgsIdMyselectionsIdDelete;
+        };
+      };
+      'callbacks': {
+        '$url': {
+        };
+        '$get': OrgsIdCallbacksGetHead;
+        '$head': OrgsIdCallbacksGetHead;
+        '$post': OrgsIdCallbacksPost;
+        ':dancerRosterId': {
+          '$url': {
+          };
+          '$delete': OrgsIdCallbacksIdDelete;
+        };
+      };
+      'admin': {
+        'callbacks': {
+          '$url': {
+          };
+          '$get': OrgsIdAdminCallbacksGetHead;
+          '$head': OrgsIdAdminCallbacksGetHead;
         };
       };
       '$url': {
