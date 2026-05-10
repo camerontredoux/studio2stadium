@@ -172,6 +172,9 @@ importers:
 
   apps/frontend:
     dependencies:
+      '@adonisjs/transmit-client':
+        specifier: ^1.1.0
+        version: 1.1.0
       '@base-ui/react':
         specifier: ^1.1.0
         version: 1.1.0(@types/react@19.2.9)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -745,6 +748,10 @@ packages:
 
   '@adonisjs/repl@4.1.2':
     resolution: {integrity: sha512-NnczRJusl0082GOjEFYwObW/yBGJtpfJFnkFCQdQ6eykgBHVNYaY6qstfob+l1bedetRj0hrDY6YfsWMkA0MCg==}
+    engines: {node: '>=18.16.0'}
+
+  '@adonisjs/transmit-client@1.1.0':
+    resolution: {integrity: sha512-4U3DJ4V2X7S0Js04aX7P3SJOq+3RWmCLZep5aRsB1Eo3S9xgRAlWu5gLFrIM/XVRG3DKjvOckeeGNwPPxXhGEQ==}
     engines: {node: '>=18.16.0'}
 
   '@adonisjs/transmit@3.0.1':
@@ -9319,6 +9326,8 @@ snapshots:
     dependencies:
       '@poppinss/colors': 4.1.6
       string-width: 7.2.0
+
+  '@adonisjs/transmit-client@1.1.0': {}
 
   '@adonisjs/transmit@3.0.1(@adonisjs/core@6.19.3(@adonisjs/assembler@7.8.2(typescript@5.9.3))(@vinejs/vine@4.2.0)(argon2@0.43.1))(ioredis@5.9.2)':
     dependencies:

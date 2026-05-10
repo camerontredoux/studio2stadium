@@ -1,10 +1,11 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { Megaphone } from "lucide-react";
 
 import { cn } from "@/components/utils/cn";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { LivePulse, StatCell } from "@/features/org/components/dashboard-shared";
+import { useTransmitSubscription } from "@/features/org/hooks/use-transmit";
 
 export const Route = createFileRoute(
   "/_org/$orgSlug/_authenticated/admin/callbacks",
@@ -17,6 +18,13 @@ function AdminCallbacksPage() {
     from: "/_org/$orgSlug/_authenticated/admin/callbacks",
   });
   const { data } = useSuspenseQuery(scoutingQueries.adminCallbacks(orgSlug));
+  const qc = useQueryClient();
+
+  useTransmitSubscription(`orgs/${orgSlug}/callbacks`, () => {
+    qc.invalidateQueries({
+      queryKey: scoutingQueries.adminCallbacks(orgSlug).queryKey,
+    });
+  });
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
