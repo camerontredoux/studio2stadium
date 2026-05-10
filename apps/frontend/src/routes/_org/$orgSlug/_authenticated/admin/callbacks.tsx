@@ -1,11 +1,17 @@
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { Megaphone } from "lucide-react";
+import { useState } from "react";
 
 import { cn } from "@/components/utils/cn";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { LivePulse, StatCell } from "@/features/org/components/dashboard-shared";
-import { useTransmitSubscription } from "@/features/org/hooks/use-transmit";
+import { DancerSheet } from "@/features/org/components/dancer-sheet";
+import {
+  type TransmitStatus,
+  useTransmitStatus,
+  useTransmitSubscription,
+} from "@/features/org/hooks/use-transmit";
 
 export const Route = createFileRoute(
   "/_org/$orgSlug/_authenticated/admin/callbacks",
@@ -13,12 +19,44 @@ export const Route = createFileRoute(
   component: AdminCallbacksPage,
 });
 
+const SSE_STATUS_CONFIG: Record<
+  TransmitStatus,
+  { border: string; text: string; dot: string; label: string }
+> = {
+  connected: {
+    border: "border-success/60",
+    text: "text-success",
+    dot: "bg-emerald-500",
+    label: "Connected",
+  },
+  connecting: {
+    border: "border-warning/60",
+    text: "text-warning",
+    dot: "bg-amber-500",
+    label: "Connecting",
+  },
+  reconnecting: {
+    border: "border-warning/60",
+    text: "text-warning",
+    dot: "bg-amber-500",
+    label: "Reconnecting",
+  },
+  disconnected: {
+    border: "border-destructive/60",
+    text: "text-destructive",
+    dot: "bg-red-500",
+    label: "Disconnected",
+  },
+};
+
 function AdminCallbacksPage() {
   const { orgSlug } = useParams({
     from: "/_org/$orgSlug/_authenticated/admin/callbacks",
   });
   const { data } = useSuspenseQuery(scoutingQueries.adminCallbacks(orgSlug));
   const qc = useQueryClient();
+  const sseStatus = useTransmitStatus();
+  const [sheetRosterId, setSheetRosterId] = useState<string | null>(null);
 
   useTransmitSubscription(`orgs/${orgSlug}/callbacks`, () => {
     qc.invalidateQueries({
@@ -64,7 +102,7 @@ function AdminCallbacksPage() {
             </p>
           </div>
         ) : (
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(88px,1fr))] gap-2">
             {data.bibs.map(
               (bib: {
                 dancerRosterId: string;
@@ -73,26 +111,26 @@ function AdminCallbacksPage() {
                 lastName: string;
                 coachCount: number;
               }) => (
-                <div
+                <button
+                  type="button"
                   key={bib.dancerRosterId}
-                  className={cn(
-                    "bg-foreground text-background flex min-w-[72px] flex-col items-center justify-center rounded-xl px-3 py-2.5",
-                  )}
+                  onClick={() => setSheetRosterId(bib.dancerRosterId)}
+                  className="bg-muted hover:bg-accent flex cursor-pointer flex-col items-center justify-center rounded-lg px-3 py-2.5 transition-colors"
                 >
                   <span className="text-xl font-bold tabular-nums leading-none">
                     {bib.bibNumber != null
                       ? String(bib.bibNumber).padStart(2, "0")
                       : "—"}
                   </span>
-                  <span className="mt-1 max-w-[80px] truncate text-[10px] opacity-70">
+                  <span className="text-muted-foreground mt-1 max-w-full truncate text-[10px]">
                     {bib.firstName} {bib.lastName?.[0]}.
                   </span>
                   {Number(bib.coachCount) > 1 && (
-                    <span className="mt-0.5 text-[10px] opacity-50">
+                    <span className="text-muted-foreground mt-0.5 text-[10px] opacity-60">
                       {bib.coachCount} coaches
                     </span>
                   )}
-                </div>
+                </button>
               ),
             )}
           </div>
@@ -106,12 +144,34 @@ function AdminCallbacksPage() {
             {data.uniqueCallbacks} number{data.uniqueCallbacks === 1 ? "" : "s"}{" "}
             · no repeats
           </span>
-          <span>
-            Sharpen Up staff decides how to split these into groups based on
-            total count.
+          <span
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.14em] uppercase",
+              SSE_STATUS_CONFIG[sseStatus].border,
+              SSE_STATUS_CONFIG[sseStatus].text,
+            )}
+          >
+            <span className="relative flex size-1.5">
+              <span
+                className={`absolute size-full animate-ping rounded-full ${SSE_STATUS_CONFIG[sseStatus].dot}`}
+              />
+              <span
+                className={`relative size-1.5 rounded-full ${SSE_STATUS_CONFIG[sseStatus].dot}`}
+              />
+            </span>
+            {SSE_STATUS_CONFIG[sseStatus].label}
           </span>
         </footer>
       )}
+
+      <DancerSheet
+        rosterId={sheetRosterId}
+        open={sheetRosterId !== null}
+        onOpenChange={(open) => {
+          if (!open) setSheetRosterId(null);
+        }}
+        readOnly
+      />
     </div>
   );
 }

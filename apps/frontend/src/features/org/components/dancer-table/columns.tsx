@@ -127,11 +127,7 @@ export function callbackToggleColumn(
 ): ColumnDef<SearchDancerRow> {
   return {
     id: "callback",
-    header: () => (
-      <span title="Callback">
-        <Megaphone className="text-muted-foreground size-4" />
-      </span>
-    ),
+    header: "Callback",
     size: 100,
     enableSorting: false,
     cell: ({ row }) => (
