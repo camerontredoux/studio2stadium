@@ -45,7 +45,7 @@ export const auditQueries = {
     $api.queryOptions("get", "/orgs/{slug}/events/{id}/audit-log", {
       params: {
         path: { slug, id: eventId },
-        query: params,
+        query: params as Record<string, unknown>,
       },
     }),
 
