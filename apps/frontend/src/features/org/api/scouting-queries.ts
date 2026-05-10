@@ -37,4 +37,12 @@ export const scoutingQueries = {
     $api.queryOptions("get", "/orgs/{slug}/my-selections", {
       params: { path: { slug } },
     }),
+  callbacks: (slug: string) =>
+    $api.queryOptions("get", "/orgs/{slug}/callbacks", {
+      params: { path: { slug } },
+    }),
+  adminCallbacks: (slug: string) =>
+    $api.queryOptions("get", "/orgs/{slug}/admin/callbacks", {
+      params: { path: { slug } },
+    }),
 };
