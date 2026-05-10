@@ -1,5 +1,6 @@
 import { inject } from "@adonisjs/core";
 import type { HttpContext } from "@adonisjs/core/http";
+import transmit from "@adonisjs/transmit/services/main";
 import { DeleteCallbackService } from "./service.ts";
 
 export default class DeleteCallbackController {
@@ -13,6 +14,9 @@ export default class DeleteCallbackController {
 
     const dancerRosterId = ctx.params.dancerRosterId as string;
     await service.execute(ctx.orgEvent!.id, ctx.orgRoster.id, dancerRosterId);
+
+    transmit.broadcast(`orgs/${ctx.org!.slug}/callbacks`, {});
+
     return ctx.response.noContent();
   }
 }

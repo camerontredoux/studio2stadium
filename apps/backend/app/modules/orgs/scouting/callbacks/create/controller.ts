@@ -1,5 +1,6 @@
 import { inject } from "@adonisjs/core";
 import type { HttpContext } from "@adonisjs/core/http";
+import transmit from "@adonisjs/transmit/services/main";
 import { CreateCallbackService } from "./service.ts";
 import { schema } from "./validator.ts";
 
@@ -18,6 +19,9 @@ export default class CreateCallbackController {
       ctx.orgRoster.id,
       payload.dancerRosterId
     );
+
+    transmit.broadcast(`orgs/${ctx.org!.slug}/callbacks`, {});
+
     return ctx.response.created(row);
   }
 }
