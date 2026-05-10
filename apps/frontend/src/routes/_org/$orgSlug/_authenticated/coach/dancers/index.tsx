@@ -53,7 +53,8 @@ function DancerSearch() {
   const { orgSlug } = useParams({
     from: "/_org/$orgSlug/_authenticated/coach/dancers/",
   });
-  const { org } = useOrg();
+  const { org, hasFeature } = useOrg();
+  const callbacksEnabled = hasFeature("callbacks");
 
   /* --- Filter state --- */
   const [search, setSearch] = useState("");
@@ -64,13 +65,14 @@ function DancerSearch() {
   const [favorited, setFavorited] = useState(false);
   const [rated, setRated] = useState(false);
   const [hasNotes, setHasNotes] = useState(false);
+  const [calledBack, setCalledBack] = useState(false);
   const deferredSearch = useDeferredValue(search);
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   useEffect(() => {
     setRowSelection({});
-  }, [yearFilter, gpaFilter, stateFilter, interested, favorited, rated, hasNotes]);
+  }, [yearFilter, gpaFilter, stateFilter, interested, favorited, rated, hasNotes, calledBack]);
 
   const [sorting, setSorting] = useState<SortingState>([{ id: "name", desc: false }]);
 
@@ -212,6 +214,46 @@ function DancerSearch() {
     },
   );
 
+  const addCallback = $api.useMutation("post", "/orgs/{slug}/callbacks", {
+    onMutate: async ({ body }) => {
+      await qc.cancelQueries({ queryKey: dancersKey });
+      const previous = qc.getQueryData(dancersKey);
+      qc.setQueryData(dancersKey, (old: any) =>
+        Array.isArray(old)
+          ? old.map((d: any) =>
+              d.rosterId === body?.dancerRosterId ? { ...d, isCalledBack: true } : d,
+            )
+          : old,
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, ctx: any) => {
+      if (ctx?.previous) qc.setQueryData(dancersKey, ctx.previous);
+      toastManager.add({ title: "Couldn't add callback", type: "error" });
+    },
+    meta: { invalidateQueries: [dancersKey] },
+  });
+
+  const removeCallback = $api.useMutation("delete", "/orgs/{slug}/callbacks/{dancerRosterId}", {
+    onMutate: async ({ params }) => {
+      await qc.cancelQueries({ queryKey: dancersKey });
+      const previous = qc.getQueryData(dancersKey);
+      qc.setQueryData(dancersKey, (old: any) =>
+        Array.isArray(old)
+          ? old.map((d: any) =>
+              d.rosterId === params?.path?.dancerRosterId ? { ...d, isCalledBack: false } : d,
+            )
+          : old,
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, ctx: any) => {
+      if (ctx?.previous) qc.setQueryData(dancersKey, ctx.previous);
+      toastManager.add({ title: "Couldn't remove callback", type: "error" });
+    },
+    meta: { invalidateQueries: [dancersKey] },
+  });
+
   const handleFavoriteToggle = useCallback(
     (rosterId: string, current: boolean) => {
       const dancer = dancers?.find((d) => d.rosterId === rosterId);
@@ -264,10 +306,27 @@ function DancerSearch() {
     [],
   );
 
+  const handleCallbackToggle = useCallback(
+    (rosterId: string, current: boolean) => {
+      if (current) {
+        removeCallback.mutate({
+          params: { path: { slug: orgSlug, dancerRosterId: rosterId } },
+        });
+      } else {
+        addCallback.mutate({
+          params: { path: { slug: orgSlug } },
+          body: { dancerRosterId: rosterId },
+        });
+      }
+    },
+    [orgSlug, addCallback, removeCallback],
+  );
+
   const columns = useSearchColumns(handleFavoriteToggle, {
     enableSelection: true,
     onRate: handleRate,
     onOpenNotes: handleOpenNotes,
+    onCallbackToggle: callbacksEnabled ? handleCallbackToggle : undefined,
     showRank: rated,
   });
 
@@ -291,6 +350,7 @@ function DancerSearch() {
     let result = (dancers ?? []).map((d) => ({
       ...d,
       isFavorited: d.isFavorited ?? false,
+      isCalledBack: d.isCalledBack ?? false,
       hasNote: d.hasNote ?? false,
       rating: d.rating ?? null,
       interestedInMySchool: d.interestedInMySchool ?? false,
@@ -323,8 +383,11 @@ function DancerSearch() {
     if (hasNotes) {
       result = result.filter((d) => d.hasNote);
     }
+    if (calledBack) {
+      result = result.filter((d) => d.isCalledBack);
+    }
     return result;
-  }, [dancers, yearFilter, gpaFilter, stateFilter, favorited, rated, hasNotes]);
+  }, [dancers, yearFilter, gpaFilter, stateFilter, favorited, rated, hasNotes, calledBack]);
 
   const selectedRosterIds = useMemo(() => {
     return Object.keys(rowSelection)
@@ -437,6 +500,7 @@ function DancerSearch() {
     return avg.toFixed(1);
   }, [dancers]);
 
+  const callbackCount = (dancers ?? []).filter((d) => d.isCalledBack).length;
   const reviewedCount = dancerCount - toReviewCount;
 
   return (
@@ -471,6 +535,9 @@ function DancerSearch() {
             >
               <StatCell label="To Review" value={toReviewCount} accent="blue" />
               <StatCell label="Favorited" value={favCount} />
+              {callbacksEnabled && (
+                <StatCell label="Callbacks" value={callbackCount} accent="amber" />
+              )}
               <StatCell label="Avg GPA" value={avgGpa} />
             </section>
 
@@ -491,6 +558,9 @@ function DancerSearch() {
               onRatedChange={setRated}
               hasNotes={hasNotes}
               onHasNotesChange={setHasNotes}
+              {...(callbacksEnabled
+                ? { calledBack, onCalledBackChange: setCalledBack }
+                : {})}
               schoolName={org.name}
               availableYears={availableYears}
               availableStates={availableStates}
