@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Heart, PencilIcon, PlusIcon, StarIcon } from "lucide-react";
+import { Heart, Megaphone, PencilIcon, PlusIcon, StarIcon } from "lucide-react";
 import { Rating, RatingItem } from "@/components/ui/rating";
 import { Tooltip, TooltipPopup, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -33,6 +33,7 @@ export interface DancerRow {
 export interface SearchDancerRow extends DancerRow {
   interestedInMySchool: boolean;
   isFavorited: boolean;
+  isCalledBack: boolean;
   hasNote: boolean;
   rating: number | null;
 }
@@ -116,6 +117,40 @@ export function favoriteToggleColumn(
               : "text-muted-foreground"
           }`}
         />
+      </button>
+    ),
+  };
+}
+
+export function callbackToggleColumn(
+  onToggle: (rosterId: string, current: boolean) => void,
+): ColumnDef<SearchDancerRow> {
+  return {
+    id: "callback",
+    header: () => (
+      <span title="Callback">
+        <Megaphone className="text-muted-foreground size-4" />
+      </span>
+    ),
+    size: 100,
+    enableSorting: false,
+    cell: ({ row }) => (
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggle(row.original.rosterId, row.original.isCalledBack);
+        }}
+        className={`flex cursor-pointer items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold transition-colors ${
+          row.original.isCalledBack
+            ? "bg-foreground text-background"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+        aria-label={row.original.isCalledBack ? "Remove callback" : "Call back"}
+        aria-pressed={row.original.isCalledBack}
+      >
+        <Megaphone className="size-3" />
+        {row.original.isCalledBack ? "Called" : "Call"}
       </button>
     ),
   };

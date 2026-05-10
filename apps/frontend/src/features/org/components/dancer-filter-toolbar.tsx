@@ -1,5 +1,5 @@
 import type { RefObject } from "react";
-import { Heart, PencilIcon, SchoolIcon, SearchIcon, StarIcon, XIcon } from "lucide-react";
+import { Heart, Megaphone, PencilIcon, SchoolIcon, SearchIcon, StarIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   InputGroup,
@@ -45,6 +45,8 @@ interface DancerFilterToolbarProps {
   onRatedChange: (value: boolean) => void;
   hasNotes: boolean;
   onHasNotesChange: (value: boolean) => void;
+  calledBack?: boolean;
+  onCalledBackChange?: (value: boolean) => void;
   schoolName: string | null;
   availableYears: number[];
   availableStates: string[];
@@ -101,6 +103,8 @@ export function DancerFilterToolbar({
   onRatedChange,
   hasNotes,
   onHasNotesChange,
+  calledBack,
+  onCalledBackChange,
   schoolName,
   availableYears,
   availableStates,
@@ -113,7 +117,8 @@ export function DancerFilterToolbar({
     interested ||
     favorited ||
     rated ||
-    hasNotes;
+    hasNotes ||
+    calledBack;
 
   const clearAll = () => {
     onYearFilterChange(null);
@@ -123,6 +128,7 @@ export function DancerFilterToolbar({
     onFavoritedChange(false);
     onRatedChange(false);
     onHasNotesChange(false);
+    onCalledBackChange?.(false);
   };
 
   return (
@@ -232,6 +238,16 @@ export function DancerFilterToolbar({
         >
           <PencilIcon className="size-3.5" />
         </IconToggle>
+
+        {onCalledBackChange && (
+          <IconToggle
+            pressed={calledBack ?? false}
+            onPressedChange={onCalledBackChange}
+            label="Called back"
+          >
+            <Megaphone className="size-3.5" />
+          </IconToggle>
+        )}
       </div>
 
       {hasActiveFilters && (

@@ -7,6 +7,7 @@ import {
   studioColumn,
   gpaColumn,
   favoriteToggleColumn,
+  callbackToggleColumn,
   notesQuickActionColumn,
   schoolInterestColumn,
   rankColumn,
@@ -22,6 +23,7 @@ export function useSearchColumns(
     enableSelection?: boolean;
     onRate?: (rosterId: string, rating: number) => void;
     onOpenNotes?: (rosterId: string) => void;
+    onCallbackToggle?: (rosterId: string, current: boolean) => void;
     showRank?: boolean;
   },
 ): ColumnDef<SearchDancerRow>[] {
@@ -52,6 +54,10 @@ export function useSearchColumns(
 
     cols.push(favoriteToggleColumn(onFavoriteToggle));
 
+    if (opts?.onCallbackToggle) {
+      cols.push(callbackToggleColumn(opts.onCallbackToggle));
+    }
+
     if (opts?.onOpenNotes) {
       cols.push(notesQuickActionColumn(opts.onOpenNotes) as ColumnDef<SearchDancerRow>);
     }
@@ -59,5 +65,5 @@ export function useSearchColumns(
     cols.push(schoolInterestColumn);
 
     return cols;
-  }, [onFavoriteToggle, opts?.enableSelection, opts?.onRate, opts?.onOpenNotes, opts?.showRank]);
+  }, [onFavoriteToggle, opts?.enableSelection, opts?.onRate, opts?.onOpenNotes, opts?.onCallbackToggle, opts?.showRank]);
 }
