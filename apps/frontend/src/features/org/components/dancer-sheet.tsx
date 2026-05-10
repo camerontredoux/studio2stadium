@@ -26,6 +26,7 @@ interface DancerSheetProps {
   rosterId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  readOnly?: boolean;
   onFavoriteToggle?: (rosterId: string, current: boolean) => void;
   onSave?: (rosterId: string, saved: { rating?: number; hasNote?: boolean }) => void;
 }
@@ -34,6 +35,7 @@ export function DancerSheet({
   rosterId,
   open,
   onOpenChange,
+  readOnly,
   onFavoriteToggle,
   onSave,
 }: DancerSheetProps) {
@@ -43,6 +45,7 @@ export function DancerSheet({
         {rosterId && open && (
           <DancerSheetContent
             rosterId={rosterId}
+            readOnly={readOnly}
             onFavoriteToggle={onFavoriteToggle}
             onSave={onSave}
           />
@@ -54,10 +57,12 @@ export function DancerSheet({
 
 function DancerSheetContent({
   rosterId,
+  readOnly,
   onFavoriteToggle,
   onSave,
 }: {
   rosterId: string;
+  readOnly?: boolean;
   onFavoriteToggle?: (rosterId: string, current: boolean) => void;
   onSave?: (rosterId: string, saved: { rating?: number; hasNote?: boolean }) => void;
 }) {
@@ -173,7 +178,7 @@ function DancerSheetContent({
     <>
       <SheetHeader>
         <div className="flex items-start gap-3">
-          <Avatar className="size-14 rounded-lg">
+          <Avatar className="bg-muted size-14 rounded-lg">
             <AvatarImage src={dancer.profilePhotoUrl ?? undefined} />
             <AvatarFallback className="rounded-lg text-lg">
               {dancer.firstName?.[0]}
@@ -215,27 +220,29 @@ function DancerSheetContent({
       </SheetHeader>
 
       <SheetContent className="flex flex-col gap-4 px-4 pt-5 pb-3">
-        <div className="flex items-center gap-2 pt-2">
-          <div className="flex-1">
-            <RatingInput
-              value={currentRating}
-              onChange={(v) => setRating(v)}
+        {!readOnly && (
+          <div className="flex items-center gap-2 pt-2">
+            <div className="flex-1">
+              <RatingInput
+                value={currentRating}
+                onChange={(v) => setRating(v)}
+              />
+            </div>
+            {hasFeature("callbacks") && (
+              <CallbackButton
+                dancerRosterId={rosterId}
+                isCalledBack={dancer.isCalledBack ?? false}
+              />
+            )}
+            <FavoriteButton
+              dancerRosterId={rosterId}
+              isFavorited={dancer.isFavorited}
+              onToggle={onFavoriteToggle}
             />
           </div>
-          {hasFeature("callbacks") && (
-            <CallbackButton
-              dancerRosterId={rosterId}
-              isCalledBack={dancer.isCalledBack ?? false}
-            />
-          )}
-          <FavoriteButton
-            dancerRosterId={rosterId}
-            isFavorited={dancer.isFavorited}
-            onToggle={onFavoriteToggle}
-          />
-        </div>
+        )}
 
-        <div>
+        <div className={readOnly ? "pt-2" : undefined}>
           <label className="text-muted-foreground mb-1 block text-xs uppercase tracking-wide">
             Bio
           </label>
@@ -250,23 +257,27 @@ function DancerSheetContent({
           )}
         </div>
 
-        <div className="flex flex-1 flex-col">
-          <label className="text-muted-foreground mb-1 block text-xs uppercase tracking-wide">
-            Notes
-          </label>
-          <NotesEditor
-            value={currentNotes}
-            onChange={(v) => setNotes(v)}
-          />
-        </div>
+        {!readOnly && (
+          <div className="flex flex-1 flex-col">
+            <label className="text-muted-foreground mb-1 block text-xs uppercase tracking-wide">
+              Notes
+            </label>
+            <NotesEditor
+              value={currentNotes}
+              onChange={(v) => setNotes(v)}
+            />
+          </div>
+        )}
       </SheetContent>
 
-      <SheetFooter>
-        <Button onClick={handleSave} disabled={!isDirty || isSaving}>
-          {isSaving && <Loader2Icon className="size-4 animate-spin" />}
-          Save
-        </Button>
-      </SheetFooter>
+      {!readOnly && (
+        <SheetFooter>
+          <Button onClick={handleSave} disabled={!isDirty || isSaving}>
+            {isSaving && <Loader2Icon className="size-4 animate-spin" />}
+            Save
+          </Button>
+        </SheetFooter>
+      )}
     </>
   );
 }
