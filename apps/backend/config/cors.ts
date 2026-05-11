@@ -31,6 +31,7 @@ const corsConfig = defineConfig({
         "Upload-Defer-Length",
         "X-HTTP-Method-Override",
         "X-Requested-With",
+        "X-XSRF-TOKEN",
       ]
     : true,
   exposeHeaders: [
