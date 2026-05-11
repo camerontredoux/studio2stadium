@@ -5,6 +5,12 @@ export interface OrgMembership {
   type: "coach" | "dancer";
 }
 
+export interface MyRoster {
+  id: string;
+  eventId: string;
+  type: "coach" | "dancer";
+}
+
 export interface OrgContextValue {
   org: {
     id: string;
@@ -17,6 +23,7 @@ export interface OrgContextValue {
   features: Record<string, boolean>;
   settings: Record<string, unknown>;
   membership: OrgMembership | null;
+  myRoster: MyRoster | null;
   isAdmin: boolean;
   hasFeature: (key: string) => boolean;
 }

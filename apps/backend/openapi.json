@@ -10331,6 +10331,32 @@
                 "type": "null"
               }
             ]
+          },
+          "myRoster": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "eventId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "$ref": "#/components/schemas/UploadKind"
+                  }
+                },
+                "required": [
+                  "id",
+                  "eventId",
+                  "type"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -10342,7 +10368,8 @@
           "accentColor",
           "features",
           "settings",
-          "membership"
+          "membership",
+          "myRoster"
         ]
       },
       "OrgsIdEventsResponse": {
@@ -17258,12 +17285,16 @@
                 },
                 "category": {
                   "type": "string"
+                },
+                "weight": {
+                  "type": "number"
                 }
               },
               "required": [
                 "name",
                 "slug",
-                "category"
+                "category",
+                "weight"
               ]
             }
           },

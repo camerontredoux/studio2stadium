@@ -23,7 +23,7 @@ export default class GetOrgController {
     if (!result) {
       return response.notFound({ message: "Organization not found." });
     }
-    const { org, membership } = result;
+    const { org, membership, myRoster } = result;
     return response.ok({
       id: org.id,
       slug: org.slug,
@@ -34,6 +34,7 @@ export default class GetOrgController {
       features: org.features,
       settings: org.settings,
       membership,
+      myRoster,
     });
   }
 }

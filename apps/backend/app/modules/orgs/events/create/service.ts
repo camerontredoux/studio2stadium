@@ -1,8 +1,10 @@
 import { DatabaseService } from "#database/service";
-import { orgEvents } from "#database/schema/org-events";
+import { eventRosters, orgEvents } from "#database/schema/org-events";
+import { users } from "#database/schema/users";
 import { inject } from "@adonisjs/core";
 import type { Validator } from "./validator.ts";
 import { AuditCollector } from "#database/audit";
+import { eq } from "drizzle-orm";
 
 @inject()
 export class CreateEventService {
@@ -25,6 +27,27 @@ export class CreateEventService {
           isActive: input.isActive ?? false,
         })
         .returning();
+
+      const [actor] = await tx
+        .select({
+          displayEmail: users.displayEmail,
+          firstName: users.firstName,
+          lastName: users.lastName,
+        })
+        .from(users)
+        .where(eq(users.id, actorId))
+        .limit(1);
+
+      if (actor) {
+        await tx.insert(eventRosters).values({
+          eventId: ev!.id,
+          userId: actorId,
+          type: "coach",
+          email: actor.displayEmail,
+          firstName: actor.firstName,
+          lastName: actor.lastName,
+        });
+      }
 
       const audit = new AuditCollector();
       audit.log({

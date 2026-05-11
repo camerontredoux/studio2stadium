@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -18,8 +18,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { toastManager } from "@/components/ui/toast-manager";
 import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
+import { orgQueries } from "@/features/org/api/queries";
+import { useOrg } from "@/features/org/context/use-org";
+import { client } from "@/lib/api/client";
 import {
   AccentDot,
   DashboardHeader,
@@ -41,6 +45,7 @@ export const Route = createFileRoute(
 
 function EventInfo() {
   const { orgSlug } = Route.useParams();
+  const { isAdmin, myRoster } = useOrg();
   const { data: events } = useQuery(adminQueries.events(orgSlug));
   const activeEvent = events?.find((e) => e.isActive) ?? null;
 
@@ -52,7 +57,64 @@ function EventInfo() {
     );
   }
 
+  if (isAdmin && !myRoster) {
+    return <AttendEventGate orgSlug={orgSlug} eventName={activeEvent.name} />;
+  }
+
   return <CoachDashboard orgSlug={orgSlug} event={activeEvent} />;
+}
+
+function AttendEventGate({
+  orgSlug,
+  eventName,
+}: {
+  orgSlug: string;
+  eventName: string;
+}) {
+  const queryClient = useQueryClient();
+  const attendMutation = useMutation({
+    mutationFn: async () => {
+      const raw = client as unknown as {
+        POST: (
+          path: string,
+          opts: { body: { type: "coach" | "dancer" } },
+        ) => Promise<void>;
+      };
+      await raw.POST(`/orgs/${orgSlug}/events/attend`, {
+        body: { type: "coach" },
+      });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(orgQueries.org(orgSlug));
+    },
+    onError: () => {
+      toastManager.add({
+        title: "Couldn't attend event",
+        description: "Unable to register you on the active event right now.",
+        type: "error",
+      });
+    },
+  });
+
+  return (
+    <div className="flex flex-1 items-center justify-center p-6">
+      <div className="border-border bg-card flex max-w-md flex-col items-center gap-3 rounded-md border p-6 text-center">
+        <h2 className="text-base font-semibold 2xl:text-lg">
+          Attend {eventName}
+        </h2>
+        <p className="text-muted-foreground text-sm 2xl:text-base">
+          You need to be registered on this event as a coach to scout dancers,
+          save favorites, and rank.
+        </p>
+        <Button
+          onClick={() => attendMutation.mutate()}
+          disabled={attendMutation.isPending}
+        >
+          {attendMutation.isPending ? "Attending..." : "Attend event"}
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 function CoachDashboard({

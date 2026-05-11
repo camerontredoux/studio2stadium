@@ -8811,6 +8811,11 @@ export interface components {
                 role: "admin" | "member";
                 type: components["schemas"]["UploadKind"];
             } | null;
+            myRoster: {
+                id: string;
+                eventId: string;
+                type: components["schemas"]["UploadKind"];
+            } | null;
         };
         OrgsIdEventsResponse: {
             gpa: boolean;

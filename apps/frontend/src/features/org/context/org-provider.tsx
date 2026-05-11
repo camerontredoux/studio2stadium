@@ -5,6 +5,7 @@ import {
   OrgContext,
   type OrgContextValue,
   type OrgMembership,
+  type MyRoster,
 } from "./org-context";
 
 export function OrgProvider({
@@ -19,6 +20,8 @@ export function OrgProvider({
   const features = (data.features ?? {}) as Record<string, boolean>;
   const membership =
     (data as { membership?: OrgMembership | null }).membership ?? null;
+  const myRoster =
+    (data as { myRoster?: MyRoster | null }).myRoster ?? null;
 
   const value = useMemo<OrgContextValue>(
     () => ({
@@ -33,10 +36,11 @@ export function OrgProvider({
       features,
       settings: (data.settings ?? {}) as Record<string, unknown>,
       membership,
+      myRoster,
       isAdmin: membership?.role === "admin",
       hasFeature: (key) => Boolean(features[key]),
     }),
-    [data, features, membership],
+    [data, features, membership, myRoster],
   );
 
   useEffect(() => {
