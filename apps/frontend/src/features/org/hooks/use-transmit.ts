@@ -6,7 +6,7 @@ let transmit: Transmit | null = null;
 function getTransmit() {
   if (!transmit) {
     transmit = new Transmit({
-      baseUrl: window.location.origin,
+      baseUrl: import.meta.env.VITE_API_URL,
     });
   }
   return transmit;
