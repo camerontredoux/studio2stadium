@@ -33,6 +33,7 @@ function RootComponent() {
   }, [isDarkMode]);
 
   useEffect(() => {
+    if (!import.meta.env.PROD) return;
     posthog.init(
       import.meta.env.VITE_POSTHOG_TOKEN,
       {
