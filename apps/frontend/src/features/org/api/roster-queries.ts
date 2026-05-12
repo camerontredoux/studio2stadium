@@ -103,6 +103,36 @@ export function useResendInvites() {
   );
 }
 
+export function useAttachAccount() {
+  return $api.useMutation(
+    "post",
+    "/orgs/{slug}/events/{id}/rosters/{rosterId}/attach",
+    {
+      meta: {
+        invalidateQueries: [
+          ROSTER_LIST_KEY_PREFIX,
+          ROSTER_FILTERS_KEY_PREFIX,
+          ROSTER_STATS_KEY_PREFIX,
+        ],
+      },
+    },
+  );
+}
+
+export const rosterSearchQueries = {
+  dancerUsers: (slug: string, eventId: string, q: string) =>
+    $api.queryOptions(
+      "get",
+      "/orgs/{slug}/events/{id}/rosters/search-dancers",
+      {
+        params: {
+          path: { slug, id: eventId },
+          query: { q },
+        },
+      },
+    ),
+};
+
 /**
  * Client-side CSV download. Hits the export endpoint with parseAs: "text"
  * and triggers a blob download. Not a TanStack Query hook since the result
