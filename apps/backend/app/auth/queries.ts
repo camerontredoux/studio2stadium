@@ -1,5 +1,7 @@
 import { db } from "#database/connection";
+import { orgMemberships, organizations } from "#database/schema/organizations";
 import { imageUrl } from "#utils/image-url";
+import { eq } from "drizzle-orm";
 
 /**
  * Find user by email for login verification
@@ -71,10 +73,21 @@ export async function getUserSession(id: string) {
     }
   }
 
+  const memberships = await db
+    .select({
+      orgSlug: organizations.slug,
+      role: orgMemberships.role,
+      type: orgMemberships.type,
+    })
+    .from(orgMemberships)
+    .innerJoin(organizations, eq(organizations.id, orgMemberships.orgId))
+    .where(eq(orgMemberships.userId, user.id));
+
   return {
     ...user,
     profileId,
     avatar: imageUrl(avatar, "avatar"),
     platforms: platforms.map((platform) => platform.platformName),
+    orgMemberships: memberships,
   };
 }

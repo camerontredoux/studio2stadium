@@ -16,8 +16,16 @@ export const useLogin = () => {
 
       if (!session) return;
 
+      let defaultRoute: string = "/feed";
+      if (!session.platforms) {
+        defaultRoute = "/onboarding";
+      } else if (session.orgMemberships?.length) {
+        const org = session.orgMemberships[0];
+        defaultRoute = `/o/${org.orgSlug}`;
+      }
+
       navigate({
-        to: !session.platforms ? "/onboarding" : (redirect ?? "/feed"),
+        to: redirect ?? defaultRoute,
         replace: true,
       });
     },

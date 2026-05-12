@@ -8898,6 +8898,13 @@ export interface components {
             notifications: boolean;
             profileId: string;
             platforms: ("core" | "prodigy")[];
+            orgMemberships: {
+                orgSlug: string;
+                /** @enum {string} */
+                role: "admin" | "member";
+                /** @enum {string} */
+                type: "coach" | "dancer";
+            }[];
         };
         AuthPasswordChangeRequest: {
             currentPassword: string;
