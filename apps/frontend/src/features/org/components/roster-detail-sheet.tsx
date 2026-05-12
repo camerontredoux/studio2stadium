@@ -37,7 +37,8 @@ import {
   useResendInvites,
   useUpdateRoster,
 } from "@/features/org/api/roster-queries";
-import { MailIcon, Trash2Icon } from "lucide-react";
+import { AttachAccountDialog } from "./attach-account-dialog";
+import { LinkIcon, MailIcon, Trash2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
@@ -79,6 +80,7 @@ export function RosterDetailSheet({
   onOpenChange,
 }: RosterDetailSheetProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [attachOpen, setAttachOpen] = useState(false);
 
   const updateMutation = useUpdateRoster();
   const deleteMutation = useDeleteRosters();
@@ -254,6 +256,25 @@ export function RosterDetailSheet({
                   )}
                 />
                 {isDancer && (
+                  <button
+                    type="button"
+                    className="flex items-center gap-2.5 rounded-md border border-blue-500/20 bg-blue-500/5 px-3 py-2.5 text-left transition-colors hover:bg-blue-500/10"
+                    onClick={() => setAttachOpen(true)}
+                  >
+                    <LinkIcon className="size-4 text-blue-400" />
+                    <div>
+                      <p className="text-sm font-medium text-blue-400">
+                        {isActive ? "Change Account" : "Attach to Account"}
+                      </p>
+                      <p className="text-muted-foreground text-xs">
+                        {isActive
+                          ? "Link to a different user account"
+                          : "Link this roster entry to an existing user"}
+                      </p>
+                    </div>
+                  </button>
+                )}
+                {isDancer && (
                   <Controller
                     control={control}
                     name="bibNumber"
@@ -425,6 +446,19 @@ export function RosterDetailSheet({
           </DialogFooter>
         </DialogPopup>
       </Dialog>
+
+      {/* Attach to account */}
+      {isDancer && (
+        <AttachAccountDialog
+          open={attachOpen}
+          onOpenChange={setAttachOpen}
+          orgSlug={orgSlug}
+          eventId={eventId}
+          rosterId={entry.id}
+          isRelink={isActive}
+          onSuccess={() => onOpenChange(false)}
+        />
+      )}
     </>
   );
 }
