@@ -21,7 +21,7 @@ export const useLogin = () => {
         defaultRoute = "/onboarding";
       } else if (session.orgMemberships?.length) {
         const org = session.orgMemberships[0];
-        defaultRoute = `/o/${org.orgSlug}`;
+        defaultRoute = `/o/${org.orgSlug}/dancer`;
       }
 
       navigate({

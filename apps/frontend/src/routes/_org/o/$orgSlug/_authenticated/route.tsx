@@ -25,7 +25,7 @@ export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated")({
     if (!session.profileId) {
       throw redirect({
         to: "/onboarding",
-        search: { redirect: `/o/${params.orgSlug}` },
+        search: { redirect: `/o/${params.orgSlug}/dancer` },
         replace: true,
       });
     }

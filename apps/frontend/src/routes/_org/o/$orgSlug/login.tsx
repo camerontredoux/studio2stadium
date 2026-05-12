@@ -21,7 +21,7 @@ function OrgLoginPage() {
   return (
     <OrgAuthLayout description="Sign in to your account to continue">
       <OrgLoginForm
-        onSuccess={() => navigate({ to: `/o/${orgSlug}`, replace: true })}
+        onSuccess={() => navigate({ to: `/o/${orgSlug}/dancer`, replace: true })}
       />
     </OrgAuthLayout>
   );
