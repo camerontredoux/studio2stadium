@@ -22,6 +22,12 @@ export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated")({
         search: { redirect: location.href },
       });
     }
+    if (!session.profileId) {
+      throw redirect({
+        to: "/onboarding",
+        replace: true,
+      });
+    }
     return { session };
   },
   component: () => <Outlet />,
