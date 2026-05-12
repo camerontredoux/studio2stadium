@@ -10,7 +10,6 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { cn } from "@/components/utils/cn";
-import { adminQueries } from "@/features/org/api/admin-queries";
 import type { CsvSchema } from "@/features/org/lib/csv-schemas";
 import {
   schemaFor,
@@ -204,7 +203,9 @@ export function CsvUploadDialog({
       ),
     onSuccess: (data) => {
       setStep({ name: "done", result: data });
-      qc.invalidateQueries(adminQueries.stats(orgSlug, eventId));
+      qc.invalidateQueries({ queryKey: ["get", "/orgs/{slug}/events/{id}/rosters"] });
+      qc.invalidateQueries({ queryKey: ["get", "/orgs/{slug}/events/{id}/rosters/filters"] });
+      qc.invalidateQueries({ queryKey: ["get", "/orgs/{slug}/events/{id}/rosters/stats"] });
     },
     onError: (err) => {
       console.error("csv upload failed", err);
