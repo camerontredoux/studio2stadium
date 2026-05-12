@@ -22,11 +22,13 @@ function dashboardLink(org: MyOrg) {
 }
 
 export function ProfileOrganizations() {
-  const { data } = useQuery(
-    $api.queryOptions("get", "/users/me/orgs"),
-  );
+  const { data, isError } = useQuery({
+    ...$api.queryOptions("get", "/users/me/orgs"),
+    retry: false,
+    throwOnError: false,
+  });
 
-  if (!data || data.length === 0) return null;
+  if (isError || !data || data.length === 0) return null;
 
   return (
     <Frame>
