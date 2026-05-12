@@ -13421,13 +13421,17 @@
             },
             "lastName": {
               "type": "string"
+            },
+            "isTopSchool": {
+              "type": "boolean"
             }
           },
           "required": [
             "rosterId",
             "organization",
             "firstName",
-            "lastName"
+            "lastName",
+            "isTopSchool"
           ]
         }
       },
