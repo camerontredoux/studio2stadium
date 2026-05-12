@@ -6,10 +6,19 @@ import {
 import { z } from "zod";
 import { OrgAuthLayout } from "@/features/org/components/org-auth-layout";
 import { OrgRegisterForm } from "@/features/org/components/org-register-form";
+import { isReservedOrgSlug } from "@/features/org/lib/reserved-slugs";
 
 const searchSchema = z.object({ t: z.string().min(1) });
 
 export const Route = createFileRoute("/_org/$orgSlug/register")({
+  skipRouteOnParseError: { params: true },
+  params: {
+    parse: ({ orgSlug }) => {
+      if (isReservedOrgSlug(orgSlug)) throw new Error("reserved-slug");
+      return { orgSlug };
+    },
+    stringify: ({ orgSlug }) => ({ orgSlug }),
+  },
   validateSearch: searchSchema,
   component: RegisterPage,
 });
