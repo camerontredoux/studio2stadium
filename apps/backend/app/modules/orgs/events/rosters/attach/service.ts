@@ -6,8 +6,13 @@ import {
   premiumGrants,
   organizations,
 } from "#database/schema/organizations";
-import { eventRosters, orgEvents } from "#database/schema/org-events";
+import {
+  eventDancerProfiles,
+  eventRosters,
+  orgEvents,
+} from "#database/schema/org-events";
 import { users } from "#database/schema/users";
+import { dancerProfiles } from "#database/schema/dancers";
 import { inject } from "@adonisjs/core";
 import { and, eq, isNull, ne, sql } from "drizzle-orm";
 
@@ -100,6 +105,39 @@ export class AttachAccountService {
           lastName: targetUser.lastName,
         })
         .where(eq(eventRosters.id, rosterId));
+
+      // Sync dancer profile data into event dancer profile
+      const [profile] = await tx
+        .select({
+          gpa: dancerProfiles.gpa,
+          gradYear: dancerProfiles.gradYear,
+          studio: dancerProfiles.studio,
+          biography: dancerProfiles.biography,
+        })
+        .from(dancerProfiles)
+        .where(eq(dancerProfiles.userId, targetUserId))
+        .limit(1);
+
+      if (profile) {
+        await tx
+          .insert(eventDancerProfiles)
+          .values({
+            rosterId,
+            gpa: profile.gpa,
+            gradYear: profile.gradYear,
+            studio: profile.studio,
+            bio: profile.biography,
+          })
+          .onConflictDoUpdate({
+            target: eventDancerProfiles.rosterId,
+            set: {
+              gpa: profile.gpa,
+              gradYear: profile.gradYear,
+              studio: profile.studio,
+              bio: profile.biography,
+            },
+          });
+      }
 
       // Resolve orgId from event
       const [event] = await tx
