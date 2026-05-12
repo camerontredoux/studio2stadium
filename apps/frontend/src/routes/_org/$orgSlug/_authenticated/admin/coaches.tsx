@@ -204,8 +204,10 @@ function CoachesPage() {
       if (!active) return;
       try {
         await deleteMutation.mutateAsync({
-          params: { path: { slug: orgSlug, id: active.id } },
-          body: { ids },
+          params: {
+            path: { slug: orgSlug, id: active.id },
+            query: { ids },
+          },
         });
         toastManager.add({
           title: `${ids.length} coach${ids.length === 1 ? "" : "es"} deleted`,
