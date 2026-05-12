@@ -24,8 +24,8 @@ import { schemas } from "../schemas";
 
 type OnboardSchema = z.infer<typeof schemas.onboard>;
 
-export function OnboardingForm() {
-  const { mutate, isPending } = useCreateDancer();
+export function OnboardingForm({ redirect }: { redirect?: string }) {
+  const { mutate, isPending } = useCreateDancer(redirect);
 
   const submitRef = useRef<HTMLButtonElement>(null);
   const errorToast = useAnchoredErrorToast(submitRef);
