@@ -12,6 +12,13 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
+  NumberField,
+  NumberFieldDecrement,
+  NumberFieldGroup,
+  NumberFieldIncrement,
+  NumberFieldInput,
+} from "@/components/ui/number-field";
+import {
   Sheet,
   SheetClose,
   SheetContent,
@@ -22,7 +29,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
-import { Textarea } from "@/components/ui/textarea";
 import { toastManager } from "@/components/ui/toast-manager";
 import { toastRosterMutationError } from "@/features/org/api/roster-mutation-error";
 import {
@@ -43,11 +49,6 @@ type FormValues = {
   organization: string | null;
   gradYear: number | null;
   gpa: number | null;
-  studio: string | null;
-  state: string | null;
-  height: string | null;
-  danceStyles: string | null;
-  bio: string | null;
 };
 
 function defaultsFromEntry(entry: RosterEntry): FormValues {
@@ -59,11 +60,6 @@ function defaultsFromEntry(entry: RosterEntry): FormValues {
     organization: entry.organization,
     gradYear: entry.profile?.gradYear ?? null,
     gpa: entry.profile?.gpa ?? null,
-    studio: entry.profile?.studio ?? null,
-    state: entry.profile?.state ?? null,
-    height: entry.profile?.height ?? null,
-    danceStyles: entry.profile?.danceStyles?.join(", ") ?? null,
-    bio: entry.profile?.bio ?? null,
   };
 }
 
@@ -105,13 +101,6 @@ export function RosterDetailSheet({
   const onSubmit = async (data: FormValues) => {
     if (!entry || isActive) return;
 
-    const danceStylesArr = data.danceStyles
-      ? data.danceStyles
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean)
-      : null;
-
     const body: Record<string, unknown> = {
       firstName: data.firstName,
       lastName: data.lastName,
@@ -122,11 +111,6 @@ export function RosterDetailSheet({
       body.profile = {
         gradYear: data.gradYear,
         gpa: data.gpa,
-        studio: data.studio,
-        state: data.state,
-        height: data.height,
-        danceStyles: danceStylesArr,
-        bio: data.bio,
       };
     } else {
       body.organization = data.organization;
@@ -315,21 +299,27 @@ export function RosterDetailSheet({
                   <Controller
                     control={control}
                     name="gradYear"
-                    render={({ field, fieldState }) => (
-                      <Field name={field.name} invalid={fieldState.invalid}>
+                    render={({
+                      field: { value, onChange, name },
+                      fieldState,
+                    }) => (
+                      <Field name={name} invalid={fieldState.invalid}>
                         <FieldLabel>Grad year</FieldLabel>
-                        <Input
-                          {...field}
-                          type="number"
-                          value={field.value ?? ""}
-                          onChange={(e) =>
-                            field.onChange(
-                              (e.target as HTMLInputElement).value
-                                ? Number((e.target as HTMLInputElement).value)
-                                : null,
-                            )
-                          }
-                        />
+                        <NumberField
+                          format={{ useGrouping: false }}
+                          value={value ?? undefined}
+                          onValueChange={(val) => onChange(val ?? null)}
+                          min={1900}
+                          max={2100}
+                        >
+                          <NumberFieldGroup>
+                            <NumberFieldInput
+                              inputMode="numeric"
+                              maxLength={4}
+                              placeholder="Year"
+                            />
+                          </NumberFieldGroup>
+                        </NumberField>
                         <FieldError error={fieldState.error} />
                       </Field>
                     )}
@@ -337,89 +327,25 @@ export function RosterDetailSheet({
                   <Controller
                     control={control}
                     name="gpa"
-                    render={({ field, fieldState }) => (
-                      <Field name={field.name} invalid={fieldState.invalid}>
+                    render={({ field: { value, onChange, name }, fieldState }) => (
+                      <Field name={name} invalid={fieldState.invalid}>
                         <FieldLabel>GPA</FieldLabel>
-                        <Input
-                          {...field}
-                          type="number"
-                          step="0.1"
-                          value={field.value ?? ""}
-                          onChange={(e) =>
-                            field.onChange(
-                              (e.target as HTMLInputElement).value
-                                ? Number((e.target as HTMLInputElement).value)
-                                : null,
-                            )
-                          }
-                        />
-                        <FieldError error={fieldState.error} />
-                      </Field>
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="studio"
-                    render={({ field, fieldState }) => (
-                      <Field name={field.name} invalid={fieldState.invalid}>
-                        <FieldLabel>Studio</FieldLabel>
-                        <Input {...field} value={field.value ?? ""} />
-                        <FieldError error={fieldState.error} />
-                      </Field>
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="state"
-                    render={({ field, fieldState }) => (
-                      <Field name={field.name} invalid={fieldState.invalid}>
-                        <FieldLabel>State</FieldLabel>
-                        <Input {...field} value={field.value ?? ""} />
-                        <FieldError error={fieldState.error} />
-                      </Field>
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="height"
-                    render={({ field, fieldState }) => (
-                      <Field name={field.name} invalid={fieldState.invalid}>
-                        <FieldLabel>Height</FieldLabel>
-                        <Input
-                          {...field}
-                          value={field.value ?? ""}
-                          placeholder={`5'6"`}
-                        />
-                        <FieldError error={fieldState.error} />
-                      </Field>
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="danceStyles"
-                    render={({ field, fieldState }) => (
-                      <Field name={field.name} invalid={fieldState.invalid}>
-                        <FieldLabel>Dance styles</FieldLabel>
-                        <Input
-                          {...field}
-                          value={field.value ?? ""}
-                          placeholder="Jazz, Contemporary, Hip Hop"
-                        />
-                        <FieldError error={fieldState.error} />
-                      </Field>
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="bio"
-                    render={({ field, fieldState }) => (
-                      <Field name={field.name} invalid={fieldState.invalid}>
-                        <FieldLabel>Bio</FieldLabel>
-                        <Textarea
-                          {...field}
-                          value={field.value ?? ""}
-                          rows={3}
-                        />
+                        <NumberField
+                          value={value ?? undefined}
+                          onValueChange={(val) => onChange(val ?? null)}
+                          min={0}
+                          max={5}
+                          step={0.1}
+                        >
+                          <NumberFieldGroup>
+                            <NumberFieldDecrement />
+                            <NumberFieldInput
+                              inputMode="decimal"
+                              placeholder="GPA"
+                            />
+                            <NumberFieldIncrement />
+                          </NumberFieldGroup>
+                        </NumberField>
                         <FieldError error={fieldState.error} />
                       </Field>
                     )}

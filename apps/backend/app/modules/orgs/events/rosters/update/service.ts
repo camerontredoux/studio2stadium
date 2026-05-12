@@ -135,26 +135,14 @@ export class UpdateRosterService {
           .insert(eventDancerProfiles)
           .values({
             rosterId,
-            gradYear: p.gradYear ?? null,
-            gpa: p.gpa ?? null,
-            studio: p.studio ?? null,
-            state: p.state ?? null,
-            height: p.height ?? null,
-            danceStyles: p.danceStyles ?? null,
-            bio: p.bio ?? null,
+            ...(p.gradYear !== undefined ? { gradYear: p.gradYear } : {}),
+            ...(p.gpa !== undefined ? { gpa: p.gpa } : {}),
           })
           .onConflictDoUpdate({
             target: eventDancerProfiles.rosterId,
             set: {
               ...(p.gradYear !== undefined && { gradYear: p.gradYear }),
               ...(p.gpa !== undefined && { gpa: p.gpa }),
-              ...(p.studio !== undefined && { studio: p.studio }),
-              ...(p.state !== undefined && { state: p.state }),
-              ...(p.height !== undefined && { height: p.height }),
-              ...(p.danceStyles !== undefined && {
-                danceStyles: p.danceStyles,
-              }),
-              ...(p.bio !== undefined && { bio: p.bio }),
             },
           });
       }

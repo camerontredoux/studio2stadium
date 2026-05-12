@@ -12,11 +12,6 @@ export const schema = vine.compile(
       .object({
         gradYear: vine.number().min(1900).max(2100).nullable().optional(),
         gpa: vine.number().min(0).max(5).nullable().optional(),
-        studio: vine.string().trim().nullable().optional(),
-        state: vine.string().trim().nullable().optional(),
-        height: vine.string().trim().nullable().optional(),
-        danceStyles: vine.array(vine.string().trim()).nullable().optional(),
-        bio: vine.string().trim().nullable().optional(),
       })
       .optional(),
   })

@@ -119,8 +119,6 @@ test.group("UpdateRosterService", (group) => {
         profile: {
           gradYear: 2028,
           gpa: 3.5,
-          studio: "Studio X",
-          danceStyles: ["Jazz"],
         },
       },
       { eventId: event.id, actorId: actor.id }
@@ -128,8 +126,6 @@ test.group("UpdateRosterService", (group) => {
 
     assert.equal(result.profile!.gradYear, 2028);
     assert.equal(result.profile!.gpa, 3.5);
-    assert.equal(result.profile!.studio, "Studio X");
-    assert.deepEqual(result.profile!.danceStyles, ["Jazz"]);
   });
 
   test("rejects edits for an active roster entry", async ({ assert }) => {
