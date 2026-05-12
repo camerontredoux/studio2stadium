@@ -134,7 +134,7 @@ export function OrgRegisterForm({
             className="text-brand p-0 text-sm font-medium"
             render={
               <Link
-                to="/$orgSlug/login"
+                to="/o/$orgSlug/login"
                 params={{ orgSlug: org.slug }}
                 replace={true}
               />

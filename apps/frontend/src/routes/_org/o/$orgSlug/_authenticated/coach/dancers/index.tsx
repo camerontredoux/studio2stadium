@@ -27,7 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute(
-  "/_org/$orgSlug/_authenticated/coach/dancers/",
+  "/_org/o/$orgSlug/_authenticated/coach/dancers/",
 )({
   component: DancerSearch,
 });
@@ -51,7 +51,7 @@ type ActivityItem = {
 
 function DancerSearch() {
   const { orgSlug } = useParams({
-    from: "/_org/$orgSlug/_authenticated/coach/dancers/",
+    from: "/_org/o/$orgSlug/_authenticated/coach/dancers/",
   });
   const { org, hasFeature } = useOrg();
   const callbacksEnabled = hasFeature("callbacks");

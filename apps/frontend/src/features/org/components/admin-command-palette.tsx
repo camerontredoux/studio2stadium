@@ -100,7 +100,7 @@ export function AdminCommandPalette() {
           icon: <LayoutDashboardIcon className="size-4" />,
           onRun: () => {
             closePalette();
-            navigate({ to: "/$orgSlug/admin", params: { orgSlug } });
+            navigate({ to: "/o/$orgSlug/admin", params: { orgSlug } });
           },
         },
         {
@@ -110,7 +110,7 @@ export function AdminCommandPalette() {
           onRun: () => {
             closePalette();
             navigate({
-              to: "/$orgSlug/admin/dancers" as string,
+              to: "/o/$orgSlug/admin/dancers" as string,
               params: { orgSlug },
             });
           },
@@ -122,7 +122,7 @@ export function AdminCommandPalette() {
           onRun: () => {
             closePalette();
             navigate({
-              to: "/$orgSlug/admin/coaches" as string,
+              to: "/o/$orgSlug/admin/coaches" as string,
               params: { orgSlug },
             });
           },
@@ -133,7 +133,7 @@ export function AdminCommandPalette() {
           icon: <HistoryIcon className="size-4" />,
           onRun: () => {
             closePalette();
-            navigate({ to: "/$orgSlug/admin/uploads", params: { orgSlug } });
+            navigate({ to: "/o/$orgSlug/admin/uploads", params: { orgSlug } });
           },
         },
         {
@@ -142,7 +142,7 @@ export function AdminCommandPalette() {
           icon: <SettingsIcon className="size-4" />,
           onRun: () => {
             closePalette();
-            navigate({ to: "/$orgSlug/admin/settings", params: { orgSlug } });
+            navigate({ to: "/o/$orgSlug/admin/settings", params: { orgSlug } });
           },
         },
       ],

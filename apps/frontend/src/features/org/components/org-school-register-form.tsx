@@ -98,7 +98,7 @@ export function OrgSchoolRegisterForm({
             variant="outline"
             className="self-start"
             render={
-              <Link to="/$orgSlug/login" params={{ orgSlug: org.slug }} />
+              <Link to="/o/$orgSlug/login" params={{ orgSlug: org.slug }} />
             }
           >
             Go to {org.name} sign in
@@ -265,7 +265,7 @@ export function OrgSchoolRegisterForm({
             className="text-brand p-0 text-sm font-medium"
             render={
               <Link
-                to="/$orgSlug/login"
+                to="/o/$orgSlug/login"
                 params={{ orgSlug: org.slug }}
                 replace={true}
               />

@@ -43,20 +43,20 @@ export function ViewSwitcher() {
     if (view === current) return;
     try {
       if (view === "Admin") {
-        await navigate({ to: "/$orgSlug/admin", params: { orgSlug } });
+        await navigate({ to: "/o/$orgSlug/admin", params: { orgSlug } });
         return;
       }
 
       if (view === "Coach") {
         await attendMutation.mutateAsync("coach");
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (navigate as any)({ to: "/$orgSlug/coach", params: { orgSlug } });
+        await (navigate as any)({ to: "/o/$orgSlug/coach", params: { orgSlug } });
         return;
       }
 
       await attendMutation.mutateAsync("dancer");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (navigate as any)({ to: "/$orgSlug", params: { orgSlug } });
+      await (navigate as any)({ to: "/o/$orgSlug", params: { orgSlug } });
     } catch {
       toastManager.add({
         title: "Couldn't switch views",

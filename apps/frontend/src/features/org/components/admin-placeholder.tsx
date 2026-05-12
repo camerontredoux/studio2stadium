@@ -59,7 +59,7 @@ export function AdminPlaceholder({
               <Button
                 variant="outline"
                 size="sm"
-                render={<Link to="/$orgSlug/admin" params={{ orgSlug }} />}
+                render={<Link to="/o/$orgSlug/admin" params={{ orgSlug }} />}
               >
                 <ArrowLeftIcon className="size-3.5" />
                 Back to dashboard

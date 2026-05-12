@@ -32,8 +32,8 @@ class OrgInviteMail extends BaseMail {
     const siteUrl = env.get("SITE_URL").replace(/\/$/, "");
     const path =
       this.data.type === "dancer" && this.data.token
-        ? `/${this.data.orgSlug}/register?t=${this.data.token}`
-        : `/${this.data.orgSlug}/login`;
+        ? `/o/${this.data.orgSlug}/register?t=${this.data.token}`
+        : `/o/${this.data.orgSlug}/login`;
     const inviteUrl = `${siteUrl}${path}`;
 
     const template = OrgInviteEmail({

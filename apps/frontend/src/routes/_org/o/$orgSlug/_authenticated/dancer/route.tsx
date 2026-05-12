@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { DancerSidebar } from "@/features/org/components/dancer-sidebar";
 import { orgQueries } from "@/features/org/api/queries";
 
-export const Route = createFileRoute("/_org/$orgSlug/_authenticated/dancer")({
+export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/dancer")({
   beforeLoad: async ({ context, params }) => {
     const data = (context.queryClient.getQueryData(
       orgQueries.org(params.orgSlug).queryKey,

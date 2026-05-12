@@ -44,7 +44,7 @@ import { useState } from "react";
 import type { DateRange } from "react-day-picker";
 
 export const Route = createFileRoute(
-  "/_org/$orgSlug/_authenticated/admin/uploads",
+  "/_org/o/$orgSlug/_authenticated/admin/uploads",
 )({
   component: AuditLogPage,
 });

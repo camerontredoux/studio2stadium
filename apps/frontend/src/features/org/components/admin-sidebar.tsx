@@ -53,7 +53,7 @@ import { useTernaryDarkMode, type TernaryDarkMode } from "usehooks-ts";
 const dashboardItem = {
   label: "Dashboard",
   icon: LayoutDashboardIcon,
-  to: "/$orgSlug/admin" as const,
+  to: "/o/$orgSlug/admin" as const,
   exact: true,
 };
 
@@ -69,12 +69,12 @@ export function AdminSidebar() {
           {
             label: "Dancers",
             icon: UsersIcon,
-            to: "/$orgSlug/admin/dancers",
+            to: "/o/$orgSlug/admin/dancers",
           },
           {
             label: "Coaches",
             icon: MicIcon,
-            to: "/$orgSlug/admin/coaches",
+            to: "/o/$orgSlug/admin/coaches",
           },
         ],
       },
@@ -87,7 +87,7 @@ export function AdminSidebar() {
           {
             label: "Callbacks",
             icon: Megaphone,
-            to: "/$orgSlug/admin/callbacks",
+            to: "/o/$orgSlug/admin/callbacks",
           },
         ],
       });
@@ -100,7 +100,7 @@ export function AdminSidebar() {
           {
             label: "Video Library",
             icon: PlayCircleIcon,
-            to: "/$orgSlug/admin/video-library",
+            to: "/o/$orgSlug/admin/video-library",
           },
         ],
       },
@@ -110,12 +110,12 @@ export function AdminSidebar() {
           {
             label: "Audit Log",
             icon: ClipboardListIcon,
-            to: "/$orgSlug/admin/uploads",
+            to: "/o/$orgSlug/admin/uploads",
           },
           {
             label: "Settings",
             icon: SettingsIcon,
-            to: "/$orgSlug/admin/settings",
+            to: "/o/$orgSlug/admin/settings",
           },
         ],
       },
@@ -163,18 +163,18 @@ export function AdminSidebar() {
 
   function handleSelectView(view: "Admin" | "Coach" | "Dancer") {
     if (view === "Admin") {
-      void navigate({ to: "/$orgSlug/admin", params: { orgSlug } });
+      void navigate({ to: "/o/$orgSlug/admin", params: { orgSlug } });
       return;
     }
 
     if (view === "Coach") {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      void (navigate as any)({ to: "/$orgSlug/coach", params: { orgSlug } });
+      void (navigate as any)({ to: "/o/$orgSlug/coach", params: { orgSlug } });
       return;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    void (navigate as any)({ to: "/$orgSlug/dancer", params: { orgSlug } });
+    void (navigate as any)({ to: "/o/$orgSlug/dancer", params: { orgSlug } });
   }
 
   return (
@@ -185,7 +185,7 @@ export function AdminSidebar() {
             <SidebarMenuButton
               size="lg"
               className="h-12 rounded-none px-3 py-0 group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:w-full! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0!"
-              render={<Link to="/$orgSlug/admin" params={{ orgSlug }} />}
+              render={<Link to="/o/$orgSlug/admin" params={{ orgSlug }} />}
             >
               <div className="hidden size-7 items-center justify-center rounded-md text-xs font-semibold text-white shadow-sm group-data-[collapsible=icon]:flex">
                 <span

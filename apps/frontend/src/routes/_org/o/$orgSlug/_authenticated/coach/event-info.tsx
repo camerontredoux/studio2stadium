@@ -38,7 +38,7 @@ import { useEventPhase } from "@/features/org/hooks/use-event-phase";
 import type { EventPhaseInfo } from "@/features/org/hooks/use-event-phase";
 
 export const Route = createFileRoute(
-  "/_org/$orgSlug/_authenticated/coach/event-info",
+  "/_org/o/$orgSlug/_authenticated/coach/event-info",
 )({
   component: EventInfo,
 });
@@ -223,21 +223,21 @@ function QuickNavPanel({
     {
       icon: SearchIcon,
       label: "Search Dancers",
-      to: "/$orgSlug/coach/dancers",
+      to: "/o/$orgSlug/coach/dancers",
       description: `${dancerCount} dancers registered`,
       iconClass: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
     },
     {
       icon: HeartIcon,
       label: "My Favorites",
-      to: "/$orgSlug/coach/dancers",
+      to: "/o/$orgSlug/coach/dancers",
       description: `${favCount} dancers saved`,
       iconClass: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
     },
     {
       icon: TrophyIcon,
       label: "My Rankings",
-      to: "/$orgSlug/coach/dancers",
+      to: "/o/$orgSlug/coach/dancers",
       description: "Review your ranked dancers",
       iconClass: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
     },
@@ -316,7 +316,7 @@ function TopRankedPanel({
         </div>
         {ranked.length > 0 && (
           <Link
-            to="/$orgSlug/coach/dancers"
+            to="/o/$orgSlug/coach/dancers"
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             params={{ orgSlug } as any}
             className="text-muted-foreground hover:text-foreground text-[11px] font-medium transition-colors 2xl:text-xs"
@@ -534,7 +534,7 @@ function CoachSidebarPanel({
               ))}
             </ul>
             <Link
-              to="/$orgSlug/coach/dancers"
+              to="/o/$orgSlug/coach/dancers"
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               params={{ orgSlug } as any}
               className="text-foreground hover:text-brand mt-3 inline-flex items-center gap-1 text-[11px] font-medium 2xl:text-xs"

@@ -33,7 +33,7 @@ class OrgRosterAddedMail extends BaseMail {
 
   async prepare() {
     const siteUrl = env.get("SITE_URL").replace(/\/$/, "");
-    const dashboardUrl = `${siteUrl}/${this.data.orgSlug}/login`;
+    const dashboardUrl = `${siteUrl}/o/${this.data.orgSlug}/login`;
 
     const template = OrgRosterAddedEmail({
       firstName: this.data.firstName,

@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { isReservedOrgSlug } from "@/features/org/lib/reserved-slugs";
 import { queries } from "@/lib/session";
 
-export const Route = createFileRoute("/_org/$orgSlug/_authenticated")({
+export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated")({
   skipRouteOnParseError: { params: true },
   params: {
     parse: ({ orgSlug }) => {
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_org/$orgSlug/_authenticated")({
     );
     if (!session) {
       throw redirect({
-        to: "/$orgSlug/login",
+        to: "/o/$orgSlug/login",
         params: { orgSlug: params.orgSlug },
         search: { redirect: location.href },
       });

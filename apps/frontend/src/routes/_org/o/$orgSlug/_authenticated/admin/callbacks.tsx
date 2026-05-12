@@ -14,7 +14,7 @@ import {
 } from "@/features/org/hooks/use-transmit";
 
 export const Route = createFileRoute(
-  "/_org/$orgSlug/_authenticated/admin/callbacks",
+  "/_org/o/$orgSlug/_authenticated/admin/callbacks",
 )({
   component: AdminCallbacksPage,
 });
@@ -51,7 +51,7 @@ const SSE_STATUS_CONFIG: Record<
 
 function AdminCallbacksPage() {
   const { orgSlug } = useParams({
-    from: "/_org/$orgSlug/_authenticated/admin/callbacks",
+    from: "/_org/o/$orgSlug/_authenticated/admin/callbacks",
   });
   const { data } = useSuspenseQuery(scoutingQueries.adminCallbacks(orgSlug));
   const qc = useQueryClient();

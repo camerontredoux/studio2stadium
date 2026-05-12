@@ -42,7 +42,7 @@ import { useTernaryDarkMode, type TernaryDarkMode } from "usehooks-ts";
 const dashboardItem = {
   label: "Event Info",
   icon: CalendarIcon,
-  to: "/$orgSlug/coach/event-info" as const,
+  to: "/o/$orgSlug/coach/event-info" as const,
   exact: false,
 };
 
@@ -53,7 +53,7 @@ const navSections = [
       {
         label: "Dancers",
         icon: SearchIcon,
-        to: "/$orgSlug/coach/dancers" as const,
+        to: "/o/$orgSlug/coach/dancers" as const,
       },
     ],
   },
@@ -82,16 +82,16 @@ export function CoachSidebar() {
 
   function handleSelectView(view: "Admin" | "Coach" | "Dancer") {
     if (view === "Admin") {
-      void navigate({ to: "/$orgSlug/admin", params: { orgSlug } });
+      void navigate({ to: "/o/$orgSlug/admin", params: { orgSlug } });
       return;
     }
     if (view === "Coach") {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      void (navigate as any)({ to: "/$orgSlug/coach", params: { orgSlug } });
+      void (navigate as any)({ to: "/o/$orgSlug/coach", params: { orgSlug } });
       return;
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    void (navigate as any)({ to: "/$orgSlug/dancer", params: { orgSlug } });
+    void (navigate as any)({ to: "/o/$orgSlug/dancer", params: { orgSlug } });
   }
 
   const isItemActive = (to: string, exact?: boolean) => {
@@ -126,7 +126,7 @@ export function CoachSidebar() {
               className="h-12 rounded-none px-3 py-0 group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:w-full! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0!"
               render={
                 <Link
-                  to={"/$orgSlug/coach" as any}
+                  to={"/o/$orgSlug/coach" as any}
                   params={{ orgSlug } as any}
                 />
               }

@@ -62,7 +62,7 @@ export function RosterUploadRow({
   const rows = listQuery.data?.data ?? [];
   const total = listQuery.data?.total ?? 0;
   const listPath =
-    type === "dancer" ? "/$orgSlug/admin/dancers" : "/$orgSlug/admin/coaches";
+    type === "dancer" ? "/o/$orgSlug/admin/dancers" : "/o/$orgSlug/admin/coaches";
 
   return (
     <>

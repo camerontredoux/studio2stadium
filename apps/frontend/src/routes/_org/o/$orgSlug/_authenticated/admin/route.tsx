@@ -25,7 +25,7 @@ import { orgQueries } from "@/features/org/api/queries";
 import { client } from "@/lib/api/client";
 import { useMemo, useState } from "react";
 
-export const Route = createFileRoute("/_org/$orgSlug/_authenticated/admin")({
+export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/admin")({
   beforeLoad: async ({ context, params }) => {
     const data = (await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),

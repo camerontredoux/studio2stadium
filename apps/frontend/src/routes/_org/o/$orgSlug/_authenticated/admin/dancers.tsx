@@ -20,7 +20,7 @@ import { type ColumnDef, type SortingState } from "@tanstack/react-table";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export const Route = createFileRoute(
-  "/_org/$orgSlug/_authenticated/admin/dancers",
+  "/_org/o/$orgSlug/_authenticated/admin/dancers",
 )({
   component: DancersPage,
 });

@@ -33,7 +33,7 @@ class SchoolAccountInviteMail extends BaseMail {
 
   async prepare() {
     const siteUrl = env.get("SITE_URL").replace(/\/$/, "");
-    const registerUrl = `${siteUrl}/${this.data.orgSlug}/register-school?t=${this.data.token}`;
+    const registerUrl = `${siteUrl}/o/${this.data.orgSlug}/register-school?t=${this.data.token}`;
 
     const template = SchoolAccountInviteEmail({
       firstName: this.data.firstName,

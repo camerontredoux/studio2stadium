@@ -10,7 +10,7 @@ import { isReservedOrgSlug } from "@/features/org/lib/reserved-slugs";
 
 const searchSchema = z.object({ t: z.string().min(1) });
 
-export const Route = createFileRoute("/_org/$orgSlug/register-school")({
+export const Route = createFileRoute("/_org/o/$orgSlug/register-school")({
   skipRouteOnParseError: { params: true },
   params: {
     parse: ({ orgSlug }) => {
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_org/$orgSlug/register-school")({
 });
 
 function RegisterSchoolPage() {
-  const { orgSlug } = useParams({ from: "/_org/$orgSlug/register-school" });
+  const { orgSlug } = useParams({ from: "/_org/o/$orgSlug/register-school" });
   const { t } = Route.useSearch();
   const navigate = useNavigate();
   return (
@@ -32,7 +32,7 @@ function RegisterSchoolPage() {
       <OrgSchoolRegisterForm
         token={t}
         onSuccess={() =>
-          navigate({ to: "/$orgSlug/login", params: { orgSlug } })
+          navigate({ to: "/o/$orgSlug/login", params: { orgSlug } })
         }
       />
     </OrgAuthLayout>

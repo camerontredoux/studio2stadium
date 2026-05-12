@@ -26,7 +26,7 @@ import { adminQueries } from "@/features/org/api/admin-queries";
 import { formatDistanceToNow } from "date-fns";
 
 export const Route = createFileRoute(
-  "/_org/$orgSlug/_authenticated/admin/video-library",
+  "/_org/o/$orgSlug/_authenticated/admin/video-library",
 )({
   component: AdminVideoLibrary,
 });

@@ -7,7 +7,7 @@ import {
 } from "@/features/org/components/admin-placeholder";
 
 export const Route = createFileRoute(
-  "/_org/$orgSlug/_authenticated/admin/settings",
+  "/_org/o/$orgSlug/_authenticated/admin/settings",
 )({
   component: SettingsPage,
 });

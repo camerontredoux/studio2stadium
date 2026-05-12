@@ -12,7 +12,7 @@ import { adminQueries } from "@/features/org/api/admin-queries";
 import { isAfter, subDays } from "date-fns";
 
 export const Route = createFileRoute(
-  "/_org/$orgSlug/_authenticated/dancer/video-library",
+  "/_org/o/$orgSlug/_authenticated/dancer/video-library",
 )({
   component: DancerVideoLibrary,
 });

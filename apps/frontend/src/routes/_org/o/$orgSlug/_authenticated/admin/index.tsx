@@ -84,7 +84,7 @@ import { useRequestUpload } from "@/shared/images/api/mutations";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
 import { client } from "@/lib/api/client";
 
-export const Route = createFileRoute("/_org/$orgSlug/_authenticated/admin/")({
+export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/admin/")({
   component: AdminHome,
 });
 
@@ -1056,7 +1056,7 @@ function SidebarActivitySection({
         })}
       </ul>
       <Link
-        to="/$orgSlug/admin/uploads"
+        to="/o/$orgSlug/admin/uploads"
         params={{ orgSlug }}
         className="text-foreground hover:text-brand mt-3 inline-flex items-center gap-1 text-[11px] font-medium 2xl:text-xs"
       >

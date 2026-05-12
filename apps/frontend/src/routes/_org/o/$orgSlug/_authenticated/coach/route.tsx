@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { CoachSidebar } from "@/features/org/components/coach-sidebar";
 import { orgQueries } from "@/features/org/api/queries";
 
-export const Route = createFileRoute("/_org/$orgSlug/_authenticated/coach")({
+export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/coach")({
   beforeLoad: async ({ context, params }) => {
     const data = (context.queryClient.getQueryData(
       orgQueries.org(params.orgSlug).queryKey,

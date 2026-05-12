@@ -3,7 +3,7 @@ import { OrgAuthLayout } from "@/features/org/components/org-auth-layout";
 import { OrgLoginForm } from "@/features/org/components/org-login-form";
 import { isReservedOrgSlug } from "@/features/org/lib/reserved-slugs";
 
-export const Route = createFileRoute("/_org/$orgSlug/login")({
+export const Route = createFileRoute("/_org/o/$orgSlug/login")({
   skipRouteOnParseError: { params: true },
   params: {
     parse: ({ orgSlug }) => {

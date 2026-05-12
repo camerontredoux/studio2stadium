@@ -41,7 +41,7 @@ import { useTernaryDarkMode, type TernaryDarkMode } from "usehooks-ts";
 const dashboardItem = {
   label: "Video Library",
   icon: PlayCircleIcon,
-  to: "/$orgSlug/dancer/video-library" as const,
+  to: "/o/$orgSlug/dancer/video-library" as const,
   exact: false,
 };
 
@@ -73,16 +73,16 @@ export function DancerSidebar() {
 
   function handleSelectView(view: "Admin" | "Coach" | "Dancer") {
     if (view === "Admin") {
-      void navigate({ to: "/$orgSlug/admin", params: { orgSlug } });
+      void navigate({ to: "/o/$orgSlug/admin", params: { orgSlug } });
       return;
     }
     if (view === "Coach") {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      void (navigate as any)({ to: "/$orgSlug/coach", params: { orgSlug } });
+      void (navigate as any)({ to: "/o/$orgSlug/coach", params: { orgSlug } });
       return;
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    void (navigate as any)({ to: "/$orgSlug/dancer", params: { orgSlug } });
+    void (navigate as any)({ to: "/o/$orgSlug/dancer", params: { orgSlug } });
   }
 
   const isItemActive = (to: string, exact?: boolean) => {
@@ -117,7 +117,7 @@ export function DancerSidebar() {
               className="h-12 rounded-none px-3 py-0 group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:w-full! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0!"
               render={
                 <Link
-                  to={"/$orgSlug/dancer" as any}
+                  to={"/o/$orgSlug/dancer" as any}
                   params={{ orgSlug } as any}
                 />
               }
