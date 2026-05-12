@@ -73,6 +73,15 @@ const states: State[] = [
   { value: "WY", label: "Wyoming" },
 ];
 
+/** Normalize `items` entries (State objects) and the controlled `value` (state code string). */
+function locationItemEquals(a: unknown, b: unknown): boolean {
+  const code = (x: unknown) =>
+    x != null && typeof x === "object" && "value" in (x as object)
+      ? (x as State).value
+      : (x as string | null | undefined);
+  return code(a) === code(b);
+}
+
 interface LocationSelectProps {
   value: string | undefined;
   onChange: (value: State) => void;
@@ -82,13 +91,20 @@ export default function LocationSelect({
   value,
   onChange,
 }: LocationSelectProps) {
+  // Item values are `state.value` (string | null). Root `value` must use the same
+  // shape so Base UI can match selection (Object.is is the default comparator).
+  const selectedCode =
+    value && states.some((s) => s.value === value) ? value : null;
+
   return (
     <Combobox
       onValueChange={(v) => {
-        onChange(v ?? states[0]);
+        const picked = states.find((s) => s.value === v) ?? states[0];
+        onChange(picked);
       }}
-      value={states.find((state) => state.value === value) ?? states[0]}
+      value={selectedCode}
       items={states}
+      isItemEqualToValue={locationItemEquals}
       autoHighlight
     >
       <ComboboxTrigger
@@ -115,7 +131,10 @@ export default function LocationSelect({
         <ComboboxEmpty>No states found.</ComboboxEmpty>
         <ComboboxList>
           {(state: State) => (
-            <ComboboxItem key={state.value} value={state.value}>
+            <ComboboxItem
+              key={state.value ?? "__placeholder__"}
+              value={state.value}
+            >
               {state.label}
             </ComboboxItem>
           )}

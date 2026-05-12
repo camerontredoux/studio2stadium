@@ -1,4 +1,5 @@
 import { useAnchoredErrorToast } from "@/components/hooks/use-anchored-error-toast";
+import LocationSelect from "@/components/shared/location-select";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Frame, FramePanel } from "@/components/ui/frame";
@@ -10,6 +11,7 @@ import { handleApiError } from "@/lib/api/errors";
 import { useOrg } from "@/features/org/context/use-org";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "@tanstack/react-router";
+import { MailIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -141,11 +143,23 @@ export function OrgSchoolRegisterForm({
     >
       <Frame>
         <FramePanel className="flex w-full flex-col gap-3 sm:gap-5">
-          <div className="text-muted-foreground text-xs">
-            Inviting <span className="text-foreground font-medium">{inviteQuery.data.email}</span>
-            {inviteQuery.data.eventName ? (
-              <> · {inviteQuery.data.eventName}</>
-            ) : null}
+          <div className="flex gap-3 rounded-xl border border-border/70 bg-linear-to-br from-muted/50 to-muted/25 p-3 shadow-xs sm:gap-3.5 sm:p-4 dark:border-border/50 dark:from-muted/35 dark:to-muted/15">
+            <div className="bg-background/85 text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/60 shadow-xs dark:bg-background/60">
+              <MailIcon aria-hidden className="size-4.5" strokeWidth={1.75} />
+            </div>
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <p className="text-muted-foreground text-[10px] font-semibold tracking-wide uppercase sm:text-xs">
+                Invitation for
+              </p>
+              <p className="text-foreground truncate text-sm font-semibold tracking-tight sm:text-base">
+                {inviteQuery.data.email}
+              </p>
+              {inviteQuery.data.eventName ? (
+                <p className="text-muted-foreground line-clamp-2 text-xs leading-snug sm:text-sm">
+                  {inviteQuery.data.eventName}
+                </p>
+              ) : null}
+            </div>
           </div>
 
           <Controller
@@ -190,11 +204,10 @@ export function OrgSchoolRegisterForm({
             name="location"
             render={({ field, fieldState }) => (
               <Field name={field.name} invalid={fieldState.invalid}>
-                <FieldLabel>Location</FieldLabel>
-                <Input
-                  autoComplete="address-level1"
-                  placeholder="State / region"
-                  {...field}
+                <FieldLabel>State</FieldLabel>
+                <LocationSelect
+                  value={field.value || undefined}
+                  onChange={(state) => field.onChange(state.value ?? "")}
                 />
                 <FieldError error={fieldState.error} />
               </Field>
