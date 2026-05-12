@@ -493,12 +493,6 @@ function DancerSearch() {
   const toReviewCount = (dancers ?? []).filter(
     (d) => !d.isFavorited && d.rating == null && !d.hasNote,
   ).length;
-  const avgGpa = useMemo(() => {
-    const withGpa = (dancers ?? []).filter((d) => d.gpa != null);
-    if (withGpa.length === 0) return "—";
-    const avg = withGpa.reduce((sum, d) => sum + d.gpa!, 0) / withGpa.length;
-    return avg.toFixed(1);
-  }, [dancers]);
 
   const callbackCount = (dancers ?? []).filter((d) => d.isCalledBack).length;
   const reviewedCount = dancerCount - toReviewCount;
@@ -538,7 +532,6 @@ function DancerSearch() {
               {callbacksEnabled && (
                 <StatCell label="Callbacks" value={callbackCount} accent="amber" />
               )}
-              <StatCell label="Avg GPA" value={avgGpa} />
             </section>
 
             <DancerFilterToolbar
