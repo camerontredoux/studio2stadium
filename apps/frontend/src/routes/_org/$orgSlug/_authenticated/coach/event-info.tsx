@@ -152,7 +152,7 @@ function CoachDashboard({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto xl:flex-row xl:overflow-hidden">
-      <div className="flex min-w-0 flex-col xl:min-h-0 xl:flex-1 xl:overflow-hidden">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <DashboardHeader
           name={event.name}
           phase={phase}
@@ -161,7 +161,7 @@ function CoachDashboard({
 
         <section
           aria-label="Event stats"
-          className="border-border flex items-stretch border-y"
+          className="border-border flex shrink-0 items-stretch border-y"
         >
           <StatCell label="Dancers" value={dancerCount} accent="blue" />
           <StatCell label="Schools" value={schoolCount || "—"} accent="purple" />
@@ -170,7 +170,9 @@ function CoachDashboard({
 
         <section
           aria-label="Scouting tools"
-          className="grid grid-cols-1 gap-3 p-4 lg:auto-rows-[260px] lg:grid-cols-2"
+          className={`grid min-h-0 flex-1 grid-cols-1 content-start gap-3 p-4 lg:grid-cols-2 ${
+            event.schedulePdfUrl ? "lg:grid-rows-[auto_1fr]" : ""
+          }`}
         >
           <QuickNavPanel
             orgSlug={orgSlug}
@@ -179,7 +181,7 @@ function CoachDashboard({
           />
           <TopRankedPanel orgSlug={orgSlug} ranked={topRanked} />
           {event.schedulePdfUrl && (
-            <div className="h-full min-h-0 lg:col-span-2">
+            <div className="flex h-full min-h-0 flex-col lg:col-span-2">
               <SchedulePreviewPanel
                 orgSlug={orgSlug}
                 eventId={event.id}
@@ -234,7 +236,7 @@ function QuickNavPanel({
   ];
 
   return (
-    <div className="border-border flex h-full min-h-0 w-full flex-col rounded-md border">
+    <div className="border-border flex max-h-72 min-h-0 w-full flex-col overflow-y-auto rounded-md border">
       <div className="border-border bg-muted/40 flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2">
         <div className="flex min-w-0 flex-col">
           <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
@@ -293,7 +295,7 @@ function TopRankedPanel({
   ranked: RankedDancer[];
 }) {
   return (
-    <div className="border-border flex h-full min-h-0 w-full flex-col rounded-md border">
+    <div className="border-border flex max-h-72 min-h-0 w-full flex-col overflow-hidden rounded-md border">
       <div className="border-border bg-muted/40 flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2">
         <div className="flex min-w-0 flex-col">
           <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
