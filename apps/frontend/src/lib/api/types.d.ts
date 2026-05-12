@@ -2669,6 +2669,76 @@ export interface paths {
         };
         trace?: never;
     };
+    "/orgs/{slug}/events/{id}/rosters/{rosterId}/attach": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                    rosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsIdRostersIdAttachRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdRostersIdAttachResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/events/{id}/rosters/resend-invites": {
         parameters: {
             query?: never;
@@ -2714,6 +2784,44 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/rosters/search-dancers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdRostersSearchdancersResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -9078,6 +9186,21 @@ export interface components {
             bibNumber: number | null;
             isRegistered: boolean;
         };
+        OrgsIdEventsIdRostersIdAttachRequest: {
+            targetUserId: string;
+        };
+        OrgsIdEventsIdRostersIdAttachResponse: {
+            id: string;
+            email: string;
+            type: components["schemas"]["UploadKind"];
+            firstName: string;
+            lastName: string;
+            createdAt: string;
+            organization: string | null;
+            eventId: string;
+            bibNumber: number | null;
+            isRegistered: boolean;
+        };
         OrgsIdEventsIdRostersResendinvitesRequest: {
             ids: string[];
         };
@@ -9089,6 +9212,14 @@ export interface components {
             sent: number;
             skipped: number;
         };
+        OrgsIdEventsIdRostersSearchdancersResponse: {
+            id: string;
+            email: string;
+            firstName: string;
+            lastName: string;
+            avatar: string | null;
+            username: string;
+        }[];
         OrgsIdEventsIdChecklistResponse: {
             id: string;
             createdAt: string;
