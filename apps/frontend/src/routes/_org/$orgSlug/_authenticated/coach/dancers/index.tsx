@@ -528,7 +528,7 @@ function DancerSearch() {
               className="border-border flex items-stretch border-y"
             >
               <StatCell label="To Review" value={toReviewCount} accent="blue" />
-              <StatCell label="Favorited" value={favCount} />
+              <StatCell label="Favorited" value={favCount} heart />
               {callbacksEnabled && (
                 <StatCell label="Callbacks" value={callbackCount} accent="amber" />
               )}

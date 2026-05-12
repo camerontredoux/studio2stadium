@@ -1,6 +1,7 @@
 import {
   CalendarIcon,
   ExternalLinkIcon,
+  HeartIcon,
   MailIcon,
   MapPinIcon,
 } from "lucide-react";
@@ -128,10 +129,13 @@ export function StatCell({
   label,
   value,
   accent,
+  heart,
 }: {
   label: string;
   value: number | string;
   accent?: PanelAccent;
+  /** Small filled heart before the label (e.g. favorited counts). */
+  heart?: boolean;
 }) {
   return (
     <div className="border-border flex flex-1 flex-col justify-center gap-1 border-l px-4 py-3 first:border-l-0">
@@ -145,6 +149,12 @@ export function StatCell({
       </span>
       <span className="text-muted-foreground inline-flex items-center gap-1.5 text-[10px] font-medium tracking-widest uppercase 2xl:text-xs">
         {accent && <AccentDot accent={accent} />}
+        {heart && (
+          <HeartIcon
+            className="size-2.5 shrink-0 fill-red-500 text-red-500"
+            aria-hidden
+          />
+        )}
         {label}
       </span>
     </div>
