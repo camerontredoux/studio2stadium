@@ -66,7 +66,6 @@ export function AttachAccountDialog({
   const attachMutation = useAttachAccount();
 
   const results = searchQuery.data ?? [];
-  const selectedUser = results.find((u) => u.id === selectedId) ?? null;
 
   const handleAttach = async () => {
     if (!selectedId) return;

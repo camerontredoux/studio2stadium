@@ -2632,6 +2632,21 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
           }
         ],
         "responses": {
@@ -2641,6 +2656,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgsIdEventsIdRostersSearchdancersResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }

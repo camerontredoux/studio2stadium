@@ -2799,7 +2799,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    q?: string | null;
+                };
                 header?: never;
                 path: {
                     slug: string;
@@ -2816,6 +2818,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["OrgsIdEventsIdRostersSearchdancersResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
