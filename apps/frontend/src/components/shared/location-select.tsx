@@ -84,7 +84,7 @@ function locationItemEquals(a: unknown, b: unknown): boolean {
 
 interface LocationSelectProps {
   value: string | undefined;
-  onChange: (value: State) => void;
+  onChange: (value: string) => void;
 }
 
 export default function LocationSelect({
@@ -99,8 +99,7 @@ export default function LocationSelect({
   return (
     <Combobox
       onValueChange={(v) => {
-        const picked = states.find((s) => s.value === v) ?? states[0];
-        onChange(picked);
+        onChange(v ?? "");
       }}
       value={selectedCode}
       items={states}
