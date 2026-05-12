@@ -93,7 +93,7 @@ export function RosterUploadRow({
           </Button>
         </div>
 
-        <div className="relative flex-1">
+        <div className="relative min-h-0 flex-1 overflow-auto">
           {rows.length === 0 ? (
             <div className="text-muted-foreground flex h-[156px] items-center justify-center text-xs">
               {listQuery.isLoading ? "Loading…" : "No entries yet"}
