@@ -70,12 +70,7 @@ router
       ]);
     router
       .get(":slug/events", [ListEventsController])
-      .use([
-        middleware.auth(),
-        middleware.org(),
-        middleware.orgMember(),
-        middleware.orgAdmin(),
-      ]);
+      .use([middleware.auth(), middleware.org(), middleware.orgMember()]);
     router
       .post(":slug/events/:id/upload/coaches", [UploadCoachesController])
       .use([

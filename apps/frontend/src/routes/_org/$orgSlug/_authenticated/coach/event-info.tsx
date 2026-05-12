@@ -124,9 +124,15 @@ function CoachDashboard({
   orgSlug: string;
   event: OrgEvent;
 }) {
+  const { hasFeature } = useOrg();
+  const callbacksEnabled = hasFeature("callbacks");
+
   const { data: dancers } = useQuery(scoutingQueries.dancers(orgSlug));
   const { data: favorites } = useQuery(scoutingQueries.favorites(orgSlug));
-  const { data: schools } = useQuery(scoutingQueries.schools(orgSlug));
+  const { data: callbacks } = useQuery({
+    ...scoutingQueries.callbacks(orgSlug),
+    enabled: callbacksEnabled,
+  });
   const { data: rankings } = useQuery(scoutingQueries.rankings(orgSlug));
 
   const phase = useEventPhase(event.startDate, event.endDate);
@@ -134,7 +140,7 @@ function CoachDashboard({
 
   const dancerCount = dancers?.length ?? 0;
   const favCount = favorites?.length ?? 0;
-  const schoolCount = schools?.length ?? 0;
+  const callbackCount = callbacks?.length ?? 0;
 
   const recentFavorites = (rankings ?? [])
     .filter((d) => d.isFavorited && d.favoritedAt)
@@ -164,7 +170,9 @@ function CoachDashboard({
           className="border-border flex shrink-0 items-stretch border-y"
         >
           <StatCell label="Dancers" value={dancerCount} accent="blue" />
-          <StatCell label="Schools" value={schoolCount || "—"} accent="purple" />
+          {callbacksEnabled && (
+            <StatCell label="Callbacks" value={callbackCount} accent="purple" />
+          )}
           <StatCell label="Your Favorites" value={favCount} accent="rose" />
         </section>
 
