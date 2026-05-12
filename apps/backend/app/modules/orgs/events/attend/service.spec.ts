@@ -80,6 +80,7 @@ test.group("AttendEventService", (group) => {
       notifications: user.notifications,
       profileId: undefined,
       platforms: [],
+      orgMemberships: [],
     };
 
     const service = new AttendEventService();
