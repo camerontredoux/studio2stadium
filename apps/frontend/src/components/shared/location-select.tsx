@@ -99,7 +99,7 @@ export default function LocationSelect({
   return (
     <Combobox
       onValueChange={(v) => {
-        onChange(v ?? "");
+        onChange((v as string) ?? "");
       }}
       value={selectedCode}
       items={states}

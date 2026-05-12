@@ -207,7 +207,7 @@ export function OrgSchoolRegisterForm({
                 <FieldLabel>State</FieldLabel>
                 <LocationSelect
                   value={field.value || undefined}
-                  onChange={(state) => field.onChange(state.value ?? "")}
+                  onChange={field.onChange}
                 />
                 <FieldError error={fieldState.error} />
               </Field>
