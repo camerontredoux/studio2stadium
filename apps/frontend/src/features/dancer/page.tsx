@@ -1,5 +1,6 @@
 import { SidebarLayout } from "@/components/layouts/sidebar-layout";
 import { MediaGallery } from "@/components/shared/media-gallery";
+import { ProfileOrganizations } from "@/components/shared/profile-organizations";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -81,6 +82,7 @@ export function DancerPage({ username }: DancerPageProps) {
           <>
             <ContactInfo dancer={data} />
             <ExtraInfo dancer={data} />
+            {isOwner ? <ProfileOrganizations /> : null}
           </>
         }
         tabs={{ contentLabel: "Profile", sidebarLabel: "Extra" }}

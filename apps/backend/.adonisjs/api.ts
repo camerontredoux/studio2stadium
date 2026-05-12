@@ -731,6 +731,10 @@ type UsersAvatarPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/update-avatar/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/users/update-avatar/controller.ts').default['handle'], true>
 }
+type UsersMeOrgsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/users/get-my-orgs/controller.ts').default['handle'], false>
+}
 type UsersActivityGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/users/get-activity/controller.ts').default['handle'], false>
@@ -1664,6 +1668,14 @@ export interface ApiDefinition {
       '$url': {
       };
       '$post': UsersAvatarPost;
+    };
+    'me': {
+      'orgs': {
+        '$url': {
+        };
+        '$get': UsersMeOrgsGetHead;
+        '$head': UsersMeOrgsGetHead;
+      };
     };
     'activity': {
       '$url': {

@@ -9,6 +9,7 @@ const CheckAvailabilityController = () =>
 const GetAccountController = () => import("./get-account/controller.ts");
 const UpdateAccountController = () => import("./update-account/controller.ts");
 const GetActivityController = () => import("./get-activity/controller.ts");
+const GetMyOrgsController = () => import("./get-my-orgs/controller.ts");
 
 router
   .group(() => {
@@ -41,6 +42,12 @@ router
           summary: "Update user avatar",
           description:
             "Updates the image ID for the user's avatar from Cloudflare",
+        });
+
+        router.get("me/orgs", [GetMyOrgsController]).openapi({
+          summary: "Get my organizations",
+          description:
+            "Returns the organizations the authenticated user is on an event roster for, including their role and member type for routing to the right dashboard.",
         });
       })
       .use(middleware.auth());
