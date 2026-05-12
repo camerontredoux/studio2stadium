@@ -33,7 +33,6 @@ type SortColumn =
   | "firstName"
   | "email"
   | "bibNumber"
-  | "organization"
   | "createdAt"
   | "isRegistered";
 
@@ -75,20 +74,6 @@ const columns: ColumnDef<RosterEntry, unknown>[] = [
     ),
   },
   {
-    id: "organization",
-    accessorKey: "organization",
-    header: "Organization",
-    meta: {
-      editable: true,
-      cellClassName: "hidden md:table-cell",
-      headerClassName: "hidden md:table-cell",
-    } as AnyMeta,
-    cell: ({ row }) =>
-      row.original.organization ?? (
-        <span className="text-muted-foreground">-</span>
-      ),
-  },
-  {
     id: "isRegistered",
     accessorKey: "isRegistered",
     header: "Status",
@@ -104,7 +89,6 @@ function DancersPage() {
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<RosterStatus>("all");
-  const [org, setOrg] = useState("all");
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(20);
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -122,15 +106,9 @@ function DancersPage() {
       limit,
       search: search || undefined,
       status: status === "all" ? undefined : status,
-      org: org === "all" ? undefined : org,
       sortBy,
       sortDir: sortBy ? sortDir : undefined,
     }),
-    enabled: !!active,
-  });
-
-  const filtersQuery = useQuery({
-    ...rosterQueries.filters(orgSlug, active?.id ?? "", "dancer"),
     enabled: !!active,
   });
 
@@ -141,7 +119,6 @@ function DancersPage() {
 
   const data = listQuery.data?.data ?? [];
   const total = listQuery.data?.total ?? 0;
-  const orgs = filtersQuery.data?.organizations ?? [];
 
   const updateMutation = useUpdateRoster();
   const deleteMutation = useDeleteRosters();
@@ -179,8 +156,6 @@ function DancersPage() {
         body.lastName = parts.slice(1).join(" ") || "";
       } else if (columnId === "email") {
         body.email = String(value);
-      } else if (columnId === "organization") {
-        body.organization = String(value) || null;
       } else {
         return;
       }
@@ -208,12 +183,11 @@ function DancersPage() {
         type: "dancer",
         search: search || undefined,
         status: status === "all" ? undefined : status,
-        org: org === "all" ? undefined : org,
       });
     } catch {
       toastManager.add({ title: "Export failed", type: "error" });
     }
-  }, [active, orgSlug, search, status, org]);
+  }, [active, orgSlug, search, status]);
 
   const bulkActions = rosterBulkActions({
     onExport: handleExport,
@@ -279,7 +253,6 @@ function DancersPage() {
           total: statsQuery.data?.total ?? 0,
           activated: statsQuery.data?.active ?? 0,
           pending: statsQuery.data?.pending ?? 0,
-          orgCount: filtersQuery.data?.organizations.length ?? 0,
         }}
         isLoading={statsQuery.isLoading}
         status={status}
@@ -305,21 +278,6 @@ function DancersPage() {
           setPage(0);
         }}
         searchPlaceholder="Search by name, email, bib #..."
-        filters={[
-          {
-            id: "org",
-            label: "Organization",
-            value: org,
-            onChange: (v) => {
-              setOrg(v);
-              setPage(0);
-            },
-            options: [
-              { label: "All orgs", value: "all" },
-              ...orgs.map((o) => ({ label: o, value: o })),
-            ],
-          },
-        ]}
         sorting={sorting}
         onSortingChange={setSorting}
         onRowClick={handleRowClick}

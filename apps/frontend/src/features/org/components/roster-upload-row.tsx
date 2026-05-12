@@ -110,9 +110,11 @@ export function RosterUploadRow({
                   <th className="text-muted-foreground px-3 py-1.5 text-left text-[10px] font-medium tracking-wide uppercase 2xl:text-xs">
                     Name
                   </th>
-                  <th className="text-muted-foreground hidden px-3 py-1.5 text-left text-[10px] font-medium tracking-wide uppercase sm:table-cell 2xl:text-xs">
-                    Organization
-                  </th>
+                  {type === "coach" && (
+                    <th className="text-muted-foreground hidden px-3 py-1.5 text-left text-[10px] font-medium tracking-wide uppercase sm:table-cell 2xl:text-xs">
+                      Organization
+                    </th>
+                  )}
                   <th className="text-muted-foreground w-32 px-3 py-1.5 text-center text-[10px] font-medium tracking-wide uppercase 2xl:text-xs">
                     Status
                   </th>
@@ -136,11 +138,13 @@ export function RosterUploadRow({
                         {row.firstName} {row.lastName}
                       </span>
                     </td>
-                    <td className="text-muted-foreground hidden px-3 py-1.5 text-xs sm:table-cell 2xl:text-sm">
-                      <span className="truncate">
-                        {row.organization ?? "—"}
-                      </span>
-                    </td>
+                    {type === "coach" && (
+                      <td className="text-muted-foreground hidden px-3 py-1.5 text-xs sm:table-cell 2xl:text-sm">
+                        <span className="truncate">
+                          {row.organization ?? "—"}
+                        </span>
+                      </td>
+                    )}
                     <td className="px-3 py-1.5">
                       <div className="flex justify-center">
                         <StatusDot isRegistered={row.isRegistered} />

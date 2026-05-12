@@ -6,7 +6,7 @@ export interface RosterPageHeaderStats {
   /** Rows where userId IS NOT NULL */
   activated: number;
   pending: number;
-  orgCount: number;
+  orgCount?: number;
 }
 
 export interface RosterPageHeaderProps {
@@ -93,11 +93,13 @@ export function RosterPageHeader({
           active={status === "pending"}
           onClick={() => onStatusChange("pending")}
         />
-        <ReadOnlyStatCell
-          label="Orgs"
-          value={stats.orgCount}
-          isLoading={isLoading}
-        />
+        {stats.orgCount !== undefined && (
+          <ReadOnlyStatCell
+            label="Orgs"
+            value={stats.orgCount}
+            isLoading={isLoading}
+          />
+        )}
       </div>
     </section>
   );

@@ -116,7 +116,6 @@ export function RosterDetailSheet({
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,
-      organization: data.organization,
     };
     if (isDancer) {
       body.bibNumber = data.bibNumber;
@@ -129,6 +128,8 @@ export function RosterDetailSheet({
         danceStyles: danceStylesArr,
         bio: data.bio,
       };
+    } else {
+      body.organization = data.organization;
     }
 
     try {
@@ -202,9 +203,9 @@ export function RosterDetailSheet({
             <SheetDescription>
               <span className="flex items-center gap-2">
                 {entry.bibNumber && `Bib #${entry.bibNumber}`}
-                {entry.bibNumber && entry.organization && " · "}
-                {entry.organization}
-                {(entry.bibNumber || entry.organization) && " · "}
+                {entry.bibNumber && !isDancer && entry.organization && " · "}
+                {!isDancer && entry.organization}
+                {(entry.bibNumber || (!isDancer && entry.organization)) && " · "}
                 <Badge
                   variant={entry.isRegistered ? "success" : "outline"}
                   size="sm"
@@ -292,17 +293,19 @@ export function RosterDetailSheet({
                     )}
                   />
                 )}
-                <Controller
-                  control={control}
-                  name="organization"
-                  render={({ field, fieldState }) => (
-                    <Field name={field.name} invalid={fieldState.invalid}>
-                      <FieldLabel>Organization</FieldLabel>
-                      <Input {...field} value={field.value ?? ""} />
-                      <FieldError error={fieldState.error} />
-                    </Field>
-                  )}
-                />
+                {!isDancer && (
+                  <Controller
+                    control={control}
+                    name="organization"
+                    render={({ field, fieldState }) => (
+                      <Field name={field.name} invalid={fieldState.invalid}>
+                        <FieldLabel>Organization</FieldLabel>
+                        <Input {...field} value={field.value ?? ""} />
+                        <FieldError error={fieldState.error} />
+                      </Field>
+                    )}
+                  />
+                )}
               </fieldset>
 
               {/* Profile (dancers only) */}

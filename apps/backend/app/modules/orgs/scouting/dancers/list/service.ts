@@ -24,8 +24,7 @@ export class ListDancersService {
         filters.push(
           or(
             ilike(eventRosters.firstName, pattern),
-            ilike(eventRosters.lastName, pattern),
-            ilike(eventRosters.organization, pattern)
+            ilike(eventRosters.lastName, pattern)
           )!
         );
       }
@@ -93,7 +92,6 @@ export class ListDancersService {
           bibNumber: eventRosters.bibNumber,
           firstName: eventRosters.firstName,
           lastName: eventRosters.lastName,
-          organization: eventRosters.organization,
           isRegistered: sql<boolean>`${eventRosters.userId} IS NOT NULL`,
           profilePhotoUrl: eventDancerProfiles.profilePhotoUrl,
           gpa: sql<

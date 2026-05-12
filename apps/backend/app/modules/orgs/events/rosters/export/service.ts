@@ -18,6 +18,7 @@ export class ExportRosterService {
   constructor(private db: DatabaseService = new DatabaseService()) {}
 
   async execute(eventId: string, q: Validator): Promise<string> {
+    const isDancer = q.type === "dancer";
     const filters = [
       eq(eventRosters.eventId, eventId),
       eq(eventRosters.type, q.type),
@@ -39,7 +40,8 @@ export class ExportRosterService {
 
     if (q.status === "active") filters.push(isNotNull(eventRosters.userId));
     else if (q.status === "pending") filters.push(isNull(eventRosters.userId));
-    if (q.org) filters.push(eq(eventRosters.organization, q.org));
+    if (q.org && !isDancer)
+      filters.push(eq(eventRosters.organization, q.org));
 
     const rows = await this.db.use((db) =>
       db
@@ -56,26 +58,28 @@ export class ExportRosterService {
         .orderBy(asc(eventRosters.lastName), asc(eventRosters.firstName))
     );
 
-    const header = [
-      "First Name",
-      "Last Name",
-      "Email",
-      "Bib #",
-      "Organization",
-      "Status",
-    ];
+    const header = isDancer
+      ? ["First Name", "Last Name", "Email", "Bib #", "Status"]
+      : ["First Name", "Last Name", "Email", "Bib #", "Organization", "Status"];
     const lines = [header.map(csvEscape).join(",")];
     for (const r of rows) {
-      lines.push(
-        [
-          csvEscape(r.firstName),
-          csvEscape(r.lastName),
-          csvEscape(r.email),
-          csvEscape(r.bibNumber),
-          csvEscape(r.organization),
-          csvEscape(r.isRegistered ? "Active" : "Pending"),
-        ].join(",")
-      );
+      const cells = isDancer
+        ? [
+            csvEscape(r.firstName),
+            csvEscape(r.lastName),
+            csvEscape(r.email),
+            csvEscape(r.bibNumber),
+            csvEscape(r.isRegistered ? "Active" : "Pending"),
+          ]
+        : [
+            csvEscape(r.firstName),
+            csvEscape(r.lastName),
+            csvEscape(r.email),
+            csvEscape(r.bibNumber),
+            csvEscape(r.organization),
+            csvEscape(r.isRegistered ? "Active" : "Pending"),
+          ];
+      lines.push(cells.join(","));
     }
     return lines.join("\r\n") + "\r\n";
   }

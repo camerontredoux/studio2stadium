@@ -27,7 +27,6 @@ export class GetDancerByIdService {
           bibNumber: eventRosters.bibNumber,
           firstName: eventRosters.firstName,
           lastName: eventRosters.lastName,
-          organization: eventRosters.organization,
           isRegistered: sql<boolean>`${eventRosters.userId} IS NOT NULL`,
           username: users.username,
           profilePhotoUrl: eventDancerProfiles.profilePhotoUrl,

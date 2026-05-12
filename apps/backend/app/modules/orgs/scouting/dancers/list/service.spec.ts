@@ -125,34 +125,6 @@ test.group("ListDancersService", (group) => {
     assert.equal(rows[0]!.lastName, "Jones");
   });
 
-  test("filters by search on organization", async ({ assert }) => {
-    await db.insert(eventRosters).values([
-      {
-        eventId: event.id,
-        type: "dancer",
-        email: "alice@x.co",
-        firstName: "Alice",
-        lastName: "Smith",
-        organization: "Acme Dance",
-        bibNumber: 101,
-      },
-      {
-        eventId: event.id,
-        type: "dancer",
-        email: "bob@x.co",
-        firstName: "Bob",
-        lastName: "Jones",
-        organization: "Beta Studio",
-        bibNumber: 102,
-      },
-    ]);
-
-    const svc = new ListDancersService();
-    const rows = await svc.execute(event.id, null, { search: "acme" });
-    assert.equal(rows.length, 1);
-    assert.equal(rows[0]!.organization, "Acme Dance");
-  });
-
   test("filters by exact bib number", async ({ assert }) => {
     await db.insert(eventRosters).values([
       {
