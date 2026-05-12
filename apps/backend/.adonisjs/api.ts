@@ -391,6 +391,10 @@ type OrgsRegisterSchoolPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/register-school/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/register-school/controller.ts').default['handle'], true>
 }
+type OrgsInvitesSchoolIdGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/invite-lookup-school/controller.ts').default['handle'], false>
+}
 type SkillsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/skills/get-skills/controller.ts').default['handle'], false>
@@ -1255,6 +1259,16 @@ export interface ApiDefinition {
         '$url': {
         };
         '$post': OrgsRegisterSchoolPost;
+      };
+    };
+    'invites': {
+      'school': {
+        ':token': {
+          '$url': {
+          };
+          '$get': OrgsInvitesSchoolIdGetHead;
+          '$head': OrgsInvitesSchoolIdGetHead;
+        };
       };
     };
   };

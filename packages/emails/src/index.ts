@@ -79,6 +79,16 @@ export {
   type OrgInviteEmailProps,
 } from "./templates/OrgInviteEmail.js";
 
+export {
+  OrgRosterAddedEmail,
+  type OrgRosterAddedEmailProps,
+} from "./templates/OrgRosterAddedEmail.js";
+
+export {
+  SchoolAccountInviteEmail,
+  type SchoolAccountInviteEmailProps,
+} from "./templates/SchoolAccountInviteEmail.js";
+
 // Render utilities
 export { renderEmail, renderEmailText } from "./render.js";
 

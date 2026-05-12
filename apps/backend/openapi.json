@@ -2153,18 +2153,19 @@
             "schema": {
               "type": "string"
             }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/OrgsIdEventsIdRostersDeleteRequest"
+          },
+          {
+            "name": "ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
               }
             }
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -4578,6 +4579,47 @@
         ],
         "summary": "School self-registration via invite token",
         "description": "Consumes a one-time school invite token, creates a school account with profile + membership, and links pending coach roster rows."
+      }
+    },
+    "/orgs/invites/school/{token}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsInvitesSchoolIdResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "Look up a school invite by token",
+        "description": "Returns prefill data (email, organization, event/org names, brand color) for a school account invite. Returns 410 if the invite is invalid, expired, or already consumed."
       }
     },
     "/skills": {
@@ -11218,16 +11260,6 @@
               {
                 "type": "object",
                 "properties": {
-                  "studio": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
                   "gpa": {
                     "oneOf": [
                       {
@@ -11248,49 +11280,6 @@
                           "string",
                           "number"
                         ]
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "state": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "height": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "danceStyles": {
-                    "oneOf": [
-                      {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        }
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "bio": {
-                    "oneOf": [
-                      {
-                        "type": "string"
                       },
                       {
                         "type": "null"
@@ -11494,20 +11483,6 @@
           "eventId",
           "bibNumber",
           "isRegistered"
-        ]
-      },
-      "OrgsIdEventsIdRostersDeleteRequest": {
-        "type": "object",
-        "properties": {
-          "ids": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "ids"
         ]
       },
       "OrgsIdEventsIdRostersResendinvitesRequest": {
@@ -12544,16 +12519,6 @@
             "lastName": {
               "type": "string"
             },
-            "organization": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
             "isRegistered": {
               "type": "boolean"
             },
@@ -12635,7 +12600,6 @@
             "bibNumber",
             "firstName",
             "lastName",
-            "organization",
             "isRegistered",
             "profilePhotoUrl",
             "gpa",
@@ -12723,16 +12687,6 @@
             "oneOf": [
               {
                 "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "organization": {
-            "oneOf": [
-              {
-                "type": "string"
               },
               {
                 "type": "null"
@@ -12842,7 +12796,6 @@
           "studio",
           "gpa",
           "gradYear",
-          "organization",
           "rating",
           "bibNumber",
           "rosterId",
@@ -13536,6 +13489,59 @@
         },
         "required": [
           "userId"
+        ]
+      },
+      "OrgsInvitesSchoolIdResponse": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "organization": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "eventName": {
+            "type": "string"
+          },
+          "orgName": {
+            "type": "string"
+          },
+          "orgSlug": {
+            "type": "string"
+          },
+          "brandColor": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expiresAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "organization",
+          "eventId",
+          "eventName",
+          "orgName",
+          "orgSlug",
+          "brandColor",
+          "expiresAt"
         ]
       },
       "SkillsResponse": {

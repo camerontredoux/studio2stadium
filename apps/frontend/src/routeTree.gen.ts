@@ -15,6 +15,7 @@ import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AdminRouteRouteImport } from './routes/_admin/route'
 import { Route as ApproutesIndexRouteImport } from './routes/_app/(routes)/index'
+import { Route as OrgOrgSlugRegisterSchoolRouteImport } from './routes/_org/$orgSlug/register-school'
 import { Route as OrgOrgSlugRegisterRouteImport } from './routes/_org/$orgSlug/register'
 import { Route as OrgOrgSlugLoginRouteImport } from './routes/_org/$orgSlug/login'
 import { Route as AuthroutesResetRouteImport } from './routes/_auth/(routes)/reset'
@@ -105,6 +106,12 @@ const ApproutesIndexRoute = ApproutesIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const OrgOrgSlugRegisterSchoolRoute =
+  OrgOrgSlugRegisterSchoolRouteImport.update({
+    id: '/$orgSlug/register-school',
+    path: '/$orgSlug/register-school',
+    getParentRoute: () => OrgRouteRoute,
+  } as any)
 const OrgOrgSlugRegisterRoute = OrgOrgSlugRegisterRouteImport.update({
   id: '/$orgSlug/register',
   path: '/$orgSlug/register',
@@ -482,6 +489,7 @@ export interface FileRoutesByFullPath {
   '/reset': typeof AuthroutesResetRoute
   '/$orgSlug/login': typeof OrgOrgSlugLoginRoute
   '/$orgSlug/register': typeof OrgOrgSlugRegisterRoute
+  '/$orgSlug/register-school': typeof OrgOrgSlugRegisterSchoolRoute
   '/$orgSlug/admin': typeof OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren
   '/$orgSlug/coach': typeof OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren
   '/$orgSlug/dancer': typeof OrgOrgSlugAuthenticatedDancerRouteRouteWithChildren
@@ -546,6 +554,7 @@ export interface FileRoutesByTo {
   '/reset': typeof AuthroutesResetRoute
   '/$orgSlug/login': typeof OrgOrgSlugLoginRoute
   '/$orgSlug/register': typeof OrgOrgSlugRegisterRoute
+  '/$orgSlug/register-school': typeof OrgOrgSlugRegisterSchoolRoute
   '/admin/applications': typeof AdminroutesAdminApplicationsRoute
   '/admin/blog': typeof AdminroutesAdminBlogRoute
   '/admin/dancers': typeof AdminroutesAdminDancersRoute
@@ -615,6 +624,7 @@ export interface FileRoutesById {
   '/_auth/(routes)/reset': typeof AuthroutesResetRoute
   '/_org/$orgSlug/login': typeof OrgOrgSlugLoginRoute
   '/_org/$orgSlug/register': typeof OrgOrgSlugRegisterRoute
+  '/_org/$orgSlug/register-school': typeof OrgOrgSlugRegisterSchoolRoute
   '/_app/(routes)/': typeof ApproutesIndexRoute
   '/_org/$orgSlug/_authenticated/admin': typeof OrgOrgSlugAuthenticatedAdminRouteRouteWithChildren
   '/_org/$orgSlug/_authenticated/coach': typeof OrgOrgSlugAuthenticatedCoachRouteRouteWithChildren
@@ -685,6 +695,7 @@ export interface FileRouteTypes {
     | '/reset'
     | '/$orgSlug/login'
     | '/$orgSlug/register'
+    | '/$orgSlug/register-school'
     | '/$orgSlug/admin'
     | '/$orgSlug/coach'
     | '/$orgSlug/dancer'
@@ -749,6 +760,7 @@ export interface FileRouteTypes {
     | '/reset'
     | '/$orgSlug/login'
     | '/$orgSlug/register'
+    | '/$orgSlug/register-school'
     | '/admin/applications'
     | '/admin/blog'
     | '/admin/dancers'
@@ -817,6 +829,7 @@ export interface FileRouteTypes {
     | '/_auth/(routes)/reset'
     | '/_org/$orgSlug/login'
     | '/_org/$orgSlug/register'
+    | '/_org/$orgSlug/register-school'
     | '/_app/(routes)/'
     | '/_org/$orgSlug/_authenticated/admin'
     | '/_org/$orgSlug/_authenticated/coach'
@@ -919,6 +932,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof ApproutesIndexRouteImport
       parentRoute: typeof AppRouteRoute
+    }
+    '/_org/$orgSlug/register-school': {
+      id: '/_org/$orgSlug/register-school'
+      path: '/$orgSlug/register-school'
+      fullPath: '/$orgSlug/register-school'
+      preLoaderRoute: typeof OrgOrgSlugRegisterSchoolRouteImport
+      parentRoute: typeof OrgRouteRoute
     }
     '/_org/$orgSlug/register': {
       id: '/_org/$orgSlug/register'
@@ -1652,6 +1672,7 @@ interface OrgRouteRouteChildren {
   OrgOrgSlugAuthenticatedRouteRoute: typeof OrgOrgSlugAuthenticatedRouteRouteWithChildren
   OrgOrgSlugLoginRoute: typeof OrgOrgSlugLoginRoute
   OrgOrgSlugRegisterRoute: typeof OrgOrgSlugRegisterRoute
+  OrgOrgSlugRegisterSchoolRoute: typeof OrgOrgSlugRegisterSchoolRoute
 }
 
 const OrgRouteRouteChildren: OrgRouteRouteChildren = {
@@ -1659,6 +1680,7 @@ const OrgRouteRouteChildren: OrgRouteRouteChildren = {
     OrgOrgSlugAuthenticatedRouteRouteWithChildren,
   OrgOrgSlugLoginRoute: OrgOrgSlugLoginRoute,
   OrgOrgSlugRegisterRoute: OrgOrgSlugRegisterRoute,
+  OrgOrgSlugRegisterSchoolRoute: OrgOrgSlugRegisterSchoolRoute,
 }
 
 const OrgRouteRouteWithChildren = OrgRouteRoute._addFileChildren(

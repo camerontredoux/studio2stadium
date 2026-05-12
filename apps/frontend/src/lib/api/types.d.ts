@@ -2405,7 +2405,9 @@ export interface paths {
         post?: never;
         delete: {
             parameters: {
-                query?: never;
+                query: {
+                    ids: string[];
+                };
                 header?: never;
                 path: {
                     slug: string;
@@ -2413,11 +2415,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["OrgsIdEventsIdRostersDeleteRequest"];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -4480,6 +4478,56 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/invites/school/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Look up a school invite by token
+         * @description Returns prefill data (email, organization, event/org names, brand color) for a school account invite. Returns 410 if the invite is invalid, expired, or already consumed.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    token: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsInvitesSchoolIdResponse"];
+                    };
+                };
+                /** @description Unknown Response */
+                410: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -9002,13 +9050,8 @@ export interface components {
             firstName?: string | null;
             lastName?: string | null;
             profile?: {
-                studio?: string | null;
                 gpa?: (string | number) | null;
                 gradYear?: (string | number) | null;
-                state?: string | null;
-                height?: string | null;
-                danceStyles?: string[] | null;
-                bio?: string | null;
             } | null;
             organization?: string | null;
             bibNumber?: (string | number) | null;
@@ -9034,9 +9077,6 @@ export interface components {
             eventId: string;
             bibNumber: number | null;
             isRegistered: boolean;
-        };
-        OrgsIdEventsIdRostersDeleteRequest: {
-            ids: string[];
         };
         OrgsIdEventsIdRostersResendinvitesRequest: {
             ids: string[];
@@ -9247,7 +9287,6 @@ export interface components {
             bibNumber: number | null;
             firstName: string;
             lastName: string;
-            organization: string | null;
             isRegistered: boolean;
             profilePhotoUrl: string | null;
             gpa: number | null;
@@ -9270,7 +9309,6 @@ export interface components {
             studio: string | null;
             gpa: number | null;
             gradYear: number | null;
-            organization: string | null;
             rating: number | null;
             bibNumber: number | null;
             rosterId: string;
@@ -9408,6 +9446,16 @@ export interface components {
         };
         OrgsRegisterSchoolResponse: {
             userId: string;
+        };
+        OrgsInvitesSchoolIdResponse: {
+            email: string;
+            organization: string | null;
+            eventId: string;
+            eventName: string;
+            orgName: string;
+            orgSlug: string;
+            brandColor: string | null;
+            expiresAt: string;
         };
         SkillsResponse: {
             name: string;

@@ -6,7 +6,7 @@ import { users } from "#database/schema/users";
 import { inject } from "@adonisjs/core";
 import { and, eq, isNull, notInArray, sql } from "drizzle-orm";
 import { randomBytes } from "node:crypto";
-import { sendOrgInviteEmail } from "#shared/org/invite-email";
+import { sendSchoolAccountInviteEmail } from "#shared/org/school-account-invite-email";
 
 @inject()
 export class ReconciliationService {
@@ -89,11 +89,10 @@ export class ReconciliationService {
     );
 
     if (org) {
-      sendOrgInviteEmail({
+      sendSchoolAccountInviteEmail({
         org,
         email: invite.email,
         firstName: invite.email.split("@")[0] ?? "Coach",
-        type: "coach",
         token,
       }).catch(() => {});
     }

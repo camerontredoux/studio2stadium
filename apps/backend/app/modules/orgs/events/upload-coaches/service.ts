@@ -9,7 +9,8 @@ import {
 } from "#database/schema/org-events";
 import { organizations, orgMemberships } from "#database/schema/organizations";
 import { normalizeRowEmails, parseCoachCsv } from "#shared/org/csv-parser";
-import { sendOrgInviteEmail } from "#shared/org/invite-email";
+import { sendOrgRosterAddedEmail } from "#shared/org/roster-added-email";
+import { sendSchoolAccountInviteEmail } from "#shared/org/school-account-invite-email";
 import { enforceEmailRole } from "#shared/org/role-guard";
 import { verifyPreviewToken } from "#shared/org/preview-token";
 import { and, eq, inArray, isNull } from "drizzle-orm";
@@ -92,6 +93,10 @@ export class UploadCoachesService {
       db.select().from(orgEvents).where(eq(orgEvents.id, eventId))
     );
 
+    // Track matched-new rows (registered coach added to a roster for the
+    // first time) for fire-and-forget notification emails after transaction.
+    const matchedNotifications: { email: string; firstName: string }[] = [];
+
     const result = await this.db.withAudit(
       { eventId, actorId: uploaderId },
       async (tx, audit) => {
@@ -150,7 +155,13 @@ export class UploadCoachesService {
                 })
                 .returning();
               added += 1;
-              if (userId) activated += 1;
+              if (userId) {
+                activated += 1;
+                matchedNotifications.push({
+                  email: r.email,
+                  firstName: r.firstName,
+                });
+              }
             }
 
             if (userId) {
@@ -267,13 +278,26 @@ export class UploadCoachesService {
         .catch(() => []);
 
       for (const row of unmatchedRows) {
-        sendOrgInviteEmail({
+        if (!row.token) continue;
+        sendSchoolAccountInviteEmail({
           org,
           event: event ?? null,
           email: row.email,
           firstName: row.firstName,
+          token: row.token,
+        }).catch(() => {});
+      }
+    }
+
+    // Fire-and-forget notification emails for matched-new rows.
+    if (org && matchedNotifications.length > 0) {
+      for (const { email, firstName } of matchedNotifications) {
+        sendOrgRosterAddedEmail({
+          org,
+          event: event ?? null,
+          email,
+          firstName,
           type: "coach",
-          token: row.token ?? undefined,
         }).catch(() => {});
       }
     }

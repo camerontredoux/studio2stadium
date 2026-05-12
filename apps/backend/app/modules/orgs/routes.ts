@@ -7,6 +7,8 @@ const RegisterDancerController = () =>
   import("./register-dancer/controller.ts");
 const RegisterSchoolController = () =>
   import("./register-school/controller.ts");
+const InviteLookupSchoolController = () =>
+  import("./invite-lookup-school/controller.ts");
 
 router
   .group(() => {
@@ -27,6 +29,14 @@ router
       description:
         "Consumes a one-time school invite token, creates a school account with profile + membership, and links pending coach roster rows.",
     });
+
+    router
+      .get("invites/school/:token", [InviteLookupSchoolController])
+      .openapi({
+        summary: "Look up a school invite by token",
+        description:
+          "Returns prefill data (email, organization, event/org names, brand color) for a school account invite. Returns 410 if the invite is invalid, expired, or already consumed.",
+      });
   })
   .prefix("orgs")
   .openapi({ tags: ["Organizations"] });

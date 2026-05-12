@@ -16,6 +16,7 @@ import {
 } from "#database/schema/org-events";
 import { normalizeRowEmails, parseDancerCsv } from "#shared/org/csv-parser";
 import { sendOrgInviteEmail } from "#shared/org/invite-email";
+import { sendOrgRosterAddedEmail } from "#shared/org/roster-added-email";
 import { enforceEmailRole } from "#shared/org/role-guard";
 import { verifyPreviewToken } from "#shared/org/preview-token";
 import { and, eq, inArray } from "drizzle-orm";
@@ -162,6 +163,9 @@ export class UploadDancersService {
     // Track invite tokens for fire-and-forget emails after transaction
     const inviteTokens: { email: string; firstName: string; token: string }[] =
       [];
+    // Track matched-new rows (registered dancer added to a roster for the
+    // first time) for fire-and-forget notification emails after transaction.
+    const matchedNotifications: { email: string; firstName: string }[] = [];
 
     const result = await this.db.withAudit(
       { eventId, actorId: uploaderId },
@@ -225,7 +229,13 @@ export class UploadDancersService {
                 })
                 .returning();
               added += 1;
-              if (userId) activated += 1;
+              if (userId) {
+                activated += 1;
+                matchedNotifications.push({
+                  email: r.email,
+                  firstName: r.firstName,
+                });
+              }
             }
 
             if (userId) {
@@ -350,6 +360,19 @@ export class UploadDancersService {
           firstName,
           type: "dancer",
           token,
+        }).catch(() => {});
+      }
+    }
+
+    // Fire-and-forget notification emails for matched-new rows.
+    if (org && matchedNotifications.length > 0) {
+      for (const { email, firstName } of matchedNotifications) {
+        sendOrgRosterAddedEmail({
+          org,
+          event: event ?? null,
+          email,
+          firstName,
+          type: "dancer",
         }).catch(() => {});
       }
     }
