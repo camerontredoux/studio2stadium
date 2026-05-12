@@ -227,6 +227,14 @@ type OrgsIdEventsIdRostersResendinvitesPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/resend-invites/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/resend-invites/controller.ts').default['handle'], true>
 }
+type OrgsIdEventsIdRostersIdAttachPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/attach/validator.ts')['attachSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/attach/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdRostersSearchdancersGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/attach/search-validator.ts')['searchSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/attach/search-controller.ts').default['handle'], true>
+}
 type OrgsIdEventsIdChecklistGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/checklist/list/controller.ts').default['handle'], false>
@@ -1049,12 +1057,23 @@ export interface ApiDefinition {
               '$url': {
               };
               '$patch': OrgsIdEventsIdRostersIdPatch;
+              'attach': {
+                '$url': {
+                };
+                '$post': OrgsIdEventsIdRostersIdAttachPost;
+              };
             };
             '$delete': OrgsIdEventsIdRostersDelete;
             'resend-invites': {
               '$url': {
               };
               '$post': OrgsIdEventsIdRostersResendinvitesPost;
+            };
+            'search-dancers': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdRostersSearchdancersGetHead;
+              '$head': OrgsIdEventsIdRostersSearchdancersGetHead;
             };
           };
           'checklist': {
