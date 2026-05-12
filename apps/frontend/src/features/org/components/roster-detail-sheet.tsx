@@ -149,10 +149,8 @@ export function RosterDetailSheet({
     if (!entry) return;
     try {
       await deleteMutation.mutateAsync({
-        params: {
-          path: { slug: orgSlug, id: eventId },
-          query: { ids: [entry.id] },
-        },
+        params: { path: { slug: orgSlug, id: eventId } },
+        body: { ids: [entry.id] },
       });
       toastManager.add({ title: "Entry deleted", type: "success" });
       setDeleteOpen(false);

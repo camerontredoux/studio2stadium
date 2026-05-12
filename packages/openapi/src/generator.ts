@@ -442,7 +442,8 @@ export class OpenApiGenerator {
         ? aliasSymbol.getName()
         : null;
 
-    const methods: Methods[] = ["$post", "$put", "$patch"];
+    /** DELETE may carry a JSON body (e.g. bulk delete by ids); omitting it mis-documents body fields as query params. */
+    const methods: Methods[] = ["$post", "$put", "$patch", "$delete"];
     const spec: {
       parameters?: ParameterObject[];
       requestBody?: RequestBodyObject;

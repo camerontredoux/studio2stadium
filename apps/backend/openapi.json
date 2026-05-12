@@ -2153,19 +2153,18 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "ids",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsIdRostersDeleteRequest"
               }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -11495,6 +11494,20 @@
           "eventId",
           "bibNumber",
           "isRegistered"
+        ]
+      },
+      "OrgsIdEventsIdRostersDeleteRequest": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
         ]
       },
       "OrgsIdEventsIdRostersResendinvitesRequest": {

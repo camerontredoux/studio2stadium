@@ -2405,9 +2405,7 @@ export interface paths {
         post?: never;
         delete: {
             parameters: {
-                query: {
-                    ids: string[];
-                };
+                query?: never;
                 header?: never;
                 path: {
                     slug: string;
@@ -2415,7 +2413,11 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsIdRostersDeleteRequest"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -9032,6 +9034,9 @@ export interface components {
             eventId: string;
             bibNumber: number | null;
             isRegistered: boolean;
+        };
+        OrgsIdEventsIdRostersDeleteRequest: {
+            ids: string[];
         };
         OrgsIdEventsIdRostersResendinvitesRequest: {
             ids: string[];

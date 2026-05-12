@@ -221,10 +221,8 @@ function DancersPage() {
       if (!active) return;
       try {
         await deleteMutation.mutateAsync({
-          params: {
-            path: { slug: orgSlug, id: active.id },
-            query: { ids },
-          },
+          params: { path: { slug: orgSlug, id: active.id } },
+          body: { ids },
         });
         toastManager.add({
           title: `${ids.length} dancer${ids.length === 1 ? "" : "s"} deleted`,
