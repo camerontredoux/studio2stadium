@@ -1,12 +1,14 @@
 import { dancerProfiles } from "#database/schema/dancers";
 import { videos, videoUploads } from "#database/schema/media";
+import { premiumGrants } from "#database/schema/organizations";
 import { subscriptions } from "#database/schema/subscriptions";
 import { DatabaseService } from "#database/service";
 import env from "#start/env";
 import { inject } from "@adonisjs/core";
-import { and, count, eq, isNull, ne } from "drizzle-orm";
+import { and, count, desc, eq, gt, isNull, ne } from "drizzle-orm";
 
-const VIDEO_LIMIT = 3;
+const STRIPE_VIDEO_LIMIT = 3;
+const GRANT_VIDEO_LIMIT = 2;
 
 interface InitiateUploadParams {
   userId: string;
@@ -27,7 +29,7 @@ export class Service {
   ): Promise<InitiateUploadResult> {
     const { userId, uploadLength, uploadMetadata } = params;
 
-    const [[completedCount], [pendingCount], dancerProfile, subscription] =
+    const [[completedCount], [pendingCount], dancerProfile, subscription, grant] =
       await Promise.all([
         this.db.use((db) =>
           db
@@ -70,10 +72,24 @@ export class Service {
             .limit(1)
             .then((rows) => rows[0])
         ),
+        this.db.use((db) =>
+          db
+            .select({ id: premiumGrants.id })
+            .from(premiumGrants)
+            .where(
+              and(
+                eq(premiumGrants.userId, userId),
+                gt(premiumGrants.expiresAt, new Date()),
+                isNull(premiumGrants.revokedAt)
+              )
+            )
+            .orderBy(desc(premiumGrants.expiresAt))
+            .limit(1)
+            .then((rows) => rows[0])
+        ),
       ]);
 
-    // Only dancers require premium subscription for video uploads
-    if (dancerProfile && !subscription) {
+    if (dancerProfile && !subscription && !grant) {
       return {
         error: "limit_exceeded",
         message:
@@ -81,11 +97,12 @@ export class Service {
       };
     }
 
+    const videoLimit = subscription ? STRIPE_VIDEO_LIMIT : GRANT_VIDEO_LIMIT;
     const totalVideos = completedCount.count + pendingCount.count;
-    if (totalVideos >= VIDEO_LIMIT) {
+    if (totalVideos >= videoLimit) {
       return {
         error: "limit_exceeded",
-        message: `You can only upload ${VIDEO_LIMIT} videos. Delete an existing video to upload a new one.`,
+        message: `You can only upload ${videoLimit} videos. Delete an existing video to upload a new one.`,
       };
     }
 

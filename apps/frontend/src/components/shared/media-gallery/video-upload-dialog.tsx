@@ -38,15 +38,16 @@ interface VideoUploadDialogProps {
 }
 
 export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
-  const CLOUD_FLARE_VIDEO_LIMIT = 3;
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"file" | "youtube">("file");
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const {
-    data: { subscribed },
+    data: { subscribed, source },
   } = useSubscribed();
   const { type, username } = useSession();
-  const hasReachedCloudflareLimit = videoCount >= CLOUD_FLARE_VIDEO_LIMIT;
+  const isGrantOnly = source === "org_event";
+  const cloudflareLimit = isGrantOnly ? 2 : 3;
+  const hasReachedCloudflareLimit = videoCount >= cloudflareLimit;
   const { setIsProcessing } = useVideoProcessing();
   const queryClient = useQueryClient();
 
@@ -88,7 +89,7 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
       setUploading(false);
       setProgress(0);
       setYoutubeUrl("");
-      setTab(hasReachedCloudflareLimit ? "youtube" : "file");
+      setTab(hasReachedCloudflareLimit && !isGrantOnly ? "youtube" : "file");
     }
   };
 
@@ -185,7 +186,7 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
         </span>
         {hasReachedCloudflareLimit && (
           <span className="text-muted-foreground text-xs font-medium">
-            Limit {CLOUD_FLARE_VIDEO_LIMIT}/{CLOUD_FLARE_VIDEO_LIMIT}
+            Limit {cloudflareLimit}/{cloudflareLimit}
           </span>
         )}
       </DialogTrigger>
@@ -195,55 +196,76 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
           <DialogDescription>Add a video to your profile.</DialogDescription>
         </DialogHeader>
         <DialogPanel>
-          <Tabs
-            value={tab}
-            onValueChange={(value) => setTab(value as "file" | "youtube")}
-          >
-            <TabsList className="w-full">
-              <TabsTrigger
-                value="file"
-                className="flex-1"
-                disabled={hasReachedCloudflareLimit}
-              >
-                Upload File
-              </TabsTrigger>
-              <TabsTrigger value="youtube" className="flex-1">
-                YouTube Link
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="file" className="mt-4">
-              {hasReachedCloudflareLimit ? (
-                <div className="bg-muted/40 text-muted-foreground rounded-md p-4 text-sm">
-                  You have reached your cloud upload limit. You can still add
-                  videos using a YouTube link.
-                </div>
-              ) : (
-                <VideoUploadForm
-                  isLoading={uploading}
-                  progress={progress}
-                  onSubmit={onSubmit}
-                />
-              )}
-            </TabsContent>
-            <TabsContent value="youtube" className="mt-4">
-              <form id="youtube-upload-form" onSubmit={handleYoutubeSubmit}>
-                <Field>
-                  <FieldLabel>YouTube URL</FieldLabel>
-                  <Input
-                    placeholder="https://youtube.com/watch?v=..."
-                    value={youtubeUrl}
-                    onChange={(e) => setYoutubeUrl(e.target.value)}
+          {isGrantOnly ? (
+            hasReachedCloudflareLimit ? (
+              <div className="bg-muted/40 text-muted-foreground rounded-md p-4 text-sm">
+                You have reached your upload limit ({cloudflareLimit} videos).
+                Delete an existing video to upload a new one.
+              </div>
+            ) : (
+              <VideoUploadForm
+                isLoading={uploading}
+                progress={progress}
+                onSubmit={onSubmit}
+              />
+            )
+          ) : (
+            <Tabs
+              value={tab}
+              onValueChange={(value) => setTab(value as "file" | "youtube")}
+            >
+              <TabsList className="w-full">
+                <TabsTrigger
+                  value="file"
+                  className="flex-1"
+                  disabled={hasReachedCloudflareLimit}
+                >
+                  Upload File
+                </TabsTrigger>
+                <TabsTrigger value="youtube" className="flex-1">
+                  YouTube Link
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="file" className="mt-4">
+                {hasReachedCloudflareLimit ? (
+                  <div className="bg-muted/40 text-muted-foreground rounded-md p-4 text-sm">
+                    You have reached your cloud upload limit. You can still add
+                    videos using a YouTube link.
+                  </div>
+                ) : (
+                  <VideoUploadForm
+                    isLoading={uploading}
+                    progress={progress}
+                    onSubmit={onSubmit}
                   />
-                </Field>
-              </form>
-            </TabsContent>
-          </Tabs>
+                )}
+              </TabsContent>
+              <TabsContent value="youtube" className="mt-4">
+                <form id="youtube-upload-form" onSubmit={handleYoutubeSubmit}>
+                  <Field>
+                    <FieldLabel>YouTube URL</FieldLabel>
+                    <Input
+                      placeholder="https://youtube.com/watch?v=..."
+                      value={youtubeUrl}
+                      onChange={(e) => setYoutubeUrl(e.target.value)}
+                    />
+                  </Field>
+                </form>
+              </TabsContent>
+            </Tabs>
+          )}
         </DialogPanel>
         <DialogFooter>
           <DialogClose render={<Button variant="secondary" />}>
             Cancel
           </DialogClose>
-          {tab === "file" ? (
+          {isGrantOnly ? (
+            !hasReachedCloudflareLimit && (
+              <Button disabled={uploading} type="submit" form="video-upload-form">
+                {uploading ? <Spinner label="Uploading..." /> : "Upload"}
+              </Button>
+            )
+          ) : tab === "file" ? (
             <Button disabled={uploading} type="submit" form="video-upload-form">
               {uploading ? <Spinner label="Uploading..." /> : "Upload"}
             </Button>

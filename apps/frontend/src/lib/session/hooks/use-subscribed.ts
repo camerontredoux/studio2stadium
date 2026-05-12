@@ -14,8 +14,10 @@ export const useSubscribed = () => {
   return {
     data: data ?? {
       subscribed: !isDancer,
+      source: "none" as const,
       cancelAtPeriodEnd: false,
       currentPeriodEnd: null,
+      grantedBy: null,
     },
     isPending,
   };
