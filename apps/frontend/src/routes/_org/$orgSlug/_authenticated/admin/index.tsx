@@ -174,9 +174,9 @@ function AdminDashboard({
 
         <section
           aria-label="Event panels"
-          className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-4 lg:grid-cols-2 lg:grid-rows-2"
+          className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-4 lg:grid-cols-2 lg:grid-rows-3"
         >
-          <div className="flex min-h-0 flex-col overflow-hidden">
+          <div className="flex min-h-0 flex-col overflow-hidden lg:col-start-1 lg:row-start-1">
             <RosterUploadRow
               orgSlug={orgSlug}
               eventId={activeEvent.id}
@@ -187,7 +187,7 @@ function AdminDashboard({
               }
             />
           </div>
-          <div className="flex min-h-0 flex-col overflow-hidden">
+          <div className="flex min-h-0 flex-col overflow-hidden lg:col-start-1 lg:row-start-2">
             <RosterUploadRow
               orgSlug={orgSlug}
               eventId={activeEvent.id}
@@ -198,14 +198,14 @@ function AdminDashboard({
               }
             />
           </div>
-          <div className="flex min-h-0 flex-col overflow-hidden">
+          <div className="flex min-h-0 flex-col overflow-hidden lg:col-start-1 lg:row-start-3">
             <PreEventChecklist
               orgSlug={orgSlug}
               eventId={activeEvent.id}
               phase={phase}
             />
           </div>
-          <div className="flex min-h-0 flex-col overflow-hidden">
+          <div className="flex min-h-0 flex-col overflow-hidden lg:col-start-2 lg:row-span-3">
             <ScheduleUploadPanel
               orgSlug={orgSlug}
               eventId={activeEvent.id}
