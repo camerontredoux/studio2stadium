@@ -16,6 +16,10 @@ const FiltersRosterController = () => import("./rosters/filters/controller.ts");
 const StatsRosterController = () => import("./rosters/stats/controller.ts");
 const ResendInvitesController = () =>
   import("./rosters/resend-invites/controller.ts");
+const AttachAccountController = () =>
+  import("./rosters/attach/controller.ts");
+const SearchDancerUsersController = () =>
+  import("./rosters/attach/search-controller.ts");
 const ListChecklistController = () => import("./checklist/list/controller.ts");
 const CreateChecklistController = () =>
   import("./checklist/create/controller.ts");
@@ -154,6 +158,26 @@ router
     router
       .post(":slug/events/:id/rosters/resend-invites", [
         ResendInvitesController,
+      ])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .post(":slug/events/:id/rosters/:rosterId/attach", [
+        AttachAccountController,
+      ])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events/:id/rosters/search-dancers", [
+        SearchDancerUsersController,
       ])
       .use([
         middleware.auth(),
