@@ -16,10 +16,13 @@ export const Route = createFileRoute("/_org/o/$orgSlug/login")({
 });
 
 function OrgLoginPage() {
+  const { orgSlug } = Route.useParams();
   const navigate = useNavigate();
   return (
     <OrgAuthLayout description="Sign in to your account to continue">
-      <OrgLoginForm onSuccess={() => navigate({ to: "/feed" })} />
+      <OrgLoginForm
+        onSuccess={() => navigate({ to: `/o/${orgSlug}`, replace: true })}
+      />
     </OrgAuthLayout>
   );
 }
