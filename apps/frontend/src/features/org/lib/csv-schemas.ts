@@ -61,7 +61,7 @@ export const dancerSchema: CsvSchema = {
     {
       key: "bibNumber",
       label: "bibNumber",
-      required: false,
+      required: true,
       unique: true,
       validate: integerish("bib number"),
     },
