@@ -33,7 +33,6 @@ import {
   MonitorIcon,
   MoonIcon,
   PlayCircleIcon,
-  SchoolIcon,
   SunIcon,
   UserIcon,
 } from "lucide-react";
@@ -49,18 +48,7 @@ const dashboardItem = {
 const navSections: {
   title: string;
   items: { label: string; icon: any; to: string }[];
-}[] = [
-  {
-    title: "Explore",
-    items: [
-      {
-        label: "Schools",
-        icon: SchoolIcon,
-        to: "/o/$orgSlug/dancer/schools" as const,
-      },
-    ],
-  },
-];
+}[] = [];
 
 export function DancerSidebar() {
   const session = useSession();

@@ -5,10 +5,7 @@ import { ListSchoolsService } from "./service.ts";
 export default class ListSchoolsController {
   @inject()
   async handle(ctx: HttpContext, service: ListSchoolsService) {
-    const rows = await service.execute(
-      ctx.orgEvent!.id,
-      ctx.orgRoster?.id ?? null
-    );
+    const rows = await service.execute(ctx.orgEvent!.id);
     return ctx.response.ok(rows);
   }
 }
