@@ -1,5 +1,5 @@
 import { DatabaseService } from "#database/service";
-import { users } from "#database/schema/users";
+import { platforms, users } from "#database/schema/users";
 import {
   dancerInvites,
   orgMemberships,
@@ -67,6 +67,11 @@ export class RegisterDancerService {
           verified: true,
         })
         .returning();
+
+      await tx.insert(platforms).values({
+        platformName: "core",
+        userId: user!.id,
+      });
 
       await tx.insert(orgMemberships).values({
         userId: user!.id,
