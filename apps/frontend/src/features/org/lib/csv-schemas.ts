@@ -92,7 +92,12 @@ export const coachSchema: CsvSchema = {
       required: true,
       validate: nonEmpty("last name"),
     },
-    { key: "organization", label: "organization", required: false },
+    {
+      key: "organization",
+      label: "organization",
+      required: true,
+      validate: nonEmpty("organization"),
+    },
   ],
 };
 
