@@ -1,4 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
+import { Link } from "@tanstack/react-router";
 import { Heart, Megaphone, PencilIcon, PlusIcon, StarIcon } from "lucide-react";
 import { Rating, RatingItem } from "@/components/ui/rating";
 import { Tooltip, TooltipPopup, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -36,6 +37,7 @@ export interface SearchDancerRow extends DancerRow {
   isCalledBack: boolean;
   hasNote: boolean;
   rating: number | null;
+  username?: string | null;
 }
 
 
@@ -63,6 +65,34 @@ export const nameColumn: ColumnDef<DancerRow> = {
     </span>
   ),
 };
+
+export function nameWithProfileColumn(): ColumnDef<SearchDancerRow> {
+  return {
+    id: "name",
+    accessorFn: (row) => `${row.lastName}, ${row.firstName}`,
+    header: "Name",
+    cell: ({ row }) => {
+      const { username, lastName, firstName } = row.original;
+      if (username) {
+        return (
+          <Link
+            to="/$username"
+            params={{ username }}
+            className="truncate font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {lastName}, {firstName}
+          </Link>
+        );
+      }
+      return (
+        <span className="truncate font-medium">
+          {lastName}, {firstName}
+        </span>
+      );
+    },
+  };
+}
 
 export const gradYearColumn: ColumnDef<DancerRow> = {
   accessorKey: "gradYear",
