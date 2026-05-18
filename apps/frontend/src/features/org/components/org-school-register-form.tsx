@@ -249,7 +249,7 @@ export function OrgSchoolRegisterForm({
       </Button>
 
       <div className="flex items-center justify-between gap-2">
-        <AuthPagesSelect />
+        <AuthPagesSelect variant="login" />
 
         <p className="text-muted-foreground text-sm">
           Already have an account?{" "}

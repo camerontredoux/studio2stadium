@@ -117,7 +117,7 @@ export function OrgLoginForm({ onSuccess }: { onSuccess: () => void }) {
       </Button>
 
       <div className="flex items-center justify-between gap-2">
-        <AuthPagesSelect />
+        <AuthPagesSelect variant="login" />
 
         <p className="text-muted-foreground text-sm">
           Don&apos;t have an account?{" "}
