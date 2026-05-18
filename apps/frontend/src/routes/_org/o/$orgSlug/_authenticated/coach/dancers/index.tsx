@@ -576,7 +576,10 @@ function DancerSearch() {
                 renderCard={(row) => (
                   <DancerCard
                     dancer={row}
-                    onClick={() => setSheetRosterId(row.rosterId)}
+                    onFavoriteToggle={handleFavoriteToggle}
+                    onRate={handleRate}
+                    onOpenNotes={handleOpenNotes}
+                    onCallbackToggle={callbacksEnabled ? handleCallbackToggle : undefined}
                   />
                 )}
                 sorting={sorting}
