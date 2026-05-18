@@ -197,7 +197,7 @@ function AdminCallbacksPage() {
       {/* Tabs */}
       <Tabs defaultValue="current" className="flex-1">
         {publishedShowcases.length > 0 && (
-          <TabsList variant="underline" className="px-4 pt-2">
+          <TabsList variant="underline" className="px-4 pt-4">
             <TabsTab value="current">Current</TabsTab>
             <TabsTab value="previous">Previous</TabsTab>
           </TabsList>
