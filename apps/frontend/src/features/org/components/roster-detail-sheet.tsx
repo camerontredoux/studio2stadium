@@ -142,6 +142,7 @@ export function RosterDetailSheet({
       await deleteMutation.mutateAsync({
         params: {
           path: { slug: orgSlug, id: eventId },
+          // @ts-expect-error -- OpenAPI spec omits query params; backend reads via request.all()
           query: { ids: [entry.id] },
         },
       });
@@ -186,6 +187,7 @@ export function RosterDetailSheet({
         slug: orgSlug,
         eventId,
         rosterId: entry.id,
+        currentlyCheckedIn: isCheckedIn,
       });
       toastManager.add({
         title: isCheckedIn ? "Check-in removed" : "Checked in",

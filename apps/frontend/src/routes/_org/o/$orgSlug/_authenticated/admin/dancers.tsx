@@ -116,8 +116,7 @@ function DancersPage() {
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(20);
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [selectedEntry, setSelectedEntry] =
-    useState<RosterEntryWithCheckIn | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const openSheetRafRef = useRef<number | null>(null);
 
@@ -149,8 +148,10 @@ function DancersPage() {
   const deleteMutation = useDeleteRosters();
   const resendMutation = useResendInvites();
 
+  const selectedEntry = data.find((r) => r.id === selectedId) ?? null;
+
   const handleRowClick = (row: RosterEntryWithCheckIn) => {
-    setSelectedEntry(row);
+    setSelectedId(row.id);
     if (openSheetRafRef.current !== null) {
       cancelAnimationFrame(openSheetRafRef.current);
     }
@@ -248,6 +249,7 @@ function DancersPage() {
         await deleteMutation.mutateAsync({
           params: {
             path: { slug: orgSlug, id: active.id },
+            // @ts-expect-error -- OpenAPI spec omits query params; backend reads via request.all()
             query: { ids },
           },
         });
