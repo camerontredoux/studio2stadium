@@ -26,6 +26,7 @@ import { useOrg } from "@/features/org/context/use-org";
 import { useSession } from "@/lib/session";
 import { Link, useLocation, useNavigate, useParams } from "@tanstack/react-router";
 import {
+  CalendarIcon,
   CheckIcon,
   ChevronDownIcon,
   EyeIcon,
@@ -40,9 +41,9 @@ import {
 import { useTernaryDarkMode, type TernaryDarkMode } from "usehooks-ts";
 
 const dashboardItem = {
-  label: "Video Library",
-  icon: PlayCircleIcon,
-  to: "/o/$orgSlug/dancer/video-library" as const,
+  label: "Event Info",
+  icon: CalendarIcon,
+  to: "/o/$orgSlug/dancer/event-info" as const,
   exact: false,
 };
 
@@ -53,6 +54,11 @@ const navSections: {
   {
     title: "Explore",
     items: [
+      {
+        label: "Video Library",
+        icon: PlayCircleIcon,
+        to: "/o/$orgSlug/dancer/video-library" as const,
+      },
       {
         label: "Schools",
         icon: SchoolIcon,
