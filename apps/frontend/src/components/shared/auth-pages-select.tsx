@@ -1,7 +1,7 @@
 import {
   Select,
+  SelectContent,
   SelectItem,
-  SelectPopup,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -22,44 +22,35 @@ type AuthPagesSelectProps = {
 
 export function AuthPagesSelect({ className }: AuthPagesSelectProps) {
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState<string | null>(null);
 
   return (
     <Select
       items={AUTH_PAGE_ITEMS}
-      open={open}
-      onOpenChange={setOpen}
-      onValueChange={(value) => {
-        setOpen(false);
-        if (value === "marketing") {
+      value={value}
+      onValueChange={(next) => {
+        if (!next) return;
+        if (next === "marketing") {
           window.open(MARKETING_URL, "_blank", "noopener,noreferrer");
-          return;
-        }
-        if (value === "organizations") {
+        } else if (next === "organizations") {
           navigate({ to: "/orgs" });
         }
+        setValue(null);
       }}
     >
       <SelectTrigger
-        showIcon={false}
-        className={cn(
-          "text-brand h-auto min-h-0 w-auto gap-0 border-0 bg-transparent p-0 text-sm font-medium shadow-none ring-0 before:hidden focus-visible:ring-0 sm:min-h-0 dark:bg-transparent",
-          className,
-        )}
+        size="sm"
+        className={cn("h-7 w-auto min-w-28 gap-1 rounded-md text-xs", className)}
       >
         <SelectValue placeholder="More pages" />
       </SelectTrigger>
-      <SelectPopup alignItemWithTrigger={false} className="p-0">
+      <SelectContent>
         {AUTH_PAGE_ITEMS.map((item) => (
-          <SelectItem
-            key={item.value}
-            value={item.value}
-            className="grid-cols-1 gap-0 py-1.5 ps-2.5 pe-2.5 [&_.col-start-1]:hidden [&_.col-start-2]:col-start-1"
-          >
+          <SelectItem key={item.value} value={item.value}>
             {item.label}
           </SelectItem>
         ))}
-      </SelectPopup>
+      </SelectContent>
     </Select>
   );
 }
