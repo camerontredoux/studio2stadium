@@ -16,6 +16,7 @@ export class ListDancersService {
     coachRosterId: string | null,
     q: Validator,
     filterCheckedInOnly: boolean = false,
+    showcaseId?: string,
   ) {
     return this.db.use((db) => {
       const filters = [
@@ -72,12 +73,12 @@ export class ListDancersService {
           )`
         : sql<boolean>`false`;
 
-      const isCalledBackSubquery = coachRosterId
+      const isCalledBackSubquery = coachRosterId && showcaseId
         ? sql<boolean>`EXISTS (
             SELECT 1 FROM ${eventCallbacks}
             WHERE ${eventCallbacks.dancerRosterId} = ${eventRosters.id}
               AND ${eventCallbacks.coachRosterId} = ${coachRosterId}
-              AND ${eventCallbacks.eventId} = ${eventId}
+              AND ${eventCallbacks.showcaseId} = ${showcaseId}
           )`
         : sql<boolean>`false`;
 
