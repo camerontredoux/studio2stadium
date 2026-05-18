@@ -9,6 +9,12 @@ export const schema = vine.compile(
     venueName: vine.string().trim().optional(),
     venueAddress: vine.string().trim().optional(),
     contactEmail: vine.string().email().optional(),
+    startTime: vine
+      .string()
+      .trim()
+      .regex(/^\d{2}:\d{2}$/)
+      .optional(),
+    timezone: vine.string().trim().optional(),
     isActive: vine.boolean().optional(),
   })
 );
