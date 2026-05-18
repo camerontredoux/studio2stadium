@@ -19,12 +19,16 @@ test.group("toEventStartUtc", () => {
 });
 
 test.group("hasEventStarted", () => {
-  test("returns false when startTime is null", ({ assert }) => {
-    assert.isFalse(hasEventStarted("2020-01-01", null, null));
+  test("falls back to date check when startTime is null (past date)", ({ assert }) => {
+    assert.isTrue(hasEventStarted("2020-01-01", null, null));
   });
 
-  test("returns false when timezone is null", ({ assert }) => {
-    assert.isFalse(hasEventStarted("2020-01-01", "09:00", null));
+  test("falls back to date check when startTime is null (future date)", ({ assert }) => {
+    assert.isFalse(hasEventStarted("2099-12-31", null, null));
+  });
+
+  test("falls back to date check when timezone is null", ({ assert }) => {
+    assert.isTrue(hasEventStarted("2020-01-01", "09:00", null));
   });
 
   test("returns true for a past event start", ({ assert }) => {

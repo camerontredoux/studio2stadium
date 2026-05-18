@@ -18,6 +18,10 @@ export function hasEventStarted(
   startTime: string | null,
   timezone: string | null,
 ): boolean {
-  if (!startTime || !timezone) return false;
-  return Date.now() >= toEventStartUtc(startDate, startTime, timezone).getTime();
+  if (startTime && timezone) {
+    return Date.now() >= toEventStartUtc(startDate, startTime, timezone).getTime();
+  }
+  const [y, m, d] = startDate.split("-").map(Number);
+  const startOfDay = new Date(y, m - 1, d);
+  return Date.now() >= startOfDay.getTime();
 }

@@ -32,8 +32,7 @@ export class CheckInService {
         .where(eq(orgEvents.id, eventId));
 
       if (
-        !event?.startTime ||
-        !event.timezone ||
+        !event ||
         !hasEventStarted(event.startDate, event.startTime, event.timezone)
       ) {
         throw new CheckInNotOpenError();

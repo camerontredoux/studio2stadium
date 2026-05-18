@@ -81,17 +81,15 @@ test.group("CheckInService", (group) => {
     );
   });
 
-  test("throws CheckInNotOpenError when event has no startTime", async ({ assert }) => {
+  test("allows check-in when event has no startTime but date is past", async ({ assert }) => {
     await db
       .update(orgEvents)
       .set({ startTime: null, timezone: null })
       .where(eq(orgEvents.id, eventId));
 
     const svc = new CheckInService();
-    await assert.rejects(
-      () => svc.execute(eventId, dancerUserId),
-      CheckInNotOpenError.prototype.message,
-    );
+    const result = await svc.execute(eventId, dancerUserId);
+    assert.isNotNull(result.checkedInAt);
   });
 
   test("throws CheckInNotOpenError when event has not started", async ({ assert }) => {
