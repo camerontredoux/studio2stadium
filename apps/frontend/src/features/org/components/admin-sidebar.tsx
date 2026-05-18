@@ -48,7 +48,8 @@ import {
   UsersIcon,
 } from "lucide-react";
 import { useMemo } from "react";
-import { useTernaryDarkMode, type TernaryDarkMode } from "usehooks-ts";
+import { useOrgTheme } from "@/features/org/hooks/use-org-theme";
+import { type TernaryDarkMode } from "usehooks-ts";
 
 const dashboardItem = {
   label: "Dashboard",
@@ -128,9 +129,7 @@ export function AdminSidebar() {
   const navigate = useNavigate();
   const DashboardIcon = dashboardItem.icon;
 
-  const { ternaryDarkMode, setTernaryDarkMode } = useTernaryDarkMode({
-    localStorageKey: "theme",
-  });
+  const { ternaryDarkMode, setTernaryDarkMode } = useOrgTheme();
   const displayName =
     [session.firstName, session.lastName].filter(Boolean).join(" ").trim() ||
     session.username;

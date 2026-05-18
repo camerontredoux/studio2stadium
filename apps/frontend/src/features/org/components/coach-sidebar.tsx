@@ -37,7 +37,8 @@ import {
   SunIcon,
   UserIcon,
 } from "lucide-react";
-import { useTernaryDarkMode, type TernaryDarkMode } from "usehooks-ts";
+import { useOrgTheme } from "@/features/org/hooks/use-org-theme";
+import { type TernaryDarkMode } from "usehooks-ts";
 
 const dashboardItem = {
   label: "Event Info",
@@ -65,9 +66,7 @@ export function CoachSidebar() {
   const { orgSlug } = useParams({ strict: false }) as { orgSlug: string };
   const location = useLocation();
   const navigate = useNavigate();
-  const { ternaryDarkMode, setTernaryDarkMode } = useTernaryDarkMode({
-    localStorageKey: "theme",
-  });
+  const { ternaryDarkMode, setTernaryDarkMode } = useOrgTheme();
 
   const displayName =
     [session.firstName, session.lastName].filter(Boolean).join(" ").trim() ||

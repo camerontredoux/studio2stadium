@@ -13,6 +13,7 @@ import { useIsFetching, type QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { useEffect } from "react";
 import { Fragment } from "react/jsx-runtime";
+import { ORG_THEME_STORAGE_KEY } from "@/features/org/hooks/use-org-theme";
 import { useTernaryDarkMode } from "usehooks-ts";
 
 import NProgress from "nprogress";
@@ -26,7 +27,18 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function RootComponent() {
-  const { isDarkMode } = useTernaryDarkMode({ localStorageKey: "theme" });
+  const isOrgRoute = useRouterState({
+    select: (s) => s.location.pathname.startsWith("/o/"),
+  });
+  const appTheme = useTernaryDarkMode({
+    localStorageKey: "theme",
+    defaultValue: "system",
+  });
+  const orgTheme = useTernaryDarkMode({
+    localStorageKey: ORG_THEME_STORAGE_KEY,
+    defaultValue: "light",
+  });
+  const isDarkMode = isOrgRoute ? orgTheme.isDarkMode : appTheme.isDarkMode;
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDarkMode);
