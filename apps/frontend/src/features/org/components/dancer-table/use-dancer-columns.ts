@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   bibColumn,
-  nameColumn,
+  nameWithProfileColumn,
   gradYearColumn,
   studioColumn,
   gpaColumn,
@@ -40,7 +40,7 @@ export function useSearchColumns(
 
     cols.push(
       bibColumn as ColumnDef<SearchDancerRow>,
-      nameColumn as ColumnDef<SearchDancerRow>,
+      nameWithProfileColumn(),
       gradYearColumn as ColumnDef<SearchDancerRow>,
       studioColumn as ColumnDef<SearchDancerRow>,
       gpaColumn as ColumnDef<SearchDancerRow>,
