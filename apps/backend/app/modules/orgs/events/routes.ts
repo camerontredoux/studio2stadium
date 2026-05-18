@@ -52,6 +52,7 @@ const CreateVideoController = () => import("./videos/create/controller.ts");
 const UpdateVideoController = () => import("./videos/update/controller.ts");
 const DeleteVideoController = () => import("./videos/delete/controller.ts");
 const AttendEventController = () => import("./attend/controller.ts");
+const CheckInController = () => import("./check-in/controller.ts");
 const ScheduleController = () => import("./schedule/controller.ts");
 
 router
@@ -299,6 +300,14 @@ router
         middleware.orgEvent(),
         middleware.orgMember(),
         middleware.orgAdmin(),
+      ]);
+    router
+      .post(":slug/events/:id/check-in", [CheckInController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgEvent(),
+        middleware.orgMember(),
       ]);
     router
       .get(":slug/events/:id/schedule", [ScheduleController])
