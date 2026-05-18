@@ -3,6 +3,7 @@ import { inject } from "@adonisjs/core";
 import { eventRosters, eventDancerProfiles } from "#database/schema/org-events";
 import { eventFavorites, eventRatings, eventNotes, eventCallbacks } from "#database/schema/event-features";
 import { dancerProfiles } from "#database/schema/dancers";
+import { users } from "#database/schema/users";
 import { and, eq, ilike, or, sql } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 
@@ -109,6 +110,7 @@ export class ListDancersService {
           rating: ratingSubquery,
           hasNote: hasNoteSubquery,
           isCalledBack: isCalledBackSubquery,
+          username: users.username,
         })
         .from(eventRosters)
         .leftJoin(
@@ -119,6 +121,7 @@ export class ListDancersService {
           dancerProfiles,
           eq(dancerProfiles.userId, eventRosters.userId)
         )
+        .leftJoin(users, eq(users.id, eventRosters.userId))
         .where(and(...filters))
         .orderBy(eventRosters.bibNumber)
         .limit(q.limit ?? 100)
