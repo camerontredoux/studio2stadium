@@ -198,11 +198,13 @@ export function useUnsaveGlobalEvent(id: string) {
     ...mutation,
     mutate: () =>
       mutation.mutate({
-        params: { path: { id }, query: { type: "global" } },
+        params: { path: { id } },
+        body: { type: "global" },
       }),
     mutateAsync: () =>
       mutation.mutateAsync({
-        params: { path: { id }, query: { type: "global" } },
+        params: { path: { id } },
+        body: { type: "global" },
       }),
   };
 }
