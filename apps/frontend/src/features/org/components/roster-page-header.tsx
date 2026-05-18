@@ -6,6 +6,7 @@ export interface RosterPageHeaderStats {
   /** Rows where userId IS NOT NULL */
   activated: number;
   pending: number;
+  checkedIn?: number;
   orgCount?: number;
 }
 
@@ -93,6 +94,13 @@ export function RosterPageHeader({
           active={status === "pending"}
           onClick={() => onStatusChange("pending")}
         />
+        {stats.checkedIn !== undefined && (
+          <ReadOnlyStatCell
+            label="Checked In"
+            value={stats.checkedIn}
+            isLoading={isLoading}
+          />
+        )}
         {stats.orgCount !== undefined && (
           <ReadOnlyStatCell
             label="Orgs"

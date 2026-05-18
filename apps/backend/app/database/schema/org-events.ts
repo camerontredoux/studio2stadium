@@ -22,6 +22,8 @@ export const orgEvents = pg.pgTable(
     contactEmail: pg.text(),
     isActive: pg.boolean().notNull().default(false),
     schedulePdfUrl: pg.text(),
+    startTime: pg.text(),
+    timezone: pg.text(),
     ...timestamps,
   },
   (table) => [
@@ -50,6 +52,7 @@ export const eventRosters = pg.pgTable(
     organization: pg.text(),
     expirationDate: pg.date(),
     csvUploadId: pg.uuid(),
+    checkedInAt: pg.timestamp({ withTimezone: true }),
     ...timestamps,
   },
   (table) => [

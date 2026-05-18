@@ -9565,6 +9565,8 @@ export interface components {
             eventId: string;
             sortOrder: number;
             categoryId: string;
+            audioKey: string | null;
+            audioFilename: string | null;
         }[];
         OrgsIdEventsIdVideosRequest: {
             youtubeId: string;
@@ -9585,6 +9587,8 @@ export interface components {
             eventId: string;
             sortOrder: number;
             categoryId: string;
+            audioKey: string | null;
+            audioFilename: string | null;
         };
         OrgsIdEventsAttendRequest: {
             type: components["schemas"]["UploadKind"];
@@ -9620,6 +9624,7 @@ export interface components {
             rating: number | null;
             hasNote: boolean;
             isCalledBack: boolean;
+            username: string | null;
         }[];
         OrgsIdDancersIdResponse: {
             note: string | null;

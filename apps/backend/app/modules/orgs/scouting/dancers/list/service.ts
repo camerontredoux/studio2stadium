@@ -4,14 +4,19 @@ import { eventRosters, eventDancerProfiles } from "#database/schema/org-events";
 import { eventFavorites, eventRatings, eventNotes, eventCallbacks } from "#database/schema/event-features";
 import { dancerProfiles } from "#database/schema/dancers";
 import { users } from "#database/schema/users";
-import { and, eq, ilike, or, sql } from "drizzle-orm";
+import { and, eq, ilike, isNotNull, or, sql } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 
 @inject()
 export class ListDancersService {
   constructor(private db: DatabaseService = new DatabaseService()) {}
 
-  async execute(eventId: string, coachRosterId: string | null, q: Validator) {
+  async execute(
+    eventId: string,
+    coachRosterId: string | null,
+    q: Validator,
+    filterCheckedInOnly: boolean = false,
+  ) {
     return this.db.use((db) => {
       const filters = [
         eq(eventRosters.eventId, eventId),
@@ -75,6 +80,11 @@ export class ListDancersService {
               AND ${eventCallbacks.eventId} = ${eventId}
           )`
         : sql<boolean>`false`;
+
+      if (filterCheckedInOnly) {
+        filters.push(isNotNull(eventRosters.checkedInAt));
+        filters.push(isNotNull(eventRosters.userId));
+      }
 
       if (q.interested && coachRosterId) {
         filters.push(

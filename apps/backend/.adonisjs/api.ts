@@ -287,6 +287,18 @@ type OrgsIdEventsAttendPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/attend/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/events/attend/controller.ts').default['handle'], true>
 }
+type OrgsIdEventsIdCheckinStatusGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/check-in/status-controller.ts').default['handle'], false>
+}
+type OrgsIdEventsIdCheckinPost = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/check-in/controller.ts').default['handle'], false>
+}
+type OrgsIdEventsIdRostersIdCheckinPost = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/check-in/controller.ts').default['handle'], false>
+}
 type OrgsIdEventsIdScheduleGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/schedule/controller.ts').default['handle'], false>
@@ -1078,6 +1090,11 @@ export interface ApiDefinition {
                 };
                 '$post': OrgsIdEventsIdRostersIdAttachPost;
               };
+              'check-in': {
+                '$url': {
+                };
+                '$post': OrgsIdEventsIdRostersIdCheckinPost;
+              };
             };
             '$delete': OrgsIdEventsIdRostersDelete;
             'resend-invites': {
@@ -1157,6 +1174,17 @@ export interface ApiDefinition {
               '$get': OrgsIdEventsIdReconciliationSchoolusersGetHead;
               '$head': OrgsIdEventsIdReconciliationSchoolusersGetHead;
             };
+          };
+          'check-in': {
+            'status': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdCheckinStatusGetHead;
+              '$head': OrgsIdEventsIdCheckinStatusGetHead;
+            };
+            '$url': {
+            };
+            '$post': OrgsIdEventsIdCheckinPost;
           };
           'schedule': {
             '$url': {

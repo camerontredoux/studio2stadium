@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
+import { useAdminCheckInToggle } from "@/features/org/api/check-in-queries";
 import { toastRosterMutationError } from "@/features/org/api/roster-mutation-error";
 import {
   type RosterEntry,
@@ -64,8 +65,10 @@ function defaultsFromEntry(entry: RosterEntry): FormValues {
   };
 }
 
+type RosterEntryWithCheckIn = RosterEntry & { checkedInAt?: string | null };
+
 interface RosterDetailSheetProps {
-  entry: RosterEntry | null;
+  entry: RosterEntryWithCheckIn | null;
   orgSlug: string;
   eventId: string;
   open: boolean;
@@ -85,9 +88,11 @@ export function RosterDetailSheet({
   const updateMutation = useUpdateRoster();
   const deleteMutation = useDeleteRosters();
   const resendMutation = useResendInvites();
+  const checkInMutation = useAdminCheckInToggle();
 
   const isDancer = entry?.type === "dancer";
   const isActive = entry?.isRegistered ?? false;
+  const isCheckedIn = !!(entry?.checkedInAt);
   const saving = updateMutation.isPending;
 
   const { control, handleSubmit, reset } = useForm<FormValues>({
@@ -171,6 +176,23 @@ export function RosterDetailSheet({
       }
     } catch {
       toastManager.add({ title: "Failed to resend invite", type: "error" });
+    }
+  };
+
+  const handleCheckInToggle = async () => {
+    if (!entry) return;
+    try {
+      await checkInMutation.mutateAsync({
+        slug: orgSlug,
+        eventId,
+        rosterId: entry.id,
+      });
+      toastManager.add({
+        title: isCheckedIn ? "Check-in removed" : "Checked in",
+        type: "success",
+      });
+    } catch {
+      toastManager.add({ title: "Failed to update check-in", type: "error" });
     }
   };
 
@@ -376,6 +398,36 @@ export function RosterDetailSheet({
                   />
                 </fieldset>
               )}
+
+              <div className="border-t pt-4">
+                <p className="text-muted-foreground mb-3 text-xs font-medium uppercase tracking-wide">
+                  Check-In
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">
+                    {isCheckedIn ? (
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="inline-block size-1.5 rounded-full bg-green-500" />
+                        Checked in
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground inline-flex items-center gap-1.5">
+                        <span className="bg-muted-foreground/50 inline-block size-1.5 rounded-full" />
+                        Not checked in
+                      </span>
+                    )}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCheckInToggle}
+                    disabled={checkInMutation.isPending}
+                  >
+                    {isCheckedIn ? "Undo Check-in" : "Check In"}
+                  </Button>
+                </div>
+              </div>
 
               <div className="border-t pt-4">
                 <p className="text-muted-foreground mb-3 text-xs">

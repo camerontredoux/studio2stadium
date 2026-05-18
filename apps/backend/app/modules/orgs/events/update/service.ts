@@ -5,6 +5,12 @@ import { and, eq, ne } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 import type { AuditContext } from "#database/audit";
 
+export class StartTimePairError extends Error {
+  constructor() {
+    super("startTime and timezone must be provided together or not at all.");
+  }
+}
+
 @inject()
 export class UpdateEventService {
   constructor(private db: DatabaseService) {}
@@ -21,6 +27,13 @@ export class UpdateEventService {
         .select()
         .from(orgEvents)
         .where(and(eq(orgEvents.id, eventId), eq(orgEvents.orgId, orgId)));
+
+      // Validate startTime + timezone are provided together or not at all
+      const newStartTime = patch.startTime !== undefined ? patch.startTime : before?.startTime ?? null;
+      const newTimezone = patch.timezone !== undefined ? patch.timezone : before?.timezone ?? null;
+      if ((newStartTime && !newTimezone) || (!newStartTime && newTimezone)) {
+        throw new StartTimePairError();
+      }
 
       // If activating this event, deactivate any other active event first
       if (patch.isActive === true) {
@@ -51,6 +64,8 @@ export class UpdateEventService {
           ...(patch.schedulePdfUrl !== undefined && {
             schedulePdfUrl: patch.schedulePdfUrl,
           }),
+          ...(patch.startTime !== undefined && { startTime: patch.startTime }),
+          ...(patch.timezone !== undefined && { timezone: patch.timezone }),
           ...(patch.isActive !== undefined && { isActive: patch.isActive }),
         })
         .where(and(eq(orgEvents.id, eventId), eq(orgEvents.orgId, orgId)))

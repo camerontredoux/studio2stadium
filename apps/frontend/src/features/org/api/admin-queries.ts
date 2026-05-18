@@ -14,6 +14,8 @@ export type OrgEvent = {
   name: string;
   startDate: string;
   endDate: string;
+  startTime: string | null;
+  timezone: string | null;
   venueName: string | null;
   venueAddress: string | null;
   contactEmail: string | null;

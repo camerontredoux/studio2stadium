@@ -36,7 +36,23 @@ type SortColumn =
   | "createdAt"
   | "isRegistered";
 
-const columns: ColumnDef<RosterEntry, unknown>[] = [
+function CheckedInBadge({ checkedInAt }: { checkedInAt: string | null }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs">
+      <span
+        className={`inline-block size-1.5 rounded-full ${
+          checkedInAt ? "bg-green-500" : "bg-muted-foreground/50"
+        }`}
+      />
+      {checkedInAt ? "Yes" : "No"}
+    </span>
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type RosterEntryWithCheckIn = RosterEntry & { checkedInAt?: string | null };
+
+const columns: ColumnDef<RosterEntryWithCheckIn, unknown>[] = [
   {
     id: "bibNumber",
     accessorKey: "bibNumber",
@@ -80,6 +96,14 @@ const columns: ColumnDef<RosterEntry, unknown>[] = [
     enableSorting: true,
     cell: ({ row }) => <StatusBadge isRegistered={row.original.isRegistered} />,
   },
+  {
+    id: "checkedInAt",
+    accessorKey: "checkedInAt",
+    header: "Checked In",
+    cell: ({ row }) => (
+      <CheckedInBadge checkedInAt={row.original.checkedInAt ?? null} />
+    ),
+  },
 ];
 
 function DancersPage() {
@@ -92,7 +116,8 @@ function DancersPage() {
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(20);
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [selectedEntry, setSelectedEntry] = useState<RosterEntry | null>(null);
+  const [selectedEntry, setSelectedEntry] =
+    useState<RosterEntryWithCheckIn | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const openSheetRafRef = useRef<number | null>(null);
 
@@ -117,14 +142,14 @@ function DancersPage() {
     enabled: !!active,
   });
 
-  const data = listQuery.data?.data ?? [];
+  const data = (listQuery.data?.data ?? []) as RosterEntryWithCheckIn[];
   const total = listQuery.data?.total ?? 0;
 
   const updateMutation = useUpdateRoster();
   const deleteMutation = useDeleteRosters();
   const resendMutation = useResendInvites();
 
-  const handleRowClick = (row: RosterEntry) => {
+  const handleRowClick = (row: RosterEntryWithCheckIn) => {
     setSelectedEntry(row);
     if (openSheetRafRef.current !== null) {
       cancelAnimationFrame(openSheetRafRef.current);
@@ -253,6 +278,8 @@ function DancersPage() {
           total: statsQuery.data?.total ?? 0,
           activated: statsQuery.data?.active ?? 0,
           pending: statsQuery.data?.pending ?? 0,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          checkedIn: (statsQuery.data as any)?.checkedIn as number | undefined,
         }}
         isLoading={statsQuery.isLoading}
         status={status}

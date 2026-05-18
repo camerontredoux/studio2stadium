@@ -29,6 +29,7 @@ import { useSession } from "@/lib/session";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate, useParams } from "@tanstack/react-router";
 import {
+  CalendarIcon,
   CheckIcon,
   ChevronDownIcon,
   EyeIcon,
@@ -44,9 +45,9 @@ import {
 import { useTernaryDarkMode, type TernaryDarkMode } from "usehooks-ts";
 
 const dashboardItem = {
-  label: "Video Library",
-  icon: PlayCircleIcon,
-  to: "/o/$orgSlug/dancer/video-library" as const,
+  label: "Event Info",
+  icon: CalendarIcon,
+  to: "/o/$orgSlug/dancer/event-info" as const,
   exact: false,
 };
 
@@ -96,6 +97,11 @@ export function DancerSidebar() {
     {
       title: "Explore",
       items: [
+        {
+          label: "Video Library",
+          icon: PlayCircleIcon,
+          to: "/o/$orgSlug/dancer/video-library" as const,
+        },
         {
           label: "Schools",
           icon: SchoolIcon,

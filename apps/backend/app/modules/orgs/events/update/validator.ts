@@ -16,6 +16,13 @@ export const schema = vine.compile(
     venueAddress: vine.string().trim().optional(),
     contactEmail: vine.string().email().optional(),
     schedulePdfUrl: vine.string().optional().nullable(),
+    startTime: vine
+      .string()
+      .trim()
+      .regex(/^\d{2}:\d{2}$/)
+      .optional()
+      .nullable(),
+    timezone: vine.string().trim().optional().nullable(),
     isActive: vine.boolean().optional(),
   })
 );

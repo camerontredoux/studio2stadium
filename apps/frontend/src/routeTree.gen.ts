@@ -72,6 +72,7 @@ import { Route as OrgOOrgSlugAuthenticatedCoachIndexRouteImport } from './routes
 import { Route as OrgOOrgSlugAuthenticatedAdminIndexRouteImport } from './routes/_org/o/$orgSlug/_authenticated/admin/index'
 import { Route as OrgOOrgSlugAuthenticatedDancerVideoLibraryRouteImport } from './routes/_org/o/$orgSlug/_authenticated/dancer/video-library'
 import { Route as OrgOOrgSlugAuthenticatedDancerSchoolsRouteImport } from './routes/_org/o/$orgSlug/_authenticated/dancer/schools'
+import { Route as OrgOOrgSlugAuthenticatedDancerEventInfoRouteImport } from './routes/_org/o/$orgSlug/_authenticated/dancer/event-info'
 import { Route as OrgOOrgSlugAuthenticatedDancerCallbacksRouteImport } from './routes/_org/o/$orgSlug/_authenticated/dancer/callbacks'
 import { Route as OrgOOrgSlugAuthenticatedCoachEventInfoRouteImport } from './routes/_org/o/$orgSlug/_authenticated/coach/event-info'
 import { Route as OrgOOrgSlugAuthenticatedAdminVideoLibraryRouteImport } from './routes/_org/o/$orgSlug/_authenticated/admin/video-library'
@@ -424,6 +425,12 @@ const OrgOOrgSlugAuthenticatedDancerSchoolsRoute =
     path: '/schools',
     getParentRoute: () => OrgOOrgSlugAuthenticatedDancerRouteRoute,
   } as any)
+const OrgOOrgSlugAuthenticatedDancerEventInfoRoute =
+  OrgOOrgSlugAuthenticatedDancerEventInfoRouteImport.update({
+    id: '/event-info',
+    path: '/event-info',
+    getParentRoute: () => OrgOOrgSlugAuthenticatedDancerRouteRoute,
+  } as any)
 const OrgOOrgSlugAuthenticatedDancerCallbacksRoute =
   OrgOOrgSlugAuthenticatedDancerCallbacksRouteImport.update({
     id: '/callbacks',
@@ -548,6 +555,7 @@ export interface FileRoutesByFullPath {
   '/o/$orgSlug/admin/video-library': typeof OrgOOrgSlugAuthenticatedAdminVideoLibraryRoute
   '/o/$orgSlug/coach/event-info': typeof OrgOOrgSlugAuthenticatedCoachEventInfoRoute
   '/o/$orgSlug/dancer/callbacks': typeof OrgOOrgSlugAuthenticatedDancerCallbacksRoute
+  '/o/$orgSlug/dancer/event-info': typeof OrgOOrgSlugAuthenticatedDancerEventInfoRoute
   '/o/$orgSlug/dancer/schools': typeof OrgOOrgSlugAuthenticatedDancerSchoolsRoute
   '/o/$orgSlug/dancer/video-library': typeof OrgOOrgSlugAuthenticatedDancerVideoLibraryRoute
   '/o/$orgSlug/admin/': typeof OrgOOrgSlugAuthenticatedAdminIndexRoute
@@ -612,6 +620,7 @@ export interface FileRoutesByTo {
   '/o/$orgSlug/admin/video-library': typeof OrgOOrgSlugAuthenticatedAdminVideoLibraryRoute
   '/o/$orgSlug/coach/event-info': typeof OrgOOrgSlugAuthenticatedCoachEventInfoRoute
   '/o/$orgSlug/dancer/callbacks': typeof OrgOOrgSlugAuthenticatedDancerCallbacksRoute
+  '/o/$orgSlug/dancer/event-info': typeof OrgOOrgSlugAuthenticatedDancerEventInfoRoute
   '/o/$orgSlug/dancer/schools': typeof OrgOOrgSlugAuthenticatedDancerSchoolsRoute
   '/o/$orgSlug/dancer/video-library': typeof OrgOOrgSlugAuthenticatedDancerVideoLibraryRoute
   '/o/$orgSlug/admin': typeof OrgOOrgSlugAuthenticatedAdminIndexRoute
@@ -688,6 +697,7 @@ export interface FileRoutesById {
   '/_org/o/$orgSlug/_authenticated/admin/video-library': typeof OrgOOrgSlugAuthenticatedAdminVideoLibraryRoute
   '/_org/o/$orgSlug/_authenticated/coach/event-info': typeof OrgOOrgSlugAuthenticatedCoachEventInfoRoute
   '/_org/o/$orgSlug/_authenticated/dancer/callbacks': typeof OrgOOrgSlugAuthenticatedDancerCallbacksRoute
+  '/_org/o/$orgSlug/_authenticated/dancer/event-info': typeof OrgOOrgSlugAuthenticatedDancerEventInfoRoute
   '/_org/o/$orgSlug/_authenticated/dancer/schools': typeof OrgOOrgSlugAuthenticatedDancerSchoolsRoute
   '/_org/o/$orgSlug/_authenticated/dancer/video-library': typeof OrgOOrgSlugAuthenticatedDancerVideoLibraryRoute
   '/_org/o/$orgSlug/_authenticated/admin/': typeof OrgOOrgSlugAuthenticatedAdminIndexRoute
@@ -760,6 +770,7 @@ export interface FileRouteTypes {
     | '/o/$orgSlug/admin/video-library'
     | '/o/$orgSlug/coach/event-info'
     | '/o/$orgSlug/dancer/callbacks'
+    | '/o/$orgSlug/dancer/event-info'
     | '/o/$orgSlug/dancer/schools'
     | '/o/$orgSlug/dancer/video-library'
     | '/o/$orgSlug/admin/'
@@ -824,6 +835,7 @@ export interface FileRouteTypes {
     | '/o/$orgSlug/admin/video-library'
     | '/o/$orgSlug/coach/event-info'
     | '/o/$orgSlug/dancer/callbacks'
+    | '/o/$orgSlug/dancer/event-info'
     | '/o/$orgSlug/dancer/schools'
     | '/o/$orgSlug/dancer/video-library'
     | '/o/$orgSlug/admin'
@@ -899,6 +911,7 @@ export interface FileRouteTypes {
     | '/_org/o/$orgSlug/_authenticated/admin/video-library'
     | '/_org/o/$orgSlug/_authenticated/coach/event-info'
     | '/_org/o/$orgSlug/_authenticated/dancer/callbacks'
+    | '/_org/o/$orgSlug/_authenticated/dancer/event-info'
     | '/_org/o/$orgSlug/_authenticated/dancer/schools'
     | '/_org/o/$orgSlug/_authenticated/dancer/video-library'
     | '/_org/o/$orgSlug/_authenticated/admin/'
@@ -1358,6 +1371,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgOOrgSlugAuthenticatedDancerSchoolsRouteImport
       parentRoute: typeof OrgOOrgSlugAuthenticatedDancerRouteRoute
     }
+    '/_org/o/$orgSlug/_authenticated/dancer/event-info': {
+      id: '/_org/o/$orgSlug/_authenticated/dancer/event-info'
+      path: '/event-info'
+      fullPath: '/o/$orgSlug/dancer/event-info'
+      preLoaderRoute: typeof OrgOOrgSlugAuthenticatedDancerEventInfoRouteImport
+      parentRoute: typeof OrgOOrgSlugAuthenticatedDancerRouteRoute
+    }
     '/_org/o/$orgSlug/_authenticated/dancer/callbacks': {
       id: '/_org/o/$orgSlug/_authenticated/dancer/callbacks'
       path: '/callbacks'
@@ -1671,6 +1691,7 @@ const OrgOOrgSlugAuthenticatedCoachRouteRouteWithChildren =
 
 interface OrgOOrgSlugAuthenticatedDancerRouteRouteChildren {
   OrgOOrgSlugAuthenticatedDancerCallbacksRoute: typeof OrgOOrgSlugAuthenticatedDancerCallbacksRoute
+  OrgOOrgSlugAuthenticatedDancerEventInfoRoute: typeof OrgOOrgSlugAuthenticatedDancerEventInfoRoute
   OrgOOrgSlugAuthenticatedDancerSchoolsRoute: typeof OrgOOrgSlugAuthenticatedDancerSchoolsRoute
   OrgOOrgSlugAuthenticatedDancerVideoLibraryRoute: typeof OrgOOrgSlugAuthenticatedDancerVideoLibraryRoute
   OrgOOrgSlugAuthenticatedDancerIndexRoute: typeof OrgOOrgSlugAuthenticatedDancerIndexRoute
@@ -1680,6 +1701,8 @@ const OrgOOrgSlugAuthenticatedDancerRouteRouteChildren: OrgOOrgSlugAuthenticated
   {
     OrgOOrgSlugAuthenticatedDancerCallbacksRoute:
       OrgOOrgSlugAuthenticatedDancerCallbacksRoute,
+    OrgOOrgSlugAuthenticatedDancerEventInfoRoute:
+      OrgOOrgSlugAuthenticatedDancerEventInfoRoute,
     OrgOOrgSlugAuthenticatedDancerSchoolsRoute:
       OrgOOrgSlugAuthenticatedDancerSchoolsRoute,
     OrgOOrgSlugAuthenticatedDancerVideoLibraryRoute:
