@@ -4749,6 +4749,43 @@
         ]
       }
     },
+    "/orgs/{slug}/showcases/{showcaseId}/callbacks": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "showcaseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdShowcasesIdCallbacksResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Admin Showcases"
+        ]
+      }
+    },
     "/orgs/{slug}/showcases/publish": {
       "post": {
         "parameters": [
@@ -14304,6 +14341,43 @@
             "createdAt",
             "eventId",
             "publishedAt"
+          ]
+        }
+      },
+      "OrgsIdShowcasesIdCallbacksResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "dancerRosterId": {
+              "type": "string"
+            },
+            "bibNumber": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "coachCount": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "dancerRosterId",
+            "bibNumber",
+            "firstName",
+            "lastName",
+            "coachCount"
           ]
         }
       },

@@ -24,6 +24,7 @@ const AdminCallbackBoard = () => import("./callbacks/admin-board/controller.ts")
 const ListShowcases = () => import("./showcases/list/controller.ts");
 const PublishShowcase = () => import("./showcases/publish/controller.ts");
 const StartNextShowcase = () => import("./showcases/next/controller.ts");
+const PublishedCallbacks = () => import("./showcases/published-callbacks/controller.ts");
 const DancerCallbacks = () => import("./callbacks/dancer-callbacks/controller.ts");
 
 router
@@ -103,6 +104,7 @@ router
 router
   .group(() => {
     router.get(":slug/showcases", [ListShowcases]);
+    router.get(":slug/showcases/:showcaseId/callbacks", [PublishedCallbacks]);
     router.post(":slug/showcases/publish", [PublishShowcase]);
     router.post(":slug/showcases/next", [StartNextShowcase]);
   })

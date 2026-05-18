@@ -403,6 +403,10 @@ type OrgsIdShowcasesGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/list/controller.ts').default['handle'], false>
 }
+type OrgsIdShowcasesIdCallbacksGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/published-callbacks/controller.ts').default['handle'], false>
+}
 type OrgsIdShowcasesPublishPost = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/publish/controller.ts').default['handle'], false>
@@ -1312,6 +1316,14 @@ export interface ApiDefinition {
         };
         '$get': OrgsIdShowcasesGetHead;
         '$head': OrgsIdShowcasesGetHead;
+        ':showcaseId': {
+          'callbacks': {
+            '$url': {
+            };
+            '$get': OrgsIdShowcasesIdCallbacksGetHead;
+            '$head': OrgsIdShowcasesIdCallbacksGetHead;
+          };
+        };
         'publish': {
           '$url': {
           };

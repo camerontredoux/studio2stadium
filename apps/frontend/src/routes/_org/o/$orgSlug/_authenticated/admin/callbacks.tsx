@@ -1,6 +1,6 @@
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
-import { Megaphone, SendIcon, SkipForwardIcon } from "lucide-react";
+import { ChevronDownIcon, Megaphone, SendIcon, SkipForwardIcon } from "lucide-react";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -197,7 +197,7 @@ function AdminCallbacksPage() {
       {/* Tabs */}
       <Tabs defaultValue="current" className="flex-1">
         {publishedShowcases.length > 0 && (
-          <TabsList className="w-full justify-start px-4 pt-2">
+          <TabsList variant="underline" className="px-4 pt-2">
             <TabsTab value="current">Current</TabsTab>
             <TabsTab value="previous">Previous</TabsTab>
           </TabsList>
@@ -219,19 +219,12 @@ function AdminCallbacksPage() {
                   number: number;
                   publishedAt: string | null;
                 }) => (
-                  <div key={s.id} className="bg-muted rounded-lg border p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold">
-                        Showcase {s.number}
-                      </span>
-                      <span className="text-muted-foreground text-xs">
-                        Published{" "}
-                        {s.publishedAt
-                          ? new Date(s.publishedAt).toLocaleDateString()
-                          : ""}
-                      </span>
-                    </div>
-                  </div>
+                  <PreviousShowcaseCard
+                    key={s.id}
+                    showcase={s}
+                    orgSlug={orgSlug}
+                    onSelectDancer={setSheetRosterId}
+                  />
                 ),
               )}
             </div>
@@ -329,6 +322,66 @@ function CallbackBibGrid({
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+function PreviousShowcaseCard({
+  showcase,
+  orgSlug,
+  onSelectDancer,
+}: {
+  showcase: { id: string; number: number; publishedAt: string | null };
+  orgSlug: string;
+  onSelectDancer: (rosterId: string) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  const { data: bibs, isLoading } = useQuery({
+    ...scoutingQueries.publishedCallbacks(orgSlug, showcase.id),
+    enabled: expanded,
+  });
+
+  return (
+    <div className="rounded-lg border">
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        className="hover:bg-accent flex w-full items-center justify-between rounded-lg p-4 text-left transition-colors"
+      >
+        <span className="text-sm font-semibold">
+          Showcase {showcase.number}
+        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground text-xs">
+            Published{" "}
+            {showcase.publishedAt
+              ? new Date(showcase.publishedAt).toLocaleDateString()
+              : ""}
+          </span>
+          <ChevronDownIcon
+            className={cn(
+              "text-muted-foreground size-4 transition-transform",
+              expanded && "rotate-180",
+            )}
+          />
+        </div>
+      </button>
+      {expanded && (
+        <div className="border-t">
+          {isLoading ? (
+            <div className="text-muted-foreground flex items-center justify-center py-8 text-sm">
+              Loading...
+            </div>
+          ) : bibs && bibs.length > 0 ? (
+            <CallbackBibGrid bibs={bibs} onSelectDancer={onSelectDancer} />
+          ) : (
+            <div className="text-muted-foreground py-8 text-center text-sm">
+              No callbacks in this showcase.
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
