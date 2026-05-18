@@ -8875,6 +8875,12 @@ export interface components {
                 verified: boolean;
                 notifications: boolean;
                 profileId: string;
+                orgMemberships: {
+                    orgSlug: string;
+                    /** @enum {string} */
+                    role: "admin" | "member";
+                    type: components["schemas"]["UploadKind"];
+                }[];
                 platforms: ("core" | "prodigy")[];
             };
             token: string;
@@ -8897,14 +8903,13 @@ export interface components {
             verified: boolean;
             notifications: boolean;
             profileId: string;
-            platforms: ("core" | "prodigy")[];
             orgMemberships: {
                 orgSlug: string;
                 /** @enum {string} */
                 role: "admin" | "member";
-                /** @enum {string} */
-                type: "coach" | "dancer";
+                type: components["schemas"]["UploadKind"];
             }[];
+            platforms: ("core" | "prodigy")[];
         };
         AuthPasswordChangeRequest: {
             currentPassword: string;
@@ -9392,6 +9397,8 @@ export interface components {
             eventId: string;
             sortOrder: number;
             categoryId: string;
+            audioKey: string | null;
+            audioFilename: string | null;
         }[];
         OrgsIdEventsIdVideosRequest: {
             youtubeId: string;
@@ -9412,6 +9419,8 @@ export interface components {
             eventId: string;
             sortOrder: number;
             categoryId: string;
+            audioKey: string | null;
+            audioFilename: string | null;
         };
         OrgsIdEventsAttendRequest: {
             type: components["schemas"]["UploadKind"];
@@ -9447,6 +9456,7 @@ export interface components {
             rating: number | null;
             hasNote: boolean;
             isCalledBack: boolean;
+            username: string | null;
         }[];
         OrgsIdDancersIdResponse: {
             note: string | null;
@@ -9532,6 +9542,8 @@ export interface components {
             organization: string | null;
             firstName: string;
             lastName: string;
+            username: string | null;
+            isTopSchool: boolean;
         }[];
         OrgsIdMyselectionsResponse: {
             id: string;

@@ -1711,16 +1711,6 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
           }
         }
       }
@@ -2153,17 +2143,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "ids",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
           }
         ],
         "responses": {
@@ -2173,16 +2152,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgsIdEventsIdRostersResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -2550,6 +2519,58 @@
           },
           "422": {
             "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/rosters/{rosterId}/check-in": {
+      "post": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdRostersIdCheckinResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -3368,6 +3389,94 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgsIdEventsIdReconciliationSchoolusersResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/check-in": {
+      "post": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdCheckinResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/check-in/status": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdCheckinStatusResponse"
                 }
               }
             }
@@ -9832,6 +9941,32 @@
               "profileId": {
                 "type": "string"
               },
+              "orgMemberships": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "orgSlug": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "type": "string",
+                      "enum": [
+                        "admin",
+                        "member"
+                      ]
+                    },
+                    "type": {
+                      "$ref": "#/components/schemas/UploadKind"
+                    }
+                  },
+                  "required": [
+                    "orgSlug",
+                    "role",
+                    "type"
+                  ]
+                }
+              },
               "platforms": {
                 "type": "array",
                 "items": {
@@ -9855,6 +9990,7 @@
               "verified",
               "notifications",
               "profileId",
+              "orgMemberships",
               "platforms"
             ]
           },
@@ -9934,6 +10070,32 @@
           "profileId": {
             "type": "string"
           },
+          "orgMemberships": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "orgSlug": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "admin",
+                    "member"
+                  ]
+                },
+                "type": {
+                  "$ref": "#/components/schemas/UploadKind"
+                }
+              },
+              "required": [
+                "orgSlug",
+                "role",
+                "type"
+              ]
+            }
+          },
           "platforms": {
             "type": "array",
             "items": {
@@ -9957,6 +10119,7 @@
           "verified",
           "notifications",
           "profileId",
+          "orgMemberships",
           "platforms"
         ]
       },
@@ -10649,6 +10812,26 @@
               }
             ]
           },
+          "startTime": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timezone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "name": {
             "type": "string"
           },
@@ -10751,6 +10934,26 @@
                 "type": "null"
               }
             ]
+          },
+          "startTime": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timezone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         }
       },
@@ -10820,6 +11023,26 @@
                 "type": "null"
               }
             ]
+          },
+          "startTime": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timezone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -10834,7 +11057,9 @@
           "venueAddress",
           "contactEmail",
           "isActive",
-          "schedulePdfUrl"
+          "schedulePdfUrl",
+          "startTime",
+          "timezone"
         ]
       },
       "OrgsIdEventsIdUploadCoachesRequest": {
@@ -11301,6 +11526,16 @@
                     }
                   ]
                 },
+                "checkedInAt": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "isRegistered": {
                   "type": "boolean"
                 }
@@ -11316,6 +11551,7 @@
                 "organization",
                 "eventId",
                 "bibNumber",
+                "checkedInAt",
                 "isRegistered"
               ]
             }
@@ -11354,12 +11590,16 @@
           },
           "pending": {
             "type": "number"
+          },
+          "checkedIn": {
+            "type": "number"
           }
         },
         "required": [
           "total",
           "active",
-          "pending"
+          "pending",
+          "checkedIn"
         ]
       },
       "OrgsIdEventsIdRostersIdRequest": {
@@ -11695,6 +11935,111 @@
           "eventId",
           "bibNumber",
           "isRegistered"
+        ]
+      },
+      "OrgsIdEventsIdRostersIdCheckinResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UploadKind"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "userId": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "organization": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "bibNumber": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expirationDate": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "csvUploadId": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "checkedInAt": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "type",
+          "firstName",
+          "lastName",
+          "createdAt",
+          "updatedAt",
+          "userId",
+          "organization",
+          "eventId",
+          "bibNumber",
+          "expirationDate",
+          "csvUploadId",
+          "checkedInAt"
         ]
       },
       "OrgsIdEventsIdRostersResendinvitesRequest": {
@@ -12483,6 +12828,72 @@
           ]
         }
       },
+      "OrgsIdEventsIdCheckinResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "checkedInAt": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "checkedInAt"
+        ]
+      },
+      "OrgsIdEventsIdCheckinStatusResponse": {
+        "type": "object",
+        "properties": {
+          "checkedInAt": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "eventStartTime": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timezone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "canCheckIn": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "checkedInAt",
+          "eventStartTime",
+          "timezone",
+          "canCheckIn"
+        ]
+      },
       "OrgsIdEventsIdVideocategoriesResponse": {
         "type": "array",
         "items": {
@@ -12730,6 +13141,16 @@
                 "type": "null"
               }
             ]
+          },
+          "checkedInAt": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -12745,7 +13166,8 @@
           "eventId",
           "bibNumber",
           "expirationDate",
-          "csvUploadId"
+          "csvUploadId",
+          "checkedInAt"
         ]
       },
       "OrgsIdDancersResponse": {
@@ -13422,6 +13844,16 @@
             "lastName": {
               "type": "string"
             },
+            "username": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "isTopSchool": {
               "type": "boolean"
             }
@@ -13431,6 +13863,7 @@
             "organization",
             "firstName",
             "lastName",
+            "username",
             "isTopSchool"
           ]
         }
@@ -16004,6 +16437,9 @@
           "endDate": {
             "type": "string"
           },
+          "startTime": {
+            "type": "string"
+          },
           "organizer": {
             "type": "object",
             "properties": {
@@ -16043,9 +16479,6 @@
           "eventAttendees": {
             "type": "number"
           },
-          "startTime": {
-            "type": "string"
-          },
           "endTime": {
             "type": "string"
           }
@@ -16065,11 +16498,11 @@
           "cost",
           "startDate",
           "endDate",
+          "startTime",
           "organizer",
           "attendees",
           "saved",
           "eventAttendees",
-          "startTime",
           "endTime"
         ]
       },
