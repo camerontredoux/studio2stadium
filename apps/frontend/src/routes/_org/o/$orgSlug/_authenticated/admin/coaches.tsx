@@ -206,6 +206,7 @@ function CoachesPage() {
         await deleteMutation.mutateAsync({
           params: {
             path: { slug: orgSlug, id: active.id },
+            // @ts-expect-error -- OpenAPI spec omits query params; backend reads via request.all()
             query: { ids },
           },
         });

@@ -180,7 +180,7 @@ export function AddEditVideoDialog({
           <DialogTitle>{isEditing ? "Edit Video" : "Add Video"}</DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 px-6 py-2">
+        <div className="flex max-h-[60vh] flex-col gap-4 overflow-y-auto px-6 py-2">
           <Field invalid={!!errors.title}>
             <FieldLabel>Title</FieldLabel>
             <Input
