@@ -5,7 +5,7 @@ import { orgQueries } from "@/features/org/api/queries";
 import { ToastProvider } from "@/components/ui/toast";
 
 export const Route = createFileRoute("/_org")({
-  loader: async ({ context, params }) => {
+  beforeLoad: async ({ context, params }) => {
     const slug = (params as { orgSlug?: string }).orgSlug;
     if (!slug) return;
     await context.queryClient.ensureQueryData(orgQueries.org(slug));
