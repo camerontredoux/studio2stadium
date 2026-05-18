@@ -23,13 +23,17 @@ import {
   MenuTrigger,
 } from "@/components/ui/menu";
 import { useOrg } from "@/features/org/context/use-org";
+import { scoutingQueries } from "@/features/org/api/scouting-queries";
+import { useTransmitSubscription } from "@/features/org/hooks/use-transmit";
 import { useSession } from "@/lib/session";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate, useParams } from "@tanstack/react-router";
 import {
   CheckIcon,
   ChevronDownIcon,
   EyeIcon,
   LogOutIcon,
+  Megaphone,
   MonitorIcon,
   MoonIcon,
   PlayCircleIcon,
@@ -46,28 +50,60 @@ const dashboardItem = {
   exact: false,
 };
 
-const navSections: {
-  title: string;
-  items: { label: string; icon: any; to: string }[];
-}[] = [
-  {
-    title: "Explore",
-    items: [
-      {
-        label: "Schools",
-        icon: SchoolIcon,
-        to: "/o/$orgSlug/dancer/schools" as const,
-      },
-    ],
-  },
-];
-
 export function DancerSidebar() {
   const session = useSession();
-  const { org, membership } = useOrg();
+  const { org, membership, hasFeature } = useOrg();
   const { orgSlug } = useParams({ strict: false }) as { orgSlug: string };
   const location = useLocation();
   const navigate = useNavigate();
+  const qc = useQueryClient();
+
+  const { data: dancerCallbacks } = useQuery({
+    ...scoutingQueries.dancerCallbacks(orgSlug),
+    enabled: hasFeature("callbacks"),
+  });
+
+  useTransmitSubscription(
+    hasFeature("callbacks") ? `orgs/${orgSlug}/showcases` : null,
+    () => {
+      qc.invalidateQueries({
+        queryKey: scoutingQueries.dancerCallbacks(orgSlug).queryKey,
+      });
+    },
+  );
+
+  const hasCallbacks =
+    Array.isArray(dancerCallbacks) && dancerCallbacks.length > 0;
+
+  const navSections: {
+    title: string;
+    items: { label: string; icon: any; to: string }[];
+  }[] = [
+    ...(hasCallbacks
+      ? [
+          {
+            title: "Event",
+            items: [
+              {
+                label: "Callbacks",
+                icon: Megaphone,
+                to: "/o/$orgSlug/dancer/callbacks" as const,
+              },
+            ],
+          },
+        ]
+      : []),
+    {
+      title: "Explore",
+      items: [
+        {
+          label: "Schools",
+          icon: SchoolIcon,
+          to: "/o/$orgSlug/dancer/schools" as const,
+        },
+      ],
+    },
+  ];
   const { ternaryDarkMode, setTernaryDarkMode } = useTernaryDarkMode({
     localStorageKey: "theme",
   });
