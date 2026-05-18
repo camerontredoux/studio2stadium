@@ -8,7 +8,7 @@ import { asc, count, countDistinct, eq, sql } from "drizzle-orm";
 export class AdminCallbackBoardService {
   constructor(private db: DatabaseService = new DatabaseService()) {}
 
-  async execute(eventId: string) {
+  async execute(eventId: string, showcaseId: string) {
     const [bibs, stats] = await Promise.all([
       this.db.use((db) =>
         db
@@ -24,7 +24,7 @@ export class AdminCallbackBoardService {
             eventRosters,
             eq(eventRosters.id, eventCallbacks.dancerRosterId)
           )
-          .where(eq(eventCallbacks.eventId, eventId))
+          .where(eq(eventCallbacks.showcaseId, showcaseId))
           .groupBy(
             eventCallbacks.dancerRosterId,
             eventRosters.bibNumber,
