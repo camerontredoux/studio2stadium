@@ -1,22 +1,22 @@
-import { useState } from "react";
-import { formatDistanceToNow } from "date-fns";
-import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import { formatDistanceToNow } from "date-fns";
 import { ArrowRightIcon, UploadIcon } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/utils/cn";
-import { CsvUploadDialog } from "./csv-upload-dialog";
-import {
-  AccentDot,
-  type PanelAccent,
-} from "@/features/org/components/dashboard-shared";
-import { useAdminCommandListener } from "@/features/org/hooks/use-admin-commands";
 import type { CsvUploadSummary } from "@/features/org/api/admin-queries";
 import {
   rosterQueries,
   type RosterType,
 } from "@/features/org/api/roster-queries";
+import {
+  AccentDot,
+  type PanelAccent,
+} from "@/features/org/components/dashboard-shared";
+import { useAdminCommandListener } from "@/features/org/hooks/use-admin-commands";
+import { CsvUploadDialog } from "./csv-upload-dialog";
 
 interface RosterUploadRowProps {
   orgSlug: string;
@@ -62,7 +62,9 @@ export function RosterUploadRow({
   const rows = listQuery.data?.data ?? [];
   const total = listQuery.data?.total ?? 0;
   const listPath =
-    type === "dancer" ? "/o/$orgSlug/admin/dancers" : "/o/$orgSlug/admin/coaches";
+    type === "dancer"
+      ? "/o/$orgSlug/admin/dancers"
+      : "/o/$orgSlug/admin/coaches";
 
   return (
     <>
@@ -95,7 +97,7 @@ export function RosterUploadRow({
 
         <div className="relative min-h-0 flex-1 overflow-auto">
           {rows.length === 0 ? (
-            <div className="text-muted-foreground flex h-[156px] items-center justify-center text-xs">
+            <div className="text-muted-foreground flex h-[156px] items-center justify-center text-xs sm:h-full">
               {listQuery.isLoading ? "Loading…" : "No entries yet"}
             </div>
           ) : (

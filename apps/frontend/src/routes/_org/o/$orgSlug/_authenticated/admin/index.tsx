@@ -36,6 +36,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadItem,
+  FileUploadItemDelete,
+  FileUploadItemMetadata,
+  FileUploadItemPreview,
+  FileUploadList,
+  FileUploadTrigger,
+} from "@/components/ui/file-upload";
+import { Progress } from "@/components/ui/progress";
 import { toastManager } from "@/components/ui/toast-manager";
 import { cn } from "@/components/utils/cn";
 import {
@@ -45,16 +56,16 @@ import {
   type OrgEvent,
 } from "@/features/org/api/admin-queries";
 import {
-  AccentDot,
   ACCENT_VALUE,
+  AccentDot,
   DashboardHeader,
-  type PanelAccent,
+  formatDateRange,
+  scheduleFileUrl,
   SidebarDetailsSection,
   SidebarPhaseSection,
   SidebarSection,
   StatCell,
-  formatDateRange,
-  scheduleFileUrl,
+  type PanelAccent,
 } from "@/features/org/components/dashboard-shared";
 import {
   CreateEventForm,
@@ -69,20 +80,9 @@ import {
   useEventPhase,
   type EventPhaseInfo,
 } from "@/features/org/hooks/use-event-phase";
-import {
-  FileUpload,
-  FileUploadDropzone,
-  FileUploadItem,
-  FileUploadItemDelete,
-  FileUploadItemMetadata,
-  FileUploadItemPreview,
-  FileUploadList,
-  FileUploadTrigger,
-} from "@/components/ui/file-upload";
-import { Progress } from "@/components/ui/progress";
+import { client } from "@/lib/api/client";
 import { useRequestUpload } from "@/shared/images/api/mutations";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
-import { client } from "@/lib/api/client";
 
 export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/admin/")({
   component: AdminHome,
@@ -174,7 +174,7 @@ function AdminDashboard({
 
         <section
           aria-label="Event panels"
-          className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-4 lg:grid-cols-2 lg:grid-rows-3"
+          className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-4 lg:grid-cols-2 lg:grid-rows-2"
         >
           <div className="flex min-h-0 flex-col overflow-hidden lg:col-start-1 lg:row-start-1">
             <RosterUploadRow
@@ -198,7 +198,7 @@ function AdminDashboard({
               }
             />
           </div>
-          <div className="flex min-h-0 flex-col overflow-hidden lg:col-start-1 lg:row-start-3">
+          <div className="flex hidden min-h-0 flex-col overflow-hidden lg:col-start-1 lg:row-start-3">
             <PreEventChecklist
               orgSlug={orgSlug}
               eventId={activeEvent.id}
@@ -231,7 +231,6 @@ function AdminDashboard({
     </div>
   );
 }
-
 
 function SplitStatCell({
   label,
@@ -899,9 +898,9 @@ function ScheduleUploadPanel({
                       type: "error",
                     });
                   }}
-                  className="w-full"
+                  className="h-full w-full"
                 >
-                  <FileUploadDropzone className="flex-col gap-2 border-dashed py-6 text-center">
+                  <FileUploadDropzone className="h-full flex-col gap-2 border-dashed py-6 text-center">
                     <CloudUploadIcon className="text-muted-foreground size-6" />
                     <div className="text-muted-foreground text-xs">
                       Drag and drop or{" "}
@@ -932,8 +931,8 @@ function ScheduleUploadPanel({
           <AlertDialogHeader>
             <AlertDialogTitle>Remove schedule</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove the event schedule? You can upload a
-              new one at any time.
+              Are you sure you want to remove the event schedule? You can upload
+              a new one at any time.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -957,10 +956,7 @@ function ScheduleUploadPanel({
 
       {fileUrl && (
         <Dialog open={expanded} onOpenChange={setExpanded}>
-          <DialogContent
-            className="max-w-5xl"
-            bottomStickOnMobile={false}
-          >
+          <DialogContent className="max-w-5xl" bottomStickOnMobile={false}>
             <DialogHeader>
               <DialogTitle>Event Schedule</DialogTitle>
             </DialogHeader>
@@ -1035,7 +1031,7 @@ function SidebarActivitySection({
               key={upload.id}
               className="flex items-start gap-2 text-xs 2xl:text-sm"
             >
-              <UploadIcon className="text-emerald-500 mt-0.5 size-3 shrink-0" />
+              <UploadIcon className="mt-0.5 size-3 shrink-0 text-emerald-500" />
               <div className="flex min-w-0 flex-1 flex-col">
                 <span>
                   <span className="font-medium tabular-nums">
@@ -1086,10 +1082,5 @@ function AdminHome() {
     );
   }
 
-  return (
-    <AdminDashboard
-      orgSlug={orgSlug}
-      activeEvent={activeEvent}
-    />
-  );
+  return <AdminDashboard orgSlug={orgSlug} activeEvent={activeEvent} />;
 }
