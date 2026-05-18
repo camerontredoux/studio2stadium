@@ -13,6 +13,7 @@ import { AnchoredToastProvider } from "../ui/toast";
 
 const descriptions: Record<string, string> = {
   "/login": "Sign in to your account to continue",
+  "/orgs": "Choose your organization to sign in",
 };
 
 type AuthLayoutProps = {

@@ -12,6 +12,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { $api } from "@/lib/api/client";
 import { handleApiError } from "@/lib/api/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AuthPagesSelect } from "@/components/shared/auth-pages-select";
 import { Link } from "@tanstack/react-router";
 import { MailIcon } from "lucide-react";
 import { useRef } from "react";
@@ -116,14 +117,7 @@ export function OrgLoginForm({ onSuccess }: { onSuccess: () => void }) {
       </Button>
 
       <div className="flex items-center justify-between gap-2">
-        <a
-          href="https://studio2stadium.com"
-          target="_blank"
-          rel="noreferrer"
-          className="text-brand text-sm font-medium hover:underline"
-        >
-          Marketing
-        </a>
+        <AuthPagesSelect />
 
         <p className="text-muted-foreground text-sm">
           Don&apos;t have an account?{" "}

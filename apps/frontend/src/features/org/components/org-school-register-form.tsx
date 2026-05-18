@@ -10,6 +10,7 @@ import { $api } from "@/lib/api/client";
 import { handleApiError } from "@/lib/api/errors";
 import { useOrg } from "@/features/org/context/use-org";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AuthPagesSelect } from "@/components/shared/auth-pages-select";
 import { Link } from "@tanstack/react-router";
 import { MailIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
@@ -248,14 +249,7 @@ export function OrgSchoolRegisterForm({
       </Button>
 
       <div className="flex items-center justify-between gap-2">
-        <a
-          href="https://studio2stadium.com"
-          target="_blank"
-          rel="noreferrer"
-          className="text-brand text-sm font-medium hover:underline"
-        >
-          Marketing
-        </a>
+        <AuthPagesSelect />
 
         <p className="text-muted-foreground text-sm">
           Already have an account?{" "}

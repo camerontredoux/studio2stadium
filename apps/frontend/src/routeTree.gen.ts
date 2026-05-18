@@ -16,6 +16,7 @@ import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AdminRouteRouteImport } from './routes/_admin/route'
 import { Route as ApproutesIndexRouteImport } from './routes/_app/(routes)/index'
 import { Route as AuthroutesResetRouteImport } from './routes/_auth/(routes)/reset'
+import { Route as AuthroutesOrgsRouteImport } from './routes/_auth/(routes)/orgs'
 import { Route as AuthroutesLoginRouteImport } from './routes/_auth/(routes)/login'
 import { Route as AuthroutesForgotRouteImport } from './routes/_auth/(routes)/forgot'
 import { Route as ApproutesUnauthorizedRouteImport } from './routes/_app/(routes)/unauthorized'
@@ -112,6 +113,11 @@ const ApproutesIndexRoute = ApproutesIndexRouteImport.update({
 const AuthroutesResetRoute = AuthroutesResetRouteImport.update({
   id: '/(routes)/reset',
   path: '/reset',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthroutesOrgsRoute = AuthroutesOrgsRouteImport.update({
+  id: '/(routes)/orgs',
+  path: '/orgs',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 const AuthroutesLoginRoute = AuthroutesLoginRouteImport.update({
@@ -506,6 +512,7 @@ export interface FileRoutesByFullPath {
   '/unauthorized': typeof ApproutesUnauthorizedRoute
   '/forgot': typeof AuthroutesForgotRoute
   '/login': typeof AuthroutesLoginRoute
+  '/orgs': typeof AuthroutesOrgsRoute
   '/reset': typeof AuthroutesResetRoute
   '/o/$orgSlug': typeof OrgOOrgSlugAuthenticatedRouteRouteWithChildren
   '/admin/applications': typeof AdminroutesAdminApplicationsRoute
@@ -574,6 +581,7 @@ export interface FileRoutesByTo {
   '/unauthorized': typeof ApproutesUnauthorizedRoute
   '/forgot': typeof AuthroutesForgotRoute
   '/login': typeof AuthroutesLoginRoute
+  '/orgs': typeof AuthroutesOrgsRoute
   '/reset': typeof AuthroutesResetRoute
   '/o/$orgSlug': typeof OrgOOrgSlugAuthenticatedRouteRouteWithChildren
   '/admin/applications': typeof AdminroutesAdminApplicationsRoute
@@ -647,6 +655,7 @@ export interface FileRoutesById {
   '/_app/(routes)/unauthorized': typeof ApproutesUnauthorizedRoute
   '/_auth/(routes)/forgot': typeof AuthroutesForgotRoute
   '/_auth/(routes)/login': typeof AuthroutesLoginRoute
+  '/_auth/(routes)/orgs': typeof AuthroutesOrgsRoute
   '/_auth/(routes)/reset': typeof AuthroutesResetRoute
   '/_app/(routes)/': typeof ApproutesIndexRoute
   '/_org/o/$orgSlug/_authenticated': typeof OrgOOrgSlugAuthenticatedRouteRouteWithChildren
@@ -721,6 +730,7 @@ export interface FileRouteTypes {
     | '/unauthorized'
     | '/forgot'
     | '/login'
+    | '/orgs'
     | '/reset'
     | '/o/$orgSlug'
     | '/admin/applications'
@@ -789,6 +799,7 @@ export interface FileRouteTypes {
     | '/unauthorized'
     | '/forgot'
     | '/login'
+    | '/orgs'
     | '/reset'
     | '/o/$orgSlug'
     | '/admin/applications'
@@ -861,6 +872,7 @@ export interface FileRouteTypes {
     | '/_app/(routes)/unauthorized'
     | '/_auth/(routes)/forgot'
     | '/_auth/(routes)/login'
+    | '/_auth/(routes)/orgs'
     | '/_auth/(routes)/reset'
     | '/_app/(routes)/'
     | '/_org/o/$orgSlug/_authenticated'
@@ -977,6 +989,13 @@ declare module '@tanstack/react-router' {
       path: '/reset'
       fullPath: '/reset'
       preLoaderRoute: typeof AuthroutesResetRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/(routes)/orgs': {
+      id: '/_auth/(routes)/orgs'
+      path: '/orgs'
+      fullPath: '/orgs'
+      preLoaderRoute: typeof AuthroutesOrgsRouteImport
       parentRoute: typeof AuthRouteRoute
     }
     '/_auth/(routes)/login': {
@@ -1603,6 +1622,7 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 interface AuthRouteRouteChildren {
   AuthroutesForgotRoute: typeof AuthroutesForgotRoute
   AuthroutesLoginRoute: typeof AuthroutesLoginRoute
+  AuthroutesOrgsRoute: typeof AuthroutesOrgsRoute
   AuthroutesResetRoute: typeof AuthroutesResetRoute
   AuthroutesSignupTypeRoute: typeof AuthroutesSignupTypeRoute
   AuthroutesSignupIndexRoute: typeof AuthroutesSignupIndexRoute
@@ -1611,6 +1631,7 @@ interface AuthRouteRouteChildren {
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthroutesForgotRoute: AuthroutesForgotRoute,
   AuthroutesLoginRoute: AuthroutesLoginRoute,
+  AuthroutesOrgsRoute: AuthroutesOrgsRoute,
   AuthroutesResetRoute: AuthroutesResetRoute,
   AuthroutesSignupTypeRoute: AuthroutesSignupTypeRoute,
   AuthroutesSignupIndexRoute: AuthroutesSignupIndexRoute,

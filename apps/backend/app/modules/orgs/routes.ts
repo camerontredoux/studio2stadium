@@ -3,6 +3,7 @@ import "./scouting/routes.ts";
 import router from "@adonisjs/core/services/router";
 
 const GetOrgController = () => import("./get-org/controller.ts");
+const ListOrgsController = () => import("./list-orgs/controller.ts");
 const RegisterDancerController = () =>
   import("./register-dancer/controller.ts");
 const RegisterSchoolController = () =>
@@ -12,6 +13,12 @@ const InviteLookupSchoolController = () =>
 
 router
   .group(() => {
+    router.get("/", [ListOrgsController]).openapi({
+      summary: "List organizations",
+      description:
+        "Public directory of organizations for org-specific login pages.",
+    });
+
     router.get(":slug", [GetOrgController]).openapi({
       summary: "Get organization",
       description:
