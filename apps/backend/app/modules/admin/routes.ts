@@ -43,6 +43,14 @@ const UpdateSchoolAccountController = () =>
   import("#modules/admin/update-school-account/controller");
 const UpdateSchoolAvatarController = () =>
   import("#modules/admin/update-school-avatar/controller");
+const UploadSchoolImageController = () =>
+  import("#modules/admin/upload-school-image/controller");
+const DeleteSchoolImageController = () =>
+  import("#modules/admin/delete-school-image/controller");
+const UploadSchoolVideoController = () =>
+  import("#modules/admin/upload-school-video/controller");
+const DeleteSchoolVideoController = () =>
+  import("#modules/admin/delete-school-video/controller");
 
 router
   .group(() => {
@@ -107,6 +115,36 @@ router
         summary: "Set school avatar",
         description:
           "Sets the school user's avatar from an uploaded R2 key (same as POST /users/avatar)",
+      });
+
+    router
+      .post("schools/:username/images", [UploadSchoolImageController])
+      .openapi({
+        summary: "Upload image for school",
+        description:
+          "Saves an uploaded image to the school's profile from an R2 key",
+      });
+
+    router
+      .delete("schools/:username/images/:id", [DeleteSchoolImageController])
+      .openapi({
+        summary: "Delete school image",
+        description: "Deletes an image from the school's profile",
+      });
+
+    router
+      .post("schools/:username/videos/tus", [UploadSchoolVideoController])
+      .openapi({
+        summary: "Initiate TUS video upload for school",
+        description:
+          "Initiates a TUS resumable upload to Cloudflare Stream for a school",
+      });
+
+    router
+      .delete("schools/:username/videos/:id", [DeleteSchoolVideoController])
+      .openapi({
+        summary: "Delete school video",
+        description: "Deletes a video from the school's profile",
       });
 
     router.post("events/global", [AddGlobalEventController]).openapi({

@@ -5,6 +5,7 @@ interface TusUploadOptions {
   onProgress: (percent: number) => void;
   onSuccess: () => void;
   onError: (error: Error) => void;
+  endpoint?: string;
 }
 
 function extractTusErrorMessage(error: Error | tus.DetailedError): string {
@@ -34,6 +35,7 @@ export function uploadVideoTus({
   onProgress,
   onSuccess,
   onError,
+  endpoint,
 }: TusUploadOptions): tus.Upload {
   const upload = new tus.Upload(file, {
     onBeforeRequest: (request) => {
@@ -42,7 +44,7 @@ export function uploadVideoTus({
         xhr.withCredentials = true;
       }
     },
-    endpoint: getTusEndpoint(),
+    endpoint: endpoint ?? getTusEndpoint(),
     retryDelays: [0, 1000, 3000, 5000],
     metadata: {
       filename: file.name,

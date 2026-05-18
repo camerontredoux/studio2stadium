@@ -16,6 +16,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Suspense, useRef, useState, useEffect } from "react";
 import { AccountTab } from "./tabs/account-tab";
 import { AvatarTab } from "./tabs/avatar-tab";
+import { MediaTab } from "./tabs/media-tab";
 import { ProfileTab } from "./tabs/profile-tab";
 import { SkillsTab } from "./tabs/skills-tab";
 import { SportsTab } from "./tabs/sports-tab";
@@ -31,6 +32,7 @@ type TabValue =
   | "profile"
   | "account"
   | "avatar"
+  | "media"
   | "skills"
   | "styles"
   | "sports";
@@ -39,6 +41,7 @@ const TAB_LABELS: Record<TabValue, string> = {
   profile: "Save Profile",
   account: "Save Account",
   avatar: "Upload Avatar",
+  media: "Upload",
   skills: "Save Skills",
   styles: "Save Styles",
   sports: "Save Sports",
@@ -69,6 +72,7 @@ function EditSchoolDialogContent({
     profile: { isDirty: false, isPending: false },
     account: { isDirty: false, isPending: false },
     avatar: { isDirty: false, isPending: false },
+    media: { isDirty: false, isPending: false },
     skills: { isDirty: false, isPending: false },
     styles: { isDirty: false, isPending: false },
     sports: { isDirty: false, isPending: false },
@@ -77,6 +81,7 @@ function EditSchoolDialogContent({
   const profileRef = useRef<TabHandle>(null);
   const accountRef = useRef<TabHandle>(null);
   const avatarRef = useRef<TabHandle>(null);
+  const mediaRef = useRef<TabHandle>(null);
   const skillsRef = useRef<TabHandle>(null);
   const stylesRef = useRef<TabHandle>(null);
   const sportsRef = useRef<TabHandle>(null);
@@ -85,6 +90,7 @@ function EditSchoolDialogContent({
     profile: profileRef,
     account: accountRef,
     avatar: avatarRef,
+    media: mediaRef,
     skills: skillsRef,
     styles: stylesRef,
     sports: sportsRef,
@@ -143,6 +149,16 @@ function EditSchoolDialogContent({
           currentAvatar={data.avatar}
           schoolName={data.name}
           onStateChange={handleStateChange("avatar")}
+        />
+      </TabsContent>
+
+      <TabsContent value="media" className="flex-1 overflow-hidden">
+        <MediaTab
+          ref={mediaRef}
+          username={username}
+          images={data.images}
+          videos={data.videos}
+          onStateChange={handleStateChange("media")}
         />
       </TabsContent>
 
@@ -215,6 +231,7 @@ export function EditSchoolDialog({
               <TabsTab value="profile">Profile</TabsTab>
               <TabsTab value="account">Account</TabsTab>
               <TabsTab value="avatar">Avatar</TabsTab>
+              <TabsTab value="media">Media</TabsTab>
               <TabsTab value="skills">Skills</TabsTab>
               <TabsTab value="styles">Styles</TabsTab>
               <TabsTab value="sports">Sports</TabsTab>

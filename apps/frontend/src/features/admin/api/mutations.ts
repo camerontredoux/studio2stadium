@@ -76,3 +76,27 @@ export function useAdminUpdateSchoolAvatar(username: string) {
     },
   });
 }
+
+export function useAdminUploadSchoolImage(username: string) {
+  return $api.useMutation("post", "/admin/schools/{username}/images", {
+    meta: {
+      invalidateQueries: [adminQueries.schoolEvents(username).queryKey],
+    },
+  });
+}
+
+export function useAdminDeleteSchoolImage(username: string) {
+  return $api.useMutation("delete", "/admin/schools/{username}/images/{id}", {
+    meta: {
+      invalidateQueries: [adminQueries.schoolEvents(username).queryKey],
+    },
+  });
+}
+
+export function useAdminDeleteSchoolVideo(username: string) {
+  return $api.useMutation("delete", "/admin/schools/{username}/videos/{id}", {
+    meta: {
+      invalidateQueries: [adminQueries.schoolEvents(username).queryKey],
+    },
+  });
+}

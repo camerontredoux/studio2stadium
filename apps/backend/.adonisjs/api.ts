@@ -39,6 +39,22 @@ type AdminSchoolsIdAvatarPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/update-school-avatar/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/update-school-avatar/controller.ts').default['handle'], true>
 }
+type AdminSchoolsIdImagesPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/upload-school-image/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/upload-school-image/controller.ts').default['handle'], true>
+}
+type AdminSchoolsIdImagesIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/delete-school-image/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/delete-school-image/controller.ts').default['handle'], true>
+}
+type AdminSchoolsIdVideosTusPost = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/admin/upload-school-video/controller.ts').default['handle'], false>
+}
+type AdminSchoolsIdVideosIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/delete-school-video/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/delete-school-video/controller.ts').default['handle'], true>
+}
 type AdminEventsGlobalPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/add-global-event/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/add-global-event/controller.ts').default['handle'], true>
@@ -422,6 +438,10 @@ type OrgsIdShowcasesNextPost = {
 type OrgsIdDancerCallbacksGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/dancer-callbacks/controller.ts').default['handle'], false>
+}
+type OrgsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/list-orgs/controller.ts').default['handle'], false>
 }
 type OrgsIdGetHead = {
   request: unknown
@@ -850,6 +870,28 @@ export interface ApiDefinition {
           '$url': {
           };
           '$post': AdminSchoolsIdAvatarPost;
+        };
+        'images': {
+          '$url': {
+          };
+          '$post': AdminSchoolsIdImagesPost;
+          ':id': {
+            '$url': {
+            };
+            '$delete': AdminSchoolsIdImagesIdDelete;
+          };
+        };
+        'videos': {
+          'tus': {
+            '$url': {
+            };
+            '$post': AdminSchoolsIdVideosTusPost;
+          };
+          ':id': {
+            '$url': {
+            };
+            '$delete': AdminSchoolsIdVideosIdDelete;
+          };
         };
       };
       '$url': {
@@ -1362,6 +1404,10 @@ export interface ApiDefinition {
         '$post': OrgsIdRegisterPost;
       };
     };
+    '$url': {
+    };
+    '$get': OrgsGetHead;
+    '$head': OrgsGetHead;
     'register': {
       'school': {
         '$url': {
