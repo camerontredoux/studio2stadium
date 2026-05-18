@@ -26,6 +26,8 @@ export class CreateVideoService {
           title: input.title,
           youtubeId: input.youtubeId,
           sortOrder: (row?.maxOrder ?? -1) + 1,
+          audioKey: input.audioKey ?? null,
+          audioFilename: input.audioFilename ?? null,
         })
         .returning();
 
