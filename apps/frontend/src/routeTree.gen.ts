@@ -72,8 +72,8 @@ import { Route as OrgOOrgSlugAuthenticatedCoachIndexRouteImport } from './routes
 import { Route as OrgOOrgSlugAuthenticatedAdminIndexRouteImport } from './routes/_org/o/$orgSlug/_authenticated/admin/index'
 import { Route as OrgOOrgSlugAuthenticatedDancerVideoLibraryRouteImport } from './routes/_org/o/$orgSlug/_authenticated/dancer/video-library'
 import { Route as OrgOOrgSlugAuthenticatedDancerSchoolsRouteImport } from './routes/_org/o/$orgSlug/_authenticated/dancer/schools'
-import { Route as OrgOOrgSlugAuthenticatedCoachEventInfoRouteImport } from './routes/_org/o/$orgSlug/_authenticated/coach/event-info'
 import { Route as OrgOOrgSlugAuthenticatedDancerEventInfoRouteImport } from './routes/_org/o/$orgSlug/_authenticated/dancer/event-info'
+import { Route as OrgOOrgSlugAuthenticatedCoachEventInfoRouteImport } from './routes/_org/o/$orgSlug/_authenticated/coach/event-info'
 import { Route as OrgOOrgSlugAuthenticatedAdminVideoLibraryRouteImport } from './routes/_org/o/$orgSlug/_authenticated/admin/video-library'
 import { Route as OrgOOrgSlugAuthenticatedAdminUploadsRouteImport } from './routes/_org/o/$orgSlug/_authenticated/admin/uploads'
 import { Route as OrgOOrgSlugAuthenticatedAdminSettingsRouteImport } from './routes/_org/o/$orgSlug/_authenticated/admin/settings'
@@ -424,17 +424,17 @@ const OrgOOrgSlugAuthenticatedDancerSchoolsRoute =
     path: '/schools',
     getParentRoute: () => OrgOOrgSlugAuthenticatedDancerRouteRoute,
   } as any)
-const OrgOOrgSlugAuthenticatedCoachEventInfoRoute =
-  OrgOOrgSlugAuthenticatedCoachEventInfoRouteImport.update({
-    id: '/event-info',
-    path: '/event-info',
-    getParentRoute: () => OrgOOrgSlugAuthenticatedCoachRouteRoute,
-  } as any)
 const OrgOOrgSlugAuthenticatedDancerEventInfoRoute =
   OrgOOrgSlugAuthenticatedDancerEventInfoRouteImport.update({
     id: '/event-info',
     path: '/event-info',
     getParentRoute: () => OrgOOrgSlugAuthenticatedDancerRouteRoute,
+  } as any)
+const OrgOOrgSlugAuthenticatedCoachEventInfoRoute =
+  OrgOOrgSlugAuthenticatedCoachEventInfoRouteImport.update({
+    id: '/event-info',
+    path: '/event-info',
+    getParentRoute: () => OrgOOrgSlugAuthenticatedCoachRouteRoute,
   } as any)
 const OrgOOrgSlugAuthenticatedAdminVideoLibraryRoute =
   OrgOOrgSlugAuthenticatedAdminVideoLibraryRouteImport.update({
@@ -1358,19 +1358,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgOOrgSlugAuthenticatedDancerSchoolsRouteImport
       parentRoute: typeof OrgOOrgSlugAuthenticatedDancerRouteRoute
     }
-    '/_org/o/$orgSlug/_authenticated/coach/event-info': {
-      id: '/_org/o/$orgSlug/_authenticated/coach/event-info'
-      path: '/event-info'
-      fullPath: '/o/$orgSlug/coach/event-info'
-      preLoaderRoute: typeof OrgOOrgSlugAuthenticatedCoachEventInfoRouteImport
-      parentRoute: typeof OrgOOrgSlugAuthenticatedCoachRouteRoute
-    }
     '/_org/o/$orgSlug/_authenticated/dancer/event-info': {
       id: '/_org/o/$orgSlug/_authenticated/dancer/event-info'
       path: '/event-info'
       fullPath: '/o/$orgSlug/dancer/event-info'
       preLoaderRoute: typeof OrgOOrgSlugAuthenticatedDancerEventInfoRouteImport
       parentRoute: typeof OrgOOrgSlugAuthenticatedDancerRouteRoute
+    }
+    '/_org/o/$orgSlug/_authenticated/coach/event-info': {
+      id: '/_org/o/$orgSlug/_authenticated/coach/event-info'
+      path: '/event-info'
+      fullPath: '/o/$orgSlug/coach/event-info'
+      preLoaderRoute: typeof OrgOOrgSlugAuthenticatedCoachEventInfoRouteImport
+      parentRoute: typeof OrgOOrgSlugAuthenticatedCoachRouteRoute
     }
     '/_org/o/$orgSlug/_authenticated/admin/video-library': {
       id: '/_org/o/$orgSlug/_authenticated/admin/video-library'
