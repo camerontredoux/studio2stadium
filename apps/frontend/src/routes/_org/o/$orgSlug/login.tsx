@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { OrgAuthLayout } from "@/features/org/components/org-auth-layout";
 import { OrgLoginForm } from "@/features/org/components/org-login-form";
+import { orgQueries } from "@/features/org/api/queries";
 import { isReservedOrgSlug } from "@/features/org/lib/reserved-slugs";
 import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
@@ -28,12 +29,23 @@ function OrgLoginPage() {
   return (
     <OrgAuthLayout description="Sign in to your account to continue">
       <OrgLoginForm
-        onSuccess={() => {
+        onSuccess={async () => {
           queryClient.clear();
-          navigate({
-            to: redirect ?? `/o/${orgSlug}/dancer`,
-            replace: true,
-          });
+          const org = await queryClient.fetchQuery(orgQueries.org(orgSlug));
+          const membership = (org as { membership?: { role: string; type: string } | null }).membership;
+
+          let destination: string;
+          if (redirect) {
+            destination = redirect;
+          } else if (membership?.role === "admin") {
+            destination = `/o/${orgSlug}/admin`;
+          } else if (membership?.type === "coach") {
+            destination = `/o/${orgSlug}/coach`;
+          } else {
+            destination = `/o/${orgSlug}/dancer`;
+          }
+
+          navigate({ to: destination, replace: true });
         }}
       />
     </OrgAuthLayout>

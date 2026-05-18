@@ -47,6 +47,7 @@ export function OrgList({ orgs, getLink, title = "Organizations" }: OrgListProps
                 key={org.id}
                 to={target.to}
                 params={{ orgSlug: org.slug }}
+                preload={false}
                 className="hover:bg-accent/50 group flex items-center gap-3 px-4 py-3 transition-colors"
               >
                 <span
