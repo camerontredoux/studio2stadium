@@ -7,7 +7,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Frame, FramePanel } from "@/components/ui/frame";
-import { PencilIcon, Trash2Icon, VideoIcon, XIcon } from "lucide-react";
+import { DownloadIcon, PencilIcon, Trash2Icon, VideoIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 import type { EventVideo, VideoCategory } from "@/features/org/api/video-queries";
 
@@ -82,6 +82,23 @@ export function EventVideoCard({ video, category, onEdit, onDelete }: EventVideo
               </div>
             )}
           </div>
+          {video.audioUrl && (
+            <div className="flex items-center gap-2 border-t px-3 py-2">
+              <audio
+                controls
+                src={video.audioUrl}
+                preload="none"
+                className="h-8 min-w-0 flex-1"
+              />
+              <a
+                href={video.audioUrl}
+                download={video.audioFilename ?? "audio.mp3"}
+                className="inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <DownloadIcon className="size-4" />
+              </a>
+            </div>
+          )}
         </FramePanel>
       </Frame>
 

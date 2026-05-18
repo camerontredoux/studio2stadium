@@ -29,6 +29,10 @@ export class UpdateVideoService {
           title: input.title,
           categoryId: input.categoryId,
           youtubeId: input.youtubeId,
+          ...(input.audioKey !== undefined && { audioKey: input.audioKey }),
+          ...(input.audioFilename !== undefined && {
+            audioFilename: input.audioFilename,
+          }),
         })
         .where(
           and(eq(eventVideos.id, videoId), eq(eventVideos.eventId, eventId))

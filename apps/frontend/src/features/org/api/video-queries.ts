@@ -24,6 +24,9 @@ export interface EventVideo {
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
+  audioKey?: string | null;
+  audioFilename?: string | null;
+  audioUrl?: string | null;
 }
 
 export interface EventVideoGroup {
@@ -141,6 +144,8 @@ export function useCreateVideo(slug: string, eventId: string) {
       title: string;
       categoryId: string;
       youtubeId: string;
+      audioKey?: string | null;
+      audioFilename?: string | null;
     }) =>
       postJson<EventVideo>(
         `/orgs/${slug}/events/${eventId}/videos`,
@@ -167,6 +172,8 @@ export function useUpdateVideo(slug: string, eventId: string) {
       title: string;
       categoryId: string;
       youtubeId: string;
+      audioKey?: string | null;
+      audioFilename?: string | null;
     }) =>
       patchJson<EventVideo>(
         `/orgs/${slug}/events/${eventId}/videos/${videoId}`,
@@ -197,6 +204,22 @@ export function useDeleteVideo(slug: string, eventId: string) {
     onError: () => {
       toastManager.add({
         title: "Failed to delete video",
+        type: "error",
+      });
+    },
+  });
+}
+
+export function useAudioUploadUrl(slug: string, eventId: string) {
+  return useMutation({
+    mutationFn: (body: { contentType: string; filename: string }) =>
+      postJson<{ key: string; url: string }>(
+        `/orgs/${slug}/events/${eventId}/videos/audio-upload-url`,
+        body,
+      ),
+    onError: () => {
+      toastManager.add({
+        title: "Failed to get audio upload URL",
         type: "error",
       });
     },
