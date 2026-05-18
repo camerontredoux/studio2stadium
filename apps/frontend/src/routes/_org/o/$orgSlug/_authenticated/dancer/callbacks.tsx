@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, redirect, useParams } from "@tanstack/react-router";
-import { SchoolIcon } from "lucide-react";
+import { createFileRoute, Link, redirect, useParams } from "@tanstack/react-router";
+import { MegaphoneIcon, SchoolIcon } from "lucide-react";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
+import { AccentDot } from "@/features/org/components/dashboard-shared";
 
 export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/dancer/callbacks",
@@ -27,47 +27,50 @@ function DancerCallbacksPage() {
     scoutingQueries.dancerCallbacks(orgSlug),
   );
 
-  return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-      <header className="flex items-center gap-3 px-4 py-4">
-        <h1 className="text-lg font-semibold tracking-tight">Callbacks</h1>
-        <span className="text-muted-foreground text-xs">
-          {(callbacks as any[]).length} school
-          {(callbacks as any[]).length === 1 ? "" : "s"} called you back
-        </span>
-      </header>
+  const schools = callbacks as {
+    coachRosterId: string;
+    firstName: string;
+    lastName: string;
+    organization: string | null;
+  }[];
 
-      <div className="flex-1 p-4">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {(
-            callbacks as {
-              coachRosterId: string;
-              firstName: string;
-              lastName: string;
-              organization: string | null;
-            }[]
-          ).map((cb) => (
-            <div
+  return (
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-4">
+      <div className="border-border flex flex-col overflow-hidden rounded-md border">
+        <div className="border-border bg-muted/40 flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2">
+          <div className="flex min-w-0 flex-col">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase 2xl:text-xs">
+              <AccentDot accent="rose" />
+              Callbacks
+            </span>
+            <span className="text-muted-foreground text-[11px] 2xl:text-xs">
+              {schools.length} school{schools.length === 1 ? "" : "s"} called
+              you back
+            </span>
+          </div>
+          <MegaphoneIcon className="text-muted-foreground size-4 opacity-40" />
+        </div>
+
+        <div className="divide-border divide-y">
+          {schools.map((cb) => (
+            <Link
               key={cb.coachRosterId}
-              className="bg-card flex items-center gap-3 rounded-xl border p-4"
+              to="/o/$orgSlug/dancer/schools"
+              params={{ orgSlug }}
+              className="hover:bg-accent/50 flex items-center gap-3 px-3 py-2.5 transition-colors"
             >
-              <Avatar className="size-10">
-                <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
-                  {cb.organization
-                    ? cb.organization.charAt(0).toUpperCase()
-                    : "?"}
-                </AvatarFallback>
-              </Avatar>
+              <span className="flex size-7 shrink-0 items-center justify-center rounded-md border border-blue-500/20 bg-blue-500/10">
+                <SchoolIcon className="size-3.5 text-blue-600 dark:text-blue-400" />
+              </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">
+                <p className="truncate text-xs font-medium 2xl:text-sm">
                   {cb.organization || "Unknown School"}
                 </p>
-                <p className="text-muted-foreground truncate text-xs">
+                <p className="text-muted-foreground truncate text-[11px] 2xl:text-xs">
                   {cb.firstName} {cb.lastName}
                 </p>
               </div>
-              <SchoolIcon className="text-muted-foreground size-4 shrink-0 opacity-40" />
-            </div>
+            </Link>
           ))}
         </div>
       </div>

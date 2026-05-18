@@ -27,6 +27,7 @@ import {
   useTransmitStatus,
   useTransmitSubscription,
 } from "@/features/org/hooks/use-transmit";
+import { toastManager } from "@/components/ui/toast-manager";
 import { $api } from "@/lib/api/client";
 
 export const Route = createFileRoute(
@@ -81,6 +82,8 @@ function AdminCallbacksPage() {
   const qc = useQueryClient();
   const sseStatus = useTransmitStatus();
   const [sheetRosterId, setSheetRosterId] = useState<string | null>(null);
+  const [publishOpen, setPublishOpen] = useState(false);
+  const [nextOpen, setNextOpen] = useState(false);
 
   useTransmitSubscription(`orgs/${orgSlug}/callbacks`, () => {
     qc.invalidateQueries({
@@ -111,6 +114,8 @@ function AdminCallbacksPage() {
     "/orgs/{slug}/showcases/publish",
     {
       onSuccess: () => {
+        setPublishOpen(false);
+        toastManager.add({ title: "Callbacks published", type: "success" });
         qc.invalidateQueries({
           queryKey: scoutingQueries.adminCallbacks(orgSlug).queryKey,
         });
@@ -126,6 +131,8 @@ function AdminCallbacksPage() {
     "/orgs/{slug}/showcases/next",
     {
       onSuccess: () => {
+        setNextOpen(false);
+        toastManager.add({ title: "New showcase started", type: "success" });
         qc.invalidateQueries({
           queryKey: scoutingQueries.adminCallbacks(orgSlug).queryKey,
         });
@@ -158,6 +165,8 @@ function AdminCallbacksPage() {
         <div className="flex items-center gap-2">
           {!isPublished && (
             <PublishDialog
+              open={publishOpen}
+              onOpenChange={setPublishOpen}
               disabled={data.uniqueCallbacks === 0}
               loading={publishMutation.isPending}
               onConfirm={() =>
@@ -169,6 +178,8 @@ function AdminCallbacksPage() {
           )}
           {isPublished && (
             <StartNextDialog
+              open={nextOpen}
+              onOpenChange={setNextOpen}
               loading={nextMutation.isPending}
               onConfirm={() =>
                 nextMutation.mutate({
@@ -387,16 +398,20 @@ function PreviousShowcaseCard({
 }
 
 function PublishDialog({
+  open,
+  onOpenChange,
   disabled,
   loading,
   onConfirm,
 }: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   disabled: boolean;
   loading: boolean;
   onConfirm: () => void;
 }) {
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger
         render={
           <Button size="sm" disabled={disabled || loading}>
@@ -424,14 +439,18 @@ function PublishDialog({
 }
 
 function StartNextDialog({
+  open,
+  onOpenChange,
   loading,
   onConfirm,
 }: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   loading: boolean;
   onConfirm: () => void;
 }) {
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger
         render={
           <Button size="sm" variant="outline" disabled={loading}>
