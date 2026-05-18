@@ -3830,6 +3830,59 @@
         }
       }
     },
+    "/orgs/{slug}/events/{id}/videos/audio-upload-url": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsIdVideosAudiouploadurlRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdVideosAudiouploadurlResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/orgs/{slug}/events/attend": {
       "post": {
         "requestBody": {
@@ -13107,48 +13160,163 @@
       "OrgsIdEventsIdVideosResponse": {
         "type": "array",
         "items": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "youtubeId": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "eventId": {
+                  "type": "string"
+                },
+                "sortOrder": {
+                  "type": "number"
+                },
+                "categoryId": {
+                  "type": "string"
+                },
+                "audioKey": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "audioFilename": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "audioUrl": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "id",
+                "createdAt",
+                "updatedAt",
+                "youtubeId",
+                "title",
+                "eventId",
+                "sortOrder",
+                "categoryId",
+                "audioKey",
+                "audioFilename",
+                "audioUrl"
+              ]
             },
-            "createdAt": {
-              "type": "string"
-            },
-            "updatedAt": {
-              "type": "string"
-            },
-            "youtubeId": {
-              "type": "string"
-            },
-            "title": {
-              "type": "string"
-            },
-            "eventId": {
-              "type": "string"
-            },
-            "sortOrder": {
-              "type": "number"
-            },
-            "categoryId": {
-              "type": "string"
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "youtubeId": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "eventId": {
+                  "type": "string"
+                },
+                "sortOrder": {
+                  "type": "number"
+                },
+                "categoryId": {
+                  "type": "string"
+                },
+                "audioKey": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "audioFilename": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "audioUrl": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "createdAt",
+                "updatedAt",
+                "youtubeId",
+                "title",
+                "eventId",
+                "sortOrder",
+                "categoryId",
+                "audioKey",
+                "audioFilename",
+                "audioUrl"
+              ]
             }
-          },
-          "required": [
-            "id",
-            "createdAt",
-            "updatedAt",
-            "youtubeId",
-            "title",
-            "eventId",
-            "sortOrder",
-            "categoryId"
           ]
         }
       },
       "OrgsIdEventsIdVideosRequest": {
         "type": "object",
         "properties": {
+          "audioKey": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "audioFilename": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "youtubeId": {
             "type": "string"
           },
@@ -13168,6 +13336,26 @@
       "OrgsIdEventsIdVideosIdRequest": {
         "type": "object",
         "properties": {
+          "audioKey": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "audioFilename": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "youtubeId": {
             "type": "string"
           },
@@ -13210,6 +13398,26 @@
           },
           "categoryId": {
             "type": "string"
+          },
+          "audioKey": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "audioFilename": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -13220,7 +13428,43 @@
           "title",
           "eventId",
           "sortOrder",
-          "categoryId"
+          "categoryId",
+          "audioKey",
+          "audioFilename"
+        ]
+      },
+      "OrgsIdEventsIdVideosAudiouploadurlRequest": {
+        "type": "object",
+        "properties": {
+          "contentType": {
+            "type": "string",
+            "enum": [
+              "audio/mpeg",
+              "audio/mp3"
+            ]
+          },
+          "filename": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "contentType",
+          "filename"
+        ]
+      },
+      "OrgsIdEventsIdVideosAudiouploadurlResponse": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "url"
         ]
       },
       "OrgsIdEventsAttendRequest": {
@@ -13437,6 +13681,16 @@
             },
             "isCalledBack": {
               "type": "boolean"
+            },
+            "username": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "required": [
@@ -13454,7 +13708,8 @@
             "isFavorited",
             "rating",
             "hasNote",
-            "isCalledBack"
+            "isCalledBack",
+            "username"
           ]
         }
       },

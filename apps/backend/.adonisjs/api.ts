@@ -331,6 +331,10 @@ type OrgsIdEventsIdVideosIdDelete = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/videos/delete/controller.ts').default['handle'], false>
 }
+type OrgsIdEventsIdVideosAudiouploadurlPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/videos/audio-upload-url/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/videos/audio-upload-url/controller.ts').default['handle'], true>
+}
 type OrgsIdDancersGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/dancers/list/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/dancers/list/controller.ts').default['handle'], true>
@@ -1219,6 +1223,11 @@ export interface ApiDefinition {
               };
               '$patch': OrgsIdEventsIdVideosIdPatch;
               '$delete': OrgsIdEventsIdVideosIdDelete;
+            };
+            'audio-upload-url': {
+              '$url': {
+              };
+              '$post': OrgsIdEventsIdVideosAudiouploadurlPost;
             };
           };
         };

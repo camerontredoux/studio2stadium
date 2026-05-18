@@ -2121,15 +2121,6 @@ export interface paths {
                         "application/json": components["schemas"]["Error"];
                     };
                 };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
             };
         };
         trace?: never;
@@ -2713,6 +2704,54 @@ export interface paths {
                 };
                 /** @description Unprocessable Entity */
                 422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/rosters/{rosterId}/check-in": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                    rosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdRostersIdCheckinResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -3341,6 +3380,100 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/events/{id}/check-in": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdCheckinResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/check-in/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdCheckinStatusResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/events/{id}/schedule": {
         parameters: {
             query?: never;
@@ -3649,6 +3782,57 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/videos/audio-upload-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsIdVideosAudiouploadurlRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdVideosAudiouploadurlResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/orgs/{slug}/events/attend": {
@@ -9255,6 +9439,8 @@ export interface components {
             venueAddress?: string | null;
             contactEmail?: string | null;
             isActive?: (string | number | boolean) | null;
+            startTime?: string | null;
+            timezone?: string | null;
             name: string;
             startDate: string;
             endDate: string;
@@ -9268,6 +9454,8 @@ export interface components {
             contactEmail?: string | null;
             isActive?: (string | number | boolean) | null;
             schedulePdfUrl?: string | null;
+            startTime?: string | null;
+            timezone?: string | null;
         };
         OrgsIdEventsIdResponse: {
             id: string;
@@ -9282,6 +9470,8 @@ export interface components {
             contactEmail: string | null;
             isActive: boolean;
             schedulePdfUrl: string | null;
+            startTime: string | null;
+            timezone: string | null;
         };
         OrgsIdEventsIdUploadCoachesRequest: {
             previewToken?: string | null;
@@ -9370,6 +9560,7 @@ export interface components {
                 organization: string | null;
                 eventId: string;
                 bibNumber: number | null;
+                checkedInAt: string | null;
                 isRegistered: boolean;
             }[];
             total: number;
@@ -9381,6 +9572,7 @@ export interface components {
             total: number;
             active: number;
             pending: number;
+            checkedIn: number;
         };
         OrgsIdEventsIdRostersIdRequest: {
             email?: string | null;
@@ -9429,6 +9621,22 @@ export interface components {
             eventId: string;
             bibNumber: number | null;
             isRegistered: boolean;
+        };
+        OrgsIdEventsIdRostersIdCheckinResponse: {
+            id: string;
+            email: string;
+            type: components["schemas"]["UploadKind"];
+            firstName: string;
+            lastName: string;
+            createdAt: string;
+            updatedAt: string;
+            userId: string | null;
+            organization: string | null;
+            eventId: string;
+            bibNumber: number | null;
+            expirationDate: string | null;
+            csvUploadId: string | null;
+            checkedInAt: string | null;
         };
         OrgsIdEventsIdRostersResendinvitesRequest: {
             ids: string[];
@@ -9584,6 +9792,16 @@ export interface components {
             firstName: string;
             lastName: string;
         }[];
+        OrgsIdEventsIdCheckinResponse: {
+            id: string;
+            checkedInAt: string | null;
+        };
+        OrgsIdEventsIdCheckinStatusResponse: {
+            checkedInAt: string | null;
+            eventStartTime: string | null;
+            timezone: string | null;
+            canCheckIn: boolean;
+        };
         OrgsIdEventsIdVideocategoriesResponse: {
             id: string;
             createdAt: string;
@@ -9594,7 +9812,7 @@ export interface components {
         OrgsIdEventsIdVideocategoriesRequest: {
             name: string;
         };
-        OrgsIdEventsIdVideosResponse: {
+        OrgsIdEventsIdVideosResponse: ({
             id: string;
             createdAt: string;
             updatedAt: string;
@@ -9605,13 +9823,30 @@ export interface components {
             categoryId: string;
             audioKey: string | null;
             audioFilename: string | null;
-        }[];
+            audioUrl: null;
+        } | {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            youtubeId: string;
+            title: string;
+            eventId: string;
+            sortOrder: number;
+            categoryId: string;
+            audioKey: string | null;
+            audioFilename: string | null;
+            audioUrl: string;
+        })[];
         OrgsIdEventsIdVideosRequest: {
+            audioKey?: string | null;
+            audioFilename?: string | null;
             youtubeId: string;
             title: string;
             categoryId: string;
         };
         OrgsIdEventsIdVideosIdRequest: {
+            audioKey?: string | null;
+            audioFilename?: string | null;
             youtubeId: string;
             title: string;
             categoryId: string;
@@ -9627,6 +9862,15 @@ export interface components {
             categoryId: string;
             audioKey: string | null;
             audioFilename: string | null;
+        };
+        OrgsIdEventsIdVideosAudiouploadurlRequest: {
+            /** @enum {string} */
+            contentType: "audio/mpeg" | "audio/mp3";
+            filename: string;
+        };
+        OrgsIdEventsIdVideosAudiouploadurlResponse: {
+            key: string;
+            url: string;
         };
         OrgsIdEventsAttendRequest: {
             type: components["schemas"]["UploadKind"];
@@ -9645,6 +9889,7 @@ export interface components {
             bibNumber: number | null;
             expirationDate: string | null;
             csvUploadId: string | null;
+            checkedInAt: string | null;
         };
         OrgsIdDancersResponse: {
             rosterId: string;
@@ -10268,6 +10513,7 @@ export interface components {
             }[];
             startDate: string;
             endDate: string;
+            startTime: string;
             organizer: {
                 name: string;
                 username: string;
@@ -10277,7 +10523,6 @@ export interface components {
             attendees: number;
             saved: boolean;
             eventAttendees: number;
-            startTime: string;
             endTime: string;
         };
         EventsIdRequest: {
