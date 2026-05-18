@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { timestamps } from "./helpers/columns.ts";
 import { orgEvents, eventRosters } from "./org-events.ts";
@@ -109,6 +110,55 @@ export const eventSchoolSelections = pg.pgTable(
   ]
 );
 
+export const eventShowcases = pg.pgTable(
+  "event_showcases",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    eventId: pg
+      .uuid()
+      .notNull()
+      .references(() => orgEvents.id, { onDelete: "cascade" }),
+    number: pg.integer().notNull(),
+    status: pg.text().notNull().default("active"),
+    publishedAt: pg.timestamp({ withTimezone: true }),
+    createdAt: pg.timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    pg
+      .uniqueIndex("event_showcases_one_active_per_event")
+      .on(table.eventId)
+      .where(sql`status = 'active'`),
+    pg.index().on(table.eventId),
+  ]
+);
+
+export const publishedCallbacks = pg.pgTable(
+  "published_callbacks",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    showcaseId: pg
+      .uuid()
+      .notNull()
+      .references(() => eventShowcases.id, { onDelete: "cascade" }),
+    coachRosterId: pg
+      .uuid()
+      .notNull()
+      .references(() => eventRosters.id, { onDelete: "cascade" }),
+    dancerRosterId: pg
+      .uuid()
+      .notNull()
+      .references(() => eventRosters.id, { onDelete: "cascade" }),
+    rank: pg.integer().notNull(),
+    createdAt: pg.timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    pg
+      .uniqueIndex()
+      .on(table.showcaseId, table.coachRosterId, table.dancerRosterId),
+    pg.index().on(table.showcaseId, table.dancerRosterId),
+  ]
+);
+
 export const eventCallbacks = pg.pgTable(
   "event_callbacks",
   {
@@ -117,6 +167,10 @@ export const eventCallbacks = pg.pgTable(
       .uuid()
       .notNull()
       .references(() => orgEvents.id, { onDelete: "cascade" }),
+    showcaseId: pg
+      .uuid()
+      .notNull()
+      .references(() => eventShowcases.id, { onDelete: "cascade" }),
     coachRosterId: pg
       .uuid()
       .notNull()
@@ -130,7 +184,7 @@ export const eventCallbacks = pg.pgTable(
   (table) => [
     pg
       .uniqueIndex()
-      .on(table.eventId, table.coachRosterId, table.dancerRosterId),
+      .on(table.showcaseId, table.coachRosterId, table.dancerRosterId),
     pg.index().on(table.eventId, table.dancerRosterId),
     pg.index().on(table.coachRosterId),
   ]
