@@ -138,6 +138,8 @@ export const eventVideos = pg.pgTable(
     title: pg.varchar({ length: 300 }).notNull(),
     youtubeId: pg.varchar({ length: 20 }).notNull(),
     sortOrder: pg.integer().notNull().default(0),
+    audioKey: pg.varchar({ length: 500 }),
+    audioFilename: pg.varchar({ length: 300 }),
     ...timestamps,
   },
   (table) => [
