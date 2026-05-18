@@ -51,6 +51,8 @@ const ListVideosController = () => import("./videos/list/controller.ts");
 const CreateVideoController = () => import("./videos/create/controller.ts");
 const UpdateVideoController = () => import("./videos/update/controller.ts");
 const DeleteVideoController = () => import("./videos/delete/controller.ts");
+const AudioUploadUrlController = () =>
+  import("./videos/audio-upload-url/controller.ts");
 const AttendEventController = () => import("./attend/controller.ts");
 const ScheduleController = () => import("./schedule/controller.ts");
 
@@ -365,6 +367,16 @@ router
       ]);
     router
       .delete(":slug/events/:id/videos/:videoId", [DeleteVideoController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .post(":slug/events/:id/videos/audio-upload-url", [
+        AudioUploadUrlController,
+      ])
       .use([
         middleware.auth(),
         middleware.org(),
