@@ -147,7 +147,7 @@ function TimezoneField({
   const filteredCommon = COMMON_TIMEZONES.filter((tz) => filterTz(tz.label));
   const filteredOther = allOtherTimezones.filter((tz) => filterTz(tz));
 
-  const displayLabel = COMMON_TIMEZONES.find((tz) => tz.value === value)?.label ?? value || undefined;
+  const displayLabel = COMMON_TIMEZONES.find((tz) => tz.value === value)?.label ?? (value || undefined);
 
   return (
     <Field name={name} invalid={invalid} className="flex-1">
