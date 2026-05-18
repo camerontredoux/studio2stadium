@@ -2153,17 +2153,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "ids",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
           }
         ],
         "responses": {
@@ -2173,16 +2162,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgsIdEventsIdRostersResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -4611,6 +4590,152 @@
         ]
       }
     },
+    "/orgs/{slug}/showcases": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdShowcasesResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Admin Showcases"
+        ]
+      }
+    },
+    "/orgs/{slug}/showcases/publish": {
+      "post": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdShowcasesPublishResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Admin Showcases"
+        ]
+      }
+    },
+    "/orgs/{slug}/showcases/next": {
+      "post": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdShowcasesNextResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Admin Showcases"
+        ]
+      }
+    },
+    "/orgs/{slug}/dancer/callbacks": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdDancerCallbacksResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Dancer Callbacks"
+        ]
+      }
+    },
     "/orgs/{slug}/register": {
       "post": {
         "requestBody": {
@@ -6490,6 +6615,15 @@
     },
     "/events/{id}/unsave": {
       "delete": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventsIdUnsaveRequest"
+              }
+            }
+          }
+        },
         "parameters": [
           {
             "name": "id",
@@ -6497,21 +6631,6 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "name": "type",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
             }
           }
         ],
@@ -7824,23 +7943,15 @@
         "description": "Updates the user's account settings"
       },
       "delete": {
-        "parameters": [
-          {
-            "name": "feedback",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsersAccountDeleteRequest"
+              }
             }
           }
-        ],
+        },
         "responses": {
           "204": {
             "description": "No Content"
@@ -9832,6 +9943,32 @@
               "profileId": {
                 "type": "string"
               },
+              "orgMemberships": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "orgSlug": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "type": "string",
+                      "enum": [
+                        "admin",
+                        "member"
+                      ]
+                    },
+                    "type": {
+                      "$ref": "#/components/schemas/UploadKind"
+                    }
+                  },
+                  "required": [
+                    "orgSlug",
+                    "role",
+                    "type"
+                  ]
+                }
+              },
               "platforms": {
                 "type": "array",
                 "items": {
@@ -9855,6 +9992,7 @@
               "verified",
               "notifications",
               "profileId",
+              "orgMemberships",
               "platforms"
             ]
           },
@@ -9934,6 +10072,32 @@
           "profileId": {
             "type": "string"
           },
+          "orgMemberships": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "orgSlug": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "admin",
+                    "member"
+                  ]
+                },
+                "type": {
+                  "$ref": "#/components/schemas/UploadKind"
+                }
+              },
+              "required": [
+                "orgSlug",
+                "role",
+                "type"
+              ]
+            }
+          },
           "platforms": {
             "type": "array",
             "items": {
@@ -9957,6 +10121,7 @@
           "verified",
           "notifications",
           "profileId",
+          "orgMemberships",
           "platforms"
         ]
       },
@@ -13422,6 +13587,16 @@
             "lastName": {
               "type": "string"
             },
+            "username": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "isTopSchool": {
               "type": "boolean"
             }
@@ -13431,6 +13606,7 @@
             "organization",
             "firstName",
             "lastName",
+            "username",
             "isTopSchool"
           ]
         }
@@ -13608,6 +13784,44 @@
       "OrgsIdAdminCallbacksResponse": {
         "type": "object",
         "properties": {
+          "showcase": {
+            "type": "object",
+            "properties": {
+              "number": {
+                "type": "number"
+              },
+              "id": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "createdAt": {
+                "type": "string"
+              },
+              "eventId": {
+                "type": "string"
+              },
+              "publishedAt": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "number",
+              "id",
+              "status",
+              "createdAt",
+              "eventId",
+              "publishedAt"
+            ]
+          },
           "totalSchools": {
             "type": "number"
           },
@@ -13656,11 +13870,135 @@
           }
         },
         "required": [
+          "showcase",
           "totalSchools",
           "totalDancers",
           "bibs",
           "uniqueCallbacks"
         ]
+      },
+      "OrgsIdShowcasesResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "number": {
+              "type": "number"
+            },
+            "id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "eventId": {
+              "type": "string"
+            },
+            "publishedAt": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "number",
+            "id",
+            "status",
+            "createdAt",
+            "eventId",
+            "publishedAt"
+          ]
+        }
+      },
+      "OrgsIdShowcasesPublishResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "OrgsIdShowcasesNextResponse": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "number"
+          },
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "publishedAt": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "number",
+          "id",
+          "status",
+          "createdAt",
+          "eventId",
+          "publishedAt"
+        ]
+      },
+      "OrgsIdDancerCallbacksResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "coachRosterId": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "organization": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "coachRosterId",
+            "firstName",
+            "lastName",
+            "organization"
+          ]
+        }
       },
       "OrgsIdRegisterRequest": {
         "type": "object",
@@ -16215,6 +16553,21 @@
           }
         }
       },
+      "EventsIdUnsaveRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
       "ImagesRequest": {
         "type": "object",
         "properties": {
@@ -17999,6 +18352,21 @@
                   "number",
                   "boolean"
                 ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "UsersAccountDeleteRequest": {
+        "type": "object",
+        "properties": {
+          "feedback": {
+            "oneOf": [
+              {
+                "type": "string"
               },
               {
                 "type": "null"

@@ -220,8 +220,8 @@ type OrgsIdEventsIdRostersIdPatch = {
   response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/update/controller.ts').default['handle'], true>
 }
 type OrgsIdEventsIdRostersDelete = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/delete/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/delete/controller.ts').default['handle'], true>
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/delete/controller.ts').default['handle'], false>
 }
 type OrgsIdEventsIdRostersResendinvitesPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/resend-invites/validator.ts')['schema']>>
@@ -386,6 +386,22 @@ type OrgsIdCallbacksIdDelete = {
 type OrgsIdAdminCallbacksGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/admin-board/controller.ts').default['handle'], false>
+}
+type OrgsIdShowcasesGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/list/controller.ts').default['handle'], false>
+}
+type OrgsIdShowcasesPublishPost = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/publish/controller.ts').default['handle'], false>
+}
+type OrgsIdShowcasesNextPost = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/next/controller.ts').default['handle'], false>
+}
+type OrgsIdDancerCallbacksGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/dancer-callbacks/controller.ts').default['handle'], false>
 }
 type OrgsIdGetHead = {
   request: unknown
@@ -1261,6 +1277,30 @@ export interface ApiDefinition {
           };
           '$get': OrgsIdAdminCallbacksGetHead;
           '$head': OrgsIdAdminCallbacksGetHead;
+        };
+      };
+      'showcases': {
+        '$url': {
+        };
+        '$get': OrgsIdShowcasesGetHead;
+        '$head': OrgsIdShowcasesGetHead;
+        'publish': {
+          '$url': {
+          };
+          '$post': OrgsIdShowcasesPublishPost;
+        };
+        'next': {
+          '$url': {
+          };
+          '$post': OrgsIdShowcasesNextPost;
+        };
+      };
+      'dancer': {
+        'callbacks': {
+          '$url': {
+          };
+          '$get': OrgsIdDancerCallbacksGetHead;
+          '$head': OrgsIdDancerCallbacksGetHead;
         };
       };
       '$url': {
