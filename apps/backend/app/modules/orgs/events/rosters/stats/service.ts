@@ -15,6 +15,7 @@ export class StatsRosterService {
           total: sql<number>`count(*)::int`,
           active: sql<number>`count(*) filter (where ${eventRosters.userId} is not null)::int`,
           pending: sql<number>`count(*) filter (where ${eventRosters.userId} is null)::int`,
+          checkedIn: sql<number>`count(*) filter (where ${eventRosters.checkedInAt} is not null)::int`,
         })
         .from(eventRosters)
         .where(
@@ -25,6 +26,7 @@ export class StatsRosterService {
       total: row?.total ?? 0,
       active: row?.active ?? 0,
       pending: row?.pending ?? 0,
+      checkedIn: row?.checkedIn ?? 0,
     };
   }
 }
