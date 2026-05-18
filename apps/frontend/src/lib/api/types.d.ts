@@ -2405,9 +2405,7 @@ export interface paths {
         post?: never;
         delete: {
             parameters: {
-                query: {
-                    ids: string[];
-                };
+                query?: never;
                 header?: never;
                 path: {
                     slug: string;
@@ -2424,15 +2422,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["OrgsIdEventsIdRostersResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -4467,6 +4456,181 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["OrgsIdAdminCallbacksResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/showcases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdShowcasesResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/showcases/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdShowcasesPublishResponse"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/showcases/next": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdShowcasesNextResponse"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/dancer/callbacks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdDancerCallbacksResponse"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -6705,16 +6869,18 @@ export interface paths {
          */
         delete: {
             parameters: {
-                query?: {
-                    type?: string | null;
-                };
+                query?: never;
                 header?: never;
                 path: {
                     id: string;
                 };
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["EventsIdUnsaveRequest"];
+                };
+            };
             responses: {
                 /** @description No Content */
                 204: {
@@ -8168,14 +8334,16 @@ export interface paths {
          */
         delete: {
             parameters: {
-                query?: {
-                    feedback?: string | null;
-                };
+                query?: never;
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["UsersAccountDeleteRequest"];
+                };
+            };
             responses: {
                 /** @description No Content */
                 204: {
@@ -8875,6 +9043,12 @@ export interface components {
                 verified: boolean;
                 notifications: boolean;
                 profileId: string;
+                orgMemberships: {
+                    orgSlug: string;
+                    /** @enum {string} */
+                    role: "admin" | "member";
+                    type: components["schemas"]["UploadKind"];
+                }[];
                 platforms: ("core" | "prodigy")[];
             };
             token: string;
@@ -8897,14 +9071,13 @@ export interface components {
             verified: boolean;
             notifications: boolean;
             profileId: string;
-            platforms: ("core" | "prodigy")[];
             orgMemberships: {
                 orgSlug: string;
                 /** @enum {string} */
                 role: "admin" | "member";
-                /** @enum {string} */
-                type: "coach" | "dancer";
+                type: components["schemas"]["UploadKind"];
             }[];
+            platforms: ("core" | "prodigy")[];
         };
         AuthPasswordChangeRequest: {
             currentPassword: string;
@@ -9532,6 +9705,8 @@ export interface components {
             organization: string | null;
             firstName: string;
             lastName: string;
+            username: string | null;
+            isTopSchool: boolean;
         }[];
         OrgsIdMyselectionsResponse: {
             id: string;
@@ -9564,6 +9739,14 @@ export interface components {
             dancerRosterId: string;
         };
         OrgsIdAdminCallbacksResponse: {
+            showcase: {
+                number: number;
+                id: string;
+                status: string;
+                createdAt: string;
+                eventId: string;
+                publishedAt: string | null;
+            };
             totalSchools: number;
             totalDancers: number;
             bibs: {
@@ -9575,6 +9758,31 @@ export interface components {
             }[];
             uniqueCallbacks: number;
         };
+        OrgsIdShowcasesResponse: {
+            number: number;
+            id: string;
+            status: string;
+            createdAt: string;
+            eventId: string;
+            publishedAt: string | null;
+        }[];
+        OrgsIdShowcasesPublishResponse: {
+            message: string;
+        };
+        OrgsIdShowcasesNextResponse: {
+            number: number;
+            id: string;
+            status: string;
+            createdAt: string;
+            eventId: string;
+            publishedAt: string | null;
+        };
+        OrgsIdDancerCallbacksResponse: {
+            coachRosterId: string;
+            firstName: string;
+            lastName: string;
+            organization: string | null;
+        }[];
         OrgsIdRegisterRequest: {
             firstName: string;
             lastName: string;
@@ -10037,6 +10245,9 @@ export interface components {
         EventsIdSaveRequest: {
             type?: string | null;
         };
+        EventsIdUnsaveRequest: {
+            type?: string | null;
+        };
         ImagesRequest: {
             key: string;
         };
@@ -10334,6 +10545,9 @@ export interface components {
             lastName?: string | null;
             phone?: string | null;
             notifications?: (string | number | boolean) | null;
+        };
+        UsersAccountDeleteRequest: {
+            feedback?: string | null;
         };
         UsersAvatarRequest: {
             key: string;

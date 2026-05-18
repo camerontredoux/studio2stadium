@@ -9,13 +9,14 @@ export class CreateCallbackService {
 
   async execute(
     eventId: string,
+    showcaseId: string,
     coachRosterId: string,
     dancerRosterId: string
   ) {
     const [row] = await this.db.use((db) =>
       db
         .insert(eventCallbacks)
-        .values({ eventId, coachRosterId, dancerRosterId })
+        .values({ eventId, showcaseId, coachRosterId, dancerRosterId })
         .onConflictDoNothing()
         .returning()
     );
@@ -28,7 +29,7 @@ export class CreateCallbackService {
         .from(eventCallbacks)
         .where(
           and(
-            eq(eventCallbacks.eventId, eventId),
+            eq(eventCallbacks.showcaseId, showcaseId),
             eq(eventCallbacks.coachRosterId, coachRosterId),
             eq(eventCallbacks.dancerRosterId, dancerRosterId)
           )

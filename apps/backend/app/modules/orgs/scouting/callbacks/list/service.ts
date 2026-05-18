@@ -9,7 +9,7 @@ import { and, eq, sql } from "drizzle-orm";
 export class ListCallbacksService {
   constructor(private db: DatabaseService = new DatabaseService()) {}
 
-  async execute(eventId: string, coachRosterId: string) {
+  async execute(showcaseId: string, coachRosterId: string) {
     return this.db.use((db) =>
       db
         .select({
@@ -44,7 +44,7 @@ export class ListCallbacksService {
         )
         .where(
           and(
-            eq(eventCallbacks.eventId, eventId),
+            eq(eventCallbacks.showcaseId, showcaseId),
             eq(eventCallbacks.coachRosterId, coachRosterId)
           )
         )

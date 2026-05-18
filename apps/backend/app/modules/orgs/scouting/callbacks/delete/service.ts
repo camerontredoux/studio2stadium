@@ -8,7 +8,7 @@ export class DeleteCallbackService {
   constructor(private db: DatabaseService = new DatabaseService()) {}
 
   async execute(
-    eventId: string,
+    showcaseId: string,
     coachRosterId: string,
     dancerRosterId: string
   ) {
@@ -17,7 +17,7 @@ export class DeleteCallbackService {
         .delete(eventCallbacks)
         .where(
           and(
-            eq(eventCallbacks.eventId, eventId),
+            eq(eventCallbacks.showcaseId, showcaseId),
             eq(eventCallbacks.coachRosterId, coachRosterId),
             eq(eventCallbacks.dancerRosterId, dancerRosterId)
           )

@@ -45,4 +45,12 @@ export const scoutingQueries = {
     $api.queryOptions("get", "/orgs/{slug}/admin/callbacks", {
       params: { path: { slug } },
     }),
+  showcases: (slug: string) =>
+    $api.queryOptions("get", "/orgs/{slug}/showcases", {
+      params: { path: { slug } },
+    }),
+  dancerCallbacks: (slug: string) =>
+    $api.queryOptions("get", "/orgs/{slug}/dancer/callbacks", {
+      params: { path: { slug } },
+    }),
 };
