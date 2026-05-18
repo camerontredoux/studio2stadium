@@ -105,6 +105,7 @@ export default defineConfig({
           "app/modules/**/*.spec.ts",
           "app/middleware/**/*.spec.ts",
           "app/shared/**/*.spec.ts",
+          "app/utils/**/*.spec.ts",
           "commands/**/*.spec.ts",
         ],
         name: "functional",
