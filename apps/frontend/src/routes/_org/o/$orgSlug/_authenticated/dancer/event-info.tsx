@@ -72,9 +72,11 @@ function DancerDashboard({
   const phase = useEventPhase(event.startDate, event.endDate);
   const dateRange = formatDateRange(event.startDate, event.endDate);
 
+  const checkInEnabled = hasFeature("check_in");
   const { data: status, isLoading: statusLoading } = useQuery({
     ...checkInQueries.status(orgSlug, event.id),
     refetchInterval: 30_000,
+    enabled: checkInEnabled,
   });
   const checkIn = useDancerCheckIn(orgSlug, event.id);
 
@@ -101,11 +103,13 @@ function DancerDashboard({
           aria-label="Status"
           className="border-border flex shrink-0 items-stretch border-y"
         >
-          <StatCell
-            label="Check-in"
-            value={isCheckedIn ? "Done" : "Pending"}
-            accent={isCheckedIn ? "green" : "amber"}
-          />
+          {checkInEnabled && (
+            <StatCell
+              label="Check-in"
+              value={isCheckedIn ? "Done" : "Pending"}
+              accent={isCheckedIn ? "green" : "amber"}
+            />
+          )}
           <StatCell label="Phase" value={phase.label} accent="blue" />
         </section>
 
@@ -115,14 +119,17 @@ function DancerDashboard({
             event.schedulePdfUrl ? "lg:grid-rows-[auto_1fr]" : ""
           }`}
         >
-          <CheckInPanel
-            status={status ?? null}
-            isLoading={statusLoading}
-            checkIn={checkIn}
-          />
+          {checkInEnabled && (
+            <CheckInPanel
+              status={status ?? null}
+              isLoading={statusLoading}
+              checkIn={checkIn}
+            />
+          )}
           <QuickNavPanel
             orgSlug={orgSlug}
             showCallbacks={hasCallbacks}
+            hasFeature={hasFeature}
           />
           {event.schedulePdfUrl && (
             <div className="flex h-full min-h-0 flex-col lg:col-span-2">
@@ -283,27 +290,37 @@ function CheckInContent({
 function QuickNavPanel({
   orgSlug,
   showCallbacks,
+  hasFeature,
 }: {
   orgSlug: string;
   showCallbacks: boolean;
+  hasFeature: (key: string) => boolean;
 }) {
   const navItems = [
-    {
-      icon: PlayCircleIcon,
-      label: "Video Library",
-      to: "/o/$orgSlug/dancer/video-library",
-      description: "Watch and upload videos",
-      iconClass:
-        "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
-    },
-    {
-      icon: SchoolIcon,
-      label: "Browse Schools",
-      to: "/o/$orgSlug/dancer/schools",
-      description: "Explore attending programs",
-      iconClass:
-        "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
-    },
+    ...(hasFeature("video_library")
+      ? [
+          {
+            icon: PlayCircleIcon,
+            label: "Video Library",
+            to: "/o/$orgSlug/dancer/video-library",
+            description: "Watch and upload videos",
+            iconClass:
+              "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+          },
+        ]
+      : []),
+    ...(hasFeature("school_selections")
+      ? [
+          {
+            icon: SchoolIcon,
+            label: "Browse Schools",
+            to: "/o/$orgSlug/dancer/schools",
+            description: "Explore attending programs",
+            iconClass:
+              "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+          },
+        ]
+      : []),
     ...(showCallbacks
       ? [
           {

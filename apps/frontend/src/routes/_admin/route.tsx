@@ -34,6 +34,7 @@ export const Route = createFileRoute("/_admin")({
 
 const navLinks = [
   { to: "/admin/dashboard", label: "Dashboard" },
+  { to: "/admin/orgs", label: "Organizations" },
   { to: "/admin/applications", label: "Applications" },
   { to: "/admin/dancers", label: "Dancers" },
   { to: "/admin/school-events", label: "Schools" },

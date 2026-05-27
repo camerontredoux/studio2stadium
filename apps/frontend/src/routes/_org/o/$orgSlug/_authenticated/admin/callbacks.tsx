@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, redirect, useParams } from "@tanstack/react-router";
 import { ChevronDownIcon, Megaphone, SendIcon, SkipForwardIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -17,6 +17,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTab } from "@/components/ui/tabs";
 import { cn } from "@/components/utils/cn";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
+import { orgQueries } from "@/features/org/api/queries";
 import {
   LivePulse,
   StatCell,
@@ -33,6 +34,15 @@ import { $api } from "@/lib/api/client";
 export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/admin/callbacks",
 )({
+  beforeLoad: async ({ context, params }) => {
+    const data = await context.queryClient.ensureQueryData(
+      orgQueries.org(params.orgSlug),
+    );
+    const features = ((data as any)?.features ?? {}) as Record<string, boolean>;
+    if (!features.callbacks) {
+      throw redirect({ to: "/o/$orgSlug/admin", params });
+    }
+  },
   loader: ({ context, params }) => {
     context.queryClient.ensureQueryData(
       scoutingQueries.showcases(params.orgSlug),

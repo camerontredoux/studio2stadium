@@ -23,6 +23,20 @@ export default class OrgMemberMiddleware {
       return ctx.response.notFound({ message: "Organization not resolved." });
     }
 
+    // System admins can access any org without membership
+    if (user.role === "admin") {
+      ctx.orgMembership = {
+        id: "system-admin",
+        userId: user.id,
+        orgId: ctx.org.id,
+        role: "admin",
+        type: "coach",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as typeof orgMemberships.$inferSelect;
+      return next();
+    }
+
     const [membership] = await db
       .select()
       .from(orgMemberships)

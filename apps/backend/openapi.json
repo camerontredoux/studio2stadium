@@ -1052,6 +1052,279 @@
         "description": "Permanently deletes a training video by ID"
       }
     },
+    "/admin/orgs": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOrgsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get all organizations",
+        "description": "Returns all organizations with member and event counts"
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminOrgsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOrgsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create organization",
+        "description": "Creates a new organization"
+      }
+    },
+    "/admin/orgs/{id}": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminOrgsIdRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOrgsIdResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update organization",
+        "description": "Updates an organization by ID"
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete organization",
+        "description": "Permanently deletes an organization and all associated data"
+      }
+    },
+    "/admin/orgs/{id}/members": {
+      "get": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOrgsIdMembersResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get organization members",
+        "description": "Returns all members of an organization"
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminOrgsIdMembersRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOrgsIdMembersResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Add organization member",
+        "description": "Adds a user as a member of an organization"
+      }
+    },
+    "/admin/orgs/{id}/members/{memberId}": {
+      "delete": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "memberId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Remove organization member",
+        "description": "Removes a member from an organization"
+      }
+    },
     "/application": {
       "get": {
         "parameters": [],
@@ -2187,6 +2460,21 @@
             }
           },
           {
+            "name": "org",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
             "name": "limit",
             "in": "query",
             "required": false,
@@ -2197,21 +2485,6 @@
                     "string",
                     "number"
                   ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          {
-            "name": "org",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -10099,6 +10372,411 @@
           "success"
         ]
       },
+      "AdminOrgsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "updatedAt": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "slug": {
+              "type": "string"
+            },
+            "logoUrl": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "primaryColor": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "accentColor": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "features": {
+              "type": "object",
+              "properties": {}
+            },
+            "settings": {
+              "type": "object",
+              "properties": {}
+            },
+            "memberCount": {
+              "type": "number"
+            },
+            "eventCount": {
+              "type": "number"
+            },
+            "activeEvent": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "createdAt",
+            "updatedAt",
+            "name",
+            "slug",
+            "logoUrl",
+            "primaryColor",
+            "accentColor",
+            "features",
+            "settings",
+            "memberCount",
+            "eventCount",
+            "activeEvent"
+          ]
+        }
+      },
+      "AdminOrgsRequest": {
+        "type": "object",
+        "properties": {
+          "logoUrl": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "primaryColor": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "accentColor": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "features": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {}
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "settings": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {}
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "slug"
+        ]
+      },
+      "AdminOrgsIdRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "slug": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "logoUrl": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "primaryColor": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "accentColor": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "features": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {}
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "settings": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {}
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "AdminOrgsIdResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "primaryColor": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "accentColor": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "features": {
+            "type": "object",
+            "properties": {}
+          },
+          "settings": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "name",
+          "slug",
+          "logoUrl",
+          "primaryColor",
+          "accentColor",
+          "features",
+          "settings"
+        ]
+      },
+      "AdminOrgsIdMembersResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "user": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "firstName": {
+                      "type": "string"
+                    },
+                    "lastName": {
+                      "type": "string"
+                    },
+                    "username": {
+                      "type": "string"
+                    },
+                    "avatar": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "email",
+                    "firstName",
+                    "lastName",
+                    "username",
+                    "avatar"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "admin",
+                "member"
+              ]
+            },
+            "type": {
+              "$ref": "#/components/schemas/UploadKind"
+            },
+            "createdAt": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "user",
+            "role",
+            "type",
+            "createdAt"
+          ]
+        }
+      },
+      "AdminOrgsIdMembersRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "member"
+            ]
+          },
+          "type": {
+            "$ref": "#/components/schemas/UploadKind"
+          }
+        },
+        "required": [
+          "email",
+          "role",
+          "type"
+        ]
+      },
       "ApplicationResponse": {
         "type": "object",
         "properties": {
@@ -15296,8 +15974,8 @@
             "type": "string",
             "enum": [
               "other",
-              "bug",
               "feature",
+              "bug",
               "improvement"
             ]
           },

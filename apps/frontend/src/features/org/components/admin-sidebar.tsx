@@ -94,8 +94,8 @@ export function AdminSidebar() {
       });
     }
 
-    sections.push(
-      {
+    if (hasFeature("video_library")) {
+      sections.push({
         title: "Content",
         items: [
           {
@@ -104,23 +104,24 @@ export function AdminSidebar() {
             to: "/o/$orgSlug/admin/video-library",
           },
         ],
-      },
-      {
-        title: "Settings",
-        items: [
-          {
-            label: "Audit Log",
-            icon: ClipboardListIcon,
-            to: "/o/$orgSlug/admin/uploads",
-          },
-          {
-            label: "Settings",
-            icon: SettingsIcon,
-            to: "/o/$orgSlug/admin/settings",
-          },
-        ],
-      },
-    );
+      });
+    }
+
+    sections.push({
+      title: "Settings",
+      items: [
+        {
+          label: "Audit Log",
+          icon: ClipboardListIcon,
+          to: "/o/$orgSlug/admin/uploads",
+        },
+        {
+          label: "Settings",
+          icon: SettingsIcon,
+          to: "/o/$orgSlug/admin/settings",
+        },
+      ],
+    });
 
     return sections;
   }, [hasFeature]);
@@ -158,7 +159,7 @@ export function AdminSidebar() {
     : location.pathname.includes("/coach")
       ? "Coach"
       : "Dancer";
-  const canSwitchView = membership?.role === "admin";
+  const canSwitchView = membership?.role === "admin" || session.role === "admin";
 
   function handleSelectView(view: "Admin" | "Coach" | "Dancer") {
     if (view === "Admin") {

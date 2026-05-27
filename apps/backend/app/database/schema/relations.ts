@@ -213,6 +213,46 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.schoolProfiles.id,
     }),
   },
+  organizations: {
+    memberships: r.many.orgMemberships({
+      from: r.organizations.id,
+      to: r.orgMemberships.orgId,
+    }),
+    events: r.many.orgEvents({
+      from: r.organizations.id,
+      to: r.orgEvents.orgId,
+    }),
+  },
+  orgMemberships: {
+    user: r.one.users({
+      from: r.orgMemberships.userId,
+      to: r.users.id,
+    }),
+    org: r.one.organizations({
+      from: r.orgMemberships.orgId,
+      to: r.organizations.id,
+    }),
+  },
+  orgEvents: {
+    org: r.one.organizations({
+      from: r.orgEvents.orgId,
+      to: r.organizations.id,
+    }),
+    rosters: r.many.eventRosters({
+      from: r.orgEvents.id,
+      to: r.eventRosters.eventId,
+    }),
+  },
+  eventRosters: {
+    event: r.one.orgEvents({
+      from: r.eventRosters.eventId,
+      to: r.orgEvents.id,
+    }),
+    user: r.one.users({
+      from: r.eventRosters.userId,
+      to: r.users.id,
+    }),
+  },
   eventAuditLog: {
     event: r.one.orgEvents({
       from: r.eventAuditLog.eventId,

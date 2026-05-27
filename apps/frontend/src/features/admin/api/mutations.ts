@@ -100,3 +100,49 @@ export function useAdminDeleteSchoolVideo(username: string) {
     },
   });
 }
+
+export function useCreateOrg() {
+  return $api.useMutation("post", "/admin/orgs", {
+    meta: {
+      invalidateQueries: [adminQueries.orgs().queryKey],
+    },
+  });
+}
+
+export function useUpdateOrg() {
+  return $api.useMutation("patch", "/admin/orgs/{id}", {
+    meta: {
+      invalidateQueries: [adminQueries.orgs().queryKey],
+    },
+  });
+}
+
+export function useDeleteOrg() {
+  return $api.useMutation("delete", "/admin/orgs/{id}", {
+    meta: {
+      invalidateQueries: [adminQueries.orgs().queryKey],
+    },
+  });
+}
+
+export function useAddOrgMember(orgId: string) {
+  return $api.useMutation("post", "/admin/orgs/{id}/members", {
+    meta: {
+      invalidateQueries: [
+        adminQueries.orgs().queryKey,
+        adminQueries.orgMembers(orgId).queryKey,
+      ],
+    },
+  });
+}
+
+export function useRemoveOrgMember(orgId: string) {
+  return $api.useMutation("delete", "/admin/orgs/{id}/members/{memberId}", {
+    meta: {
+      invalidateQueries: [
+        adminQueries.orgs().queryKey,
+        adminQueries.orgMembers(orgId).queryKey,
+      ],
+    },
+  });
+}

@@ -107,6 +107,34 @@ type AdminLibraryVideosIdDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/delete-training-video/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/delete-training-video/controller.ts').default['handle'], true>
 }
+type AdminOrgsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/admin/get-all-orgs/controller.ts').default['handle'], false>
+}
+type AdminOrgsPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/create-org/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/create-org/controller.ts').default['handle'], true>
+}
+type AdminOrgsIdPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/update-org/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/update-org/controller.ts').default['handle'], true>
+}
+type AdminOrgsIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/delete-org/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/delete-org/controller.ts').default['handle'], true>
+}
+type AdminOrgsIdMembersGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/get-org-members/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/get-org-members/controller.ts').default['handle'], true>
+}
+type AdminOrgsIdMembersPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/add-org-member/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/add-org-member/controller.ts').default['handle'], true>
+}
+type AdminOrgsIdMembersIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/remove-org-member/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/remove-org-member/controller.ts').default['handle'], true>
+}
 type ApplicationGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/applications/get-application/controller.ts').default['handle'], false>
@@ -963,6 +991,31 @@ export interface ApiDefinition {
           '$url': {
           };
           '$delete': AdminLibraryVideosIdDelete;
+        };
+      };
+    };
+    'orgs': {
+      '$url': {
+      };
+      '$get': AdminOrgsGetHead;
+      '$head': AdminOrgsGetHead;
+      '$post': AdminOrgsPost;
+      ':id': {
+        '$url': {
+        };
+        '$patch': AdminOrgsIdPatch;
+        '$delete': AdminOrgsIdDelete;
+        'members': {
+          '$url': {
+          };
+          '$get': AdminOrgsIdMembersGetHead;
+          '$head': AdminOrgsIdMembersGetHead;
+          '$post': AdminOrgsIdMembersPost;
+          ':memberId': {
+            '$url': {
+            };
+            '$delete': AdminOrgsIdMembersIdDelete;
+          };
         };
       };
     };

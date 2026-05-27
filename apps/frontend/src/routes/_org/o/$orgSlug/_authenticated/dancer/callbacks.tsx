@@ -3,11 +3,21 @@ import { createFileRoute, Link, redirect, useParams } from "@tanstack/react-rout
 import { MegaphoneIcon, SchoolIcon } from "lucide-react";
 
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
+import { orgQueries } from "@/features/org/api/queries";
 import { AccentDot } from "@/features/org/components/dashboard-shared";
 
 export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/dancer/callbacks",
 )({
+  beforeLoad: async ({ context, params }) => {
+    const data = await context.queryClient.ensureQueryData(
+      orgQueries.org(params.orgSlug),
+    );
+    const features = ((data as any)?.features ?? {}) as Record<string, boolean>;
+    if (!features.callbacks) {
+      throw redirect({ to: "/o/$orgSlug/dancer", params });
+    }
+  },
   loader: async ({ context, params }) => {
     const data = await context.queryClient.ensureQueryData(
       scoutingQueries.dancerCallbacks(params.orgSlug),

@@ -1,4 +1,5 @@
 import { useOrg } from "@/features/org/context/use-org";
+import { useSession } from "@/lib/session";
 import { client } from "@/lib/api/client";
 import {
   DropdownMenu,
@@ -16,6 +17,7 @@ type View = "Admin" | "Coach" | "Dancer";
 
 export function ViewSwitcher() {
   const { membership } = useOrg();
+  const session = useSession();
   const location = useLocation();
   const navigate = useNavigate();
   const { orgSlug } = useParams({ strict: false }) as { orgSlug: string };
@@ -31,7 +33,7 @@ export function ViewSwitcher() {
     },
   });
 
-  if (membership?.role !== "admin") return null;
+  if (membership?.role !== "admin" && session.role !== "admin") return null;
 
   const current: View = location.pathname.includes("/admin")
     ? "Admin"

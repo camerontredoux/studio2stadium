@@ -95,21 +95,26 @@ export function DancerSidebar() {
           },
         ]
       : []),
-    {
-      title: "Explore",
-      items: [
-        {
+    ...(() => {
+      const exploreItems: { label: string; icon: any; to: string }[] = [];
+      if (hasFeature("video_library")) {
+        exploreItems.push({
           label: "Video Library",
           icon: PlayCircleIcon,
           to: "/o/$orgSlug/dancer/video-library" as const,
-        },
-        {
+        });
+      }
+      if (hasFeature("school_selections")) {
+        exploreItems.push({
           label: "Schools",
           icon: SchoolIcon,
           to: "/o/$orgSlug/dancer/schools" as const,
-        },
-      ],
-    },
+        });
+      }
+      return exploreItems.length > 0
+        ? [{ title: "Explore", items: exploreItems }]
+        : [];
+    })(),
   ];
   const { ternaryDarkMode, setTernaryDarkMode } = useOrgTheme();
 
@@ -122,7 +127,7 @@ export function DancerSidebar() {
     : location.pathname.includes("/coach")
       ? "Coach"
       : "Dancer";
-  const canSwitchView = membership?.role === "admin";
+  const canSwitchView = membership?.role === "admin" || session.role === "admin";
 
   function handleSelectView(view: "Admin" | "Coach" | "Dancer") {
     if (view === "Admin") {

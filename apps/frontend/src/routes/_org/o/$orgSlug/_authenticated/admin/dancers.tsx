@@ -14,10 +14,11 @@ import { DataGrid, StatusBadge } from "@/features/org/components/data-grid";
 import { rosterBulkActions } from "@/features/org/components/roster-bulk-actions";
 import { RosterDetailSheet } from "@/features/org/components/roster-detail-sheet";
 import { RosterPageHeader } from "@/features/org/components/roster-page-header";
+import { useOrg } from "@/features/org/context/use-org";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { type ColumnDef, type SortingState } from "@tanstack/react-table";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/admin/dancers",
@@ -52,7 +53,7 @@ function CheckedInBadge({ checkedInAt }: { checkedInAt: string | null }) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type RosterEntryWithCheckIn = RosterEntry & { checkedInAt?: string | null };
 
-const columns: ColumnDef<RosterEntryWithCheckIn, unknown>[] = [
+const baseColumns: ColumnDef<RosterEntryWithCheckIn, unknown>[] = [
   {
     id: "bibNumber",
     accessorKey: "bibNumber",
@@ -96,18 +97,25 @@ const columns: ColumnDef<RosterEntryWithCheckIn, unknown>[] = [
     enableSorting: true,
     cell: ({ row }) => <StatusBadge isRegistered={row.original.isRegistered} />,
   },
-  {
-    id: "checkedInAt",
-    accessorKey: "checkedInAt",
-    header: "Checked In",
-    cell: ({ row }) => (
-      <CheckedInBadge checkedInAt={row.original.checkedInAt ?? null} />
-    ),
-  },
 ];
+
+const checkedInColumn: ColumnDef<RosterEntryWithCheckIn, unknown> = {
+  id: "checkedInAt",
+  accessorKey: "checkedInAt",
+  header: "Checked In",
+  cell: ({ row }) => (
+    <CheckedInBadge checkedInAt={row.original.checkedInAt ?? null} />
+  ),
+};
 
 function DancersPage() {
   const { orgSlug } = Route.useParams();
+  const { hasFeature } = useOrg();
+  const checkInEnabled = hasFeature("check_in");
+  const columns = useMemo(
+    () => (checkInEnabled ? [...baseColumns, checkedInColumn] : baseColumns),
+    [checkInEnabled],
+  );
   const { data: events } = useSuspenseQuery(adminQueries.events(orgSlug));
   const active = events?.find((e) => e.isActive);
 
@@ -281,7 +289,7 @@ function DancersPage() {
           activated: statsQuery.data?.active ?? 0,
           pending: statsQuery.data?.pending ?? 0,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          checkedIn: (statsQuery.data as any)?.checkedIn as number | undefined,
+          checkedIn: checkInEnabled ? ((statsQuery.data as any)?.checkedIn as number | undefined) : undefined,
         }}
         isLoading={statsQuery.isLoading}
         status={status}
@@ -326,6 +334,7 @@ function DancersPage() {
         eventId={active.id}
         open={sheetOpen}
         onOpenChange={setSheetOpen}
+        checkInEnabled={checkInEnabled}
       />
     </div>
   );

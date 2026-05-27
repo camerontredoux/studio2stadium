@@ -73,6 +73,7 @@ interface RosterDetailSheetProps {
   eventId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  checkInEnabled?: boolean;
 }
 
 export function RosterDetailSheet({
@@ -81,6 +82,7 @@ export function RosterDetailSheet({
   eventId,
   open,
   onOpenChange,
+  checkInEnabled = true,
 }: RosterDetailSheetProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [attachOpen, setAttachOpen] = useState(false);
@@ -401,35 +403,37 @@ export function RosterDetailSheet({
                 </fieldset>
               )}
 
-              <div className="border-t pt-4">
-                <p className="text-muted-foreground mb-3 text-xs font-medium uppercase tracking-wide">
-                  Check-In
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">
-                    {isCheckedIn ? (
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className="inline-block size-1.5 rounded-full bg-green-500" />
-                        Checked in
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground inline-flex items-center gap-1.5">
-                        <span className="bg-muted-foreground/50 inline-block size-1.5 rounded-full" />
-                        Not checked in
-                      </span>
-                    )}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleCheckInToggle}
-                    disabled={checkInMutation.isPending}
-                  >
-                    {isCheckedIn ? "Undo Check-in" : "Check In"}
-                  </Button>
+              {checkInEnabled && (
+                <div className="border-t pt-4">
+                  <p className="text-muted-foreground mb-3 text-xs font-medium uppercase tracking-wide">
+                    Check-In
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">
+                      {isCheckedIn ? (
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className="inline-block size-1.5 rounded-full bg-green-500" />
+                          Checked in
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground inline-flex items-center gap-1.5">
+                          <span className="bg-muted-foreground/50 inline-block size-1.5 rounded-full" />
+                          Not checked in
+                        </span>
+                      )}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleCheckInToggle}
+                      disabled={checkInMutation.isPending}
+                    >
+                      {isCheckedIn ? "Undo Check-in" : "Check In"}
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="border-t pt-4">
                 <p className="text-muted-foreground mb-3 text-xs">

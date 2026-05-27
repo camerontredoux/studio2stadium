@@ -77,7 +77,7 @@ export function CoachSidebar() {
     : location.pathname.includes("/coach")
       ? "Coach"
       : "Dancer";
-  const canSwitchView = membership?.role === "admin";
+  const canSwitchView = membership?.role === "admin" || session.role === "admin";
 
   function handleSelectView(view: "Admin" | "Coach" | "Dancer") {
     if (view === "Admin") {

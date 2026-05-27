@@ -13,6 +13,7 @@ import { DataGrid, StatusBadge } from "@/features/org/components/data-grid";
 import { rosterBulkActions } from "@/features/org/components/roster-bulk-actions";
 import { RosterDetailSheet } from "@/features/org/components/roster-detail-sheet";
 import { RosterPageHeader } from "@/features/org/components/roster-page-header";
+import { useOrg } from "@/features/org/context/use-org";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { type ColumnDef, type SortingState } from "@tanstack/react-table";
@@ -85,6 +86,8 @@ const columns: ColumnDef<RosterEntry, unknown>[] = [
 
 function CoachesPage() {
   const { orgSlug } = Route.useParams();
+  const { hasFeature } = useOrg();
+  const checkInEnabled = hasFeature("check_in");
   const { data: events } = useSuspenseQuery(adminQueries.events(orgSlug));
   const active = events?.find((e) => e.isActive);
 
@@ -297,6 +300,7 @@ function CoachesPage() {
         eventId={active.id}
         open={sheetOpen}
         onOpenChange={setSheetOpen}
+        checkInEnabled={checkInEnabled}
       />
     </div>
   );

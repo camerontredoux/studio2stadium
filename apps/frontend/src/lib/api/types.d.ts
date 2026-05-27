@@ -1244,6 +1244,304 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/orgs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all organizations
+         * @description Returns all organizations with member and event counts
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOrgsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create organization
+         * @description Creates a new organization
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminOrgsRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOrgsResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/orgs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete organization
+         * @description Permanently deletes an organization and all associated data
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update organization
+         * @description Updates an organization by ID
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminOrgsIdRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOrgsIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/admin/orgs/{id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get organization members
+         * @description Returns all members of an organization
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOrgsIdMembersResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Add organization member
+         * @description Adds a user as a member of an organization
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminOrgsIdMembersRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOrgsIdMembersResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/orgs/{id}/members/{memberId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove organization member
+         * @description Removes a member from an organization
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    memberId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/application": {
         parameters: {
             query?: never;
@@ -2600,8 +2898,8 @@ export interface paths {
                 query: {
                     search?: string | null;
                     status?: ("pending" | "active" | "all") | null;
-                    limit?: (string | number) | null;
                     org?: string | null;
+                    limit?: (string | number) | null;
                     page?: (string | number) | null;
                     sortBy?: ("email" | "firstName" | "lastName" | "createdAt" | "organization" | "bibNumber" | "isRegistered") | null;
                     sortDir?: ("asc" | "desc") | null;
@@ -9453,6 +9751,72 @@ export interface components {
         AdminLibraryVideosIdResponse: {
             success: boolean;
         };
+        AdminOrgsResponse: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            name: string;
+            slug: string;
+            logoUrl: string | null;
+            primaryColor: string | null;
+            accentColor: string | null;
+            features: Record<string, never>;
+            settings: Record<string, never>;
+            memberCount: number;
+            eventCount: number;
+            activeEvent: string | null;
+        }[];
+        AdminOrgsRequest: {
+            logoUrl?: string | null;
+            primaryColor?: string | null;
+            accentColor?: string | null;
+            features?: Record<string, never> | null;
+            settings?: Record<string, never> | null;
+            name: string;
+            slug: string;
+        };
+        AdminOrgsIdRequest: {
+            name?: string | null;
+            slug?: string | null;
+            logoUrl?: string | null;
+            primaryColor?: string | null;
+            accentColor?: string | null;
+            features?: Record<string, never> | null;
+            settings?: Record<string, never> | null;
+        };
+        AdminOrgsIdResponse: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            name: string;
+            slug: string;
+            logoUrl: string | null;
+            primaryColor: string | null;
+            accentColor: string | null;
+            features: Record<string, never>;
+            settings: Record<string, never>;
+        };
+        AdminOrgsIdMembersResponse: {
+            id: string;
+            user: {
+                id: string;
+                email: string;
+                firstName: string;
+                lastName: string;
+                username: string;
+                avatar: string | null;
+            } | null;
+            /** @enum {string} */
+            role: "admin" | "member";
+            type: components["schemas"]["UploadKind"];
+            createdAt: string;
+        }[];
+        AdminOrgsIdMembersRequest: {
+            email: string;
+            /** @enum {string} */
+            role: "admin" | "member";
+            type: components["schemas"]["UploadKind"];
+        };
         ApplicationResponse: {
             id?: string;
             /** @enum {string} */
@@ -10408,7 +10772,7 @@ export interface components {
         FeedbackRequest: {
             page?: string | null;
             /** @enum {string} */
-            type: "other" | "bug" | "feature" | "improvement";
+            type: "other" | "feature" | "bug" | "improvement";
             message: string;
         };
         DancersResponse: {

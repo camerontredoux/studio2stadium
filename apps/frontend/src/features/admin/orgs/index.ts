@@ -1,0 +1,1 @@
+export { OrgsPage } from "./page";

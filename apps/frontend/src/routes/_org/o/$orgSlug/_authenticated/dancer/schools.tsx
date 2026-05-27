@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useParams } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -10,6 +10,7 @@ import {
 import type { ColumnDef, SortingState } from "@tanstack/react-table";
 import { $api } from "@/lib/api/client";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
+import { orgQueries } from "@/features/org/api/queries";
 import { useOrg } from "@/features/org/context/use-org";
 import { StatCell } from "@/features/org/components/dashboard-shared";
 import { DancerTable } from "@/features/org/components/dancer-table/dancer-table";
@@ -31,6 +32,15 @@ import { toastManager } from "@/components/ui/toast-manager";
 export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/dancer/schools",
 )({
+  beforeLoad: async ({ context, params }) => {
+    const data = await context.queryClient.ensureQueryData(
+      orgQueries.org(params.orgSlug),
+    );
+    const features = ((data as any)?.features ?? {}) as Record<string, boolean>;
+    if (!features.school_selections) {
+      throw redirect({ to: "/o/$orgSlug/dancer", params });
+    }
+  },
   component: SchoolsPage,
 });
 

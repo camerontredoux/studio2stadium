@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useDeferredValue, useMemo, useState } from "react";
 import { StatCell } from "@/features/org/components/dashboard-shared";
@@ -23,11 +23,21 @@ import {
   type EventVideoGroup,
 } from "@/features/org/api/video-queries";
 import { adminQueries } from "@/features/org/api/admin-queries";
+import { orgQueries } from "@/features/org/api/queries";
 import { formatDistanceToNow } from "date-fns";
 
 export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/admin/video-library",
 )({
+  beforeLoad: async ({ context, params }) => {
+    const data = await context.queryClient.ensureQueryData(
+      orgQueries.org(params.orgSlug),
+    );
+    const features = ((data as any)?.features ?? {}) as Record<string, boolean>;
+    if (!features.video_library) {
+      throw redirect({ to: "/o/$orgSlug/admin", params });
+    }
+  },
   component: AdminVideoLibrary,
 });
 

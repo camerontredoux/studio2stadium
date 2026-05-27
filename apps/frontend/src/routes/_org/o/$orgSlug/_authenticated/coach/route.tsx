@@ -7,9 +7,15 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { CoachSidebar } from "@/features/org/components/coach-sidebar";
 import { orgQueries } from "@/features/org/api/queries";
+import { queries } from "@/lib/session";
 
 export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/coach")({
   beforeLoad: async ({ context, params }) => {
+    const session = await context.queryClient.ensureQueryData(
+      queries.session(),
+    );
+    if (session?.role === "admin") return;
+
     const data = (context.queryClient.getQueryData(
       orgQueries.org(params.orgSlug).queryKey,
     ) ??

@@ -51,6 +51,20 @@ const UploadSchoolVideoController = () =>
   import("#modules/admin/upload-school-video/controller");
 const DeleteSchoolVideoController = () =>
   import("#modules/admin/delete-school-video/controller");
+const GetAllOrgsController = () =>
+  import("#modules/admin/get-all-orgs/controller");
+const CreateOrgController = () =>
+  import("#modules/admin/create-org/controller");
+const UpdateOrgController = () =>
+  import("#modules/admin/update-org/controller");
+const DeleteOrgController = () =>
+  import("#modules/admin/delete-org/controller");
+const GetOrgMembersController = () =>
+  import("#modules/admin/get-org-members/controller");
+const AddOrgMemberController = () =>
+  import("#modules/admin/add-org-member/controller");
+const RemoveOrgMemberController = () =>
+  import("#modules/admin/remove-org-member/controller");
 
 router
   .group(() => {
@@ -217,6 +231,43 @@ router
       .openapi({
         summary: "Delete training video",
         description: "Permanently deletes a training video by ID",
+      });
+
+    router.get("orgs", [GetAllOrgsController]).openapi({
+      summary: "Get all organizations",
+      description: "Returns all organizations with member and event counts",
+    });
+
+    router.post("orgs", [CreateOrgController]).openapi({
+      summary: "Create organization",
+      description: "Creates a new organization",
+    });
+
+    router.patch("orgs/:id", [UpdateOrgController]).openapi({
+      summary: "Update organization",
+      description: "Updates an organization by ID",
+    });
+
+    router.delete("orgs/:id", [DeleteOrgController]).openapi({
+      summary: "Delete organization",
+      description: "Permanently deletes an organization and all associated data",
+    });
+
+    router.get("orgs/:id/members", [GetOrgMembersController]).openapi({
+      summary: "Get organization members",
+      description: "Returns all members of an organization",
+    });
+
+    router.post("orgs/:id/members", [AddOrgMemberController]).openapi({
+      summary: "Add organization member",
+      description: "Adds a user as a member of an organization",
+    });
+
+    router
+      .delete("orgs/:id/members/:memberId", [RemoveOrgMemberController])
+      .openapi({
+        summary: "Remove organization member",
+        description: "Removes a member from an organization",
       });
   })
   .use([middleware.auth(), middleware.admin()])

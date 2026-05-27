@@ -22,11 +22,17 @@ import { AdminCommandsProvider } from "@/features/org/hooks/use-admin-commands";
 import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
 import { EventFormSheet } from "@/features/org/components/event-form-sheet";
 import { orgQueries } from "@/features/org/api/queries";
+import { queries } from "@/lib/session";
 import { client } from "@/lib/api/client";
 import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/admin")({
   beforeLoad: async ({ context, params }) => {
+    const session = await context.queryClient.ensureQueryData(
+      queries.session(),
+    );
+    if (session?.role === "admin") return;
+
     const data = (await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     )) as { membership?: { role: string; type: string } | null } | null;

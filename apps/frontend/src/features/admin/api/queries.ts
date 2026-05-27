@@ -42,4 +42,9 @@ export const adminQueries = {
       },
     ),
   dancerStats: () => $api.queryOptions("get", "/admin/dancers/stats"),
+  orgs: () => $api.queryOptions("get", "/admin/orgs"),
+  orgMembers: (orgId: string) =>
+    $api.queryOptions("get", "/admin/orgs/{id}/members", {
+      params: { path: { id: orgId } },
+    }),
 };
