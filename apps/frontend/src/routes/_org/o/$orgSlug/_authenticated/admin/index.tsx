@@ -36,6 +36,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import {
   FileUpload,
   FileUploadDropzone,
@@ -95,16 +98,43 @@ function AdminDashboard({
   orgSlug: string;
   activeEvent: OrgEvent;
 }) {
+  const qc = useQueryClient();
   const { data: stats } = useSuspenseQuery(
     adminQueries.stats(orgSlug, activeEvent.id),
   );
   const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
   useAdminCommands();
 
   useAdminCommandListener(
     (a) => a.type === "open-edit-event",
     () => setEditOpen(true),
   );
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const res = await (client as any).DELETE(
+        `/orgs/${orgSlug}/events/${activeEvent.id}`,
+        {},
+      );
+      if (res.error) throw new Error("Delete failed");
+    },
+    onSuccess: () => {
+      qc.invalidateQueries(adminQueries.events(orgSlug));
+      toastManager.add({ title: "Event deleted", type: "success" });
+      setDeleteOpen(false);
+      setDeleteConfirmText("");
+    },
+    onError: () => {
+      toastManager.add({ title: "Couldn't delete event", type: "error" });
+    },
+  });
+
+  const handleDeleteOpenChange = (open: boolean) => {
+    setDeleteOpen(open);
+    if (!open) setDeleteConfirmText("");
+  };
 
   const totalRoster = stats.coaches.total + stats.dancers.total;
   const activationPct =
@@ -220,6 +250,8 @@ function AdminDashboard({
         activeEvent={activeEvent}
         phase={phase}
         stats={stats.recentUploads}
+        onEdit={() => setEditOpen(true)}
+        onDelete={() => setDeleteOpen(true)}
       />
 
       <EventFormSheet
@@ -228,6 +260,60 @@ function AdminDashboard({
         open={editOpen}
         onOpenChange={setEditOpen}
       />
+
+      <AlertDialog open={deleteOpen} onOpenChange={handleDeleteOpenChange}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete event</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete{" "}
+              <span className="font-semibold">{activeEvent.name}</span> and all
+              associated data including rosters, uploads, and audit history. This
+              action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="px-6 pb-4">
+            <Field name="confirm">
+              <FieldLabel>
+                Type <span className="font-mono font-bold">delete</span> to
+                confirm
+              </FieldLabel>
+              <Input
+                placeholder="delete"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                autoComplete="off"
+              />
+            </Field>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogClose
+              render={
+                <Button
+                  variant="outline"
+                  disabled={deleteMutation.isPending}
+                />
+              }
+            >
+              Cancel
+            </AlertDialogClose>
+            <Button
+              variant="destructive"
+              disabled={
+                deleteConfirmText.toLowerCase() !== "delete" ||
+                deleteMutation.isPending
+              }
+              onClick={() => deleteMutation.mutate()}
+            >
+              {deleteMutation.isPending ? (
+                <Spinner label="Deleting..." />
+              ) : (
+                "Delete event"
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -989,14 +1075,40 @@ function EventSidebar({
   activeEvent,
   phase,
   stats,
+  onEdit,
+  onDelete,
 }: {
   orgSlug: string;
   activeEvent: OrgEvent;
   phase: EventPhaseInfo;
   stats: CsvUploadSummary[];
+  onEdit: () => void;
+  onDelete: () => void;
 }) {
   return (
     <aside className="border-border flex w-full shrink-0 flex-col border-t xl:w-[320px] xl:overflow-x-hidden xl:overflow-y-auto xl:border-t-0 xl:border-l">
+      <SidebarSection title="Actions" accent="rose">
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            onClick={onEdit}
+          >
+            <PencilIcon className="size-3.5" />
+            Edit
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive flex-1"
+            onClick={onDelete}
+          >
+            <Trash2Icon className="size-3.5" />
+            Delete
+          </Button>
+        </div>
+      </SidebarSection>
       <SidebarPhaseSection phase={phase} />
       <SidebarDetailsSection orgSlug={orgSlug} event={activeEvent} />
       <SidebarActivitySection orgSlug={orgSlug} uploads={stats} />

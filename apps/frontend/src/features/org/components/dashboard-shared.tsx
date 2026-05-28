@@ -1,5 +1,6 @@
 import {
   CalendarIcon,
+  ClockIcon,
   ExternalLinkIcon,
   HeartIcon,
   MailIcon,
@@ -297,6 +298,20 @@ export function SidebarDetailsSection({
             {formatLongDateRange(event.startDate, event.endDate)}
           </span>
         </li>
+        {event.startTime && (
+          <li className="flex items-center gap-2">
+            <ClockIcon className="text-muted-foreground size-3.5 shrink-0" />
+            <span>
+              {event.startTime}
+              {event.timezone && (
+                <span className="text-muted-foreground">
+                  {" "}
+                  {event.timezone.replace(/^America\//, "").replace(/_/g, " ")}
+                </span>
+              )}
+            </span>
+          </li>
+        )}
         {event.venueName && (
           <li className="flex items-start gap-2">
             <MapPinIcon className="text-muted-foreground mt-0.5 size-3.5 shrink-0" />

@@ -3,6 +3,7 @@ import router from "@adonisjs/core/services/router";
 
 const CreateEventController = () => import("./create/controller.ts");
 const UpdateEventController = () => import("./update/controller.ts");
+const DeleteEventController = () => import("./delete/controller.ts");
 const ListEventsController = () => import("./list/controller.ts");
 const UploadCoachesController = () => import("./upload-coaches/controller.ts");
 const UploadDancersController = () => import("./upload-dancers/controller.ts");
@@ -73,6 +74,14 @@ router
       ]);
     router
       .patch(":slug/events/:id", [UpdateEventController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .delete(":slug/events/:id", [DeleteEventController])
       .use([
         middleware.auth(),
         middleware.org(),
