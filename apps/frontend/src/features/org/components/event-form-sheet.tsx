@@ -168,9 +168,9 @@ function TimezoneField({
             />
           }
         >
-          <span className="flex items-center gap-2 truncate">
-            <GlobeIcon aria-hidden="true" className="size-4 shrink-0 opacity-50" />
-            <span className="truncate">
+          <span className="flex min-w-0 items-center gap-2">
+            <GlobeIcon aria-hidden="true" className="mx-0 size-4 shrink-0 opacity-50" />
+            <span className="min-w-0 truncate">
               {displayLabel ?? <span className="text-muted-foreground">Pick timezone</span>}
             </span>
           </span>

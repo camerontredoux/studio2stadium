@@ -225,12 +225,12 @@ function TimezonePicker({
           />
         }
       >
-        <span className="flex items-center gap-2 truncate">
+        <span className="flex min-w-0 items-center gap-2">
           <GlobeIcon
             aria-hidden="true"
-            className="size-4 shrink-0 opacity-50"
+            className="mx-0 size-4 shrink-0 opacity-50"
           />
-          <span className="truncate">
+          <span className="min-w-0 truncate">
             {displayLabel ?? (
               <span className="text-muted-foreground">No default set</span>
             )}
