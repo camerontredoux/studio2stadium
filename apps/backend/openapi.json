@@ -1284,6 +1284,62 @@
       }
     },
     "/admin/orgs/{id}/members/{memberId}": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminOrgsIdMembersIdRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "memberId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOrgsIdMembersIdResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update organization member",
+        "description": "Updates the role or type of an organization member"
+      },
       "delete": {
         "parameters": [
           {
@@ -2160,6 +2216,41 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
           },
           "404": {
             "description": "Not Found",
@@ -5412,6 +5503,64 @@
         },
         "tags": [
           "Org Dancer Callbacks"
+        ]
+      }
+    },
+    "/orgs/{slug}/settings": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdSettingsRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdSettingsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Organizations"
         ]
       }
     },
@@ -10777,6 +10926,74 @@
           "type"
         ]
       },
+      "AdminOrgsIdMembersIdRequest": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "admin",
+                  "member"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UploadKind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "AdminOrgsIdMembersIdResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "member"
+            ]
+          },
+          "type": {
+            "$ref": "#/components/schemas/UploadKind"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "orgId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "type",
+          "createdAt",
+          "updatedAt",
+          "userId",
+          "orgId"
+        ]
+      },
       "ApplicationResponse": {
         "type": "object",
         "properties": {
@@ -15636,6 +15853,33 @@
             "organization"
           ]
         }
+      },
+      "OrgsIdSettingsRequest": {
+        "type": "object",
+        "properties": {
+          "defaultTimezone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "OrgsIdSettingsResponse": {
+        "type": "object",
+        "properties": {
+          "settings": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "required": [
+          "settings"
+        ]
       },
       "OrgsIdRegisterRequest": {
         "type": "object",

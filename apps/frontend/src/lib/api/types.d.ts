@@ -1539,7 +1539,46 @@ export interface paths {
         };
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Update organization member
+         * @description Updates the role or type of an organization member
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    memberId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminOrgsIdMembersIdRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOrgsIdMembersIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/application": {
@@ -2626,7 +2665,36 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch: {
@@ -5405,6 +5473,65 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdSettingsRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdSettingsResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/orgs/{slug}/register": {
@@ -9817,6 +9944,20 @@ export interface components {
             role: "admin" | "member";
             type: components["schemas"]["UploadKind"];
         };
+        AdminOrgsIdMembersIdRequest: {
+            role?: ("admin" | "member") | null;
+            type?: components["schemas"]["UploadKind"] | null;
+        };
+        AdminOrgsIdMembersIdResponse: {
+            id: string;
+            /** @enum {string} */
+            role: "admin" | "member";
+            type: components["schemas"]["UploadKind"];
+            createdAt: string;
+            updatedAt: string;
+            userId: string;
+            orgId: string;
+        };
         ApplicationResponse: {
             id?: string;
             /** @enum {string} */
@@ -10696,6 +10837,12 @@ export interface components {
             lastName: string;
             organization: string | null;
         }[];
+        OrgsIdSettingsRequest: {
+            defaultTimezone?: string | null;
+        };
+        OrgsIdSettingsResponse: {
+            settings: Record<string, never>;
+        };
         OrgsIdRegisterRequest: {
             firstName: string;
             lastName: string;

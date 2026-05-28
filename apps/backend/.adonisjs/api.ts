@@ -131,6 +131,10 @@ type AdminOrgsIdMembersPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/add-org-member/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/add-org-member/controller.ts').default['handle'], true>
 }
+type AdminOrgsIdMembersIdPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/update-org-member/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/update-org-member/controller.ts').default['handle'], true>
+}
 type AdminOrgsIdMembersIdDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/remove-org-member/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/remove-org-member/controller.ts').default['handle'], true>
@@ -222,6 +226,10 @@ type OrgsIdEventsPost = {
 type OrgsIdEventsIdPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/update/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/events/update/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdDelete = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/delete/controller.ts').default['handle'], false>
 }
 type OrgsIdEventsGetHead = {
   request: unknown
@@ -474,6 +482,10 @@ type OrgsGetHead = {
 type OrgsIdGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/get-org/controller.ts').default['handle'], false>
+}
+type OrgsIdSettingsPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/update-settings/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/update-settings/controller.ts').default['handle'], true>
 }
 type OrgsIdRegisterPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/register-dancer/validator.ts')['schema']>>
@@ -1014,6 +1026,7 @@ export interface ApiDefinition {
           ':memberId': {
             '$url': {
             };
+            '$patch': AdminOrgsIdMembersIdPatch;
             '$delete': AdminOrgsIdMembersIdDelete;
           };
         };
@@ -1136,6 +1149,7 @@ export interface ApiDefinition {
           '$url': {
           };
           '$patch': OrgsIdEventsIdPatch;
+          '$delete': OrgsIdEventsIdDelete;
           'upload': {
             'coaches': {
               '$url': {
@@ -1451,6 +1465,11 @@ export interface ApiDefinition {
       };
       '$get': OrgsIdGetHead;
       '$head': OrgsIdGetHead;
+      'settings': {
+        '$url': {
+        };
+        '$patch': OrgsIdSettingsPatch;
+      };
       'register': {
         '$url': {
         };

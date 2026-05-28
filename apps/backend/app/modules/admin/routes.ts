@@ -65,6 +65,8 @@ const AddOrgMemberController = () =>
   import("#modules/admin/add-org-member/controller");
 const RemoveOrgMemberController = () =>
   import("#modules/admin/remove-org-member/controller");
+const UpdateOrgMemberController = () =>
+  import("#modules/admin/update-org-member/controller");
 
 router
   .group(() => {
@@ -262,6 +264,13 @@ router
       summary: "Add organization member",
       description: "Adds a user as a member of an organization",
     });
+
+    router
+      .patch("orgs/:id/members/:memberId", [UpdateOrgMemberController])
+      .openapi({
+        summary: "Update organization member",
+        description: "Updates the role or type of an organization member",
+      });
 
     router
       .delete("orgs/:id/members/:memberId", [RemoveOrgMemberController])

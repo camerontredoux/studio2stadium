@@ -29,11 +29,12 @@ import { toastManager } from "@/components/ui/toast-manager";
 import {
   useAddOrgMember,
   useRemoveOrgMember,
+  useUpdateOrgMember,
 } from "@/features/admin/api/mutations";
 import { adminQueries } from "@/features/admin/api/queries";
 import { useQuery } from "@tanstack/react-query";
-import { Trash2, UserPlus } from "lucide-react";
-import { useState } from "react";
+import { Search, Trash2, UserPlus } from "lucide-react";
+import { useMemo, useState } from "react";
 
 const ROLE_ITEMS = [
   { value: "admin", label: "Admin" },
@@ -59,6 +60,7 @@ export function MembersDialog({ org, onOpenChange }: MembersDialogProps) {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"admin" | "member" | null>("member");
   const [type, setType] = useState<"coach" | "dancer" | null>("coach");
+  const [search, setSearch] = useState("");
 
   const { data: members, isLoading } = useQuery({
     ...adminQueries.orgMembers(org?.id ?? ""),
@@ -68,6 +70,18 @@ export function MembersDialog({ org, onOpenChange }: MembersDialogProps) {
   const { mutate: addMember, isPending: isAdding } = useAddOrgMember(
     org?.id ?? "",
   );
+  const filteredMembers = useMemo(() => {
+    if (!members) return [];
+    if (!search.trim()) return members;
+    const q = search.toLowerCase();
+    return members.filter((m) => {
+      const name = `${m.user?.firstName ?? ""} ${m.user?.lastName ?? ""}`.toLowerCase();
+      const email = m.user?.email?.toLowerCase() ?? "";
+      return name.includes(q) || email.includes(q);
+    });
+  }, [members, search]);
+
+  const { mutate: updateMember } = useUpdateOrgMember(org?.id ?? "");
   const { mutate: removeMember, isPending: isRemoving } = useRemoveOrgMember(
     org?.id ?? "",
   );
@@ -206,13 +220,22 @@ export function MembersDialog({ org, onOpenChange }: MembersDialogProps) {
               <p className="text-sm font-medium mb-2">
                 Members{members ? ` (${members.length})` : ""}
               </p>
+              <div className="relative mb-2">
+                <Search className="text-muted-foreground absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search by name or email..."
+                  className="h-8 pl-8 text-sm"
+                />
+              </div>
               {isLoading ? (
                 <p className="text-muted-foreground py-4 text-center text-sm">
                   Loading members...
                 </p>
-              ) : !members || members.length === 0 ? (
+              ) : !filteredMembers || filteredMembers.length === 0 ? (
                 <p className="text-muted-foreground py-4 text-center text-sm">
-                  No members yet
+                  {search.trim() ? "No matching members" : "No members yet"}
                 </p>
               ) : (
                 <Table>
@@ -225,7 +248,7 @@ export function MembersDialog({ org, onOpenChange }: MembersDialogProps) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {members.map((member) => (
+                    {filteredMembers.map((member) => (
                       <TableRow key={member.id}>
                         <TableCell>
                           <div className="min-w-0">
@@ -242,10 +265,52 @@ export function MembersDialog({ org, onOpenChange }: MembersDialogProps) {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <span className="text-xs capitalize">{member.role}</span>
+                          <Select
+                            value={member.role}
+                            onValueChange={(v) => {
+                              if (!org) return;
+                              updateMember({
+                                params: { path: { id: org.id, memberId: member.id } },
+                                body: { role: v as "admin" | "member" },
+                              });
+                            }}
+                            items={ROLE_ITEMS}
+                          >
+                            <SelectTrigger size="sm" className="h-7 min-h-0 w-24 text-xs sm:min-h-0">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {ROLE_ITEMS.map((item) => (
+                                <SelectItem key={item.value} value={item.value}>
+                                  {item.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </TableCell>
                         <TableCell>
-                          <span className="text-xs capitalize">{member.type}</span>
+                          <Select
+                            value={member.type}
+                            onValueChange={(v) => {
+                              if (!org) return;
+                              updateMember({
+                                params: { path: { id: org.id, memberId: member.id } },
+                                body: { type: v as "coach" | "dancer" },
+                              });
+                            }}
+                            items={TYPE_ITEMS}
+                          >
+                            <SelectTrigger size="sm" className="h-7 min-h-0 w-24 text-xs sm:min-h-0">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {TYPE_ITEMS.map((item) => (
+                                <SelectItem key={item.value} value={item.value}>
+                                  {item.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </TableCell>
                         <TableCell>
                           <Button

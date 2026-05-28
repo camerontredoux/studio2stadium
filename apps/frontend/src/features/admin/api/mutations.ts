@@ -136,6 +136,16 @@ export function useAddOrgMember(orgId: string) {
   });
 }
 
+export function useUpdateOrgMember(orgId: string) {
+  return $api.useMutation("patch", "/admin/orgs/{id}/members/{memberId}", {
+    meta: {
+      invalidateQueries: [
+        adminQueries.orgMembers(orgId).queryKey,
+      ],
+    },
+  });
+}
+
 export function useRemoveOrgMember(orgId: string) {
   return $api.useMutation("delete", "/admin/orgs/{id}/members/{memberId}", {
     meta: {
