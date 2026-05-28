@@ -1,5 +1,6 @@
 import "./events/routes.ts";
 import "./scouting/routes.ts";
+import { middleware } from "#start/kernel";
 import router from "@adonisjs/core/services/router";
 
 const GetOrgController = () => import("./get-org/controller.ts");
@@ -10,6 +11,8 @@ const RegisterSchoolController = () =>
   import("./register-school/controller.ts");
 const InviteLookupSchoolController = () =>
   import("./invite-lookup-school/controller.ts");
+const UpdateOrgSettingsController = () =>
+  import("./update-settings/controller.ts");
 
 router
   .group(() => {
@@ -24,6 +27,15 @@ router
       description:
         "Public org metadata + branding for the login and landing pages.",
     });
+
+    router
+      .patch(":slug/settings", [UpdateOrgSettingsController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
 
     router.post(":slug/register", [RegisterDancerController]).openapi({
       summary: "Dancer self-registration via invite token",

@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverPopup, PopoverTrigger } from "@/components/ui/popover";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { TimePicker } from "@/components/ui/time-picker";
 import { toastManager } from "@/components/ui/toast-manager";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -35,6 +36,7 @@ import type { DateRange } from "react-day-picker";
 import { z } from "zod";
 import { client } from "@/lib/api/client";
 import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
+import { useOrg } from "@/features/org/context/use-org";
 
 const COMMON_TIMEZONES = [
   { value: "America/New_York", label: "Eastern (America/New_York)" },
@@ -107,7 +109,7 @@ function defaultsFromEvent(event: OrgEvent): Schema {
   };
 }
 
-function emptyDefaults(): Schema {
+function emptyDefaults(defaultTimezone?: string): Schema {
   return {
     name: "",
     dateRange: undefined as unknown as Schema["dateRange"],
@@ -115,7 +117,7 @@ function emptyDefaults(): Schema {
     venueAddress: "",
     contactEmail: "",
     startTime: "",
-    timezone: "",
+    timezone: defaultTimezone ?? "",
   };
 }
 
@@ -308,7 +310,11 @@ function EventFormFields({
           render={({ field, fieldState }) => (
             <Field name={field.name} invalid={fieldState.invalid} className="flex-1">
               <FieldLabel>Start time</FieldLabel>
-              <Input {...field} type="time" placeholder="09:00" />
+              <TimePicker
+                value={field.value}
+                onValueChange={field.onChange}
+                invalid={fieldState.invalid}
+              />
               <FieldError error={fieldState.error} />
             </Field>
           )}
@@ -386,20 +392,13 @@ export function EventFormSheet({
   event,
 }: EventFormSheetProps) {
   const qc = useQueryClient();
+  const { settings } = useOrg();
+  const defaultTimezone = (settings.defaultTimezone as string) ?? undefined;
   const isCreate = event === undefined;
   const [discardConfirmOpen, setDiscardConfirmOpen] = useState(false);
   const bypassDirtyCheckRef = useRef(false);
 
-  const rawClient = client as unknown as {
-    POST: (
-      path: string,
-      opts: { body: unknown },
-    ) => Promise<{ data: OrgEvent }>;
-    PATCH: (
-      path: string,
-      opts: { body: Record<string, unknown> },
-    ) => Promise<{ data: OrgEvent }>;
-  };
+  const rawClient = client as any;
 
   const createMutation = useMutation({
     mutationFn: async (body: {
@@ -412,16 +411,16 @@ export function EventFormSheet({
       startTime?: string;
       timezone?: string;
     }) => {
-      const created = (
-        await rawClient.POST(`/orgs/${orgSlug}/events`, {
-          body: { ...body, isActive: false },
-        })
-      ).data;
-      return (
-        await rawClient.PATCH(`/orgs/${orgSlug}/events/${created.id}`, {
-          body: { isActive: true },
-        })
-      ).data;
+      const createRes = await rawClient.POST(`/orgs/${orgSlug}/events`, {
+        body: { ...body, isActive: false },
+      });
+      if (createRes.error) throw new Error("Create failed");
+      const activateRes = await rawClient.PATCH(
+        `/orgs/${orgSlug}/events/${createRes.data.id}`,
+        { body: { isActive: true } },
+      );
+      if (activateRes.error) throw new Error("Activate failed");
+      return activateRes.data as OrgEvent;
     },
     onSuccess: () => {
       qc.invalidateQueries(adminQueries.events(orgSlug));
@@ -442,7 +441,14 @@ export function EventFormSheet({
       const res = await rawClient.PATCH(`/orgs/${orgSlug}/events/${event.id}`, {
         body,
       });
-      return res.data;
+      if (res.error) {
+        const msg =
+          typeof res.error === "object" && res.error?.message
+            ? res.error.message
+            : "Update failed";
+        throw new Error(msg);
+      }
+      return res.data as OrgEvent;
     },
     onSuccess: () => {
       qc.invalidateQueries(adminQueries.events(orgSlug));
@@ -450,8 +456,12 @@ export function EventFormSheet({
       bypassDirtyCheckRef.current = true;
       onOpenChange(false);
     },
-    onError: () => {
-      toastManager.add({ title: "Couldn't update event", type: "error" });
+    onError: (err) => {
+      toastManager.add({
+        title: "Couldn't update event",
+        description: err.message,
+        type: "error",
+      });
     },
   });
 
@@ -462,13 +472,13 @@ export function EventFormSheet({
     formState: { isDirty },
   } = useForm<Schema>({
     resolver: zodResolver(schema),
-    defaultValues: isCreate ? emptyDefaults() : defaultsFromEvent(event),
+    defaultValues: isCreate ? emptyDefaults(defaultTimezone) : defaultsFromEvent(event),
   });
 
   useEffect(() => {
     if (!open) return;
-    reset(isCreate ? emptyDefaults() : defaultsFromEvent(event));
-  }, [open, isCreate, event, reset]);
+    reset(isCreate ? emptyDefaults(defaultTimezone) : defaultsFromEvent(event));
+  }, [open, isCreate, event, reset, defaultTimezone]);
 
   const pending = isCreate
     ? createMutation.isPending
@@ -504,6 +514,7 @@ export function EventFormSheet({
     if (pending) return;
     if (!data.dateRange.from || !data.dateRange.to) return;
     if (isCreate) {
+      const hasTimePair = !!data.startTime && !!data.timezone;
       createMutation.mutate({
         name: data.name,
         startDate: toYmd(data.dateRange.from),
@@ -511,10 +522,11 @@ export function EventFormSheet({
         venueName: data.venueName || undefined,
         venueAddress: data.venueAddress || undefined,
         contactEmail: data.contactEmail || undefined,
-        startTime: data.startTime || undefined,
-        timezone: data.timezone || undefined,
+        startTime: hasTimePair ? data.startTime : undefined,
+        timezone: hasTimePair ? data.timezone : undefined,
       });
     } else {
+      const hasTimePair = !!data.startTime && !!data.timezone;
       updateMutation.mutate({
         name: data.name,
         startDate: toYmd(data.dateRange.from),
@@ -522,8 +534,8 @@ export function EventFormSheet({
         venueName: data.venueName || null,
         venueAddress: data.venueAddress || null,
         contactEmail: data.contactEmail || null,
-        startTime: data.startTime || null,
-        timezone: data.timezone || null,
+        startTime: hasTimePair ? data.startTime : null,
+        timezone: hasTimePair ? data.timezone : null,
       });
     }
   };
@@ -608,17 +620,10 @@ export function CreateEventForm({
   onCreated?: (event: OrgEvent) => void;
 }) {
   const qc = useQueryClient();
+  const { settings } = useOrg();
+  const defaultTimezone = (settings.defaultTimezone as string) ?? undefined;
 
-  const rawClient = client as unknown as {
-    POST: (
-      path: string,
-      opts: { body: unknown },
-    ) => Promise<{ data: OrgEvent }>;
-    PATCH: (
-      path: string,
-      opts: { body: { isActive: boolean } },
-    ) => Promise<{ data: OrgEvent }>;
-  };
+  const rawClient = client as any;
 
   const createMutation = useMutation({
     mutationFn: async (body: {
@@ -631,16 +636,16 @@ export function CreateEventForm({
       startTime?: string;
       timezone?: string;
     }) => {
-      const created = (
-        await rawClient.POST(`/orgs/${orgSlug}/events`, {
-          body: { ...body, isActive: false },
-        })
-      ).data;
-      return (
-        await rawClient.PATCH(`/orgs/${orgSlug}/events/${created.id}`, {
-          body: { isActive: true },
-        })
-      ).data;
+      const createRes = await rawClient.POST(`/orgs/${orgSlug}/events`, {
+        body: { ...body, isActive: false },
+      });
+      if (createRes.error) throw new Error("Create failed");
+      const activateRes = await rawClient.PATCH(
+        `/orgs/${orgSlug}/events/${createRes.data.id}`,
+        { body: { isActive: true } },
+      );
+      if (activateRes.error) throw new Error("Activate failed");
+      return activateRes.data as OrgEvent;
     },
     onSuccess: (ev) => {
       qc.invalidateQueries(adminQueries.events(orgSlug));
@@ -653,7 +658,7 @@ export function CreateEventForm({
 
   const { control, handleSubmit, reset } = useForm<Schema>({
     resolver: zodResolver(schema),
-    defaultValues: emptyDefaults(),
+    defaultValues: emptyDefaults(defaultTimezone),
   });
 
   const onSubmit = (data: Schema) => {
