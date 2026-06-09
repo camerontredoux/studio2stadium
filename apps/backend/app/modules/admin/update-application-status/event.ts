@@ -1,6 +1,8 @@
 import { db } from "#database/connection";
 import { outboxService } from "#database/outbox-service";
+import env from "#start/env";
 import { BaseEvent } from "@adonisjs/core/events";
+import app from "@adonisjs/core/services/app";
 import emitter from "@adonisjs/core/services/emitter";
 import mail from "@adonisjs/mail/services/main";
 import SchoolWelcomeEmail from "./email.ts";
@@ -21,6 +23,10 @@ export class SchoolApprovedEvent extends BaseEvent {
 class SchoolApprovedHandler {
   async handle(event: SchoolApprovedEvent) {
     const { userId, schoolId, schoolName } = event.data;
+
+    if (app.inProduction) {
+      await fetch(env.get("CLOUDFLARE_DEPLOY_HOOK"), { method: "POST" });
+    }
 
     await outboxService.publish({
       type: "school.approved",
