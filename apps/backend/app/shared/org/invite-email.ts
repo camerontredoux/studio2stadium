@@ -16,6 +16,7 @@ interface OrgInviteMailData {
   venueName: string | null;
   type: "dancer" | "coach";
   token?: string;
+  welcomeVideoUrl: string | null;
 }
 
 class OrgInviteMail extends BaseMail {
@@ -45,6 +46,7 @@ class OrgInviteMail extends BaseMail {
       type: this.data.type,
       inviteUrl,
       brandColor: this.data.brandColor,
+      welcomeVideoUrl: this.data.welcomeVideoUrl,
     });
 
     this.message.to(this.data.email);
@@ -101,6 +103,8 @@ export async function sendOrgInviteEmail(opts: {
         venueName: event?.venueName ?? null,
         type,
         token,
+        welcomeVideoUrl:
+          (org.settings as { welcome_video?: string })?.welcome_video ?? null,
       })
     );
   } catch {
@@ -134,6 +138,8 @@ export async function sendOrgInviteEmailOrThrow(opts: {
       venueName: event?.venueName ?? null,
       type,
       token,
+      welcomeVideoUrl:
+        (org.settings as { welcome_video?: string })?.welcome_video ?? null,
     })
   );
 }
