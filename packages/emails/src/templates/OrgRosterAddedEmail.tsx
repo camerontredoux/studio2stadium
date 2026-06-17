@@ -17,6 +17,14 @@ export interface OrgRosterAddedEmailProps {
   type: "dancer" | "coach";
   dashboardUrl: string;
   brandColor?: string | null;
+  welcomeVideoUrl?: string | null;
+}
+
+function getYouTubeVideoId(url: string): string | null {
+  const match = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+  );
+  return match?.[1] ?? null;
 }
 
 const mutedText = {
@@ -56,6 +64,7 @@ export function OrgRosterAddedEmail({
   type,
   dashboardUrl,
   brandColor,
+  welcomeVideoUrl,
 }: OrgRosterAddedEmailProps) {
   const accent = brandColor || colors.primary;
   const roleWord = type === "dancer" ? "dancer" : "coach";
@@ -117,6 +126,36 @@ export function OrgRosterAddedEmail({
           )}
         </Section>
       )}
+
+      {welcomeVideoUrl && (() => {
+        const videoId = getYouTubeVideoId(welcomeVideoUrl);
+        if (!videoId) return null;
+        return (
+          <Section style={{ margin: "0 0 24px", textAlign: "center" as const }}>
+            <Link href={welcomeVideoUrl} style={{ textDecoration: "none" }}>
+              <div
+                style={{
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  display: "inline-block",
+                }}
+              >
+                <img
+                  src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
+                  alt="Welcome video"
+                  width={480}
+                  height={360}
+                  style={{ display: "block", maxWidth: "100%", height: "auto" }}
+                />
+              </div>
+            </Link>
+            <Text style={{ ...mutedText, margin: "8px 0 0", textAlign: "center" as const }}>
+              Watch the welcome video
+            </Text>
+          </Section>
+        );
+      })()}
 
       <Button href={dashboardUrl}>Open your dashboard</Button>
 
