@@ -63,8 +63,10 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [newSettingKey, setNewSettingKey] = useState("");
   const [newSettingValue, setNewSettingValue] = useState("");
-  const [welcomeVideoEnabled, setWelcomeVideoEnabled] = useState(false);
-  const [welcomeVideoUrl, setWelcomeVideoUrl] = useState("");
+  const [coachVideoEnabled, setCoachVideoEnabled] = useState(false);
+  const [coachVideoUrl, setCoachVideoUrl] = useState("");
+  const [dancerVideoEnabled, setDancerVideoEnabled] = useState(false);
+  const [dancerVideoUrl, setDancerVideoUrl] = useState("");
 
   const form = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
@@ -100,9 +102,12 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
       }
       setSettings(settingsMap);
 
-      const wv = org.settings?.welcome_video;
-      setWelcomeVideoEnabled(Boolean(wv));
-      setWelcomeVideoUrl(typeof wv === "string" ? wv : "");
+      const cwv = org.settings?.welcome_video_coach;
+      setCoachVideoEnabled(Boolean(cwv));
+      setCoachVideoUrl(typeof cwv === "string" ? cwv : "");
+      const dwv = org.settings?.welcome_video_dancer;
+      setDancerVideoEnabled(Boolean(dwv));
+      setDancerVideoUrl(typeof dwv === "string" ? dwv : "");
 
       setActiveTab("profile");
     }
@@ -339,87 +344,171 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                     />
                   </div>
                 ))}
-                <div className="border-border border-t pt-4">
-                  <div className="flex items-center justify-between gap-4 py-1">
-                    <div className="space-y-0.5">
-                      <p className="text-sm font-medium">Welcome Video</p>
-                      <p className="text-muted-foreground text-xs">
-                        Attach a welcome video to dancer invite &amp; roster emails
-                      </p>
-                    </div>
-                    <Switch
-                      checked={welcomeVideoEnabled}
-                      onCheckedChange={(checked) => {
-                        setWelcomeVideoEnabled(checked);
-                        if (!checked) {
-                          setWelcomeVideoUrl("");
-                          updateOrg(
-                            {
-                              params: { path: { id: org!.id } },
-                              body: {
-                                settings: { ...org!.settings, welcome_video: null },
-                              } as never,
-                            },
-                            {
-                              onSuccess: () => {
-                                toastManager.add({
-                                  title: "Welcome video removed",
-                                  description: "Video will no longer appear in emails",
-                                  type: "success",
-                                });
+                <div className="border-border border-t pt-4 space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between gap-4 py-1">
+                      <div className="space-y-0.5">
+                        <p className="text-sm font-medium">Coach Welcome Video</p>
+                        <p className="text-muted-foreground text-xs">
+                          Attach a welcome video to coach invite &amp; roster emails
+                        </p>
+                      </div>
+                      <Switch
+                        checked={coachVideoEnabled}
+                        onCheckedChange={(checked) => {
+                          setCoachVideoEnabled(checked);
+                          if (!checked) {
+                            setCoachVideoUrl("");
+                            updateOrg(
+                              {
+                                params: { path: { id: org!.id } },
+                                body: {
+                                  settings: { ...org!.settings, welcome_video_coach: null },
+                                } as never,
                               },
-                            },
-                          );
-                        }
-                      }}
-                    />
-                  </div>
-                  {welcomeVideoEnabled && (
-                    <div className="mt-3 flex items-center gap-2">
-                      <Input
-                        value={welcomeVideoUrl}
-                        onChange={(e) => setWelcomeVideoUrl(e.target.value)}
-                        placeholder="https://youtube.com/watch?v=..."
-                        className="flex-1 text-sm"
-                      />
-                      <Button
-                        type="button"
-                        size="sm"
-                        disabled={
-                          !welcomeVideoUrl.trim() ||
-                          welcomeVideoUrl === ((org?.settings as Record<string, unknown>)?.welcome_video ?? "")
-                        }
-                        onClick={() => {
-                          updateOrg(
-                            {
-                              params: { path: { id: org!.id } },
-                              body: {
-                                settings: { ...org!.settings, welcome_video: welcomeVideoUrl.trim() },
-                              } as never,
-                            },
-                            {
-                              onSuccess: () => {
-                                toastManager.add({
-                                  title: "Welcome video saved",
-                                  description: "Video will appear in dancer emails",
-                                  type: "success",
-                                });
+                              {
+                                onSuccess: () => {
+                                  toastManager.add({
+                                    title: "Coach welcome video removed",
+                                    description: "Video will no longer appear in coach emails",
+                                    type: "success",
+                                  });
+                                },
                               },
-                              onError: () => {
-                                toastManager.add({
-                                  title: "Error",
-                                  description: "Failed to save welcome video URL",
-                                  type: "error",
-                                });
-                              },
-                            },
-                          );
+                            );
+                          }
                         }}
-                      >
-                        Save
-                      </Button>
+                      />
                     </div>
-                  )}
+                    {coachVideoEnabled && (
+                      <div className="mt-3 flex items-center gap-2">
+                        <Input
+                          value={coachVideoUrl}
+                          onChange={(e) => setCoachVideoUrl(e.target.value)}
+                          placeholder="https://youtube.com/watch?v=..."
+                          className="flex-1 text-sm"
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          disabled={
+                            !coachVideoUrl.trim() ||
+                            coachVideoUrl === ((org?.settings as Record<string, unknown>)?.welcome_video_coach ?? "")
+                          }
+                          onClick={() => {
+                            updateOrg(
+                              {
+                                params: { path: { id: org!.id } },
+                                body: {
+                                  settings: { ...org!.settings, welcome_video_coach: coachVideoUrl.trim() },
+                                } as never,
+                              },
+                              {
+                                onSuccess: () => {
+                                  toastManager.add({
+                                    title: "Coach welcome video saved",
+                                    description: "Video will appear in coach emails",
+                                    type: "success",
+                                  });
+                                },
+                                onError: () => {
+                                  toastManager.add({
+                                    title: "Error",
+                                    description: "Failed to save welcome video URL",
+                                    type: "error",
+                                  });
+                                },
+                              },
+                            );
+                          }}
+                        >
+                          Save
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between gap-4 py-1">
+                      <div className="space-y-0.5">
+                        <p className="text-sm font-medium">Dancer Welcome Video</p>
+                        <p className="text-muted-foreground text-xs">
+                          Attach a welcome video to dancer invite &amp; roster emails
+                        </p>
+                      </div>
+                      <Switch
+                        checked={dancerVideoEnabled}
+                        onCheckedChange={(checked) => {
+                          setDancerVideoEnabled(checked);
+                          if (!checked) {
+                            setDancerVideoUrl("");
+                            updateOrg(
+                              {
+                                params: { path: { id: org!.id } },
+                                body: {
+                                  settings: { ...org!.settings, welcome_video_dancer: null },
+                                } as never,
+                              },
+                              {
+                                onSuccess: () => {
+                                  toastManager.add({
+                                    title: "Dancer welcome video removed",
+                                    description: "Video will no longer appear in dancer emails",
+                                    type: "success",
+                                  });
+                                },
+                              },
+                            );
+                          }
+                        }}
+                      />
+                    </div>
+                    {dancerVideoEnabled && (
+                      <div className="mt-3 flex items-center gap-2">
+                        <Input
+                          value={dancerVideoUrl}
+                          onChange={(e) => setDancerVideoUrl(e.target.value)}
+                          placeholder="https://youtube.com/watch?v=..."
+                          className="flex-1 text-sm"
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          disabled={
+                            !dancerVideoUrl.trim() ||
+                            dancerVideoUrl === ((org?.settings as Record<string, unknown>)?.welcome_video_dancer ?? "")
+                          }
+                          onClick={() => {
+                            updateOrg(
+                              {
+                                params: { path: { id: org!.id } },
+                                body: {
+                                  settings: { ...org!.settings, welcome_video_dancer: dancerVideoUrl.trim() },
+                                } as never,
+                              },
+                              {
+                                onSuccess: () => {
+                                  toastManager.add({
+                                    title: "Dancer welcome video saved",
+                                    description: "Video will appear in dancer emails",
+                                    type: "success",
+                                  });
+                                },
+                                onError: () => {
+                                  toastManager.add({
+                                    title: "Error",
+                                    description: "Failed to save welcome video URL",
+                                    type: "error",
+                                  });
+                                },
+                              },
+                            );
+                          }}
+                        >
+                          Save
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </TabsContent>

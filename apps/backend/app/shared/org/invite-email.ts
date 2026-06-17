@@ -104,9 +104,9 @@ export async function sendOrgInviteEmail(opts: {
         type,
         token,
         welcomeVideoUrl:
-          type === "dancer"
-            ? (org.settings as { welcome_video?: string })?.welcome_video ?? null
-            : null,
+          (org.settings as { welcome_video_coach?: string; welcome_video_dancer?: string })?.[
+            type === "coach" ? "welcome_video_coach" : "welcome_video_dancer"
+          ] ?? null,
       })
     );
   } catch {
@@ -141,9 +141,9 @@ export async function sendOrgInviteEmailOrThrow(opts: {
       type,
       token,
       welcomeVideoUrl:
-        type === "dancer"
-          ? (org.settings as { welcome_video?: string })?.welcome_video ?? null
-          : null,
+        (org.settings as { welcome_video_coach?: string; welcome_video_dancer?: string })?.[
+          type === "coach" ? "welcome_video_coach" : "welcome_video_dancer"
+        ] ?? null,
     })
   );
 }
