@@ -63,6 +63,8 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [newSettingKey, setNewSettingKey] = useState("");
   const [newSettingValue, setNewSettingValue] = useState("");
+  const [welcomeVideoEnabled, setWelcomeVideoEnabled] = useState(false);
+  const [welcomeVideoUrl, setWelcomeVideoUrl] = useState("");
 
   const form = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
@@ -97,6 +99,11 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
         }
       }
       setSettings(settingsMap);
+
+      const wv = org.settings?.welcome_video;
+      setWelcomeVideoEnabled(Boolean(wv));
+      setWelcomeVideoUrl(typeof wv === "string" ? wv : "");
+
       setActiveTab("profile");
     }
   }, [org, form]);
@@ -332,6 +339,88 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                     />
                   </div>
                 ))}
+                <div className="border-border border-t pt-4">
+                  <div className="flex items-center justify-between gap-4 py-1">
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-medium">Welcome Video</p>
+                      <p className="text-muted-foreground text-xs">
+                        Attach a welcome video to dancer invite &amp; roster emails
+                      </p>
+                    </div>
+                    <Switch
+                      checked={welcomeVideoEnabled}
+                      onCheckedChange={(checked) => {
+                        setWelcomeVideoEnabled(checked);
+                        if (!checked) {
+                          setWelcomeVideoUrl("");
+                          updateOrg(
+                            {
+                              params: { path: { id: org!.id } },
+                              body: {
+                                settings: { ...settings, welcome_video: null },
+                              } as never,
+                            },
+                            {
+                              onSuccess: () => {
+                                toastManager.add({
+                                  title: "Welcome video removed",
+                                  description: "Video will no longer appear in emails",
+                                  type: "success",
+                                });
+                              },
+                            },
+                          );
+                        }
+                      }}
+                    />
+                  </div>
+                  {welcomeVideoEnabled && (
+                    <div className="mt-3 flex items-center gap-2">
+                      <Input
+                        value={welcomeVideoUrl}
+                        onChange={(e) => setWelcomeVideoUrl(e.target.value)}
+                        placeholder="https://youtube.com/watch?v=..."
+                        className="flex-1 text-sm"
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        disabled={
+                          !welcomeVideoUrl.trim() ||
+                          welcomeVideoUrl === ((org?.settings as Record<string, unknown>)?.welcome_video ?? "")
+                        }
+                        onClick={() => {
+                          updateOrg(
+                            {
+                              params: { path: { id: org!.id } },
+                              body: {
+                                settings: { ...settings, welcome_video: welcomeVideoUrl.trim() },
+                              } as never,
+                            },
+                            {
+                              onSuccess: () => {
+                                toastManager.add({
+                                  title: "Welcome video saved",
+                                  description: "Video will appear in dancer emails",
+                                  type: "success",
+                                });
+                              },
+                              onError: () => {
+                                toastManager.add({
+                                  title: "Error",
+                                  description: "Failed to save welcome video URL",
+                                  type: "error",
+                                });
+                              },
+                            },
+                          );
+                        }}
+                      >
+                        Save
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             </TabsContent>
 
