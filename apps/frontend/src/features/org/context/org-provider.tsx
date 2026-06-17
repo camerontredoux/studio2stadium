@@ -1,7 +1,7 @@
 import { useEffect, useMemo, type ReactNode } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { orgQueries } from "@/features/org/api/queries";
-import { useSession } from "@/lib/session";
+import { queries as sessionQueries } from "@/lib/session";
 import {
   OrgContext,
   type OrgContextValue,
@@ -16,7 +16,7 @@ export function OrgProvider({
   slug: string;
   children: ReactNode;
 }) {
-  const session = useSession();
+  const { data: session } = useQuery(sessionQueries.session());
   const { data } = useSuspenseQuery(orgQueries.org(slug));
 
   const features = (data.features ?? {}) as Record<string, boolean>;
@@ -39,10 +39,10 @@ export function OrgProvider({
       settings: (data.settings ?? {}) as Record<string, unknown>,
       membership,
       myRoster,
-      isAdmin: membership?.role === "admin" || session.role === "admin",
+      isAdmin: membership?.role === "admin" || session?.role === "admin",
       hasFeature: (key) => Boolean(features[key]),
     }),
-    [data, features, membership, myRoster, session.role],
+    [data, features, membership, myRoster, session?.role],
   );
 
   useEffect(() => {
