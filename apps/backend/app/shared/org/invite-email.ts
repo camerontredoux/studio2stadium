@@ -104,7 +104,9 @@ export async function sendOrgInviteEmail(opts: {
         type,
         token,
         welcomeVideoUrl:
-          (org.settings as { welcome_video?: string })?.welcome_video ?? null,
+          type === "dancer"
+            ? (org.settings as { welcome_video?: string })?.welcome_video ?? null
+            : null,
       })
     );
   } catch {
@@ -139,7 +141,9 @@ export async function sendOrgInviteEmailOrThrow(opts: {
       type,
       token,
       welcomeVideoUrl:
-        (org.settings as { welcome_video?: string })?.welcome_video ?? null,
+        type === "dancer"
+          ? (org.settings as { welcome_video?: string })?.welcome_video ?? null
+          : null,
     })
   );
 }

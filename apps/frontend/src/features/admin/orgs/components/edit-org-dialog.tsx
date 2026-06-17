@@ -357,7 +357,7 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                             {
                               params: { path: { id: org!.id } },
                               body: {
-                                settings: { ...settings, welcome_video: null },
+                                settings: { ...org!.settings, welcome_video: null },
                               } as never,
                             },
                             {
@@ -394,7 +394,7 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                             {
                               params: { path: { id: org!.id } },
                               body: {
-                                settings: { ...settings, welcome_video: welcomeVideoUrl.trim() },
+                                settings: { ...org!.settings, welcome_video: welcomeVideoUrl.trim() },
                               } as never,
                             },
                             {

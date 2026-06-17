@@ -99,7 +99,9 @@ export async function sendOrgRosterAddedEmail(opts: {
         venueName: event?.venueName ?? null,
         type,
         welcomeVideoUrl:
-          (org.settings as { welcome_video?: string })?.welcome_video ?? null,
+          type === "dancer"
+            ? (org.settings as { welcome_video?: string })?.welcome_video ?? null
+            : null,
       })
     );
   } catch {
