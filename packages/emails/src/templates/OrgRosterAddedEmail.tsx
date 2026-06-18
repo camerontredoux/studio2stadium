@@ -18,6 +18,7 @@ export interface OrgRosterAddedEmailProps {
   dashboardUrl: string;
   brandColor?: string | null;
   welcomeVideoUrl?: string | null;
+  logoUrl?: string | null;
 }
 
 function getYouTubeVideoId(url: string): string | null {
@@ -65,6 +66,7 @@ export function OrgRosterAddedEmail({
   dashboardUrl,
   brandColor,
   welcomeVideoUrl,
+  logoUrl,
 }: OrgRosterAddedEmailProps) {
   const accent = brandColor || colors.primary;
   const roleWord = type === "dancer" ? "dancer" : "coach";

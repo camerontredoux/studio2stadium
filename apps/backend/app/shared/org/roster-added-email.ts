@@ -20,6 +20,7 @@ interface OrgRosterAddedMailData {
   venueName: string | null;
   type: "dancer" | "coach";
   welcomeVideoUrl: string | null;
+  logoUrl: string | null;
 }
 
 class OrgRosterAddedMail extends BaseMail {
@@ -46,6 +47,7 @@ class OrgRosterAddedMail extends BaseMail {
       dashboardUrl,
       brandColor: this.data.brandColor,
       welcomeVideoUrl: this.data.welcomeVideoUrl,
+      logoUrl: this.data.logoUrl,
     });
 
     this.message.to(this.data.email);
@@ -102,6 +104,7 @@ export async function sendOrgRosterAddedEmail(opts: {
           (org.settings as { welcome_video_coach?: string; welcome_video_dancer?: string })?.[
             type === "coach" ? "welcome_video_coach" : "welcome_video_dancer"
           ] ?? null,
+        logoUrl: org.logoUrl ?? null,
       })
     );
   } catch {
