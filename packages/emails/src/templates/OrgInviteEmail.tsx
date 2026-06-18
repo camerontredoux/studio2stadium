@@ -1,13 +1,12 @@
 import {
   Column,
   Img,
-  Link,
   Row,
   Section,
   Text,
+  Button as ReactEmailButton,
 } from "@react-email/components";
 import { OrgEmailLayout } from "../components/OrgEmailLayout.js";
-import { Button as ReactEmailButton } from "@react-email/components";
 import { colors, paragraphStyle, fontFamily } from "../components/styles.js";
 
 export interface OrgInviteEmailProps {
