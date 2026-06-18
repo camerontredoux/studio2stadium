@@ -1,6 +1,7 @@
 import {
   Column,
   Img,
+  Link,
   Row,
   Section,
   Text,
@@ -206,6 +207,19 @@ export function OrgRosterAddedEmail({
           >
             Go to Dashboard
           </ReactEmailButton>
+          <Text
+            style={{
+              fontSize: "12px",
+              color: colors.textMuted,
+              margin: "12px 0 0",
+              wordBreak: "break-all" as const,
+            }}
+          >
+            Or copy and paste this link:{" "}
+            <Link href={dashboardUrl} style={{ color: colors.primary }}>
+              {dashboardUrl}
+            </Link>
+          </Text>
         </Section>
 
         {/* ── Welcome video card ── */}

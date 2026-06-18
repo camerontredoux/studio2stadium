@@ -1,6 +1,7 @@
 import {
   Column,
   Img,
+  Link,
   Row,
   Section,
   Text,
@@ -201,6 +202,19 @@ export function OrgInviteEmail({
           >
             Create Account
           </ReactEmailButton>
+          <Text
+            style={{
+              fontSize: "12px",
+              color: colors.textMuted,
+              margin: "12px 0 0",
+              wordBreak: "break-all" as const,
+            }}
+          >
+            Or copy and paste this link:{" "}
+            <Link href={inviteUrl} style={{ color: colors.primary }}>
+              {inviteUrl}
+            </Link>
+          </Text>
         </Section>
 
         {/* ── Welcome video card ── */}
