@@ -94,6 +94,7 @@ export { renderEmail, renderEmailText } from "./render.js";
 
 // Components (for custom emails)
 export { Layout } from "./components/Layout.js";
+export { OrgEmailLayout } from "./components/OrgEmailLayout.js";
 export { Button } from "./components/Button.js";
 export { Footer } from "./components/Footer.js";
 export * from "./components/styles.js";
