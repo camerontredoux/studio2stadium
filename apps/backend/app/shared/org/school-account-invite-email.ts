@@ -19,6 +19,7 @@ interface SchoolAccountInviteMailData {
   eventDateLabel: string | null;
   venueName: string | null;
   token: string;
+  logoUrl: string | null;
 }
 
 class SchoolAccountInviteMail extends BaseMail {
@@ -43,6 +44,7 @@ class SchoolAccountInviteMail extends BaseMail {
       venueName: this.data.venueName,
       registerUrl,
       brandColor: this.data.brandColor,
+      logoUrl: this.data.logoUrl,
     });
 
     this.message.to(this.data.email);
@@ -95,6 +97,7 @@ export async function sendSchoolAccountInviteEmail(opts: {
           : null,
         venueName: event?.venueName ?? null,
         token,
+        logoUrl: org.logoUrl ?? null,
       })
     );
   } catch {
