@@ -5,6 +5,7 @@ import { Popover, PopoverPopup, PopoverTrigger } from "@/components/ui/popover";
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { orgQueries } from "@/features/org/api/queries";
+import { TestEmailsSection } from "@/features/org/components/test-emails-section";
 import { useOrg } from "@/features/org/context/use-org";
 import { client } from "@/lib/api/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -157,6 +158,8 @@ function SettingsPage() {
           </div>
         </FramePanel>
       </Frame>
+
+      <TestEmailsSection orgSlug={orgSlug} />
     </div>
   );
 }

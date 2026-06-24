@@ -61,6 +61,7 @@ const AdminCheckInController = () =>
 const CheckInStatusController = () =>
   import("./check-in/status-controller.ts");
 const ScheduleController = () => import("./schedule/controller.ts");
+const TestEmailsController = () => import("./test-emails/controller.ts");
 
 router
   .group(() => {
@@ -307,6 +308,19 @@ router
         middleware.orgMember(),
         middleware.orgAdmin(),
       ]);
+    router
+      .post(":slug/events/test-emails", [TestEmailsController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ])
+      .openapi({
+        summary: "Send a test org email to the current admin",
+        description:
+          "Renders one of the org event email templates with the logged-in admin's name/email and the selected event's details, then sends it to the admin for visual testing.",
+      });
     router
       .post(":slug/events/attend", [AttendEventController])
       .use([
