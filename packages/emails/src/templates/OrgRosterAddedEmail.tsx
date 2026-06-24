@@ -193,7 +193,7 @@ export function OrgRosterAddedEmail({
               margin: "0 0 8px",
             }}
           >
-            If you already have an S2S account:
+            Access your dashboard:
           </Text>
           <Text style={{ ...paragraphStyle, margin: "0 0 4px" }}>
             Your profile has been automatically updated. You can now access both

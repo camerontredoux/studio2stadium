@@ -197,7 +197,7 @@ export function OrgInviteEmail({
               margin: "0 0 8px",
             }}
           >
-            If you&apos;re new to S2S:
+            Create your account:
           </Text>
           <Text style={{ ...paragraphStyle, margin: "0 0 16px" }}>
             You&apos;ll need to create an account to access the{" "}
