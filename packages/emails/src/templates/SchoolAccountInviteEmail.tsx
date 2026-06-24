@@ -21,8 +21,7 @@ export interface SchoolAccountInviteEmailProps {
   logoUrl?: string | null;
 }
 
-const S2S_LOGO =
-  "https://d1wf5hycmlyms9.cloudfront.net/s2slogo777018b0-7579-48d1-b9b1-9f8f044ab2c0.png";
+const S2S_LOGO = "https://studio2stadium.com/img/logos/s2s_logo.png?type=feed";
 
 export function SchoolAccountInviteEmail({
   firstName,
@@ -50,9 +49,8 @@ export function SchoolAccountInviteEmail({
         }}
       >
         <Row>
-          <Column style={{ width: "20%" }} />
-          <Column style={{ width: "60%", textAlign: "center" as const }}>
-            {logoUrl && (
+          <Column style={{ textAlign: "center" as const }}>
+            {logoUrl ? (
               <Img
                 src={logoUrl}
                 alt={orgName}
@@ -60,29 +58,27 @@ export function SchoolAccountInviteEmail({
                 height="auto"
                 style={{ margin: "0 auto 12px" }}
               />
+            ) : (
+              <Text
+                style={{
+                  fontSize: "28px",
+                  fontWeight: "700",
+                  color: "#ffffff",
+                  textAlign: "center" as const,
+                  margin: "0 0 12px",
+                  fontFamily,
+                }}
+              >
+                {orgName}
+              </Text>
             )}
-            <Text
-              style={{
-                fontSize: "28px",
-                fontWeight: "700",
-                color: "#ffffff",
-                textAlign: "center" as const,
-                margin: "0 0 4px",
-                fontFamily,
-              }}
-            >
-              {orgName}
-            </Text>
-          </Column>
-          <Column
-            className="org-email-header-logo-col"
-            style={{
-              width: "20%",
-              textAlign: "right" as const,
-              verticalAlign: "top",
-            }}
-          >
-            <Img src={S2S_LOGO} alt="Studio 2 Stadium" width={48} height="auto" />
+            <Img
+              src={S2S_LOGO}
+              alt="Studio 2 Stadium"
+              width={140}
+              height="auto"
+              style={{ margin: "0 auto" }}
+            />
           </Column>
         </Row>
         <Text
