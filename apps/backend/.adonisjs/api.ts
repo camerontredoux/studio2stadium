@@ -339,6 +339,10 @@ type OrgsIdEventsIdReconciliationSchoolusersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/search-users-controller.ts').default['handle'], false>
 }
+type OrgsIdEventsTestemailsPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/test-emails/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/test-emails/controller.ts').default['handle'], true>
+}
 type OrgsIdEventsViewasPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/view-as/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/events/view-as/controller.ts').default['handle'], true>
@@ -1351,6 +1355,11 @@ export interface ApiDefinition {
         };
         '$get': OrgsIdEventsGetHead;
         '$head': OrgsIdEventsGetHead;
+        'test-emails': {
+          '$url': {
+          };
+          '$post': OrgsIdEventsTestemailsPost;
+        };
         'view-as': {
           '$url': {
           };

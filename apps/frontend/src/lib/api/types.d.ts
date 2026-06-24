@@ -4515,6 +4515,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/events/test-emails": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send a test org email to the current admin
+         * @description Renders one of the org event email templates with the logged-in admin's name/email and the selected event's details, then sends it to the admin for visual testing.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsTestemailsRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsTestemailsResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/events/view-as": {
         parameters: {
             query?: never;
@@ -10711,6 +10765,17 @@ export interface components {
         OrgsIdEventsIdVideosAudiouploadurlResponse: {
             key: string;
             url: string;
+        };
+        OrgsIdEventsTestemailsRequest: {
+            eventId?: string | null;
+            audience?: components["schemas"]["UploadKind"] | null;
+            /** @enum {string} */
+            kind: "invite" | "roster-added" | "school-account-invite";
+        };
+        OrgsIdEventsTestemailsResponse: {
+            /** @enum {string} */
+            kind: "invite" | "roster-added" | "school-account-invite";
+            email: string;
         };
         OrgsIdEventsViewasRequest: {
             type: components["schemas"]["UploadKind"];

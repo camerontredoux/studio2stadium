@@ -13,23 +13,10 @@ interface OrgEmailLayoutProps {
   children: ReactNode;
 }
 
-const responsiveEmailCss = `
-  @media only screen and (max-width: 600px) {
-    .org-email-header-logo-col {
-      display: none !important;
-      width: 0 !important;
-      max-width: 0 !important;
-      overflow: hidden !important;
-    }
-  }
-`;
-
 export function OrgEmailLayout({ preview, children }: OrgEmailLayoutProps) {
   return (
     <Html>
-      <Head>
-        <style>{responsiveEmailCss}</style>
-      </Head>
+      <Head />
       <Preview>{preview}</Preview>
       <Body
         style={{

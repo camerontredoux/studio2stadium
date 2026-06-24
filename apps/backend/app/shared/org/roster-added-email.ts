@@ -74,7 +74,7 @@ function formatDateRange(
   return `${fmt(startYmd)} – ${fmt(endYmd)}`;
 }
 
-export async function sendOrgRosterAddedEmail(opts: {
+export async function sendOrgRosterAddedEmailOrThrow(opts: {
   org: typeof organizations.$inferSelect;
   event?: typeof orgEvents.$inferSelect | null;
   email: string;
@@ -83,30 +83,40 @@ export async function sendOrgRosterAddedEmail(opts: {
 }): Promise<void> {
   const { org, event, email, firstName, type } = opts;
 
+  await mail.send(
+    new OrgRosterAddedMail({
+      email,
+      firstName,
+      orgName: org.name,
+      orgSlug: org.slug,
+      brandColor: org.primaryColor ?? null,
+      eventName: event?.name ?? null,
+      eventDateLabel: event
+        ? formatDateRange(
+            event.startDate as string | null,
+            event.endDate as string | null
+          )
+        : null,
+      venueName: event?.venueName ?? null,
+      type,
+      welcomeVideoUrl:
+        (org.settings as { welcome_video_coach?: string; welcome_video_dancer?: string })?.[
+          type === "coach" ? "welcome_video_coach" : "welcome_video_dancer"
+        ] ?? null,
+      logoUrl: org.logoUrl ?? null,
+    })
+  );
+}
+
+export async function sendOrgRosterAddedEmail(opts: {
+  org: typeof organizations.$inferSelect;
+  event?: typeof orgEvents.$inferSelect | null;
+  email: string;
+  firstName: string;
+  type: "coach" | "dancer";
+}): Promise<void> {
   try {
-    await mail.send(
-      new OrgRosterAddedMail({
-        email,
-        firstName,
-        orgName: org.name,
-        orgSlug: org.slug,
-        brandColor: org.primaryColor ?? null,
-        eventName: event?.name ?? null,
-        eventDateLabel: event
-          ? formatDateRange(
-              event.startDate as string | null,
-              event.endDate as string | null
-            )
-          : null,
-        venueName: event?.venueName ?? null,
-        type,
-        welcomeVideoUrl:
-          (org.settings as { welcome_video_coach?: string; welcome_video_dancer?: string })?.[
-            type === "coach" ? "welcome_video_coach" : "welcome_video_dancer"
-          ] ?? null,
-        logoUrl: org.logoUrl ?? null,
-      })
-    );
+    await sendOrgRosterAddedEmailOrThrow(opts);
   } catch {
     // Fire-and-forget: email failures must not block the upload response.
   }

@@ -71,7 +71,7 @@ function formatDateRange(
   return `${fmt(startYmd)} – ${fmt(endYmd)}`;
 }
 
-export async function sendSchoolAccountInviteEmail(opts: {
+export async function sendSchoolAccountInviteEmailOrThrow(opts: {
   org: typeof organizations.$inferSelect;
   event?: typeof orgEvents.$inferSelect | null;
   email: string;
@@ -80,26 +80,36 @@ export async function sendSchoolAccountInviteEmail(opts: {
 }): Promise<void> {
   const { org, event, email, firstName, token } = opts;
 
+  await mail.send(
+    new SchoolAccountInviteMail({
+      email,
+      firstName,
+      orgName: org.name,
+      orgSlug: org.slug,
+      brandColor: org.primaryColor ?? null,
+      eventName: event?.name ?? null,
+      eventDateLabel: event
+        ? formatDateRange(
+            event.startDate as string | null,
+            event.endDate as string | null
+          )
+        : null,
+      venueName: event?.venueName ?? null,
+      token,
+      logoUrl: org.logoUrl ?? null,
+    })
+  );
+}
+
+export async function sendSchoolAccountInviteEmail(opts: {
+  org: typeof organizations.$inferSelect;
+  event?: typeof orgEvents.$inferSelect | null;
+  email: string;
+  firstName: string;
+  token: string;
+}): Promise<void> {
   try {
-    await mail.send(
-      new SchoolAccountInviteMail({
-        email,
-        firstName,
-        orgName: org.name,
-        orgSlug: org.slug,
-        brandColor: org.primaryColor ?? null,
-        eventName: event?.name ?? null,
-        eventDateLabel: event
-          ? formatDateRange(
-              event.startDate as string | null,
-              event.endDate as string | null
-            )
-          : null,
-        venueName: event?.venueName ?? null,
-        token,
-        logoUrl: org.logoUrl ?? null,
-      })
-    );
+    await sendSchoolAccountInviteEmailOrThrow(opts);
   } catch {
     // Fire-and-forget: email failures must not block the upload response.
   }

@@ -4514,6 +4514,53 @@
         }
       }
     },
+    "/orgs/{slug}/events/test-emails": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsTestemailsRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsTestemailsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Send a test org email to the current admin",
+        "description": "Renders one of the org event email templates with the logged-in admin's name/email and the selected event's details, then sends it to the admin for visual testing."
+      }
+    },
     "/orgs/{slug}/events/view-as": {
       "post": {
         "requestBody": {
@@ -14742,6 +14789,62 @@
         "required": [
           "key",
           "url"
+        ]
+      },
+      "OrgsIdEventsTestemailsRequest": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "audience": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UploadKind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "invite",
+              "roster-added",
+              "school-account-invite"
+            ]
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "OrgsIdEventsTestemailsResponse": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "invite",
+              "roster-added",
+              "school-account-invite"
+            ]
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "email"
         ]
       },
       "OrgsIdEventsViewasRequest": {
