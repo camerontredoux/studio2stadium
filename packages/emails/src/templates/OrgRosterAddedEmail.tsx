@@ -24,7 +24,7 @@ export interface OrgRosterAddedEmailProps {
 }
 
 const S2S_LOGO =
-  "https://app.studio2stadium.com/logos/s2s-wordmark-white.png";
+  "https://userdata.studio2stadium.com/logos/s2s-wordmark-white.png";
 
 export function OrgRosterAddedEmail({
   firstName,
