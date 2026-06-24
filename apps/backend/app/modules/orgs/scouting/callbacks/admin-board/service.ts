@@ -2,7 +2,7 @@ import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { eventCallbacks } from "#database/schema/event-features";
 import { eventRosters } from "#database/schema/org-events";
-import { asc, count, countDistinct, eq, sql } from "drizzle-orm";
+import { and, asc, count, countDistinct, eq, sql } from "drizzle-orm";
 
 @inject()
 export class AdminCallbackBoardService {
@@ -24,7 +24,19 @@ export class AdminCallbackBoardService {
             eventRosters,
             eq(eventRosters.id, eventCallbacks.dancerRosterId)
           )
-          .where(eq(eventCallbacks.showcaseId, showcaseId))
+          .where(
+            and(
+              eq(eventCallbacks.showcaseId, showcaseId),
+              // Exclude staff sandboxes: skip staff dancers and any callback
+              // authored by a staff (preview) coach roster.
+              eq(eventRosters.isStaff, false),
+              sql`NOT EXISTS (
+                SELECT 1 FROM event_rosters cr
+                WHERE cr.id = ${eventCallbacks.coachRosterId}
+                  AND cr.is_staff = true
+              )`
+            )
+          )
           .groupBy(
             eventCallbacks.dancerRosterId,
             eventRosters.bibNumber,
@@ -44,7 +56,12 @@ export class AdminCallbackBoardService {
             ).as("totalDancers"),
           })
           .from(eventRosters)
-          .where(eq(eventRosters.eventId, eventId))
+          .where(
+            and(
+              eq(eventRosters.eventId, eventId),
+              eq(eventRosters.isStaff, false)
+            )
+          )
       ),
     ]);
 

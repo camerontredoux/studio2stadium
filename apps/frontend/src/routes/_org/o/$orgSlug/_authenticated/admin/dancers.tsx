@@ -50,6 +50,29 @@ function CheckedInBadge({ checkedInAt }: { checkedInAt: string | null }) {
   );
 }
 
+// Free-tier Users: paid status of a dancer roster row. Only shown when the org
+// runs the free-tier program.
+function PaidBadge({ paid }: { paid: boolean | null }) {
+  if (paid == null) {
+    return <span className="text-muted-foreground text-xs">—</span>;
+  }
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 text-[10px] tracking-wide uppercase tabular-nums ${
+        paid ? "text-success-foreground" : "text-muted-foreground"
+      }`}
+    >
+      <span
+        className={`size-1.5 rounded-full ${
+          paid ? "bg-success" : "bg-amber-500"
+        }`}
+        aria-hidden
+      />
+      {paid ? "Paid" : "Unpaid"}
+    </span>
+  );
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type RosterEntryWithCheckIn = RosterEntry & { checkedInAt?: string | null };
 
@@ -108,14 +131,26 @@ const checkedInColumn: ColumnDef<RosterEntryWithCheckIn, unknown> = {
   ),
 };
 
+const paidColumn: ColumnDef<RosterEntryWithCheckIn, unknown> = {
+  id: "paid",
+  accessorKey: "paid",
+  header: "Paid",
+  enableSorting: false,
+  cell: ({ row }) => <PaidBadge paid={row.original.paid ?? null} />,
+};
+
 function DancersPage() {
   const { orgSlug } = Route.useParams();
   const { hasFeature } = useOrg();
   const checkInEnabled = hasFeature("check_in");
-  const columns = useMemo(
-    () => (checkInEnabled ? [...baseColumns, checkedInColumn] : baseColumns),
-    [checkInEnabled],
-  );
+  const freeTierEnabled = hasFeature("freeTierUsers");
+  const columns = useMemo(() => {
+    // Paid sits right after the Status column; Checked In (if enabled) trails it.
+    const cols = [...baseColumns];
+    if (freeTierEnabled) cols.push(paidColumn);
+    if (checkInEnabled) cols.push(checkedInColumn);
+    return cols;
+  }, [checkInEnabled, freeTierEnabled]);
   const { data: events } = useSuspenseQuery(adminQueries.events(orgSlug));
   const active = events?.find((e) => e.isActive);
 
@@ -335,6 +370,7 @@ function DancersPage() {
         open={sheetOpen}
         onOpenChange={setSheetOpen}
         checkInEnabled={checkInEnabled}
+        freeTierEnabled={freeTierEnabled}
       />
     </div>
   );

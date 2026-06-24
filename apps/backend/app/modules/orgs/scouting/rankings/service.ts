@@ -76,6 +76,7 @@ export class ListRankingsService {
           and(
             eq(eventRosters.eventId, eventId),
             eq(eventRosters.type, "dancer"),
+            eq(eventRosters.isStaff, false),
             or(
               isNotNull(eventFavorites.id),
               isNotNull(eventRatings.id),

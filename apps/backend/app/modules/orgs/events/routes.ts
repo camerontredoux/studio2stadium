@@ -11,14 +11,15 @@ const UploadPreviewController = () => import("./upload-preview/controller.ts");
 const EventStatsController = () => import("./stats/controller.ts");
 const ListRosterController = () => import("./rosters/list/controller.ts");
 const UpdateRosterController = () => import("./rosters/update/controller.ts");
+const SetRosterPaidController = () =>
+  import("./rosters/set-paid/controller.ts");
 const DeleteRosterController = () => import("./rosters/delete/controller.ts");
 const ExportRosterController = () => import("./rosters/export/controller.ts");
 const FiltersRosterController = () => import("./rosters/filters/controller.ts");
 const StatsRosterController = () => import("./rosters/stats/controller.ts");
 const ResendInvitesController = () =>
   import("./rosters/resend-invites/controller.ts");
-const AttachAccountController = () =>
-  import("./rosters/attach/controller.ts");
+const AttachAccountController = () => import("./rosters/attach/controller.ts");
 const SearchDancerUsersController = () =>
   import("./rosters/attach/search-controller.ts");
 const ListChecklistController = () => import("./checklist/list/controller.ts");
@@ -54,12 +55,10 @@ const UpdateVideoController = () => import("./videos/update/controller.ts");
 const DeleteVideoController = () => import("./videos/delete/controller.ts");
 const AudioUploadUrlController = () =>
   import("./videos/audio-upload-url/controller.ts");
-const AttendEventController = () => import("./attend/controller.ts");
+const ViewAsController = () => import("./view-as/controller.ts");
 const CheckInController = () => import("./check-in/controller.ts");
-const AdminCheckInController = () =>
-  import("./rosters/check-in/controller.ts");
-const CheckInStatusController = () =>
-  import("./check-in/status-controller.ts");
+const AdminCheckInController = () => import("./rosters/check-in/controller.ts");
+const CheckInStatusController = () => import("./check-in/status-controller.ts");
 const ScheduleController = () => import("./schedule/controller.ts");
 const TestEmailsController = () => import("./test-emails/controller.ts");
 
@@ -163,6 +162,17 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
+      ]);
+    router
+      .patch(":slug/events/:id/rosters/:rosterId/paid", [
+        SetRosterPaidController,
+      ])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+        middleware.orgFeature("freeTierUsers"),
       ]);
     router
       .delete(":slug/events/:id/rosters", [DeleteRosterController])
@@ -322,7 +332,7 @@ router
           "Renders one of the org event email templates with the logged-in admin's name/email and the selected event's details, then sends it to the admin for visual testing.",
       });
     router
-      .post(":slug/events/attend", [AttendEventController])
+      .post(":slug/events/view-as", [ViewAsController])
       .use([
         middleware.auth(),
         middleware.org(),
@@ -332,11 +342,7 @@ router
       ]);
     router
       .get(":slug/events/:id/check-in/status", [CheckInStatusController])
-      .use([
-        middleware.auth(),
-        middleware.org(),
-        middleware.orgMember(),
-      ]);
+      .use([middleware.auth(), middleware.org(), middleware.orgMember()]);
     router
       .post(":slug/events/:id/check-in", [CheckInController])
       .use([
@@ -357,22 +363,12 @@ router
       ]);
     router
       .get(":slug/events/:id/schedule", [ScheduleController])
-      .use([
-        middleware.auth(),
-        middleware.org(),
-        middleware.orgMember(),
-      ]);
+      .use([middleware.auth(), middleware.org(), middleware.orgMember()]);
 
     // Video categories
     router
-      .get(":slug/events/:id/video-categories", [
-        ListVideoCategoriesController,
-      ])
-      .use([
-        middleware.auth(),
-        middleware.org(),
-        middleware.orgMember(),
-      ]);
+      .get(":slug/events/:id/video-categories", [ListVideoCategoriesController])
+      .use([middleware.auth(), middleware.org(), middleware.orgMember()]);
     router
       .post(":slug/events/:id/video-categories", [
         CreateVideoCategoryController,
@@ -397,11 +393,7 @@ router
     // Videos
     router
       .get(":slug/events/:id/videos", [ListVideosController])
-      .use([
-        middleware.auth(),
-        middleware.org(),
-        middleware.orgMember(),
-      ]);
+      .use([middleware.auth(), middleware.org(), middleware.orgMember()]);
     router
       .post(":slug/events/:id/videos", [CreateVideoController])
       .use([

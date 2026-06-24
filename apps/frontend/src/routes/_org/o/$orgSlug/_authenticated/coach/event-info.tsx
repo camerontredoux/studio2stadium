@@ -80,7 +80,7 @@ function AttendEventGate({
           opts: { body: { type: "coach" | "dancer" } },
         ) => Promise<void>;
       };
-      await raw.POST(`/orgs/${orgSlug}/events/attend`, {
+      await raw.POST(`/orgs/${orgSlug}/events/view-as`, {
         body: { type: "coach" },
       });
     },

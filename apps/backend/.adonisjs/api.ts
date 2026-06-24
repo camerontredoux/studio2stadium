@@ -271,6 +271,10 @@ type OrgsIdEventsIdRostersIdPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/update/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/update/controller.ts').default['handle'], true>
 }
+type OrgsIdEventsIdRostersIdPaidPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/set-paid/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/set-paid/controller.ts').default['handle'], true>
+}
 type OrgsIdEventsIdRostersDelete = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/delete/controller.ts').default['handle'], false>
@@ -335,9 +339,13 @@ type OrgsIdEventsIdReconciliationSchoolusersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/search-users-controller.ts').default['handle'], false>
 }
-type OrgsIdEventsAttendPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/attend/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/orgs/events/attend/controller.ts').default['handle'], true>
+type OrgsIdEventsTestemailsPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/test-emails/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/test-emails/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsViewasPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/view-as/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/view-as/controller.ts').default['handle'], true>
 }
 type OrgsIdEventsIdCheckinStatusGetHead = {
   request: unknown
@@ -1202,6 +1210,11 @@ export interface ApiDefinition {
               '$url': {
               };
               '$patch': OrgsIdEventsIdRostersIdPatch;
+              'paid': {
+                '$url': {
+                };
+                '$patch': OrgsIdEventsIdRostersIdPaidPatch;
+              };
               'attach': {
                 '$url': {
                 };
@@ -1342,10 +1355,15 @@ export interface ApiDefinition {
         };
         '$get': OrgsIdEventsGetHead;
         '$head': OrgsIdEventsGetHead;
-        'attend': {
+        'test-emails': {
           '$url': {
           };
-          '$post': OrgsIdEventsAttendPost;
+          '$post': OrgsIdEventsTestemailsPost;
+        };
+        'view-as': {
+          '$url': {
+          };
+          '$post': OrgsIdEventsViewasPost;
         };
       };
       'dancers': {

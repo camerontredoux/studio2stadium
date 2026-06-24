@@ -19,7 +19,11 @@ export class StatsRosterService {
         })
         .from(eventRosters)
         .where(
-          and(eq(eventRosters.eventId, eventId), eq(eventRosters.type, q.type))
+          and(
+            eq(eventRosters.eventId, eventId),
+            eq(eventRosters.type, q.type),
+            eq(eventRosters.isStaff, false)
+          )
         )
     );
     return {

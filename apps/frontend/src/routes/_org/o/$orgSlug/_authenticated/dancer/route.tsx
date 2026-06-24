@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { DancerSidebar } from "@/features/org/components/dancer-sidebar";
+import { PreviewModeBanner } from "@/features/org/components/preview-mode-banner";
 import { orgQueries } from "@/features/org/api/queries";
 import { queries } from "@/lib/session";
 
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/dancer")({
 });
 
 function DancerLayout() {
+  const { orgSlug } = Route.useParams();
   return (
     <SidebarProvider className="h-svh">
       <DancerSidebar />
@@ -43,6 +45,7 @@ function DancerLayout() {
             Dancer
           </span>
         </header>
+        <PreviewModeBanner role="dancer" orgSlug={orgSlug} />
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <Outlet />
         </div>

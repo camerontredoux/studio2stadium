@@ -75,13 +75,22 @@ export function DancerPage({ username }: DancerPageProps) {
   const isOwner = visible;
   const isPreview = mode === "preview";
 
+  // Free-tier Users access tiers (see free-tier-users design spec):
+  //  - limited (org free-tier, no access): hero + Organizations only.
+  //  - org_event (premium grant, no Stripe): full minus Submission/Skills/Events,
+  //    and the media gallery is YouTube-only.
+  //  - stripe / normal-free: unchanged.
+  const limited = data.limited;
+  const isStripe = data.subscriptionSource === "stripe";
+  const showSkills = !limited && data.subscriptionSource !== "org_event";
+
   return (
     <ProfileProvider isOwner={isOwner} isPreview={isPreview}>
       <SidebarLayout
         sidebar={
           <>
-            <ContactInfo dancer={data} />
-            <ExtraInfo dancer={data} />
+            {!limited ? <ContactInfo dancer={data} /> : null}
+            {!limited ? <ExtraInfo dancer={data} /> : null}
             {isOwner ? <ProfileOrganizations /> : null}
           </>
         }
@@ -91,27 +100,35 @@ export function DancerPage({ username }: DancerPageProps) {
           <div className="flex flex-col gap-3 lg:gap-4">
             <DancerHero dancer={data} />
 
-            <Biography description={data.biography} username={username} />
+            {!limited ? (
+              <Biography description={data.biography} username={username} />
+            ) : null}
 
-            <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
-              <Achievements
-                achievements={data.achievements}
-                username={username}
+            {!limited ? (
+              <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
+                <Achievements
+                  achievements={data.achievements}
+                  username={username}
+                />
+                <References references={data.references} username={username} />
+              </div>
+            ) : null}
+
+            {isStripe ? <Submission data={data.submission} /> : null}
+
+            {!limited ? (
+              <MediaGallery
+                images={data.images}
+                videos={data.videos}
+                showOwnerControls={isOwner && !isPreview}
               />
-              <References references={data.references} username={username} />
-            </div>
+            ) : null}
 
-            {data.subscribed ? <Submission data={data.submission} /> : null}
+            {showSkills ? (
+              <Skills skills={data.skills} username={username} />
+            ) : null}
 
-            <MediaGallery
-              images={data.images}
-              videos={data.videos}
-              showOwnerControls={isOwner && !isPreview}
-            />
-
-            <Skills skills={data.skills} username={username} />
-
-            {data.subscribed ? (
+            {isStripe ? (
               <Events events={data.events} globalEvents={data.globalEvents} />
             ) : null}
           </div>

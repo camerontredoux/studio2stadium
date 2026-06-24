@@ -17,6 +17,7 @@ import {
   type CsvRosterType,
   type ParseResult,
 } from "@/features/org/lib/csv-schemas";
+import { useOrg } from "@/features/org/context/use-org";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangleIcon,
@@ -137,7 +138,9 @@ export function CsvUploadDialog({
   open,
   onOpenChange,
 }: CsvUploadDialogProps) {
-  const schema = useMemo(() => schemaFor(type), [type]);
+  const { hasFeature } = useOrg();
+  const freeTier = hasFeature("freeTierUsers");
+  const schema = useMemo(() => schemaFor(type, { freeTier }), [type, freeTier]);
   const qc = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<DialogStep>({ name: "idle" });
@@ -203,9 +206,15 @@ export function CsvUploadDialog({
       ),
     onSuccess: (data) => {
       setStep({ name: "done", result: data });
-      qc.invalidateQueries({ queryKey: ["get", "/orgs/{slug}/events/{id}/rosters"] });
-      qc.invalidateQueries({ queryKey: ["get", "/orgs/{slug}/events/{id}/rosters/filters"] });
-      qc.invalidateQueries({ queryKey: ["get", "/orgs/{slug}/events/{id}/rosters/stats"] });
+      qc.invalidateQueries({
+        queryKey: ["get", "/orgs/{slug}/events/{id}/rosters"],
+      });
+      qc.invalidateQueries({
+        queryKey: ["get", "/orgs/{slug}/events/{id}/rosters/filters"],
+      });
+      qc.invalidateQueries({
+        queryKey: ["get", "/orgs/{slug}/events/{id}/rosters/stats"],
+      });
     },
     onError: (err) => {
       console.error("csv upload failed", err);
@@ -463,9 +472,7 @@ function PreviewView({
 
   return (
     <div className="flex min-h-0 flex-col gap-3 overflow-hidden">
-      {showImpactCards && (
-        <ImpactSummary pending={pending} preview={sp} />
-      )}
+      {showImpactCards && <ImpactSummary pending={pending} preview={sp} />}
 
       {sp && !pending && (
         <div className="flex items-center gap-3 text-[11px]">

@@ -29,6 +29,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
+import { Switch } from "@/components/ui/switch";
 import { toastManager } from "@/components/ui/toast-manager";
 import { useAdminCheckInToggle } from "@/features/org/api/check-in-queries";
 import { toastRosterMutationError } from "@/features/org/api/roster-mutation-error";
@@ -36,6 +37,7 @@ import {
   type RosterEntry,
   useDeleteRosters,
   useResendInvites,
+  useSetRosterPaid,
   useUpdateRoster,
 } from "@/features/org/api/roster-queries";
 import { AttachAccountDialog } from "./attach-account-dialog";
@@ -74,6 +76,7 @@ interface RosterDetailSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   checkInEnabled?: boolean;
+  freeTierEnabled?: boolean;
 }
 
 export function RosterDetailSheet({
@@ -83,14 +86,17 @@ export function RosterDetailSheet({
   open,
   onOpenChange,
   checkInEnabled = true,
+  freeTierEnabled = false,
 }: RosterDetailSheetProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [attachOpen, setAttachOpen] = useState(false);
+  const [paid, setPaid] = useState(false);
 
   const updateMutation = useUpdateRoster();
   const deleteMutation = useDeleteRosters();
   const resendMutation = useResendInvites();
   const checkInMutation = useAdminCheckInToggle();
+  const paidMutation = useSetRosterPaid();
 
   const isDancer = entry?.type === "dancer";
   const isActive = entry?.isRegistered ?? false;
@@ -104,6 +110,7 @@ export function RosterDetailSheet({
   useEffect(() => {
     if (open && entry) {
       reset(defaultsFromEntry(entry));
+      setPaid(!!entry.paid);
     }
   }, [open, entry, reset]);
 
@@ -197,6 +204,30 @@ export function RosterDetailSheet({
       });
     } catch {
       toastManager.add({ title: "Failed to update check-in", type: "error" });
+    }
+  };
+
+  const handlePaidToggle = async (next: boolean) => {
+    if (!entry) return;
+    const prev = paid;
+    setPaid(next); // optimistic
+    try {
+      await paidMutation.mutateAsync({
+        params: { path: { slug: orgSlug, id: eventId, rosterId: entry.id } },
+        body: { paid: next },
+      });
+      toastManager.add({
+        title: next ? "Marked as paid" : "Marked as unpaid",
+        description: isActive
+          ? next
+            ? "Full access restored."
+            : "Access restricted to the limited experience."
+          : undefined,
+        type: "success",
+      });
+    } catch {
+      setPaid(prev); // revert
+      toastManager.add({ title: "Failed to update paid status", type: "error" });
     }
   };
 
@@ -401,6 +432,34 @@ export function RosterDetailSheet({
                     )}
                   />
                 </fieldset>
+              )}
+
+              {freeTierEnabled && isDancer && (
+                <div className="border-t pt-4">
+                  <p className="text-muted-foreground mb-3 text-xs font-medium uppercase tracking-wide">
+                    Paid Access
+                  </p>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex flex-col">
+                      <span className="text-sm">
+                        {paid ? "Paid" : "Unpaid"}
+                      </span>
+                      <span className="text-muted-foreground text-xs">
+                        {isActive
+                          ? paid
+                            ? "Full S2S access with premium features."
+                            : "Limited profile, YouTube-only video."
+                          : "Applied when the dancer activates their account."}
+                      </span>
+                    </div>
+                    <Switch
+                      checked={paid}
+                      onCheckedChange={handlePaidToggle}
+                      disabled={paidMutation.isPending}
+                      aria-label="Toggle paid status"
+                    />
+                  </div>
+                </div>
               )}
 
               {checkInEnabled && (

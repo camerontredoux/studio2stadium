@@ -1,7 +1,12 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { eventRosters, eventDancerProfiles } from "#database/schema/org-events";
-import { eventFavorites, eventRatings, eventNotes, eventCallbacks } from "#database/schema/event-features";
+import {
+  eventFavorites,
+  eventRatings,
+  eventNotes,
+  eventCallbacks,
+} from "#database/schema/event-features";
 import { dancerProfiles } from "#database/schema/dancers";
 import { users } from "#database/schema/users";
 import { and, eq, ilike, isNotNull, or, sql } from "drizzle-orm";
@@ -16,12 +21,13 @@ export class ListDancersService {
     coachRosterId: string | null,
     q: Validator,
     filterCheckedInOnly: boolean = false,
-    showcaseId?: string,
+    showcaseId?: string
   ) {
     return this.db.use((db) => {
       const filters = [
         eq(eventRosters.eventId, eventId),
         eq(eventRosters.type, "dancer"),
+        eq(eventRosters.isStaff, false),
       ];
 
       if (q.bib !== undefined) {
@@ -73,14 +79,15 @@ export class ListDancersService {
           )`
         : sql<boolean>`false`;
 
-      const isCalledBackSubquery = coachRosterId && showcaseId
-        ? sql<boolean>`EXISTS (
+      const isCalledBackSubquery =
+        coachRosterId && showcaseId
+          ? sql<boolean>`EXISTS (
             SELECT 1 FROM ${eventCallbacks}
             WHERE ${eventCallbacks.dancerRosterId} = ${eventRosters.id}
               AND ${eventCallbacks.coachRosterId} = ${coachRosterId}
               AND ${eventCallbacks.showcaseId} = ${showcaseId}
           )`
-        : sql<boolean>`false`;
+          : sql<boolean>`false`;
 
       if (filterCheckedInOnly) {
         filters.push(isNotNull(eventRosters.checkedInAt));
