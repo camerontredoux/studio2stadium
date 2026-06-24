@@ -32,6 +32,10 @@ const corsConfig = defineConfig({
         "X-HTTP-Method-Override",
         "X-Requested-With",
         "X-XSRF-TOKEN",
+        // Sent by the frontend in admin "view-as" preview mode (see
+        // app/middleware/routes/org-event.ts). Must be allow-listed or the
+        // CORS preflight is rejected without an ACAO header.
+        "X-Act-As-Type",
       ]
     : true,
   exposeHeaders: [
