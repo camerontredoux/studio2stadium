@@ -147,16 +147,27 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
 
   const saveFeatures = () => {
     if (!org) return;
+    const settingsUpdate = {
+      ...org.settings,
+      welcome_video_coach:
+        coachVideoEnabled && coachVideoUrl.trim()
+          ? coachVideoUrl.trim()
+          : null,
+      welcome_video_dancer:
+        dancerVideoEnabled && dancerVideoUrl.trim()
+          ? dancerVideoUrl.trim()
+          : null,
+    };
     updateOrg(
       {
         params: { path: { id: org.id } },
-        body: { features } as never,
+        body: { features, settings: settingsUpdate } as never,
       },
       {
         onSuccess: () => {
           toastManager.add({
             title: "Features updated",
-            description: "Feature flags saved",
+            description: "Feature flags and welcome videos saved",
             type: "success",
           });
         },
@@ -357,73 +368,18 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                         checked={coachVideoEnabled}
                         onCheckedChange={(checked) => {
                           setCoachVideoEnabled(checked);
-                          if (!checked) {
-                            setCoachVideoUrl("");
-                            updateOrg(
-                              {
-                                params: { path: { id: org!.id } },
-                                body: {
-                                  settings: { ...org!.settings, welcome_video_coach: null },
-                                } as never,
-                              },
-                              {
-                                onSuccess: () => {
-                                  toastManager.add({
-                                    title: "Coach welcome video removed",
-                                    description: "Video will no longer appear in coach emails",
-                                    type: "success",
-                                  });
-                                },
-                              },
-                            );
-                          }
+                          if (!checked) setCoachVideoUrl("");
                         }}
                       />
                     </div>
                     {coachVideoEnabled && (
-                      <div className="mt-3 flex items-center gap-2">
+                      <div className="mt-3">
                         <Input
                           value={coachVideoUrl}
                           onChange={(e) => setCoachVideoUrl(e.target.value)}
                           placeholder="https://youtube.com/watch?v=..."
-                          className="flex-1 text-sm"
+                          className="text-sm"
                         />
-                        <Button
-                          type="button"
-                          size="sm"
-                          disabled={
-                            !coachVideoUrl.trim() ||
-                            coachVideoUrl === ((org?.settings as Record<string, unknown>)?.welcome_video_coach ?? "")
-                          }
-                          onClick={() => {
-                            updateOrg(
-                              {
-                                params: { path: { id: org!.id } },
-                                body: {
-                                  settings: { ...org!.settings, welcome_video_coach: coachVideoUrl.trim() },
-                                } as never,
-                              },
-                              {
-                                onSuccess: () => {
-                                  toastManager.add({
-                                    title: "Coach welcome video saved",
-                                    description: "Video will appear in coach emails",
-                                    type: "success",
-                                  });
-                                },
-                                onError: () => {
-                                  toastManager.add({
-                                    title: "Error",
-                                    description: "Failed to save welcome video URL",
-                                    type: "error",
-                                  });
-                                },
-                              },
-                            );
-                          }}
-                        >
-                          Save
-                        </Button>
                       </div>
                     )}
                   </div>
@@ -439,73 +395,18 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                         checked={dancerVideoEnabled}
                         onCheckedChange={(checked) => {
                           setDancerVideoEnabled(checked);
-                          if (!checked) {
-                            setDancerVideoUrl("");
-                            updateOrg(
-                              {
-                                params: { path: { id: org!.id } },
-                                body: {
-                                  settings: { ...org!.settings, welcome_video_dancer: null },
-                                } as never,
-                              },
-                              {
-                                onSuccess: () => {
-                                  toastManager.add({
-                                    title: "Dancer welcome video removed",
-                                    description: "Video will no longer appear in dancer emails",
-                                    type: "success",
-                                  });
-                                },
-                              },
-                            );
-                          }
+                          if (!checked) setDancerVideoUrl("");
                         }}
                       />
                     </div>
                     {dancerVideoEnabled && (
-                      <div className="mt-3 flex items-center gap-2">
+                      <div className="mt-3">
                         <Input
                           value={dancerVideoUrl}
                           onChange={(e) => setDancerVideoUrl(e.target.value)}
                           placeholder="https://youtube.com/watch?v=..."
-                          className="flex-1 text-sm"
+                          className="text-sm"
                         />
-                        <Button
-                          type="button"
-                          size="sm"
-                          disabled={
-                            !dancerVideoUrl.trim() ||
-                            dancerVideoUrl === ((org?.settings as Record<string, unknown>)?.welcome_video_dancer ?? "")
-                          }
-                          onClick={() => {
-                            updateOrg(
-                              {
-                                params: { path: { id: org!.id } },
-                                body: {
-                                  settings: { ...org!.settings, welcome_video_dancer: dancerVideoUrl.trim() },
-                                } as never,
-                              },
-                              {
-                                onSuccess: () => {
-                                  toastManager.add({
-                                    title: "Dancer welcome video saved",
-                                    description: "Video will appear in dancer emails",
-                                    type: "success",
-                                  });
-                                },
-                                onError: () => {
-                                  toastManager.add({
-                                    title: "Error",
-                                    description: "Failed to save welcome video URL",
-                                    type: "error",
-                                  });
-                                },
-                              },
-                            );
-                          }}
-                        >
-                          Save
-                        </Button>
                       </div>
                     )}
                   </div>
