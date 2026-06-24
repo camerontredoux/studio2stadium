@@ -30,6 +30,13 @@ export default await Env.create(new URL("../", import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Sentry error monitoring (optional; disabled when unset)
+  |----------------------------------------------------------
+  */
+  SENTRY_DSN: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
   | Variables for configuring database connection
   |----------------------------------------------------------
   */

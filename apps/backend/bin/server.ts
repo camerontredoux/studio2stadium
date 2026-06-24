@@ -9,6 +9,9 @@
 |
 */
 
+// Must be imported before any other module so Sentry can patch Node internals.
+import "../instrument.ts";
+
 import "reflect-metadata";
 import { Ignitor, prettyPrintError } from "@adonisjs/core";
 
