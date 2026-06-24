@@ -111,16 +111,12 @@ export function OrgRosterAddedEmail({
         <Text style={paragraphStyle}>Hi {firstName},</Text>
         <Text style={paragraphStyle}>
           {eventName ? (
-            <>
-              <strong style={{ fontStyle: "italic" }}>{eventName}</strong> is
-              almost here and we&apos;re excited to have you involved!
-            </>
+            <strong style={{ fontStyle: "italic" }}>{eventName}</strong>
           ) : (
-            <>
-              <strong>{orgName}</strong> has added you to the roster and
-              we&apos;re excited to have you!
-            </>
-          )}
+            <strong>{orgName}</strong>
+          )}{" "}
+          has added you to the roster and we&apos;re excited to have you
+          involved!
         </Text>
         <Text style={paragraphStyle}>
           {type === "dancer" ? (

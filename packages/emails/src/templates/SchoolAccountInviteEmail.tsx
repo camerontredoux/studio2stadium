@@ -106,15 +106,14 @@ export function SchoolAccountInviteEmail({
       >
         <Text style={paragraphStyle}>Hi {firstName},</Text>
         <Text style={paragraphStyle}>
-          <strong>{orgName}</strong> has added you as a coach
           {eventName ? (
-            <>
-              {" "}
-              for <strong style={{ fontStyle: "italic" }}>{eventName}</strong>
-            </>
-          ) : null}
-          . Create your Studio2Stadium school account to get instant access to
-          your event roster and start connecting with your dancers.
+            <strong style={{ fontStyle: "italic" }}>{eventName}</strong>
+          ) : (
+            <strong>{orgName}</strong>
+          )}{" "}
+          has added you as a coach. Create your Studio2Stadium school account to
+          get instant access to your event roster and start connecting with your
+          dancers.
         </Text>
 
         {/* Event details (if available) */}
