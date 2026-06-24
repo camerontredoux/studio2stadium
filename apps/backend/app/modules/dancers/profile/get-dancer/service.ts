@@ -1,11 +1,15 @@
 import { DatabaseService } from "#database/service";
+import { GetSubscriptionService } from "#modules/subscriptions/get-status/service";
 import { imageUrl } from "#utils/image-url";
 import { videoThumbnailUrl, videoUrl } from "#utils/video-url";
 import { inject } from "@adonisjs/core";
 
 @inject()
 export class Service {
-  constructor(private db: DatabaseService) {}
+  constructor(
+    private db: DatabaseService,
+    private subscriptions: GetSubscriptionService,
+  ) {}
 
   async execute(username: string) {
     const dancer = await this.getDancer(username);
@@ -14,7 +18,7 @@ export class Service {
 
     const { dancerProfile, ...user } = dancer;
 
-    const { subscription, images, avatar, videos, ...rest } = user;
+    const { subscription, images, avatar, videos, id, limited, ...rest } = user;
 
     if (!dancerProfile) return null;
 
@@ -32,13 +36,21 @@ export class Service {
       thumbnail: videoThumbnailUrl(video.mediaId, video.type),
     }));
 
+    // Source of truth for access tier: stripe (real sub) > org_event (grant) >
+    // none. This fixes a prior bug where grant users read subscribed:false
+    // (the relation above only sees Stripe). `limited` drives the stripped-down
+    // free-tier profile, and only applies when there is no active access.
+    const status = await this.subscriptions.execute(id);
+
     return {
       ...rest,
       ...dancerProfile,
       avatar: profilePicture,
       images: profileImages,
       videos: profileVideos,
-      subscribed: !!subscription,
+      subscribed: status.source !== "none",
+      subscriptionSource: status.source,
+      limited: limited && status.source === "none",
     };
   }
 
@@ -52,12 +64,14 @@ export class Service {
           },
         },
         columns: {
+          id: true,
           displayEmail: true,
           username: true,
           avatar: true,
           phone: true,
           firstName: true,
           lastName: true,
+          limited: true,
         },
         with: {
           images: true,

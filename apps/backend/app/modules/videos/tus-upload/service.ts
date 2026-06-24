@@ -1,14 +1,14 @@
 import { dancerProfiles } from "#database/schema/dancers";
 import { videos, videoUploads } from "#database/schema/media";
-import { premiumGrants } from "#database/schema/organizations";
 import { subscriptions } from "#database/schema/subscriptions";
 import { DatabaseService } from "#database/service";
 import env from "#start/env";
 import { inject } from "@adonisjs/core";
-import { and, count, desc, eq, gt, isNull, ne } from "drizzle-orm";
+import { and, count, eq, isNull, ne } from "drizzle-orm";
 
+// Direct (Cloudflare Stream) uploads cost money per upload, so they require a
+// real Stripe subscription. Org-granted users get YouTube embeds only.
 const STRIPE_VIDEO_LIMIT = 3;
-const GRANT_VIDEO_LIMIT = 2;
 
 interface InitiateUploadParams {
   userId: string;
@@ -29,7 +29,7 @@ export class Service {
   ): Promise<InitiateUploadResult> {
     const { userId, uploadLength, uploadMetadata } = params;
 
-    const [[completedCount], [pendingCount], dancerProfile, subscription, grant] =
+    const [[completedCount], [pendingCount], dancerProfile, subscription] =
       await Promise.all([
         this.db.use((db) =>
           db
@@ -72,32 +72,19 @@ export class Service {
             .limit(1)
             .then((rows) => rows[0])
         ),
-        this.db.use((db) =>
-          db
-            .select({ id: premiumGrants.id })
-            .from(premiumGrants)
-            .where(
-              and(
-                eq(premiumGrants.userId, userId),
-                gt(premiumGrants.expiresAt, new Date()),
-                isNull(premiumGrants.revokedAt)
-              )
-            )
-            .orderBy(desc(premiumGrants.expiresAt))
-            .limit(1)
-            .then((rows) => rows[0])
-        ),
       ]);
 
-    if (dancerProfile && !subscription && !grant) {
+    // Direct file uploads require a real Stripe subscription. Org-granted (and
+    // free) dancers are steered to YouTube embeds instead.
+    if (dancerProfile && !subscription) {
       return {
         error: "limit_exceeded",
         message:
-          "Video uploads require a premium subscription. Upgrade to premium to upload videos.",
+          "Direct video uploads require a premium subscription. Add a YouTube video instead, or upgrade to premium.",
       };
     }
 
-    const videoLimit = subscription ? STRIPE_VIDEO_LIMIT : GRANT_VIDEO_LIMIT;
+    const videoLimit = STRIPE_VIDEO_LIMIT;
     const totalVideos = completedCount.count + pendingCount.count;
     if (totalVideos >= videoLimit) {
       return {

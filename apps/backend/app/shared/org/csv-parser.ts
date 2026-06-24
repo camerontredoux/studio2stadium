@@ -15,8 +15,38 @@ export interface DancerRow {
   firstName: string;
   lastName: string;
   bibNumber: number;
+  /**
+   * Free-tier Users: whether this dancer paid for full access. Only meaningful
+   * when the org's `freeTierUsers` feature is on (then the CSV column is
+   * required). `undefined` when the column is absent. paid=false → no premium
+   * grant + a limited account.
+   */
+  paid?: boolean;
   /** 1-based index of the data row (header excluded). Row 1 = first dancer/coach. */
   csvRow: number;
+}
+
+const TRUTHY = new Set(["true", "1", "yes"]);
+const FALSY = new Set(["false", "0", "no"]);
+
+/**
+ * Parses the optional `paid` boolean column. Returns the parsed value, or a
+ * RowError reason string when the value is present-but-invalid, or when it is
+ * required (feature on) and missing.
+ */
+function parsePaid(
+  raw: string | undefined,
+  row: number,
+  required: boolean
+): boolean | undefined | RowError {
+  const value = raw?.trim().toLowerCase() ?? "";
+  if (!value) {
+    if (required) return { row, reason: "missing paid" };
+    return undefined;
+  }
+  if (TRUTHY.has(value)) return true;
+  if (FALSY.has(value)) return false;
+  return { row, reason: "paid must be true, false, yes, no, 1, or 0" };
 }
 
 export interface RowError {
@@ -80,7 +110,8 @@ export function parseCoachCsv(csv: string) {
   });
 }
 
-export function parseDancerCsv(csv: string) {
+export function parseDancerCsv(csv: string, opts?: { requirePaid?: boolean }) {
+  const requirePaid = opts?.requirePaid ?? false;
   return parseCsv<DancerRow>(csv, (r, row) => {
     if (!r["email"]?.trim()) return { row, reason: "missing email" };
     if (!r["firstName"]?.trim()) return { row, reason: "missing firstName" };
@@ -90,11 +121,14 @@ export function parseDancerCsv(csv: string) {
     if (!bibRaw.trim() || Number.isNaN(bib) || !Number.isInteger(bib)) {
       return { row, reason: "missing or invalid bib number" };
     }
+    const paid = parsePaid(r["paid"], row, requirePaid);
+    if (paid !== undefined && typeof paid === "object") return paid;
     return {
       email: r["email"]!.toLowerCase().trim(),
       firstName: r["firstName"]!.trim(),
       lastName: r["lastName"]!.trim(),
       bibNumber: bib,
+      paid,
       csvRow: row,
     };
   });

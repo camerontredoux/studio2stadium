@@ -2999,6 +2999,87 @@
         }
       }
     },
+    "/orgs/{slug}/events/{id}/rosters/{rosterId}/paid": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsIdRostersIdPaidRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdRostersIdPaidResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/orgs/{slug}/events/{id}/rosters/{rosterId}/attach": {
       "post": {
         "requestBody": {
@@ -12894,6 +12975,16 @@
                     }
                   ]
                 },
+                "paid": {
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "isRegistered": {
                   "type": "boolean"
                 }
@@ -12910,6 +13001,7 @@
                 "eventId",
                 "bibNumber",
                 "checkedInAt",
+                "paid",
                 "isRegistered"
               ]
             }
@@ -13223,6 +13315,40 @@
           "isRegistered"
         ]
       },
+      "OrgsIdEventsIdRostersIdPaidRequest": {
+        "type": "object",
+        "properties": {
+          "paid": {
+            "type": [
+              "string",
+              "number",
+              "boolean"
+            ]
+          }
+        },
+        "required": [
+          "paid"
+        ]
+      },
+      "OrgsIdEventsIdRostersIdPaidResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "paid": {
+            "type": "boolean"
+          },
+          "isRegistered": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "paid",
+          "isRegistered"
+        ]
+      },
       "OrgsIdEventsIdRostersIdAttachRequest": {
         "type": "object",
         "properties": {
@@ -13382,6 +13508,16 @@
               }
             ]
           },
+          "paid": {
+            "oneOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "isStaff": {
             "type": "boolean"
           }
@@ -13401,6 +13537,7 @@
           "expirationDate",
           "csvUploadId",
           "checkedInAt",
+          "paid",
           "isStaff"
         ]
       },
@@ -14705,6 +14842,16 @@
               }
             ]
           },
+          "paid": {
+            "oneOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "isStaff": {
             "type": "boolean"
           }
@@ -14724,6 +14871,7 @@
           "expirationDate",
           "csvUploadId",
           "checkedInAt",
+          "paid",
           "isStaff"
         ]
       },
@@ -16952,6 +17100,9 @@
               }
             ]
           },
+          "limited": {
+            "type": "boolean"
+          },
           "birthday": {
             "type": "string"
           },
@@ -17136,6 +17287,9 @@
                 "description"
               ]
             }
+          },
+          "subscriptionSource": {
+            "$ref": "#/components/schemas/SubscriptionSource"
           },
           "videos": {
             "type": "array",
@@ -17489,6 +17643,7 @@
           "lastName",
           "avatar",
           "phone",
+          "limited",
           "birthday",
           "location",
           "biography",
@@ -17503,6 +17658,7 @@
           "trainingHours",
           "achievements",
           "references",
+          "subscriptionSource",
           "videos",
           "images",
           "skills",

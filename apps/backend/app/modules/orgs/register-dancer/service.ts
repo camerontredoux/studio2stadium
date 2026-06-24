@@ -50,6 +50,33 @@ export class RegisterDancerService {
         throw new InviteInvalidError();
       }
 
+      // Free-tier Users: a newly-provisioned dancer is "limited" when the org
+      // runs the free-tier program and none of their roster rows in this org
+      // were marked paid. A single paid=true event grants the full experience.
+      const orgFeatures =
+        (org.features as Record<string, boolean> | undefined) ?? {};
+      const freeTier = Boolean(orgFeatures.freeTierUsers);
+      let isLimited = false;
+      if (freeTier) {
+        const rosterPaid = await tx
+          .select({ paid: eventRosters.paid })
+          .from(eventRosters)
+          .where(
+            and(
+              eq(eventRosters.type, "dancer"),
+              eq(eventRosters.email, invite.email),
+              inArray(
+                eventRosters.eventId,
+                tx
+                  .select({ id: orgEvents.id })
+                  .from(orgEvents)
+                  .where(eq(orgEvents.orgId, org.id))
+              )
+            )
+          );
+        isLimited = !rosterPaid.some((r) => r.paid === true);
+      }
+
       const usernameSeed = invite.email.split("@")[0] ?? "dancer";
       const username = `d_${usernameSeed}_${Date.now().toString(36)}`;
 
@@ -65,6 +92,7 @@ export class RegisterDancerService {
           role: "user",
           type: "dancer",
           verified: true,
+          limited: isLimited,
         })
         .returning();
 
@@ -80,16 +108,20 @@ export class RegisterDancerService {
         role: "member",
       });
 
-      const settings = (org.settings as { premium_period_days?: number }) ?? {};
-      const periodDays = settings.premium_period_days ?? 90;
-      const expiresAt = new Date(Date.now() + periodDays * 86400000);
+      // Free-tier Users: skip the premium grant for limited (unpaid) dancers.
+      if (!isLimited) {
+        const settings =
+          (org.settings as { premium_period_days?: number }) ?? {};
+        const periodDays = settings.premium_period_days ?? 90;
+        const expiresAt = new Date(Date.now() + periodDays * 86400000);
 
-      await tx.insert(premiumGrants).values({
-        userId: user!.id,
-        sourceType: "org_event",
-        sourceId: null, // Plan 3 wires this to the active org_events.id
-        expiresAt,
-      });
+        await tx.insert(premiumGrants).values({
+          userId: user!.id,
+          sourceType: "org_event",
+          sourceId: null, // Plan 3 wires this to the active org_events.id
+          expiresAt,
+        });
+      }
 
       // Link all matching pending roster rows in this org to the new user.
       // A dancer may appear on multiple events within the same org (recurring

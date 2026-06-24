@@ -11,6 +11,8 @@ const UploadPreviewController = () => import("./upload-preview/controller.ts");
 const EventStatsController = () => import("./stats/controller.ts");
 const ListRosterController = () => import("./rosters/list/controller.ts");
 const UpdateRosterController = () => import("./rosters/update/controller.ts");
+const SetRosterPaidController = () =>
+  import("./rosters/set-paid/controller.ts");
 const DeleteRosterController = () => import("./rosters/delete/controller.ts");
 const ExportRosterController = () => import("./rosters/export/controller.ts");
 const FiltersRosterController = () => import("./rosters/filters/controller.ts");
@@ -159,6 +161,17 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
+      ]);
+    router
+      .patch(":slug/events/:id/rosters/:rosterId/paid", [
+        SetRosterPaidController,
+      ])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+        middleware.orgFeature("freeTierUsers"),
       ]);
     router
       .delete(":slug/events/:id/rosters", [DeleteRosterController])

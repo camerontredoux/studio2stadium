@@ -271,6 +271,10 @@ type OrgsIdEventsIdRostersIdPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/update/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/update/controller.ts').default['handle'], true>
 }
+type OrgsIdEventsIdRostersIdPaidPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/set-paid/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/set-paid/controller.ts').default['handle'], true>
+}
 type OrgsIdEventsIdRostersDelete = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/delete/controller.ts').default['handle'], false>
@@ -1202,6 +1206,11 @@ export interface ApiDefinition {
               '$url': {
               };
               '$patch': OrgsIdEventsIdRostersIdPatch;
+              'paid': {
+                '$url': {
+                };
+                '$patch': OrgsIdEventsIdRostersIdPaidPatch;
+              };
               'attach': {
                 '$url': {
                 };

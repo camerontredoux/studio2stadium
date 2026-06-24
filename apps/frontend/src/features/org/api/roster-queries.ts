@@ -84,6 +84,21 @@ export function useUpdateRoster() {
   );
 }
 
+export function useSetRosterPaid() {
+  return $api.useMutation(
+    "patch",
+    "/orgs/{slug}/events/{id}/rosters/{rosterId}/paid",
+    {
+      meta: {
+        invalidateQueries: [
+          ROSTER_LIST_KEY_PREFIX,
+          ROSTER_STATS_KEY_PREFIX,
+        ],
+      },
+    },
+  );
+}
+
 export function useDeleteRosters() {
   return $api.useMutation("delete", "/orgs/{slug}/events/{id}/rosters", {
     meta: {

@@ -91,6 +91,7 @@ export class ListRosterService {
             danceStyles: eventDancerProfiles.danceStyles,
             bio: eventDancerProfiles.bio,
             checkedInAt: eventRosters.checkedInAt,
+            paid: eventRosters.paid,
           })
           .from(eventRosters)
           .leftJoin(
@@ -119,6 +120,7 @@ export class ListRosterService {
           organization: r.organization,
           isRegistered: r.isRegistered,
           checkedInAt: r.checkedInAt?.toISOString() ?? null,
+          paid: r.paid,
           createdAt:
             r.createdAt instanceof Date
               ? r.createdAt.toISOString()

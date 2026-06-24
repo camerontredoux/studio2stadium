@@ -3259,6 +3259,76 @@ export interface paths {
         };
         trace?: never;
     };
+    "/orgs/{slug}/events/{id}/rosters/{rosterId}/paid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                    rosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsIdRostersIdPaidRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdRostersIdPaidResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/orgs/{slug}/events/{id}/rosters/{rosterId}/attach": {
         parameters: {
             query?: never;
@@ -10320,6 +10390,7 @@ export interface components {
                 eventId: string;
                 bibNumber: number | null;
                 checkedInAt: string | null;
+                paid: boolean | null;
                 isRegistered: boolean;
             }[];
             total: number;
@@ -10366,6 +10437,14 @@ export interface components {
             bibNumber: number | null;
             isRegistered: boolean;
         };
+        OrgsIdEventsIdRostersIdPaidRequest: {
+            paid: string | number | boolean;
+        };
+        OrgsIdEventsIdRostersIdPaidResponse: {
+            id: string;
+            paid: boolean;
+            isRegistered: boolean;
+        };
         OrgsIdEventsIdRostersIdAttachRequest: {
             targetUserId: string;
         };
@@ -10396,6 +10475,7 @@ export interface components {
             expirationDate: string | null;
             csvUploadId: string | null;
             checkedInAt: string | null;
+            paid: boolean | null;
             isStaff: boolean;
         };
         OrgsIdEventsIdRostersResendinvitesRequest: {
@@ -10650,6 +10730,7 @@ export interface components {
             expirationDate: string | null;
             csvUploadId: string | null;
             checkedInAt: string | null;
+            paid: boolean | null;
             isStaff: boolean;
         };
         OrgsIdDancersResponse: {
@@ -11057,6 +11138,7 @@ export interface components {
             lastName: string;
             avatar: string | null;
             phone: string | null;
+            limited: boolean;
             birthday: string;
             location: string;
             biography: string | null;
@@ -11086,6 +11168,7 @@ export interface components {
                 title: string;
                 description: string | null;
             }[];
+            subscriptionSource: components["schemas"]["SubscriptionSource"];
             videos: {
                 id: string;
                 /** @enum {string} */

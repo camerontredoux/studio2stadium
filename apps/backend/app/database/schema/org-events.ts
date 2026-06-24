@@ -53,6 +53,11 @@ export const eventRosters = pg.pgTable(
     expirationDate: pg.date(),
     csvUploadId: pg.uuid(),
     checkedInAt: pg.timestamp({ withTimezone: true }),
+    // Free-tier Users: paid intent from the dancer CSV. When the org's
+    // freeTierUsers feature is on, paid=false means "create an account but no
+    // premium grant" (the dancer becomes a limited user). Carried from upload
+    // through to invite-claim so the grant decision survives until activation.
+    paid: pg.boolean().default(false),
     // Staff/preview rosters: a real row owned by an admin "viewing as" a
     // coach/dancer. Anchors scouting/check-in FKs but is excluded from all
     // participant-facing and aggregate queries. Admins are never real

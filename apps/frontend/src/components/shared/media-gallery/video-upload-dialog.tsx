@@ -45,8 +45,10 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
     data: { subscribed, source },
   } = useSubscribed();
   const { type, username } = useSession();
+  // Free-tier Users: direct (Cloudflare) uploads require a real Stripe sub.
+  // Org-granted dancers can only add YouTube embeds.
   const isGrantOnly = source === "org_event";
-  const cloudflareLimit = isGrantOnly ? 2 : 3;
+  const cloudflareLimit = 3;
   const hasReachedCloudflareLimit = videoCount >= cloudflareLimit;
   const { setIsProcessing } = useVideoProcessing();
   const queryClient = useQueryClient();
@@ -89,7 +91,7 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
       setUploading(false);
       setProgress(0);
       setYoutubeUrl("");
-      setTab(hasReachedCloudflareLimit && !isGrantOnly ? "youtube" : "file");
+      setTab(hasReachedCloudflareLimit ? "youtube" : "file");
     }
   };
 
@@ -151,9 +153,7 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
         <div className="bg-muted rounded-full p-3">
           <VideoIcon className="text-muted-foreground size-6" />
         </div>
-        <span className="text-muted-foreground text-sm font-medium">
-          Video
-        </span>
+        <span className="text-muted-foreground text-sm font-medium">Video</span>
         {isFreeTierDancer && (
           <Button
             className="hover:text-brand gap-2"
@@ -184,7 +184,7 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
         <span className="text-muted-foreground group-hover:text-foreground text-sm font-medium transition-colors">
           Video
         </span>
-        {hasReachedCloudflareLimit && (
+        {!isGrantOnly && hasReachedCloudflareLimit && (
           <span className="text-muted-foreground text-xs font-medium">
             Limit {cloudflareLimit}/{cloudflareLimit}
           </span>
@@ -197,18 +197,16 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
         </DialogHeader>
         <DialogPanel>
           {isGrantOnly ? (
-            hasReachedCloudflareLimit ? (
-              <div className="bg-muted/40 text-muted-foreground rounded-md p-4 text-sm">
-                You have reached your upload limit ({cloudflareLimit} videos).
-                Delete an existing video to upload a new one.
-              </div>
-            ) : (
-              <VideoUploadForm
-                isLoading={uploading}
-                progress={progress}
-                onSubmit={onSubmit}
-              />
-            )
+            <form id="youtube-upload-form" onSubmit={handleYoutubeSubmit}>
+              <Field>
+                <FieldLabel>YouTube URL</FieldLabel>
+                <Input
+                  placeholder="https://youtube.com/watch?v=..."
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                />
+              </Field>
+            </form>
           ) : (
             <Tabs
               value={tab}
@@ -260,11 +258,13 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
             Cancel
           </DialogClose>
           {isGrantOnly ? (
-            !hasReachedCloudflareLimit && (
-              <Button disabled={uploading} type="submit" form="video-upload-form">
-                {uploading ? <Spinner label="Uploading..." /> : "Upload"}
-              </Button>
-            )
+            <Button
+              disabled={youtubeUpload.isPending || !youtubeUrl}
+              type="submit"
+              form="youtube-upload-form"
+            >
+              {youtubeUpload.isPending ? <Spinner label="Adding..." /> : "Add"}
+            </Button>
           ) : tab === "file" ? (
             <Button disabled={uploading} type="submit" form="video-upload-form">
               {uploading ? <Spinner label="Uploading..." /> : "Upload"}
