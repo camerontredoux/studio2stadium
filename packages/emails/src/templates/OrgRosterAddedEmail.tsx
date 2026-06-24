@@ -113,14 +113,19 @@ export function OrgRosterAddedEmail({
       >
         <Text style={paragraphStyle}>Hi {firstName},</Text>
         <Text style={paragraphStyle}>
-          {eventName
-            ? `${orgName} is almost here and we're excited to have you involved!`
-            : `${orgName} has added you to the roster and we're excited to have you!`}
+          {eventName ? (
+            <>
+              <strong>{eventName}</strong> is almost here and we&apos;re excited
+              to have you involved!
+            </>
+          ) : (
+            `${orgName} has added you to the roster and we're excited to have you!`
+          )}
         </Text>
         <Text style={paragraphStyle}>
           {type === "dancer"
-            ? `The ${eventName ?? orgName} platform gives you one place to explore opportunities, connect with coaches, and stay organized${eventName ? " throughout the event" : ""}.`
-            : `The ${eventName ?? orgName} platform gives you one place to explore dancer profiles, identify top prospects, and stay organized${eventName ? " throughout the event" : ""}.`}
+            ? `The ${orgName} platform gives you one place to explore opportunities, connect with coaches, and stay organized${eventName ? " throughout the event" : ""}.`
+            : `The ${orgName} platform gives you one place to explore dancer profiles, identify top prospects, and stay organized${eventName ? " throughout the event" : ""}.`}
         </Text>
 
         {/* Event details (if available) */}
@@ -196,7 +201,7 @@ export function OrgRosterAddedEmail({
             href={dashboardUrl}
             style={{
               display: "inline-block",
-              backgroundColor: accent,
+              backgroundColor: colors.primary,
               color: "#ffffff",
               fontSize: "14px",
               fontWeight: "600",
@@ -257,7 +262,7 @@ export function OrgRosterAddedEmail({
               href={welcomeVideoUrl}
               style={{
                 display: "inline-block",
-                backgroundColor: accent,
+                backgroundColor: colors.primary,
                 color: "#ffffff",
                 fontSize: "14px",
                 fontWeight: "600",
