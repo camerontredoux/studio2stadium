@@ -4433,13 +4433,13 @@
         }
       }
     },
-    "/orgs/{slug}/events/attend": {
+    "/orgs/{slug}/events/view-as": {
       "post": {
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/OrgsIdEventsAttendRequest"
+                "$ref": "#/components/schemas/OrgsIdEventsViewasRequest"
               }
             }
           }
@@ -4460,7 +4460,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrgsIdEventsAttendResponse"
+                  "$ref": "#/components/schemas/OrgsIdEventsViewasResponse"
                 }
               }
             }
@@ -13381,6 +13381,9 @@
                 "type": "null"
               }
             ]
+          },
+          "isStaff": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -13397,7 +13400,8 @@
           "bibNumber",
           "expirationDate",
           "csvUploadId",
-          "checkedInAt"
+          "checkedInAt",
+          "isStaff"
         ]
       },
       "OrgsIdEventsIdRostersResendinvitesRequest": {
@@ -14603,7 +14607,7 @@
           "url"
         ]
       },
-      "OrgsIdEventsAttendRequest": {
+      "OrgsIdEventsViewasRequest": {
         "type": "object",
         "properties": {
           "type": {
@@ -14614,7 +14618,7 @@
           "type"
         ]
       },
-      "OrgsIdEventsAttendResponse": {
+      "OrgsIdEventsViewasResponse": {
         "type": "object",
         "properties": {
           "id": {
@@ -14700,6 +14704,9 @@
                 "type": "null"
               }
             ]
+          },
+          "isStaff": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -14716,7 +14723,8 @@
           "bibNumber",
           "expirationDate",
           "csvUploadId",
-          "checkedInAt"
+          "checkedInAt",
+          "isStaff"
         ]
       },
       "OrgsIdDancersResponse": {

@@ -335,9 +335,9 @@ type OrgsIdEventsIdReconciliationSchoolusersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/search-users-controller.ts').default['handle'], false>
 }
-type OrgsIdEventsAttendPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/attend/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/orgs/events/attend/controller.ts').default['handle'], true>
+type OrgsIdEventsViewasPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/view-as/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/view-as/controller.ts').default['handle'], true>
 }
 type OrgsIdEventsIdCheckinStatusGetHead = {
   request: unknown
@@ -1342,10 +1342,10 @@ export interface ApiDefinition {
         };
         '$get': OrgsIdEventsGetHead;
         '$head': OrgsIdEventsGetHead;
-        'attend': {
+        'view-as': {
           '$url': {
           };
-          '$post': OrgsIdEventsAttendPost;
+          '$post': OrgsIdEventsViewasPost;
         };
       };
       'dancers': {

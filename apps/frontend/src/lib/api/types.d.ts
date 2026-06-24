@@ -4445,7 +4445,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/orgs/{slug}/events/attend": {
+    "/orgs/{slug}/events/view-as": {
         parameters: {
             query?: never;
             header?: never;
@@ -4465,7 +4465,7 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["OrgsIdEventsAttendRequest"];
+                    "application/json": components["schemas"]["OrgsIdEventsViewasRequest"];
                 };
             };
             responses: {
@@ -4475,7 +4475,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["OrgsIdEventsAttendResponse"];
+                        "application/json": components["schemas"]["OrgsIdEventsViewasResponse"];
                     };
                 };
                 /** @description Unprocessable Entity */
@@ -10396,6 +10396,7 @@ export interface components {
             expirationDate: string | null;
             csvUploadId: string | null;
             checkedInAt: string | null;
+            isStaff: boolean;
         };
         OrgsIdEventsIdRostersResendinvitesRequest: {
             ids: string[];
@@ -10631,10 +10632,10 @@ export interface components {
             key: string;
             url: string;
         };
-        OrgsIdEventsAttendRequest: {
+        OrgsIdEventsViewasRequest: {
             type: components["schemas"]["UploadKind"];
         };
-        OrgsIdEventsAttendResponse: {
+        OrgsIdEventsViewasResponse: {
             id: string;
             email: string;
             type: components["schemas"]["UploadKind"];
@@ -10649,6 +10650,7 @@ export interface components {
             expirationDate: string | null;
             csvUploadId: string | null;
             checkedInAt: string | null;
+            isStaff: boolean;
         };
         OrgsIdDancersResponse: {
             rosterId: string;
