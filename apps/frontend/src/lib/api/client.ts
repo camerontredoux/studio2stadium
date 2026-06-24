@@ -11,6 +11,22 @@ export const createClient = () => {
   });
 
   client.use({
+    onRequest: ({ request }) => {
+      // When an admin is "viewing as" a coach/dancer, tell the backend which
+      // staff (preview) roster to resolve. Derived from the current path so it
+      // survives reloads. Harmless for real participants — they have a single
+      // roster of their own type, which this filter matches.
+      if (typeof window !== "undefined") {
+        const path = window.location.pathname;
+        const actAs = path.includes("/coach")
+          ? "coach"
+          : path.includes("/dancer")
+            ? "dancer"
+            : null;
+        if (actAs) request.headers.set("x-act-as-type", actAs);
+      }
+      return request;
+    },
     onResponse: async ({ response }) => {
       if (response.status === 401) {
         window.location.href = "/login";
