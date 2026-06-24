@@ -59,7 +59,7 @@ export function OrgInviteEmail({
               <Img
                 src={logoUrl}
                 alt={orgName}
-                width={120}
+                width={160}
                 height="auto"
                 style={{ margin: "0 auto 12px" }}
               />
@@ -80,7 +80,7 @@ export function OrgInviteEmail({
             <Img
               src={S2S_LOGO}
               alt="Studio 2 Stadium"
-              width={140}
+              width={200}
               height="auto"
               style={{ margin: "0 auto" }}
             />
