@@ -2,7 +2,7 @@ import { db } from "#database/connection";
 import { orgEvents, eventRosters } from "#database/schema/org-events";
 import type { HttpContext } from "@adonisjs/core/http";
 import type { NextFn } from "@adonisjs/core/types/http";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 declare module "@adonisjs/core/http" {
   interface HttpContext {
@@ -32,12 +32,28 @@ export default class OrgEventMiddleware {
     // Attach roster row if user is authenticated (soft — not a hard failure).
     try {
       const user = await ctx.auth.getUserOrFail();
+
+      // Admins "viewing as" can hold both a coach and a dancer staff roster, so
+      // the LIMIT 1 lookup would be ambiguous. The frontend sends the acting
+      // type via `x-act-as-type` while in preview mode; honour it. Real
+      // participants only ever have one row, so this is a no-op for them.
+      const actAs = ctx.request.header("x-act-as-type");
+      const actAsType =
+        actAs === "coach" || actAs === "dancer" ? actAs : undefined;
+
       const [roster] = await db
         .select()
         .from(eventRosters)
         .where(
-          and(eq(eventRosters.eventId, ev.id), eq(eventRosters.userId, user.id))
+          and(
+            eq(eventRosters.eventId, ev.id),
+            eq(eventRosters.userId, user.id),
+            ...(actAsType ? [eq(eventRosters.type, actAsType)] : [])
+          )
         )
+        // Deterministic tiebreaker if an admin has multiple staff rosters and
+        // no acting type was supplied.
+        .orderBy(desc(eventRosters.createdAt))
         .limit(1);
       if (roster) ctx.orgRoster = roster;
     } catch {
