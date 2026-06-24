@@ -19,9 +19,15 @@ type TestEmailKind = "invite" | "roster-added" | "school-account-invite";
 
 const NO_EVENT = "none";
 
-const EMAIL_BUTTONS: { kind: TestEmailKind; label: string }[] = [
+// Participant emails honor the "Send as" (dancer/coach) selector.
+const PARTICIPANT_BUTTONS: { kind: TestEmailKind; label: string }[] = [
   { kind: "invite", label: "Org Invite" },
   { kind: "roster-added", label: "Roster Added" },
+];
+
+// The school-account invite always creates a school/coach account, so the
+// dancer/coach selector does not apply to it.
+const SCHOOL_BUTTONS: { kind: TestEmailKind; label: string }[] = [
   { kind: "school-account-invite", label: "School Account Invite" },
 ];
 
@@ -46,7 +52,9 @@ const rawClient = client as unknown as {
 
 export function TestEmailsSection({ orgSlug }: { orgSlug: string }) {
   const session = useSession();
-  const [eventId, setEventId] = useState<string>(NO_EVENT);
+  // null = untouched; we derive a default (first event) below until the user
+  // picks something.
+  const [eventId, setEventId] = useState<string | null>(null);
   const [audience, setAudience] = useState<"dancer" | "coach">("dancer");
 
   const eventsQuery = useQuery({
@@ -60,13 +68,18 @@ export function TestEmailsSection({ orgSlug }: { orgSlug: string }) {
     },
   });
 
+  const events = eventsQuery.data ?? [];
+  // Default to the first event until the user explicitly chooses.
+  const selectedEventId =
+    eventId ?? (events.length > 0 ? events[0]!.id : NO_EVENT);
+
   const mutation = useMutation({
     mutationFn: async (kind: TestEmailKind) => {
       const res = await rawClient.POST(`/orgs/${orgSlug}/events/test-emails`, {
         params: { path: { slug: orgSlug } },
         body: {
           kind,
-          eventId: eventId === NO_EVENT ? undefined : eventId,
+          eventId: selectedEventId === NO_EVENT ? undefined : selectedEventId,
           audience,
         },
       });
@@ -83,8 +96,6 @@ export function TestEmailsSection({ orgSlug }: { orgSlug: string }) {
       toastManager.add({ title: "Couldn't send test email", type: "error" });
     },
   });
-
-  const events = eventsQuery.data ?? [];
 
   return (
     <Frame>
@@ -107,7 +118,7 @@ export function TestEmailsSection({ orgSlug }: { orgSlug: string }) {
                 { value: NO_EVENT, label: "No event (org only)" },
                 ...events.map((e) => ({ value: e.id, label: e.name })),
               ]}
-              value={eventId}
+              value={selectedEventId}
               onValueChange={(v) => setEventId(v as string)}
             >
               <SelectTrigger className="w-full">
@@ -148,30 +159,70 @@ export function TestEmailsSection({ orgSlug }: { orgSlug: string }) {
               </SelectPopup>
             </Select>
             <p className="text-muted-foreground mt-1 text-xs">
-              Affects copy and welcome-video used by the invite &amp; roster
-              emails.
+              Sends the Org Invite and Roster Added emails as a dancer or a
+              coach &mdash; this changes their wording and which welcome video
+              is included. Does not apply to the School Account Invite.
             </p>
           </Field>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {EMAIL_BUTTONS.map((btn) => {
-            const isThisPending =
-              mutation.isPending && mutation.variables === btn.kind;
-            return (
-              <Button
-                key={btn.kind}
-                size="sm"
-                variant="outline"
-                disabled={mutation.isPending}
-                onClick={() => mutation.mutate(btn.kind)}
-              >
-                {isThisPending ? <Spinner label="Sending..." /> : btn.label}
-              </Button>
-            );
-          })}
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+              Participant emails &middot; sent as {audience}
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              {PARTICIPANT_BUTTONS.map((btn) => (
+                <TestEmailButton
+                  key={btn.kind}
+                  label={btn.label}
+                  kind={btn.kind}
+                  pending={mutation.isPending}
+                  isThis={mutation.variables === btn.kind}
+                  onSend={() => mutation.mutate(btn.kind)}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+              School emails &middot; always a school/coach account
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              {SCHOOL_BUTTONS.map((btn) => (
+                <TestEmailButton
+                  key={btn.kind}
+                  label={btn.label}
+                  kind={btn.kind}
+                  pending={mutation.isPending}
+                  isThis={mutation.variables === btn.kind}
+                  onSend={() => mutation.mutate(btn.kind)}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </FramePanel>
     </Frame>
+  );
+}
+
+function TestEmailButton({
+  label,
+  pending,
+  isThis,
+  onSend,
+}: {
+  label: string;
+  kind: TestEmailKind;
+  pending: boolean;
+  isThis: boolean;
+  onSend: () => void;
+}) {
+  return (
+    <Button size="sm" variant="outline" disabled={pending} onClick={onSend}>
+      {pending && isThis ? <Spinner label="Sending..." /> : label}
+    </Button>
   );
 }
