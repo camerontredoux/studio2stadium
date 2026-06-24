@@ -34,7 +34,8 @@ export class ListSchoolsService {
         .where(
           and(
             eq(eventRosters.eventId, eventId),
-            eq(eventRosters.type, "coach")
+            eq(eventRosters.type, "coach"),
+            eq(eventRosters.isStaff, false)
           )
         )
         .orderBy(eventRosters.organization)

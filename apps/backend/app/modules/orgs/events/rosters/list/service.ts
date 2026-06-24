@@ -38,6 +38,7 @@ export class ListRosterService {
     const filters = [
       eq(eventRosters.eventId, eventId),
       eq(eventRosters.type, q.type),
+      eq(eventRosters.isStaff, false),
     ];
 
     if (q.search) {

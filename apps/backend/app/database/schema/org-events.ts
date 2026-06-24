@@ -53,10 +53,26 @@ export const eventRosters = pg.pgTable(
     expirationDate: pg.date(),
     csvUploadId: pg.uuid(),
     checkedInAt: pg.timestamp({ withTimezone: true }),
+    // Staff/preview rosters: a real row owned by an admin "viewing as" a
+    // coach/dancer. Anchors scouting/check-in FKs but is excluded from all
+    // participant-facing and aggregate queries. Admins are never real
+    // participants, so any staff row is by definition a sandbox.
+    isStaff: pg.boolean().notNull().default(false),
     ...timestamps,
   },
   (table) => [
-    pg.uniqueIndex().on(table.eventId, table.email),
+    // Real participants are unique by email; staff rows are exempt so one admin
+    // can hold both a coach and a dancer sandbox (same email) for the event.
+    // Left unnamed to keep the original auto-generated index name.
+    pg
+      .uniqueIndex()
+      .on(table.eventId, table.email)
+      .where(sql`is_staff = false`),
+    // At most one staff-coach and one staff-dancer per admin per event.
+    pg
+      .uniqueIndex("event_rosters_staff_per_user")
+      .on(table.eventId, table.userId, table.type)
+      .where(sql`is_staff = true`),
     pg
       .uniqueIndex("event_rosters_bib_per_event")
       .on(table.eventId, table.bibNumber)
@@ -145,10 +161,7 @@ export const eventVideos = pg.pgTable(
     audioFilename: pg.varchar({ length: 300 }),
     ...timestamps,
   },
-  (table) => [
-    pg.index().on(table.eventId),
-    pg.index().on(table.categoryId),
-  ]
+  (table) => [pg.index().on(table.eventId), pg.index().on(table.categoryId)]
 );
 
 export const eventChecklist = pg.pgTable(
