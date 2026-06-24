@@ -173,7 +173,7 @@ export function SchoolAccountInviteEmail({
           </Text>
           <Text style={{ ...paragraphStyle, margin: "0 0 16px" }}>
             Create your school account to access the{" "}
-            {eventName ?? orgName} platform and start reviewing your roster:
+            {orgName} platform and start reviewing your roster:
           </Text>
           <ReactEmailButton
             href={registerUrl}

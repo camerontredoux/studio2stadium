@@ -186,7 +186,7 @@ export function OrgInviteEmail({
           </Text>
           <Text style={{ ...paragraphStyle, margin: "0 0 16px" }}>
             You&apos;ll need to create an account to access the{" "}
-            {eventName ?? orgName} platform:
+            {orgName} platform:
           </Text>
           <ReactEmailButton
             href={inviteUrl}

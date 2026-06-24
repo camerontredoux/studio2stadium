@@ -186,7 +186,7 @@ export function OrgRosterAddedEmail({
           </Text>
           <Text style={{ ...paragraphStyle, margin: "0 0 4px" }}>
             Your profile has been automatically updated. You can now access both
-            S2S and the {eventName ?? orgName} platform directly from your
+            S2S and the {orgName} platform directly from your
             dashboard. No extra steps needed.
           </Text>
         </Section>
