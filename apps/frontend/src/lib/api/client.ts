@@ -31,6 +31,28 @@ export const createClient = () => {
       if (response.status === 401) {
         window.location.href = "/login";
       }
+      // Our proxy chain (Cloudflare/Fly) rewrites 204 No Content responses into
+      // a 200 with an empty body and no Content-Length header. openapi-fetch's
+      // no-content guard only catches `status === 204` or `Content-Length === 0`,
+      // so it falls through and calls `.json()` on the empty body, throwing
+      // "Unexpected end of JSON input". Normalize a truly empty 2xx response so
+      // the guard recognizes it as no-content.
+      if (
+        response.ok &&
+        response.status !== 204 &&
+        !response.headers.get("content-type")?.includes("application/json")
+      ) {
+        const text = await response.clone().text();
+        if (text.length === 0) {
+          const headers = new Headers(response.headers);
+          headers.set("Content-Length", "0");
+          return new Response(null, {
+            status: response.status,
+            statusText: response.statusText,
+            headers,
+          });
+        }
+      }
       return response;
     },
   });
