@@ -10,8 +10,10 @@ import {
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { toastManager } from "@/components/ui/toast-manager";
 import { useLocation, useNavigate, useParams } from "@tanstack/react-router";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { EyeIcon } from "lucide-react";
+
+import { orgQueries } from "@/features/org/api/queries";
 
 type View = "Admin" | "Coach" | "Dancer";
 
@@ -21,6 +23,7 @@ export function ViewSwitcher() {
   const location = useLocation();
   const navigate = useNavigate();
   const { orgSlug } = useParams({ strict: false }) as { orgSlug: string };
+  const queryClient = useQueryClient();
   const attendMutation = useMutation({
     mutationFn: async (type: "coach" | "dancer") => {
       const raw = client as unknown as {
@@ -30,6 +33,9 @@ export function ViewSwitcher() {
         ) => Promise<void>;
       };
       await raw.POST(`/orgs/${orgSlug}/events/view-as`, { body: { type } });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(orgQueries.org(orgSlug));
     },
   });
 
