@@ -7,6 +7,7 @@ import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
+import * as Sentry from "@sentry/react";
 
 import { queryClient } from "./lib/query-client";
 
@@ -15,6 +16,18 @@ import { createRouter } from "@tanstack/react-router";
 import ReactGA from "react-ga4";
 
 import qs from "qs";
+
+// Error monitoring. Disabled unless VITE_SENTRY_DSN is set at build time.
+// Uses a separate (browser/React) Sentry project from the backend.
+const sentryDsn = import.meta.env.VITE_SENTRY_DSN;
+if (sentryDsn) {
+  Sentry.init({
+    dsn: sentryDsn,
+    environment: import.meta.env.MODE,
+    integrations: [Sentry.browserTracingIntegration()],
+    tracesSampleRate: 0.1,
+  });
+}
 
 ReactGA.initialize(import.meta.env.VITE_GOOGLE_ANALYTICS_ID)
 
