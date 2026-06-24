@@ -23,7 +23,8 @@ export interface OrgRosterAddedEmailProps {
   logoUrl?: string | null;
 }
 
-const S2S_LOGO = "https://studio2stadium.com/img/logos/s2s_logo.png?type=feed";
+const S2S_LOGO =
+  "https://app.studio2stadium.com/logos/s2s-wordmark-white.png";
 
 export function OrgRosterAddedEmail({
   firstName,
