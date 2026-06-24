@@ -52,3 +52,6 @@ dist-ssr
 
 # Worktrees
 .worktrees
+
+# oh-my-claudecode tooling state (sessions, hud, replays, project memory)
+.omc/

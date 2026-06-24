@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"ls /home/cameron/Developer/studio2stadium/app/.worktrees/summit-04/packages/openapi/build/src/bindings/ 2>&1 && echo '---' && cat /home/cameron/Developer/studio2stadium/app/.worktrees/summ...",
-  "error": "Exit code 2\nls: cannot access '/home/cameron/Developer/studio2stadium/app/.worktrees/summit-04/packages/openapi/build/src/bindings/': No such file or directory\n[rerun: b73]",
-  "timestamp": "2026-04-09T14:36:00.262Z",
-  "retry_count": 1
-}

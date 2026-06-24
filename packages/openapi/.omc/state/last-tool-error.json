@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"cd /home/cameron/Developer/studio2stadium/app/.worktrees/summit-04 && git rebase plan/summit-03-events-rosters 2>&1\",\"description\":\"Rebase summit-04 onto latest summit-03\"}",
-  "error": "Exit code 1\nerror: cannot rebase: You have unstaged changes.\nerror: Please commit or stash them.\n[rerun: b83]",
-  "timestamp": "2026-04-09T14:38:56.566Z",
-  "retry_count": 1
-}
