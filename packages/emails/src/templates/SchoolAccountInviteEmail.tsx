@@ -106,14 +106,20 @@ export function SchoolAccountInviteEmail({
       >
         <Text style={paragraphStyle}>Hi {firstName},</Text>
         <Text style={paragraphStyle}>
+          <strong>{orgName}</strong> has invited you to participate as a coach.
+        </Text>
+        <Text style={paragraphStyle}>
+          This event software will be used{" "}
           {eventName ? (
-            <strong style={{ fontStyle: "italic" }}>{eventName}</strong>
-          ) : (
-            <strong>{orgName}</strong>
-          )}{" "}
-          has added you as a coach. Create your Studio2Stadium school account to
-          get instant access to your event roster and start connecting with your
-          dancers.
+            <>
+              throughout{" "}
+              <strong style={{ fontStyle: "italic" }}>{eventName}</strong>{" "}
+            </>
+          ) : null}
+          to review dancer profiles, take notes, organize favorites, manage
+          callbacks, and efficiently track dancers throughout the event. We
+          encourage you to create your account before the event so you&apos;re
+          ready to make the most of your experience.
         </Text>
 
         {/* Event details (if available) */}
@@ -175,11 +181,11 @@ export function SchoolAccountInviteEmail({
               margin: "0 0 8px",
             }}
           >
-            Get started:
+            Get Started
           </Text>
           <Text style={{ ...paragraphStyle, margin: "0 0 16px" }}>
-            Create your school account to access the{" "}
-            <strong>{orgName}</strong> platform and start reviewing your roster:
+            Create your school account today so your profile is ready before
+            dancers begin exploring and favoriting schools on the platform.
           </Text>
           <ReactEmailButton
             href={registerUrl}
@@ -213,12 +219,12 @@ export function SchoolAccountInviteEmail({
 
         {/* ── Closing ── */}
         <Text style={paragraphStyle}>
-          We&apos;re excited for you to take advantage of everything the
-          platform offers
+          We&apos;re excited to have you joining us and look forward to helping
+          streamline your recruiting experience
           {eventName ? (
             <>
               {" "}
-              and make the most of your time at{" "}
+              at{" "}
               <strong style={{ fontStyle: "italic" }}>{eventName}</strong>
             </>
           ) : null}
