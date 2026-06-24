@@ -105,10 +105,15 @@ export function SchoolAccountInviteEmail({
       >
         <Text style={paragraphStyle}>Hi {firstName},</Text>
         <Text style={paragraphStyle}>
-          {orgName} has added you as a coach
-          {eventName ? ` for ${eventName}` : ""}. Create your Studio2Stadium
-          school account to get instant access to your event roster and start
-          connecting with your dancers.
+          <strong>{orgName}</strong> has added you as a coach
+          {eventName ? (
+            <>
+              {" "}
+              for <strong style={{ fontStyle: "italic" }}>{eventName}</strong>
+            </>
+          ) : null}
+          . Create your Studio2Stadium school account to get instant access to
+          your event roster and start connecting with your dancers.
         </Text>
 
         {/* Event details (if available) */}
@@ -126,7 +131,8 @@ export function SchoolAccountInviteEmail({
               <Text
                 style={{
                   ...paragraphStyle,
-                  fontWeight: "600" as const,
+                  fontWeight: "700" as const,
+                  fontStyle: "italic" as const,
                   margin: "0 0 4px",
                 }}
               >
@@ -173,7 +179,7 @@ export function SchoolAccountInviteEmail({
           </Text>
           <Text style={{ ...paragraphStyle, margin: "0 0 16px" }}>
             Create your school account to access the{" "}
-            {orgName} platform and start reviewing your roster:
+            <strong>{orgName}</strong> platform and start reviewing your roster:
           </Text>
           <ReactEmailButton
             href={registerUrl}
@@ -209,7 +215,14 @@ export function SchoolAccountInviteEmail({
         <Text style={paragraphStyle}>
           We&apos;re excited for you to take advantage of everything the
           platform offers
-          {eventName ? ` and make the most of your time at ${eventName}` : ""}.
+          {eventName ? (
+            <>
+              {" "}
+              and make the most of your time at{" "}
+              <strong style={{ fontStyle: "italic" }}>{eventName}</strong>
+            </>
+          ) : null}
+          .
         </Text>
         <Text
           style={{
@@ -219,7 +232,7 @@ export function SchoolAccountInviteEmail({
             marginTop: "16px",
           }}
         >
-          — The Studio 2 Stadium and {orgName} Teams
+          — The Studio 2 Stadium and <strong>{orgName}</strong> Teams
         </Text>
       </Section>
 
@@ -240,7 +253,8 @@ export function SchoolAccountInviteEmail({
             textAlign: "center" as const,
           }}
         >
-          &copy; {new Date().getFullYear()} Studio 2 Stadium &amp; {orgName}
+          &copy; {new Date().getFullYear()} Studio 2 Stadium &amp;{" "}
+          <strong>{orgName}</strong>
         </Text>
         <Text
           style={{
@@ -250,7 +264,8 @@ export function SchoolAccountInviteEmail({
             textAlign: "center" as const,
           }}
         >
-          This email was sent to you as an invited coach of {orgName}.
+          This email was sent to you as an invited coach of{" "}
+          <strong>{orgName}</strong>.
         </Text>
       </Section>
     </OrgEmailLayout>

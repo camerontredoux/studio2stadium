@@ -111,17 +111,30 @@ export function OrgInviteEmail({
         <Text style={paragraphStyle}>
           {eventName ? (
             <>
-              <strong>{eventName}</strong> is almost here and we&apos;re excited
-              to have you involved!
+              <strong style={{ fontStyle: "italic" }}>{eventName}</strong> is
+              almost here and we&apos;re excited to have you involved!
             </>
           ) : (
-            `${orgName} has invited you to join and we're excited to have you!`
+            <>
+              <strong>{orgName}</strong> has invited you to join and we&apos;re
+              excited to have you!
+            </>
           )}
         </Text>
         <Text style={paragraphStyle}>
-          {type === "dancer"
-            ? `The ${orgName} platform gives you one place to explore opportunities, connect with coaches, and stay organized${eventName ? " throughout the event" : ""}.`
-            : `The ${orgName} platform gives you one place to explore dancer profiles, identify top prospects, and stay organized${eventName ? " throughout the event" : ""}.`}
+          {type === "dancer" ? (
+            <>
+              The <strong>{orgName}</strong> platform gives you one place to
+              explore opportunities, connect with coaches, and stay organized
+              {eventName ? " throughout the event" : ""}.
+            </>
+          ) : (
+            <>
+              The <strong>{orgName}</strong> platform gives you one place to
+              explore dancer profiles, identify top prospects, and stay
+              organized{eventName ? " throughout the event" : ""}.
+            </>
+          )}
         </Text>
 
         {/* Event details (if available) */}
@@ -139,7 +152,8 @@ export function OrgInviteEmail({
               <Text
                 style={{
                   ...paragraphStyle,
-                  fontWeight: "600" as const,
+                  fontWeight: "700" as const,
+                  fontStyle: "italic" as const,
                   margin: "0 0 4px",
                 }}
               >
@@ -186,7 +200,7 @@ export function OrgInviteEmail({
           </Text>
           <Text style={{ ...paragraphStyle, margin: "0 0 16px" }}>
             You&apos;ll need to create an account to access the{" "}
-            {orgName} platform:
+            <strong>{orgName}</strong> platform:
           </Text>
           <ReactEmailButton
             href={inviteUrl}
@@ -271,7 +285,14 @@ export function OrgInviteEmail({
         <Text style={paragraphStyle}>
           We&apos;re excited for you to take advantage of everything the
           platform offers
-          {eventName ? ` and make the most of your time at ${eventName}` : ""}.
+          {eventName ? (
+            <>
+              {" "}
+              and make the most of your time at{" "}
+              <strong style={{ fontStyle: "italic" }}>{eventName}</strong>
+            </>
+          ) : null}
+          .
         </Text>
         <Text
           style={{
@@ -281,7 +302,7 @@ export function OrgInviteEmail({
             marginTop: "16px",
           }}
         >
-          — The Studio 2 Stadium and {orgName} Teams
+          — The Studio 2 Stadium and <strong>{orgName}</strong> Teams
         </Text>
       </Section>
 
@@ -302,7 +323,8 @@ export function OrgInviteEmail({
             textAlign: "center" as const,
           }}
         >
-          &copy; {new Date().getFullYear()} Studio 2 Stadium &amp; {orgName}
+          &copy; {new Date().getFullYear()} Studio 2 Stadium &amp;{" "}
+          <strong>{orgName}</strong>
         </Text>
         <Text
           style={{
@@ -312,7 +334,8 @@ export function OrgInviteEmail({
             textAlign: "center" as const,
           }}
         >
-          This email was sent to you as a registered participant of {orgName}.
+          This email was sent to you as a registered participant of{" "}
+          <strong>{orgName}</strong>.
         </Text>
       </Section>
     </OrgEmailLayout>

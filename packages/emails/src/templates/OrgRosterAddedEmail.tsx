@@ -111,17 +111,30 @@ export function OrgRosterAddedEmail({
         <Text style={paragraphStyle}>
           {eventName ? (
             <>
-              <strong>{eventName}</strong> is almost here and we&apos;re excited
-              to have you involved!
+              <strong style={{ fontStyle: "italic" }}>{eventName}</strong> is
+              almost here and we&apos;re excited to have you involved!
             </>
           ) : (
-            `${orgName} has added you to the roster and we're excited to have you!`
+            <>
+              <strong>{orgName}</strong> has added you to the roster and
+              we&apos;re excited to have you!
+            </>
           )}
         </Text>
         <Text style={paragraphStyle}>
-          {type === "dancer"
-            ? `The ${orgName} platform gives you one place to explore opportunities, connect with coaches, and stay organized${eventName ? " throughout the event" : ""}.`
-            : `The ${orgName} platform gives you one place to explore dancer profiles, identify top prospects, and stay organized${eventName ? " throughout the event" : ""}.`}
+          {type === "dancer" ? (
+            <>
+              The <strong>{orgName}</strong> platform gives you one place to
+              explore opportunities, connect with coaches, and stay organized
+              {eventName ? " throughout the event" : ""}.
+            </>
+          ) : (
+            <>
+              The <strong>{orgName}</strong> platform gives you one place to
+              explore dancer profiles, identify top prospects, and stay
+              organized{eventName ? " throughout the event" : ""}.
+            </>
+          )}
         </Text>
 
         {/* Event details (if available) */}
@@ -139,7 +152,8 @@ export function OrgRosterAddedEmail({
               <Text
                 style={{
                   ...paragraphStyle,
-                  fontWeight: "600" as const,
+                  fontWeight: "700" as const,
+                  fontStyle: "italic" as const,
                   margin: "0 0 4px",
                 }}
               >
@@ -186,7 +200,7 @@ export function OrgRosterAddedEmail({
           </Text>
           <Text style={{ ...paragraphStyle, margin: "0 0 4px" }}>
             Your profile has been automatically updated. You can now access both
-            S2S and the {orgName} platform directly from your
+            S2S and the <strong>{orgName}</strong> platform directly from your
             dashboard. No extra steps needed.
           </Text>
         </Section>
@@ -276,7 +290,14 @@ export function OrgRosterAddedEmail({
         <Text style={paragraphStyle}>
           We&apos;re excited for you to take advantage of everything the
           platform offers
-          {eventName ? ` and make the most of your time at ${eventName}` : ""}.
+          {eventName ? (
+            <>
+              {" "}
+              and make the most of your time at{" "}
+              <strong style={{ fontStyle: "italic" }}>{eventName}</strong>
+            </>
+          ) : null}
+          .
         </Text>
         <Text
           style={{
@@ -286,7 +307,7 @@ export function OrgRosterAddedEmail({
             marginTop: "16px",
           }}
         >
-          — The Studio 2 Stadium and {orgName} Teams
+          — The Studio 2 Stadium and <strong>{orgName}</strong> Teams
         </Text>
       </Section>
 
@@ -307,7 +328,8 @@ export function OrgRosterAddedEmail({
             textAlign: "center" as const,
           }}
         >
-          &copy; {new Date().getFullYear()} Studio 2 Stadium &amp; {orgName}
+          &copy; {new Date().getFullYear()} Studio 2 Stadium &amp;{" "}
+          <strong>{orgName}</strong>
         </Text>
         <Text
           style={{
@@ -317,7 +339,8 @@ export function OrgRosterAddedEmail({
             textAlign: "center" as const,
           }}
         >
-          This email was sent to you as a registered participant of {orgName}.
+          This email was sent to you as a registered participant of{" "}
+          <strong>{orgName}</strong>.
         </Text>
       </Section>
     </OrgEmailLayout>
