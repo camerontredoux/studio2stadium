@@ -4,6 +4,7 @@ import cache from "@adonisjs/cache/services/main";
 import { BaseEvent } from "@adonisjs/core/events";
 import app from "@adonisjs/core/services/app";
 import emitter from "@adonisjs/core/services/emitter";
+import logger from "@adonisjs/core/services/logger";
 
 interface BlogPostCreatedEventData {
   postId: string;
@@ -18,7 +19,10 @@ export class BlogPostCreatedEvent extends BaseEvent {
 class BlogPostCreatedHandler {
   async handle(event: BlogPostCreatedEvent) {
     if (app.inProduction) {
-      await fetch(env.get("CLOUDFLARE_DEPLOY_HOOK"), { method: "POST" });
+      const res = await fetch(env.get("CLOUDFLARE_DEPLOY_HOOK"), { method: "POST" });
+      if (!res.ok) {
+        logger.error({ status: res.status, body: await res.text() }, "Cloudflare deploy hook failed (blog created)");
+      }
     }
 
     await cache.delete({ key: "blog:posts" });

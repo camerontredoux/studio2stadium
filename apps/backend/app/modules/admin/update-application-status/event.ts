@@ -4,6 +4,7 @@ import env from "#start/env";
 import { BaseEvent } from "@adonisjs/core/events";
 import app from "@adonisjs/core/services/app";
 import emitter from "@adonisjs/core/services/emitter";
+import logger from "@adonisjs/core/services/logger";
 import mail from "@adonisjs/mail/services/main";
 import SchoolWelcomeEmail from "./email.ts";
 import SchoolRejectedEmail from "./rejected-email.ts";
@@ -25,7 +26,10 @@ class SchoolApprovedHandler {
     const { userId, schoolId, schoolName } = event.data;
 
     if (app.inProduction) {
-      await fetch(env.get("CLOUDFLARE_DEPLOY_HOOK"), { method: "POST" });
+      const res = await fetch(env.get("CLOUDFLARE_DEPLOY_HOOK"), { method: "POST" });
+      if (!res.ok) {
+        logger.error({ status: res.status, body: await res.text() }, "Cloudflare deploy hook failed (school approved)");
+      }
     }
 
     await outboxService.publish({
