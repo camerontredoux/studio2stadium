@@ -2999,6 +2999,87 @@
         }
       }
     },
+    "/orgs/{slug}/events/{id}/rosters/{rosterId}/paid": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsIdRostersIdPaidRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdRostersIdPaidResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/orgs/{slug}/events/{id}/rosters/{rosterId}/attach": {
       "post": {
         "requestBody": {
@@ -4433,13 +4514,13 @@
         }
       }
     },
-    "/orgs/{slug}/events/attend": {
+    "/orgs/{slug}/events/test-emails": {
       "post": {
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/OrgsIdEventsAttendRequest"
+                "$ref": "#/components/schemas/OrgsIdEventsTestemailsRequest"
               }
             }
           }
@@ -4460,7 +4541,54 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrgsIdEventsAttendResponse"
+                  "$ref": "#/components/schemas/OrgsIdEventsTestemailsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Send a test org email to the current admin",
+        "description": "Renders one of the org event email templates with the logged-in admin's name/email and the selected event's details, then sends it to the admin for visual testing."
+      }
+    },
+    "/orgs/{slug}/events/view-as": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsViewasRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsViewasResponse"
                 }
               }
             }
@@ -12894,6 +13022,16 @@
                     }
                   ]
                 },
+                "paid": {
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "isRegistered": {
                   "type": "boolean"
                 }
@@ -12910,6 +13048,7 @@
                 "eventId",
                 "bibNumber",
                 "checkedInAt",
+                "paid",
                 "isRegistered"
               ]
             }
@@ -13223,6 +13362,40 @@
           "isRegistered"
         ]
       },
+      "OrgsIdEventsIdRostersIdPaidRequest": {
+        "type": "object",
+        "properties": {
+          "paid": {
+            "type": [
+              "string",
+              "number",
+              "boolean"
+            ]
+          }
+        },
+        "required": [
+          "paid"
+        ]
+      },
+      "OrgsIdEventsIdRostersIdPaidResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "paid": {
+            "type": "boolean"
+          },
+          "isRegistered": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "paid",
+          "isRegistered"
+        ]
+      },
       "OrgsIdEventsIdRostersIdAttachRequest": {
         "type": "object",
         "properties": {
@@ -13381,6 +13554,19 @@
                 "type": "null"
               }
             ]
+          },
+          "paid": {
+            "oneOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "isStaff": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -13397,7 +13583,9 @@
           "bibNumber",
           "expirationDate",
           "csvUploadId",
-          "checkedInAt"
+          "checkedInAt",
+          "paid",
+          "isStaff"
         ]
       },
       "OrgsIdEventsIdRostersResendinvitesRequest": {
@@ -14603,7 +14791,63 @@
           "url"
         ]
       },
-      "OrgsIdEventsAttendRequest": {
+      "OrgsIdEventsTestemailsRequest": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "audience": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UploadKind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "invite",
+              "roster-added",
+              "school-account-invite"
+            ]
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "OrgsIdEventsTestemailsResponse": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "invite",
+              "roster-added",
+              "school-account-invite"
+            ]
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "email"
+        ]
+      },
+      "OrgsIdEventsViewasRequest": {
         "type": "object",
         "properties": {
           "type": {
@@ -14614,7 +14858,7 @@
           "type"
         ]
       },
-      "OrgsIdEventsAttendResponse": {
+      "OrgsIdEventsViewasResponse": {
         "type": "object",
         "properties": {
           "id": {
@@ -14700,6 +14944,19 @@
                 "type": "null"
               }
             ]
+          },
+          "paid": {
+            "oneOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "isStaff": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -14716,7 +14973,9 @@
           "bibNumber",
           "expirationDate",
           "csvUploadId",
-          "checkedInAt"
+          "checkedInAt",
+          "paid",
+          "isStaff"
         ]
       },
       "OrgsIdDancersResponse": {
@@ -16944,6 +17203,9 @@
               }
             ]
           },
+          "limited": {
+            "type": "boolean"
+          },
           "birthday": {
             "type": "string"
           },
@@ -17128,6 +17390,9 @@
                 "description"
               ]
             }
+          },
+          "subscriptionSource": {
+            "$ref": "#/components/schemas/SubscriptionSource"
           },
           "videos": {
             "type": "array",
@@ -17481,6 +17746,7 @@
           "lastName",
           "avatar",
           "phone",
+          "limited",
           "birthday",
           "location",
           "biography",
@@ -17495,6 +17761,7 @@
           "trainingHours",
           "achievements",
           "references",
+          "subscriptionSource",
           "videos",
           "images",
           "skills",

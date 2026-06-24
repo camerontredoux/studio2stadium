@@ -29,7 +29,7 @@ export function ViewSwitcher() {
           opts: { body: { type: "coach" | "dancer" } },
         ) => Promise<void>;
       };
-      await raw.POST(`/orgs/${orgSlug}/events/attend`, { body: { type } });
+      await raw.POST(`/orgs/${orgSlug}/events/view-as`, { body: { type } });
     },
   });
 

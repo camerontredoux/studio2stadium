@@ -68,6 +68,23 @@ export const dancerSchema: CsvSchema = {
   ],
 };
 
+/**
+ * Free-tier Users: appended to the dancer schema only when the org has the
+ * `freeTierUsers` feature on. paid=false means the dancer gets an account with
+ * no premium grant (a limited user).
+ */
+const paidColumn: CsvColumnSchema = {
+  key: "paid",
+  label: "paid",
+  required: true,
+  validate: (value: string): string | null => {
+    const val = (value ?? "").trim().toLowerCase();
+    if (!val) return "missing paid";
+    if (["true", "false", "yes", "no", "1", "0"].includes(val)) return null;
+    return "must be true, false, yes, no, 1, or 0";
+  },
+};
+
 export const coachSchema: CsvSchema = {
   type: "coach",
   label: "coach",
@@ -101,8 +118,16 @@ export const coachSchema: CsvSchema = {
   ],
 };
 
-export const schemaFor = (type: CsvRosterType): CsvSchema =>
-  type === "dancer" ? dancerSchema : coachSchema;
+export const schemaFor = (
+  type: CsvRosterType,
+  opts?: { freeTier?: boolean },
+): CsvSchema => {
+  if (type === "coach") return coachSchema;
+  if (opts?.freeTier) {
+    return { ...dancerSchema, columns: [...dancerSchema.columns, paidColumn] };
+  }
+  return dancerSchema;
+};
 
 export interface ParsedRow {
   index: number;

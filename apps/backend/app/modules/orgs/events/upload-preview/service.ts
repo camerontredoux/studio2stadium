@@ -4,6 +4,7 @@ import { dancerProfiles } from "#database/schema/dancers";
 import { schoolProfiles } from "#database/schema/schools";
 import { users } from "#database/schema/users";
 import { eventRosters } from "#database/schema/org-events";
+import { organizations } from "#database/schema/organizations";
 import {
   normalizeRowEmails,
   parseCoachCsv,
@@ -39,6 +40,7 @@ export class UploadPreviewService {
   constructor(private db: DatabaseService = new DatabaseService()) {}
 
   async execute({
+    orgId,
     eventId,
     kind,
     csv,
@@ -48,8 +50,18 @@ export class UploadPreviewService {
     kind: UploadKind;
     csv: string;
   }): Promise<UploadPreviewResult> {
+    // Free-tier Users: dancer CSVs for these orgs must carry a `paid` column.
+    const [org] = await this.db.use((db) =>
+      db.select().from(organizations).where(eq(organizations.id, orgId))
+    );
+    const orgFeatures =
+      (org?.features as Record<string, boolean> | undefined) ?? {};
+    const freeTier = Boolean(orgFeatures.freeTierUsers);
+
     const parsed =
-      kind === "dancer" ? parseDancerCsv(csv) : parseCoachCsv(csv);
+      kind === "dancer"
+        ? parseDancerCsv(csv, { requirePaid: freeTier })
+        : parseCoachCsv(csv);
     const rows = (await normalizeRowEmails(
       parsed.rows as Array<CoachRow | DancerRow>,
     )) as CoachRow[] | DancerRow[];

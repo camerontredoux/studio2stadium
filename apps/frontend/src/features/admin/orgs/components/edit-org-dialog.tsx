@@ -34,10 +34,32 @@ const profileSchema = z.object({
 type ProfileForm = z.infer<typeof profileSchema>;
 
 const KNOWN_FEATURES = [
-  { key: "callbacks", label: "Callbacks", description: "Allow coaches to mark dancers for callbacks" },
-  { key: "check_in", label: "Check-In", description: "Enable dancer/coach check-in at events" },
-  { key: "school_selections", label: "School Selections", description: "Allow dancers to select interested schools" },
-  { key: "video_library", label: "Video Library", description: "Enable video library for events" },
+  {
+    key: "callbacks",
+    label: "Callbacks",
+    description: "Allow coaches to mark dancers for callbacks",
+  },
+  {
+    key: "check_in",
+    label: "Check-In",
+    description: "Enable dancer/coach check-in at events",
+  },
+  {
+    key: "school_selections",
+    label: "School Selections",
+    description: "Allow dancers to select interested schools",
+  },
+  {
+    key: "video_library",
+    label: "Video Library",
+    description: "Enable video library for events",
+  },
+  {
+    key: "freeTierUsers",
+    label: "Free-tier Users",
+    description:
+      "Require a 'paid' column on dancer CSV uploads; unpaid dancers get a restricted account.",
+  },
 ] as const;
 
 interface Org {
@@ -223,7 +245,10 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
 
   const addSetting = () => {
     if (newSettingKey.trim()) {
-      setSettings((prev) => ({ ...prev, [newSettingKey.trim()]: newSettingValue }));
+      setSettings((prev) => ({
+        ...prev,
+        [newSettingKey.trim()]: newSettingValue,
+      }));
       setNewSettingKey("");
       setNewSettingValue("");
     }
@@ -350,18 +375,24 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                     <Switch
                       checked={features[feature.key] ?? false}
                       onCheckedChange={(checked) =>
-                        setFeatures((prev) => ({ ...prev, [feature.key]: checked }))
+                        setFeatures((prev) => ({
+                          ...prev,
+                          [feature.key]: checked,
+                        }))
                       }
                     />
                   </div>
                 ))}
-                <div className="border-border border-t pt-4 space-y-4">
+                <div className="border-border space-y-4 border-t pt-4">
                   <div>
                     <div className="flex items-center justify-between gap-4 py-1">
                       <div className="space-y-0.5">
-                        <p className="text-sm font-medium">Coach Welcome Video</p>
+                        <p className="text-sm font-medium">
+                          Coach Welcome Video
+                        </p>
                         <p className="text-muted-foreground text-xs">
-                          Attach a welcome video to coach invite &amp; roster emails
+                          Attach a welcome video to coach invite &amp; roster
+                          emails
                         </p>
                       </div>
                       <Switch
@@ -386,9 +417,12 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                   <div>
                     <div className="flex items-center justify-between gap-4 py-1">
                       <div className="space-y-0.5">
-                        <p className="text-sm font-medium">Dancer Welcome Video</p>
+                        <p className="text-sm font-medium">
+                          Dancer Welcome Video
+                        </p>
                         <p className="text-muted-foreground text-xs">
-                          Attach a welcome video to dancer invite &amp; roster emails
+                          Attach a welcome video to dancer invite &amp; roster
+                          emails
                         </p>
                       </div>
                       <Switch
@@ -426,7 +460,10 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                     <Input
                       value={value}
                       onChange={(e) =>
-                        setSettings((prev) => ({ ...prev, [key]: e.target.value }))
+                        setSettings((prev) => ({
+                          ...prev,
+                          [key]: e.target.value,
+                        }))
                       }
                       className="flex-1 font-mono text-xs"
                     />
@@ -492,7 +529,9 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
               }
             }}
           >
-            {isPending ? "Saving..." : `Save ${activeTab === "profile" ? "Profile" : activeTab === "features" ? "Features" : "Settings"}`}
+            {isPending
+              ? "Saving..."
+              : `Save ${activeTab === "profile" ? "Profile" : activeTab === "features" ? "Features" : "Settings"}`}
           </Button>
         </DialogFooter>
       </DialogContent>

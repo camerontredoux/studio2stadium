@@ -17,7 +17,8 @@ export class FiltersRosterService {
           and(
             eq(eventRosters.eventId, eventId),
             eq(eventRosters.type, q.type),
-            isNotNull(eventRosters.organization)
+            isNotNull(eventRosters.organization),
+            eq(eventRosters.isStaff, false)
           )
         )
         .orderBy(asc(eventRosters.organization))

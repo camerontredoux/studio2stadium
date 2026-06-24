@@ -22,6 +22,7 @@ export class ExportRosterService {
     const filters = [
       eq(eventRosters.eventId, eventId),
       eq(eventRosters.type, q.type),
+      eq(eventRosters.isStaff, false),
     ];
 
     if (q.search) {
@@ -40,8 +41,7 @@ export class ExportRosterService {
 
     if (q.status === "active") filters.push(isNotNull(eventRosters.userId));
     else if (q.status === "pending") filters.push(isNull(eventRosters.userId));
-    if (q.org && !isDancer)
-      filters.push(eq(eventRosters.organization, q.org));
+    if (q.org && !isDancer) filters.push(eq(eventRosters.organization, q.org));
 
     const rows = await this.db.use((db) =>
       db

@@ -68,4 +68,43 @@ a@x.co,A,B,abc`;
     assert.lengthOf(errors, 1);
     assert.include(errors[0]!.reason, "bib");
   });
+
+  test("ignores the paid column when not required", ({ assert }) => {
+    const csv = `email,firstName,lastName,bibNumber
+a@x.co,A,B,101`;
+    const { rows, errors } = parseDancerCsv(csv);
+    assert.lengthOf(errors, 0);
+    assert.isUndefined(rows[0]!.paid);
+  });
+
+  test("parses paid booleans when present", ({ assert }) => {
+    const csv = `email,firstName,lastName,bibNumber,paid
+a@x.co,A,B,101,true
+c@x.co,C,D,102,no
+e@x.co,E,F,103,1`;
+    const { rows, errors } = parseDancerCsv(csv, { requirePaid: true });
+    assert.lengthOf(errors, 0);
+    assert.equal(rows[0]!.paid, true);
+    assert.equal(rows[1]!.paid, false);
+    assert.equal(rows[2]!.paid, true);
+  });
+
+  test("requires paid when the feature is on", ({ assert }) => {
+    const csv = `email,firstName,lastName,bibNumber,paid
+a@x.co,A,B,101,
+c@x.co,C,D,102,true`;
+    const { rows, errors } = parseDancerCsv(csv, { requirePaid: true });
+    assert.lengthOf(rows, 1);
+    assert.lengthOf(errors, 1);
+    assert.equal(errors[0]!.row, 1);
+    assert.include(errors[0]!.reason, "paid");
+  });
+
+  test("reports error for invalid paid value", ({ assert }) => {
+    const csv = `email,firstName,lastName,bibNumber,paid
+a@x.co,A,B,101,maybe`;
+    const { errors } = parseDancerCsv(csv, { requirePaid: true });
+    assert.lengthOf(errors, 1);
+    assert.include(errors[0]!.reason, "paid");
+  });
 });

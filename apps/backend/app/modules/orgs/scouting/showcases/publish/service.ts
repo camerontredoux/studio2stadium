@@ -40,7 +40,20 @@ export class PublishShowcaseService {
             eq(eventRatings.dancerRosterId, eventCallbacks.dancerRosterId)
           )
         )
-        .where(eq(eventCallbacks.showcaseId, showcaseId));
+        .where(
+          and(
+            eq(eventCallbacks.showcaseId, showcaseId),
+            // Never publish staff-sandbox callbacks (preview coach or dancer).
+            sql`NOT EXISTS (
+              SELECT 1 FROM event_rosters cr
+              WHERE cr.id = ${eventCallbacks.coachRosterId} AND cr.is_staff = true
+            )`,
+            sql`NOT EXISTS (
+              SELECT 1 FROM event_rosters dr
+              WHERE dr.id = ${eventCallbacks.dancerRosterId} AND dr.is_staff = true
+            )`
+          )
+        );
 
       const grouped = new Map<string, typeof callbacks>();
       for (const cb of callbacks) {
@@ -67,11 +80,11 @@ export class PublishShowcaseService {
         });
 
         const top5 = cbs.slice(0, 5);
-        for (let i = 0; i < top5.length; i++) {
+        for (const [i, element] of top5.entries()) {
           rows.push({
             showcaseId,
             coachRosterId,
-            dancerRosterId: top5[i]!.dancerRosterId,
+            dancerRosterId: element!.dancerRosterId,
             rank: i + 1,
           });
         }

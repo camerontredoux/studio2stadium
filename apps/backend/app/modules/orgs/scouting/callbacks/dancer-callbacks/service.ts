@@ -46,7 +46,9 @@ export class DancerCallbacksService {
         .where(
           and(
             eq(publishedCallbacks.showcaseId, latestPublished.id),
-            eq(publishedCallbacks.dancerRosterId, dancerRosterId)
+            eq(publishedCallbacks.dancerRosterId, dancerRosterId),
+            // Defensive: hide any staff (preview) coach from a dancer's callbacks.
+            eq(eventRosters.isStaff, false)
           )
         )
         .orderBy(publishedCallbacks.rank)

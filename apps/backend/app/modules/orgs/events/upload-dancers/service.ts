@@ -55,7 +55,16 @@ export class UploadDancersService {
       }
     }
 
-    const parseResult = parseDancerCsv(csv);
+    // Free-tier Users: when the org has the feature on, the dancer CSV must
+    // carry a `paid` column, and unpaid dancers get no premium grant.
+    const [org] = await this.db.use((db) =>
+      db.select().from(organizations).where(eq(organizations.id, orgId))
+    );
+    const orgFeatures =
+      (org?.features as Record<string, boolean> | undefined) ?? {};
+    const freeTier = Boolean(orgFeatures.freeTierUsers);
+
+    const parseResult = parseDancerCsv(csv, { requirePaid: freeTier });
     const rows = await normalizeRowEmails(parseResult.rows);
     const errors: Array<{ row: number; reason: string }> = [
       ...parseResult.errors,
@@ -144,10 +153,6 @@ export class UploadDancersService {
       } as const;
     }
 
-    const [org] = await this.db.use((db) =>
-      db.select().from(organizations).where(eq(organizations.id, orgId))
-    );
-
     const [event] = await this.db.use((db) =>
       db.select().from(orgEvents).where(eq(orgEvents.id, eventId))
     );
@@ -189,6 +194,13 @@ export class UploadDancersService {
           for (const r of rowsToProcess) {
             const userId = byEmail.get(r.email.toLowerCase()) ?? null;
 
+            // Free-tier Users: an unpaid (paid=false) dancer gets no premium
+            // grant and no premium window on their roster row. Only matters
+            // when the org has the feature on; otherwise paid is undefined and
+            // everyone is granted as before.
+            const grantsPremium = !(freeTier && r.paid === false);
+            const rowExpiration = userId && grantsPremium ? expirationDate : null;
+
             const [existing] = await tx
               .select()
               .from(eventRosters)
@@ -207,9 +219,10 @@ export class UploadDancersService {
                   firstName: r.firstName,
                   lastName: r.lastName,
                   bibNumber: r.bibNumber,
+                  paid: r.paid,
                   userId,
                   expirationDate: userId
-                    ? expirationDate
+                    ? rowExpiration
                     : existing.expirationDate,
                 })
                 .where(eq(eventRosters.id, existing.id));
@@ -224,8 +237,9 @@ export class UploadDancersService {
                   firstName: r.firstName,
                   lastName: r.lastName,
                   bibNumber: r.bibNumber,
+                  paid: r.paid,
                   userId,
-                  expirationDate: userId ? expirationDate : null,
+                  expirationDate: userId ? rowExpiration : null,
                 })
                 .returning();
               added += 1;
@@ -252,16 +266,18 @@ export class UploadDancersService {
                   target: [orgMemberships.userId, orgMemberships.orgId],
                 });
 
-              // Create premium grant
-              await tx
-                .insert(premiumGrants)
-                .values({
-                  userId,
-                  sourceType: "org_event",
-                  sourceId: eventId,
-                  expiresAt: grantExpires,
-                })
-                .onConflictDoNothing();
+              // Create premium grant (skipped for unpaid free-tier dancers)
+              if (grantsPremium) {
+                await tx
+                  .insert(premiumGrants)
+                  .values({
+                    userId,
+                    sourceType: "org_event",
+                    sourceId: eventId,
+                    expiresAt: grantExpires,
+                  })
+                  .onConflictDoNothing();
+              }
             } else {
               // Create dancer invite for unmatched rows
               const token = randomToken();

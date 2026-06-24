@@ -2,7 +2,7 @@ import { DatabaseService } from "#database/service";
 import { publishedCallbacks } from "#database/schema/event-features";
 import { eventRosters } from "#database/schema/org-events";
 import { inject } from "@adonisjs/core";
-import { asc, count, eq } from "drizzle-orm";
+import { and, asc, count, eq } from "drizzle-orm";
 
 @inject()
 export class PublishedCallbacksService {
@@ -23,7 +23,12 @@ export class PublishedCallbacksService {
           eventRosters,
           eq(eventRosters.id, publishedCallbacks.dancerRosterId)
         )
-        .where(eq(publishedCallbacks.showcaseId, showcaseId))
+        .where(
+          and(
+            eq(publishedCallbacks.showcaseId, showcaseId),
+            eq(eventRosters.isStaff, false)
+          )
+        )
         .groupBy(
           publishedCallbacks.dancerRosterId,
           eventRosters.bibNumber,

@@ -3259,6 +3259,76 @@ export interface paths {
         };
         trace?: never;
     };
+    "/orgs/{slug}/events/{id}/rosters/{rosterId}/paid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                    rosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsIdRostersIdPaidRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdRostersIdPaidResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/orgs/{slug}/events/{id}/rosters/{rosterId}/attach": {
         parameters: {
             query?: never;
@@ -4445,7 +4515,61 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/orgs/{slug}/events/attend": {
+    "/orgs/{slug}/events/test-emails": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send a test org email to the current admin
+         * @description Renders one of the org event email templates with the logged-in admin's name/email and the selected event's details, then sends it to the admin for visual testing.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsTestemailsRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsTestemailsResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/view-as": {
         parameters: {
             query?: never;
             header?: never;
@@ -4465,7 +4589,7 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["OrgsIdEventsAttendRequest"];
+                    "application/json": components["schemas"]["OrgsIdEventsViewasRequest"];
                 };
             };
             responses: {
@@ -4475,7 +4599,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["OrgsIdEventsAttendResponse"];
+                        "application/json": components["schemas"]["OrgsIdEventsViewasResponse"];
                     };
                 };
                 /** @description Unprocessable Entity */
@@ -10320,6 +10444,7 @@ export interface components {
                 eventId: string;
                 bibNumber: number | null;
                 checkedInAt: string | null;
+                paid: boolean | null;
                 isRegistered: boolean;
             }[];
             total: number;
@@ -10366,6 +10491,14 @@ export interface components {
             bibNumber: number | null;
             isRegistered: boolean;
         };
+        OrgsIdEventsIdRostersIdPaidRequest: {
+            paid: string | number | boolean;
+        };
+        OrgsIdEventsIdRostersIdPaidResponse: {
+            id: string;
+            paid: boolean;
+            isRegistered: boolean;
+        };
         OrgsIdEventsIdRostersIdAttachRequest: {
             targetUserId: string;
         };
@@ -10396,6 +10529,8 @@ export interface components {
             expirationDate: string | null;
             csvUploadId: string | null;
             checkedInAt: string | null;
+            paid: boolean | null;
+            isStaff: boolean;
         };
         OrgsIdEventsIdRostersResendinvitesRequest: {
             ids: string[];
@@ -10631,10 +10766,21 @@ export interface components {
             key: string;
             url: string;
         };
-        OrgsIdEventsAttendRequest: {
+        OrgsIdEventsTestemailsRequest: {
+            eventId?: string | null;
+            audience?: components["schemas"]["UploadKind"] | null;
+            /** @enum {string} */
+            kind: "invite" | "roster-added" | "school-account-invite";
+        };
+        OrgsIdEventsTestemailsResponse: {
+            /** @enum {string} */
+            kind: "invite" | "roster-added" | "school-account-invite";
+            email: string;
+        };
+        OrgsIdEventsViewasRequest: {
             type: components["schemas"]["UploadKind"];
         };
-        OrgsIdEventsAttendResponse: {
+        OrgsIdEventsViewasResponse: {
             id: string;
             email: string;
             type: components["schemas"]["UploadKind"];
@@ -10649,6 +10795,8 @@ export interface components {
             expirationDate: string | null;
             csvUploadId: string | null;
             checkedInAt: string | null;
+            paid: boolean | null;
+            isStaff: boolean;
         };
         OrgsIdDancersResponse: {
             rosterId: string;
@@ -11055,6 +11203,7 @@ export interface components {
             lastName: string;
             avatar: string | null;
             phone: string | null;
+            limited: boolean;
             birthday: string;
             location: string;
             biography: string | null;
@@ -11084,6 +11233,7 @@ export interface components {
                 title: string;
                 description: string | null;
             }[];
+            subscriptionSource: components["schemas"]["SubscriptionSource"];
             videos: {
                 id: string;
                 /** @enum {string} */

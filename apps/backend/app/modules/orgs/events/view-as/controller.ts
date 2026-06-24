@@ -1,11 +1,11 @@
 import { inject } from "@adonisjs/core";
 import type { HttpContext } from "@adonisjs/core/http";
-import { AttendEventService } from "./service.ts";
+import { ViewAsService } from "./service.ts";
 import { schema } from "./validator.ts";
 
-export default class AttendEventController {
+export default class ViewAsController {
   @inject()
-  async handle(ctx: HttpContext, service: AttendEventService) {
+  async handle(ctx: HttpContext, service: ViewAsService) {
     const payload = await ctx.request.validateUsing(schema);
     const user = ctx.auth.getUserOrFail();
 
