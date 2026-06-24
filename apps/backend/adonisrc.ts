@@ -18,6 +18,23 @@ export default defineConfig({
 
   /*
   |--------------------------------------------------------------------------
+  | Meta files
+  |--------------------------------------------------------------------------
+  |
+  | Non-TypeScript files to copy into the build output. The Drizzle migration
+  | SQL must ship in the production image so bin/migrate.ts (run by the Fly
+  | release_command) can apply pending migrations on deploy.
+  |
+  */
+  metaFiles: [
+    {
+      pattern: "app/database/drizzle/**/*.sql",
+      reloadServer: false,
+    },
+  ],
+
+  /*
+  |--------------------------------------------------------------------------
   | Commands
   |--------------------------------------------------------------------------
   |

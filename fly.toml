@@ -8,6 +8,12 @@ primary_region = 'iad'
 
 [build]
 
+# Apply pending Drizzle migrations before each release goes live.
+# Runs bin/migrate.js (drizzle-orm migrator) in a one-off VM with secrets;
+# a non-zero exit aborts the deploy so code never ships ahead of its schema.
+[deploy]
+  release_command = "node bin/migrate.js"
+
 [http_service]
   internal_port = 8080
   force_https = true
