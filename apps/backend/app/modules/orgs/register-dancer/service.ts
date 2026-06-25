@@ -8,7 +8,7 @@ import {
 import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { inject } from "@adonisjs/core";
 import hash from "@adonisjs/core/services/hash";
-import { and, eq, gt, inArray, isNull } from "drizzle-orm";
+import { and, desc, eq, gt, inArray, isNull } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 
 export class InviteInvalidError extends Error {
@@ -78,6 +78,27 @@ export class RegisterDancerService {
         }
       }
 
+      // Tier expires 3 months after the latest event this dancer is rostered for.
+      const [latestEvent] = await tx
+        .select({ endDate: orgEvents.endDate })
+        .from(orgEvents)
+        .innerJoin(eventRosters, eq(eventRosters.eventId, orgEvents.id))
+        .where(
+          and(
+            eq(orgEvents.orgId, org.id),
+            eq(eventRosters.email, invite.email),
+            eq(eventRosters.type, "dancer")
+          )
+        )
+        .orderBy(desc(orgEvents.endDate))
+        .limit(1);
+
+      let orgAccountTierExpiresAt: Date | null = null;
+      if (latestEvent) {
+        orgAccountTierExpiresAt = new Date(latestEvent.endDate);
+        orgAccountTierExpiresAt.setMonth(orgAccountTierExpiresAt.getMonth() + 3);
+      }
+
       const usernameSeed = invite.email.split("@")[0] ?? "dancer";
       const username = `d_${usernameSeed}_${Date.now().toString(36)}`;
 
@@ -94,6 +115,7 @@ export class RegisterDancerService {
           type: "dancer",
           verified: true,
           orgAccountTier,
+          orgAccountTierExpiresAt,
         })
         .returning();
 

@@ -19,6 +19,7 @@ export const users = pg.pgTable(
     verified: pg.boolean().notNull().default(false),
     notifications: pg.boolean().notNull().default(true),
     orgAccountTier: orgAccountTier(),
+    orgAccountTierExpiresAt: pg.timestamp({ withTimezone: true }),
     ...timestamps,
   },
   (table) => [pg.index().on(table.createdAt)]

@@ -185,7 +185,11 @@ export class UploadDancersService {
           for (const r of rowsToProcess) {
             const userId = byEmail.get(r.email.toLowerCase()) ?? null;
 
-            const rowExpiration = null;
+            const rowExpiration = userId ? (() => {
+              const d = new Date(event!.endDate);
+              d.setMonth(d.getMonth() + 3);
+              return d.toISOString().split("T")[0]!;
+            })() : null;
 
             const [existing] = await tx
               .select()

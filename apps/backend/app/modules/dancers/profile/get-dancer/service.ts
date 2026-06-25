@@ -18,9 +18,12 @@ export class Service {
 
     const { dancerProfile, ...user } = dancer;
 
-    const { subscription, images, avatar, videos, id, orgAccountTier, ...rest } = user;
+    const { subscription, images, avatar, videos, id, orgAccountTier, orgAccountTierExpiresAt, ...rest } = user;
 
     if (!dancerProfile) return null;
+
+    const tierExpired = orgAccountTierExpiresAt && orgAccountTierExpiresAt < new Date();
+    const effectiveTier = tierExpired ? null : orgAccountTier;
 
     const profileImages = images.map((image) => ({
       ...image,
@@ -48,7 +51,7 @@ export class Service {
       images: profileImages,
       videos: profileVideos,
       subscribed: status.subscribed,
-      orgAccountTier,
+      orgAccountTier: effectiveTier,
     };
   }
 
@@ -70,6 +73,7 @@ export class Service {
           firstName: true,
           lastName: true,
           orgAccountTier: true,
+          orgAccountTierExpiresAt: true,
         },
         with: {
           images: true,
