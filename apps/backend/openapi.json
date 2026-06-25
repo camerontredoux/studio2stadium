@@ -17203,8 +17203,19 @@
               }
             ]
           },
-          "limited": {
-            "type": "boolean"
+          "orgAccountTier": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "limited",
+                  "standard"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "birthday": {
             "type": "string"
@@ -17390,9 +17401,6 @@
                 "description"
               ]
             }
-          },
-          "subscriptionSource": {
-            "$ref": "#/components/schemas/SubscriptionSource"
           },
           "videos": {
             "type": "array",
@@ -17746,7 +17754,7 @@
           "lastName",
           "avatar",
           "phone",
-          "limited",
+          "orgAccountTier",
           "birthday",
           "location",
           "biography",
@@ -17761,7 +17769,6 @@
           "trainingHours",
           "achievements",
           "references",
-          "subscriptionSource",
           "videos",
           "images",
           "skills",

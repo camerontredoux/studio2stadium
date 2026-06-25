@@ -18,7 +18,7 @@ export class Service {
 
     const { dancerProfile, ...user } = dancer;
 
-    const { subscription, images, avatar, videos, id, limited, ...rest } = user;
+    const { subscription, images, avatar, videos, id, orgAccountTier, ...rest } = user;
 
     if (!dancerProfile) return null;
 
@@ -36,10 +36,8 @@ export class Service {
       thumbnail: videoThumbnailUrl(video.mediaId, video.type),
     }));
 
-    // Source of truth for access tier: stripe (real sub) > org_event (grant) >
-    // none. This fixes a prior bug where grant users read subscribed:false
-    // (the relation above only sees Stripe). `limited` drives the stripped-down
-    // free-tier profile, and only applies when there is no active access.
+    // subscribed is true only for Stripe subscribers. Org access is communicated
+    // separately via orgAccountTier (set by org provisioning, not grants).
     const status = await this.subscriptions.execute(id);
 
     return {
@@ -48,9 +46,8 @@ export class Service {
       avatar: profilePicture,
       images: profileImages,
       videos: profileVideos,
-      subscribed: status.source !== "none",
-      subscriptionSource: status.source,
-      limited: limited && status.source === "none",
+      subscribed: status.source === "stripe",
+      orgAccountTier,
     };
   }
 
@@ -71,7 +68,7 @@ export class Service {
           phone: true,
           firstName: true,
           lastName: true,
-          limited: true,
+          orgAccountTier: true,
         },
         with: {
           images: true,
