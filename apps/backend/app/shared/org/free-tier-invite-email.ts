@@ -15,7 +15,9 @@ interface FreeTierInviteMailData {
   upgradeUrl: string;
   contactEmail: string | null;
   tierExpiryMonths: number;
+  vaultName: string | null;
   brandColor: string | null;
+  welcomeVideoUrl: string | null;
   logoUrl: string | null;
 }
 
@@ -39,7 +41,9 @@ class FreeTierInviteMail extends BaseMail {
       upgradeUrl: this.data.upgradeUrl,
       contactEmail: this.data.contactEmail,
       tierExpiryMonths: this.data.tierExpiryMonths,
+      vaultName: this.data.vaultName,
       brandColor: this.data.brandColor,
+      welcomeVideoUrl: this.data.welcomeVideoUrl,
       logoUrl: this.data.logoUrl,
     });
 
@@ -72,7 +76,13 @@ export async function sendFreeTierInviteEmailOrThrow(opts: {
       upgradeUrl,
       contactEmail: event?.contactEmail ?? null,
       tierExpiryMonths,
+      vaultName:
+        (org.settings as { free_tier_vault_name?: string })
+          ?.free_tier_vault_name ?? null,
       brandColor: org.primaryColor ?? null,
+      welcomeVideoUrl:
+        (org.settings as { welcome_video_dancer?: string })
+          ?.welcome_video_dancer ?? null,
       logoUrl: org.logoUrl ?? null,
     })
   );

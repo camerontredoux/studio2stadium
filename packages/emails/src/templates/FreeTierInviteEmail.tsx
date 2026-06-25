@@ -18,7 +18,9 @@ export interface FreeTierInviteEmailProps {
   upgradeUrl: string;
   contactEmail?: string | null;
   tierExpiryMonths?: number;
+  vaultName?: string | null;
   brandColor?: string | null;
+  welcomeVideoUrl?: string | null;
   logoUrl?: string | null;
 }
 
@@ -33,13 +35,16 @@ export function FreeTierInviteEmail({
   upgradeUrl,
   contactEmail,
   tierExpiryMonths = 3,
+  vaultName: rawVaultName,
   brandColor,
+  welcomeVideoUrl,
   logoUrl,
 }: FreeTierInviteEmailProps) {
   const accent = brandColor || colors.primary;
+  const vault = rawVaultName || "the platform";
   const previewText = eventName
-    ? `You're officially in The Vault — ${eventName}`
-    : `You're officially in The Vault — complete your free profile`;
+    ? `You're officially in ${vault} — ${eventName}`
+    : `You're officially in ${vault} — complete your free profile`;
 
   const checkItems = [
     "Dance videos",
@@ -134,7 +139,7 @@ export function FreeTierInviteEmail({
             lineHeight: "1.3",
           }}
         >
-          You&apos;re officially in The Vault.
+          You&apos;re officially in {vault}.
         </Text>
         <Text style={paragraphStyle}>
           Right now, coaches can only see your basic registration information.
@@ -150,7 +155,7 @@ export function FreeTierInviteEmail({
           Want to stand out?
         </Text>
         <Text style={{ ...paragraphStyle, margin: "0 0 24px" }}>
-          Unlock your full Vault profile to give college coaches a complete
+          Unlock your full {vault} profile to give college coaches a complete
           picture of who you are as a dancer.
         </Text>
 
@@ -247,7 +252,7 @@ export function FreeTierInviteEmail({
             when the event does.
           </Text>
           <Text style={{ ...paragraphStyle, margin: "0 0 16px" }}>
-            Your Vault profile remains active for{" "}
+            Your {vault} profile remains active for{" "}
             <strong>{tierExpiryMonths} months</strong>, giving college coaches
             additional time to:
           </Text>
@@ -332,9 +337,58 @@ export function FreeTierInviteEmail({
               textDecoration: "none",
             }}
           >
-            Unlock My Full Vault Profile
+            Unlock My Full Profile
           </ReactEmailButton>
         </Section>
+
+        {/* ── Welcome video card ── */}
+        {welcomeVideoUrl && (
+          <Section
+            style={{
+              backgroundColor: "#1a1a1a",
+              borderRadius: "8px",
+              padding: "24px",
+              margin: "0 0 24px",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: "18px",
+                fontWeight: "700",
+                color: "#ffffff",
+                margin: "0 0 8px",
+              }}
+            >
+              Get Started Guide
+            </Text>
+            <Text
+              style={{
+                fontSize: "14px",
+                lineHeight: "1.5",
+                color: "#cccccc",
+                margin: "0 0 16px",
+              }}
+            >
+              We&apos;ve put together a quick walkthrough of the sign-up process
+              and how to navigate the platform:
+            </Text>
+            <ReactEmailButton
+              href={welcomeVideoUrl}
+              style={{
+                display: "inline-block",
+                backgroundColor: colors.primary,
+                color: "#ffffff",
+                fontSize: "14px",
+                fontWeight: "600",
+                padding: "10px 24px",
+                borderRadius: "6px",
+                textDecoration: "none",
+              }}
+            >
+              Watch Tutorial Video
+            </ReactEmailButton>
+          </Section>
+        )}
 
         {/* ── Questions ── */}
         {contactEmail && (
@@ -379,7 +433,7 @@ export function FreeTierInviteEmail({
         {/* ── Closing ── */}
         <Text style={paragraphStyle}>
           We&apos;re excited to help you maximize your recruiting opportunities
-          and get the most out of your Vault experience.
+          and get the most out of your {vault} experience.
         </Text>
         <Text
           style={{

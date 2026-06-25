@@ -157,6 +157,9 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
       const upgradeVal = org.settings?.free_tier_upgrade_url;
       settingsMap.free_tier_upgrade_url =
         typeof upgradeVal === "string" ? upgradeVal : "";
+      const vaultVal = org.settings?.free_tier_vault_name;
+      settingsMap.free_tier_vault_name =
+        typeof vaultVal === "string" ? vaultVal : "";
       setSettings(settingsMap);
 
       const cwv = org.settings?.welcome_video_coach;
@@ -529,6 +532,29 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                       }
                       placeholder="https://example.com/pages/register"
                       className="font-mono text-xs"
+                    />
+                  </div>
+                )}
+                {features.freeTierUsers && (
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium">
+                      Free-Tier Brand Name
+                    </label>
+                    <p className="text-muted-foreground text-xs">
+                      Name used in free-tier emails (e.g. &ldquo;The
+                      Vault&rdquo;). Defaults to &ldquo;the platform&rdquo; if
+                      empty.
+                    </p>
+                    <Input
+                      value={settings.free_tier_vault_name ?? ""}
+                      onChange={(e) =>
+                        setSettings((prev) => ({
+                          ...prev,
+                          free_tier_vault_name: e.target.value,
+                        }))
+                      }
+                      placeholder="The Vault"
+                      className="text-sm"
                     />
                   </div>
                 )}
