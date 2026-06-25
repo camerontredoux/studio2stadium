@@ -10,6 +10,13 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  NumberField,
+  NumberFieldDecrement,
+  NumberFieldGroup,
+  NumberFieldIncrement,
+  NumberFieldInput,
+} from "@/components/ui/number-field";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTab } from "@/components/ui/tabs";
 import { toastManager } from "@/components/ui/toast-manager";
@@ -467,18 +474,37 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                     <p className="text-muted-foreground text-xs">
                       {setting.description}
                     </p>
-                    <Input
-                      type={setting.type === "number" ? "number" : "text"}
-                      value={settings[setting.key] ?? setting.defaultValue}
-                      onChange={(e) =>
-                        setSettings((prev) => ({
-                          ...prev,
-                          [setting.key]: e.target.value,
-                        }))
-                      }
-                      placeholder={setting.defaultValue || "Not set"}
-                      className="font-mono text-xs"
-                    />
+                    {setting.type === "number" ? (
+                      <NumberField
+                        value={Number(settings[setting.key] ?? setting.defaultValue)}
+                        onValueChange={(val) =>
+                          setSettings((prev) => ({
+                            ...prev,
+                            [setting.key]: String(val ?? ""),
+                          }))
+                        }
+                        allowWheelScrub
+                        size="sm"
+                      >
+                        <NumberFieldGroup>
+                          <NumberFieldDecrement />
+                          <NumberFieldInput />
+                          <NumberFieldIncrement />
+                        </NumberFieldGroup>
+                      </NumberField>
+                    ) : (
+                      <Input
+                        value={settings[setting.key] ?? setting.defaultValue}
+                        onChange={(e) =>
+                          setSettings((prev) => ({
+                            ...prev,
+                            [setting.key]: e.target.value,
+                          }))
+                        }
+                        placeholder={setting.defaultValue || "Not set"}
+                        className="font-mono text-xs"
+                      />
+                    )}
                   </div>
                 ))}
               </div>
