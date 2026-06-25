@@ -60,8 +60,9 @@ export class UploadDancersService {
       db.select().from(organizations).where(eq(organizations.id, orgId))
     );
     const orgFeatures =
-      (org?.features as Record<string, boolean> | undefined) ?? {};
+      (org?.features as Record<string, unknown> | undefined) ?? {};
     const freeTier = Boolean(orgFeatures.freeTierUsers);
+    const tierExpiryMonths = Number(orgFeatures.tierExpiryMonths) || 3;
 
     const parseResult = parseDancerCsv(csv, { requirePaid: freeTier });
     const rows = await normalizeRowEmails(parseResult.rows);
@@ -187,7 +188,7 @@ export class UploadDancersService {
 
             const rowExpiration = userId ? (() => {
               const d = new Date(event!.endDate);
-              d.setMonth(d.getMonth() + 3);
+              d.setMonth(d.getMonth() + tierExpiryMonths);
               return d.toISOString().split("T")[0]!;
             })() : null;
 

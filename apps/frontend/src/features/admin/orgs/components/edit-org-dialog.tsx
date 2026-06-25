@@ -82,6 +82,7 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
   const { mutate: updateOrg, isPending } = useUpdateOrg();
   const [activeTab, setActiveTab] = useState<string | number>("profile");
   const [features, setFeatures] = useState<Record<string, boolean>>({});
+  const [tierExpiryMonths, setTierExpiryMonths] = useState(3);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [newSettingKey, setNewSettingKey] = useState("");
   const [newSettingValue, setNewSettingValue] = useState("");
@@ -115,6 +116,7 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
         featureMap[f.key] = Boolean(org.features?.[f.key]);
       }
       setFeatures(featureMap);
+      setTierExpiryMonths(Number(org.features?.tierExpiryMonths) || 3);
 
       const settingsMap: Record<string, string> = {};
       if (org.settings && typeof org.settings === "object") {
@@ -183,7 +185,7 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
     updateOrg(
       {
         params: { path: { id: org.id } },
-        body: { features, settings: settingsUpdate } as never,
+        body: { features: { ...features, tierExpiryMonths }, settings: settingsUpdate } as never,
       },
       {
         onSuccess: () => {
@@ -383,6 +385,21 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                     />
                   </div>
                 ))}
+                {features.freeTierUsers && (
+                  <div className="bg-muted/50 -mx-1 rounded-md px-3 py-3">
+                    <Field name="tierExpiryMonths">
+                      <FieldLabel>Account Tier Expiry (months after event ends)</FieldLabel>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={24}
+                        value={tierExpiryMonths}
+                        onChange={(e) => setTierExpiryMonths(Number(e.target.value) || 3)}
+                        className="w-24"
+                      />
+                    </Field>
+                  </div>
+                )}
                 <div className="border-border space-y-4 border-t pt-4">
                   <div>
                     <div className="flex items-center justify-between gap-4 py-1">

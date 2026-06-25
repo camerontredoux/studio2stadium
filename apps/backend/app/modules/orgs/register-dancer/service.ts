@@ -53,8 +53,9 @@ export class RegisterDancerService {
       // Free-tier ON + all roster rows unpaid → 'limited'; otherwise → 'standard'.
       // No premium grant is created — org users are freemium.
       const orgFeatures =
-        (org.features as Record<string, boolean> | undefined) ?? {};
+        (org.features as Record<string, unknown> | undefined) ?? {};
       const freeTier = Boolean(orgFeatures.freeTierUsers);
+      const tierExpiryMonths = Number(orgFeatures.tierExpiryMonths) || 3;
       let orgAccountTier: "standard" | "limited" = "standard";
       if (freeTier) {
         const rosterPaid = await tx
@@ -78,7 +79,6 @@ export class RegisterDancerService {
         }
       }
 
-      // Tier expires 3 months after the latest event this dancer is rostered for.
       const [latestEvent] = await tx
         .select({ endDate: orgEvents.endDate })
         .from(orgEvents)
@@ -96,7 +96,7 @@ export class RegisterDancerService {
       let orgAccountTierExpiresAt: Date | null = null;
       if (latestEvent) {
         orgAccountTierExpiresAt = new Date(latestEvent.endDate);
-        orgAccountTierExpiresAt.setMonth(orgAccountTierExpiresAt.getMonth() + 3);
+        orgAccountTierExpiresAt.setMonth(orgAccountTierExpiresAt.getMonth() + tierExpiryMonths);
       }
 
       const usernameSeed = invite.email.split("@")[0] ?? "dancer";
