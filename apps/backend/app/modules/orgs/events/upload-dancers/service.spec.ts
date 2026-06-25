@@ -85,7 +85,7 @@ test.group("UploadDancersService", (group) => {
     event = ev!;
   });
 
-  test("matched dancer gets premium grant with sourceId=eventId", async ({
+  test("matched dancer gets org membership and no premium grant", async ({
     assert,
   }) => {
     const dancer = await createUser({
@@ -108,23 +108,21 @@ dancer1@x.co,Dancer,One,101`;
     assert.equal(result.rowsAdded, 1);
     assert.equal(result.rowsErrored, 0);
 
-    // Roster row has userId and expirationDate set
+    // Roster row has userId set; expirationDate is null (no grant window)
     const [roster] = await db
       .select()
       .from(eventRosters)
       .where(eq(eventRosters.email, "dancer1@x.co"));
     assert.equal(roster!.userId, dancer.id);
     assert.isNotNull(roster!.userId);
-    assert.isNotNull(roster!.expirationDate);
+    assert.isNull(roster!.expirationDate);
 
-    // premium_grant created with sourceId = eventId
-    const [grant] = await db
+    // No premium grant created
+    const grants = await db
       .select()
       .from(premiumGrants)
       .where(eq(premiumGrants.userId, dancer.id));
-    assert.equal(grant!.sourceType, "org_event");
-    assert.equal(grant!.sourceId, event.id);
-    assert.isAbove(grant!.expiresAt.getTime(), Date.now());
+    assert.lengthOf(grants, 0);
 
     // org_membership type=dancer created
     const [mem] = await db

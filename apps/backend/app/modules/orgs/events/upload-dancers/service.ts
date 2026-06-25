@@ -6,7 +6,6 @@ import { users } from "#database/schema/users";
 import {
   organizations,
   orgMemberships,
-  premiumGrants,
   dancerInvites,
 } from "#database/schema/organizations";
 import {
@@ -157,14 +156,6 @@ export class UploadDancersService {
       db.select().from(orgEvents).where(eq(orgEvents.id, eventId))
     );
 
-    // Calculate grant expiry based on org settings and event end date
-    const settings = (org?.settings as { premium_period_days?: number }) ?? {};
-    const periodDays = settings.premium_period_days ?? 90;
-    const eventEndDate = new Date((event!.endDate as string) + "T00:00:00Z");
-    const grantExpires = new Date(eventEndDate);
-    grantExpires.setDate(grantExpires.getDate() + periodDays);
-    const expirationDate = grantExpires.toISOString().slice(0, 10); // "YYYY-MM-DD"
-
     // Track invite tokens for fire-and-forget emails after transaction
     const inviteTokens: { email: string; firstName: string; token: string }[] =
       [];
@@ -194,12 +185,7 @@ export class UploadDancersService {
           for (const r of rowsToProcess) {
             const userId = byEmail.get(r.email.toLowerCase()) ?? null;
 
-            // Free-tier Users: an unpaid (paid=false) dancer gets no premium
-            // grant and no premium window on their roster row. Only matters
-            // when the org has the feature on; otherwise paid is undefined and
-            // everyone is granted as before.
-            const grantsPremium = !(freeTier && r.paid === false);
-            const rowExpiration = userId && grantsPremium ? expirationDate : null;
+            const rowExpiration = null;
 
             const [existing] = await tx
               .select()
@@ -266,18 +252,6 @@ export class UploadDancersService {
                   target: [orgMemberships.userId, orgMemberships.orgId],
                 });
 
-              // Create premium grant (skipped for unpaid free-tier dancers)
-              if (grantsPremium) {
-                await tx
-                  .insert(premiumGrants)
-                  .values({
-                    userId,
-                    sourceType: "org_event",
-                    sourceId: eventId,
-                    expiresAt: grantExpires,
-                  })
-                  .onConflictDoNothing();
-              }
             } else {
               // Create dancer invite for unmatched rows
               const token = randomToken();

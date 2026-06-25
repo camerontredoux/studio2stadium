@@ -1,9 +1,8 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
-import { eventRosters, orgEvents } from "#database/schema/org-events";
-import { organizations, premiumGrants } from "#database/schema/organizations";
+import { eventRosters } from "#database/schema/org-events";
 import { users } from "#database/schema/users";
-import { and, eq, gt, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { AuditContext } from "#database/audit";
 
 export class RosterNotFoundError extends Error {
@@ -65,69 +64,20 @@ export class SetRosterPaidService {
         const userId = row.userId;
 
         if (paid) {
+          // Bump limited → standard (leave null accounts untouched)
           await tx
             .update(users)
-            .set({ limited: false })
-            .where(eq(users.id, userId));
-
-          const [activeGrant] = await tx
-            .select({ id: premiumGrants.id })
-            .from(premiumGrants)
+            .set({ orgAccountTier: "standard" })
             .where(
-              and(
-                eq(premiumGrants.userId, userId),
-                gt(premiumGrants.expiresAt, new Date()),
-                isNull(premiumGrants.revokedAt)
-              )
-            )
-            .limit(1);
-
-          if (!activeGrant) {
-            const [event] = await tx
-              .select({ orgId: orgEvents.orgId, endDate: orgEvents.endDate })
-              .from(orgEvents)
-              .where(eq(orgEvents.id, eventId))
-              .limit(1);
-            const [org] = event
-              ? await tx
-                  .select({ settings: organizations.settings })
-                  .from(organizations)
-                  .where(eq(organizations.id, event.orgId))
-                  .limit(1)
-              : [undefined];
-            const settings =
-              (org?.settings as { premium_period_days?: number }) ?? {};
-            const periodDays = settings.premium_period_days ?? 90;
-            const base = event
-              ? new Date((event.endDate as string) + "T00:00:00Z")
-              : new Date();
-            const expiresAt = new Date(base);
-            expiresAt.setDate(expiresAt.getDate() + periodDays);
-
-            await tx.insert(premiumGrants).values({
-              userId,
-              sourceType: "org_event",
-              sourceId: eventId,
-              expiresAt,
-            });
-          }
+              and(eq(users.id, userId), eq(users.orgAccountTier, "limited"))
+            );
         } else {
+          // Downgrade standard → limited (leave null accounts untouched)
           await tx
             .update(users)
-            .set({ limited: true })
-            .where(eq(users.id, userId));
-
-          // Revoke every active grant so "unpaid" actually restricts access —
-          // grant lookups are global, so a partial revoke would leave them
-          // subscribed via another grant.
-          await tx
-            .update(premiumGrants)
-            .set({ revokedAt: new Date() })
+            .set({ orgAccountTier: "limited" })
             .where(
-              and(
-                eq(premiumGrants.userId, userId),
-                isNull(premiumGrants.revokedAt)
-              )
+              and(eq(users.id, userId), eq(users.orgAccountTier, "standard"))
             );
         }
       }

@@ -3,8 +3,6 @@ import { DatabaseService } from "#database/service";
 import {
   dancerInvites,
   orgMemberships,
-  premiumGrants,
-  organizations,
 } from "#database/schema/organizations";
 import {
   eventDancerProfiles,
@@ -164,47 +162,6 @@ export class AttachAccountService {
           .onConflictDoNothing({
             target: [orgMemberships.userId, orgMemberships.orgId],
           });
-
-        // Calculate premium grant expiry
-        const [org] = await tx
-          .select({
-            settings: organizations.settings,
-            features: organizations.features,
-          })
-          .from(organizations)
-          .where(eq(organizations.id, orgId))
-          .limit(1);
-
-        const settings =
-          (org?.settings as { premium_period_days?: number }) ?? {};
-        const periodDays = settings.premium_period_days ?? 90;
-        const eventEndDate = new Date(
-          (event.endDate as string) + "T00:00:00Z"
-        );
-        const grantExpires = new Date(eventEndDate);
-        grantExpires.setDate(grantExpires.getDate() + periodDays);
-
-        // Free-tier Users: skip the grant when the org runs the free-tier
-        // program and this roster row is unpaid. The account itself is left
-        // untouched (existing accounts are never marked limited).
-        const orgFeatures =
-          (org?.features as Record<string, boolean> | undefined) ?? {};
-        const grantsPremium = !(
-          Boolean(orgFeatures.freeTierUsers) && roster.paid === false
-        );
-
-        // Upsert premium grant
-        if (grantsPremium) {
-          await tx
-            .insert(premiumGrants)
-            .values({
-              userId: targetUserId,
-              sourceType: "org_event",
-              sourceId: eventId,
-              expiresAt: grantExpires,
-            })
-            .onConflictDoNothing();
-        }
 
         // Consume pending dancer invites for the old email
         await tx
