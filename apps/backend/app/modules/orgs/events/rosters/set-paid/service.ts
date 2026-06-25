@@ -24,11 +24,9 @@ export class NotADancerError extends Error {
 /**
  * Admin override of a dancer's paid status from the roster sheet.
  *
- * Beyond flipping the roster flag, this reconciles the linked user's *real*
- * access so the toggle is meaningful for already-registered dancers:
- *   - paid=true  → clear `users.limited` and ensure an active premium grant.
- *   - paid=false → set `users.limited` and revoke their active grants.
- * Pending (unclaimed) rows only get the flag; access is decided when they claim.
+ * Beyond flipping the roster flag, this reconciles the linked user's
+ * org_account_tier: paid=true bumps limited→standard; paid=false
+ * downgrades standard→limited. Null-tier accounts are left untouched.
  */
 @inject()
 export class SetRosterPaidService {

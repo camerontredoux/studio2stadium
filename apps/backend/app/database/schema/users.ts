@@ -18,11 +18,6 @@ export const users = pg.pgTable(
     phone: pg.text(),
     verified: pg.boolean().notNull().default(false),
     notifications: pg.boolean().notNull().default(true),
-    // Free-tier Users: a restricted org-provisioned account. Set true only when
-    // an org with the freeTierUsers feature creates the account from an unpaid
-    // (paid=false) roster row. Drives the stripped-down profile when the user
-    // has no active subscription/grant (limited = this && source === "none").
-    limited: pg.boolean().notNull().default(false),
     orgAccountTier: orgAccountTier(),
     ...timestamps,
   },
