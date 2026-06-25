@@ -89,6 +89,9 @@ function AdminCallbacksPage() {
   const { data: showcases } = useSuspenseQuery(
     scoutingQueries.showcases(orgSlug),
   );
+  const { data: org } = useSuspenseQuery(orgQueries.org(orgSlug));
+  const orgSettings = ((org as any)?.settings ?? {}) as Record<string, unknown>;
+  const maxCallbacks = Number(orgSettings.max_callbacks_per_coach) || 5;
   const qc = useQueryClient();
   const sseStatus = useTransmitStatus();
   const [sheetRosterId, setSheetRosterId] = useState<string | null>(null);
@@ -179,6 +182,7 @@ function AdminCallbacksPage() {
               onOpenChange={setPublishOpen}
               disabled={data.uniqueCallbacks === 0}
               loading={publishMutation.isPending}
+              maxCallbacks={maxCallbacks}
               onConfirm={() =>
                 publishMutation.mutate({
                   params: { path: { slug: orgSlug } },
@@ -413,12 +417,14 @@ function PublishDialog({
   disabled,
   loading,
   onConfirm,
+  maxCallbacks,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   disabled: boolean;
   loading: boolean;
   onConfirm: () => void;
+  maxCallbacks: number;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -434,8 +440,8 @@ function PublishDialog({
         <DialogHeader>
           <DialogTitle>Publish Callbacks</DialogTitle>
           <DialogDescription>
-            This will lock in the top 5 callbacks per coach (ranked by rating,
-            then recency) and make them visible to dancers.
+            This will lock in the top {maxCallbacks} callbacks per coach (ranked
+            by rating, then recency) and make them visible to dancers.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

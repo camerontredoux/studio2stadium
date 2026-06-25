@@ -62,6 +62,35 @@ const KNOWN_FEATURES = [
   },
 ] as const;
 
+const KNOWN_SETTINGS = [
+  {
+    key: "max_callbacks_per_coach",
+    label: "Max Callbacks per Coach",
+    description: "Maximum number of callbacks each coach can publish per showcase",
+    type: "number" as const,
+    defaultValue: "5",
+  },
+  {
+    key: "rating_scale_max",
+    label: "Rating Scale Max",
+    description: "Maximum value on the coach rating scale",
+    type: "number" as const,
+    defaultValue: "10",
+  },
+  {
+    key: "defaultTimezone",
+    label: "Default Timezone",
+    description: "Default timezone for this organization's events",
+    type: "text" as const,
+    defaultValue: "",
+  },
+] as const;
+
+const FEATURE_MANAGED_SETTINGS = new Set([
+  "welcome_video_coach",
+  "welcome_video_dancer",
+]);
+
 interface Org {
   id: string;
   name: string;
@@ -84,8 +113,6 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
   const [features, setFeatures] = useState<Record<string, boolean>>({});
   const [tierExpiryMonths, setTierExpiryMonths] = useState(3);
   const [settings, setSettings] = useState<Record<string, string>>({});
-  const [newSettingKey, setNewSettingKey] = useState("");
-  const [newSettingValue, setNewSettingValue] = useState("");
   const [coachVideoEnabled, setCoachVideoEnabled] = useState(false);
   const [coachVideoUrl, setCoachVideoUrl] = useState("");
   const [dancerVideoEnabled, setDancerVideoEnabled] = useState(false);
@@ -119,10 +146,10 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
       setTierExpiryMonths(Number(org.features?.tierExpiryMonths) || 3);
 
       const settingsMap: Record<string, string> = {};
-      if (org.settings && typeof org.settings === "object") {
-        for (const [k, v] of Object.entries(org.settings)) {
-          settingsMap[k] = String(v);
-        }
+      for (const s of KNOWN_SETTINGS) {
+        settingsMap[s.key] = org.settings?.[s.key] != null
+          ? String(org.settings[s.key])
+          : s.defaultValue;
       }
       setSettings(settingsMap);
 
@@ -209,7 +236,11 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
   const saveSettings = () => {
     if (!org) return;
     const parsed: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(org.settings)) {
+      if (FEATURE_MANAGED_SETTINGS.has(k)) parsed[k] = v;
+    }
     for (const [k, v] of Object.entries(settings)) {
+      if (v === "") continue;
       const num = Number(v);
       if (!isNaN(num) && v.trim() !== "") {
         parsed[k] = num;
@@ -245,24 +276,6 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
     );
   };
 
-  const addSetting = () => {
-    if (newSettingKey.trim()) {
-      setSettings((prev) => ({
-        ...prev,
-        [newSettingKey.trim()]: newSettingValue,
-      }));
-      setNewSettingKey("");
-      setNewSettingValue("");
-    }
-  };
-
-  const removeSetting = (key: string) => {
-    setSettings((prev) => {
-      const next = { ...prev };
-      delete next[key];
-      return next;
-    });
-  };
 
   return (
     <Dialog open={!!org} onOpenChange={onOpenChange}>
@@ -466,69 +479,27 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
             </TabsContent>
 
             <TabsContent value="settings">
-              <div className="space-y-3">
-                {Object.entries(settings).map(([key, value]) => (
-                  <div key={key} className="flex items-center gap-2">
+              <div className="space-y-4">
+                {KNOWN_SETTINGS.map((setting) => (
+                  <div key={setting.key} className="space-y-1">
+                    <label className="text-sm font-medium">{setting.label}</label>
+                    <p className="text-muted-foreground text-xs">
+                      {setting.description}
+                    </p>
                     <Input
-                      value={key}
-                      disabled
-                      className="flex-1 font-mono text-xs"
-                    />
-                    <Input
-                      value={value}
+                      type={setting.type === "number" ? "number" : "text"}
+                      value={settings[setting.key] ?? setting.defaultValue}
                       onChange={(e) =>
                         setSettings((prev) => ({
                           ...prev,
-                          [key]: e.target.value,
+                          [setting.key]: e.target.value,
                         }))
                       }
-                      className="flex-1 font-mono text-xs"
+                      placeholder={setting.defaultValue || "Not set"}
+                      className="font-mono text-xs"
                     />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="xs"
-                      className="text-destructive hover:text-destructive shrink-0"
-                      onClick={() => removeSetting(key)}
-                    >
-                      Remove
-                    </Button>
                   </div>
                 ))}
-                <div className="border-border flex items-center gap-2 border-t pt-3">
-                  <Input
-                    value={newSettingKey}
-                    onChange={(e) => setNewSettingKey(e.target.value)}
-                    placeholder="key"
-                    className="flex-1 font-mono text-xs"
-                  />
-                  <Input
-                    value={newSettingValue}
-                    onChange={(e) => setNewSettingValue(e.target.value)}
-                    placeholder="value"
-                    className="flex-1 font-mono text-xs"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        addSetting();
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="xs"
-                    onClick={addSetting}
-                    className="shrink-0"
-                  >
-                    Add
-                  </Button>
-                </div>
-                {Object.keys(settings).length === 0 && (
-                  <p className="text-muted-foreground py-4 text-center text-sm">
-                    No settings configured. Add key-value pairs above.
-                  </p>
-                )}
               </div>
             </TabsContent>
           </Tabs>

@@ -19,7 +19,9 @@ export default class PublishShowcaseController {
       });
     }
 
-    await service.execute(ctx.orgEvent!.id, showcase.id);
+    const settings = (ctx.org!.settings ?? {}) as { max_callbacks_per_coach?: number };
+    const maxCallbacks = settings.max_callbacks_per_coach ?? 5;
+    await service.execute(ctx.orgEvent!.id, showcase.id, maxCallbacks);
 
     transmit.broadcast(`orgs/${ctx.org!.slug}/callbacks`, {});
     transmit.broadcast(`orgs/${ctx.org!.slug}/showcases`, {});

@@ -76,7 +76,7 @@ test.group("PublishShowcaseService", (group) => {
     await db.delete(orgEvents).execute();
   });
 
-  test("publishes top 5 per coach ranked by rating DESC then recency DESC", async ({
+  test("publishes top N per coach ranked by rating DESC then recency DESC", async ({
     assert,
   }) => {
     const { event, showcase } = await setup();
@@ -145,7 +145,7 @@ test.group("PublishShowcaseService", (group) => {
     assert.isNotNull(updatedShowcase[0]!.publishedAt);
   });
 
-  test("coach with fewer than 5 callbacks gets all published", async ({
+  test("coach with fewer than max callbacks gets all published", async ({
     assert,
   }) => {
     const { event, showcase } = await setup();

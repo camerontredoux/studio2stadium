@@ -12,7 +12,7 @@ import { and, eq, sql } from "drizzle-orm";
 export class PublishShowcaseService {
   constructor(private db: DatabaseService = new DatabaseService()) {}
 
-  async execute(eventId: string, showcaseId: string) {
+  async execute(eventId: string, showcaseId: string, maxCallbacks = 5) {
     return this.db.tx(async (tx) => {
       const [showcase] = await tx
         .select()
@@ -79,7 +79,7 @@ export class PublishShowcaseService {
           );
         });
 
-        const top5 = cbs.slice(0, 5);
+        const top5 = cbs.slice(0, maxCallbacks);
         for (const [i, element] of top5.entries()) {
           rows.push({
             showcaseId,
