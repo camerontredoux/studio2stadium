@@ -111,10 +111,11 @@ export function DancerPage({ username }: DancerPageProps) {
                   </div>
                   <div>
                     <p className="text-sm font-medium">
-                      Unlock your full profile
+                      Unlock with Studio 2 Stadium
                     </p>
                     <p className="text-muted-foreground text-xs">
-                      Upload videos, showcase skills, and get discovered by coaches.
+                      Get a Studio 2 Stadium membership to upload videos,
+                      showcase skills, and get discovered by coaches.
                     </p>
                   </div>
                 </div>
@@ -122,7 +123,7 @@ export function DancerPage({ username }: DancerPageProps) {
                   size="sm"
                   render={<Link to="/checkout" />}
                 >
-                  Upgrade
+                  Get Started
                 </Button>
               </div>
             ) : null}

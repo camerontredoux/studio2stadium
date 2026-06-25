@@ -25,10 +25,10 @@ export function FreeTierAlert() {
       <AlertCircleIcon />
       <AlertTitle>Free Tier</AlertTitle>
       <AlertDescription>
-        You are on the free tier. Upgrade to get full access.
+        Get a Studio 2 Stadium membership to unlock your full profile.
       </AlertDescription>
       <AlertAction>
-        <Button render={<Link to="/checkout" />}>Upgrade to Premium</Button>
+        <Button render={<Link to="/checkout" />}>Get Started</Button>
       </AlertAction>
     </Alert>
   );

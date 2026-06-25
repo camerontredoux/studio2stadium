@@ -10,7 +10,7 @@ export function AccessDenied({ description }: { description: string }) {
       <AlertTitle>Access Denied</AlertTitle>
       <AlertDescription>{description}</AlertDescription>
       <AlertAction>
-        <Button render={<Link to="/checkout" />}>Upgrade to Premium</Button>
+        <Button render={<Link to="/checkout" />}>Get Studio 2 Stadium</Button>
       </AlertAction>
     </Alert>
   );

@@ -15,6 +15,7 @@ import {
   ShieldBanIcon,
   ShieldCheckIcon,
 } from "lucide-react";
+import { AcademicDialog } from "../edit/academic-dialog";
 import { HeroBadge } from "./hero-badge";
 import { HeroStyles } from "./hero-styles";
 
@@ -93,6 +94,9 @@ export function HeroContent({
         />
         <HeroBadge label="Age" value={calculateAge(dancer.birthday)} />
         <HeroBadge label="Grad" value={dancer.gradYear} />
+        {showOwnerControls && (
+          <AcademicDialog username={dancer.username} />
+        )}
       </div>
       {(!dancer.orgAccountTier || dancer.subscribed) && (
         <HeroStyles styles={dancer.styles.map((style) => style.name)} />
