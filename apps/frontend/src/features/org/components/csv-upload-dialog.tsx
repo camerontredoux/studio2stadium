@@ -179,9 +179,9 @@ export function CsvUploadDialog({
       let message = `Request failed (${res.status})`;
       try {
         const body = await res.json();
-        if (body?.message) message += `: ${body.message}`;
-        else if (body?.errors?.[0]?.message)
-          message += `: ${body.errors[0].message}`;
+        if (body?.message) message = body.message;
+        else if (body?.errors?.[0]?.message) message = body.errors[0].message;
+        else if (body?.errors?.[0]?.reason) message = body.errors[0].reason;
       } catch {
         // ignore body parse errors
       }
@@ -380,10 +380,12 @@ export function CsvUploadDialog({
                   );
                   const sp = step.serverPreview;
                   const pending = step.serverPreviewPending;
+                  const previewFailed = !sp && !pending;
                   return (
                     acceptedRows === 0 ||
                     step.parse.duplicates.length > 0 ||
                     pending ||
+                    previewFailed ||
                     (sp !== null && sp.willError > 0)
                   );
                 })()}
@@ -397,6 +399,9 @@ export function CsvUploadDialog({
                   const pending = step.serverPreviewPending;
                   if (pending) {
                     return "Checking…";
+                  }
+                  if (!sp && !pending) {
+                    return "Preview failed — try again";
                   }
                   if (sp && sp.willError > 0) {
                     return `Fix ${sp.willError} error${sp.willError === 1 ? "" : "s"} to continue`;

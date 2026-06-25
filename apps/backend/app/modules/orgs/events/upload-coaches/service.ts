@@ -41,6 +41,10 @@ export class UploadCoachesService {
       if (!tokenResult.ok) {
         return {
           preconditionFailed: true,
+          message:
+            tokenResult.reason === "expired"
+              ? "Preview expired — please re-upload the file to get a fresh preview"
+              : "Invalid preview token — please re-upload the file",
           reason: tokenResult.reason,
         } as const;
       }
@@ -80,6 +84,7 @@ export class UploadCoachesService {
     if (allErrors.length > 0) {
       return {
         preconditionFailed: true,
+        message: `${allErrors.length} row${allErrors.length === 1 ? "" : "s"} rejected — ${allErrors[0]!.reason}`,
         reason: "errors_present",
         errors: allErrors,
       } as const;

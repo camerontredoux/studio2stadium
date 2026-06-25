@@ -86,6 +86,54 @@ export class UploadPreviewService {
 
     let rowsForCounts: CoachRow[] | DancerRow[] = rows;
     let accountErrors: Array<{ row: number; reason: string }> = [];
+    let bibErrors: Array<{ row: number; reason: string }> = [];
+
+    // Bib collision detection for dancer uploads (mirrors upload-dancers service)
+    if (kind === "dancer") {
+      const dancerRows = rows as DancerRow[];
+
+      // In-file bib duplicates
+      const bibsInFile = new Map<number, number>();
+      for (const r of dancerRows) {
+        if (r.bibNumber != null) {
+          const firstRow = bibsInFile.get(r.bibNumber);
+          if (firstRow !== undefined) {
+            bibErrors.push({
+              row: r.csvRow,
+              reason: `duplicate bib number ${r.bibNumber} (first seen on row ${firstRow})`,
+            });
+          } else {
+            bibsInFile.set(r.bibNumber, r.csvRow);
+          }
+        }
+      }
+
+      // Existing bib collisions on this event's roster
+      const existingBibRows = await this.db.use((db) =>
+        db
+          .select({
+            email: eventRosters.email,
+            bibNumber: eventRosters.bibNumber,
+          })
+          .from(eventRosters)
+          .where(eq(eventRosters.eventId, eventId))
+      );
+      const bibOwners = new Map<number, string>();
+      for (const r of existingBibRows) {
+        if (r.bibNumber != null) bibOwners.set(r.bibNumber, r.email.toLowerCase());
+      }
+      for (const r of dancerRows) {
+        if (r.bibNumber != null) {
+          const owner = bibOwners.get(r.bibNumber);
+          if (owner && owner !== r.email.toLowerCase()) {
+            bibErrors.push({
+              row: r.csvRow,
+              reason: `bib number ${r.bibNumber} already taken by ${owner} on this event`,
+            });
+          }
+        }
+      }
+    }
 
     {
       const emails = rows.map((r) => r.email);
@@ -173,7 +221,7 @@ export class UploadPreviewService {
       }
     }
 
-    const allErrors = [...parserErrors, ...accountErrors];
+    const allErrors = [...parserErrors, ...bibErrors, ...accountErrors];
 
     return {
       kind,

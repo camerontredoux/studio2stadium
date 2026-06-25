@@ -49,6 +49,10 @@ export class UploadDancersService {
       if (!tokenResult.ok) {
         return {
           preconditionFailed: true,
+          message:
+            tokenResult.reason === "expired"
+              ? "Preview expired — please re-upload the file to get a fresh preview"
+              : "Invalid preview token — please re-upload the file",
           reason: tokenResult.reason,
         } as const;
       }
@@ -151,6 +155,7 @@ export class UploadDancersService {
     if (errors.length > 0) {
       return {
         preconditionFailed: true,
+        message: `${errors.length} row${errors.length === 1 ? "" : "s"} rejected — ${errors[0]!.reason}`,
         reason: "errors_present",
         errors,
       } as const;
