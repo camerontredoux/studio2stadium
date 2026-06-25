@@ -4,7 +4,6 @@ import {
   dancerInvites,
   orgMemberships,
   organizations,
-  premiumGrants,
 } from "#database/schema/organizations";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { inject } from "@adonisjs/core";
@@ -50,13 +49,13 @@ export class RegisterDancerService {
         throw new InviteInvalidError();
       }
 
-      // Free-tier Users: a newly-provisioned dancer is "limited" when the org
-      // runs the free-tier program and none of their roster rows in this org
-      // were marked paid. A single paid=true event grants the full experience.
+      // Org-provisioned accounts get a tier based on org features and paid status.
+      // Free-tier ON + all roster rows unpaid → 'limited'; otherwise → 'standard'.
+      // No premium grant is created — org users are freemium.
       const orgFeatures =
         (org.features as Record<string, boolean> | undefined) ?? {};
       const freeTier = Boolean(orgFeatures.freeTierUsers);
-      let isLimited = false;
+      let orgAccountTier: "standard" | "limited" = "standard";
       if (freeTier) {
         const rosterPaid = await tx
           .select({ paid: eventRosters.paid })
@@ -74,7 +73,9 @@ export class RegisterDancerService {
               )
             )
           );
-        isLimited = !rosterPaid.some((r) => r.paid === true);
+        if (!rosterPaid.some((r) => r.paid === true)) {
+          orgAccountTier = "limited";
+        }
       }
 
       const usernameSeed = invite.email.split("@")[0] ?? "dancer";
@@ -92,7 +93,7 @@ export class RegisterDancerService {
           role: "user",
           type: "dancer",
           verified: true,
-          limited: isLimited,
+          orgAccountTier,
         })
         .returning();
 
@@ -107,21 +108,6 @@ export class RegisterDancerService {
         type: "dancer",
         role: "member",
       });
-
-      // Free-tier Users: skip the premium grant for limited (unpaid) dancers.
-      if (!isLimited) {
-        const settings =
-          (org.settings as { premium_period_days?: number }) ?? {};
-        const periodDays = settings.premium_period_days ?? 90;
-        const expiresAt = new Date(Date.now() + periodDays * 86400000);
-
-        await tx.insert(premiumGrants).values({
-          userId: user!.id,
-          sourceType: "org_event",
-          sourceId: null, // Plan 3 wires this to the active org_events.id
-          expiresAt,
-        });
-      }
 
       // Link all matching pending roster rows in this org to the new user.
       // A dancer may appear on multiple events within the same org (recurring

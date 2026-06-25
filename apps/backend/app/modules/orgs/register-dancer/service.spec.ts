@@ -23,7 +23,7 @@ test.group("POST /orgs/:slug/register", (group) => {
     await seedOrganizations();
   });
 
-  test("consumes a valid invite, creates user + membership + grant", async ({
+  test("consumes a valid invite, creates user + membership (no grant)", async ({
     client,
     assert,
   }) => {
@@ -68,16 +68,13 @@ test.group("POST /orgs/:slug/register", (group) => {
     assert.equal(membership!.type, "dancer");
     assert.equal(membership!.role, "member");
 
-    const [grant] = await db
+    // Freemium: no premium grant created for org users
+    const grants = await db
       .select()
       .from(premiumGrants)
       .where(eq(premiumGrants.userId, user!.id));
-    assert.exists(grant);
-    assert.equal(grant!.sourceType, "org_event");
-    // Summit's settings.premium_period_days = 90
-    const daysUntilExpiry =
-      (grant!.expiresAt.getTime() - Date.now()) / 86400000;
-    assert.closeTo(daysUntilExpiry, 90, 1);
+    assert.lengthOf(grants, 0);
+    assert.equal(user!.orgAccountTier, "standard");
 
     const [invite] = await db
       .select()
@@ -296,5 +293,170 @@ test.group("POST /orgs/:slug/register", (group) => {
       password: "CorrectHorse1!",
     });
     res.assertStatus(201);
+  });
+
+  test("sets orgAccountTier='standard' for non-free-tier org dancer", async ({
+    client,
+    assert,
+  }) => {
+    const [summit] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "summit"));
+    await db.insert(dancerInvites).values({
+      orgId: summit!.id,
+      email: "standard@example.com",
+      token: "tok_standard_abc01",
+      expiresAt: new Date(Date.now() + 86400000),
+    });
+
+    const res = await client.post("/orgs/summit/register").json({
+      token: "tok_standard_abc01",
+      firstName: "Standard",
+      lastName: "Dancer",
+      password: "CorrectHorse1!",
+    });
+    res.assertStatus(201);
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, "standard@example.com"));
+    assert.equal(user!.orgAccountTier, "standard");
+
+    // No premium grant created
+    const grants = await db
+      .select()
+      .from(premiumGrants)
+      .where(eq(premiumGrants.userId, user!.id));
+    assert.lengthOf(grants, 0);
+  });
+
+  test("sets orgAccountTier='limited' for free-tier org unpaid dancer", async ({
+    client,
+    assert,
+  }) => {
+    const [summit] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "summit"));
+
+    // Enable freeTierUsers on summit
+    await db
+      .update(organizations)
+      .set({
+        features: { freeTierUsers: true },
+      })
+      .where(eq(organizations.id, summit!.id));
+
+    const [event] = await db
+      .insert(orgEvents)
+      .values({
+        orgId: summit!.id,
+        name: "Free Tier Event",
+        startDate: "2026-08-01",
+        endDate: "2026-08-02",
+      })
+      .returning();
+
+    await db.insert(eventRosters).values({
+      eventId: event!.id,
+      type: "dancer",
+      email: "unpaid@example.com",
+      firstName: "Unpaid",
+      lastName: "Dancer",
+      paid: false,
+    });
+
+    await db.insert(dancerInvites).values({
+      orgId: summit!.id,
+      email: "unpaid@example.com",
+      token: "tok_unpaid_abcde1",
+      expiresAt: new Date(Date.now() + 86400000),
+    });
+
+    const res = await client.post("/orgs/summit/register").json({
+      token: "tok_unpaid_abcde1",
+      firstName: "Unpaid",
+      lastName: "Dancer",
+      password: "CorrectHorse1!",
+    });
+    res.assertStatus(201);
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, "unpaid@example.com"));
+    assert.equal(user!.orgAccountTier, "limited");
+
+    const grants = await db
+      .select()
+      .from(premiumGrants)
+      .where(eq(premiumGrants.userId, user!.id));
+    assert.lengthOf(grants, 0);
+  });
+
+  test("sets orgAccountTier='standard' for free-tier org paid dancer (no grant)", async ({
+    client,
+    assert,
+  }) => {
+    const [summit] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "summit"));
+
+    await db
+      .update(organizations)
+      .set({
+        features: { freeTierUsers: true },
+      })
+      .where(eq(organizations.id, summit!.id));
+
+    const [event] = await db
+      .insert(orgEvents)
+      .values({
+        orgId: summit!.id,
+        name: "Paid Tier Event",
+        startDate: "2026-08-01",
+        endDate: "2026-08-02",
+      })
+      .returning();
+
+    await db.insert(eventRosters).values({
+      eventId: event!.id,
+      type: "dancer",
+      email: "paid@example.com",
+      firstName: "Paid",
+      lastName: "Dancer",
+      paid: true,
+    });
+
+    await db.insert(dancerInvites).values({
+      orgId: summit!.id,
+      email: "paid@example.com",
+      token: "tok_paiddncr_abc1",
+      expiresAt: new Date(Date.now() + 86400000),
+    });
+
+    const res = await client.post("/orgs/summit/register").json({
+      token: "tok_paiddncr_abc1",
+      firstName: "Paid",
+      lastName: "Dancer",
+      password: "CorrectHorse1!",
+    });
+    res.assertStatus(201);
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, "paid@example.com"));
+    assert.equal(user!.orgAccountTier, "standard");
+
+    // Still no grant — org users are freemium now
+    const grants = await db
+      .select()
+      .from(premiumGrants)
+      .where(eq(premiumGrants.userId, user!.id));
+    assert.lengthOf(grants, 0);
   });
 });
