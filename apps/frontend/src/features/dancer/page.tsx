@@ -75,22 +75,25 @@ export function DancerPage({ username }: DancerPageProps) {
   const isOwner = visible;
   const isPreview = mode === "preview";
 
-  // Free-tier Users access tiers (see free-tier-users design spec):
-  //  - limited (org free-tier, no access): hero + Organizations only.
-  //  - org_event (premium grant, no Stripe): full minus Submission/Skills/Events,
-  //    and the media gallery is YouTube-only.
-  //  - stripe / normal-free: unchanged.
-  const limited = data.limited;
-  const isStripe = data.subscriptionSource === "stripe";
-  const showSkills = !limited && data.subscriptionSource !== "org_event";
+  // Profile visibility tiers — driven by orgAccountTier + Stripe status.
+  // Stripe always wins: a paying org user sees the full premium experience.
+  const tier = data.subscribed
+    ? "premium"
+    : data.orgAccountTier ?? "free";
+  const showSidebar = tier !== "limited";
+  const showContent = tier !== "limited";
+  const showSubmission = tier === "premium";
+  const showSkills = tier === "free" || tier === "premium";
+  const showEvents = tier === "premium";
+  const showMedia = tier !== "limited";
 
   return (
     <ProfileProvider isOwner={isOwner} isPreview={isPreview}>
       <SidebarLayout
         sidebar={
           <>
-            {!limited ? <ContactInfo dancer={data} /> : null}
-            {!limited ? <ExtraInfo dancer={data} /> : null}
+            {showSidebar ? <ContactInfo dancer={data} /> : null}
+            {showSidebar ? <ExtraInfo dancer={data} /> : null}
             {isOwner ? <ProfileOrganizations /> : null}
           </>
         }
@@ -100,11 +103,11 @@ export function DancerPage({ username }: DancerPageProps) {
           <div className="flex flex-col gap-3 lg:gap-4">
             <DancerHero dancer={data} />
 
-            {!limited ? (
+            {showContent ? (
               <Biography description={data.biography} username={username} />
             ) : null}
 
-            {!limited ? (
+            {showContent ? (
               <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
                 <Achievements
                   achievements={data.achievements}
@@ -114,13 +117,14 @@ export function DancerPage({ username }: DancerPageProps) {
               </div>
             ) : null}
 
-            {isStripe ? <Submission data={data.submission} /> : null}
+            {showSubmission ? <Submission data={data.submission} /> : null}
 
-            {!limited ? (
+            {showMedia ? (
               <MediaGallery
                 images={data.images}
                 videos={data.videos}
                 showOwnerControls={isOwner && !isPreview}
+                orgAccountTier={data.orgAccountTier}
               />
             ) : null}
 
@@ -128,7 +132,7 @@ export function DancerPage({ username }: DancerPageProps) {
               <Skills skills={data.skills} username={username} />
             ) : null}
 
-            {isStripe ? (
+            {showEvents ? (
               <Events events={data.events} globalEvents={data.globalEvents} />
             ) : null}
           </div>

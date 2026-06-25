@@ -14,12 +14,14 @@ interface MediaGalleryProps {
   images: Image[];
   videos: Video[];
   showOwnerControls: boolean;
+  orgAccountTier?: string | null;
 }
 
 export function MediaGallery({
   images,
   videos,
   showOwnerControls,
+  orgAccountTier,
 }: MediaGalleryProps) {
   const items = useMemo(() => {
     const all: MediaItem[] = [
@@ -42,6 +44,7 @@ export function MediaGallery({
             <MediaDialog
               imageCount={images.length}
               videoCount={videos.filter((v) => v.type === "cloudflare").length}
+              orgAccountTier={orgAccountTier}
             />
           ) : (
             <div className="h-7 w-fit sm:h-6" />

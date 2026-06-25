@@ -11203,7 +11203,7 @@ export interface components {
             lastName: string;
             avatar: string | null;
             phone: string | null;
-            limited: boolean;
+            orgAccountTier: string | null;
             birthday: string;
             location: string;
             biography: string | null;
@@ -11233,7 +11233,6 @@ export interface components {
                 title: string;
                 description: string | null;
             }[];
-            subscriptionSource: components["schemas"]["SubscriptionSource"];
             videos: {
                 id: string;
                 /** @enum {string} */

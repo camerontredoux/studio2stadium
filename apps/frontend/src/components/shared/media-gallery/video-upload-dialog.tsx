@@ -35,9 +35,10 @@ import type * as tus from "tus-js-client";
 
 interface VideoUploadDialogProps {
   videoCount: number;
+  orgAccountTier?: string | null;
 }
 
-export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
+export function VideoUploadDialog({ videoCount, orgAccountTier }: VideoUploadDialogProps) {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"file" | "youtube">("file");
   const [youtubeUrl, setYoutubeUrl] = useState("");
@@ -45,9 +46,14 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
     data: { subscribed, source },
   } = useSubscribed();
   const { type, username } = useSession();
-  // Free-tier Users: direct (Cloudflare) uploads require a real Stripe sub.
-  // Org-granted dancers can only add YouTube embeds.
-  const isGrantOnly = source === "org_event";
+  // Three upload tiers:
+  //  1. Stripe subscriber → file + YouTube tabs (full upload)
+  //  2. Org 'standard' (no Stripe) → YouTube-only dialog (no file tab)
+  //  3. Normal free dancer (no org tier, no Stripe) → locked "Premium Only"
+  // Note: a Stripe subscriber who is also org-provisioned gets full upload.
+  const hasStripe = source === "stripe";
+  const isOrgStandard = orgAccountTier === "standard" && !hasStripe;
+  const isOrgAccount = orgAccountTier === "standard" || orgAccountTier === "limited";
   const cloudflareLimit = 3;
   const hasReachedCloudflareLimit = videoCount >= cloudflareLimit;
   const { setIsProcessing } = useVideoProcessing();
@@ -145,7 +151,7 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
     upload.start();
   };
 
-  const isFreeTierDancer = !subscribed && type === "dancer";
+  const isFreeTierDancer = !subscribed && !isOrgAccount && type === "dancer";
 
   if (isFreeTierDancer) {
     return (
@@ -184,7 +190,7 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
         <span className="text-muted-foreground group-hover:text-foreground text-sm font-medium transition-colors">
           Video
         </span>
-        {!isGrantOnly && hasReachedCloudflareLimit && (
+        {!isOrgStandard && hasReachedCloudflareLimit && (
           <span className="text-muted-foreground text-xs font-medium">
             Limit {cloudflareLimit}/{cloudflareLimit}
           </span>
@@ -196,7 +202,7 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
           <DialogDescription>Add a video to your profile.</DialogDescription>
         </DialogHeader>
         <DialogPanel>
-          {isGrantOnly ? (
+          {isOrgStandard ? (
             <form id="youtube-upload-form" onSubmit={handleYoutubeSubmit}>
               <Field>
                 <FieldLabel>YouTube URL</FieldLabel>
@@ -257,7 +263,7 @@ export function VideoUploadDialog({ videoCount }: VideoUploadDialogProps) {
           <DialogClose render={<Button variant="secondary" />}>
             Cancel
           </DialogClose>
-          {isGrantOnly ? (
+          {isOrgStandard ? (
             <Button
               disabled={youtubeUpload.isPending || !youtubeUrl}
               type="submit"
