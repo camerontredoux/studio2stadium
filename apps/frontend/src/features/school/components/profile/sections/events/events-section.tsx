@@ -70,7 +70,7 @@ export function EventsSection({ events }: EventsSectionProps) {
                 className="hover:bg-accent/50 flex items-center justify-between gap-1 px-4 py-2"
               >
                 <div className="flex min-w-0 flex-col gap-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex min-w-0 items-center gap-2">
                     <Badge variant="brand" className="capitalize">
                       {event.type}
                     </Badge>
