@@ -13,7 +13,7 @@ import {
 import { useSession } from "@/lib/session";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useSearch } from "@tanstack/react-router";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, CrownIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useViewDancer } from "./api/mutations";
 import { dancerQueries } from "./api/queries";
@@ -102,6 +102,30 @@ export function DancerPage({ username }: DancerPageProps) {
         <div className="flex flex-col gap-3 lg:gap-4">
           <div className="flex flex-col gap-3 lg:gap-4">
             <DancerHero dancer={data} />
+
+            {isOwner && data.orgAccountTier && !data.subscribed ? (
+              <div className="border-brand/20 bg-brand/5 flex items-center justify-between rounded-lg border p-4">
+                <div className="flex items-center gap-3">
+                  <div className="bg-brand/10 rounded-full p-2">
+                    <CrownIcon className="text-brand size-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">
+                      Unlock your full profile
+                    </p>
+                    <p className="text-muted-foreground text-xs">
+                      Upload videos, showcase skills, and get discovered by coaches.
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  render={<Link to="/checkout" />}
+                >
+                  Upgrade
+                </Button>
+              </div>
+            ) : null}
 
             {showContent ? (
               <Biography description={data.biography} username={username} />
