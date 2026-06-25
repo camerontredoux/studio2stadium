@@ -36,8 +36,9 @@ export class Service {
       thumbnail: videoThumbnailUrl(video.mediaId, video.type),
     }));
 
-    // subscribed is true only for Stripe subscribers. Org access is communicated
-    // separately via orgAccountTier (set by org provisioning, not grants).
+    // Org access is communicated via orgAccountTier. Subscribed covers Stripe
+    // AND premium grants (used for dev/admin overrides — org flows no longer
+    // create grants).
     const status = await this.subscriptions.execute(id);
 
     return {
@@ -46,7 +47,7 @@ export class Service {
       avatar: profilePicture,
       images: profileImages,
       videos: profileVideos,
-      subscribed: status.source === "stripe",
+      subscribed: status.subscribed,
       orgAccountTier,
     };
   }
