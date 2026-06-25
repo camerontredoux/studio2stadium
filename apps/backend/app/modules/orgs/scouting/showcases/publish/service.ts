@@ -79,7 +79,7 @@ export class PublishShowcaseService {
           );
         });
 
-        const top5 = cbs.slice(0, maxCallbacks);
+        const top5 = maxCallbacks === -1 ? cbs : cbs.slice(0, maxCallbacks);
         for (const [i, element] of top5.entries()) {
           rows.push({
             showcaseId,

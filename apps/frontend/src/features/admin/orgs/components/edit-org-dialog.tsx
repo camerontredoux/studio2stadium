@@ -66,7 +66,7 @@ const KNOWN_SETTINGS = [
   {
     key: "max_callbacks_per_coach",
     label: "Max Callbacks per Coach",
-    description: "Maximum number of callbacks each coach can publish per showcase",
+    description: "Maximum number of callbacks each coach can publish per showcase. Set to -1 for unlimited.",
     type: "number" as const,
     defaultValue: "5",
   },

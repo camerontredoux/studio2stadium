@@ -440,8 +440,9 @@ function PublishDialog({
         <DialogHeader>
           <DialogTitle>Publish Callbacks</DialogTitle>
           <DialogDescription>
-            This will lock in the top {maxCallbacks} callbacks per coach (ranked
-            by rating, then recency) and make them visible to dancers.
+            {maxCallbacks === -1
+              ? "This will lock in all callbacks per coach (ranked by rating, then recency) and make them visible to dancers."
+              : `This will lock in the top ${maxCallbacks} callbacks per coach (ranked by rating, then recency) and make them visible to dancers.`}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
