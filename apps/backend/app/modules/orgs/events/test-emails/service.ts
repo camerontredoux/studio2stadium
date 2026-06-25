@@ -8,6 +8,7 @@ import type { organizations } from "#database/schema/organizations";
 import { sendOrgInviteEmailOrThrow } from "#shared/org/invite-email";
 import { sendOrgRosterAddedEmailOrThrow } from "#shared/org/roster-added-email";
 import { sendSchoolAccountInviteEmailOrThrow } from "#shared/org/school-account-invite-email";
+import { sendFreeTierInviteEmailOrThrow } from "#shared/org/free-tier-invite-email";
 import type { Validator } from "./validator.ts";
 
 @inject()
@@ -71,6 +72,25 @@ export class TestEmailsService {
           token,
         });
         break;
+      case "free-tier-invite": {
+        const orgSettings =
+          (org.settings as Record<string, unknown> | undefined) ?? {};
+        const tierExpiryMonths =
+          Number(orgSettings.tierExpiryMonths) || 3;
+        const upgradeUrl =
+          (orgSettings.free_tier_upgrade_url as string | undefined) ??
+          "https://example.com/upgrade";
+        await sendFreeTierInviteEmailOrThrow({
+          org,
+          event,
+          email: recipient.email,
+          firstName: recipient.firstName,
+          token,
+          upgradeUrl,
+          tierExpiryMonths,
+        });
+        break;
+      }
     }
 
     return { kind: input.kind, email: recipient.email };

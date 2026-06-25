@@ -15,6 +15,7 @@ import {
 } from "#database/schema/org-events";
 import { normalizeRowEmails, parseDancerCsv } from "#shared/org/csv-parser";
 import { sendOrgInviteEmail } from "#shared/org/invite-email";
+import { sendFreeTierInviteEmail } from "#shared/org/free-tier-invite-email";
 import { sendOrgRosterAddedEmail } from "#shared/org/roster-added-email";
 import { enforceEmailRole } from "#shared/org/role-guard";
 import { verifyPreviewToken } from "#shared/org/preview-token";
@@ -166,8 +167,12 @@ export class UploadDancersService {
     );
 
     // Track invite tokens for fire-and-forget emails after transaction
-    const inviteTokens: { email: string; firstName: string; token: string }[] =
-      [];
+    const inviteTokens: {
+      email: string;
+      firstName: string;
+      token: string;
+      paid?: boolean;
+    }[] = [];
     // Track matched-new rows (registered dancer added to a roster for the
     // first time) for fire-and-forget notification emails after transaction.
     const matchedNotifications: { email: string; firstName: string }[] = [];
@@ -272,6 +277,7 @@ export class UploadDancersService {
                 email: r.email,
                 firstName: r.firstName,
                 token,
+                paid: r.paid,
               });
               const inviteExpiry = new Date(
                 Date.now() + 1000 * 60 * 60 * 24 * 30
@@ -355,15 +361,31 @@ export class UploadDancersService {
 
     // Fire-and-forget invite emails for unmatched rows (after transaction)
     if (org && inviteTokens.length > 0) {
-      for (const { email, firstName, token } of inviteTokens) {
-        sendOrgInviteEmail({
-          org,
-          event: event ?? null,
-          email,
-          firstName,
-          type: "dancer",
-          token,
-        }).catch(() => {});
+      const upgradeUrl = freeTier
+        ? (orgSettings.free_tier_upgrade_url as string | undefined) ?? null
+        : null;
+
+      for (const { email, firstName, token, paid } of inviteTokens) {
+        if (freeTier && paid === false && upgradeUrl) {
+          sendFreeTierInviteEmail({
+            org,
+            event: event ?? null,
+            email,
+            firstName,
+            token,
+            upgradeUrl,
+            tierExpiryMonths,
+          }).catch(() => {});
+        } else {
+          sendOrgInviteEmail({
+            org,
+            event: event ?? null,
+            email,
+            firstName,
+            type: "dancer",
+            token,
+          }).catch(() => {});
+        }
       }
     }
 

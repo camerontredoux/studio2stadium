@@ -10,12 +10,13 @@ import {
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
+import { useOrg } from "@/features/org/context/use-org";
 import { client } from "@/lib/api/client";
 import { useSession } from "@/lib/session";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
-type TestEmailKind = "invite" | "roster-added" | "school-account-invite";
+type TestEmailKind = "invite" | "roster-added" | "school-account-invite" | "free-tier-invite";
 
 const NO_EVENT = "none";
 
@@ -52,6 +53,7 @@ const rawClient = client as unknown as {
 
 export function TestEmailsSection({ orgSlug }: { orgSlug: string }) {
   const session = useSession();
+  const { hasFeature } = useOrg();
   // null = untouched; we derive a default (first event) below until the user
   // picks something.
   const [eventId, setEventId] = useState<string | null>(null);
@@ -202,6 +204,23 @@ export function TestEmailsSection({ orgSlug }: { orgSlug: string }) {
               ))}
             </div>
           </div>
+
+          {hasFeature("freeTierUsers") && (
+            <div className="flex flex-col gap-2">
+              <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                Free-tier emails &middot; sent to unpaid dancers
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <TestEmailButton
+                  label="Free-Tier Invite"
+                  kind="free-tier-invite"
+                  pending={mutation.isPending}
+                  isThis={mutation.variables === "free-tier-invite"}
+                  onSend={() => mutation.mutate("free-tier-invite")}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </FramePanel>
     </Frame>

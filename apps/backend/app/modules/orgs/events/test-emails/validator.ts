@@ -3,7 +3,7 @@ import { type Infer } from "@vinejs/vine/types";
 
 export const schema = vine.compile(
   vine.object({
-    kind: vine.enum(["invite", "roster-added", "school-account-invite"]),
+    kind: vine.enum(["invite", "roster-added", "school-account-invite", "free-tier-invite"]),
     eventId: vine.string().uuid().optional(),
     audience: vine.enum(["dancer", "coach"]).optional(),
   })

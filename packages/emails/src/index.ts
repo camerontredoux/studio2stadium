@@ -80,6 +80,11 @@ export {
 } from "./templates/OrgInviteEmail.js";
 
 export {
+  FreeTierInviteEmail,
+  type FreeTierInviteEmailProps,
+} from "./templates/FreeTierInviteEmail.js";
+
+export {
   OrgRosterAddedEmail,
   type OrgRosterAddedEmailProps,
 } from "./templates/OrgRosterAddedEmail.js";
