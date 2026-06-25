@@ -154,6 +154,9 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
         const val = org.settings?.[s.key] ?? org.features?.[s.key];
         settingsMap[s.key] = val != null ? String(val) : s.defaultValue;
       }
+      const upgradeVal = org.settings?.free_tier_upgrade_url;
+      settingsMap.free_tier_upgrade_url =
+        typeof upgradeVal === "string" ? upgradeVal : "";
       setSettings(settingsMap);
 
       const cwv = org.settings?.welcome_video_coach;
@@ -507,6 +510,28 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                     )}
                   </div>
                 ))}
+                {features.freeTierUsers && (
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium">
+                      Free-Tier Upgrade URL
+                    </label>
+                    <p className="text-muted-foreground text-xs">
+                      External link for the &ldquo;Unlock My Full Vault
+                      Profile&rdquo; button in free-tier invite emails
+                    </p>
+                    <Input
+                      value={settings.free_tier_upgrade_url ?? ""}
+                      onChange={(e) =>
+                        setSettings((prev) => ({
+                          ...prev,
+                          free_tier_upgrade_url: e.target.value,
+                        }))
+                      }
+                      placeholder="https://example.com/pages/register"
+                      className="font-mono text-xs"
+                    />
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>

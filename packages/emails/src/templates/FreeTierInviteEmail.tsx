@@ -26,15 +26,20 @@ const S2S_LOGO =
   "https://userdata.studio2stadium.com/logos/s2s-wordmark-white.png";
 
 export function FreeTierInviteEmail({
+  firstName,
   orgName,
+  eventName,
   inviteUrl,
   upgradeUrl,
   contactEmail,
   tierExpiryMonths = 3,
+  brandColor,
   logoUrl,
 }: FreeTierInviteEmailProps) {
-  const btnColor = "#2563eb";
-  const previewText = `You're officially in The Vault — complete your free profile`;
+  const accent = brandColor || colors.primary;
+  const previewText = eventName
+    ? `You're officially in The Vault — ${eventName}`
+    : `You're officially in The Vault — complete your free profile`;
 
   const checkItems = [
     "Dance videos",
@@ -119,18 +124,19 @@ export function FreeTierInviteEmail({
           borderRight: `1px solid ${colors.border}`,
         }}
       >
+        <Text style={paragraphStyle}>Hi {firstName},</Text>
         <Text
           style={{
-            fontSize: "26px",
-            fontWeight: "800",
+            fontSize: "22px",
+            fontWeight: "700",
             color: colors.text,
             margin: "0 0 8px",
-            lineHeight: "1.2",
+            lineHeight: "1.3",
           }}
         >
           You&apos;re officially in The Vault.
         </Text>
-        <Text style={{ ...paragraphStyle, margin: "0 0 20px" }}>
+        <Text style={paragraphStyle}>
           Right now, coaches can only see your basic registration information.
         </Text>
         <Text
@@ -148,19 +154,17 @@ export function FreeTierInviteEmail({
           picture of who you are as a dancer.
         </Text>
 
-        {/* ── Complete Your Free Profile card ── */}
+        {/* ── Complete Your Free Profile ── */}
         <Section
           style={{
-            borderLeft: `4px solid ${btnColor}`,
-            borderRadius: "8px",
-            padding: "20px 24px",
+            borderLeft: `4px solid ${accent}`,
+            padding: "16px 20px",
             margin: "0 0 24px",
-            backgroundColor: colors.backgroundMuted,
           }}
         >
           <Text
             style={{
-              fontSize: "20px",
+              fontSize: "18px",
               fontWeight: "700",
               color: colors.text,
               margin: "0 0 8px",
@@ -172,18 +176,17 @@ export function FreeTierInviteEmail({
             style={{
               ...paragraphStyle,
               margin: "0 0 12px",
-              fontSize: "15px",
             }}
           >
             Add:
           </Text>
           {checkItems.map((item) => (
-            <Row key={item} style={{ margin: "0 0 6px" }}>
+            <Row key={item} style={{ margin: "0 0 4px" }}>
               <Column style={{ width: "24px", verticalAlign: "top" }}>
                 <Text
                   style={{
                     fontSize: "15px",
-                    color: btnColor,
+                    color: accent,
                     margin: "0",
                     lineHeight: "1.6",
                   }}
@@ -194,10 +197,8 @@ export function FreeTierInviteEmail({
               <Column>
                 <Text
                   style={{
-                    fontSize: "15px",
-                    color: colors.text,
+                    ...paragraphStyle,
                     margin: "0",
-                    lineHeight: "1.6",
                   }}
                 >
                   {item}
@@ -209,11 +210,11 @@ export function FreeTierInviteEmail({
             href={inviteUrl}
             style={{
               display: "inline-block",
-              backgroundColor: btnColor,
+              backgroundColor: colors.primary,
               color: "#ffffff",
               fontSize: "14px",
               fontWeight: "600",
-              padding: "12px 28px",
+              padding: "10px 24px",
               borderRadius: "6px",
               textDecoration: "none",
               marginTop: "16px",
@@ -223,19 +224,17 @@ export function FreeTierInviteEmail({
           </ReactEmailButton>
         </Section>
 
-        {/* ── Recruiting Doesn't End card ── */}
+        {/* ── Recruiting Doesn't End ── */}
         <Section
           style={{
-            borderLeft: `4px solid ${btnColor}`,
-            borderRadius: "8px",
-            padding: "20px 24px",
+            borderLeft: `4px solid ${accent}`,
+            padding: "16px 20px",
             margin: "0 0 24px",
-            backgroundColor: colors.backgroundMuted,
           }}
         >
           <Text
             style={{
-              fontSize: "20px",
+              fontSize: "18px",
               fontWeight: "700",
               color: colors.text,
               margin: "0 0 8px",
@@ -243,38 +242,25 @@ export function FreeTierInviteEmail({
           >
             Recruiting Doesn&apos;t End When the Event Does
           </Text>
-          <Text
-            style={{
-              ...paragraphStyle,
-              margin: "0 0 12px",
-              fontSize: "15px",
-            }}
-          >
+          <Text style={{ ...paragraphStyle, margin: "0 0 12px" }}>
             The event may only last a weekend, but recruiting doesn&apos;t end
             when the event does.
           </Text>
-          <Text
-            style={{
-              ...paragraphStyle,
-              margin: "0 0 16px",
-              fontSize: "15px",
-            }}
-          >
+          <Text style={{ ...paragraphStyle, margin: "0 0 16px" }}>
             Your Vault profile remains active for{" "}
             <strong>{tierExpiryMonths} months</strong>, giving college coaches
             additional time to:
           </Text>
 
-          {/* 2-column benefits list */}
           <Row style={{ margin: "0 0 16px" }}>
             <Column style={{ width: "50%", verticalAlign: "top" }}>
               {coachBenefitsLeft.map((item) => (
-                <Row key={item} style={{ margin: "0 0 6px" }}>
+                <Row key={item} style={{ margin: "0 0 4px" }}>
                   <Column style={{ width: "24px", verticalAlign: "top" }}>
                     <Text
                       style={{
                         fontSize: "14px",
-                        color: btnColor,
+                        color: accent,
                         margin: "0",
                         lineHeight: "1.5",
                       }}
@@ -299,12 +285,12 @@ export function FreeTierInviteEmail({
             </Column>
             <Column style={{ width: "50%", verticalAlign: "top" }}>
               {coachBenefitsRight.map((item) => (
-                <Row key={item} style={{ margin: "0 0 6px" }}>
+                <Row key={item} style={{ margin: "0 0 4px" }}>
                   <Column style={{ width: "24px", verticalAlign: "top" }}>
                     <Text
                       style={{
                         fontSize: "14px",
-                        color: btnColor,
+                        color: accent,
                         margin: "0",
                         lineHeight: "1.5",
                       }}
@@ -329,13 +315,7 @@ export function FreeTierInviteEmail({
             </Column>
           </Row>
 
-          <Text
-            style={{
-              ...paragraphStyle,
-              margin: "0 0 16px",
-              fontSize: "15px",
-            }}
-          >
+          <Text style={{ ...paragraphStyle, margin: "0 0 16px" }}>
             Make sure they&apos;re seeing more than just your registration
             information.
           </Text>
@@ -343,11 +323,11 @@ export function FreeTierInviteEmail({
             href={upgradeUrl}
             style={{
               display: "inline-block",
-              backgroundColor: btnColor,
+              backgroundColor: colors.primary,
               color: "#ffffff",
               fontSize: "14px",
               fontWeight: "600",
-              padding: "12px 28px",
+              padding: "10px 24px",
               borderRadius: "6px",
               textDecoration: "none",
             }}
@@ -356,14 +336,14 @@ export function FreeTierInviteEmail({
           </ReactEmailButton>
         </Section>
 
-        {/* ── Questions section ── */}
+        {/* ── Questions ── */}
         {contactEmail && (
-          <Section style={{ margin: "0 0 24px" }}>
+          <Section style={{ margin: "0 0 16px" }}>
             <Row>
-              <Column style={{ width: "40px", verticalAlign: "top" }}>
+              <Column style={{ width: "36px", verticalAlign: "top" }}>
                 <Text
                   style={{
-                    fontSize: "24px",
+                    fontSize: "20px",
                     margin: "0",
                     lineHeight: "1",
                   }}
@@ -386,7 +366,7 @@ export function FreeTierInviteEmail({
                   Email{" "}
                   <Link
                     href={`mailto:${contactEmail}`}
-                    style={{ color: btnColor }}
+                    style={{ color: colors.primary }}
                   >
                     {contactEmail}
                   </Link>
@@ -397,9 +377,19 @@ export function FreeTierInviteEmail({
         )}
 
         {/* ── Closing ── */}
-        <Text style={{ ...paragraphStyle, margin: "0 0 0" }}>
+        <Text style={paragraphStyle}>
           We&apos;re excited to help you maximize your recruiting opportunities
           and get the most out of your Vault experience.
+        </Text>
+        <Text
+          style={{
+            ...paragraphStyle,
+            borderTop: `1px solid ${colors.border}`,
+            paddingTop: "20px",
+            marginTop: "16px",
+          }}
+        >
+          — The Studio 2 Stadium and <strong>{orgName}</strong> Teams
         </Text>
       </Section>
 
