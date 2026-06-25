@@ -1,5 +1,5 @@
 import * as pg from "drizzle-orm/pg-core";
-import { accountType, platformName, role } from "./enums.ts";
+import { accountType, orgAccountTier, platformName, role } from "./enums.ts";
 import { citext, timestamps } from "./helpers/columns.ts";
 
 export const users = pg.pgTable(
@@ -23,6 +23,7 @@ export const users = pg.pgTable(
     // (paid=false) roster row. Drives the stripped-down profile when the user
     // has no active subscription/grant (limited = this && source === "none").
     limited: pg.boolean().notNull().default(false),
+    orgAccountTier: orgAccountTier(),
     ...timestamps,
   },
   (table) => [pg.index().on(table.createdAt)]

@@ -81,6 +81,10 @@ export const videoUploadStatus = pgEnum("video_upload_status", [
 export const orgRole = pgEnum("org_role", ["admin", "member"]);
 export const orgMemberType = pgEnum("org_member_type", ["coach", "dancer"]);
 export const premiumGrantSource = pgEnum("premium_grant_source", ["org_event"]);
+export const orgAccountTier = pgEnum("org_account_tier", [
+  "standard",
+  "limited",
+]);
 
 export const auditAction = pgEnum("audit_action", [
   "upload",
