@@ -64,6 +64,7 @@ interface SchoolRow {
 function schoolColumns(
   onToggle: (rosterId: string, current: boolean) => void,
   selectionCount: number,
+  maxSelections: number,
 ): ColumnDef<SchoolRow>[] {
   return [
     {
@@ -108,7 +109,7 @@ function schoolColumns(
     {
       id: "topSchool",
       header: () => (
-        <span title="Top 3 School">
+        <span title="Favorite School">
           <StarIcon className="text-muted-foreground size-4" />
         </span>
       ),
@@ -116,7 +117,7 @@ function schoolColumns(
       enableSorting: false,
       cell: ({ row }) => {
         const isTop = row.original.isTopSchool;
-        const disabled = !isTop && selectionCount >= 3;
+        const disabled = !isTop && maxSelections !== -1 && selectionCount >= maxSelections;
         return (
           <button
             type="button"
@@ -126,7 +127,7 @@ function schoolColumns(
               onToggle(row.original.rosterId, isTop);
             }}
             className="flex cursor-pointer items-center justify-center disabled:cursor-not-allowed disabled:opacity-30"
-            aria-label={isTop ? "Remove from Top 3" : "Add to Top 3"}
+            aria-label={isTop ? `Remove from Top ${maxSelections === -1 ? "" : maxSelections}` : `Add to Top ${maxSelections === -1 ? "" : maxSelections}`}
           >
             <StarIcon
               className={`size-4 transition-colors ${
@@ -150,7 +151,8 @@ function SchoolsPage() {
   const { orgSlug } = useParams({
     from: "/_org/o/$orgSlug/_authenticated/dancer/schools",
   });
-  useOrg();
+  const { settings } = useOrg();
+  const maxSelections = Number(settings?.max_school_selections) || 3;
 
   /* --- Filter state --- */
   const [search, setSearch] = useState("");
@@ -215,7 +217,7 @@ function SchoolsPage() {
       if (ctx?.prevSelections)
         qc.setQueryData(selectionsKey, ctx.prevSelections);
       toastManager.add({
-        title: "Couldn't add school to Top 3",
+        title: "Couldn't add school to favorites",
         type: "error",
       });
     },
@@ -262,7 +264,7 @@ function SchoolsPage() {
         if (ctx?.prevSelections)
           qc.setQueryData(selectionsKey, ctx.prevSelections);
         toastManager.add({
-          title: "Couldn't remove school from Top 3",
+          title: "Couldn't remove school from favorites",
           type: "error",
         });
       },
@@ -286,9 +288,9 @@ function SchoolsPage() {
           });
         }
       } else {
-        if (selectionCount >= 3) {
+        if (maxSelections !== -1 && selectionCount >= maxSelections) {
           toastManager.add({
-            title: "You can only select up to 3 schools. Remove one first.",
+            title: `You can only select up to ${maxSelections} schools. Remove one first.`,
             type: "error",
           });
           return;
@@ -299,7 +301,7 @@ function SchoolsPage() {
         });
       }
     },
-    [orgSlug, selections, selectionCount, addSelection, removeSelection],
+    [orgSlug, selections, selectionCount, maxSelections, addSelection, removeSelection],
   );
 
   /* --- Derive isTopSchool from selections (works even before types are regenerated) --- */
@@ -327,8 +329,8 @@ function SchoolsPage() {
   }, [schools, topOnly, selectedCoachIds]);
 
   const columns = useMemo(
-    () => schoolColumns(handleToggle, selectionCount),
-    [handleToggle, selectionCount],
+    () => schoolColumns(handleToggle, selectionCount, maxSelections),
+    [handleToggle, selectionCount, maxSelections],
   );
 
   /* --- Stats --- */
@@ -374,9 +376,9 @@ function SchoolsPage() {
       >
         <StatCell label="Total Schools" value={totalSchools} accent="blue" />
         <StatCell
-          label="My Top 3"
-          value={`${selectionCount} / 3`}
-          accent={selectionCount >= 3 ? "amber" : "green"}
+          label={maxSelections === -1 ? "My Selections" : `My Top ${maxSelections}`}
+          value={maxSelections === -1 ? selectionCount : `${selectionCount} / ${maxSelections}`}
+          accent={maxSelections !== -1 && selectionCount >= maxSelections ? "amber" : "green"}
         />
       </section>
 
@@ -407,13 +409,13 @@ function SchoolsPage() {
                   size="sm"
                   pressed={topOnly}
                   onPressedChange={setTopOnly}
-                  aria-label="My Top 3"
+                  aria-label="My Favorites"
                 />
               }
             >
               <StarIcon className="size-3.5" />
             </TooltipTrigger>
-            <TooltipPopup>My Top 3</TooltipPopup>
+            <TooltipPopup>My Favorites</TooltipPopup>
           </Tooltip>
         </TooltipProvider>
 
@@ -446,7 +448,7 @@ function SchoolsPage() {
               {deferredSearch
                 ? `No schools matched "${deferredSearch}".`
                 : topOnly
-                  ? "You haven't selected any Top 3 schools yet."
+                  ? "You haven't selected any favorite schools yet."
                   : "No schools registered for this event yet."}
             </p>
           }
@@ -454,6 +456,7 @@ function SchoolsPage() {
             <SchoolCard
               school={row}
               selectionCount={selectionCount}
+              maxSelections={maxSelections}
               onToggle={handleToggle}
             />
           )}
@@ -472,13 +475,15 @@ function SchoolsPage() {
 function SchoolCard({
   school,
   selectionCount,
+  maxSelections,
   onToggle,
 }: {
   school: SchoolRow;
   selectionCount: number;
+  maxSelections: number;
   onToggle: (rosterId: string, current: boolean) => void;
 }) {
-  const disabled = !school.isTopSchool && selectionCount >= 3;
+  const disabled = !school.isTopSchool && maxSelections !== -1 && selectionCount >= maxSelections;
   return (
     <div className="bg-card flex w-full items-center justify-between gap-3 rounded-lg border p-3">
       <div className="flex min-w-0 flex-col gap-1">
@@ -505,7 +510,7 @@ function SchoolCard({
         onClick={() => onToggle(school.rosterId, school.isTopSchool)}
         className="flex shrink-0 cursor-pointer items-center justify-center p-1 disabled:cursor-not-allowed disabled:opacity-30"
         aria-label={
-          school.isTopSchool ? "Remove from Top 3" : "Add to Top 3"
+          school.isTopSchool ? "Remove from favorites" : "Add to favorites"
         }
       >
         <StarIcon

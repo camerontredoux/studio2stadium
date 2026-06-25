@@ -10,7 +10,8 @@ export class CreateSelectionService {
   async execute(
     eventId: string,
     dancerRosterId: string,
-    coachRosterId: string
+    coachRosterId: string,
+    maxSelections = 3
   ) {
     const [countRow] = await this.db.use((db) =>
       db
@@ -24,7 +25,7 @@ export class CreateSelectionService {
         )
     );
 
-    if (countRow.count >= 3) {
+    if (maxSelections !== -1 && countRow.count >= maxSelections) {
       return { error: "max_selections" as const };
     }
 

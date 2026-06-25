@@ -54,8 +54,11 @@ export class RegisterDancerService {
       // No premium grant is created — org users are freemium.
       const orgFeatures =
         (org.features as Record<string, unknown> | undefined) ?? {};
+      const orgSettings =
+        (org.settings as Record<string, unknown> | undefined) ?? {};
       const freeTier = Boolean(orgFeatures.freeTierUsers);
-      const tierExpiryMonths = Number(orgFeatures.tierExpiryMonths) || 3;
+      const tierExpiryMonths =
+        Number(orgSettings.tierExpiryMonths ?? orgFeatures.tierExpiryMonths) || 3;
       let orgAccountTier: "standard" | "limited" = "standard";
       if (freeTier) {
         const rosterPaid = await tx

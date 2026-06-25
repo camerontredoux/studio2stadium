@@ -62,7 +62,10 @@ export class UploadDancersService {
     const orgFeatures =
       (org?.features as Record<string, unknown> | undefined) ?? {};
     const freeTier = Boolean(orgFeatures.freeTierUsers);
-    const tierExpiryMonths = Number(orgFeatures.tierExpiryMonths) || 3;
+    const orgSettings =
+      (org?.settings as Record<string, unknown> | undefined) ?? {};
+    const tierExpiryMonths =
+      Number(orgSettings.tierExpiryMonths ?? orgFeatures.tierExpiryMonths) || 3;
 
     const parseResult = parseDancerCsv(csv, { requirePaid: freeTier });
     const rows = await normalizeRowEmails(parseResult.rows);

@@ -71,18 +71,18 @@ const KNOWN_SETTINGS = [
     defaultValue: "5",
   },
   {
-    key: "rating_scale_max",
-    label: "Rating Scale Max",
-    description: "Maximum value on the coach rating scale",
+    key: "max_school_selections",
+    label: "Max School Selections",
+    description: "Maximum number of schools a dancer can mark as favorites",
     type: "number" as const,
-    defaultValue: "10",
+    defaultValue: "3",
   },
   {
-    key: "defaultTimezone",
-    label: "Default Timezone",
-    description: "Default timezone for this organization's events",
-    type: "text" as const,
-    defaultValue: "",
+    key: "tierExpiryMonths",
+    label: "Tier Expiry (months)",
+    description: "Months after event ends before the org account tier expires",
+    type: "number" as const,
+    defaultValue: "3",
   },
 ] as const;
 
@@ -111,7 +111,6 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
   const { mutate: updateOrg, isPending } = useUpdateOrg();
   const [activeTab, setActiveTab] = useState<string | number>("profile");
   const [features, setFeatures] = useState<Record<string, boolean>>({});
-  const [tierExpiryMonths, setTierExpiryMonths] = useState(3);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [coachVideoEnabled, setCoachVideoEnabled] = useState(false);
   const [coachVideoUrl, setCoachVideoUrl] = useState("");
@@ -143,13 +142,10 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
         featureMap[f.key] = Boolean(org.features?.[f.key]);
       }
       setFeatures(featureMap);
-      setTierExpiryMonths(Number(org.features?.tierExpiryMonths) || 3);
-
       const settingsMap: Record<string, string> = {};
       for (const s of KNOWN_SETTINGS) {
-        settingsMap[s.key] = org.settings?.[s.key] != null
-          ? String(org.settings[s.key])
-          : s.defaultValue;
+        const val = org.settings?.[s.key] ?? org.features?.[s.key];
+        settingsMap[s.key] = val != null ? String(val) : s.defaultValue;
       }
       setSettings(settingsMap);
 
@@ -212,7 +208,7 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
     updateOrg(
       {
         params: { path: { id: org.id } },
-        body: { features: { ...features, tierExpiryMonths }, settings: settingsUpdate } as never,
+        body: { features, settings: settingsUpdate } as never,
       },
       {
         onSuccess: () => {
@@ -398,21 +394,6 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                     />
                   </div>
                 ))}
-                {features.freeTierUsers && (
-                  <div className="bg-muted/50 -mx-1 rounded-md px-3 py-3">
-                    <Field name="tierExpiryMonths">
-                      <FieldLabel>Account Tier Expiry (months after event ends)</FieldLabel>
-                      <Input
-                        type="number"
-                        min={1}
-                        max={24}
-                        value={tierExpiryMonths}
-                        onChange={(e) => setTierExpiryMonths(Number(e.target.value) || 3)}
-                        className="w-24"
-                      />
-                    </Field>
-                  </div>
-                )}
                 <div className="border-border space-y-4 border-t pt-4">
                   <div>
                     <div className="flex items-center justify-between gap-4 py-1">

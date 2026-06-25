@@ -18,7 +18,8 @@ import { useOrg } from "@/features/org/context/use-org";
 import { CheckIcon, PlusIcon, SearchIcon, XIcon } from "lucide-react";
 
 export function SchoolSelectionPicker() {
-  const { org } = useOrg();
+  const { org, settings } = useOrg();
+  const maxSelections = Number(settings?.max_school_selections) || 3;
   const [search, setSearch] = useState("");
 
   const { data: schools } = useQuery(
@@ -40,10 +41,10 @@ export function SchoolSelectionPicker() {
   );
 
   const handleAdd = async (coachRosterId: string) => {
-    if ((selections ?? []).length >= 3) {
+    if (maxSelections !== -1 && (selections ?? []).length >= maxSelections) {
       toastManager.add({
         title: "Remove one to add another.",
-        description: "You can only select up to 3 schools.",
+        description: `You can only select up to ${maxSelections} schools.`,
         type: "error",
       });
       return;
@@ -63,10 +64,13 @@ export function SchoolSelectionPicker() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h1 className="text-xl font-semibold">My Top 3 Schools</h1>
+        <h1 className="text-xl font-semibold">
+          {maxSelections === -1 ? "My Top Schools" : `My Top ${maxSelections} Schools`}
+        </h1>
         <p className="text-muted-foreground text-sm">
-          Select up to 3 programs you&apos;re interested in. Your selections are
-          completely private.
+          {maxSelections === -1
+            ? "Select the programs you're interested in. Your selections are completely private."
+            : `Select up to ${maxSelections} programs you're interested in. Your selections are completely private.`}
         </p>
       </div>
 
@@ -74,7 +78,7 @@ export function SchoolSelectionPicker() {
       <Frame>
         <FrameHeader>
           <FrameTitle>
-            Selected ({(selections ?? []).length} of 3)
+            Selected ({(selections ?? []).length}{maxSelections === -1 ? "" : ` of ${maxSelections}`})
           </FrameTitle>
         </FrameHeader>
         <FramePanel>
@@ -95,10 +99,11 @@ export function SchoolSelectionPicker() {
                 </button>
               </div>
             ))}
-            {(selections ?? []).length < 3 && (
+            {(maxSelections === -1 || (selections ?? []).length < maxSelections) && (
               <span className="text-muted-foreground flex items-center text-sm">
-                + {3 - (selections ?? []).length} slot
-                {(selections ?? []).length < 2 ? "s" : ""} remaining
+                {maxSelections === -1
+                  ? "Add more schools"
+                  : `+ ${maxSelections - (selections ?? []).length} slot${maxSelections - (selections ?? []).length !== 1 ? "s" : ""} remaining`}
               </span>
             )}
           </div>
@@ -143,7 +148,7 @@ export function SchoolSelectionPicker() {
                         variant="outline"
                         className="h-8"
                         onClick={() => handleAdd(school.rosterId)}
-                        disabled={(selections ?? []).length >= 3}
+                        disabled={maxSelections !== -1 && (selections ?? []).length >= maxSelections}
                       >
                         <PlusIcon className="mr-1 size-3.5" />
                         Add
