@@ -10,6 +10,17 @@ export const accountFields = {
   notifications: vine.boolean().optional(),
 };
 
-export const schema = vine.create(vine.object(accountFields));
+export const schema = vine.create(
+  vine.object({
+    ...accountFields,
+    username: vine
+      .string()
+      .trim()
+      .minLength(4)
+      .maxLength(32)
+      .alphaNumeric({ allowUnderscores: true })
+      .optional(),
+  })
+);
 
 export type Validator = Infer<typeof schema>;

@@ -9,13 +9,15 @@ import { Switch } from "@/components/ui/switch";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { MailIcon, PhoneIcon } from "lucide-react";
-import { Controller, FormProvider, useForm } from "react-hook-form";
+import { debounce } from "@tanstack/pacer";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { AtSignIcon, CheckIcon, MailIcon, PhoneIcon, XIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Controller, FormProvider, useForm, useFormContext } from "react-hook-form";
 import { z } from "zod";
 import { useUpdateAccount } from "../api/mutations";
 import { accountQueries } from "../api/queries";
-import { accountSchemas } from "../api/schemas";
+import { accountSchemas, MAX_USERNAME_LENGTH } from "../api/schemas";
 
 type AccountSettingsSchema = z.infer<typeof accountSchemas.updateAccount>;
 
@@ -25,6 +27,7 @@ export function AccountSettings() {
   const form = useForm({
     resolver: zodResolver(accountSchemas.updateAccount),
     defaultValues: {
+      username: data.username,
       firstName: data.firstName,
       lastName: data.lastName,
       displayEmail: data.displayEmail,
@@ -73,6 +76,15 @@ export function AccountSettings() {
         onSubmit={(e) => form.handleSubmit(onSubmit)(e)}
         className="flex flex-col gap-4 px-2 lg:gap-6"
       >
+        <Section
+          title="Username"
+          description="Your unique handle on the platform."
+        >
+          <UsernameField currentUsername={data.username} />
+        </Section>
+
+        <Separator />
+
         <Section
           title="Name"
           description="Used for your profile and in emails."
@@ -197,6 +209,102 @@ export function AccountSettings() {
         </div>
       </form>
     </FormProvider>
+  );
+}
+
+function UsernameField({ currentUsername }: { currentUsername: string }) {
+  const { setError, clearErrors } = useFormContext<AccountSettingsSchema>();
+  const [debouncedValue, setDebouncedValue] = useState("");
+  const [typing, setTyping] = useState(false);
+
+  const debouncedSet = debounce(
+    (value: string) => {
+      setDebouncedValue(value);
+      setTyping(false);
+    },
+    { wait: 500 },
+  );
+
+  const isOwnUsername = debouncedValue.toLowerCase() === currentUsername.toLowerCase();
+
+  const { data: availability, isFetching } = useQuery({
+    ...accountQueries.usernameAvailable(debouncedValue),
+    enabled: debouncedValue.length >= 4 && !isOwnUsername,
+  });
+
+  const checking = typing || isFetching;
+  const isTaken =
+    !isOwnUsername &&
+    !checking &&
+    debouncedValue.length >= 4 &&
+    availability?.available === false;
+
+  useEffect(() => {
+    if (isTaken) {
+      setError("username", { type: "validate", message: "Username is already taken" });
+    } else if (checking && debouncedValue.length >= 4 && !isOwnUsername) {
+      setError("username", { type: "validate", message: "" });
+    } else {
+      clearErrors("username");
+    }
+  }, [isTaken, checking, debouncedValue, isOwnUsername, setError, clearErrors]);
+
+  return (
+    <Controller
+      name="username"
+      render={({ field, fieldState }) => {
+        const changed = field.value !== currentUsername;
+        const showStatus = changed && field.value.length >= 4;
+
+        return (
+          <Field name={field.name} invalid={fieldState.invalid}>
+            <FieldLabel>Username</FieldLabel>
+            <InputGroup>
+              <InputGroupAddon align="inline-start">
+                <AtSignIcon className="size-3.5" />
+              </InputGroupAddon>
+              <Input
+                unstyled
+                maxLength={MAX_USERNAME_LENGTH}
+                autoComplete="off"
+                spellCheck={false}
+                autoCapitalize="off"
+                autoCorrect="off"
+                placeholder="Username"
+                value={field.value}
+                onChange={(e) => {
+                  field.onChange(e);
+                  const value = e.target.value;
+                  if (value.length >= 4 && value.toLowerCase() !== currentUsername.toLowerCase()) {
+                    setTyping(true);
+                    debouncedSet(value);
+                  } else {
+                    setTyping(false);
+                    setDebouncedValue(value);
+                  }
+                }}
+              />
+              {showStatus && (
+                <InputGroupAddon align="inline-end">
+                  {checking ? (
+                    <Spinner className="size-3.5" />
+                  ) : isTaken ? (
+                    <XIcon className="size-3.5 text-destructive" />
+                  ) : (
+                    <CheckIcon className="size-3.5 text-green-600" />
+                  )}
+                </InputGroupAddon>
+              )}
+            </InputGroup>
+            {showStatus && !checking && !isTaken && !fieldState.error ? (
+              <p className="text-xs text-green-600">Available</p>
+            ) : fieldState.error?.message ? (
+              <FieldError error={fieldState.error} />
+            ) : null}
+          </Field>
+        );
+      }}
+    />
   );
 }
 

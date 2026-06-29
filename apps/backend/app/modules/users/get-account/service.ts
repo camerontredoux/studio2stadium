@@ -12,6 +12,7 @@ export class Service {
           id: userId,
         },
         columns: {
+          username: true,
           firstName: true,
           lastName: true,
           displayEmail: true,

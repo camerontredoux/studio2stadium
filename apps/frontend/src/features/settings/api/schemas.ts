@@ -2,9 +2,15 @@ import { passwordSchema } from "@/lib/schemas";
 import { z } from "zod";
 
 export const MAX_NAME_LENGTH = 64;
+export const MAX_USERNAME_LENGTH = 32;
 
 export const accountSchemas = {
   updateAccount: z.object({
+    username: z
+      .string()
+      .min(4)
+      .max(MAX_USERNAME_LENGTH)
+      .regex(/^[a-zA-Z0-9_]+$/, "Username must be alphanumeric"),
     firstName: z.string().min(2).max(MAX_NAME_LENGTH).optional(),
     lastName: z.string().min(2).max(MAX_NAME_LENGTH).optional(),
     displayEmail: z.email().optional(),

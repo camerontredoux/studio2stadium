@@ -11742,6 +11742,7 @@ export interface components {
             available: boolean;
         };
         UsersAccountResponse: {
+            username: string;
             displayEmail: string;
             firstName: string;
             lastName: string;
@@ -11749,6 +11750,7 @@ export interface components {
             notifications: boolean;
         };
         UsersAccountRequest: {
+            username?: string | null;
             displayEmail?: string | null;
             firstName?: string | null;
             lastName?: string | null;
