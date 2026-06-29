@@ -22,11 +22,20 @@ export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/coach")({
     ) ??
       (await context.queryClient.ensureQueryData(
         orgQueries.org(params.orgSlug),
-      ))) as { membership?: { role: string; type: string } | null } | null;
+      ))) as {
+      membership?: { role: string; type: string } | null;
+      myRoster?: { id: string } | null;
+    } | null;
     const role = data?.membership?.role;
     const type = data?.membership?.type;
     if (role !== "admin" && type !== "coach") {
       throw redirect({ to: "/" });
+    }
+    if (role !== "admin" && !data?.myRoster) {
+      throw redirect({
+        to: "/o/$orgSlug/no-access",
+        params: { orgSlug: params.orgSlug },
+      });
     }
   },
   component: CoachLayout,

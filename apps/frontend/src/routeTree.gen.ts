@@ -39,6 +39,7 @@ import { Route as ApproutesExploreIndexRouteImport } from './routes/_app/(routes
 import { Route as ApproutesEventsIndexRouteImport } from './routes/_app/(routes)/events/index'
 import { Route as OrgOOrgSlugRegisterSchoolRouteImport } from './routes/_org/o/$orgSlug/register-school'
 import { Route as OrgOOrgSlugRegisterRouteImport } from './routes/_org/o/$orgSlug/register'
+import { Route as OrgOOrgSlugNoAccessRouteImport } from './routes/_org/o/$orgSlug/no-access'
 import { Route as OrgOOrgSlugLoginRouteImport } from './routes/_org/o/$orgSlug/login'
 import { Route as AuthroutesSignupTypeRouteImport } from './routes/_auth/(routes)/signup/$type'
 import { Route as ApproutesSettingsPasswordRouteImport } from './routes/_app/(routes)/settings/password'
@@ -234,6 +235,11 @@ const OrgOOrgSlugRegisterSchoolRoute =
 const OrgOOrgSlugRegisterRoute = OrgOOrgSlugRegisterRouteImport.update({
   id: '/o/$orgSlug/register',
   path: '/o/$orgSlug/register',
+  getParentRoute: () => OrgRouteRoute,
+} as any)
+const OrgOOrgSlugNoAccessRoute = OrgOOrgSlugNoAccessRouteImport.update({
+  id: '/o/$orgSlug/no-access',
+  path: '/o/$orgSlug/no-access',
   getParentRoute: () => OrgRouteRoute,
 } as any)
 const OrgOOrgSlugLoginRoute = OrgOOrgSlugLoginRouteImport.update({
@@ -545,6 +551,7 @@ export interface FileRoutesByFullPath {
   '/settings/password': typeof ApproutesSettingsPasswordRoute
   '/signup/$type': typeof AuthroutesSignupTypeRoute
   '/o/$orgSlug/login': typeof OrgOOrgSlugLoginRoute
+  '/o/$orgSlug/no-access': typeof OrgOOrgSlugNoAccessRoute
   '/o/$orgSlug/register': typeof OrgOOrgSlugRegisterRoute
   '/o/$orgSlug/register-school': typeof OrgOOrgSlugRegisterSchoolRoute
   '/events/': typeof ApproutesEventsIndexRoute
@@ -615,6 +622,7 @@ export interface FileRoutesByTo {
   '/settings/password': typeof ApproutesSettingsPasswordRoute
   '/signup/$type': typeof AuthroutesSignupTypeRoute
   '/o/$orgSlug/login': typeof OrgOOrgSlugLoginRoute
+  '/o/$orgSlug/no-access': typeof OrgOOrgSlugNoAccessRoute
   '/o/$orgSlug/register': typeof OrgOOrgSlugRegisterRoute
   '/o/$orgSlug/register-school': typeof OrgOOrgSlugRegisterSchoolRoute
   '/events': typeof ApproutesEventsIndexRoute
@@ -691,6 +699,7 @@ export interface FileRoutesById {
   '/_app/(routes)/settings/password': typeof ApproutesSettingsPasswordRoute
   '/_auth/(routes)/signup/$type': typeof AuthroutesSignupTypeRoute
   '/_org/o/$orgSlug/login': typeof OrgOOrgSlugLoginRoute
+  '/_org/o/$orgSlug/no-access': typeof OrgOOrgSlugNoAccessRoute
   '/_org/o/$orgSlug/register': typeof OrgOOrgSlugRegisterRoute
   '/_org/o/$orgSlug/register-school': typeof OrgOOrgSlugRegisterSchoolRoute
   '/_app/(routes)/events/': typeof ApproutesEventsIndexRoute
@@ -766,6 +775,7 @@ export interface FileRouteTypes {
     | '/settings/password'
     | '/signup/$type'
     | '/o/$orgSlug/login'
+    | '/o/$orgSlug/no-access'
     | '/o/$orgSlug/register'
     | '/o/$orgSlug/register-school'
     | '/events/'
@@ -836,6 +846,7 @@ export interface FileRouteTypes {
     | '/settings/password'
     | '/signup/$type'
     | '/o/$orgSlug/login'
+    | '/o/$orgSlug/no-access'
     | '/o/$orgSlug/register'
     | '/o/$orgSlug/register-school'
     | '/events'
@@ -911,6 +922,7 @@ export interface FileRouteTypes {
     | '/_app/(routes)/settings/password'
     | '/_auth/(routes)/signup/$type'
     | '/_org/o/$orgSlug/login'
+    | '/_org/o/$orgSlug/no-access'
     | '/_org/o/$orgSlug/register'
     | '/_org/o/$orgSlug/register-school'
     | '/_app/(routes)/events/'
@@ -1162,6 +1174,13 @@ declare module '@tanstack/react-router' {
       path: '/o/$orgSlug/register'
       fullPath: '/o/$orgSlug/register'
       preLoaderRoute: typeof OrgOOrgSlugRegisterRouteImport
+      parentRoute: typeof OrgRouteRoute
+    }
+    '/_org/o/$orgSlug/no-access': {
+      id: '/_org/o/$orgSlug/no-access'
+      path: '/o/$orgSlug/no-access'
+      fullPath: '/o/$orgSlug/no-access'
+      preLoaderRoute: typeof OrgOOrgSlugNoAccessRouteImport
       parentRoute: typeof OrgRouteRoute
     }
     '/_org/o/$orgSlug/login': {
@@ -1782,6 +1801,7 @@ const OrgOOrgSlugAuthenticatedRouteRouteWithChildren =
 interface OrgRouteRouteChildren {
   OrgOOrgSlugAuthenticatedRouteRoute: typeof OrgOOrgSlugAuthenticatedRouteRouteWithChildren
   OrgOOrgSlugLoginRoute: typeof OrgOOrgSlugLoginRoute
+  OrgOOrgSlugNoAccessRoute: typeof OrgOOrgSlugNoAccessRoute
   OrgOOrgSlugRegisterRoute: typeof OrgOOrgSlugRegisterRoute
   OrgOOrgSlugRegisterSchoolRoute: typeof OrgOOrgSlugRegisterSchoolRoute
 }
@@ -1790,6 +1810,7 @@ const OrgRouteRouteChildren: OrgRouteRouteChildren = {
   OrgOOrgSlugAuthenticatedRouteRoute:
     OrgOOrgSlugAuthenticatedRouteRouteWithChildren,
   OrgOOrgSlugLoginRoute: OrgOOrgSlugLoginRoute,
+  OrgOOrgSlugNoAccessRoute: OrgOOrgSlugNoAccessRoute,
   OrgOOrgSlugRegisterRoute: OrgOOrgSlugRegisterRoute,
   OrgOOrgSlugRegisterSchoolRoute: OrgOOrgSlugRegisterSchoolRoute,
 }

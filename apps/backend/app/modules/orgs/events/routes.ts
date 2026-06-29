@@ -342,7 +342,12 @@ router
       ]);
     router
       .get(":slug/events/:id/check-in/status", [CheckInStatusController])
-      .use([middleware.auth(), middleware.org(), middleware.orgMember()]);
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgEvent(),
+        middleware.orgMember(),
+      ]);
     router
       .post(":slug/events/:id/check-in", [CheckInController])
       .use([
@@ -363,12 +368,22 @@ router
       ]);
     router
       .get(":slug/events/:id/schedule", [ScheduleController])
-      .use([middleware.auth(), middleware.org(), middleware.orgMember()]);
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgEvent(),
+        middleware.orgMember(),
+      ]);
 
     // Video categories
     router
       .get(":slug/events/:id/video-categories", [ListVideoCategoriesController])
-      .use([middleware.auth(), middleware.org(), middleware.orgMember()]);
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgEvent(),
+        middleware.orgMember(),
+      ]);
     router
       .post(":slug/events/:id/video-categories", [
         CreateVideoCategoryController,
@@ -393,7 +408,12 @@ router
     // Videos
     router
       .get(":slug/events/:id/videos", [ListVideosController])
-      .use([middleware.auth(), middleware.org(), middleware.orgMember()]);
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgEvent(),
+        middleware.orgMember(),
+      ]);
     router
       .post(":slug/events/:id/videos", [CreateVideoController])
       .use([

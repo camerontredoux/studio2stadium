@@ -1,6 +1,7 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
-import { eventRosters } from "#database/schema/org-events";
+import { eventRosters, orgEvents } from "#database/schema/org-events";
+import { orgMemberships } from "#database/schema/organizations";
 import { and, eq, inArray } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 import type { AuditContext } from "#database/audit";
@@ -9,7 +10,12 @@ import type { AuditContext } from "#database/audit";
 export class DeleteRosterService {
   constructor(private db: DatabaseService = new DatabaseService()) {}
 
-  async execute(eventId: string, input: Validator, audit: AuditContext) {
+  async execute(
+    eventId: string,
+    orgId: string,
+    input: Validator,
+    audit: AuditContext
+  ) {
     return this.db.withAudit(audit, async (tx, auditLog) => {
       // Read before delete for audit snapshots
       const before = await tx
@@ -48,6 +54,42 @@ export class DeleteRosterService {
             },
           },
         });
+      }
+
+      // Rescind org access for users with no remaining roster entries
+      const affectedUserIds = [
+        ...new Set(
+          before
+            .filter((r) => r.userId && !r.isStaff)
+            .map((r) => r.userId!)
+        ),
+      ];
+
+      for (const userId of affectedUserIds) {
+        const [remaining] = await tx
+          .select({ id: eventRosters.id })
+          .from(eventRosters)
+          .innerJoin(orgEvents, eq(eventRosters.eventId, orgEvents.id))
+          .where(
+            and(
+              eq(eventRosters.userId, userId),
+              eq(orgEvents.orgId, orgId),
+              eq(eventRosters.isStaff, false)
+            )
+          )
+          .limit(1);
+
+        if (!remaining) {
+          await tx
+            .delete(orgMemberships)
+            .where(
+              and(
+                eq(orgMemberships.userId, userId),
+                eq(orgMemberships.orgId, orgId),
+                eq(orgMemberships.role, "member")
+              )
+            );
+        }
       }
 
       return { deletedCount: deleted.length };

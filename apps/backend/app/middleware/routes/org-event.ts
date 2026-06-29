@@ -1,5 +1,6 @@
 import { db } from "#database/connection";
 import { orgEvents, eventRosters } from "#database/schema/org-events";
+import { orgMemberships } from "#database/schema/organizations";
 import type { HttpContext } from "@adonisjs/core/http";
 import type { NextFn } from "@adonisjs/core/types/http";
 import { and, desc, eq } from "drizzle-orm";
@@ -56,6 +57,25 @@ export default class OrgEventMiddleware {
         .orderBy(desc(eventRosters.createdAt))
         .limit(1);
       if (roster) ctx.orgRoster = roster;
+
+      // Non-admin members must have a roster entry for the active event
+      if (!roster && user.role !== "admin") {
+        const [membership] = await db
+          .select({ role: orgMemberships.role })
+          .from(orgMemberships)
+          .where(
+            and(
+              eq(orgMemberships.userId, user.id),
+              eq(orgMemberships.orgId, ctx.org.id)
+            )
+          )
+          .limit(1);
+        if (!membership || membership.role !== "admin") {
+          return ctx.response.forbidden({
+            message: "Not on event roster.",
+          });
+        }
+      }
     } catch {
       // unauthenticated — fine
     }

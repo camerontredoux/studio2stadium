@@ -8,7 +8,10 @@ import {
   eventRosters,
   orgEvents,
 } from "#database/schema/org-events";
-import { organizations } from "#database/schema/organizations";
+import {
+  organizations,
+  orgMemberships,
+} from "#database/schema/organizations";
 import { DeleteRosterService } from "./service.ts";
 
 async function makeActorUser() {
@@ -27,6 +30,24 @@ async function makeActorUser() {
     })
     .returning();
   return actor!;
+}
+
+async function makeDancerUser(suffix: string) {
+  const ts = `${Date.now()}_${Math.random()}`;
+  const [user] = await db
+    .insert(users)
+    .values({
+      username: `dancer_${suffix}_${ts}`,
+      email: `dancer_${suffix}_${ts}@example.com`,
+      displayEmail: `dancer_${suffix}_${ts}@example.com`,
+      firstName: suffix,
+      lastName: "Dancer",
+      password: "h",
+      role: "user",
+      type: "dancer",
+    })
+    .returning();
+  return user!;
 }
 
 async function makeOrgAndEvent(slug = `t-${Date.now()}-${Math.random()}`) {
@@ -51,6 +72,7 @@ test.group("DeleteRosterService", (group) => {
     await db.delete(eventAuditLog).execute();
     await db.delete(eventDancerProfiles).execute();
     await db.delete(eventRosters).execute();
+    await db.delete(orgMemberships).execute();
     await db.delete(orgEvents).execute();
     await db.delete(users).execute();
     await db.delete(organizations).execute();
@@ -58,7 +80,7 @@ test.group("DeleteRosterService", (group) => {
 
   test("bulk deletes rosters by id", async ({ assert }) => {
     const actor = await makeActorUser();
-    const { event } = await makeOrgAndEvent();
+    const { org, event } = await makeOrgAndEvent();
     const rows = await db
       .insert(eventRosters)
       .values([
@@ -89,6 +111,7 @@ test.group("DeleteRosterService", (group) => {
     const service = new DeleteRosterService();
     const result = await service.execute(
       event.id,
+      org.id,
       {
         ids: [rows[0]!.id, rows[1]!.id],
       },
@@ -103,7 +126,7 @@ test.group("DeleteRosterService", (group) => {
 
   test("cascades to event_dancer_profiles", async ({ assert }) => {
     const actor = await makeActorUser();
-    const { event } = await makeOrgAndEvent();
+    const { org, event } = await makeOrgAndEvent();
     const [row] = await db
       .insert(eventRosters)
       .values({
@@ -122,6 +145,7 @@ test.group("DeleteRosterService", (group) => {
     const service = new DeleteRosterService();
     await service.execute(
       event.id,
+      org.id,
       { ids: [row!.id] },
       { eventId: event.id, actorId: actor.id }
     );
@@ -135,7 +159,7 @@ test.group("DeleteRosterService", (group) => {
 
   test("ignores ids belonging to a different event", async ({ assert }) => {
     const actor = await makeActorUser();
-    const { event: eventA } = await makeOrgAndEvent();
+    const { org: orgA, event: eventA } = await makeOrgAndEvent();
     const { event: eventB } = await makeOrgAndEvent();
 
     const [rowB] = await db
@@ -152,6 +176,7 @@ test.group("DeleteRosterService", (group) => {
     const service = new DeleteRosterService();
     const result = await service.execute(
       eventA.id,
+      orgA.id,
       { ids: [rowB!.id] },
       { eventId: eventA.id, actorId: actor.id }
     );
@@ -162,5 +187,143 @@ test.group("DeleteRosterService", (group) => {
       .from(eventRosters)
       .where(eq(eventRosters.id, rowB!.id));
     assert.lengthOf(stillThere, 1);
+  });
+
+  test("removes org membership when last roster entry is deleted", async ({
+    assert,
+  }) => {
+    const actor = await makeActorUser();
+    const dancer = await makeDancerUser("A");
+    const { org, event } = await makeOrgAndEvent();
+
+    await db.insert(orgMemberships).values({
+      userId: dancer.id,
+      orgId: org.id,
+      role: "member",
+      type: "dancer",
+    });
+
+    const [row] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: event.id,
+        type: "dancer",
+        email: dancer.email,
+        firstName: dancer.firstName,
+        lastName: dancer.lastName,
+        userId: dancer.id,
+      })
+      .returning();
+
+    const service = new DeleteRosterService();
+    await service.execute(
+      event.id,
+      org.id,
+      { ids: [row!.id] },
+      { eventId: event.id, actorId: actor.id }
+    );
+
+    const memberships = await db
+      .select()
+      .from(orgMemberships)
+      .where(eq(orgMemberships.userId, dancer.id));
+    assert.lengthOf(memberships, 0);
+  });
+
+  test("keeps org membership when user has roster entries in another event", async ({
+    assert,
+  }) => {
+    const actor = await makeActorUser();
+    const dancer = await makeDancerUser("B");
+    const { org, event: eventA } = await makeOrgAndEvent();
+    const [eventB] = await db
+      .insert(orgEvents)
+      .values({
+        orgId: org.id,
+        name: "E2",
+        startDate: "2026-07-01",
+        endDate: "2026-07-02",
+      })
+      .returning();
+
+    await db.insert(orgMemberships).values({
+      userId: dancer.id,
+      orgId: org.id,
+      role: "member",
+      type: "dancer",
+    });
+
+    const [rowA] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: eventA.id,
+        type: "dancer",
+        email: dancer.email,
+        firstName: dancer.firstName,
+        lastName: dancer.lastName,
+        userId: dancer.id,
+      })
+      .returning();
+
+    await db.insert(eventRosters).values({
+      eventId: eventB!.id,
+      type: "dancer",
+      email: dancer.email,
+      firstName: dancer.firstName,
+      lastName: dancer.lastName,
+      userId: dancer.id,
+    });
+
+    const service = new DeleteRosterService();
+    await service.execute(
+      eventA.id,
+      org.id,
+      { ids: [rowA!.id] },
+      { eventId: eventA.id, actorId: actor.id }
+    );
+
+    const memberships = await db
+      .select()
+      .from(orgMemberships)
+      .where(eq(orgMemberships.userId, dancer.id));
+    assert.lengthOf(memberships, 1);
+  });
+
+  test("does not remove admin org membership", async ({ assert }) => {
+    const actor = await makeActorUser();
+    const { org, event } = await makeOrgAndEvent();
+
+    await db.insert(orgMemberships).values({
+      userId: actor.id,
+      orgId: org.id,
+      role: "admin",
+      type: "dancer",
+    });
+
+    const [row] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: event.id,
+        type: "dancer",
+        email: actor.email,
+        firstName: actor.firstName,
+        lastName: actor.lastName,
+        userId: actor.id,
+      })
+      .returning();
+
+    const service = new DeleteRosterService();
+    await service.execute(
+      event.id,
+      org.id,
+      { ids: [row!.id] },
+      { eventId: event.id, actorId: actor.id }
+    );
+
+    const memberships = await db
+      .select()
+      .from(orgMemberships)
+      .where(eq(orgMemberships.userId, actor.id));
+    assert.lengthOf(memberships, 1);
   });
 });

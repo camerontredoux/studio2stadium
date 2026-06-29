@@ -12,7 +12,7 @@ export default class DeleteRosterController {
     }
     const payload = await schema.validate(data);
     const user = ctx.auth.getUserOrFail();
-    const result = await service.execute(ctx.params.id, payload, {
+    const result = await service.execute(ctx.params.id, ctx.org!.id, payload, {
       eventId: ctx.params.id,
       actorId: user.id,
     });
