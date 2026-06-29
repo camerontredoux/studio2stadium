@@ -23,6 +23,7 @@ type AccountSettingsSchema = z.infer<typeof accountSchemas.updateAccount>;
 
 export function AccountSettings() {
   const { data } = useSuspenseQuery(accountQueries.account());
+  const [usernameChecking, setUsernameChecking] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(accountSchemas.updateAccount),
@@ -80,7 +81,7 @@ export function AccountSettings() {
           title="Username"
           description="Your unique handle on the platform."
         >
-          <UsernameField currentUsername={data.username} />
+          <UsernameField currentUsername={data.username} onCheckingChange={setUsernameChecking} />
         </Section>
 
         <Separator />
@@ -196,7 +197,7 @@ export function AccountSettings() {
 
         <div className="flex justify-end">
           <Button
-            disabled={isPending || !isDirty || !isValid}
+            disabled={isPending || !isDirty || !isValid || usernameChecking}
             type="submit"
             className="w-fit max-sm:w-full"
           >
@@ -212,7 +213,7 @@ export function AccountSettings() {
   );
 }
 
-function UsernameField({ currentUsername }: { currentUsername: string }) {
+function UsernameField({ currentUsername, onCheckingChange }: { currentUsername: string; onCheckingChange: (checking: boolean) => void }) {
   const { setError, clearErrors } = useFormContext<AccountSettingsSchema>();
   const [debouncedValue, setDebouncedValue] = useState("");
   const [typing, setTyping] = useState(false);
@@ -240,14 +241,16 @@ function UsernameField({ currentUsername }: { currentUsername: string }) {
     availability?.available === false;
 
   useEffect(() => {
+    onCheckingChange(checking && debouncedValue.length >= 4 && !isOwnUsername);
+  }, [checking, debouncedValue, isOwnUsername, onCheckingChange]);
+
+  useEffect(() => {
     if (isTaken) {
       setError("username", { type: "validate", message: "Username is already taken" });
-    } else if (checking && debouncedValue.length >= 4 && !isOwnUsername) {
-      setError("username", { type: "validate", message: "" });
     } else {
       clearErrors("username");
     }
-  }, [isTaken, checking, debouncedValue, isOwnUsername, setError, clearErrors]);
+  }, [isTaken, setError, clearErrors]);
 
   return (
     <Controller
