@@ -261,11 +261,14 @@ function CheckInContent({
   }
 
   const opensAt = status.eventStartTime
-    ? new Date(status.eventStartTime).toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-      })
+    ? new Date(`1970-01-01T${status.eventStartTime}`).toLocaleTimeString(
+        "en-US",
+        {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        },
+      )
     : null;
 
   return (
