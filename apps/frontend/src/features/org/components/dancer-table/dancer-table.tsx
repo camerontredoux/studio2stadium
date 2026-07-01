@@ -12,15 +12,24 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronUpIcon,
-  Loader2Icon,
-} from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon, Loader2Icon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Frame, FrameFooter } from "@/components/ui/frame";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Select,
+  SelectItem,
+  SelectPopup,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -147,24 +156,36 @@ export function DancerTable<T extends { rosterId: string }>({
                 )}{" "}
                 of {table.getRowCount()}
               </p>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  className="border-border bg-background hover:bg-accent/50 disabled:pointer-events-none disabled:opacity-50 inline-flex h-8 items-center justify-center rounded-md border px-2 text-sm"
-                  disabled={!table.getCanPreviousPage()}
-                  onClick={() => table.previousPage()}
-                >
-                  <ChevronLeftIcon className="size-4" />
-                </button>
-                <button
-                  type="button"
-                  className="border-border bg-background hover:bg-accent/50 disabled:pointer-events-none disabled:opacity-50 inline-flex h-8 items-center justify-center rounded-md border px-2 text-sm"
-                  disabled={!table.getCanNextPage()}
-                  onClick={() => table.nextPage()}
-                >
-                  <ChevronRightIcon className="size-4" />
-                </button>
-              </div>
+              <Pagination className="justify-end">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      className="sm:*:[svg]:hidden"
+                      render={
+                        <Button
+                          disabled={!table.getCanPreviousPage()}
+                          onClick={() => table.previousPage()}
+                          size="sm"
+                          variant="outline"
+                        />
+                      }
+                    />
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationNext
+                      className="sm:*:[svg]:hidden"
+                      render={
+                        <Button
+                          disabled={!table.getCanNextPage()}
+                          onClick={() => table.nextPage()}
+                          size="sm"
+                          variant="outline"
+                        />
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </div>
           </>
         ) : (
@@ -282,20 +303,32 @@ export function DancerTable<T extends { rosterId: string }>({
               <label className="text-muted-foreground text-sm">
                 Rows per page
               </label>
-              <select
-                className="border-border bg-background text-foreground h-7 rounded-md border px-1.5 text-sm"
+              <Select
+                items={[25, 50, 100].map((s) => ({
+                  label: String(s),
+                  value: s,
+                }))}
                 value={table.getState().pagination.pageSize}
-                onChange={(e) => {
-                  table.setPageSize(Number(e.target.value));
+                onValueChange={(value) => {
+                  table.setPageSize(value as number);
                   table.setPageIndex(0);
                 }}
               >
-                {[25, 50, 100].map((size) => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger
+                  aria-label="Rows per page"
+                  className="min-w-none w-fit"
+                  size="sm"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectPopup>
+                  {[25, 50, 100].map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectPopup>
+              </Select>
               <p className="text-muted-foreground text-sm">
                 {table.getState().pagination.pageIndex *
                   table.getState().pagination.pageSize +
@@ -309,26 +342,36 @@ export function DancerTable<T extends { rosterId: string }>({
                 of {table.getRowCount()}
               </p>
             </div>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                className="border-border bg-background hover:bg-accent/50 disabled:pointer-events-none disabled:opacity-50 inline-flex h-7 items-center justify-center rounded-md border px-2 text-sm"
-                disabled={!table.getCanPreviousPage()}
-                onClick={() => table.previousPage()}
-              >
-                <ChevronLeftIcon className="size-4" />
-                <span className="sr-only">Previous</span>
-              </button>
-              <button
-                type="button"
-                className="border-border bg-background hover:bg-accent/50 disabled:pointer-events-none disabled:opacity-50 inline-flex h-7 items-center justify-center rounded-md border px-2 text-sm"
-                disabled={!table.getCanNextPage()}
-                onClick={() => table.nextPage()}
-              >
-                <ChevronRightIcon className="size-4" />
-                <span className="sr-only">Next</span>
-              </button>
-            </div>
+            <Pagination className="justify-end">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    className="sm:*:[svg]:hidden"
+                    render={
+                      <Button
+                        disabled={!table.getCanPreviousPage()}
+                        onClick={() => table.previousPage()}
+                        size="sm"
+                        variant="outline"
+                      />
+                    }
+                  />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationNext
+                    className="sm:*:[svg]:hidden"
+                    render={
+                      <Button
+                        disabled={!table.getCanNextPage()}
+                        onClick={() => table.nextPage()}
+                        size="sm"
+                        variant="outline"
+                      />
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
         </FrameFooter>
       </Frame>
