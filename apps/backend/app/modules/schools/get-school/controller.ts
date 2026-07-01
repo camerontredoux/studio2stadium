@@ -39,6 +39,7 @@ export default class GetSchoolController {
       throw new E_BAD_REQUEST("School not found", {
         username: params.username,
       });
+
     return ctx.response.ok(school);
   }
 }

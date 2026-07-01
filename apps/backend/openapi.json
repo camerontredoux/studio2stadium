@@ -4652,42 +4652,6 @@
             }
           },
           {
-            "name": "offset",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": [
-                    "string",
-                    "number"
-                  ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": [
-                    "string",
-                    "number"
-                  ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          {
             "name": "bib",
             "in": "query",
             "required": false,
@@ -5990,6 +5954,35 @@
         ],
         "summary": "Manage a subscription",
         "description": "Manages the authenticated dancer's subscription"
+      }
+    },
+    "/subscriptions/dev-grant": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionsDevgrantResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Subscriptions"
+        ]
       }
     },
     "/stripe/webhook": {
@@ -8645,6 +8638,47 @@
         ],
         "summary": "Get a school",
         "description": "Returns the school's public profile"
+      }
+    },
+    "/schools/{username}/event-access": {
+      "get": {
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolsIdEventaccessResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Check event access to school",
+        "description": "Returns whether the current dancer has event-based access to view this school profile."
       }
     },
     "/schools/{id}/follow": {
@@ -11380,6 +11414,20 @@
               "notifications": {
                 "type": "boolean"
               },
+              "orgAccountTier": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "standard",
+                      "limited"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
               "profileId": {
                 "type": "string"
               },
@@ -11431,6 +11479,7 @@
               "avatar",
               "verified",
               "notifications",
+              "orgAccountTier",
               "profileId",
               "orgMemberships",
               "platforms"
@@ -11509,6 +11558,20 @@
           "notifications": {
             "type": "boolean"
           },
+          "orgAccountTier": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "standard",
+                  "limited"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "profileId": {
             "type": "string"
           },
@@ -11560,6 +11623,7 @@
           "avatar",
           "verified",
           "notifications",
+          "orgAccountTier",
           "profileId",
           "orgMemberships",
           "platforms"
@@ -14819,7 +14883,8 @@
             "enum": [
               "invite",
               "roster-added",
-              "school-account-invite"
+              "school-account-invite",
+              "free-tier-invite"
             ]
           }
         },
@@ -14835,7 +14900,8 @@
             "enum": [
               "invite",
               "roster-added",
-              "school-account-invite"
+              "school-account-invite",
+              "free-tier-invite"
             ]
           },
           "email": {
@@ -16415,6 +16481,21 @@
           "url"
         ]
       },
+      "SubscriptionsDevgrantResponse": {
+        "type": "object",
+        "properties": {
+          "expiresAt": {
+            "type": "string"
+          },
+          "granted": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "expiresAt",
+          "granted"
+        ]
+      },
       "StripeWebhookResponse": {
         "type": "object",
         "properties": {
@@ -17208,8 +17289,8 @@
               {
                 "type": "string",
                 "enum": [
-                  "limited",
-                  "standard"
+                  "standard",
+                  "limited"
                 ]
               },
               {
@@ -20370,6 +20451,17 @@
           "globalEvents"
         ]
       },
+      "SchoolsIdEventaccessResponse": {
+        "type": "object",
+        "properties": {
+          "eventAccess": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "eventAccess"
+        ]
+      },
       "SchoolsIdFollowResponse": {
         "type": "object",
         "properties": {
@@ -20425,6 +20517,9 @@
       "UsersAccountResponse": {
         "type": "object",
         "properties": {
+          "username": {
+            "type": "string"
+          },
           "displayEmail": {
             "type": "string"
           },
@@ -20449,6 +20544,7 @@
           }
         },
         "required": [
+          "username",
           "displayEmail",
           "firstName",
           "lastName",
@@ -20459,6 +20555,16 @@
       "UsersAccountRequest": {
         "type": "object",
         "properties": {
+          "username": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "displayEmail": {
             "oneOf": [
               {

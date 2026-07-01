@@ -5,6 +5,10 @@ export const schoolQueries = {
     $api.queryOptions("get", "/schools/{username}", {
       params: { path: { username } },
     }),
+  eventAccess: (username: string) =>
+    $api.queryOptions("get", "/schools/{username}/event-access", {
+      params: { path: { username } },
+    }),
   metadata: (id: string, { enabled }: { enabled?: boolean } = {}) =>
     $api.queryOptions(
       "get",

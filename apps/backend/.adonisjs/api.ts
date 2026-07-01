@@ -531,6 +531,10 @@ type SubscriptionsManagePost = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/subscriptions/manage-subscription/controller.ts').default['handle'], false>
 }
+type SubscriptionsDevgrantPost = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/subscriptions/dev-grant/controller.ts').default['handle'], false>
+}
 type StripeWebhookPost = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/webhooks/stripe/controller.ts').default['handle'], false>
@@ -810,6 +814,10 @@ type SchoolsMePendingclaimsIdDismissPost = {
 type SchoolsIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/schools/get-school/controller.ts').default['handle'], true>
+}
+type SchoolsIdEventaccessGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/event-access/controller.ts').default['handle'], true>
 }
 type SchoolsIdFollowPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/follow/validator.ts')['schema']>>
@@ -1549,6 +1557,11 @@ export interface ApiDefinition {
       };
       '$post': SubscriptionsManagePost;
     };
+    'dev-grant': {
+      '$url': {
+      };
+      '$post': SubscriptionsDevgrantPost;
+    };
   };
   'stripe': {
     'webhook': {
@@ -1886,6 +1899,12 @@ export interface ApiDefinition {
       };
       '$get': SchoolsIdGetHead;
       '$head': SchoolsIdGetHead;
+      'event-access': {
+        '$url': {
+        };
+        '$get': SchoolsIdEventaccessGetHead;
+        '$head': SchoolsIdEventaccessGetHead;
+      };
     };
     ':id': {
       'follow': {

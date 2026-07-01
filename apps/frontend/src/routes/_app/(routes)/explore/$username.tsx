@@ -2,6 +2,7 @@ import { PremiumGuard } from "@/components/shared/premium-guard";
 import { schoolQueries } from "@/features/school/api/queries";
 import { SchoolProfile } from "@/features/school/components/school-profile";
 import { useSession } from "@/lib/session";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/explore/$username")({
@@ -16,6 +17,11 @@ export const Route = createFileRoute("/_app/(routes)/explore/$username")({
     );
     if (session.type === "dancer") {
       queryClient.ensureQueryData(schoolQueries.metadata(school.id));
+      if (session.orgAccountTier) {
+        queryClient.ensureQueryData(
+          schoolQueries.eventAccess(params.username),
+        );
+      }
     }
   },
   component: RouteComponent,
@@ -24,8 +30,13 @@ export const Route = createFileRoute("/_app/(routes)/explore/$username")({
 function RouteComponent() {
   const { username } = Route.useParams();
   const session = useSession();
+  const isOrgAttendee = !!session.orgAccountTier;
+  const { data: access } = useQuery({
+    ...schoolQueries.eventAccess(username),
+    enabled: isOrgAttendee,
+  });
 
-  if (session.orgAccountTier) {
+  if (access?.eventAccess) {
     return <SchoolProfile username={username} />;
   }
 

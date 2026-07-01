@@ -6077,6 +6077,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/subscriptions/dev-grant": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubscriptionsDevgrantResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/stripe/webhook": {
         parameters: {
             query?: never;
@@ -9069,6 +9113,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/schools/{username}/event-access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Check event access to school
+         * @description Returns whether the current dancer has event-based access to view this school profile.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchoolsIdEventaccessResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/schools/{id}/follow": {
         parameters: {
             query?: never;
@@ -11052,6 +11146,10 @@ export interface components {
         SubscriptionsManageResponse: {
             url: string;
         };
+        SubscriptionsDevgrantResponse: {
+            expiresAt: string;
+            granted: boolean;
+        };
         StripeWebhookResponse: {
             received: boolean;
         };
@@ -11726,6 +11824,9 @@ export interface components {
                 thumbnail: string;
                 organization: string;
             }[];
+        };
+        SchoolsIdEventaccessResponse: {
+            eventAccess: boolean;
         };
         SchoolsIdFollowResponse: {
             created: boolean;

@@ -28,6 +28,8 @@ const GetFollowingIdsController = () =>
   import("./get-following-ids/controller.ts");
 const CheckSchoolAvailabilityController = () =>
   import("./check-name-availability/controller.ts");
+const EventAccessController = () =>
+  import("./event-access/controller.ts");
 const GetSubmissionsController = () =>
   import("./get-submissions/controller.ts");
 const UpdateSubmissionController = () =>
@@ -166,6 +168,15 @@ router
       summary: "Get a school",
       description: "Returns the school's public profile",
     });
+
+    router
+      .get("/:username/event-access", [EventAccessController])
+      .openapi({
+        summary: "Check event access to school",
+        description:
+          "Returns whether the current dancer has event-based access to view this school profile.",
+      })
+      .use([middleware.dancer()]);
 
     router
       .post("/:id/follow", [FollowSchoolController])
