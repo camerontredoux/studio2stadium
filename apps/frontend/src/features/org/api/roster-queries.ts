@@ -21,7 +21,8 @@ export interface RosterListParams {
     | "bibNumber"
     | "organization"
     | "createdAt"
-    | "isRegistered";
+    | "isRegistered"
+    | "checkedInAt";
   sortDir?: "asc" | "desc";
 }
 

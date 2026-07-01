@@ -2969,7 +2969,7 @@ export interface paths {
                     org?: string | null;
                     limit?: (string | number) | null;
                     page?: (string | number) | null;
-                    sortBy?: ("email" | "firstName" | "lastName" | "createdAt" | "organization" | "bibNumber" | "isRegistered") | null;
+                    sortBy?: ("email" | "firstName" | "lastName" | "createdAt" | "organization" | "bibNumber" | "checkedInAt" | "isRegistered") | null;
                     sortDir?: ("asc" | "desc") | null;
                     type: components["schemas"]["UploadKind"];
                 };

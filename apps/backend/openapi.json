@@ -2616,6 +2616,7 @@
                     "createdAt",
                     "organization",
                     "bibNumber",
+                    "checkedInAt",
                     "isRegistered"
                   ]
                 },

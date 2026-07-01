@@ -35,7 +35,8 @@ type SortColumn =
   | "email"
   | "bibNumber"
   | "createdAt"
-  | "isRegistered";
+  | "isRegistered"
+  | "checkedInAt";
 
 function CheckedInBadge({ checkedInAt }: { checkedInAt: string | null }) {
   return (
@@ -126,6 +127,7 @@ const checkedInColumn: ColumnDef<RosterEntryWithCheckIn, unknown> = {
   id: "checkedInAt",
   accessorKey: "checkedInAt",
   header: "Checked In",
+  enableSorting: true,
   cell: ({ row }) => (
     <CheckedInBadge checkedInAt={row.original.checkedInAt ?? null} />
   ),

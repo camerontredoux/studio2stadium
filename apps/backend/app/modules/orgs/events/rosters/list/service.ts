@@ -23,6 +23,7 @@ const SORT_COLUMNS = {
   organization: eventRosters.organization,
   createdAt: eventRosters.createdAt,
   isRegistered: sql`(${eventRosters.userId} IS NOT NULL)`,
+  checkedInAt: eventRosters.checkedInAt,
 } as const;
 
 @inject()
