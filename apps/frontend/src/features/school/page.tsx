@@ -69,9 +69,9 @@ export function SchoolPage({ username }: SchoolPageProps) {
       <SidebarLayout
         sidebar={
           <>
+            {isOwner ? <ProfileOrganizations /> : null}
             <ContactInfo school={data} />
             <TeamInfo school={data} />
-            {isOwner ? <ProfileOrganizations /> : null}
           </>
         }
         tabs={{ contentLabel: "Profile", sidebarLabel: "Info" }}
