@@ -278,7 +278,7 @@ export function DancerTable<T extends { rosterId: string }>({
             <Loader2Icon className="text-muted-foreground size-5 animate-spin" />
           </div>
         )}
-        <FrameFooter className="p-2">
+        <FrameFooter className="relative z-10 shrink-0 p-2">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 whitespace-nowrap">
               <label className="text-muted-foreground text-sm">
