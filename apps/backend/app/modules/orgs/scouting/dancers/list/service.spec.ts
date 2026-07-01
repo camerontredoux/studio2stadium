@@ -250,22 +250,4 @@ test.group("ListDancersService", (group) => {
     assert.equal(rows[0]!.state, "CA");
   });
 
-  test("respects limit and offset", async ({ assert }) => {
-    const dancers = Array.from({ length: 5 }, (_, i) => ({
-      eventId: event.id,
-      type: "dancer" as const,
-      email: `d${i}@x.co`,
-      firstName: `Dancer${i}`,
-      lastName: "Test",
-      bibNumber: 100 + i,
-    }));
-    await db.insert(eventRosters).values(dancers);
-
-    const svc = new ListDancersService();
-    const page1 = await svc.execute(event.id, null, { limit: 2, offset: 0 });
-    const page2 = await svc.execute(event.id, null, { limit: 2, offset: 2 });
-    assert.equal(page1.length, 2);
-    assert.equal(page2.length, 2);
-    assert.notDeepEqual(page1[0], page2[0]);
-  });
 });

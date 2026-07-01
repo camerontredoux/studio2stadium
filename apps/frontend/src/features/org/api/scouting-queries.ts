@@ -7,8 +7,6 @@ export const scoutingQueries = {
       search?: string;
       bib?: number;
       interested?: boolean;
-      limit?: number;
-      offset?: number;
     } = {},
   ) =>
     $api.queryOptions("get", "/orgs/{slug}/dancers", {

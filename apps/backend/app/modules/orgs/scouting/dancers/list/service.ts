@@ -141,9 +141,7 @@ export class ListDancersService {
         )
         .leftJoin(users, eq(users.id, eventRosters.userId))
         .where(and(...filters))
-        .orderBy(eventRosters.bibNumber)
-        .limit(q.limit ?? 100)
-        .offset(q.offset ?? 0);
+        .orderBy(eventRosters.bibNumber);
     });
   }
 }

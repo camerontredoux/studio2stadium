@@ -584,6 +584,7 @@ function DancerSearch() {
                 )}
                 sorting={sorting}
                 onSortingChange={setSorting}
+                pageSize={50}
                 enableSelection
                 rowSelection={rowSelection}
                 onRowSelectionChange={setRowSelection}
