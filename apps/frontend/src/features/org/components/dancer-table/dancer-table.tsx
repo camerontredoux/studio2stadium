@@ -17,13 +17,6 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Frame, FrameFooter } from "@/components/ui/frame";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import {
   Select,
   SelectItem,
   SelectPopup,
@@ -199,36 +192,24 @@ export function DancerTable<T extends { rosterId: string }>({
                 </p>
               </div>
               {/* Pagination */}
-              <Pagination className="justify-end">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      className="sm:*:[svg]:hidden"
-                      render={
-                        <Button
-                          disabled={!table.getCanPreviousPage()}
-                          onClick={() => table.previousPage()}
-                          size="sm"
-                          variant="outline"
-                        />
-                      }
-                    />
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationNext
-                      className="sm:*:[svg]:hidden"
-                      render={
-                        <Button
-                          disabled={!table.getCanNextPage()}
-                          onClick={() => table.nextPage()}
-                          size="sm"
-                          variant="outline"
-                        />
-                      }
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+              <div className="flex items-center gap-1">
+                <Button
+                  disabled={!table.getCanPreviousPage()}
+                  onClick={() => table.previousPage()}
+                  size="sm"
+                  variant="outline"
+                >
+                  Previous
+                </Button>
+                <Button
+                  disabled={!table.getCanNextPage()}
+                  onClick={() => table.nextPage()}
+                  size="sm"
+                  variant="outline"
+                >
+                  Next
+                </Button>
+              </div>
             </div>
           </>
         ) : (
@@ -392,36 +373,24 @@ export function DancerTable<T extends { rosterId: string }>({
               </p>
             </div>
             {/* Pagination */}
-            <Pagination className="justify-end">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    className="sm:*:[svg]:hidden"
-                    render={
-                      <Button
-                        disabled={!table.getCanPreviousPage()}
-                        onClick={() => table.previousPage()}
-                        size="sm"
-                        variant="outline"
-                      />
-                    }
-                  />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext
-                    className="sm:*:[svg]:hidden"
-                    render={
-                      <Button
-                        disabled={!table.getCanNextPage()}
-                        onClick={() => table.nextPage()}
-                        size="sm"
-                        variant="outline"
-                      />
-                    }
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+            <div className="flex items-center gap-1">
+              <Button
+                disabled={!table.getCanPreviousPage()}
+                onClick={() => table.previousPage()}
+                size="sm"
+                variant="outline"
+              >
+                Previous
+              </Button>
+              <Button
+                disabled={!table.getCanNextPage()}
+                onClick={() => table.nextPage()}
+                size="sm"
+                variant="outline"
+              >
+                Next
+              </Button>
+            </div>
           </div>
         </FrameFooter>
       </Frame>

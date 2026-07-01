@@ -330,31 +330,39 @@ function DancerSearch() {
     showRank: rated,
   });
 
+  /* --- Active dancers only (registered/claimed accounts) --- */
+  const activeDancers = useMemo(
+    () => (dancers ?? []).filter((d) => d.isRegistered),
+    [dancers],
+  );
+
   /* --- Derived filter options --- */
   const availableYears = useMemo(() => {
     const years = new Set(
-      (dancers ?? []).map((d) => d.gradYear).filter((y): y is number => y != null),
+      activeDancers.map((d) => d.gradYear).filter((y): y is number => y != null),
     );
     return Array.from(years).sort();
-  }, [dancers]);
+  }, [activeDancers]);
 
   const availableStates = useMemo(() => {
     const states = new Set(
-      (dancers ?? []).map((d) => d.state).filter((s): s is string => s != null),
+      activeDancers.map((d) => d.state).filter((s): s is string => s != null),
     );
     return Array.from(states).sort();
-  }, [dancers]);
+  }, [activeDancers]);
 
   /* --- Client-side filtering --- */
   const filteredData: SearchDancerRow[] = useMemo(() => {
-    let result = (dancers ?? []).map((d) => ({
-      ...d,
-      isFavorited: d.isFavorited ?? false,
-      isCalledBack: d.isCalledBack ?? false,
-      hasNote: d.hasNote ?? false,
-      rating: d.rating ?? null,
-      interestedInMySchool: d.interestedInMySchool ?? false,
-    }));
+    let result = (dancers ?? [])
+      .filter((d) => d.isRegistered)
+      .map((d) => ({
+        ...d,
+        isFavorited: d.isFavorited ?? false,
+        isCalledBack: d.isCalledBack ?? false,
+        hasNote: d.hasNote ?? false,
+        rating: d.rating ?? null,
+        interestedInMySchool: d.interestedInMySchool ?? false,
+      }));
 
     if (yearFilter !== null) {
       result = result.filter((d) => d.gradYear === yearFilter);
@@ -488,13 +496,13 @@ function DancerSearch() {
   }, [selectedRosterIds.length]);
 
   /* --- Stats --- */
-  const dancerCount = dancers?.length ?? 0;
+  const dancerCount = activeDancers.length;
   const favCount = favorites?.length ?? 0;
-  const toReviewCount = (dancers ?? []).filter(
+  const toReviewCount = activeDancers.filter(
     (d) => !d.isFavorited && d.rating == null && !d.hasNote,
   ).length;
 
-  const callbackCount = (dancers ?? []).filter((d) => d.isCalledBack).length;
+  const callbackCount = activeDancers.filter((d) => d.isCalledBack).length;
   const reviewedCount = dancerCount - toReviewCount;
 
   return (
@@ -605,7 +613,7 @@ function DancerSearch() {
 
       {/* Sidebar */}
       <ScoutingSidebar
-        dancers={dancers ?? []}
+        dancers={activeDancers}
         isLoading={isLoading}
         filteredUnreviewedCount={filteredData.filter(
           (d) => !d.isFavorited && d.rating == null && !d.hasNote,
