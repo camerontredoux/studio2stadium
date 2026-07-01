@@ -92,7 +92,7 @@ export function DancerPage({ username }: DancerPageProps) {
       <SidebarLayout
         sidebar={
           <>
-            {isOwner ? <ProfileOrganizations /> : null}
+            {isOwner && !isPreview ? <ProfileOrganizations /> : null}
             {showSidebar ? <ContactInfo dancer={data} /> : null}
             {showSidebar ? <ExtraInfo dancer={data} /> : null}
           </>

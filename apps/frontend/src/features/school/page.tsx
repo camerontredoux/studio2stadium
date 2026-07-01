@@ -69,7 +69,7 @@ export function SchoolPage({ username }: SchoolPageProps) {
       <SidebarLayout
         sidebar={
           <>
-            {isOwner ? <ProfileOrganizations /> : null}
+            {isOwner && !isPreview ? <ProfileOrganizations /> : null}
             <ContactInfo school={data} />
             <TeamInfo school={data} />
           </>
