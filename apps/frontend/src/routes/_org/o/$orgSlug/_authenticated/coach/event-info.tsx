@@ -138,7 +138,7 @@ function CoachDashboard({
   const phase = useEventPhase(event.startDate, event.endDate);
   const dateRange = formatDateRange(event.startDate, event.endDate);
 
-  const dancerCount = dancers?.length ?? 0;
+  const dancerCount = (dancers ?? []).filter((d) => d.isRegistered).length;
   const favCount = favorites?.length ?? 0;
   const callbackCount = callbacks?.length ?? 0;
 

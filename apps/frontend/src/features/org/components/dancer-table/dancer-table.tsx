@@ -12,17 +12,15 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDownIcon, ChevronUpIcon, Loader2Icon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Frame, FrameFooter } from "@/components/ui/frame";
 import {
-  Select,
-  SelectItem,
-  SelectPopup,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronUpIcon,
+  Loader2Icon,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Frame, FrameFooter } from "@/components/ui/frame";
 import {
   Table,
   TableBody,
@@ -137,78 +135,35 @@ export function DancerTable<T extends { rosterId: string }>({
               <div key={row.original.rosterId}>{renderCard(row.original)}</div>
             ))}
             <div className="flex items-center justify-between gap-2">
-              {/* Results range selector */}
-              <div className="flex items-center gap-2 whitespace-nowrap">
-                <p className="text-muted-foreground text-sm">Viewing</p>
-                <Select
-                  items={Array.from(
-                    { length: table.getPageCount() },
-                    (_, i) => {
-                      const start =
-                        i * table.getState().pagination.pageSize + 1;
-                      const end = Math.min(
-                        (i + 1) * table.getState().pagination.pageSize,
-                        table.getRowCount(),
-                      );
-                      const pageNum = i + 1;
-                      return { label: `${start}-${end}`, value: pageNum };
-                    },
-                  )}
-                  onValueChange={(value) => {
-                    table.setPageIndex((value as number) - 1);
-                  }}
-                  value={table.getState().pagination.pageIndex + 1}
-                >
-                  <SelectTrigger
-                    aria-label="Select result range"
-                    className="min-w-none w-fit"
-                    size="sm"
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectPopup>
-                    {Array.from({ length: table.getPageCount() }, (_, i) => {
-                      const start =
-                        i * table.getState().pagination.pageSize + 1;
-                      const end = Math.min(
-                        (i + 1) * table.getState().pagination.pageSize,
-                        table.getRowCount(),
-                      );
-                      const pageNum = i + 1;
-                      return (
-                        <SelectItem key={pageNum} value={pageNum}>
-                          {`${start}-${end}`}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectPopup>
-                </Select>
-                <p className="text-muted-foreground text-sm">
-                  of{" "}
-                  <strong className="text-foreground font-medium">
-                    {table.getRowCount()}
-                  </strong>{" "}
-                  results
-                </p>
-              </div>
-              {/* Pagination */}
+              <p className="text-muted-foreground text-sm">
+                {table.getState().pagination.pageIndex *
+                  table.getState().pagination.pageSize +
+                  1}
+                &ndash;
+                {Math.min(
+                  (table.getState().pagination.pageIndex + 1) *
+                    table.getState().pagination.pageSize,
+                  table.getRowCount(),
+                )}{" "}
+                of {table.getRowCount()}
+              </p>
               <div className="flex items-center gap-1">
-                <Button
+                <button
+                  type="button"
+                  className="border-border bg-background hover:bg-accent/50 disabled:pointer-events-none disabled:opacity-50 inline-flex h-8 items-center justify-center rounded-md border px-2 text-sm"
                   disabled={!table.getCanPreviousPage()}
                   onClick={() => table.previousPage()}
-                  size="sm"
-                  variant="outline"
                 >
-                  Previous
-                </Button>
-                <Button
+                  <ChevronLeftIcon className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  className="border-border bg-background hover:bg-accent/50 disabled:pointer-events-none disabled:opacity-50 inline-flex h-8 items-center justify-center rounded-md border px-2 text-sm"
                   disabled={!table.getCanNextPage()}
                   onClick={() => table.nextPage()}
-                  size="sm"
-                  variant="outline"
                 >
-                  Next
-                </Button>
+                  <ChevronRightIcon className="size-4" />
+                </button>
               </div>
             </div>
           </>
@@ -323,73 +278,56 @@ export function DancerTable<T extends { rosterId: string }>({
         )}
         <FrameFooter className="p-2">
           <div className="flex items-center justify-between gap-2">
-            {/* Results range selector */}
             <div className="flex items-center gap-2 whitespace-nowrap">
-              <p className="text-muted-foreground text-sm">Viewing</p>
-              <Select
-                items={Array.from({ length: table.getPageCount() }, (_, i) => {
-                  const start = i * table.getState().pagination.pageSize + 1;
-                  const end = Math.min(
-                    (i + 1) * table.getState().pagination.pageSize,
-                    table.getRowCount(),
-                  );
-                  const pageNum = i + 1;
-                  return { label: `${start}-${end}`, value: pageNum };
-                })}
-                onValueChange={(value) => {
-                  table.setPageIndex((value as number) - 1);
+              <label className="text-muted-foreground text-sm">
+                Rows per page
+              </label>
+              <select
+                className="border-border bg-background text-foreground h-7 rounded-md border px-1.5 text-sm"
+                value={table.getState().pagination.pageSize}
+                onChange={(e) => {
+                  table.setPageSize(Number(e.target.value));
+                  table.setPageIndex(0);
                 }}
-                value={table.getState().pagination.pageIndex + 1}
               >
-                <SelectTrigger
-                  aria-label="Select result range"
-                  className="min-w-none w-fit"
-                  size="sm"
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectPopup>
-                  {Array.from({ length: table.getPageCount() }, (_, i) => {
-                    const start = i * table.getState().pagination.pageSize + 1;
-                    const end = Math.min(
-                      (i + 1) * table.getState().pagination.pageSize,
-                      table.getRowCount(),
-                    );
-                    const pageNum = i + 1;
-                    return (
-                      <SelectItem key={pageNum} value={pageNum}>
-                        {`${start}-${end}`}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectPopup>
-              </Select>
+                {[25, 50, 100].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
               <p className="text-muted-foreground text-sm">
-                of{" "}
-                <strong className="text-foreground font-medium">
-                  {table.getRowCount()}
-                </strong>{" "}
-                results
+                {table.getState().pagination.pageIndex *
+                  table.getState().pagination.pageSize +
+                  1}
+                &ndash;
+                {Math.min(
+                  (table.getState().pagination.pageIndex + 1) *
+                    table.getState().pagination.pageSize,
+                  table.getRowCount(),
+                )}{" "}
+                of {table.getRowCount()}
               </p>
             </div>
-            {/* Pagination */}
             <div className="flex items-center gap-1">
-              <Button
+              <button
+                type="button"
+                className="border-border bg-background hover:bg-accent/50 disabled:pointer-events-none disabled:opacity-50 inline-flex h-7 items-center justify-center rounded-md border px-2 text-sm"
                 disabled={!table.getCanPreviousPage()}
                 onClick={() => table.previousPage()}
-                size="sm"
-                variant="outline"
               >
-                Previous
-              </Button>
-              <Button
+                <ChevronLeftIcon className="size-4" />
+                <span className="sr-only">Previous</span>
+              </button>
+              <button
+                type="button"
+                className="border-border bg-background hover:bg-accent/50 disabled:pointer-events-none disabled:opacity-50 inline-flex h-7 items-center justify-center rounded-md border px-2 text-sm"
                 disabled={!table.getCanNextPage()}
                 onClick={() => table.nextPage()}
-                size="sm"
-                variant="outline"
               >
-                Next
-              </Button>
+                <ChevronRightIcon className="size-4" />
+                <span className="sr-only">Next</span>
+              </button>
             </div>
           </div>
         </FrameFooter>
