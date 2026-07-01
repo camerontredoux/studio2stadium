@@ -209,7 +209,7 @@ export function DancerFilterToolbar({
           <IconToggle
             pressed={interested}
             onPressedChange={onInterestedChange}
-            label={`Interested in ${schoolName}`}
+            label="Interested in your program"
           >
             <SchoolIcon className="size-3.5" />
           </IconToggle>
