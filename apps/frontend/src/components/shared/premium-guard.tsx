@@ -29,6 +29,11 @@ export function PremiumGuard({
     return children;
   }
 
+  // Org attendees (standard/limited tier) bypass premium gate
+  if (session.orgAccountTier) {
+    return children;
+  }
+
   if (!subscription.subscribed) {
     return (
       <div className={className}>

@@ -72,6 +72,7 @@ function toSessionUser(
     profileId: undefined,
     platforms: [],
     orgMemberships: [],
+    orgAccountTier: null,
   };
 }
 

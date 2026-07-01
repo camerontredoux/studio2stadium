@@ -35,6 +35,8 @@ export async function getUserSession(id: string) {
       role: true,
       verified: true,
       notifications: true,
+      orgAccountTier: true,
+      orgAccountTierExpiresAt: true,
     },
     with: {
       platforms: {
@@ -47,7 +49,10 @@ export async function getUserSession(id: string) {
 
   if (!session) return null;
 
-  const { platforms, avatar, ...user } = session;
+  const { platforms, avatar, orgAccountTier, orgAccountTierExpiresAt, ...user } = session;
+
+  const tierExpired = orgAccountTierExpiresAt && orgAccountTierExpiresAt < new Date();
+  const effectiveTier = tierExpired ? null : orgAccountTier;
 
   let profileId: string | undefined;
 
@@ -89,5 +94,6 @@ export async function getUserSession(id: string) {
     avatar: imageUrl(avatar, "avatar"),
     platforms: platforms.map((platform) => platform.platformName),
     orgMemberships: memberships,
+    orgAccountTier: effectiveTier,
   };
 }

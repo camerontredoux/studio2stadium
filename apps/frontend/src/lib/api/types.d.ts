@@ -4635,8 +4635,6 @@ export interface paths {
                 query?: {
                     search?: string | null;
                     interested?: (string | number | boolean) | null;
-                    offset?: (string | number) | null;
-                    limit?: (string | number) | null;
                     bib?: (string | number) | null;
                 };
                 header?: never;
@@ -10140,6 +10138,7 @@ export interface components {
                 avatar: string | null;
                 verified: boolean;
                 notifications: boolean;
+                orgAccountTier: ("standard" | "limited") | null;
                 profileId: string;
                 orgMemberships: {
                     orgSlug: string;
@@ -10168,6 +10167,7 @@ export interface components {
             avatar: string | null;
             verified: boolean;
             notifications: boolean;
+            orgAccountTier: ("standard" | "limited") | null;
             profileId: string;
             orgMemberships: {
                 orgSlug: string;
@@ -10770,11 +10770,11 @@ export interface components {
             eventId?: string | null;
             audience?: components["schemas"]["UploadKind"] | null;
             /** @enum {string} */
-            kind: "invite" | "roster-added" | "school-account-invite";
+            kind: "invite" | "roster-added" | "school-account-invite" | "free-tier-invite";
         };
         OrgsIdEventsTestemailsResponse: {
             /** @enum {string} */
-            kind: "invite" | "roster-added" | "school-account-invite";
+            kind: "invite" | "roster-added" | "school-account-invite" | "free-tier-invite";
             email: string;
         };
         OrgsIdEventsViewasRequest: {
@@ -11203,7 +11203,7 @@ export interface components {
             lastName: string;
             avatar: string | null;
             phone: string | null;
-            orgAccountTier: string | null;
+            orgAccountTier: ("standard" | "limited") | null;
             birthday: string;
             location: string;
             biography: string | null;
