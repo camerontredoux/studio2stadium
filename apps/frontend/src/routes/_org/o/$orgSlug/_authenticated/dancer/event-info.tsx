@@ -261,14 +261,15 @@ function CheckInContent({
   }
 
   const opensAt = status.eventStartTime
-    ? new Date(`1970-01-01T${status.eventStartTime}`).toLocaleTimeString(
-        "en-US",
-        {
+    ? (() => {
+        const d = new Date(`1970-01-01T${status.eventStartTime}`);
+        d.setHours(d.getHours() - 1);
+        return d.toLocaleTimeString("en-US", {
           hour: "numeric",
           minute: "2-digit",
           hour12: true,
-        },
-      )
+        });
+      })()
     : null;
 
   return (

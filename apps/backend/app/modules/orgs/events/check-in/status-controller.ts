@@ -1,7 +1,7 @@
 import type { HttpContext } from "@adonisjs/core/http";
 import { db } from "#database/connection";
 import { orgEvents, eventRosters } from "#database/schema/org-events";
-import { hasEventStarted } from "#utils/event-time";
+import { isCheckInOpen } from "#utils/event-time";
 import { and, eq } from "drizzle-orm";
 
 export default class CheckInStatusController {
@@ -30,7 +30,7 @@ export default class CheckInStatusController {
       );
 
     const started = event
-      ? hasEventStarted(event.startDate, event.startTime, event.timezone)
+      ? isCheckInOpen(event.startDate, event.startTime, event.timezone)
       : false;
 
     return ctx.response.ok({

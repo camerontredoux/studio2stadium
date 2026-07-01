@@ -1,6 +1,6 @@
 import { DatabaseService } from "#database/service";
 import { orgEvents, eventRosters } from "#database/schema/org-events";
-import { hasEventStarted } from "#utils/event-time";
+import { isCheckInOpen } from "#utils/event-time";
 import { inject } from "@adonisjs/core";
 import { and, eq, isNull, sql } from "drizzle-orm";
 
@@ -33,7 +33,7 @@ export class CheckInService {
 
       if (
         !event ||
-        !hasEventStarted(event.startDate, event.startTime, event.timezone)
+        !isCheckInOpen(event.startDate, event.startTime, event.timezone)
       ) {
         throw new CheckInNotOpenError();
       }

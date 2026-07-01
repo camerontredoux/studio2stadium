@@ -25,3 +25,18 @@ export function hasEventStarted(
   const startOfDay = new Date(y, m - 1, d);
   return Date.now() >= startOfDay.getTime();
 }
+
+const CHECK_IN_LEAD_MS = 60 * 60 * 1000;
+
+export function isCheckInOpen(
+  startDate: string,
+  startTime: string | null,
+  timezone: string | null,
+): boolean {
+  if (startTime && timezone) {
+    return Date.now() >= toEventStartUtc(startDate, startTime, timezone).getTime() - CHECK_IN_LEAD_MS;
+  }
+  const [y, m, d] = startDate.split("-").map(Number);
+  const startOfDay = new Date(y, m - 1, d);
+  return Date.now() >= startOfDay.getTime() - CHECK_IN_LEAD_MS;
+}
