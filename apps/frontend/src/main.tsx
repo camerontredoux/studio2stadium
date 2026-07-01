@@ -55,6 +55,15 @@ declare module "@tanstack/react-router" {
   }
 }
 
+window.addEventListener("vite:preloadError", (event) => {
+  event.preventDefault();
+  const reloaded = sessionStorage.getItem("chunk-reload");
+  if (!reloaded) {
+    sessionStorage.setItem("chunk-reload", "1");
+    window.location.reload();
+  }
+});
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
