@@ -74,13 +74,13 @@ function DancerSearch() {
     setRowSelection({});
   }, [yearFilter, gpaFilter, stateFilter, interested, favorited, rated, hasNotes, calledBack]);
 
-  const [sorting, setSorting] = useState<SortingState>([{ id: "name", desc: false }]);
+  const [sorting, setSorting] = useState<SortingState>([{ id: "bibNumber", desc: false }]);
 
   useEffect(() => {
     if (rated) {
       setSorting([{ id: "rating", desc: true }]);
     } else {
-      setSorting([{ id: "name", desc: false }]);
+      setSorting([{ id: "bibNumber", desc: false }]);
     }
   }, [rated]);
 
