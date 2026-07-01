@@ -1,6 +1,7 @@
 import { PremiumGuard } from "@/components/shared/premium-guard";
 import { schoolQueries } from "@/features/school/api/queries";
 import { SchoolProfile } from "@/features/school/components/school-profile";
+import { useSession } from "@/lib/session";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/explore/$username")({
@@ -22,6 +23,11 @@ export const Route = createFileRoute("/_app/(routes)/explore/$username")({
 
 function RouteComponent() {
   const { username } = Route.useParams();
+  const session = useSession();
+
+  if (session.orgAccountTier) {
+    return <SchoolProfile username={username} />;
+  }
 
   return (
     <PremiumGuard description="School profiles are a premium feature. Subscribe to unlock and view detailed school information.">
