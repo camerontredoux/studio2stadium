@@ -175,7 +175,7 @@ export function DancerTable<T extends { rosterId: string }>({
       </div>
 
       {/* Desktop Table View */}
-      <Frame ref={frameRef} className="relative hidden w-full min-h-0 flex-1 sm:flex sm:flex-col *:data-[slot=table-container]:min-h-0 *:data-[slot=table-container]:flex-1 *:data-[slot=table-container]:overflow-y-auto *:data-[slot=table-container]:[scrollbar-width:thin]">
+      <Frame ref={frameRef} className="relative hidden w-full min-h-0 flex-1 overflow-hidden sm:flex sm:flex-col *:data-[slot=table-container]:min-h-0 *:data-[slot=table-container]:flex-1 *:data-[slot=table-container]:overflow-y-auto *:data-[slot=table-container]:[scrollbar-width:thin]">
         <Table className={isLoading || !paginatedRows.length ? "h-full" : ""}>
           <TableHeader className={`sticky top-0 z-10 [&_th]:transition-colors ${isScrolled ? "[&_th]:bg-[#f8f8f8] dark:[&_th]:bg-[#18181A]" : ""}`}>
             {table.getHeaderGroups().map((headerGroup) => (
