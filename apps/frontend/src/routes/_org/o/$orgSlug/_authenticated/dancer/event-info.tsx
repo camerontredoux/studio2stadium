@@ -92,7 +92,7 @@ function DancerDashboard({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto xl:flex-row xl:overflow-hidden">
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col xl:min-h-0 xl:overflow-hidden">
         <DashboardHeader
           name={event.name}
           phase={phase}
@@ -115,7 +115,7 @@ function DancerDashboard({
 
         <section
           aria-label="Dashboard panels"
-          className={`grid min-h-0 flex-1 grid-cols-1 content-start gap-3 p-4 lg:grid-cols-2 ${
+          className={`grid flex-1 grid-cols-1 content-start gap-3 p-4 xl:min-h-0 lg:grid-cols-2 ${
             event.schedulePdfUrl ? "lg:grid-rows-[auto_1fr]" : ""
           }`}
         >
