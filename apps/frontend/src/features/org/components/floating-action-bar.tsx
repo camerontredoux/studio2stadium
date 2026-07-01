@@ -27,10 +27,10 @@ export function FloatingActionBar({
         "transition-all duration-200 ease-out",
         isVisible
           ? "translate-y-0 opacity-100"
-          : "pointer-events-none translate-y-4 opacity-0",
+          : "translate-y-4 opacity-0",
       )}
     >
-      <div className="bg-background border-border pointer-events-auto flex items-center gap-3 rounded-lg border px-4 py-2.5 shadow-lg">
+      <div className={cn("bg-background border-border flex items-center gap-3 rounded-lg border px-4 py-2.5 shadow-lg", isVisible && "pointer-events-auto")}>
         <span className="text-sm font-medium tabular-nums">
           {isLoading ? `Updating ${selectedCount}...` : `${selectedCount} selected`}
         </span>
