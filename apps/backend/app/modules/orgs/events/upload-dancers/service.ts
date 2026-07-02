@@ -298,7 +298,7 @@ export class UploadDancersService {
               if (existingInvite) {
                 await tx
                   .update(dancerInvites)
-                  .set({ token, expiresAt: inviteExpiry })
+                  .set({ token, expiresAt: inviteExpiry, consumedAt: null })
                   .where(eq(dancerInvites.id, existingInvite.id));
               } else {
                 await tx.insert(dancerInvites).values({
