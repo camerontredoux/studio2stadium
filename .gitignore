@@ -55,3 +55,20 @@ dist-ssr
 
 # oh-my-claudecode tooling state (sessions, hud, replays, project memory)
 .omc/
+
+# Agent tooling state
+.claude/
+.superpowers/
+.playwright-mcp/
+.impeccable.md
+
+# Production env (only *.local variants were covered above)
+.env.production
+
+# Local test scratch files
+mock-dancers.csv
+test.csv
+test.aiff
+test.m4a
+test.mp3
+Sharpen Up _The Summit_ › Issues.csv
