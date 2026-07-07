@@ -10,22 +10,29 @@ export default class ListDancersController {
   async handle(
     ctx: HttpContext,
     service: ListDancersService,
-    ensureShowcase: EnsureActiveShowcaseService,
+    ensureShowcase: EnsureActiveShowcaseService
   ) {
     const payload = await ctx.request.validateUsing(schema);
     const event = ctx.orgEvent!;
-    const filterCheckedInOnly = hasEventStarted(
-      event.startDate,
-      event.startTime,
-      event.timezone,
-    );
+
+    // Free-tier orgs show every dancer across all of the org's events, and
+    // never hide un-checked-in dancers (check-in only applies to the active
+    // event, which is meaningless across the full history).
+    const features = (ctx.org?.features ?? {}) as Record<string, boolean>;
+    const isFreeTier = Boolean(features.freeTierUsers);
+
+    const filterCheckedInOnly = isFreeTier
+      ? false
+      : hasEventStarted(event.startDate, event.startTime, event.timezone);
     const showcase = await ensureShowcase.execute(event.id);
     const rows = await service.execute(
+      event.orgId,
       event.id,
       ctx.orgRoster?.id ?? null,
       payload,
       filterCheckedInOnly,
       showcase.id,
+      isFreeTier
     );
     return ctx.response.ok(rows);
   }

@@ -68,7 +68,7 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(event.id, null, {});
+    const rows = await svc.execute(summit.id, event.id, null, {});
     assert.equal(rows.length, 2);
     assert.isTrue(rows.every((r) => r.bibNumber !== null));
   });
@@ -94,7 +94,9 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(event.id, null, { search: "alice" });
+    const rows = await svc.execute(summit.id, event.id, null, {
+      search: "alice",
+    });
     assert.equal(rows.length, 1);
     assert.equal(rows[0]!.firstName, "Alice");
   });
@@ -120,7 +122,9 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(event.id, null, { search: "jones" });
+    const rows = await svc.execute(summit.id, event.id, null, {
+      search: "jones",
+    });
     assert.equal(rows.length, 1);
     assert.equal(rows[0]!.lastName, "Jones");
   });
@@ -146,7 +150,7 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(event.id, null, { bib: 101 });
+    const rows = await svc.execute(summit.id, event.id, null, { bib: 101 });
     assert.equal(rows.length, 1);
     assert.equal(rows[0]!.bibNumber, 101);
   });
@@ -188,7 +192,7 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(event.id, null, {});
+    const rows = await svc.execute(summit.id, event.id, null, {});
     const alice = rows.find((r) => r.firstName === "Alice");
     const bob = rows.find((r) => r.firstName === "Bob");
     assert.isTrue(alice!.isRegistered);
@@ -210,7 +214,7 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(event.id, null, {});
+    const rows = await svc.execute(summit.id, event.id, null, {});
     assert.equal(rows.length, 1);
     assert.isNull(rows[0]!.profilePhotoUrl);
     assert.isNull(rows[0]!.studio);
@@ -243,11 +247,126 @@ test.group("ListDancersService", (group) => {
     });
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(event.id, null, {});
+    const rows = await svc.execute(summit.id, event.id, null, {});
     assert.equal(rows.length, 1);
     assert.equal(rows[0]!.profilePhotoUrl, "https://cdn.example.com/photo.jpg");
     assert.equal(rows[0]!.studio, "Elite Dance");
     assert.equal(rows[0]!.state, "CA");
   });
 
+  test("spans all of the org's events when allEvents is set", async ({
+    assert,
+  }) => {
+    const [pastEvent] = await db
+      .insert(orgEvents)
+      .values({
+        orgId: summit.id,
+        name: "Summit 2025",
+        startDate: "2025-06-13",
+        endDate: "2025-06-14",
+        isActive: false,
+      })
+      .returning();
+
+    await db.insert(eventRosters).values([
+      {
+        eventId: event.id,
+        type: "dancer",
+        email: "current@x.co",
+        firstName: "Current",
+        lastName: "Dancer",
+        bibNumber: 101,
+      },
+      {
+        eventId: pastEvent!.id,
+        type: "dancer",
+        email: "past@x.co",
+        firstName: "Past",
+        lastName: "Dancer",
+        bibNumber: 201,
+      },
+    ]);
+
+    const svc = new ListDancersService();
+
+    const activeOnly = await svc.execute(summit.id, event.id, null, {});
+    assert.equal(activeOnly.length, 1);
+    assert.equal(activeOnly[0]!.firstName, "Current");
+
+    const all = await svc.execute(
+      summit.id,
+      event.id,
+      null,
+      {},
+      false,
+      undefined,
+      true
+    );
+    assert.equal(all.length, 2);
+  });
+
+  test("dedupes a registered dancer across events, preferring the active event", async ({
+    assert,
+  }) => {
+    const [dana] = await db
+      .insert(users)
+      .values({
+        username: "dana",
+        email: "dana@x.co",
+        displayEmail: "dana@x.co",
+        firstName: "Dana",
+        lastName: "Lee",
+        password: "x",
+        role: "user",
+        type: "dancer",
+        verified: true,
+      })
+      .returning();
+
+    const [pastEvent] = await db
+      .insert(orgEvents)
+      .values({
+        orgId: summit.id,
+        name: "Summit 2025",
+        startDate: "2025-06-13",
+        endDate: "2025-06-14",
+        isActive: false,
+      })
+      .returning();
+
+    await db.insert(eventRosters).values({
+      eventId: pastEvent!.id,
+      type: "dancer",
+      email: "dana@x.co",
+      firstName: "Dana",
+      lastName: "Lee",
+      bibNumber: 55,
+      userId: dana!.id,
+    });
+    const [activeRoster] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: event.id,
+        type: "dancer",
+        email: "dana@x.co",
+        firstName: "Dana",
+        lastName: "Lee",
+        bibNumber: 66,
+        userId: dana!.id,
+      })
+      .returning();
+
+    const svc = new ListDancersService();
+    const all = await svc.execute(
+      summit.id,
+      event.id,
+      null,
+      {},
+      false,
+      undefined,
+      true
+    );
+    assert.equal(all.length, 1);
+    assert.equal(all[0]!.rosterId, activeRoster!.id);
+  });
 });

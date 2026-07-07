@@ -1,6 +1,10 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
-import { eventRosters, eventDancerProfiles } from "#database/schema/org-events";
+import {
+  eventRosters,
+  eventDancerProfiles,
+  orgEvents,
+} from "#database/schema/org-events";
 import {
   eventFavorites,
   eventRatings,
@@ -17,15 +21,24 @@ export class ListDancersService {
   constructor(private db: DatabaseService = new DatabaseService()) {}
 
   async execute(
+    orgId: string,
     eventId: string,
     coachRosterId: string | null,
     q: Validator,
     filterCheckedInOnly: boolean = false,
-    showcaseId?: string
+    showcaseId?: string,
+    allEvents: boolean = false
   ) {
-    return this.db.use((db) => {
+    const rows = await this.db.use((db) => {
       const filters = [
-        eq(eventRosters.eventId, eventId),
+        // Free-tier orgs surface dancers from every event they've run, not just
+        // the active one; otherwise stay scoped to the active event.
+        allEvents
+          ? sql`${eventRosters.eventId} IN (
+              SELECT ${orgEvents.id} FROM ${orgEvents}
+              WHERE ${orgEvents.orgId} = ${orgId}
+            )`
+          : eq(eventRosters.eventId, eventId),
         eq(eventRosters.type, "dancer"),
         eq(eventRosters.isStaff, false),
       ];
@@ -129,6 +142,9 @@ export class ListDancersService {
           hasNote: hasNoteSubquery,
           isCalledBack: isCalledBackSubquery,
           username: users.username,
+          userId: eventRosters.userId,
+          eventId: eventRosters.eventId,
+          createdAt: eventRosters.createdAt,
         })
         .from(eventRosters)
         .leftJoin(
@@ -143,5 +159,66 @@ export class ListDancersService {
         .where(and(...filters))
         .orderBy(eventRosters.bibNumber);
     });
+
+    // Across all of the org's events the same dancer can hold a roster row per
+    // event. Collapse to one row per dancer — keyed by their account when
+    // registered, otherwise left distinct — preferring the active event's row
+    // so the coach's favorites/ratings/callbacks stay wired to it.
+    const deduped = allEvents ? this.dedupeByDancer(rows, eventId) : rows;
+
+    return deduped.map((row) => ({
+      rosterId: row.rosterId,
+      bibNumber: row.bibNumber,
+      firstName: row.firstName,
+      lastName: row.lastName,
+      isRegistered: row.isRegistered,
+      profilePhotoUrl: row.profilePhotoUrl,
+      gpa: row.gpa,
+      gradYear: row.gradYear,
+      studio: row.studio,
+      state: row.state,
+      interestedInMySchool: row.interestedInMySchool,
+      isFavorited: row.isFavorited,
+      rating: row.rating,
+      hasNote: row.hasNote,
+      isCalledBack: row.isCalledBack,
+      username: row.username,
+    }));
+  }
+
+  private dedupeByDancer<
+    T extends {
+      rosterId: string;
+      bibNumber: number | null;
+      userId: string | null;
+      eventId: string;
+      createdAt: Date | null;
+    },
+  >(rows: T[], activeEventId: string): T[] {
+    const byDancer = new Map<string, T>();
+    for (const row of rows) {
+      const key = row.userId ?? `roster:${row.rosterId}`;
+      const current = byDancer.get(key);
+      if (!current || this.isBetterRow(row, current, activeEventId)) {
+        byDancer.set(key, row);
+      }
+    }
+    return [...byDancer.values()].sort(
+      (a, b) => (a.bibNumber ?? Infinity) - (b.bibNumber ?? Infinity)
+    );
+  }
+
+  private isBetterRow(
+    candidate: { eventId: string; createdAt: Date | null },
+    current: { eventId: string; createdAt: Date | null },
+    activeEventId: string
+  ) {
+    const candidateActive = candidate.eventId === activeEventId;
+    const currentActive = current.eventId === activeEventId;
+    if (candidateActive !== currentActive) return candidateActive;
+    return (
+      (candidate.createdAt?.getTime() ?? 0) >
+      (current.createdAt?.getTime() ?? 0)
+    );
   }
 }
