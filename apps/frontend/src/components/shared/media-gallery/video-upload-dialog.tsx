@@ -43,17 +43,18 @@ export function VideoUploadDialog({ videoCount, orgAccountTier }: VideoUploadDia
   const [tab, setTab] = useState<"file" | "youtube">("file");
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const {
-    data: { subscribed, source },
+    data: { subscribed },
   } = useSubscribed();
   const { type, username } = useSession();
-  // Three upload tiers:
-  //  1. Stripe subscriber → file + YouTube tabs (full upload)
-  //  2. Org 'standard' (no Stripe) → YouTube-only dialog (no file tab)
-  //  3. Normal free dancer (no org tier, no Stripe) → locked "Premium Only"
-  // Note: a Stripe subscriber who is also org-provisioned gets full upload.
-  const hasStripe = source === "stripe";
-  const isOrgStandard = orgAccountTier === "standard" && !hasStripe;
-  const isOrgAccount = orgAccountTier === "standard" || orgAccountTier === "limited";
+  // Upload tiers (keyed off `subscribed`, which is true for either an active
+  // Stripe subscription OR an active premium grant — both count as S2S premium):
+  //  1. S2S premium → file + YouTube tabs (full upload)
+  //  2. Org 'standard' roster dancer, not premium → YouTube-only (no file tab)
+  //  3. Everyone else without premium (org 'limited' or plain free dancer)
+  //     → locked "Premium Only"
+  // Note: a premium user who is also org-provisioned gets full upload.
+  const isOrgStandard = orgAccountTier === "standard";
+  const isYoutubeOnly = !subscribed && isOrgStandard;
   const cloudflareLimit = 3;
   const hasReachedCloudflareLimit = videoCount >= cloudflareLimit;
   const { setIsProcessing } = useVideoProcessing();
@@ -151,7 +152,7 @@ export function VideoUploadDialog({ videoCount, orgAccountTier }: VideoUploadDia
     upload.start();
   };
 
-  const isFreeTierDancer = !subscribed && !isOrgAccount && type === "dancer";
+  const isFreeTierDancer = !subscribed && !isOrgStandard && type === "dancer";
 
   if (isFreeTierDancer) {
     return (
@@ -190,7 +191,7 @@ export function VideoUploadDialog({ videoCount, orgAccountTier }: VideoUploadDia
         <span className="text-muted-foreground group-hover:text-foreground text-sm font-medium transition-colors">
           Video
         </span>
-        {!isOrgStandard && hasReachedCloudflareLimit && (
+        {!isYoutubeOnly && hasReachedCloudflareLimit && (
           <span className="text-muted-foreground text-xs font-medium">
             Limit {cloudflareLimit}/{cloudflareLimit}
           </span>
@@ -202,7 +203,7 @@ export function VideoUploadDialog({ videoCount, orgAccountTier }: VideoUploadDia
           <DialogDescription>Add a video to your profile.</DialogDescription>
         </DialogHeader>
         <DialogPanel>
-          {isOrgStandard ? (
+          {isYoutubeOnly ? (
             <form id="youtube-upload-form" onSubmit={handleYoutubeSubmit}>
               <Field>
                 <FieldLabel>YouTube URL</FieldLabel>
@@ -263,7 +264,7 @@ export function VideoUploadDialog({ videoCount, orgAccountTier }: VideoUploadDia
           <DialogClose render={<Button variant="secondary" />}>
             Cancel
           </DialogClose>
-          {isOrgStandard ? (
+          {isYoutubeOnly ? (
             <Button
               disabled={youtubeUpload.isPending || !youtubeUrl}
               type="submit"
