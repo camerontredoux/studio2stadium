@@ -6,6 +6,7 @@ export default class ListSchoolsController {
   @inject()
   async handle(ctx: HttpContext, service: ListSchoolsService) {
     const rows = await service.execute(
+      ctx.orgEvent!.orgId,
       ctx.orgEvent!.id,
       ctx.orgRoster?.id ?? null
     );
