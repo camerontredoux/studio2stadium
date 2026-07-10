@@ -4,7 +4,9 @@ import { randomBytes } from "node:crypto";
 import { setTimeout as sleep } from "node:timers/promises";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { dancerInvites, organizations } from "#database/schema/organizations";
+import { schoolInvites } from "#database/schema/schools";
 import { sendOrgInviteEmailOrThrow } from "#shared/org/invite-email";
+import { sendSchoolAccountInviteEmailOrThrow } from "#shared/org/school-account-invite-email";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 import type { AuditContext } from "#database/audit";
@@ -33,19 +35,20 @@ export class ResendInvitesService {
     auditCtx: AuditContext,
     { pacingMs = RESEND_PACING_MS }: { pacingMs?: number } = {}
   ): Promise<ResendInvitesResult> {
-    // Load matching rows: pending dancers only, scoped to event
+    // Load matching pending roster rows, scoped to event
     const rows = await this.db.use((db) =>
       db
         .select({
           id: eventRosters.id,
           email: eventRosters.email,
           firstName: eventRosters.firstName,
+          organization: eventRosters.organization,
+          type: eventRosters.type,
         })
         .from(eventRosters)
         .where(
           and(
             eq(eventRosters.eventId, eventId),
-            eq(eventRosters.type, "dancer"),
             isNull(eventRosters.userId),
             inArray(eventRosters.id, input.ids)
           )
@@ -83,33 +86,64 @@ export class ResendInvitesService {
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i]!;
       try {
-        const token = randomToken();
         const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14);
-        await this.db.tx(async (tx) => {
-          await tx
-            .delete(dancerInvites)
-            .where(
-              and(
-                eq(dancerInvites.orgId, org.id),
-                eq(dancerInvites.email, row.email)
-              )
-            );
-          await tx.insert(dancerInvites).values({
-            orgId: org.id,
-            email: row.email,
-            token,
-            expiresAt,
+        if (row.type === "dancer") {
+          const token = randomToken();
+          await this.db.tx(async (tx) => {
+            await tx
+              .delete(dancerInvites)
+              .where(
+                and(
+                  eq(dancerInvites.orgId, org.id),
+                  eq(dancerInvites.email, row.email)
+                )
+              );
+            await tx.insert(dancerInvites).values({
+              orgId: org.id,
+              email: row.email,
+              token,
+              expiresAt,
+            });
           });
-        });
 
-        await sendOrgInviteEmailOrThrow({
-          org,
-          event,
-          email: row.email,
-          firstName: row.firstName,
-          type: "dancer",
-          token,
-        });
+          await sendOrgInviteEmailOrThrow({
+            org,
+            event,
+            email: row.email,
+            firstName: row.firstName,
+            type: "dancer",
+            token,
+          });
+        } else {
+          const token = randomBytes(32).toString("hex");
+          await this.db.use((db) =>
+            db
+              .insert(schoolInvites)
+              .values({
+                eventId,
+                email: row.email,
+                organization: row.organization,
+                token,
+                expiresAt,
+              })
+              .onConflictDoUpdate({
+                target: [schoolInvites.eventId, schoolInvites.email],
+                set: {
+                  token,
+                  expiresAt,
+                  consumedAt: null,
+                },
+              })
+          );
+
+          await sendSchoolAccountInviteEmailOrThrow({
+            org,
+            event,
+            email: row.email,
+            firstName: row.firstName,
+            token,
+          });
+        }
 
         sent += 1;
       } catch (err) {
@@ -131,6 +165,7 @@ export class ResendInvitesService {
         resource: "invite",
         metadata: {
           ids: input.ids,
+          rosterTypes: rows.map((row) => ({ id: row.id, type: row.type })),
           sent,
           skipped,
           failed,

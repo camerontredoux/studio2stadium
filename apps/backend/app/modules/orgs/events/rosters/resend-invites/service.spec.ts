@@ -9,6 +9,7 @@ import {
   orgEvents,
 } from "#database/schema/org-events";
 import { dancerInvites, organizations } from "#database/schema/organizations";
+import { schoolInvites } from "#database/schema/schools";
 import mail from "@adonisjs/mail/services/main";
 import { ResendInvitesService } from "./service.ts";
 
@@ -52,6 +53,7 @@ test.group("ResendInvitesService", (group) => {
     await db.delete(eventAuditLog).execute();
     await db.delete(eventDancerProfiles).execute();
     await db.delete(eventRosters).execute();
+    await db.delete(schoolInvites).execute();
     await db.delete(orgEvents).execute();
     await db.delete(dancerInvites).execute();
     await db.delete(users).execute();
@@ -123,46 +125,125 @@ test.group("ResendInvitesService", (group) => {
     assert.lengthOf(newInvites, 2);
   });
 
-  test("skips coaches, active dancers, and unknown ids", async ({ assert }) => {
+  test("reissues a fresh unconsumed invite for a pending coach", async ({
+    assert,
+  }) => {
+    const actor = await makeActorUser();
+    const { org, event } = await makeOrgAndEvent();
+    const [coach] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: event.id,
+        type: "coach",
+        email: "coach@example.com",
+        firstName: "Coach",
+        lastName: "Pending",
+        organization: "Example University",
+      })
+      .returning();
+    const oldExpiresAt = new Date(Date.now() - 86400000);
+    await db.insert(schoolInvites).values({
+      eventId: event.id,
+      email: coach!.email,
+      organization: coach!.organization,
+      token: "old_coach_token",
+      expiresAt: oldExpiresAt,
+      consumedAt: new Date(),
+    });
+
+    const service = new ResendInvitesService();
+    const result = await service.execute(
+      org.slug,
+      event.id,
+      { ids: [coach!.id] },
+      { eventId: event.id, actorId: actor.id },
+      { pacingMs: 0 }
+    );
+
+    assert.equal(result.sent, 1);
+    assert.equal(result.skipped, 0);
+    assert.lengthOf(result.failed, 0);
+
+    const invites = await db
+      .select()
+      .from(schoolInvites)
+      .where(eq(schoolInvites.eventId, event.id));
+    assert.lengthOf(invites, 1);
+    assert.notEqual(invites[0]!.token, "old_coach_token");
+    assert.isNull(invites[0]!.consumedAt);
+    assert.isAbove(invites[0]!.expiresAt.getTime(), Date.now() + 13 * 86400000);
+  });
+
+  test("skips a registered coach", async ({ assert }) => {
     const actor = await makeActorUser();
     const { org, event } = await makeOrgAndEvent();
     const [user] = await db
       .insert(users)
       .values({
         username: `u_${Date.now()}_${Math.random()}`,
-        email: "active@example.com",
-        displayEmail: "active@example.com",
-        firstName: "Act",
-        lastName: "Ive",
+        email: "registered-coach@example.com",
+        displayEmail: "registered-coach@example.com",
+        firstName: "Registered",
+        lastName: "Coach",
         password: "h",
         role: "user",
-        type: "dancer",
+        type: "school",
       })
       .returning();
+    const [coach] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: event.id,
+        type: "coach",
+        email: user!.email,
+        firstName: user!.firstName,
+        lastName: user!.lastName,
+        userId: user!.id,
+      })
+      .returning();
+
+    const service = new ResendInvitesService();
+    const result = await service.execute(
+      org.slug,
+      event.id,
+      { ids: [coach!.id] },
+      { eventId: event.id, actorId: actor.id },
+      { pacingMs: 0 }
+    );
+
+    assert.equal(result.sent, 0);
+    assert.equal(result.skipped, 1);
+    assert.lengthOf(result.failed, 0);
+
+    const invites = await db
+      .select()
+      .from(schoolInvites)
+      .where(eq(schoolInvites.eventId, event.id));
+    assert.lengthOf(invites, 0);
+  });
+
+  test("resends dancer and coach invites in a mixed batch", async ({
+    assert,
+  }) => {
+    const actor = await makeActorUser();
+    const { org, event } = await makeOrgAndEvent();
     const rows = await db
       .insert(eventRosters)
       .values([
         {
           eventId: event.id,
           type: "dancer",
-          email: "active@example.com",
-          firstName: "Act",
-          lastName: "Ive",
-          userId: user!.id,
+          email: "mixed-dancer@example.com",
+          firstName: "Mixed",
+          lastName: "Dancer",
         },
         {
           eventId: event.id,
           type: "coach",
-          email: "coach@example.com",
-          firstName: "C",
-          lastName: "C",
-        },
-        {
-          eventId: event.id,
-          type: "dancer",
-          email: "pending@example.com",
-          firstName: "P",
-          lastName: "P",
+          email: "mixed-coach@example.com",
+          firstName: "Mixed",
+          lastName: "Coach",
+          organization: "Mixed University",
         },
       ])
       .returning();
@@ -171,19 +252,25 @@ test.group("ResendInvitesService", (group) => {
     const result = await service.execute(
       org.slug,
       event.id,
-      {
-        ids: [
-          rows[0]!.id, // active dancer
-          rows[1]!.id, // coach
-          rows[2]!.id, // pending dancer
-          "00000000-0000-0000-0000-000000000000", // unknown
-        ],
-      },
+      { ids: rows.map((row) => row.id) },
       { eventId: event.id, actorId: actor.id },
       { pacingMs: 0 }
     );
 
-    assert.equal(result.sent, 1);
-    assert.equal(result.skipped, 3);
+    assert.equal(result.sent, 2);
+    assert.equal(result.skipped, 0);
+    assert.lengthOf(result.failed, 0);
+
+    const dancerRows = await db
+      .select()
+      .from(dancerInvites)
+      .where(eq(dancerInvites.email, "mixed-dancer@example.com"));
+    const coachRows = await db
+      .select()
+      .from(schoolInvites)
+      .where(eq(schoolInvites.email, "mixed-coach@example.com"));
+    assert.lengthOf(dancerRows, 1);
+    assert.lengthOf(coachRows, 1);
+    assert.isNull(coachRows[0]!.consumedAt);
   });
 });
