@@ -1,4 +1,5 @@
 import { E_BAD_REQUEST } from "#exceptions/bad-request";
+import { E_FORBIDDEN } from "#exceptions/forbidden";
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
 import { AddYoutubeVideoService } from "./service.ts";
@@ -13,6 +14,9 @@ export default class AddYoutubeVideoController {
     const result = await service.execute(userId, payload);
 
     if ("error" in result) {
+      if (result.error !== "duplicate") {
+        throw new E_FORBIDDEN(result.message);
+      }
       throw new E_BAD_REQUEST(result.message);
     }
 

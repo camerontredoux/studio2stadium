@@ -35,10 +35,15 @@ import type * as tus from "tus-js-client";
 
 interface VideoUploadDialogProps {
   videoCount: number;
+  youtubeCount: number;
   orgAccountTier?: string | null;
 }
 
-export function VideoUploadDialog({ videoCount, orgAccountTier }: VideoUploadDialogProps) {
+export function VideoUploadDialog({
+  videoCount,
+  youtubeCount,
+  orgAccountTier,
+}: VideoUploadDialogProps) {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"file" | "youtube">("file");
   const [youtubeUrl, setYoutubeUrl] = useState("");
@@ -55,6 +60,8 @@ export function VideoUploadDialog({ videoCount, orgAccountTier }: VideoUploadDia
   // Note: a premium user who is also org-provisioned gets full upload.
   const isOrgStandard = orgAccountTier === "standard";
   const isYoutubeOnly = !subscribed && isOrgStandard;
+  const youtubeLimit = 3;
+  const hasReachedYoutubeLimit = isYoutubeOnly && youtubeCount >= youtubeLimit;
   const cloudflareLimit = 3;
   const hasReachedCloudflareLimit = videoCount >= cloudflareLimit;
   const { setIsProcessing } = useVideoProcessing();
@@ -152,16 +159,20 @@ export function VideoUploadDialog({ videoCount, orgAccountTier }: VideoUploadDia
     upload.start();
   };
 
-  const isFreeTierDancer = !subscribed && !isOrgStandard && type === "dancer";
+  const isVideoBlocked = !subscribed && !isOrgStandard && type === "dancer";
 
-  if (isFreeTierDancer) {
+  if (isVideoBlocked || hasReachedYoutubeLimit) {
     return (
       <div className="border-border group flex aspect-square flex-1 flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed opacity-60">
         <div className="bg-muted rounded-full p-3">
           <VideoIcon className="text-muted-foreground size-6" />
         </div>
-        <span className="text-muted-foreground text-sm font-medium">Video</span>
-        {isFreeTierDancer && (
+        <span className="text-muted-foreground text-center text-sm font-medium">
+          {hasReachedYoutubeLimit
+            ? `${youtubeLimit} of ${youtubeLimit} YouTube videos used`
+            : "Video"}
+        </span>
+        {isVideoBlocked && (
           <Button
             className="hover:text-brand gap-2"
             variant="link"

@@ -1,14 +1,12 @@
 import { dancerProfiles } from "#database/schema/dancers";
 import { images } from "#database/schema/media";
-import { subscriptions } from "#database/schema/subscriptions";
 import { DatabaseService } from "#database/service";
+import { GetMediaPermissionsService } from "#modules/media/permissions/service";
 import { inject } from "@adonisjs/core";
 import drive from "@adonisjs/drive/services/main";
-import { and, count, eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { type Validator } from "./validator.ts";
-
-const FREE_TIER_IMAGE_LIMIT = 4;
 
 const MIME_TO_EXT: Record<string, string> = {
   "application/pdf": ".pdf",
@@ -24,11 +22,14 @@ function extFromMime(mime: string): string {
 
 @inject()
 export class UploadImageService {
-  constructor(private db: DatabaseService) {}
+  constructor(
+    private db: DatabaseService,
+    private permissions: GetMediaPermissionsService
+  ) {}
 
   async execute(userId: string, { contentType, type }: Validator) {
     if (type === "feed") {
-      const [[imageCount], dancerProfile, subscription] = await Promise.all([
+      const [[imageCount], dancerProfile, permissions] = await Promise.all([
         this.db.use((db) =>
           db
             .select({ count: count() })
@@ -43,31 +44,25 @@ export class UploadImageService {
             .limit(1)
             .then((rows) => rows[0])
         ),
-        this.db.use((db) =>
-          db
-            .select({ id: subscriptions.id })
-            .from(subscriptions)
-            .where(
-              and(
-                eq(subscriptions.userId, userId),
-                eq(subscriptions.status, "active")
-              )
-            )
-            .limit(1)
-            .then((rows) => rows[0])
-        ),
+        this.permissions.execute(userId),
       ]);
 
-      // Only dancers have the free tier image limit
-      if (
-        dancerProfile &&
-        !subscription &&
-        imageCount.count >= FREE_TIER_IMAGE_LIMIT
-      ) {
+      if (dancerProfile && !permissions.canUploadPhoto) {
         return {
           error: "limit_exceeded",
           message:
-            "Free tier users can only upload 4 images. Upgrade to premium for unlimited uploads.",
+            "Photo uploads are not available for your organization tier.",
+        };
+      }
+
+      if (
+        dancerProfile &&
+        permissions.photoLimit !== null &&
+        imageCount.count >= permissions.photoLimit
+      ) {
+        return {
+          error: "limit_exceeded",
+          message: `Free tier users can only upload ${permissions.photoLimit} images. Upgrade to premium for unlimited uploads.`,
         };
       }
     }

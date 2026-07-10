@@ -1,14 +1,12 @@
 import { feed } from "#database/schema/feed";
 import { images } from "#database/schema/media";
-import { subscriptions } from "#database/schema/subscriptions";
 import { DatabaseService } from "#database/service";
+import { GetMediaPermissionsService } from "#modules/media/permissions/service";
 import { inject } from "@adonisjs/core";
 import drive from "@adonisjs/drive/services/main";
-import { and, count, eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import { ImageUploadEvent } from "./event.ts";
 import { Validator } from "./validator.ts";
-
-const FREE_TIER_IMAGE_LIMIT = 4;
 
 interface UserInfo {
   id: string;
@@ -18,41 +16,37 @@ interface UserInfo {
 
 @inject()
 export class UploadProfileImageService {
-  constructor(private db: DatabaseService) {}
+  constructor(
+    private db: DatabaseService,
+    private permissions: GetMediaPermissionsService
+  ) {}
 
   async execute(user: UserInfo, { key }: Validator) {
-    const [[imageCount], subscription] = await Promise.all([
+    const [[imageCount], permissions] = await Promise.all([
       this.db.use((db) =>
         db
           .select({ count: count() })
           .from(images)
           .where(eq(images.userId, user.id))
       ),
-      this.db.use((db) =>
-        db
-          .select({ id: subscriptions.id })
-          .from(subscriptions)
-          .where(
-            and(
-              eq(subscriptions.userId, user.id),
-              eq(subscriptions.status, "active")
-            )
-          )
-          .limit(1)
-          .then((rows) => rows[0])
-      ),
+      this.permissions.execute(user.id),
     ]);
 
-    // Only dancers have the free tier image limit
+    if (user.type === "dancer" && !permissions.canUploadPhoto) {
+      return {
+        error: "limit_exceeded",
+        message: "Photo uploads are not available for your organization tier.",
+      };
+    }
+
     if (
       user.type === "dancer" &&
-      !subscription &&
-      imageCount.count >= FREE_TIER_IMAGE_LIMIT
+      permissions.photoLimit !== null &&
+      imageCount.count >= permissions.photoLimit
     ) {
       return {
         error: "limit_exceeded",
-        message:
-          "Free tier users can only upload 4 images. Upgrade to premium for unlimited uploads.",
+        message: `Free tier users can only upload ${permissions.photoLimit} images. Upgrade to premium for unlimited uploads.`,
       };
     }
 

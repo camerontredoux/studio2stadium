@@ -44,6 +44,7 @@ export function MediaGallery({
             <MediaDialog
               imageCount={images.length}
               videoCount={videos.filter((v) => v.type === "cloudflare").length}
+              youtubeCount={videos.filter((v) => v.type === "youtube").length}
               orgAccountTier={orgAccountTier}
             />
           ) : (

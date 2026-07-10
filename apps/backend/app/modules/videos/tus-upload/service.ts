@@ -1,14 +1,12 @@
 import { dancerProfiles } from "#database/schema/dancers";
 import { videos, videoUploads } from "#database/schema/media";
-import { subscriptions } from "#database/schema/subscriptions";
 import { DatabaseService } from "#database/service";
+import { GetMediaPermissionsService } from "#modules/media/permissions/service";
 import env from "#start/env";
 import { inject } from "@adonisjs/core";
 import { and, count, eq, isNull, ne } from "drizzle-orm";
 
-// Direct (Cloudflare Stream) uploads cost money per upload, so they require a
-// real Stripe subscription. Org-granted users get YouTube embeds only.
-const STRIPE_VIDEO_LIMIT = 3;
+const DIRECT_VIDEO_LIMIT = 3;
 
 interface InitiateUploadParams {
   userId: string;
@@ -22,14 +20,17 @@ type InitiateUploadResult =
 
 @inject()
 export class Service {
-  constructor(private db: DatabaseService) {}
+  constructor(
+    private db: DatabaseService,
+    private permissions: GetMediaPermissionsService
+  ) {}
 
   async initiateUpload(
     params: InitiateUploadParams
   ): Promise<InitiateUploadResult> {
     const { userId, uploadLength, uploadMetadata } = params;
 
-    const [[completedCount], [pendingCount], dancerProfile, subscription] =
+    const [[completedCount], [pendingCount], dancerProfile, permissions] =
       await Promise.all([
         this.db.use((db) =>
           db
@@ -59,24 +60,10 @@ export class Service {
             .limit(1)
             .then((rows) => rows[0])
         ),
-        this.db.use((db) =>
-          db
-            .select({ id: subscriptions.id })
-            .from(subscriptions)
-            .where(
-              and(
-                eq(subscriptions.userId, userId),
-                eq(subscriptions.status, "active")
-              )
-            )
-            .limit(1)
-            .then((rows) => rows[0])
-        ),
+        this.permissions.execute(userId),
       ]);
 
-    // Direct file uploads require a real Stripe subscription. Org-granted (and
-    // free) dancers are steered to YouTube embeds instead.
-    if (dancerProfile && !subscription) {
+    if (dancerProfile && !permissions.canUploadDirectVideo) {
       return {
         error: "limit_exceeded",
         message:
@@ -84,7 +71,7 @@ export class Service {
       };
     }
 
-    const videoLimit = STRIPE_VIDEO_LIMIT;
+    const videoLimit = DIRECT_VIDEO_LIMIT;
     const totalVideos = completedCount.count + pendingCount.count;
     if (totalVideos >= videoLimit) {
       return {
@@ -94,13 +81,17 @@ export class Service {
     }
 
     // Append maxDurationSeconds to metadata
-    const maxDurationMetadata = `maxDurationSeconds ${Buffer.from("120").toString("base64")}`;
+    const maxDurationMetadata = `maxDurationSeconds ${Buffer.from(
+      "120"
+    ).toString("base64")}`;
     const fullMetadata = uploadMetadata
       ? `${uploadMetadata},${maxDurationMetadata}`
       : maxDurationMetadata;
 
     const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${env.get("CLOUDFLARE_ACCOUNT_ID")}/stream?direct_user=true`,
+      `https://api.cloudflare.com/client/v4/accounts/${env.get(
+        "CLOUDFLARE_ACCOUNT_ID"
+      )}/stream?direct_user=true`,
       {
         method: "POST",
         headers: {
