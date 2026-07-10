@@ -18,13 +18,14 @@ import {
 } from "./columns";
 
 export function useSearchColumns(
-  onFavoriteToggle: (rosterId: string, current: boolean) => void,
+  onFavoriteToggle?: (rosterId: string, current: boolean) => void,
   opts?: {
     enableSelection?: boolean;
     onRate?: (rosterId: string, rating: number) => void;
     onOpenNotes?: (rosterId: string) => void;
     onCallbackToggle?: (rosterId: string, current: boolean) => void;
     showRank?: boolean;
+    canScoutDancer?: (dancer: SearchDancerRow) => boolean;
   },
 ): ColumnDef<SearchDancerRow>[] {
   return useMemo(() => {
@@ -47,23 +48,32 @@ export function useSearchColumns(
     );
 
     if (opts?.onRate) {
-      cols.push(ratingQuickActionColumn(opts.onRate));
+      cols.push(ratingQuickActionColumn(opts.onRate, opts.canScoutDancer));
     } else {
       cols.push(ratingDisplayColumn() as ColumnDef<SearchDancerRow>);
     }
 
-    cols.push(favoriteToggleColumn(onFavoriteToggle));
+    if (onFavoriteToggle) {
+      cols.push(favoriteToggleColumn(onFavoriteToggle, opts?.canScoutDancer));
+    }
 
     if (opts?.onCallbackToggle) {
-      cols.push(callbackToggleColumn(opts.onCallbackToggle));
+      cols.push(
+        callbackToggleColumn(opts.onCallbackToggle, opts.canScoutDancer),
+      );
     }
 
     if (opts?.onOpenNotes) {
-      cols.push(notesQuickActionColumn(opts.onOpenNotes) as ColumnDef<SearchDancerRow>);
+      cols.push(
+        notesQuickActionColumn(
+          opts.onOpenNotes,
+          opts.canScoutDancer,
+        ) as ColumnDef<SearchDancerRow>,
+      );
     }
 
     cols.push(schoolInterestColumn);
 
     return cols;
-  }, [onFavoriteToggle, opts?.enableSelection, opts?.onRate, opts?.onOpenNotes, opts?.onCallbackToggle, opts?.showRank]);
+  }, [onFavoriteToggle, opts]);
 }

@@ -4627,13 +4627,14 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List dancers in active event
-         * @description Coach-scoped dancer search by name or bib number.
+         * List dancers across organization events
+         * @description Coach-scoped dancer search by name, bib number, or event.
          */
         get: {
             parameters: {
                 query?: {
                     search?: string | null;
+                    eventId?: string | null;
                     interested?: (string | number | boolean) | null;
                     bib?: (string | number) | null;
                 };
@@ -4652,15 +4653,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["OrgsIdDancersResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -10402,6 +10394,11 @@ export interface components {
                 id: string;
                 eventId: string;
                 type: components["schemas"]["UploadKind"];
+                eventName: string;
+                eventStartDate: string;
+                eventEndDate: string;
+                isActive: boolean;
+                hasStarted: boolean;
             } | null;
         };
         OrgsIdEventsResponse: {
@@ -10909,6 +10906,7 @@ export interface components {
             hasNote: boolean;
             isCalledBack: boolean;
             username: string | null;
+            eventId: string;
         }[];
         OrgsIdDancersIdResponse: {
             note: string | null;
@@ -10920,6 +10918,7 @@ export interface components {
             studio: string | null;
             gpa: number | null;
             gradYear: number | null;
+            eventId: string;
             rating: number | null;
             bibNumber: number | null;
             rosterId: string;

@@ -7,7 +7,8 @@ export default class GetDancerByIdController {
   async handle(ctx: HttpContext, service: GetDancerByIdService) {
     const rosterId = ctx.params.rosterId as string;
     const result = await service.execute(
-      ctx.orgEvent!.id,
+      ctx.org!.id,
+      ctx.orgEvent?.id ?? null,
       rosterId,
       ctx.orgRoster?.id ?? null
     );

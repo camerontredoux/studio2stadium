@@ -184,7 +184,12 @@ export class UploadCoachesService {
             } else {
               // Mint a school invite for unmatched rows; UPSERT on re-upload
               const token = randomBytes(32).toString("hex");
-              const expiresAt = new Date(Date.now() + 14 * 86400000);
+              const minimumExpiry = new Date(Date.now() + 14 * 86400000);
+              const eventExpiry = new Date(`${event.startDate}T00:00:00`);
+              eventExpiry.setDate(eventExpiry.getDate() + 7);
+              const expiresAt = new Date(
+                Math.max(minimumExpiry.getTime(), eventExpiry.getTime())
+              );
               await tx
                 .insert(schoolInvites)
                 .values({

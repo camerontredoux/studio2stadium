@@ -22,23 +22,21 @@ export class ListDancersService {
 
   async execute(
     orgId: string,
-    eventId: string,
+    activeEventId: string | null,
     coachRosterId: string | null,
     q: Validator,
     filterCheckedInOnly: boolean = false,
     showcaseId?: string,
-    allEvents: boolean = false
+    selectedEventId?: string
   ) {
     const rows = await this.db.use((db) => {
       const filters = [
-        // Free-tier orgs surface dancers from every event they've run, not just
-        // the active one; otherwise stay scoped to the active event.
-        allEvents
-          ? sql`${eventRosters.eventId} IN (
+        selectedEventId
+          ? eq(eventRosters.eventId, selectedEventId)
+          : sql`${eventRosters.eventId} IN (
               SELECT ${orgEvents.id} FROM ${orgEvents}
               WHERE ${orgEvents.orgId} = ${orgId}
-            )`
-          : eq(eventRosters.eventId, eventId),
+            )`,
         eq(eventRosters.type, "dancer"),
         eq(eventRosters.isStaff, false),
       ];
@@ -60,7 +58,7 @@ export class ListDancersService {
             SELECT 1 FROM event_school_selections ess
             WHERE ess.dancer_roster_id = ${eventRosters.id}
               AND ess.coach_roster_id = ${coachRosterId}
-              AND ess.event_id = ${eventId}
+              AND ess.event_id = ${activeEventId}
           )`
         : sql<boolean>`false`;
 
@@ -69,7 +67,7 @@ export class ListDancersService {
             SELECT 1 FROM ${eventFavorites}
             WHERE ${eventFavorites.dancerRosterId} = ${eventRosters.id}
               AND ${eventFavorites.coachRosterId} = ${coachRosterId}
-              AND ${eventFavorites.eventId} = ${eventId}
+              AND ${eventFavorites.eventId} = ${activeEventId}
           )`
         : sql<boolean>`false`;
 
@@ -78,7 +76,7 @@ export class ListDancersService {
             SELECT ${eventRatings.rating} FROM ${eventRatings}
             WHERE ${eventRatings.dancerRosterId} = ${eventRosters.id}
               AND ${eventRatings.coachRosterId} = ${coachRosterId}
-              AND ${eventRatings.eventId} = ${eventId}
+              AND ${eventRatings.eventId} = ${activeEventId}
             LIMIT 1
           )`
         : sql<number | null>`NULL`;
@@ -88,7 +86,7 @@ export class ListDancersService {
             SELECT 1 FROM ${eventNotes}
             WHERE ${eventNotes.dancerRosterId} = ${eventRosters.id}
               AND ${eventNotes.coachRosterId} = ${coachRosterId}
-              AND ${eventNotes.eventId} = ${eventId}
+              AND ${eventNotes.eventId} = ${activeEventId}
           )`
         : sql<boolean>`false`;
 
@@ -113,7 +111,7 @@ export class ListDancersService {
             SELECT 1 FROM event_school_selections ess
             WHERE ess.dancer_roster_id = ${eventRosters.id}
               AND ess.coach_roster_id = ${coachRosterId}
-              AND ess.event_id = ${eventId}
+              AND ess.event_id = ${activeEventId}
           )`
         );
       }
@@ -164,7 +162,9 @@ export class ListDancersService {
     // event. Collapse to one row per dancer — keyed by their account when
     // registered, otherwise left distinct — preferring the active event's row
     // so the coach's favorites/ratings/callbacks stay wired to it.
-    const deduped = allEvents ? this.dedupeByDancer(rows, eventId) : rows;
+    const deduped = selectedEventId
+      ? rows
+      : this.dedupeByDancer(rows, activeEventId);
 
     return deduped.map((row) => ({
       rosterId: row.rosterId,
@@ -183,6 +183,7 @@ export class ListDancersService {
       hasNote: row.hasNote,
       isCalledBack: row.isCalledBack,
       username: row.username,
+      eventId: row.eventId,
     }));
   }
 
@@ -194,7 +195,7 @@ export class ListDancersService {
       eventId: string;
       createdAt: Date | null;
     },
-  >(rows: T[], activeEventId: string): T[] {
+  >(rows: T[], activeEventId: string | null): T[] {
     const byDancer = new Map<string, T>();
     for (const row of rows) {
       const key = row.userId ?? `roster:${row.rosterId}`;
@@ -211,7 +212,7 @@ export class ListDancersService {
   private isBetterRow(
     candidate: { eventId: string; createdAt: Date | null },
     current: { eventId: string; createdAt: Date | null },
-    activeEventId: string
+    activeEventId: string | null
   ) {
     const candidateActive = candidate.eventId === activeEventId;
     const currentActive = current.eventId === activeEventId;

@@ -1,8 +1,9 @@
 import { DatabaseService } from "#database/service";
 import { organizations, orgMemberships } from "#database/schema/organizations";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
+import { hasEventStarted } from "#utils/event-time";
 import { inject } from "@adonisjs/core";
-import { and, eq } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 
 export interface GetOrgResult {
   org: typeof organizations.$inferSelect;
@@ -14,6 +15,11 @@ export interface GetOrgResult {
     id: string;
     eventId: string;
     type: "coach" | "dancer";
+    eventName: string;
+    eventStartDate: string;
+    eventEndDate: string;
+    isActive: boolean;
+    hasStarted: boolean;
   } | null;
 }
 
@@ -56,36 +62,53 @@ export class GetOrgService {
           };
         }
 
-        const [activeEvent] = await db
-          .select({ id: orgEvents.id })
-          .from(orgEvents)
+        const today = new Date().toISOString().slice(0, 10);
+        const [roster] = await db
+          .select({
+            id: eventRosters.id,
+            eventId: eventRosters.eventId,
+            type: eventRosters.type,
+            eventName: orgEvents.name,
+            eventStartDate: orgEvents.startDate,
+            eventEndDate: orgEvents.endDate,
+            eventStartTime: orgEvents.startTime,
+            eventTimezone: orgEvents.timezone,
+            isActive: orgEvents.isActive,
+          })
+          .from(eventRosters)
+          .innerJoin(orgEvents, eq(orgEvents.id, eventRosters.eventId))
           .where(
-            and(eq(orgEvents.orgId, org.id), eq(orgEvents.isActive, true))
+            and(eq(orgEvents.orgId, org.id), eq(eventRosters.userId, userId))
+          )
+          .orderBy(
+            desc(orgEvents.isActive),
+            asc(
+              sql`CASE WHEN ${orgEvents.startDate} >= ${today} THEN 0 ELSE 1 END`
+            ),
+            asc(
+              sql`CASE WHEN ${orgEvents.startDate} >= ${today} THEN ${orgEvents.startDate} END`
+            ),
+            desc(
+              sql`CASE WHEN ${orgEvents.startDate} < ${today} THEN ${orgEvents.startDate} END`
+            ),
+            desc(eventRosters.createdAt)
           )
           .limit(1);
-
-        if (activeEvent) {
-          const [roster] = await db
-            .select({
-              id: eventRosters.id,
-              eventId: eventRosters.eventId,
-              type: eventRosters.type,
-            })
-            .from(eventRosters)
-            .where(
-              and(
-                eq(eventRosters.eventId, activeEvent.id),
-                eq(eventRosters.userId, userId)
-              )
-            )
-            .limit(1);
-          if (roster) {
-            myRoster = {
-              id: roster.id,
-              eventId: roster.eventId,
-              type: roster.type as "coach" | "dancer",
-            };
-          }
+        if (roster) {
+          myRoster = {
+            id: roster.id,
+            eventId: roster.eventId,
+            type: roster.type as "coach" | "dancer",
+            eventName: roster.eventName,
+            eventStartDate: roster.eventStartDate,
+            eventEndDate: roster.eventEndDate,
+            isActive: roster.isActive,
+            hasStarted: hasEventStarted(
+              roster.eventStartDate,
+              roster.eventStartTime,
+              roster.eventTimezone
+            ),
+          };
         }
       }
 
