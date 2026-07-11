@@ -164,7 +164,7 @@ export function RosterDetailSheet({
   };
 
   const handleResendInvite = async () => {
-    if (!entry || entry.type !== "dancer") return;
+    if (!entry) return;
     try {
       const result = await resendMutation.mutateAsync({
         params: { path: { slug: orgSlug, id: eventId } },
@@ -513,7 +513,7 @@ export function RosterDetailSheet({
           </SheetContent>
           <SheetFooter>
             <div className="flex w-full items-center justify-end gap-2">
-              {!isActive && isDancer && (
+              {!isActive && (
                 <Button
                   type="button"
                   variant="ghost"

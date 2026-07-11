@@ -249,16 +249,17 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
       if (FEATURE_MANAGED_SETTINGS.has(k)) parsed[k] = v;
     }
     for (const [k, v] of Object.entries(settings)) {
-      if (v === "") continue;
-      const num = Number(v);
-      if (!isNaN(num) && v.trim() !== "") {
+      const value = k === "free_tier_vault_name" ? v.trim() : v;
+      if (value === "") continue;
+      const num = Number(value);
+      if (!isNaN(num) && value.trim() !== "") {
         parsed[k] = num;
-      } else if (v === "true") {
+      } else if (value === "true") {
         parsed[k] = true;
-      } else if (v === "false") {
+      } else if (value === "false") {
         parsed[k] = false;
       } else {
-        parsed[k] = v;
+        parsed[k] = value;
       }
     }
     updateOrg(

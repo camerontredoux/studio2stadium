@@ -41,7 +41,8 @@ export function FreeTierInviteEmail({
   logoUrl,
 }: FreeTierInviteEmailProps) {
   const accent = brandColor || colors.primary;
-  const vault = rawVaultName || "the platform";
+  const vault = rawVaultName?.trim() || "the platform";
+  const hasCustomVaultName = Boolean(rawVaultName?.trim());
   const previewText = eventName
     ? `You're officially in ${vault} — ${eventName}`
     : `You're officially in ${vault} — complete your free profile`;
@@ -155,8 +156,12 @@ export function FreeTierInviteEmail({
           Want to stand out?
         </Text>
         <Text style={{ ...paragraphStyle, margin: "0 0 24px" }}>
-          Unlock your full {vault} profile to give college coaches a complete
-          picture of who you are as a dancer.
+          {hasCustomVaultName ? (
+            <>Unlock your full {vault} profile</>
+          ) : (
+            <>Unlock your full profile on {vault}</>
+          )}{" "}
+          to give college coaches a complete picture of who you are as a dancer.
         </Text>
 
         {/* ── Complete Your Free Profile ── */}
@@ -252,7 +257,12 @@ export function FreeTierInviteEmail({
             when the event does.
           </Text>
           <Text style={{ ...paragraphStyle, margin: "0 0 16px" }}>
-            Your {vault} profile remains active for{" "}
+            {hasCustomVaultName ? (
+              <>Your {vault} profile</>
+            ) : (
+              <>Your profile on {vault}</>
+            )}{" "}
+            remains active for{" "}
             <strong>{tierExpiryMonths} months</strong>, giving college coaches
             additional time to:
           </Text>
@@ -433,7 +443,8 @@ export function FreeTierInviteEmail({
         {/* ── Closing ── */}
         <Text style={paragraphStyle}>
           We&apos;re excited to help you maximize your recruiting opportunities
-          and get the most out of your {vault} experience.
+          and get the most out of your{" "}
+          {hasCustomVaultName ? `${vault} experience` : `experience on ${vault}`}.
         </Text>
         <Text
           style={{

@@ -9,12 +9,17 @@ import {
 } from "#database/schema/org-events";
 import { organizations, orgMemberships } from "#database/schema/organizations";
 import { normalizeRowEmails, parseCoachCsv } from "#shared/org/csv-parser";
-import { sendOrgRosterAddedEmail } from "#shared/org/roster-added-email";
-import { sendSchoolAccountInviteEmail } from "#shared/org/school-account-invite-email";
+import { sendOrgRosterAddedEmailOrThrow } from "#shared/org/roster-added-email";
+import { sendSchoolAccountInviteEmailOrThrow } from "#shared/org/school-account-invite-email";
+import {
+  sendThrottledEmails,
+  type EmailSendTask,
+} from "#shared/org/throttled-email-sender";
 import { enforceEmailRole } from "#shared/org/role-guard";
 import { verifyPreviewToken } from "#shared/org/preview-token";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { randomBytes } from "node:crypto";
+import logger from "@adonisjs/core/services/logger";
 
 @inject()
 export class UploadCoachesService {
@@ -258,7 +263,9 @@ export class UploadCoachesService {
       }
     );
 
-    // Fire-and-forget token-linked invite emails for unmatched rows (after transaction)
+    const emailTasks: EmailSendTask[] = [];
+
+    // Queue token-linked invite emails for unmatched rows (after transaction).
     if (org && rows.length > 0) {
       const uploadId = result.uploadId;
       const unmatchedRows = await this.db
@@ -285,31 +292,63 @@ export class UploadCoachesService {
               )
             )
         )
-        .catch(() => []);
+        .catch((error: unknown) => {
+          logger.error(
+            { orgId, eventId, err: error },
+            "Failed to load coach roster invite recipients"
+          );
+          return [];
+        });
 
       for (const row of unmatchedRows) {
         if (!row.token) continue;
-        sendSchoolAccountInviteEmail({
-          org,
-          event: event ?? null,
-          email: row.email,
-          firstName: row.firstName,
-          token: row.token,
-        }).catch(() => {});
+        const token = row.token;
+        emailTasks.push({
+          recipient: row.email,
+          send: () =>
+            sendSchoolAccountInviteEmailOrThrow({
+              org,
+              event: event ?? null,
+              email: row.email,
+              firstName: row.firstName,
+              token,
+            }),
+        });
       }
     }
 
-    // Fire-and-forget notification emails for matched-new rows.
+    // Queue notification emails for matched-new rows.
     if (org && matchedNotifications.length > 0) {
       for (const { email, firstName } of matchedNotifications) {
-        sendOrgRosterAddedEmail({
-          org,
-          event: event ?? null,
-          email,
-          firstName,
-          type: "coach",
-        }).catch(() => {});
+        emailTasks.push({
+          recipient: email,
+          send: () =>
+            sendOrgRosterAddedEmailOrThrow({
+              org,
+              event: event ?? null,
+              email,
+              firstName,
+              type: "coach",
+            }),
+        });
       }
+    }
+
+    // Keep the HTTP response immediate while pacing the detached batch.
+    if (emailTasks.length > 0) {
+      void sendThrottledEmails(emailTasks)
+        .then(({ sent, failed }) => {
+          logger.info(
+            { orgId, eventId, sent, failed },
+            "Coach roster email batch completed"
+          );
+        })
+        .catch((error: unknown) => {
+          logger.error(
+            { orgId, eventId, err: error },
+            "Coach roster email batch stopped unexpectedly"
+          );
+        });
     }
 
     return {
