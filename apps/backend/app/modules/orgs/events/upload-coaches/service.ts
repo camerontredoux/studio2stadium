@@ -9,6 +9,7 @@ import {
 } from "#database/schema/org-events";
 import { organizations, orgMemberships } from "#database/schema/organizations";
 import { normalizeRowEmails, parseCoachCsv } from "#shared/org/csv-parser";
+import { schoolInviteExpiry } from "#shared/org/school-invite-expiry";
 import { sendOrgRosterAddedEmailOrThrow } from "#shared/org/roster-added-email";
 import { sendSchoolAccountInviteEmailOrThrow } from "#shared/org/school-account-invite-email";
 import {
@@ -189,12 +190,7 @@ export class UploadCoachesService {
             } else {
               // Mint a school invite for unmatched rows; UPSERT on re-upload
               const token = randomBytes(32).toString("hex");
-              const minimumExpiry = new Date(Date.now() + 14 * 86400000);
-              const eventExpiry = new Date(`${event.startDate}T00:00:00`);
-              eventExpiry.setDate(eventExpiry.getDate() + 7);
-              const expiresAt = new Date(
-                Math.max(minimumExpiry.getTime(), eventExpiry.getTime())
-              );
+              const expiresAt = schoolInviteExpiry(event.startDate);
               await tx
                 .insert(schoolInvites)
                 .values({
