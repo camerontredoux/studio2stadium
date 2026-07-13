@@ -15,7 +15,7 @@ interface FreeTierInviteMailData {
   upgradeUrl: string;
   contactEmail: string | null;
   tierExpiryMonths: number;
-  vaultName: string | null;
+  brandName: string | null;
   brandColor: string | null;
   welcomeVideoUrl: string | null;
   logoUrl: string | null;
@@ -26,7 +26,8 @@ class FreeTierInviteMail extends BaseMail {
 
   constructor(private data: FreeTierInviteMailData) {
     super();
-    this.subject = "You're officially in The Vault";
+    const brand = data.brandName?.trim() || data.orgName;
+    this.subject = `You're officially in ${brand}`;
   }
 
   async prepare() {
@@ -41,7 +42,7 @@ class FreeTierInviteMail extends BaseMail {
       upgradeUrl: this.data.upgradeUrl,
       contactEmail: this.data.contactEmail,
       tierExpiryMonths: this.data.tierExpiryMonths,
-      vaultName: this.data.vaultName,
+      brandName: this.data.brandName,
       brandColor: this.data.brandColor,
       welcomeVideoUrl: this.data.welcomeVideoUrl,
       logoUrl: this.data.logoUrl,
@@ -76,7 +77,9 @@ export async function sendFreeTierInviteEmailOrThrow(opts: {
       upgradeUrl,
       contactEmail: event?.contactEmail ?? null,
       tierExpiryMonths,
-      vaultName:
+      // "free_tier_vault_name" is a legacy persisted settings key; renaming it
+      // requires migrating org settings JSON.
+      brandName:
         (org.settings as { free_tier_vault_name?: string })
           ?.free_tier_vault_name ?? null,
       brandColor: org.primaryColor ?? null,

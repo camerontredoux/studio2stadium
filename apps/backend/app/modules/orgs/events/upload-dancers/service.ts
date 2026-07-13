@@ -14,12 +14,17 @@ import {
   csvUploads,
 } from "#database/schema/org-events";
 import { normalizeRowEmails, parseDancerCsv } from "#shared/org/csv-parser";
-import { sendOrgInviteEmail } from "#shared/org/invite-email";
-import { sendFreeTierInviteEmail } from "#shared/org/free-tier-invite-email";
-import { sendOrgRosterAddedEmail } from "#shared/org/roster-added-email";
+import { sendOrgInviteEmailOrThrow } from "#shared/org/invite-email";
+import { sendFreeTierInviteEmailOrThrow } from "#shared/org/free-tier-invite-email";
+import { sendOrgRosterAddedEmailOrThrow } from "#shared/org/roster-added-email";
+import {
+  sendThrottledEmails,
+  type EmailSendTask,
+} from "#shared/org/throttled-email-sender";
 import { enforceEmailRole } from "#shared/org/role-guard";
 import { verifyPreviewToken } from "#shared/org/preview-token";
 import { and, eq, inArray } from "drizzle-orm";
+import logger from "@adonisjs/core/services/logger";
 
 function randomToken(): string {
   return randomBytes(32).toString("base64url");
@@ -199,11 +204,13 @@ export class UploadDancersService {
           for (const r of rowsToProcess) {
             const userId = byEmail.get(r.email.toLowerCase()) ?? null;
 
-            const rowExpiration = userId ? (() => {
-              const d = new Date(event!.endDate);
-              d.setMonth(d.getMonth() + tierExpiryMonths);
-              return d.toISOString().split("T")[0]!;
-            })() : null;
+            const rowExpiration = userId
+              ? (() => {
+                  const d = new Date(event!.endDate);
+                  d.setMonth(d.getMonth() + tierExpiryMonths);
+                  return d.toISOString().split("T")[0]!;
+                })()
+              : null;
 
             const [existing] = await tx
               .select()
@@ -269,7 +276,6 @@ export class UploadDancersService {
                 .onConflictDoNothing({
                   target: [orgMemberships.userId, orgMemberships.orgId],
                 });
-
             } else {
               // Create dancer invite for unmatched rows
               const token = randomToken();
@@ -359,47 +365,79 @@ export class UploadDancersService {
       }
     );
 
-    // Fire-and-forget invite emails for unmatched rows (after transaction)
+    const emailTasks: EmailSendTask[] = [];
+
+    // Queue invite emails for unmatched rows (after transaction).
     if (org && inviteTokens.length > 0) {
-      const upgradeUrl = freeTier
-        ? (orgSettings.free_tier_upgrade_url as string | undefined) ?? null
-        : null;
+      const configuredUpgradeUrl = orgSettings.free_tier_upgrade_url as
+        | string
+        | undefined;
+      const upgradeUrl = freeTier ? (configuredUpgradeUrl ?? null) : null;
 
       for (const { email, firstName, token, paid } of inviteTokens) {
         if (freeTier && paid === false && upgradeUrl) {
-          sendFreeTierInviteEmail({
-            org,
-            event: event ?? null,
-            email,
-            firstName,
-            token,
-            upgradeUrl,
-            tierExpiryMonths,
-          }).catch(() => {});
+          emailTasks.push({
+            recipient: email,
+            send: () =>
+              sendFreeTierInviteEmailOrThrow({
+                org,
+                event: event ?? null,
+                email,
+                firstName,
+                token,
+                upgradeUrl,
+                tierExpiryMonths,
+              }),
+          });
         } else {
-          sendOrgInviteEmail({
-            org,
-            event: event ?? null,
-            email,
-            firstName,
-            type: "dancer",
-            token,
-          }).catch(() => {});
+          emailTasks.push({
+            recipient: email,
+            send: () =>
+              sendOrgInviteEmailOrThrow({
+                org,
+                event: event ?? null,
+                email,
+                firstName,
+                type: "dancer",
+                token,
+              }),
+          });
         }
       }
     }
 
-    // Fire-and-forget notification emails for matched-new rows.
+    // Queue notification emails for matched-new rows.
     if (org && matchedNotifications.length > 0) {
       for (const { email, firstName } of matchedNotifications) {
-        sendOrgRosterAddedEmail({
-          org,
-          event: event ?? null,
-          email,
-          firstName,
-          type: "dancer",
-        }).catch(() => {});
+        emailTasks.push({
+          recipient: email,
+          send: () =>
+            sendOrgRosterAddedEmailOrThrow({
+              org,
+              event: event ?? null,
+              email,
+              firstName,
+              type: "dancer",
+            }),
+        });
       }
+    }
+
+    // Keep the HTTP response immediate while pacing the detached batch.
+    if (emailTasks.length > 0) {
+      void sendThrottledEmails(emailTasks)
+        .then(({ sent, failed }) => {
+          logger.info(
+            { orgId, eventId, sent, failed },
+            "Dancer roster email batch completed"
+          );
+        })
+        .catch((error: unknown) => {
+          logger.error(
+            { orgId, eventId, err: error },
+            "Dancer roster email batch stopped unexpectedly"
+          );
+        });
     }
 
     return {

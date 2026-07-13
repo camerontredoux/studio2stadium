@@ -20,9 +20,9 @@ export function SubscriptionEndedEmail({
     <Layout preview="Your Studio 2 Stadium Premium subscription has expired">
       <Text style={paragraphStyle}>Hi {firstName},</Text>
       <Text style={paragraphStyle}>
-        Your 3-month Vault subscription has officially expired. We hope you
-        enjoyed your time as a premium member and found value in the enhanced
-        features.
+        Your Studio 2 Stadium Premium subscription has officially expired. We
+        hope you enjoyed your time as a premium member and found value in the
+        enhanced features.
       </Text>
       <Text style={paragraphStyle}>
         As a reminder, premium members get access to:

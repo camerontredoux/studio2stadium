@@ -1,10 +1,14 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { randomBytes } from "node:crypto";
-import { setTimeout as sleep } from "node:timers/promises";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { dancerInvites, organizations } from "#database/schema/organizations";
 import { sendOrgInviteEmailOrThrow } from "#shared/org/invite-email";
+import {
+  EMAIL_SEND_PACING_MS,
+  sendThrottledEmails,
+  type EmailSendTask,
+} from "#shared/org/throttled-email-sender";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 import type { AuditContext } from "#database/audit";
@@ -20,7 +24,7 @@ export interface ResendInvitesResult {
 }
 
 // Exposed for tests: allows disabling the per-item delay.
-export const RESEND_PACING_MS = 100;
+export const RESEND_PACING_MS = EMAIL_SEND_PACING_MS;
 
 @inject()
 export class ResendInvitesService {
@@ -77,52 +81,58 @@ export class ResendInvitesService {
       return { sent: 0, skipped: input.ids.length, failed: [] };
     }
 
-    let sent = 0;
     const failed: Array<{ id: string; reason: string }> = [];
+    const rowIdsByTask = new Map<EmailSendTask, string>();
+    const tasks = rows.map((row) => {
+      const token = randomToken();
+      const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14);
+      let invitePrepared = false;
+      const task: EmailSendTask = {
+        recipient: row.email,
+        send: async () => {
+          if (!invitePrepared) {
+            await this.db.tx(async (tx) => {
+              await tx
+                .delete(dancerInvites)
+                .where(
+                  and(
+                    eq(dancerInvites.orgId, org.id),
+                    eq(dancerInvites.email, row.email)
+                  )
+                );
+              await tx.insert(dancerInvites).values({
+                orgId: org.id,
+                email: row.email,
+                token,
+                expiresAt,
+              });
+            });
+            invitePrepared = true;
+          }
 
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i]!;
-      try {
-        const token = randomToken();
-        const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14);
-        await this.db.tx(async (tx) => {
-          await tx
-            .delete(dancerInvites)
-            .where(
-              and(
-                eq(dancerInvites.orgId, org.id),
-                eq(dancerInvites.email, row.email)
-              )
-            );
-          await tx.insert(dancerInvites).values({
-            orgId: org.id,
+          await sendOrgInviteEmailOrThrow({
+            org,
+            event,
             email: row.email,
+            firstName: row.firstName,
+            type: "dancer",
             token,
-            expiresAt,
           });
-        });
+        },
+      };
+      rowIdsByTask.set(task, row.id);
+      return task;
+    });
 
-        await sendOrgInviteEmailOrThrow({
-          org,
-          event,
-          email: row.email,
-          firstName: row.firstName,
-          type: "dancer",
-          token,
-        });
-
-        sent += 1;
-      } catch (err) {
+    const { sent } = await sendThrottledEmails(tasks, {
+      pacingMs,
+      onTerminalFailure: (task, error) => {
         failed.push({
-          id: row.id,
-          reason: err instanceof Error ? err.message : String(err),
+          id: rowIdsByTask.get(task)!,
+          reason: error instanceof Error ? error.message : String(error),
         });
-      }
-
-      if (pacingMs > 0 && i < rows.length - 1) {
-        await sleep(pacingMs);
-      }
-    }
+      },
+    });
 
     // Log a single audit entry summarizing the resend operation
     await this.db.withAudit(auditCtx, async (_tx, auditLog) => {
