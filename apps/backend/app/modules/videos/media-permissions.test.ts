@@ -2,6 +2,7 @@ import { db } from "#database/connection";
 import { dancerProfiles } from "#database/schema/dancers";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { organizations, premiumGrants } from "#database/schema/organizations";
+import { schoolProfiles } from "#database/schema/schools";
 import { subscriptions } from "#database/schema/subscriptions";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
@@ -42,6 +43,32 @@ async function createDancer(options: TestDancerOptions = {}) {
   await db.insert(dancerProfiles).values({
     userId: user.id,
     birthday: "2008-01-01",
+    location: "CA",
+  });
+
+  return user;
+}
+
+async function createSchool() {
+  const email = faker.internet.email().toLowerCase();
+  const [user] = await db
+    .insert(users)
+    .values({
+      username: faker.internet.username().toLowerCase(),
+      email,
+      displayEmail: email,
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      password: await hash.make(PASSWORD),
+      role: "user",
+      type: "school",
+      verified: true,
+    })
+    .returning();
+
+  await db.insert(schoolProfiles).values({
+    userId: user.id,
+    name: `${faker.company.name()} ${faker.string.alphanumeric(6)}`,
     location: "CA",
   });
 
@@ -256,5 +283,23 @@ test.group("Dancer media permission matrix", (group) => {
     photo.assertBodyContains({
       message: "Photo uploads are not available for your organization tier.",
     });
+  });
+
+  test("school account uploads YouTube and direct videos with no subscription and no caps", async ({
+    client,
+  }) => {
+    const school = await createSchool();
+    const token = await bearerToken(client, school.email);
+
+    // Beyond the org-standard cap of 3, with no subscription or grant.
+    const youtube = await addYoutubeVideos(client, token, 4);
+    for (const response of youtube) response.assertStatus(201);
+
+    // Beyond the premium direct-upload cap of 3.
+    mockSuccessfulCloudflareUpload();
+    for (let index = 0; index < 4; index += 1) {
+      const tus = await initiateTus(client, token);
+      tus.assertStatus(201);
+    }
   });
 });

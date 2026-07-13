@@ -6,8 +6,6 @@ import env from "#start/env";
 import { inject } from "@adonisjs/core";
 import { and, count, eq, isNull, ne } from "drizzle-orm";
 
-const DIRECT_VIDEO_LIMIT = 3;
-
 interface InitiateUploadParams {
   userId: string;
   uploadLength: string;
@@ -71,9 +69,9 @@ export class Service {
       };
     }
 
-    const videoLimit = DIRECT_VIDEO_LIMIT;
+    const videoLimit = permissions.directVideoLimit;
     const totalVideos = completedCount.count + pendingCount.count;
-    if (totalVideos >= videoLimit) {
+    if (videoLimit !== null && totalVideos >= videoLimit) {
       return {
         error: "limit_exceeded",
         message: `You can only upload ${videoLimit} videos. Delete an existing video to upload a new one.`,

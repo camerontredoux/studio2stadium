@@ -6,11 +6,13 @@ import { eq } from "drizzle-orm";
 
 export const FREE_TIER_IMAGE_LIMIT = 4;
 export const ORG_STANDARD_YOUTUBE_LIMIT = 3;
+export const DIRECT_VIDEO_LIMIT = 3;
 
 export interface MediaPermissions {
   canUploadDirectVideo: boolean;
   canAddYoutubeVideo: boolean;
   canUploadPhoto: boolean;
+  directVideoLimit: number | null;
   youtubeLimit: number | null;
   photoLimit: number | null;
 }
@@ -45,6 +47,7 @@ export class GetMediaPermissionsService {
         canUploadDirectVideo: false,
         canAddYoutubeVideo: false,
         canUploadPhoto: false,
+        directVideoLimit: 0,
         youtubeLimit: 0,
         photoLimit: 0,
       };
@@ -54,11 +57,11 @@ export class GetMediaPermissionsService {
 
     if (user.type === "school") {
       return {
-        // Preserve existing school behavior: direct uploads and photos are not
-        // dancer-tier gated, while YouTube links require premium/admin access.
+        // Schools are never tier-gated: there is no premium school account.
         canUploadDirectVideo: true,
-        canAddYoutubeVideo: isPremium,
+        canAddYoutubeVideo: true,
         canUploadPhoto: true,
+        directVideoLimit: null,
         youtubeLimit: null,
         photoLimit: null,
       };
@@ -69,6 +72,7 @@ export class GetMediaPermissionsService {
         canUploadDirectVideo: true,
         canAddYoutubeVideo: true,
         canUploadPhoto: true,
+        directVideoLimit: DIRECT_VIDEO_LIMIT,
         youtubeLimit: null,
         photoLimit: null,
       };
@@ -84,6 +88,7 @@ export class GetMediaPermissionsService {
         canUploadDirectVideo: false,
         canAddYoutubeVideo: true,
         canUploadPhoto: true,
+        directVideoLimit: 0,
         youtubeLimit: ORG_STANDARD_YOUTUBE_LIMIT,
         photoLimit: FREE_TIER_IMAGE_LIMIT,
       };
@@ -94,6 +99,7 @@ export class GetMediaPermissionsService {
         canUploadDirectVideo: false,
         canAddYoutubeVideo: false,
         canUploadPhoto: false,
+        directVideoLimit: 0,
         youtubeLimit: 0,
         photoLimit: 0,
       };
@@ -103,6 +109,7 @@ export class GetMediaPermissionsService {
       canUploadDirectVideo: false,
       canAddYoutubeVideo: false,
       canUploadPhoto: true,
+      directVideoLimit: 0,
       youtubeLimit: 0,
       photoLimit: FREE_TIER_IMAGE_LIMIT,
     };
