@@ -1,4 +1,5 @@
 import { SidebarLayout } from "@/components/layouts/sidebar-layout";
+import { OrgStoriesRail } from "@/components/shared/org-stories-rail";
 import { FeedSidebar } from "@/features/feed/components/sidebar/sidebar";
 
 import { useSession } from "@/lib/session";
@@ -17,6 +18,8 @@ export function FeedPage() {
       tabs={{ contentLabel: "Feed", sidebarLabel: "Discover" }}
     >
       <div className="flex flex-col gap-2 lg:gap-4">
+        <OrgStoriesRail />
+
         <div className="hidden lg:block">
           <h1 className="text-2xl leading-none font-bold tracking-tight">
             Welcome back, {session.firstName}!
