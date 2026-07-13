@@ -124,6 +124,7 @@ function DancerDashboard({
               status={status ?? null}
               isLoading={statusLoading}
               checkIn={checkIn}
+              eventStartDate={event.startDate}
             />
           )}
           <QuickNavPanel
@@ -155,10 +156,12 @@ function CheckInPanel({
   status,
   isLoading,
   checkIn,
+  eventStartDate,
 }: {
   status: CheckInStatus | null;
   isLoading: boolean;
   checkIn: ReturnType<typeof useDancerCheckIn>;
+  eventStartDate: string;
 }) {
   return (
     <div className="border-border flex max-h-72 min-h-0 w-full flex-col overflow-y-auto rounded-md border">
@@ -183,7 +186,11 @@ function CheckInPanel({
             Check-in is not available.
           </p>
         ) : (
-          <CheckInContent status={status} checkIn={checkIn} />
+          <CheckInContent
+            status={status}
+            checkIn={checkIn}
+            eventStartDate={eventStartDate}
+          />
         )}
       </div>
     </div>
@@ -193,9 +200,11 @@ function CheckInPanel({
 function CheckInContent({
   status,
   checkIn,
+  eventStartDate,
 }: {
   status: CheckInStatus;
   checkIn: ReturnType<typeof useDancerCheckIn>;
+  eventStartDate: string;
 }) {
   if (status.checkedInAt) {
     const checkedInTime = new Date(status.checkedInAt).toLocaleTimeString(
@@ -260,17 +269,14 @@ function CheckInContent({
     );
   }
 
-  const opensAt = status.eventStartTime
-    ? (() => {
-        const d = new Date(`1970-01-01T${status.eventStartTime}`);
-        d.setHours(d.getHours() - 1);
-        return d.toLocaleTimeString("en-US", {
-          hour: "numeric",
-          minute: "2-digit",
-          hour12: true,
-        });
-      })()
-    : null;
+  const opensAt =
+    status.eventStartTime && status.timezone
+      ? formatCheckInOpenTime(
+          eventStartDate,
+          status.eventStartTime,
+          status.timezone,
+        )
+      : null;
 
   return (
     <div className="flex items-start gap-3">
@@ -282,13 +288,64 @@ function CheckInContent({
           Check-in not yet open
         </span>
         <span className="text-muted-foreground text-[11px] 2xl:text-xs">
-          {opensAt
-            ? `Opens at ${opensAt} ${status.timezone}`
-            : "Opens on event day"}
+          {opensAt ? `Opens at ${opensAt}` : "Opens on event day"}
         </span>
       </div>
     </div>
   );
+}
+
+function formatCheckInOpenTime(
+  startDate: string,
+  startTime: string,
+  timezone: string,
+): string | null {
+  const [year, month, day] = startDate.split("-").map(Number);
+  const [hour, minute] = startTime.split(":").map(Number);
+  const eventWallTime = Date.UTC(year, month - 1, day, hour, minute);
+
+  try {
+    const partsFormatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hourCycle: "h23",
+    });
+    const getOffset = (instant: number) => {
+      const parts = Object.fromEntries(
+        partsFormatter
+          .formatToParts(new Date(instant))
+          .filter((part) => part.type !== "literal")
+          .map((part) => [part.type, part.value]),
+      );
+      const zonedWallTime = Date.UTC(
+        Number(parts.year),
+        Number(parts.month) - 1,
+        Number(parts.day),
+        Number(parts.hour),
+        Number(parts.minute),
+        Number(parts.second),
+      );
+      return zonedWallTime - instant;
+    };
+
+    let eventInstant = eventWallTime - getOffset(eventWallTime);
+    eventInstant = eventWallTime - getOffset(eventInstant);
+
+    return new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+      timeZoneName: "short",
+    }).format(new Date(eventInstant - 60 * 60 * 1000));
+  } catch {
+    return null;
+  }
 }
 
 function QuickNavPanel({
