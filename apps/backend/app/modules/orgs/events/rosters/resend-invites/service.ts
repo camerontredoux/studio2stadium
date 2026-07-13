@@ -5,6 +5,7 @@ import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { dancerInvites, organizations } from "#database/schema/organizations";
 import { schoolInvites } from "#database/schema/schools";
 import { sendOrgInviteEmailOrThrow } from "#shared/org/invite-email";
+import { schoolInviteExpiry } from "#shared/org/school-invite-expiry";
 import { sendSchoolAccountInviteEmailOrThrow } from "#shared/org/school-account-invite-email";
 import {
   EMAIL_SEND_PACING_MS,
@@ -87,12 +88,12 @@ export class ResendInvitesService {
     const failed: Array<{ id: string; reason: string }> = [];
     const rowIdsByTask = new Map<EmailSendTask, string>();
     const tasks = rows.map((row) => {
-      const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14);
       let invitePrepared = false;
       let task: EmailSendTask;
 
       if (row.type === "dancer") {
         const token = randomToken();
+        const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14);
         task = {
           recipient: row.email,
           send: async () => {
@@ -128,6 +129,8 @@ export class ResendInvitesService {
         };
       } else {
         const token = randomBytes(32).toString("hex");
+        // Coach invites must outlive far-future events, matching upload-coaches.
+        const expiresAt = schoolInviteExpiry(event?.startDate);
         task = {
           recipient: row.email,
           send: async () => {

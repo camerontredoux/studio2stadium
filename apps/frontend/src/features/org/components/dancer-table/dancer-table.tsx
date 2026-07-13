@@ -44,6 +44,7 @@ interface DancerTableProps<T> {
   onSortingChange?: OnChangeFn<SortingState>;
   pageSize?: number;
   enableSelection?: boolean;
+  isRowSelectable?: (row: T) => boolean;
   rowSelection?: RowSelectionState;
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
 }
@@ -60,6 +61,7 @@ export function DancerTable<T extends { rosterId: string }>({
   onSortingChange: onSortingChangeProp,
   pageSize = 25,
   enableSelection,
+  isRowSelectable,
   rowSelection,
   onRowSelectionChange,
 }: DancerTableProps<T>) {
@@ -81,7 +83,9 @@ export function DancerTable<T extends { rosterId: string }>({
     return () => container.removeEventListener("scroll", onScroll);
   }, []);
 
-  const [internalSorting, setInternalSorting] = useState<SortingState>(sortingProp ?? []);
+  const [internalSorting, setInternalSorting] = useState<SortingState>(
+    sortingProp ?? [],
+  );
   const isControlled = onSortingChangeProp !== undefined;
   const sorting = isControlled ? (sortingProp ?? []) : internalSorting;
   const setSorting = isControlled ? onSortingChangeProp : setInternalSorting;
@@ -90,7 +94,9 @@ export function DancerTable<T extends { rosterId: string }>({
     columns,
     data,
     enableSortingRemoval: false,
-    enableRowSelection: enableSelection,
+    enableRowSelection: isRowSelectable
+      ? (row) => isRowSelectable(row.original)
+      : enableSelection,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -115,7 +121,7 @@ export function DancerTable<T extends { rosterId: string }>({
       <div className="flex flex-col gap-2 sm:hidden">
         {isLoading ? (
           <div className="relative">
-            <div className="pointer-events-none select-none blur-[2px] opacity-40">
+            <div className="pointer-events-none opacity-40 blur-[2px] select-none">
               {Array.from({ length: 3 }, (_, i) => (
                 <div
                   key={`placeholder-${i}`}
@@ -175,9 +181,14 @@ export function DancerTable<T extends { rosterId: string }>({
       </div>
 
       {/* Desktop Table View */}
-      <Frame ref={frameRef} className="relative hidden w-full min-h-0 flex-1 overflow-hidden sm:flex sm:flex-col *:data-[slot=table-container]:min-h-0 *:data-[slot=table-container]:flex-1 *:data-[slot=table-container]:overflow-y-auto *:data-[slot=table-container]:[scrollbar-width:thin]">
+      <Frame
+        ref={frameRef}
+        className="relative hidden min-h-0 w-full flex-1 overflow-hidden *:data-[slot=table-container]:min-h-0 *:data-[slot=table-container]:flex-1 *:data-[slot=table-container]:overflow-y-auto *:data-[slot=table-container]:[scrollbar-width:thin] sm:flex sm:flex-col"
+      >
         <Table className={isLoading || !paginatedRows.length ? "h-full" : ""}>
-          <TableHeader className={`sticky top-0 z-10 [&_th]:transition-colors ${isScrolled ? "[&_th]:bg-[#f8f8f8] dark:[&_th]:bg-[#18181A]" : ""}`}>
+          <TableHeader
+            className={`sticky top-0 z-10 [&_th]:transition-colors ${isScrolled ? "[&_th]:bg-[#f8f8f8] dark:[&_th]:bg-[#18181A]" : ""}`}
+          >
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow className="hover:bg-transparent" key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -236,20 +247,23 @@ export function DancerTable<T extends { rosterId: string }>({
           <TableBody>
             {isLoading ? (
               Array.from({ length: 5 }, (_, i) => (
-                <TableRow key={`placeholder-${i}`} className="pointer-events-none opacity-0">
+                <TableRow
+                  key={`placeholder-${i}`}
+                  className="pointer-events-none opacity-0"
+                >
                   {Array.from({ length: columns.length }, (_, j) => (
-                    <TableCell key={`placeholder-${i}-${j}`}>
-                      &nbsp;
-                    </TableCell>
+                    <TableCell key={`placeholder-${i}-${j}`}>&nbsp;</TableCell>
                   ))}
                 </TableRow>
               ))
             ) : paginatedRows.length ? (
               paginatedRows.map((row) => (
                 <TableRow
-                  className={`group/row${onRowClick ? " cursor-pointer" : ""}`}
+                  className={`group/row${onRowClick ? "cursor-pointer" : ""}`}
                   key={row.id}
-                  onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                  onClick={
+                    onRowClick ? () => onRowClick(row.original) : undefined
+                  }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

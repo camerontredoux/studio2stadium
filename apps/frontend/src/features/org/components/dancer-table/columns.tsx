@@ -1,8 +1,14 @@
+/* eslint-disable react-refresh/only-export-components -- column factories intentionally return render components */
 import type { ColumnDef } from "@tanstack/react-table";
 import { Link } from "@tanstack/react-router";
 import { Heart, Megaphone, PencilIcon, PlusIcon, StarIcon } from "lucide-react";
 import { Rating, RatingItem } from "@/components/ui/rating";
-import { Tooltip, TooltipPopup, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipPopup,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/components/utils/cn";
 
@@ -10,7 +16,9 @@ function NotesIndicator() {
   return (
     <TooltipProvider delay={0}>
       <Tooltip>
-        <TooltipTrigger render={<span className="flex items-center justify-center" />}>
+        <TooltipTrigger
+          render={<span className="flex items-center justify-center" />}
+        >
           <PencilIcon className="text-primary size-4" />
         </TooltipTrigger>
         <TooltipPopup>You have notes for this dancer</TooltipPopup>
@@ -32,6 +40,7 @@ export interface DancerRow {
 }
 
 export interface SearchDancerRow extends DancerRow {
+  eventId: string;
   interestedInMySchool: boolean;
   isFavorited: boolean;
   isCalledBack: boolean;
@@ -39,7 +48,6 @@ export interface SearchDancerRow extends DancerRow {
   rating: number | null;
   username?: string | null;
 }
-
 
 export const bibColumn: ColumnDef<DancerRow> = {
   accessorKey: "bibNumber",
@@ -122,63 +130,71 @@ export const gpaColumn: ColumnDef<DancerRow> = {
 
 export function favoriteToggleColumn(
   onToggle: (rosterId: string, current: boolean) => void,
+  canInteract: (dancer: SearchDancerRow) => boolean = () => true,
 ): ColumnDef<SearchDancerRow> {
   return {
     id: "favorite",
-    header: () => <span title="Favorite"><Heart className="text-muted-foreground size-4" /></span>,
+    header: () => (
+      <span title="Favorite">
+        <Heart className="text-muted-foreground size-4" />
+      </span>
+    ),
     size: 40,
     enableSorting: false,
-    cell: ({ row }) => (
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onToggle(row.original.rosterId, row.original.isFavorited);
-        }}
-        className="flex cursor-pointer items-center justify-center"
-        aria-label={
-          row.original.isFavorited ? "Unfavorite" : "Favorite"
-        }
-      >
-        <Heart
-          className={`size-4 ${
-            row.original.isFavorited
-              ? "fill-current text-red-500"
-              : "text-muted-foreground"
-          }`}
-        />
-      </button>
-    ),
+    cell: ({ row }) =>
+      canInteract(row.original) ? (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggle(row.original.rosterId, row.original.isFavorited);
+          }}
+          className="flex cursor-pointer items-center justify-center"
+          aria-label={row.original.isFavorited ? "Unfavorite" : "Favorite"}
+        >
+          <Heart
+            className={`size-4 ${
+              row.original.isFavorited
+                ? "fill-current text-red-500"
+                : "text-muted-foreground"
+            }`}
+          />
+        </button>
+      ) : null,
   };
 }
 
 export function callbackToggleColumn(
   onToggle: (rosterId: string, current: boolean) => void,
+  canInteract: (dancer: SearchDancerRow) => boolean = () => true,
 ): ColumnDef<SearchDancerRow> {
   return {
     id: "callback",
     header: "Callback",
     size: 100,
     enableSorting: false,
-    cell: ({ row }) => (
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onToggle(row.original.rosterId, row.original.isCalledBack);
-        }}
-        className={`flex cursor-pointer items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold transition-colors ${
-          row.original.isCalledBack
-            ? "bg-foreground text-background"
-            : "text-muted-foreground hover:text-foreground"
-        }`}
-        aria-label={row.original.isCalledBack ? "Remove callback" : "Call back"}
-        aria-pressed={row.original.isCalledBack}
-      >
-        <Megaphone className="size-3" />
-        {row.original.isCalledBack ? "Called" : "Call"}
-      </button>
-    ),
+    cell: ({ row }) =>
+      canInteract(row.original) ? (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggle(row.original.rosterId, row.original.isCalledBack);
+          }}
+          className={`flex cursor-pointer items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold transition-colors ${
+            row.original.isCalledBack
+              ? "bg-foreground text-background"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+          aria-label={
+            row.original.isCalledBack ? "Remove callback" : "Call back"
+          }
+          aria-pressed={row.original.isCalledBack}
+        >
+          <Megaphone className="size-3" />
+          {row.original.isCalledBack ? "Called" : "Call"}
+        </button>
+      ) : null,
   };
 }
 
@@ -188,7 +204,11 @@ export const notesIndicatorColumn: ColumnDef<{
   note?: string | null;
 }> = {
   id: "notes",
-  header: () => <span className="flex items-center justify-center" title="Notes"><PencilIcon className="size-4 text-muted-foreground" /></span>,
+  header: () => (
+    <span className="flex items-center justify-center" title="Notes">
+      <PencilIcon className="text-muted-foreground size-4" />
+    </span>
+  ),
   size: 40,
   enableSorting: false,
   cell: ({ row }) => {
@@ -202,7 +222,11 @@ export const notesIndicatorColumn: ColumnDef<{
 
 export const schoolInterestColumn: ColumnDef<SearchDancerRow> = {
   id: "schoolInterest",
-  header: () => <span title="Interested in your school"><StarIcon className="size-3.5 text-muted-foreground" /></span>,
+  header: () => (
+    <span title="Interested in your school">
+      <StarIcon className="text-muted-foreground size-3.5" />
+    </span>
+  ),
   size: 40,
   enableSorting: false,
   cell: ({ row }) =>
@@ -242,20 +266,19 @@ export function selectColumn<T>(): ColumnDef<T> {
 
 export function ratingQuickActionColumn(
   onRate: (rosterId: string, rating: number) => void,
+  canInteract: (dancer: SearchDancerRow) => boolean = () => true,
 ): ColumnDef<SearchDancerRow> {
   return {
     accessorKey: "rating",
     header: "Rating",
     size: 120,
     cell: ({ row }) => {
+      if (!canInteract(row.original)) return null;
       const rating = row.original.rating;
       return (
-        <div
-          className="flex items-center"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
           {rating == null && (
-            <span className="text-muted-foreground text-sm group-hover/row:hidden group-focus-within/row:hidden">
+            <span className="text-muted-foreground text-sm group-focus-within/row:hidden group-hover/row:hidden">
               —
             </span>
           )}
@@ -266,8 +289,8 @@ export function ratingQuickActionColumn(
             className={cn(
               "transition-opacity",
               rating == null
-                ? "hidden group-hover/row:flex group-focus-within/row:flex"
-                : "pointer-events-none group-hover/row:pointer-events-auto group-focus-within/row:pointer-events-auto",
+                ? "hidden group-focus-within/row:flex group-hover/row:flex"
+                : "pointer-events-none group-focus-within/row:pointer-events-auto group-hover/row:pointer-events-auto",
             )}
           >
             {Array.from({ length: 5 }, (_, i) => (
@@ -282,6 +305,7 @@ export function ratingQuickActionColumn(
 
 export function notesQuickActionColumn(
   onOpenNotes: (rosterId: string) => void,
+  canInteract: (dancer: SearchDancerRow) => boolean = () => true,
 ): ColumnDef<SearchDancerRow> {
   return {
     id: "notes",
@@ -293,6 +317,7 @@ export function notesQuickActionColumn(
     size: 40,
     enableSorting: false,
     cell: ({ row }) => {
+      if (!canInteract(row.original)) return null;
       const hasNote = row.original.hasNote;
       const Icon = hasNote ? PencilIcon : PlusIcon;
       return (

@@ -4634,6 +4634,21 @@
             }
           },
           {
+            "name": "eventId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
             "name": "interested",
             "in": "query",
             "required": false,
@@ -4681,23 +4696,13 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
           }
         },
         "tags": [
           "Org Scouting"
         ],
-        "summary": "List dancers in active event",
-        "description": "Coach-scoped dancer search by name or bib number."
+        "summary": "List dancers across organization events",
+        "description": "Coach-scoped dancer search by name, bib number, or event."
       }
     },
     "/orgs/{slug}/dancers/{rosterId}": {
@@ -12262,12 +12267,32 @@
                   },
                   "type": {
                     "$ref": "#/components/schemas/UploadKind"
+                  },
+                  "eventName": {
+                    "type": "string"
+                  },
+                  "eventStartDate": {
+                    "type": "string"
+                  },
+                  "eventEndDate": {
+                    "type": "string"
+                  },
+                  "isActive": {
+                    "type": "boolean"
+                  },
+                  "hasStarted": {
+                    "type": "boolean"
                   }
                 },
                 "required": [
                   "id",
                   "eventId",
-                  "type"
+                  "type",
+                  "eventName",
+                  "eventStartDate",
+                  "eventEndDate",
+                  "isActive",
+                  "hasStarted"
                 ]
               },
               {
@@ -15153,6 +15178,9 @@
                   "type": "null"
                 }
               ]
+            },
+            "eventId": {
+              "type": "string"
             }
           },
           "required": [
@@ -15171,7 +15199,8 @@
             "rating",
             "hasNote",
             "isCalledBack",
-            "username"
+            "username",
+            "eventId"
           ]
         }
       },
@@ -15253,6 +15282,9 @@
                 "type": "null"
               }
             ]
+          },
+          "eventId": {
+            "type": "string"
           },
           "rating": {
             "oneOf": [
@@ -15357,6 +15389,7 @@
           "studio",
           "gpa",
           "gradYear",
+          "eventId",
           "rating",
           "bibNumber",
           "rosterId",

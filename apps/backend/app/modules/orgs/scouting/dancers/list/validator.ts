@@ -6,6 +6,7 @@ export const schema = vine.compile(
     search: vine.string().trim().minLength(1).optional(),
     bib: vine.number().positive().optional(),
     interested: vine.boolean().optional(),
+    eventId: vine.string().uuid().optional(),
   })
 );
 export type Validator = Infer<typeof schema>;

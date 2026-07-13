@@ -1,7 +1,7 @@
 import { test } from "@japa/runner";
 import { db } from "#database/connection";
 import { users } from "#database/schema/users";
-import { schoolProfiles } from "#database/schema/schools";
+import { schoolInvites, schoolProfiles } from "#database/schema/schools";
 import { organizations, orgMemberships } from "#database/schema/organizations";
 import {
   orgEvents,
@@ -198,5 +198,36 @@ good@x.co,Good,Row,UCLA`;
       .from(eventRosters)
       .where(eq(eventRosters.eventId, event.id));
     assert.lengthOf(rosters, 0);
+  });
+
+  test("far-future coach invites expire seven days after the event starts", async ({
+    assert,
+  }) => {
+    const futureStart = new Date();
+    futureStart.setDate(futureStart.getDate() + 90);
+    const startDate = futureStart.toISOString().slice(0, 10);
+    const futureEnd = new Date(futureStart);
+    futureEnd.setDate(futureEnd.getDate() + 2);
+    await db
+      .update(orgEvents)
+      .set({ startDate, endDate: futureEnd.toISOString().slice(0, 10) })
+      .where(eq(orgEvents.id, event.id));
+
+    await new UploadCoachesService().execute({
+      orgId: summit.id,
+      eventId: event.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://future.csv",
+      csv: `email,firstName,lastName,organization
+future-invite@example.com,Future,Coach,Review U`,
+    });
+
+    const [invite] = await db
+      .select()
+      .from(schoolInvites)
+      .where(eq(schoolInvites.email, "future-invite@example.com"));
+    const expected = new Date(`${startDate}T00:00:00`);
+    expected.setDate(expected.getDate() + 7);
+    assert.equal(invite!.expiresAt.getTime(), expected.getTime());
   });
 });

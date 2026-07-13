@@ -9,6 +9,11 @@ export interface MyRoster {
   id: string;
   eventId: string;
   type: "coach" | "dancer";
+  eventName: string;
+  eventStartDate: string;
+  eventEndDate: string;
+  isActive: boolean;
+  hasStarted: boolean;
 }
 
 export interface OrgContextValue {
