@@ -520,7 +520,7 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                       Free-Tier Upgrade URL
                     </label>
                     <p className="text-muted-foreground text-xs">
-                      External link for the &ldquo;Unlock My Full Vault
+                      External link for the &ldquo;Unlock My Full
                       Profile&rdquo; button in free-tier invite emails
                     </p>
                     <Input
@@ -542,9 +542,9 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                       Free-Tier Brand Name
                     </label>
                     <p className="text-muted-foreground text-xs">
-                      Name used in free-tier emails (e.g. &ldquo;The
-                      Vault&rdquo;). Defaults to &ldquo;the platform&rdquo; if
-                      empty.
+                      Org brand name used in free-tier invite emails and their
+                      subject line. Defaults to the org name in subjects and
+                      &ldquo;the platform&rdquo; in body copy if empty.
                     </p>
                     <Input
                       value={settings.free_tier_vault_name ?? ""}
@@ -554,7 +554,7 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                           free_tier_vault_name: e.target.value,
                         }))
                       }
-                      placeholder="The Vault"
+                      placeholder="Your brand name"
                       className="text-sm"
                     />
                   </div>

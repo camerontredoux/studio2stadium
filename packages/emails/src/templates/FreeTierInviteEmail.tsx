@@ -18,7 +18,7 @@ export interface FreeTierInviteEmailProps {
   upgradeUrl: string;
   contactEmail?: string | null;
   tierExpiryMonths?: number;
-  vaultName?: string | null;
+  brandName?: string | null;
   brandColor?: string | null;
   welcomeVideoUrl?: string | null;
   logoUrl?: string | null;
@@ -35,17 +35,17 @@ export function FreeTierInviteEmail({
   upgradeUrl,
   contactEmail,
   tierExpiryMonths = 3,
-  vaultName: rawVaultName,
+  brandName: rawBrandName,
   brandColor,
   welcomeVideoUrl,
   logoUrl,
 }: FreeTierInviteEmailProps) {
   const accent = brandColor || colors.primary;
-  const vault = rawVaultName?.trim() || "the platform";
-  const hasCustomVaultName = Boolean(rawVaultName?.trim());
+  const brand = rawBrandName?.trim() || "the platform";
+  const hasCustomBrandName = Boolean(rawBrandName?.trim());
   const previewText = eventName
-    ? `You're officially in ${vault} — ${eventName}`
-    : `You're officially in ${vault} — complete your free profile`;
+    ? `You're officially in ${brand} — ${eventName}`
+    : `You're officially in ${brand} — complete your free profile`;
 
   const checkItems = [
     "Dance videos",
@@ -140,7 +140,7 @@ export function FreeTierInviteEmail({
             lineHeight: "1.3",
           }}
         >
-          You&apos;re officially in {vault}.
+          You&apos;re officially in {brand}.
         </Text>
         <Text style={paragraphStyle}>
           Right now, coaches can only see your basic registration information.
@@ -156,10 +156,10 @@ export function FreeTierInviteEmail({
           Want to stand out?
         </Text>
         <Text style={{ ...paragraphStyle, margin: "0 0 24px" }}>
-          {hasCustomVaultName ? (
-            <>Unlock your full {vault} profile</>
+          {hasCustomBrandName ? (
+            <>Unlock your full {brand} profile</>
           ) : (
-            <>Unlock your full profile on {vault}</>
+            <>Unlock your full profile on {brand}</>
           )}{" "}
           to give college coaches a complete picture of who you are as a dancer.
         </Text>
@@ -257,10 +257,10 @@ export function FreeTierInviteEmail({
             when the event does.
           </Text>
           <Text style={{ ...paragraphStyle, margin: "0 0 16px" }}>
-            {hasCustomVaultName ? (
-              <>Your {vault} profile</>
+            {hasCustomBrandName ? (
+              <>Your {brand} profile</>
             ) : (
-              <>Your profile on {vault}</>
+              <>Your profile on {brand}</>
             )}{" "}
             remains active for{" "}
             <strong>{tierExpiryMonths} months</strong>, giving college coaches
@@ -444,7 +444,7 @@ export function FreeTierInviteEmail({
         <Text style={paragraphStyle}>
           We&apos;re excited to help you maximize your recruiting opportunities
           and get the most out of your{" "}
-          {hasCustomVaultName ? `${vault} experience` : `experience on ${vault}`}.
+          {hasCustomBrandName ? `${brand} experience` : `experience on ${brand}`}.
         </Text>
         <Text
           style={{
