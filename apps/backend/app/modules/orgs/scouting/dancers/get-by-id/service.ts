@@ -1,6 +1,10 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
-import { eventRosters, eventDancerProfiles } from "#database/schema/org-events";
+import {
+  eventRosters,
+  eventDancerProfiles,
+  orgEvents,
+} from "#database/schema/org-events";
 import { dancerProfiles } from "#database/schema/dancers";
 import {
   eventCallbacks,
@@ -16,7 +20,8 @@ export class GetDancerByIdService {
   constructor(private db: DatabaseService = new DatabaseService()) {}
 
   async execute(
-    eventId: string,
+    orgId: string,
+    activeEventId: string | null,
     dancerRosterId: string,
     coachRosterId: string | null
   ) {
@@ -46,6 +51,7 @@ export class GetDancerByIdService {
           extra: eventDancerProfiles.extra,
           highSchool: dancerProfiles.highSchool,
           location: dancerProfiles.location,
+          eventId: eventRosters.eventId,
         })
         .from(eventRosters)
         .leftJoin(
@@ -57,10 +63,11 @@ export class GetDancerByIdService {
           eq(dancerProfiles.userId, eventRosters.userId)
         )
         .leftJoin(users, eq(users.id, eventRosters.userId))
+        .innerJoin(orgEvents, eq(orgEvents.id, eventRosters.eventId))
         .where(
           and(
             eq(eventRosters.id, dancerRosterId),
-            eq(eventRosters.eventId, eventId),
+            eq(orgEvents.orgId, orgId),
             eq(eventRosters.type, "dancer")
           )
         )
@@ -76,7 +83,7 @@ export class GetDancerByIdService {
     let isFavorited = false;
     let isCalledBack = false;
 
-    if (coachRosterId !== null) {
+    if (coachRosterId !== null && activeEventId !== null) {
       const [noteRow, ratingRow, favoriteRow, callbackRow] = await Promise.all([
         this.db.use((db) =>
           db
@@ -84,7 +91,7 @@ export class GetDancerByIdService {
             .from(eventNotes)
             .where(
               and(
-                eq(eventNotes.eventId, eventId),
+                eq(eventNotes.eventId, activeEventId!),
                 eq(eventNotes.coachRosterId, coachRosterId),
                 eq(eventNotes.dancerRosterId, dancerRosterId)
               )
@@ -97,7 +104,7 @@ export class GetDancerByIdService {
             .from(eventRatings)
             .where(
               and(
-                eq(eventRatings.eventId, eventId),
+                eq(eventRatings.eventId, activeEventId!),
                 eq(eventRatings.coachRosterId, coachRosterId),
                 eq(eventRatings.dancerRosterId, dancerRosterId)
               )
@@ -110,7 +117,7 @@ export class GetDancerByIdService {
             .from(eventFavorites)
             .where(
               and(
-                eq(eventFavorites.eventId, eventId),
+                eq(eventFavorites.eventId, activeEventId!),
                 eq(eventFavorites.coachRosterId, coachRosterId),
                 eq(eventFavorites.dancerRosterId, dancerRosterId)
               )
@@ -123,7 +130,7 @@ export class GetDancerByIdService {
             .from(eventCallbacks)
             .where(
               and(
-                eq(eventCallbacks.eventId, eventId),
+                eq(eventCallbacks.eventId, activeEventId!),
                 eq(eventCallbacks.coachRosterId, coachRosterId),
                 eq(eventCallbacks.dancerRosterId, dancerRosterId)
               )

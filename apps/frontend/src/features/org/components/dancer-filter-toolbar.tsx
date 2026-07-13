@@ -1,5 +1,13 @@
 import type { RefObject } from "react";
-import { Heart, Megaphone, PencilIcon, SchoolIcon, SearchIcon, StarIcon, XIcon } from "lucide-react";
+import {
+  Heart,
+  Megaphone,
+  PencilIcon,
+  SchoolIcon,
+  SearchIcon,
+  StarIcon,
+  XIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   InputGroup,
@@ -29,6 +37,9 @@ const GPA_BUCKETS = [
 ];
 
 interface DancerFilterToolbarProps {
+  eventId: string | null;
+  onEventIdChange: (value: string | null) => void;
+  events: Array<{ id: string; name: string }>;
   search: string;
   onSearchChange: (value: string) => void;
   yearFilter: number | null;
@@ -87,6 +98,9 @@ function IconToggle({
 }
 
 export function DancerFilterToolbar({
+  eventId,
+  onEventIdChange,
+  events,
   search,
   onSearchChange,
   yearFilter,
@@ -111,6 +125,7 @@ export function DancerFilterToolbar({
   searchRef,
 }: DancerFilterToolbarProps) {
   const hasActiveFilters =
+    eventId !== null ||
     yearFilter !== null ||
     gpaFilter !== null ||
     stateFilter !== null ||
@@ -121,6 +136,7 @@ export function DancerFilterToolbar({
     calledBack;
 
   const clearAll = () => {
+    onEventIdChange(null);
     onYearFilterChange(null);
     onGpaFilterChange(null);
     onStateFilterChange(null);
@@ -152,6 +168,29 @@ export function DancerFilterToolbar({
 
       {/* Data filters */}
       <div className="flex items-center gap-1.5">
+        <Select
+          items={[
+            { label: "All events", value: "all" },
+            ...events.map((event) => ({ label: event.name, value: event.id })),
+          ]}
+          value={eventId ?? "all"}
+          onValueChange={(value) =>
+            onEventIdChange(value === "all" ? null : value)
+          }
+        >
+          <SelectTrigger size="sm" className="min-w-36">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectPopup>
+            <SelectItem value="all">All events</SelectItem>
+            {events.map((event) => (
+              <SelectItem key={event.id} value={event.id}>
+                {event.name}
+              </SelectItem>
+            ))}
+          </SelectPopup>
+        </Select>
+
         <Select
           value={yearFilter}
           onValueChange={(v) => onYearFilterChange(v as number | null)}

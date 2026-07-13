@@ -1,7 +1,12 @@
 import { test } from "@japa/runner";
 import { db } from "#database/connection";
-import { organizations } from "#database/schema/organizations";
+import { organizations, orgMemberships } from "#database/schema/organizations";
 import { seedOrganizations } from "#commands/backfill-organizations";
+import { users } from "#database/schema/users";
+import { eventRosters, orgEvents } from "#database/schema/org-events";
+import { GetOrgService } from "./service.ts";
+import { DatabaseService } from "#database/service";
+import { eq } from "drizzle-orm";
 
 test.group("GET /orgs/:slug", (group) => {
   group.each.setup(async () => {
@@ -39,5 +44,83 @@ test.group("GET /orgs/:slug", (group) => {
     const response = await client.get("/orgs/core");
     response.assertStatus(200);
     assert.equal(response.body().slug, "core");
+  });
+
+  test("myRoster resolves to the nearest upcoming event when no active-event roster exists", async ({
+    assert,
+  }) => {
+    const [org] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "summit"));
+    const [coach] = await db
+      .insert(users)
+      .values({
+        username: `multi_event_coach_${Date.now()}`,
+        email: `multi_event_coach_${Date.now()}@example.com`,
+        displayEmail: "multi-event@example.com",
+        firstName: "Multi",
+        lastName: "Coach",
+        password: "hashed",
+        role: "user",
+        type: "school",
+        verified: true,
+      })
+      .returning();
+    await db.insert(orgMemberships).values({
+      orgId: org!.id,
+      userId: coach!.id,
+      role: "member",
+      type: "coach",
+    });
+    const today = new Date();
+    const dateFromToday = (days: number) => {
+      const date = new Date(today);
+      date.setDate(date.getDate() + days);
+      return date.toISOString().slice(0, 10);
+    };
+    const [farFuture, nearestFuture, past] = await db
+      .insert(orgEvents)
+      .values([
+        {
+          orgId: org!.id,
+          name: "Far Future",
+          startDate: dateFromToday(60),
+          endDate: dateFromToday(62),
+        },
+        {
+          orgId: org!.id,
+          name: "Nearest Future",
+          startDate: dateFromToday(10),
+          endDate: dateFromToday(12),
+        },
+        {
+          orgId: org!.id,
+          name: "Past",
+          startDate: dateFromToday(-30),
+          endDate: dateFromToday(-28),
+        },
+      ])
+      .returning();
+    await db.insert(eventRosters).values(
+      [farFuture, nearestFuture, past].map((event) => ({
+        eventId: event!.id,
+        userId: coach!.id,
+        type: "coach" as const,
+        email: coach!.email,
+        firstName: "Multi",
+        lastName: "Coach",
+      }))
+    );
+
+    const result = await new GetOrgService(new DatabaseService()).execute(
+      org!.slug,
+      coach!.id
+    );
+
+    assert.equal(result?.myRoster?.eventId, nearestFuture!.id);
+    assert.equal(result?.myRoster?.eventName, "Nearest Future");
+    assert.isFalse(result?.myRoster?.isActive);
+    assert.isFalse(result?.myRoster?.hasStarted);
   });
 });

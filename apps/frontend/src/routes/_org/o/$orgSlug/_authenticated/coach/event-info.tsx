@@ -36,6 +36,7 @@ import {
 } from "@/features/org/components/dashboard-shared";
 import { useEventPhase } from "@/features/org/hooks/use-event-phase";
 import type { EventPhaseInfo } from "@/features/org/hooks/use-event-phase";
+import { CoachEventAccessBanner } from "@/features/org/components/coach-event-access-banner";
 
 export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/coach/event-info",
@@ -48,8 +49,10 @@ function EventInfo() {
   const { isAdmin, myRoster } = useOrg();
   const { data: events } = useQuery(adminQueries.events(orgSlug));
   const activeEvent = events?.find((e) => e.isActive) ?? null;
+  const rosterEvent =
+    events?.find((event) => event.id === myRoster?.eventId) ?? null;
 
-  if (!activeEvent) {
+  if (!activeEvent && !rosterEvent) {
     return (
       <div className="text-muted-foreground py-12 text-center">
         No active event.
@@ -57,11 +60,65 @@ function EventInfo() {
     );
   }
 
-  if (isAdmin && !myRoster) {
+  if (isAdmin && !myRoster && activeEvent) {
     return <AttendEventGate orgSlug={orgSlug} eventName={activeEvent.name} />;
   }
 
-  return <CoachDashboard orgSlug={orgSlug} event={activeEvent} />;
+  const event = rosterEvent ?? activeEvent;
+  if (!event) return null;
+
+  if (!isAdmin && myRoster && (!myRoster.isActive || !myRoster.hasStarted)) {
+    return <PreEventDashboard orgSlug={orgSlug} event={event} />;
+  }
+
+  return <CoachDashboard orgSlug={orgSlug} event={event} />;
+}
+
+function PreEventDashboard({
+  orgSlug,
+  event,
+}: {
+  orgSlug: string;
+  event: OrgEvent;
+}) {
+  const phase = useEventPhase(event.startDate, event.endDate);
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+      <DashboardHeader
+        name={event.name}
+        phase={phase}
+        dateRange={formatDateRange(event.startDate, event.endDate)}
+      />
+      <CoachEventAccessBanner
+        orgSlug={orgSlug}
+        eventName={event.name}
+        startDate={event.startDate}
+      />
+      <div className="grid flex-1 content-start gap-6 p-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <section className="flex max-w-2xl flex-col gap-3 py-2">
+          <p className="text-muted-foreground max-w-xl text-sm leading-relaxed">
+            Your coach workspace is ready. Explore the full dancer directory
+            before {event.name}; your event-specific scouting tools will become
+            available when the event is active.
+          </p>
+          <Button
+            className="w-fit"
+            render={
+              <Link to="/o/$orgSlug/coach/dancers" params={{ orgSlug }} />
+            }
+          >
+            Browse all dancers
+            <ArrowRightIcon />
+          </Button>
+        </section>
+        <aside className="border-border overflow-hidden rounded-md border">
+          <SidebarPhaseSection phase={phase} />
+          <SidebarDetailsSection orgSlug={orgSlug} event={event} />
+        </aside>
+      </div>
+    </div>
+  );
 }
 
 function AttendEventGate({
@@ -146,8 +203,7 @@ function CoachDashboard({
     .filter((d) => d.isFavorited && d.favoritedAt)
     .sort(
       (a, b) =>
-        new Date(b.favoritedAt!).getTime() -
-        new Date(a.favoritedAt!).getTime(),
+        new Date(b.favoritedAt!).getTime() - new Date(a.favoritedAt!).getTime(),
     )
     .slice(0, 4);
 
@@ -225,21 +281,24 @@ function QuickNavPanel({
       label: "Search Dancers",
       to: "/o/$orgSlug/coach/dancers",
       description: `${dancerCount} dancers registered`,
-      iconClass: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+      iconClass:
+        "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
     },
     {
       icon: HeartIcon,
       label: "My Favorites",
       to: "/o/$orgSlug/coach/dancers",
       description: `${favCount} dancers saved`,
-      iconClass: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
+      iconClass:
+        "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
     },
     {
       icon: TrophyIcon,
       label: "My Rankings",
       to: "/o/$orgSlug/coach/dancers",
       description: "Review your ranked dancers",
-      iconClass: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+      iconClass:
+        "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
     },
   ];
 
@@ -265,7 +324,9 @@ function QuickNavPanel({
               params={{ orgSlug } as any}
               className="hover:bg-muted/40 group flex items-center gap-3 px-3 py-2.5 transition-colors"
             >
-              <span className={`flex size-7 items-center justify-center rounded-md border ${item.iconClass}`}>
+              <span
+                className={`flex size-7 items-center justify-center rounded-md border ${item.iconClass}`}
+              >
                 <item.icon className="size-3.5" />
               </span>
               <div className="flex min-w-0 flex-1 flex-col">
@@ -509,7 +570,7 @@ function CoachSidebarPanel({
                   key={dancer.rosterId}
                   className="flex items-start gap-2 text-xs 2xl:text-sm"
                 >
-                  <HeartIcon className="text-rose-500 mt-0.5 size-3 shrink-0" />
+                  <HeartIcon className="mt-0.5 size-3 shrink-0 text-rose-500" />
                   <div className="flex min-w-0 flex-1 flex-col">
                     <span>
                       <span className="font-medium">

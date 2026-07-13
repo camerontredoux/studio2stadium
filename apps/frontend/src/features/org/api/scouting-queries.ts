@@ -7,6 +7,7 @@ export const scoutingQueries = {
       search?: string;
       bib?: number;
       interested?: boolean;
+      eventId?: string;
     } = {},
   ) =>
     $api.queryOptions("get", "/orgs/{slug}/dancers", {
@@ -52,9 +53,7 @@ export const scoutingQueries = {
       params: { path: { slug } },
     }),
   publishedCallbacks: (slug: string, showcaseId: string) =>
-    $api.queryOptions(
-      "get",
-      "/orgs/{slug}/showcases/{showcaseId}/callbacks",
-      { params: { path: { slug, showcaseId } } },
-    ),
+    $api.queryOptions("get", "/orgs/{slug}/showcases/{showcaseId}/callbacks", {
+      params: { path: { slug, showcaseId } },
+    }),
 };

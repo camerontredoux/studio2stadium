@@ -9,6 +9,7 @@ interface DancerCardProps {
   onRate: (rosterId: string, rating: number) => void;
   onOpenNotes: (rosterId: string) => void;
   onCallbackToggle?: (rosterId: string, current: boolean) => void;
+  readOnly?: boolean;
 }
 
 export function DancerCard({
@@ -17,6 +18,7 @@ export function DancerCard({
   onRate,
   onOpenNotes,
   onCallbackToggle,
+  readOnly = false,
 }: DancerCardProps) {
   const NoteIcon = dancer.hasNote ? PencilIcon : PlusIcon;
 
@@ -25,7 +27,10 @@ export function DancerCard({
       {/* Header: bib + school interest */}
       <div className="flex items-center justify-between">
         <span className="font-mono text-sm font-semibold">
-          #{dancer.bibNumber != null ? String(dancer.bibNumber).padStart(2, "0") : "—"}
+          #
+          {dancer.bibNumber != null
+            ? String(dancer.bibNumber).padStart(2, "0")
+            : "—"}
         </span>
         {dancer.interestedInMySchool && (
           <span className="text-sm text-amber-500">{"★"}</span>
@@ -44,69 +49,75 @@ export function DancerCard({
       </span>
 
       {/* Action bar */}
-      <div className="mt-1 flex items-center gap-3">
-        {/* Favorite toggle */}
-        <button
-          type="button"
-          onClick={() => onFavoriteToggle(dancer.rosterId, dancer.isFavorited)}
-          className="flex cursor-pointer items-center justify-center"
-          aria-label={dancer.isFavorited ? "Unfavorite" : "Favorite"}
-        >
-          <Heart
-            className={`size-4 ${
-              dancer.isFavorited
-                ? "fill-current text-red-500"
-                : "text-muted-foreground"
-            }`}
-          />
-        </button>
-
-        {/* Interactive rating */}
-        <Rating
-          size="sm"
-          value={dancer.rating ?? 0}
-          onValueChange={(v) => onRate(dancer.rosterId, v)}
-        >
-          {Array.from({ length: 5 }, (_, i) => (
-            <RatingItem key={i} index={i} />
-          ))}
-        </Rating>
-
-        {/* Callback pill */}
-        {onCallbackToggle && (
+      {!readOnly && (
+        <div className="mt-1 flex items-center gap-3">
+          {/* Favorite toggle */}
           <button
             type="button"
-            onClick={() => onCallbackToggle(dancer.rosterId, dancer.isCalledBack)}
-            className={`flex cursor-pointer items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold transition-colors ${
-              dancer.isCalledBack
-                ? "bg-foreground text-background"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-            aria-label={dancer.isCalledBack ? "Remove callback" : "Call back"}
-            aria-pressed={dancer.isCalledBack}
+            onClick={() =>
+              onFavoriteToggle(dancer.rosterId, dancer.isFavorited)
+            }
+            className="flex cursor-pointer items-center justify-center"
+            aria-label={dancer.isFavorited ? "Unfavorite" : "Favorite"}
           >
-            <Megaphone className="size-3" />
-            {dancer.isCalledBack ? "Called" : "Call"}
+            <Heart
+              className={`size-4 ${
+                dancer.isFavorited
+                  ? "fill-current text-red-500"
+                  : "text-muted-foreground"
+              }`}
+            />
           </button>
-        )}
 
-        {/* Notes button */}
-        <button
-          type="button"
-          onClick={() => onOpenNotes(dancer.rosterId)}
-          className="text-muted-foreground hover:text-foreground flex cursor-pointer items-center justify-center transition-colors"
-          aria-label={dancer.hasNote ? "Edit notes" : "Add notes"}
-        >
-          <NoteIcon className="size-4" />
-        </button>
-      </div>
+          {/* Interactive rating */}
+          <Rating
+            size="sm"
+            value={dancer.rating ?? 0}
+            onValueChange={(v) => onRate(dancer.rosterId, v)}
+          >
+            {Array.from({ length: 5 }, (_, i) => (
+              <RatingItem key={i} index={i} />
+            ))}
+          </Rating>
+
+          {/* Callback pill */}
+          {onCallbackToggle && (
+            <button
+              type="button"
+              onClick={() =>
+                onCallbackToggle(dancer.rosterId, dancer.isCalledBack)
+              }
+              className={`flex cursor-pointer items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold transition-colors ${
+                dancer.isCalledBack
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+              aria-label={dancer.isCalledBack ? "Remove callback" : "Call back"}
+              aria-pressed={dancer.isCalledBack}
+            >
+              <Megaphone className="size-3" />
+              {dancer.isCalledBack ? "Called" : "Call"}
+            </button>
+          )}
+
+          {/* Notes button */}
+          <button
+            type="button"
+            onClick={() => onOpenNotes(dancer.rosterId)}
+            className="text-muted-foreground hover:text-foreground flex cursor-pointer items-center justify-center transition-colors"
+            aria-label={dancer.hasNote ? "Edit notes" : "Add notes"}
+          >
+            <NoteIcon className="size-4" />
+          </button>
+        </div>
+      )}
 
       {/* Profile link */}
       {dancer.username && (
         <Link
           to="/$username"
           params={{ username: dancer.username }}
-          className="border-border text-foreground mt-1 flex w-full items-center justify-center rounded-md border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-accent"
+          className="border-border text-foreground hover:bg-accent mt-1 flex w-full items-center justify-center rounded-md border px-3 py-1.5 text-sm font-medium transition-colors"
         >
           Visit Profile →
         </Link>

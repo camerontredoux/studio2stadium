@@ -1,13 +1,15 @@
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import { formatDistanceToNow } from "date-fns";
 import {
-  HeartIcon,
-  PencilIcon,
-  StarIcon,
-  XIcon,
-} from "lucide-react";
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { formatDistanceToNow } from "date-fns";
+import { HeartIcon, PencilIcon, StarIcon, XIcon } from "lucide-react";
 import { $api } from "@/lib/api/client";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { useOrg } from "@/features/org/context/use-org";
@@ -17,7 +19,10 @@ import { DancerSheet } from "@/features/org/components/dancer-sheet";
 import { DancerFilterToolbar } from "@/features/org/components/dancer-filter-toolbar";
 import { useSearchColumns } from "@/features/org/components/dancer-table/use-dancer-columns";
 import type { SearchDancerRow } from "@/features/org/components/dancer-table/columns";
-import { StatCell, SidebarSection } from "@/features/org/components/dashboard-shared";
+import {
+  StatCell,
+  SidebarSection,
+} from "@/features/org/components/dashboard-shared";
 import { Rating, RatingItem } from "@/components/ui/rating";
 import type { RowSelectionState, SortingState } from "@tanstack/react-table";
 import { FloatingActionBar } from "@/features/org/components/floating-action-bar";
@@ -25,6 +30,8 @@ import { CompareView } from "@/features/org/components/compare-view";
 import { toastManager } from "@/components/ui/toast-manager";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { adminQueries } from "@/features/org/api/admin-queries";
+import type { components } from "@/lib/api/types";
 
 export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/coach/dancers/",
@@ -45,6 +52,13 @@ type ActivityItem = {
   timestamp: Date;
 };
 
+type DancerList = components["schemas"]["OrgsIdDancersResponse"];
+type FavoritesList = components["schemas"]["OrgsIdFavoritesResponse"];
+type MutationContext = {
+  previous?: DancerList;
+  previousFavs?: FavoritesList;
+};
+
 /* ------------------------------------------------------------------ */
 /*  Page component                                                     */
 /* ------------------------------------------------------------------ */
@@ -53,8 +67,14 @@ function DancerSearch() {
   const { orgSlug } = useParams({
     from: "/_org/o/$orgSlug/_authenticated/coach/dancers/",
   });
-  const { org, hasFeature } = useOrg();
+  const { org, hasFeature, myRoster } = useOrg();
   const callbacksEnabled = hasFeature("callbacks");
+  const canScout = Boolean(myRoster?.isActive && myRoster.hasStarted);
+  const canScoutDancer = useCallback(
+    (dancer: SearchDancerRow) =>
+      canScout && dancer.eventId === myRoster?.eventId,
+    [canScout, myRoster?.eventId],
+  );
 
   /* --- Filter state --- */
   const [search, setSearch] = useState("");
@@ -66,15 +86,28 @@ function DancerSearch() {
   const [rated, setRated] = useState(false);
   const [hasNotes, setHasNotes] = useState(false);
   const [calledBack, setCalledBack] = useState(false);
+  const [eventId, setEventId] = useState<string | null>(null);
   const deferredSearch = useDeferredValue(search);
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   useEffect(() => {
     setRowSelection({});
-  }, [yearFilter, gpaFilter, stateFilter, interested, favorited, rated, hasNotes, calledBack]);
+  }, [
+    eventId,
+    yearFilter,
+    gpaFilter,
+    stateFilter,
+    interested,
+    favorited,
+    rated,
+    hasNotes,
+    calledBack,
+  ]);
 
-  const [sorting, setSorting] = useState<SortingState>([{ id: "bibNumber", desc: false }]);
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "bibNumber", desc: false },
+  ]);
 
   useEffect(() => {
     if (rated) {
@@ -85,10 +118,18 @@ function DancerSearch() {
   }, [rated]);
 
   /* --- Data --- */
+  const dancerParams = {
+    interested: interested || undefined,
+    eventId: eventId ?? undefined,
+  };
   const { data: dancers, isLoading } = useQuery(
-    scoutingQueries.dancers(orgSlug, { interested: interested || undefined }),
+    scoutingQueries.dancers(orgSlug, dancerParams),
   );
-  const { data: favorites } = useQuery(scoutingQueries.favorites(orgSlug));
+  const { data: favorites } = useQuery({
+    ...scoutingQueries.favorites(orgSlug),
+    enabled: canScout,
+  });
+  const { data: events } = useQuery(adminQueries.events(orgSlug));
 
   /* --- Compare clipboard --- */
   const [compareIds, setCompareIds] = useState<string[]>([]);
@@ -104,7 +145,9 @@ function DancerSearch() {
   /* --- Activity feed --- */
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const addActivity = useCallback((item: Omit<ActivityItem, "timestamp">) => {
-    setActivity((prev) => [{ ...item, timestamp: new Date() }, ...prev].slice(0, 5));
+    setActivity((prev) =>
+      [{ ...item, timestamp: new Date() }, ...prev].slice(0, 5),
+    );
   }, []);
 
   /* --- Sheet --- */
@@ -112,7 +155,7 @@ function DancerSearch() {
 
   /* --- Favorite toggle (optimistic on dancers list) --- */
   const qc = useQueryClient();
-  const dancersKey = scoutingQueries.dancers(orgSlug, { interested: interested || undefined }).queryKey;
+  const dancersKey = scoutingQueries.dancers(orgSlug, dancerParams).queryKey;
 
   const favKey = scoutingQueries.favorites(orgSlug).queryKey;
 
@@ -120,26 +163,46 @@ function DancerSearch() {
     onMutate: async ({ body }) => {
       await qc.cancelQueries({ queryKey: dancersKey });
       await qc.cancelQueries({ queryKey: favKey });
-      const previous = qc.getQueryData(dancersKey);
-      const previousFavs = qc.getQueryData(favKey);
-      const dancer = (dancers ?? []).find((d) => d.rosterId === body?.dancerRosterId);
-      qc.setQueryData(dancersKey, (old: any) =>
+      const previous = qc.getQueryData<DancerList>(dancersKey);
+      const previousFavs = qc.getQueryData<FavoritesList>(favKey);
+      const dancer = (dancers ?? []).find(
+        (d) => d.rosterId === body?.dancerRosterId,
+      );
+      qc.setQueryData<DancerList>(dancersKey, (old) =>
         Array.isArray(old)
-          ? old.map((d: any) =>
-              d.rosterId === body?.dancerRosterId ? { ...d, isFavorited: true } : d,
+          ? old.map((d) =>
+              d.rosterId === body?.dancerRosterId
+                ? { ...d, isFavorited: true }
+                : d,
             )
           : old,
       );
       if (dancer) {
-        qc.setQueryData(favKey, (old: any) =>
-          Array.isArray(old) ? [...old, { rosterId: dancer.rosterId, bibNumber: dancer.bibNumber, firstName: dancer.firstName, lastName: dancer.lastName, profilePhotoUrl: dancer.profilePhotoUrl, gradYear: dancer.gradYear, studio: dancer.studio, state: dancer.state, gpa: dancer.gpa }] : old,
+        qc.setQueryData<FavoritesList>(favKey, (old) =>
+          Array.isArray(old)
+            ? [
+                ...old,
+                {
+                  rosterId: dancer.rosterId,
+                  bibNumber: dancer.bibNumber,
+                  firstName: dancer.firstName,
+                  lastName: dancer.lastName,
+                  profilePhotoUrl: dancer.profilePhotoUrl,
+                  gradYear: dancer.gradYear,
+                  studio: dancer.studio,
+                  state: dancer.state,
+                  gpa: dancer.gpa,
+                },
+              ]
+            : old,
         );
       }
       return { previous, previousFavs };
     },
-    onError: (_err, _vars, ctx: any) => {
-      if (ctx?.previous) qc.setQueryData(dancersKey, ctx.previous);
-      if (ctx?.previousFavs) qc.setQueryData(favKey, ctx.previousFavs);
+    onError: (_err, _vars, ctx) => {
+      const context = ctx as MutationContext | undefined;
+      if (context?.previous) qc.setQueryData(dancersKey, context.previous);
+      if (context?.previousFavs) qc.setQueryData(favKey, context.previousFavs);
       toastManager.add({ title: "Couldn't favorite dancer", type: "error" });
     },
     meta: {
@@ -151,37 +214,47 @@ function DancerSearch() {
     },
   });
 
-  const removeFav = $api.useMutation("delete", "/orgs/{slug}/favorites/{dancerRosterId}", {
-    onMutate: async ({ params }) => {
-      await qc.cancelQueries({ queryKey: dancersKey });
-      await qc.cancelQueries({ queryKey: favKey });
-      const previous = qc.getQueryData(dancersKey);
-      const previousFavs = qc.getQueryData(favKey);
-      qc.setQueryData(dancersKey, (old: any) =>
-        Array.isArray(old)
-          ? old.map((d: any) =>
-              d.rosterId === params?.path?.dancerRosterId ? { ...d, isFavorited: false } : d,
-            )
-          : old,
-      );
-      qc.setQueryData(favKey, (old: any) =>
-        Array.isArray(old) ? old.filter((d: any) => d.rosterId !== params?.path?.dancerRosterId) : old,
-      );
-      return { previous, previousFavs };
+  const removeFav = $api.useMutation(
+    "delete",
+    "/orgs/{slug}/favorites/{dancerRosterId}",
+    {
+      onMutate: async ({ params }) => {
+        await qc.cancelQueries({ queryKey: dancersKey });
+        await qc.cancelQueries({ queryKey: favKey });
+        const previous = qc.getQueryData<DancerList>(dancersKey);
+        const previousFavs = qc.getQueryData<FavoritesList>(favKey);
+        qc.setQueryData<DancerList>(dancersKey, (old) =>
+          Array.isArray(old)
+            ? old.map((d) =>
+                d.rosterId === params?.path?.dancerRosterId
+                  ? { ...d, isFavorited: false }
+                  : d,
+              )
+            : old,
+        );
+        qc.setQueryData<FavoritesList>(favKey, (old) =>
+          Array.isArray(old)
+            ? old.filter((d) => d.rosterId !== params?.path?.dancerRosterId)
+            : old,
+        );
+        return { previous, previousFavs };
+      },
+      onError: (_err, _vars, ctx) => {
+        const context = ctx as MutationContext | undefined;
+        if (context?.previous) qc.setQueryData(dancersKey, context.previous);
+        if (context?.previousFavs)
+          qc.setQueryData(favKey, context.previousFavs);
+        toastManager.add({ title: "Couldn't remove favorite", type: "error" });
+      },
+      meta: {
+        invalidateQueries: [
+          scoutingQueries.favorites(orgSlug).queryKey,
+          dancersKey,
+          scoutingQueries.rankings(orgSlug).queryKey,
+        ],
+      },
     },
-    onError: (_err, _vars, ctx: any) => {
-      if (ctx?.previous) qc.setQueryData(dancersKey, ctx.previous);
-      if (ctx?.previousFavs) qc.setQueryData(favKey, ctx.previousFavs);
-      toastManager.add({ title: "Couldn't remove favorite", type: "error" });
-    },
-    meta: {
-      invalidateQueries: [
-        scoutingQueries.favorites(orgSlug).queryKey,
-        dancersKey,
-        scoutingQueries.rankings(orgSlug).queryKey,
-      ],
-    },
-  });
+  );
 
   const upsertRating = $api.useMutation(
     "put",
@@ -189,20 +262,25 @@ function DancerSearch() {
     {
       onMutate: async ({ params, body }) => {
         await qc.cancelQueries({ queryKey: dancersKey });
-        const previous = qc.getQueryData(dancersKey);
-        qc.setQueryData(dancersKey, (old: any) =>
+        const previous = qc.getQueryData<DancerList>(dancersKey);
+        qc.setQueryData<DancerList>(dancersKey, (old) =>
           Array.isArray(old)
-            ? old.map((d: any) =>
+            ? old.map((d) =>
                 d.rosterId === params?.path?.dancerRosterId
-                  ? { ...d, rating: body?.rating ?? null }
+                  ? {
+                      ...d,
+                      rating:
+                        body?.rating === undefined ? null : Number(body.rating),
+                    }
                   : d,
               )
             : old,
         );
         return { previous };
       },
-      onError: (_err, _vars, ctx: any) => {
-        if (ctx?.previous) qc.setQueryData(dancersKey, ctx.previous);
+      onError: (_err, _vars, ctx) => {
+        const context = ctx as MutationContext | undefined;
+        if (context?.previous) qc.setQueryData(dancersKey, context.previous);
         toastManager.add({ title: "Couldn't save rating", type: "error" });
       },
       meta: {
@@ -217,42 +295,52 @@ function DancerSearch() {
   const addCallback = $api.useMutation("post", "/orgs/{slug}/callbacks", {
     onMutate: async ({ body }) => {
       await qc.cancelQueries({ queryKey: dancersKey });
-      const previous = qc.getQueryData(dancersKey);
-      qc.setQueryData(dancersKey, (old: any) =>
+      const previous = qc.getQueryData<DancerList>(dancersKey);
+      qc.setQueryData<DancerList>(dancersKey, (old) =>
         Array.isArray(old)
-          ? old.map((d: any) =>
-              d.rosterId === body?.dancerRosterId ? { ...d, isCalledBack: true } : d,
+          ? old.map((d) =>
+              d.rosterId === body?.dancerRosterId
+                ? { ...d, isCalledBack: true }
+                : d,
             )
           : old,
       );
       return { previous };
     },
-    onError: (_err, _vars, ctx: any) => {
-      if (ctx?.previous) qc.setQueryData(dancersKey, ctx.previous);
+    onError: (_err, _vars, ctx) => {
+      const context = ctx as MutationContext | undefined;
+      if (context?.previous) qc.setQueryData(dancersKey, context.previous);
       toastManager.add({ title: "Couldn't add callback", type: "error" });
     },
     meta: { invalidateQueries: [dancersKey] },
   });
 
-  const removeCallback = $api.useMutation("delete", "/orgs/{slug}/callbacks/{dancerRosterId}", {
-    onMutate: async ({ params }) => {
-      await qc.cancelQueries({ queryKey: dancersKey });
-      const previous = qc.getQueryData(dancersKey);
-      qc.setQueryData(dancersKey, (old: any) =>
-        Array.isArray(old)
-          ? old.map((d: any) =>
-              d.rosterId === params?.path?.dancerRosterId ? { ...d, isCalledBack: false } : d,
-            )
-          : old,
-      );
-      return { previous };
+  const removeCallback = $api.useMutation(
+    "delete",
+    "/orgs/{slug}/callbacks/{dancerRosterId}",
+    {
+      onMutate: async ({ params }) => {
+        await qc.cancelQueries({ queryKey: dancersKey });
+        const previous = qc.getQueryData<DancerList>(dancersKey);
+        qc.setQueryData<DancerList>(dancersKey, (old) =>
+          Array.isArray(old)
+            ? old.map((d) =>
+                d.rosterId === params?.path?.dancerRosterId
+                  ? { ...d, isCalledBack: false }
+                  : d,
+              )
+            : old,
+        );
+        return { previous };
+      },
+      onError: (_err, _vars, ctx) => {
+        const context = ctx as MutationContext | undefined;
+        if (context?.previous) qc.setQueryData(dancersKey, context.previous);
+        toastManager.add({ title: "Couldn't remove callback", type: "error" });
+      },
+      meta: { invalidateQueries: [dancersKey] },
     },
-    onError: (_err, _vars, ctx: any) => {
-      if (ctx?.previous) qc.setQueryData(dancersKey, ctx.previous);
-      toastManager.add({ title: "Couldn't remove callback", type: "error" });
-    },
-    meta: { invalidateQueries: [dancersKey] },
-  });
+  );
 
   const handleFavoriteToggle = useCallback(
     (rosterId: string, current: boolean) => {
@@ -299,12 +387,9 @@ function DancerSearch() {
     [orgSlug, upsertRating, dancers, addActivity],
   );
 
-  const handleOpenNotes = useCallback(
-    (rosterId: string) => {
-      setSheetRosterId(rosterId);
-    },
-    [],
-  );
+  const handleOpenNotes = useCallback((rosterId: string) => {
+    setSheetRosterId(rosterId);
+  }, []);
 
   const handleCallbackToggle = useCallback(
     (rosterId: string, current: boolean) => {
@@ -322,13 +407,18 @@ function DancerSearch() {
     [orgSlug, addCallback, removeCallback],
   );
 
-  const columns = useSearchColumns(handleFavoriteToggle, {
-    enableSelection: true,
-    onRate: handleRate,
-    onOpenNotes: handleOpenNotes,
-    onCallbackToggle: callbacksEnabled ? handleCallbackToggle : undefined,
-    showRank: rated,
-  });
+  const columns = useSearchColumns(
+    canScout ? handleFavoriteToggle : undefined,
+    {
+      enableSelection: canScout,
+      onRate: canScout ? handleRate : undefined,
+      onOpenNotes: canScout ? handleOpenNotes : undefined,
+      onCallbackToggle:
+        canScout && callbacksEnabled ? handleCallbackToggle : undefined,
+      showRank: rated,
+      canScoutDancer,
+    },
+  );
 
   /* --- Active dancers only (registered/claimed accounts) --- */
   const activeDancers = useMemo(
@@ -339,7 +429,9 @@ function DancerSearch() {
   /* --- Derived filter options --- */
   const availableYears = useMemo(() => {
     const years = new Set(
-      activeDancers.map((d) => d.gradYear).filter((y): y is number => y != null),
+      activeDancers
+        .map((d) => d.gradYear)
+        .filter((y): y is number => y != null),
     );
     return Array.from(years).sort();
   }, [activeDancers]);
@@ -372,9 +464,13 @@ function DancerSearch() {
       if (threshold >= 3.5) {
         result = result.filter((d) => d.gpa != null && d.gpa >= 3.5);
       } else if (threshold >= 3.0) {
-        result = result.filter((d) => d.gpa != null && d.gpa >= 3.0 && d.gpa < 3.5);
+        result = result.filter(
+          (d) => d.gpa != null && d.gpa >= 3.0 && d.gpa < 3.5,
+        );
       } else if (threshold >= 2.5) {
-        result = result.filter((d) => d.gpa != null && d.gpa >= 2.5 && d.gpa < 3.0);
+        result = result.filter(
+          (d) => d.gpa != null && d.gpa >= 2.5 && d.gpa < 3.0,
+        );
       } else {
         result = result.filter((d) => d.gpa != null && d.gpa < 2.5);
       }
@@ -395,7 +491,16 @@ function DancerSearch() {
       result = result.filter((d) => d.isCalledBack);
     }
     return result;
-  }, [dancers, yearFilter, gpaFilter, stateFilter, favorited, rated, hasNotes, calledBack]);
+  }, [
+    dancers,
+    yearFilter,
+    gpaFilter,
+    stateFilter,
+    favorited,
+    rated,
+    hasNotes,
+    calledBack,
+  ]);
 
   const selectedRosterIds = useMemo(() => {
     return Object.keys(rowSelection)
@@ -479,7 +584,10 @@ function DancerSearch() {
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement)?.tagName;
-      const isInput = tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable;
+      const isInput =
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        (e.target as HTMLElement)?.isContentEditable;
 
       if (e.key === "/" && !isInput) {
         e.preventDefault();
@@ -538,11 +646,21 @@ function DancerSearch() {
               <StatCell label="To Review" value={toReviewCount} accent="blue" />
               <StatCell label="Favorited" value={favCount} heart />
               {callbacksEnabled && (
-                <StatCell label="Callbacks" value={callbackCount} accent="amber" />
+                <StatCell
+                  label="Callbacks"
+                  value={callbackCount}
+                  accent="amber"
+                />
               )}
             </section>
 
             <DancerFilterToolbar
+              eventId={eventId}
+              onEventIdChange={setEventId}
+              events={(events ?? []).map((event) => ({
+                id: event.id,
+                name: event.name,
+              }))}
               search={search}
               onSearchChange={setSearch}
               yearFilter={yearFilter}
@@ -587,13 +705,17 @@ function DancerSearch() {
                     onFavoriteToggle={handleFavoriteToggle}
                     onRate={handleRate}
                     onOpenNotes={handleOpenNotes}
-                    onCallbackToggle={callbacksEnabled ? handleCallbackToggle : undefined}
+                    onCallbackToggle={
+                      callbacksEnabled ? handleCallbackToggle : undefined
+                    }
+                    readOnly={!canScoutDancer(row)}
                   />
                 )}
                 sorting={sorting}
                 onSortingChange={setSorting}
                 pageSize={50}
-                enableSelection
+                enableSelection={canScout}
+                isRowSelectable={canScoutDancer}
                 rowSelection={rowSelection}
                 onRowSelectionChange={setRowSelection}
               />
@@ -602,22 +724,26 @@ function DancerSearch() {
         )}
       </div>
 
-      <FloatingActionBar
-        selectedCount={selectedRosterIds.length}
-        isVisible={selectedRosterIds.length > 0}
-        onFavoriteAll={handleBulkFavorite}
-        onRateAll={handleBulkRate}
-        onClear={() => setRowSelection({})}
-        isLoading={isBulkLoading}
-      />
+      {canScout && (
+        <FloatingActionBar
+          selectedCount={selectedRosterIds.length}
+          isVisible={selectedRosterIds.length > 0}
+          onFavoriteAll={handleBulkFavorite}
+          onRateAll={handleBulkRate}
+          onClear={() => setRowSelection({})}
+          isLoading={isBulkLoading}
+        />
+      )}
 
       {/* Sidebar */}
       <ScoutingSidebar
         dancers={activeDancers}
         isLoading={isLoading}
-        filteredUnreviewedCount={filteredData.filter(
-          (d) => !d.isFavorited && d.rating == null && !d.hasNote,
-        ).length}
+        filteredUnreviewedCount={
+          filteredData.filter(
+            (d) => !d.isFavorited && d.rating == null && !d.hasNote,
+          ).length
+        }
         reviewedCount={reviewedCount}
         totalCount={dancerCount}
         compareIds={compareIds}
@@ -635,6 +761,11 @@ function DancerSearch() {
         onOpenChange={(open) => {
           if (!open) setSheetRosterId(null);
         }}
+        readOnly={
+          !canScout ||
+          dancers?.find((dancer) => dancer.rosterId === sheetRosterId)
+            ?.eventId !== myRoster?.eventId
+        }
         onFavoriteToggle={(rosterId, current) => {
           const dancer = dancers?.find((d) => d.rosterId === rosterId);
           if (dancer && !current) {
@@ -654,7 +785,8 @@ function DancerSearch() {
             dancerName: `${dancer.firstName} ${dancer.lastName}`,
             bibNumber: dancer.bibNumber,
           };
-          if (saved.rating != null) addActivity({ ...meta, type: "rate", rating: saved.rating });
+          if (saved.rating != null)
+            addActivity({ ...meta, type: "rate", rating: saved.rating });
           if (saved.hasNote) addActivity({ ...meta, type: "note" });
         }}
       />
@@ -728,11 +860,18 @@ function ScoutingSidebar({
 /*  Sidebar: Talent Pool Breakdown                                     */
 /* ------------------------------------------------------------------ */
 
-function TalentPoolBreakdown({ dancers, isLoading }: { dancers: DancerData[]; isLoading?: boolean }) {
+function TalentPoolBreakdown({
+  dancers,
+  isLoading,
+}: {
+  dancers: DancerData[];
+  isLoading?: boolean;
+}) {
   const yearDist = useMemo(() => {
     const counts = new Map<number, number>();
     for (const d of dancers) {
-      if (d.gradYear != null) counts.set(d.gradYear, (counts.get(d.gradYear) ?? 0) + 1);
+      if (d.gradYear != null)
+        counts.set(d.gradYear, (counts.get(d.gradYear) ?? 0) + 1);
     }
     return Array.from(counts.entries())
       .sort(([a], [b]) => a - b)
@@ -763,9 +902,10 @@ function TalentPoolBreakdown({ dancers, isLoading }: { dancers: DancerData[]; is
     for (const d of dancers) {
       if (d.state) counts.set(d.state, (counts.get(d.state) ?? 0) + 1);
     }
-    const sorted = Array.from(counts.entries())
-      .sort(([, a], [, b]) => b - a);
-    const top5 = sorted.slice(0, 5).map(([state, count]) => ({ label: state, count }));
+    const sorted = Array.from(counts.entries()).sort(([, a], [, b]) => b - a);
+    const top5 = sorted
+      .slice(0, 5)
+      .map(([state, count]) => ({ label: state, count }));
     const remaining = sorted.length - 5;
     return { top5, remaining };
   }, [dancers]);
@@ -796,8 +936,18 @@ function TalentPoolBreakdown({ dancers, isLoading }: { dancers: DancerData[]; is
   return (
     <SidebarSection title="Talent pool">
       <div className="flex flex-col gap-3">
-        <DistributionBars label="By year" items={yearDist} total={dancers.length} labelWidth="w-10" />
-        <DistributionBars label="By GPA" items={gpaDist} total={dancers.length} labelWidth="w-14" />
+        <DistributionBars
+          label="By year"
+          items={yearDist}
+          total={dancers.length}
+          labelWidth="w-10"
+        />
+        <DistributionBars
+          label="By GPA"
+          items={gpaDist}
+          total={dancers.length}
+          labelWidth="w-14"
+        />
         <div>
           <span className="text-muted-foreground mb-1.5 block text-[10px] font-medium tracking-widest uppercase">
             By state
@@ -870,13 +1020,17 @@ function BarRow({
   const pct = max > 0 ? (count / max) * 100 : 0;
   return (
     <div className="flex items-center gap-2">
-      <span className={`text-muted-foreground text-xs tabular-nums ${labelWidth}`}>
+      <span
+        className={`text-muted-foreground text-xs tabular-nums ${labelWidth}`}
+      >
         {label}
       </span>
       <div className="bg-border relative h-1.5 flex-1 overflow-hidden rounded-full">
         <div className="bg-foreground h-full" style={{ width: `${pct}%` }} />
       </div>
-      <span className="w-8 text-right text-xs font-medium tabular-nums">{count}</span>
+      <span className="w-8 text-right text-xs font-medium tabular-nums">
+        {count}
+      </span>
     </div>
   );
 }
@@ -913,7 +1067,10 @@ function CompareClipboard({
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium">
                   <span className="text-muted-foreground font-mono text-[10px]">
-                    #{d.bibNumber != null ? String(d.bibNumber).padStart(2, "0") : "—"}{" "}
+                    #
+                    {d.bibNumber != null
+                      ? String(d.bibNumber).padStart(2, "0")
+                      : "—"}{" "}
                   </span>
                   {d.firstName} {d.lastName}
                 </span>
@@ -1006,7 +1163,8 @@ function ScoutingSession({
     );
   }
 
-  const pct = totalCount > 0 ? Math.round((reviewedCount / totalCount) * 100) : 0;
+  const pct =
+    totalCount > 0 ? Math.round((reviewedCount / totalCount) * 100) : 0;
 
   return (
     <SidebarSection title="Your session">
@@ -1017,7 +1175,8 @@ function ScoutingSession({
             <span className="text-xs">
               <span className="font-medium tabular-nums">{reviewedCount}</span>
               <span className="text-muted-foreground">
-                {" "}of {totalCount} reviewed
+                {" "}
+                of {totalCount} reviewed
               </span>
             </span>
             <span className="text-muted-foreground text-[10px] tabular-nums">
@@ -1025,7 +1184,10 @@ function ScoutingSession({
             </span>
           </div>
           <div className="bg-border mt-1.5 h-1.5 w-full overflow-hidden rounded-full">
-            <div className="bg-foreground h-full" style={{ width: `${pct}%` }} />
+            <div
+              className="bg-foreground h-full"
+              style={{ width: `${pct}%` }}
+            />
           </div>
           {filteredUnreviewed > 0 && (
             <p className="text-muted-foreground mt-1 text-[10px]">
@@ -1052,9 +1214,13 @@ function ScoutingSession({
                   >
                     <Icon className="text-muted-foreground mt-0.5 size-3 shrink-0" />
                     <div className="flex min-w-0 flex-1 flex-col">
-                      <span className="truncate text-xs">{item.dancerName}</span>
+                      <span className="truncate text-xs">
+                        {item.dancerName}
+                      </span>
                       <span className="text-muted-foreground text-[10px]">
-                        {formatDistanceToNow(item.timestamp, { addSuffix: true })}
+                        {formatDistanceToNow(item.timestamp, {
+                          addSuffix: true,
+                        })}
                       </span>
                     </div>
                   </button>

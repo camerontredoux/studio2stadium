@@ -289,19 +289,7 @@ test.group("ListDancersService", (group) => {
 
     const svc = new ListDancersService();
 
-    const activeOnly = await svc.execute(summit.id, event.id, null, {});
-    assert.equal(activeOnly.length, 1);
-    assert.equal(activeOnly[0]!.firstName, "Current");
-
-    const all = await svc.execute(
-      summit.id,
-      event.id,
-      null,
-      {},
-      false,
-      undefined,
-      true
-    );
+    const all = await svc.execute(summit.id, event.id, null, {});
     assert.equal(all.length, 2);
   });
 
@@ -357,15 +345,7 @@ test.group("ListDancersService", (group) => {
       .returning();
 
     const svc = new ListDancersService();
-    const all = await svc.execute(
-      summit.id,
-      event.id,
-      null,
-      {},
-      false,
-      undefined,
-      true
-    );
+    const all = await svc.execute(summit.id, event.id, null, {});
     assert.equal(all.length, 1);
     assert.equal(all[0]!.rosterId, activeRoster!.id);
   });
