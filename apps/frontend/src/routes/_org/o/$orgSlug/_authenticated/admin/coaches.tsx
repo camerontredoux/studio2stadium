@@ -7,6 +7,7 @@ import {
   downloadRosterCsv,
   rosterQueries,
   useDeleteRosters,
+  useResendInvites,
   useUpdateRoster,
 } from "@/features/org/api/roster-queries";
 import { DataGrid, StatusBadge } from "@/features/org/components/data-grid";
@@ -134,6 +135,7 @@ function CoachesPage() {
 
   const updateMutation = useUpdateRoster();
   const deleteMutation = useDeleteRosters();
+  const resendMutation = useResendInvites();
 
   const handleRowClick = (row: RosterEntry) => {
     setSelectedEntry(row);
@@ -203,6 +205,32 @@ function CoachesPage() {
 
   const bulkActions = rosterBulkActions({
     onExport: handleExport,
+    onResendInvite: async (ids: string[]) => {
+      if (!active) return;
+      toastManager.add({
+        title: `Resending invites to ${ids.length} coach${ids.length === 1 ? "" : "es"}…`,
+        type: "info",
+      });
+      try {
+        const result = await resendMutation.mutateAsync({
+          params: { path: { slug: orgSlug, id: active.id } },
+          body: { ids },
+        });
+        if (result.failed.length > 0) {
+          toastManager.add({
+            title: `Resent ${result.sent}, ${result.failed.length} failed`,
+            type: "warning",
+          });
+        } else {
+          toastManager.add({
+            title: `Resent ${result.sent} invite${result.sent === 1 ? "" : "s"}${result.skipped ? ` (${result.skipped} skipped)` : ""}`,
+            type: "success",
+          });
+        }
+      } catch {
+        toastManager.add({ title: "Failed to resend invites", type: "error" });
+      }
+    },
     onDelete: async (ids: string[]) => {
       if (!active) return;
       try {
