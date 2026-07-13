@@ -119,6 +119,7 @@ export default defineConfig({
       {
         files: [
           "tests/functional/**/*.spec(.ts|.js)",
+          "app/modules/**/*.test(.ts|.js)",
           "app/modules/**/*.spec.ts",
           "app/middleware/**/*.spec.ts",
           "app/shared/**/*.spec.ts",

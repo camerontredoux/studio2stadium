@@ -26,9 +26,13 @@ const FREE_TIER_IMAGE_LIMIT = 4;
 
 interface FeedUploadDialogProps {
   imageCount: number;
+  orgAccountTier?: string | null;
 }
 
-export function FeedUploadDialog({ imageCount }: FeedUploadDialogProps) {
+export function FeedUploadDialog({
+  imageCount,
+  orgAccountTier,
+}: FeedUploadDialogProps) {
   const session = useSession();
   const {
     data: { subscribed },
@@ -95,17 +99,22 @@ export function FeedUploadDialog({ imageCount }: FeedUploadDialogProps) {
     );
   };
 
-  const isFreeTier = !subscribed && session.type === "dancer";
+  const isOrgLimited =
+    !subscribed && session.type === "dancer" && orgAccountTier === "limited";
+  const usesFreeTierLimit =
+    !subscribed && session.type === "dancer" && !isOrgLimited;
   const hasReachedLimit = imageCount >= FREE_TIER_IMAGE_LIMIT;
 
-  if (isFreeTier && hasReachedLimit) {
+  if (isOrgLimited || (usesFreeTierLimit && hasReachedLimit)) {
     return (
       <div className="border-border group flex aspect-square flex-1 flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed opacity-60">
         <div className="bg-muted rounded-full p-3">
           <ImageIcon className="text-muted-foreground size-6" />
         </div>
-        <span className="text-muted-foreground text-sm font-medium">
-          Limit {FREE_TIER_IMAGE_LIMIT}/{FREE_TIER_IMAGE_LIMIT}
+        <span className="text-muted-foreground text-center text-sm font-medium">
+          {isOrgLimited
+            ? "Photos unavailable for this organization tier"
+            : `Limit ${FREE_TIER_IMAGE_LIMIT}/${FREE_TIER_IMAGE_LIMIT}`}
         </span>
         <Button
           className="hover:text-brand gap-2"
