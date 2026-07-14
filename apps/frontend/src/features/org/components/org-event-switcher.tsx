@@ -1,5 +1,18 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CheckIcon, PlusIcon } from "lucide-react";
+import { useMemo, useState } from "react";
+
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -10,46 +23,28 @@ import {
 import { toastManager } from "@/components/ui/toast-manager";
 import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
 import { EventFormSheet } from "@/features/org/components/event-form-sheet";
+import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import { client } from "@/lib/api/client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { PlusIcon } from "lucide-react";
-import { useState } from "react";
 
-function parseYmd(ymd: string): Date {
-  const [y, m, d] = ymd.split("-").map(Number);
-  return new Date(y, (m ?? 1) - 1, d ?? 1);
-}
-
-function sortEventsForPicker(events: OrgEvent[]): OrgEvent[] {
-  return [...events].sort((a, b) => {
-    const byStart = b.startDate.localeCompare(a.startDate);
-    if (byStart !== 0) return byStart;
-    return b.createdAt.localeCompare(a.createdAt);
-  });
-}
-
-function eventOptionLabel(e: OrgEvent): string {
-  const start = parseYmd(e.startDate);
-  return `${e.name} · ${format(start, "MMM d, yyyy")}`;
-}
-
-export function OrgEventSwitcher({
-  orgSlug,
-  events,
-  activeEvent,
-}: {
-  orgSlug: string;
-  events: OrgEvent[];
-  activeEvent: OrgEvent;
-}) {
-  const qc = useQueryClient();
+export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
+  const queryClient = useQueryClient();
+  const { activeEvent, events, selectedEvent, selectEvent } = useAdminEvent();
   const [createOpen, setCreateOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const sorted = sortEventsForPicker(events);
-  const selectItems = sorted.map((e) => ({
-    value: e.id,
-    label: eventOptionLabel(e),
+  const sortedEvents = useMemo(
+    () =>
+      [...events].sort((a, b) => {
+        const byStart = b.startDate.localeCompare(a.startDate);
+        if (byStart !== 0) return byStart;
+        return b.createdAt.localeCompare(a.createdAt);
+      }),
+    [events],
+  );
+
+  const items = sortedEvents.map((event) => ({
+    value: event.id,
+    label: event.name,
   }));
 
   const activate = useMutation({
@@ -57,63 +52,128 @@ export function OrgEventSwitcher({
       const raw = client as unknown as {
         PATCH: (
           path: string,
-          opts: { body: { isActive: boolean } },
-        ) => Promise<{ data: OrgEvent }>;
+          options: { body: { isActive: boolean } },
+        ) => Promise<{ data: OrgEvent; error?: unknown }>;
       };
-      const res = await raw.PATCH(`/orgs/${orgSlug}/events/${eventId}`, {
+      const response = await raw.PATCH(`/orgs/${orgSlug}/events/${eventId}`, {
         body: { isActive: true },
       });
-      return res.data;
+      if (response.error) throw new Error("Activation failed");
+      return response.data;
     },
     onSuccess: () => {
-      qc.invalidateQueries(adminQueries.events(orgSlug));
+      setConfirmOpen(false);
+      void queryClient.invalidateQueries(adminQueries.events(orgSlug));
       toastManager.add({ title: "Active event updated", type: "success" });
     },
     onError: () => {
       toastManager.add({
-        title: "Couldn't switch event",
+        title: "Couldn't make event active",
         type: "error",
       });
     },
   });
 
+  const isSelectedActive =
+    selectedEvent !== null && selectedEvent.id === activeEvent?.id;
+
   return (
     <>
-      <div className="space-y-1.5">
-        <Label htmlFor="org-active-event">Active event</Label>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-          <div className="min-w-0 flex-1">
-            <Select
-              items={selectItems}
-              value={activeEvent.id}
-              onValueChange={(value) => {
-                if (!value || value === activeEvent.id) return;
-                activate.mutate(value);
-              }}
-              disabled={activate.isPending}
-            >
-              <SelectTrigger id="org-active-event" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {selectItems.map((item) => (
-                  <SelectItem key={item.value} value={item.value}>
-                    {item.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            className="h-9 w-full shrink-0 gap-1.5 sm:w-auto"
-            onClick={() => setCreateOpen(true)}
+      <div className="flex items-center gap-2">
+        <Select
+          items={items}
+          value={selectedEvent?.id ?? null}
+          onValueChange={(value) => {
+            if (value) selectEvent(value);
+          }}
+          disabled={items.length === 0}
+        >
+          <SelectTrigger
+            aria-label="Event to view"
+            className="bg-background h-8 w-[220px] text-xs 2xl:text-sm"
           >
-            <PlusIcon className="size-4" aria-hidden />
-            New event
+            <SelectValue placeholder="Select event" />
+          </SelectTrigger>
+          <SelectContent>
+            {sortedEvents.map((event) => (
+              <SelectItem key={event.id} value={event.id}>
+                <span className="flex min-w-0 items-center justify-between gap-3">
+                  <span className="truncate">{event.name}</span>
+                  {event.isActive && (
+                    <span className="text-muted-foreground text-[10px] font-medium tracking-wide uppercase">
+                      Active
+                    </span>
+                  )}
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {isSelectedActive ? (
+          <Button
+            variant="outline"
+            size="xs"
+            className="h-8 gap-1.5 px-2.5"
+            disabled
+          >
+            <CheckIcon aria-hidden className="size-3" />
+            Active event
           </Button>
-        </div>
+        ) : (
+          <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+            <AlertDialogTrigger
+              render={
+                <Button
+                  size="xs"
+                  className="h-8 px-2.5"
+                  disabled={!selectedEvent}
+                />
+              }
+            >
+              Make active
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Make {selectedEvent?.name} the active event?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Dancers and coaches will see this as the active event. If
+                  another event is active, it will no longer be shown to them.
+                  Admins can still view any event from the event switcher.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogClose
+                  render={
+                    <Button variant="ghost" disabled={activate.isPending} />
+                  }
+                >
+                  Cancel
+                </AlertDialogClose>
+                <Button
+                  onClick={() => {
+                    if (selectedEvent) activate.mutate(selectedEvent.id);
+                  }}
+                  disabled={!selectedEvent || activate.isPending}
+                >
+                  {activate.isPending ? "Making active…" : "Make active"}
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+
+        <Button
+          variant="ghost"
+          size="xs"
+          className="h-8 gap-1 px-2"
+          onClick={() => setCreateOpen(true)}
+        >
+          <PlusIcon aria-hidden className="size-3" />
+          New
+        </Button>
       </div>
 
       <EventFormSheet

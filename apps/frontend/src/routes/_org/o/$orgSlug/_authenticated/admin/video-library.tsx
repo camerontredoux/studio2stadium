@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useDeferredValue, useMemo, useState } from "react";
 import { StatCell } from "@/features/org/components/dashboard-shared";
 import { EventVideoGrid } from "@/features/org/components/event-video/event-video-grid";
@@ -22,8 +22,8 @@ import {
   type EventVideo,
   type EventVideoGroup,
 } from "@/features/org/api/video-queries";
-import { adminQueries } from "@/features/org/api/admin-queries";
 import { orgQueries } from "@/features/org/api/queries";
+import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import { formatDistanceToNow } from "date-fns";
 
 export const Route = createFileRoute(
@@ -43,9 +43,8 @@ export const Route = createFileRoute(
 
 function AdminVideoLibrary() {
   const { orgSlug } = Route.useParams();
-  const { data: events } = useSuspenseQuery(adminQueries.events(orgSlug));
-  const activeEvent = events.find((e) => e.isActive);
-  const eventId = activeEvent?.id ?? "";
+  const { selectedEvent } = useAdminEvent();
+  const eventId = selectedEvent?.id ?? "";
 
   const { data: categories = [] } = useQuery(
     videoQueries.categories(orgSlug, eventId),
@@ -119,11 +118,11 @@ function AdminVideoLibrary() {
     });
   }
 
-  if (!activeEvent) {
+  if (!selectedEvent) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <p className="text-muted-foreground text-sm">
-          No active event. Create or activate an event to manage videos.
+          No event selected. Create an event to manage videos.
         </p>
       </div>
     );
