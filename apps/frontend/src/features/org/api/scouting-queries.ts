@@ -28,13 +28,13 @@ export const scoutingQueries = {
     $api.queryOptions("get", "/orgs/{slug}/rankings", {
       params: { path: { slug } },
     }),
-  schools: (slug: string) =>
+  schools: (slug: string, eventId?: string) =>
     $api.queryOptions("get", "/orgs/{slug}/schools", {
-      params: { path: { slug } },
+      params: { path: { slug }, query: { eventId } },
     }),
-  mySelections: (slug: string) =>
+  mySelections: (slug: string, eventId?: string) =>
     $api.queryOptions("get", "/orgs/{slug}/my-selections", {
-      params: { path: { slug } },
+      params: { path: { slug }, query: { eventId } },
     }),
   callbacks: (slug: string) =>
     $api.queryOptions("get", "/orgs/{slug}/callbacks", {
@@ -48,9 +48,9 @@ export const scoutingQueries = {
     $api.queryOptions("get", "/orgs/{slug}/showcases", {
       params: { path: { slug } },
     }),
-  dancerCallbacks: (slug: string) =>
+  dancerCallbacks: (slug: string, eventId?: string) =>
     $api.queryOptions("get", "/orgs/{slug}/dancer/callbacks", {
-      params: { path: { slug } },
+      params: { path: { slug }, query: { eventId } },
     }),
   publishedCallbacks: (slug: string, showcaseId: string) =>
     $api.queryOptions("get", "/orgs/{slug}/showcases/{showcaseId}/callbacks", {

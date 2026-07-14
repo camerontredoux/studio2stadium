@@ -432,12 +432,12 @@ type OrgsIdRankingsGetHead = {
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/rankings/controller.ts').default['handle'], false>
 }
 type OrgsIdSchoolsGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/schools/list/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/event-query-validator.ts')['eventQuerySchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/schools/list/controller.ts').default['handle'], true>
 }
 type OrgsIdMyselectionsGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/selections/list/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/event-query-validator.ts')['eventQuerySchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/selections/list/controller.ts').default['handle'], true>
 }
 type OrgsIdMyselectionsPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/selections/create/validator.ts')['schema']>>
@@ -480,8 +480,8 @@ type OrgsIdShowcasesNextPost = {
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/next/controller.ts').default['handle'], false>
 }
 type OrgsIdDancerCallbacksGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/dancer-callbacks/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/event-query-validator.ts')['eventQuerySchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/dancer-callbacks/controller.ts').default['handle'], true>
 }
 type OrgsGetHead = {
   request: unknown

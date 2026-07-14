@@ -38,6 +38,9 @@ import {
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { useOrg } from "@/features/org/context/use-org";
 import { useEventPhase } from "@/features/org/hooks/use-event-phase";
+import { DancerEventSwitcher } from "@/features/org/components/dancer-event-switcher";
+import { EventAccessBanner } from "@/features/org/components/event-access-banner";
+import type { MyRoster } from "@/features/org/context/org-context";
 
 export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/dancer/event-info",
@@ -47,26 +50,55 @@ export const Route = createFileRoute(
 
 function DancerEventInfo() {
   const { orgSlug } = Route.useParams();
+  const { isAdmin, myRoster, myRosters } = useOrg();
+  const dancerRosters = myRosters.filter((roster) => roster.type === "dancer");
+  const defaultRoster =
+    dancerRosters.find((roster) => roster.id === myRoster?.id) ??
+    dancerRosters[0] ??
+    null;
   const { data: events } = useQuery(adminQueries.events(orgSlug));
   const activeEvent = events?.find((e) => e.isActive) ?? null;
+  const [selectedEventId, setSelectedEventId] = useState(
+    defaultRoster?.eventId ?? "",
+  );
+  const selectedRoster =
+    dancerRosters.find((roster) => roster.eventId === selectedEventId) ??
+    defaultRoster;
+  const rosterEvent =
+    events?.find((event) => event.id === selectedRoster?.eventId) ?? null;
+  const event = rosterEvent ?? (isAdmin ? activeEvent : null);
 
-  if (!activeEvent) {
+  if (!event) {
     return (
       <div className="text-muted-foreground py-12 text-center">
-        No active event.
+        No registered event.
       </div>
     );
   }
 
-  return <DancerDashboard orgSlug={orgSlug} event={activeEvent} />;
+  return (
+    <DancerDashboard
+      orgSlug={orgSlug}
+      event={event}
+      roster={selectedRoster}
+      rosters={dancerRosters}
+      onEventChange={setSelectedEventId}
+    />
+  );
 }
 
 function DancerDashboard({
   orgSlug,
   event,
+  roster,
+  rosters,
+  onEventChange,
 }: {
   orgSlug: string;
   event: OrgEvent;
+  roster: MyRoster | null;
+  rosters: MyRoster[];
+  onEventChange: (eventId: string) => void;
 }) {
   const { hasFeature } = useOrg();
   const phase = useEventPhase(event.startDate, event.endDate);
@@ -82,7 +114,7 @@ function DancerDashboard({
 
   const callbacksEnabled = hasFeature("callbacks");
   const { data: dancerCallbacks } = useQuery({
-    ...scoutingQueries.dancerCallbacks(orgSlug),
+    ...scoutingQueries.dancerCallbacks(orgSlug, event.id),
     enabled: callbacksEnabled,
   });
 
@@ -97,7 +129,23 @@ function DancerDashboard({
           name={event.name}
           phase={phase}
           dateRange={dateRange}
+          actions={
+            rosters.length > 1 ? (
+              <DancerEventSwitcher
+                rosters={rosters}
+                value={event.id}
+                onValueChange={onEventChange}
+              />
+            ) : undefined
+          }
         />
+
+        {roster && (!event.isActive || !roster.hasStarted) && (
+          <EventAccessBanner eventName={event.name} startDate={event.startDate}>
+            Check-in opens one hour before the event starts. Event-only features
+            will appear here as the organizer publishes them.
+          </EventAccessBanner>
+        )}
 
         <section
           aria-label="Status"
@@ -115,7 +163,7 @@ function DancerDashboard({
 
         <section
           aria-label="Dashboard panels"
-          className={`grid flex-1 grid-cols-1 content-start gap-3 p-4 xl:min-h-0 lg:grid-cols-2 ${
+          className={`grid flex-1 grid-cols-1 content-start gap-3 p-4 lg:grid-cols-2 xl:min-h-0 ${
             event.schedulePdfUrl ? "lg:grid-rows-[auto_1fr]" : ""
           }`}
         >
@@ -129,6 +177,7 @@ function DancerDashboard({
           )}
           <QuickNavPanel
             orgSlug={orgSlug}
+            eventId={event.id}
             showCallbacks={hasCallbacks}
             hasFeature={hasFeature}
           />
@@ -350,10 +399,12 @@ function formatCheckInOpenTime(
 
 function QuickNavPanel({
   orgSlug,
+  eventId,
   showCallbacks,
   hasFeature,
 }: {
   orgSlug: string;
+  eventId: string;
   showCallbacks: boolean;
   hasFeature: (key: string) => boolean;
 }) {
@@ -416,6 +467,7 @@ function QuickNavPanel({
               to={item.to}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               params={{ orgSlug } as any}
+              search={{ eventId }}
               className="hover:bg-muted/40 group flex items-center gap-3 px-3 py-2.5 transition-colors"
             >
               <span

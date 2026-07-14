@@ -1,26 +1,44 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, redirect, useParams } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useParams,
+} from "@tanstack/react-router";
 import { MegaphoneIcon, SchoolIcon } from "lucide-react";
 
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { orgQueries } from "@/features/org/api/queries";
 import { AccentDot } from "@/features/org/components/dashboard-shared";
+import { dancerEventSearchSchema } from "@/features/org/api/scouting-schemas";
+import { useOrg } from "@/features/org/context/use-org";
 
 export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/dancer/callbacks",
 )({
+  validateSearch: dancerEventSearchSchema,
   beforeLoad: async ({ context, params }) => {
     const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     );
-    const features = ((data as any)?.features ?? {}) as Record<string, boolean>;
+    const features = (data.features ?? {}) as Record<string, boolean>;
     if (!features.callbacks) {
       throw redirect({ to: "/o/$orgSlug/dancer", params });
     }
   },
-  loader: async ({ context, params }) => {
+  loaderDeps: ({ search }) => ({ eventId: search.eventId }),
+  loader: async ({ context, params, deps }) => {
+    const org = await context.queryClient.ensureQueryData(
+      orgQueries.org(params.orgSlug),
+    );
+    const eventId =
+      deps.eventId ??
+      org.myRosters.find((roster) => roster.type === "dancer")?.eventId;
+    if (!eventId) {
+      throw redirect({ to: "/o/$orgSlug/dancer", params });
+    }
     const data = await context.queryClient.ensureQueryData(
-      scoutingQueries.dancerCallbacks(params.orgSlug),
+      scoutingQueries.dancerCallbacks(params.orgSlug, eventId),
     );
     if (!data || (Array.isArray(data) && data.length === 0)) {
       throw redirect({ to: "/o/$orgSlug/dancer", params });
@@ -33,8 +51,14 @@ function DancerCallbacksPage() {
   const { orgSlug } = useParams({
     from: "/_org/o/$orgSlug/_authenticated/dancer/callbacks",
   });
+  const { eventId: searchEventId } = Route.useSearch();
+  const { myRosters } = useOrg();
+  const eventId =
+    searchEventId ??
+    myRosters.find((roster) => roster.type === "dancer")?.eventId ??
+    "";
   const { data: callbacks } = useSuspenseQuery(
-    scoutingQueries.dancerCallbacks(orgSlug),
+    scoutingQueries.dancerCallbacks(orgSlug, eventId),
   );
 
   const schools = callbacks as {
@@ -67,6 +91,7 @@ function DancerCallbacksPage() {
               key={cb.coachRosterId}
               to="/o/$orgSlug/dancer/schools"
               params={{ orgSlug }}
+              search={{ eventId }}
               className="hover:bg-accent/50 flex items-center gap-3 px-3 py-2.5 transition-colors"
             >
               <span className="flex size-7 shrink-0 items-center justify-center rounded-md border border-blue-500/20 bg-blue-500/10">

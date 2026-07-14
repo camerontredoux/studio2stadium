@@ -5,6 +5,10 @@ export const dancerSearchSchema = z.object({
   interested: z.boolean().default(false),
 });
 
+export const dancerEventSearchSchema = z.object({
+  eventId: z.string().uuid().optional(),
+});
+
 export type DancerSearchForm = z.infer<typeof dancerSearchSchema>;
 
 export const noteSchema = z.object({

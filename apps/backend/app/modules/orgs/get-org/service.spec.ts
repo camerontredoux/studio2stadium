@@ -53,25 +53,25 @@ test.group("GET /orgs/:slug", (group) => {
       .select()
       .from(organizations)
       .where(eq(organizations.slug, "summit"));
-    const [coach] = await db
+    const [dancer] = await db
       .insert(users)
       .values({
-        username: `multi_event_coach_${Date.now()}`,
-        email: `multi_event_coach_${Date.now()}@example.com`,
+        username: `multi_event_dancer_${Date.now()}`,
+        email: `multi_event_dancer_${Date.now()}@example.com`,
         displayEmail: "multi-event@example.com",
         firstName: "Multi",
-        lastName: "Coach",
+        lastName: "Dancer",
         password: "hashed",
         role: "user",
-        type: "school",
+        type: "dancer",
         verified: true,
       })
       .returning();
     await db.insert(orgMemberships).values({
       orgId: org!.id,
-      userId: coach!.id,
+      userId: dancer!.id,
       role: "member",
-      type: "coach",
+      type: "dancer",
     });
     const today = new Date();
     const dateFromToday = (days: number) => {
@@ -105,22 +105,26 @@ test.group("GET /orgs/:slug", (group) => {
     await db.insert(eventRosters).values(
       [farFuture, nearestFuture, past].map((event) => ({
         eventId: event!.id,
-        userId: coach!.id,
-        type: "coach" as const,
-        email: coach!.email,
+        userId: dancer!.id,
+        type: "dancer" as const,
+        email: dancer!.email,
         firstName: "Multi",
-        lastName: "Coach",
+        lastName: "Dancer",
       }))
     );
 
     const result = await new GetOrgService(new DatabaseService()).execute(
       org!.slug,
-      coach!.id
+      dancer!.id
     );
 
     assert.equal(result?.myRoster?.eventId, nearestFuture!.id);
     assert.equal(result?.myRoster?.eventName, "Nearest Future");
     assert.isFalse(result?.myRoster?.isActive);
     assert.isFalse(result?.myRoster?.hasStarted);
+    assert.deepEqual(
+      result?.myRosters.map((roster) => roster.eventId),
+      [nearestFuture!.id, farFuture!.id, past!.id]
+    );
   });
 });

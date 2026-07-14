@@ -1,12 +1,19 @@
-import { createFileRoute, Link, redirect, useParams } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import {
-  ExternalLinkIcon,
-  SearchIcon,
-  StarIcon,
-  XIcon,
-} from "lucide-react";
+  createFileRoute,
+  Link,
+  redirect,
+  useParams,
+} from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { ExternalLinkIcon, SearchIcon, StarIcon, XIcon } from "lucide-react";
 import type { ColumnDef, SortingState } from "@tanstack/react-table";
 import { $api } from "@/lib/api/client";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
@@ -28,15 +35,17 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toastManager } from "@/components/ui/toast-manager";
+import { dancerEventSearchSchema } from "@/features/org/api/scouting-schemas";
 
 export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/dancer/schools",
 )({
+  validateSearch: dancerEventSearchSchema,
   beforeLoad: async ({ context, params }) => {
     const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     );
-    const features = ((data as any)?.features ?? {}) as Record<string, boolean>;
+    const features = (data.features ?? {}) as Record<string, boolean>;
     if (!features.school_selections) {
       throw redirect({ to: "/o/$orgSlug/dancer", params });
     }
@@ -117,7 +126,8 @@ function schoolColumns(
       enableSorting: false,
       cell: ({ row }) => {
         const isTop = row.original.isTopSchool;
-        const disabled = !isTop && maxSelections !== -1 && selectionCount >= maxSelections;
+        const disabled =
+          !isTop && maxSelections !== -1 && selectionCount >= maxSelections;
         return (
           <button
             type="button"
@@ -127,7 +137,11 @@ function schoolColumns(
               onToggle(row.original.rosterId, isTop);
             }}
             className="flex cursor-pointer items-center justify-center disabled:cursor-not-allowed disabled:opacity-30"
-            aria-label={isTop ? `Remove from Top ${maxSelections === -1 ? "" : maxSelections}` : `Add to Top ${maxSelections === -1 ? "" : maxSelections}`}
+            aria-label={
+              isTop
+                ? `Remove from Top ${maxSelections === -1 ? "" : maxSelections}`
+                : `Add to Top ${maxSelections === -1 ? "" : maxSelections}`
+            }
           >
             <StarIcon
               className={`size-4 transition-colors ${
@@ -151,7 +165,11 @@ function SchoolsPage() {
   const { orgSlug } = useParams({
     from: "/_org/o/$orgSlug/_authenticated/dancer/schools",
   });
-  const { settings } = useOrg();
+  const { eventId: searchEventId } = Route.useSearch();
+  const { settings, myRosters } = useOrg();
+  const eventId =
+    searchEventId ??
+    myRosters.find((roster) => roster.type === "dancer")?.eventId;
   const maxSelections = Number(settings?.max_school_selections) || 3;
 
   /* --- Filter state --- */
@@ -166,16 +184,16 @@ function SchoolsPage() {
 
   /* --- Data --- */
   const { data: schools, isLoading } = useQuery(
-    scoutingQueries.schools(orgSlug),
+    scoutingQueries.schools(orgSlug, eventId),
   );
   const { data: selections } = useQuery(
-    scoutingQueries.mySelections(orgSlug),
+    scoutingQueries.mySelections(orgSlug, eventId),
   );
 
   /* --- Mutations with optimistic updates --- */
   const qc = useQueryClient();
-  const schoolsKey = scoutingQueries.schools(orgSlug).queryKey;
-  const selectionsKey = scoutingQueries.mySelections(orgSlug).queryKey;
+  const schoolsKey = scoutingQueries.schools(orgSlug, eventId).queryKey;
+  const selectionsKey = scoutingQueries.mySelections(orgSlug, eventId).queryKey;
 
   const addSelection = $api.useMutation("post", "/orgs/{slug}/my-selections", {
     onMutate: async ({ body }) => {
@@ -301,12 +319,20 @@ function SchoolsPage() {
         });
       }
     },
-    [orgSlug, selections, selectionCount, maxSelections, addSelection, removeSelection],
+    [
+      orgSlug,
+      selections,
+      selectionCount,
+      maxSelections,
+      addSelection,
+      removeSelection,
+    ],
   );
 
   /* --- Derive isTopSchool from selections (works even before types are regenerated) --- */
   const selectedCoachIds = useMemo(
-    () => new Set((selections ?? []).map((s: any) => s.coachRosterId as string)),
+    () =>
+      new Set((selections ?? []).map((selection) => selection.coachRosterId)),
     [selections],
   );
 
@@ -337,20 +363,17 @@ function SchoolsPage() {
   const totalSchools = (schools ?? []).length;
 
   /* --- Keyboard shortcut --- */
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName;
-      const isInput =
-        tag === "INPUT" ||
-        tag === "TEXTAREA" ||
-        (e.target as HTMLElement)?.isContentEditable;
-      if (e.key === "/" && !isInput) {
-        e.preventDefault();
-        searchRef.current?.focus();
-      }
-    },
-    [],
-  );
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    const tag = (e.target as HTMLElement)?.tagName;
+    const isInput =
+      tag === "INPUT" ||
+      tag === "TEXTAREA" ||
+      (e.target as HTMLElement)?.isContentEditable;
+    if (e.key === "/" && !isInput) {
+      e.preventDefault();
+      searchRef.current?.focus();
+    }
+  }, []);
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
@@ -376,9 +399,19 @@ function SchoolsPage() {
       >
         <StatCell label="Total Schools" value={totalSchools} accent="blue" />
         <StatCell
-          label={maxSelections === -1 ? "My Selections" : `My Top ${maxSelections}`}
-          value={maxSelections === -1 ? selectionCount : `${selectionCount} / ${maxSelections}`}
-          accent={maxSelections !== -1 && selectionCount >= maxSelections ? "amber" : "green"}
+          label={
+            maxSelections === -1 ? "My Selections" : `My Top ${maxSelections}`
+          }
+          value={
+            maxSelections === -1
+              ? selectionCount
+              : `${selectionCount} / ${maxSelections}`
+          }
+          accent={
+            maxSelections !== -1 && selectionCount >= maxSelections
+              ? "amber"
+              : "green"
+          }
         />
       </section>
 
@@ -483,7 +516,10 @@ function SchoolCard({
   maxSelections: number;
   onToggle: (rosterId: string, current: boolean) => void;
 }) {
-  const disabled = !school.isTopSchool && maxSelections !== -1 && selectionCount >= maxSelections;
+  const disabled =
+    !school.isTopSchool &&
+    maxSelections !== -1 &&
+    selectionCount >= maxSelections;
   return (
     <div className="bg-card flex w-full items-center justify-between gap-3 rounded-lg border p-3">
       <div className="flex min-w-0 flex-col gap-1">
