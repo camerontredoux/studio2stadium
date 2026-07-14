@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/sheet";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/components/utils/cn";
-import { adminQueries } from "@/features/org/api/admin-queries";
 import {
   auditQueries,
   type AuditAction,
@@ -26,7 +25,8 @@ import {
   type AuditLogStats,
   type AuditResource,
 } from "@/features/org/api/audit-queries";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useAdminEvent } from "@/features/org/context/use-admin-event";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { format, formatDistanceToNow } from "date-fns";
 import {
@@ -644,10 +644,8 @@ function AuditSidebar({
 
 function AuditLogPage() {
   const { orgSlug } = Route.useParams();
-  const { data: events } = useSuspenseQuery(adminQueries.events(orgSlug));
-
-  const active = events?.find((e) => e.isActive);
-  const selectedEventId = active?.id ?? "";
+  const { events, selectedEvent } = useAdminEvent();
+  const selectedEventId = selectedEvent?.id ?? "";
 
   const [search, setSearch] = useState("");
   const [actionFilter, setActionFilter] = useState<AuditAction | "all">("all");
@@ -711,7 +709,7 @@ function AuditLogPage() {
     }
   };
 
-  if (!active && events.length === 0) {
+  if (!selectedEvent && events.length === 0) {
     return (
       <div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
         No events yet.
@@ -730,7 +728,7 @@ function AuditLogPage() {
               Audit Log
             </h1>
             <span className="text-muted-foreground text-xs tabular-nums 2xl:text-sm">
-              {active?.name ?? ""}
+              {selectedEvent?.name ?? ""}
             </span>
           </div>
         </header>

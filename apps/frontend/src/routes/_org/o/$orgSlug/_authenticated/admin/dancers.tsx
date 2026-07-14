@@ -1,5 +1,4 @@
 import { toastManager } from "@/components/ui/toast-manager";
-import { adminQueries } from "@/features/org/api/admin-queries";
 import { toastRosterMutationError } from "@/features/org/api/roster-mutation-error";
 import {
   type RosterEntry,
@@ -14,8 +13,9 @@ import { DataGrid, StatusBadge } from "@/features/org/components/data-grid";
 import { rosterBulkActions } from "@/features/org/components/roster-bulk-actions";
 import { RosterDetailSheet } from "@/features/org/components/roster-detail-sheet";
 import { RosterPageHeader } from "@/features/org/components/roster-page-header";
+import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import { useOrg } from "@/features/org/context/use-org";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { type ColumnDef, type SortingState } from "@tanstack/react-table";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -153,8 +153,7 @@ function DancersPage() {
     if (checkInEnabled) cols.push(checkedInColumn);
     return cols;
   }, [checkInEnabled, freeTierEnabled]);
-  const { data: events } = useSuspenseQuery(adminQueries.events(orgSlug));
-  const active = events?.find((e) => e.isActive);
+  const { selectedEvent: active } = useAdminEvent();
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<RosterStatus>("all");
@@ -311,7 +310,7 @@ function DancersPage() {
   if (!active) {
     return (
       <div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
-        No active event.
+        No event selected.
       </div>
     );
   }

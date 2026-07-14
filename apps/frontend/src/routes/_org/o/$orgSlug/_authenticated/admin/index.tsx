@@ -58,6 +58,7 @@ import {
   type CsvUploadSummary,
   type OrgEvent,
 } from "@/features/org/api/admin-queries";
+import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import {
   ACCENT_VALUE,
   AccentDot,
@@ -1177,16 +1178,15 @@ function SidebarActivitySection({
 
 function AdminHome() {
   const { orgSlug } = Route.useParams();
-  const { data: events } = useSuspenseQuery(adminQueries.events(orgSlug));
-  const activeEvent = events?.find((e) => e.isActive);
+  const { events, selectedEvent } = useAdminEvent();
 
-  if (!activeEvent) {
+  if (!selectedEvent && events.length === 0) {
     return (
       <div className="mx-auto w-full max-w-md space-y-4 p-4 md:p-6">
         <div>
           <h1 className="text-2xl font-semibold">Create your first event</h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            You'll be able to upload rosters once an event is active.
+            You'll be able to upload rosters once the event is created.
           </p>
         </div>
         <CreateEventForm orgSlug={orgSlug} />
@@ -1194,5 +1194,7 @@ function AdminHome() {
     );
   }
 
-  return <AdminDashboard orgSlug={orgSlug} activeEvent={activeEvent} />;
+  if (!selectedEvent) return null;
+
+  return <AdminDashboard orgSlug={orgSlug} activeEvent={selectedEvent} />;
 }

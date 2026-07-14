@@ -1,9 +1,9 @@
 import { client } from "@/lib/api/client";
-import { adminQueries } from "@/features/org/api/admin-queries";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toastManager } from "@/components/ui/toast-manager";
-import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useAdminEvent } from "@/features/org/context/use-admin-event";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
@@ -162,8 +162,7 @@ function MergeDialog({
 
 function ReconciliationPage() {
   const { orgSlug } = Route.useParams();
-  const { data: events } = useSuspenseQuery(adminQueries.events(orgSlug));
-  const active = events?.find((e) => e.isActive);
+  const { selectedEvent: active } = useAdminEvent();
 
   const [mergingRosterId, setMergingRosterId] = useState<string | null>(null);
 
@@ -206,7 +205,7 @@ function ReconciliationPage() {
   if (!active) {
     return (
       <div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
-        No active event.
+        No event selected.
       </div>
     );
   }
