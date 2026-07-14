@@ -5041,7 +5041,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    eventId?: string | null;
+                };
                 header?: never;
                 path: {
                     slug: string;
@@ -5057,6 +5059,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["OrgsIdSchoolsResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -5078,7 +5089,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    eventId?: string | null;
+                };
                 header?: never;
                 path: {
                     slug: string;
@@ -5098,6 +5111,15 @@ export interface paths {
                 };
                 /** @description Unknown Response */
                 409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -5552,7 +5574,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    eventId?: string | null;
+                };
                 header?: never;
                 path: {
                     slug: string;
@@ -5572,6 +5596,15 @@ export interface paths {
                 };
                 /** @description Unknown Response */
                 409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -10392,14 +10425,24 @@ export interface components {
             } | null;
             myRoster: {
                 id: string;
-                eventId: string;
                 type: components["schemas"]["UploadKind"];
+                eventId: string;
+                isActive: boolean;
                 eventName: string;
                 eventStartDate: string;
                 eventEndDate: string;
-                isActive: boolean;
                 hasStarted: boolean;
             } | null;
+            myRosters: {
+                id: string;
+                type: components["schemas"]["UploadKind"];
+                eventId: string;
+                isActive: boolean;
+                eventName: string;
+                eventStartDate: string;
+                eventEndDate: string;
+                hasStarted: boolean;
+            }[];
         };
         OrgsIdEventsResponse: {
             gpa: boolean;

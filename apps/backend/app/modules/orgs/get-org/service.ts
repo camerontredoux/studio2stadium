@@ -5,22 +5,25 @@ import { hasEventStarted } from "#utils/event-time";
 import { inject } from "@adonisjs/core";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 
+export interface OrgRosterSummary {
+  id: string;
+  eventId: string;
+  type: "coach" | "dancer";
+  eventName: string;
+  eventStartDate: string;
+  eventEndDate: string;
+  isActive: boolean;
+  hasStarted: boolean;
+}
+
 export interface GetOrgResult {
   org: typeof organizations.$inferSelect;
   membership: {
     role: "admin" | "member";
     type: "coach" | "dancer";
   } | null;
-  myRoster: {
-    id: string;
-    eventId: string;
-    type: "coach" | "dancer";
-    eventName: string;
-    eventStartDate: string;
-    eventEndDate: string;
-    isActive: boolean;
-    hasStarted: boolean;
-  } | null;
+  myRoster: OrgRosterSummary | null;
+  myRosters: OrgRosterSummary[];
 }
 
 @inject()
@@ -41,6 +44,7 @@ export class GetOrgService {
 
       let membership: GetOrgResult["membership"] = null;
       let myRoster: GetOrgResult["myRoster"] = null;
+      let myRosters: GetOrgResult["myRosters"] = [];
       if (userId) {
         const [row] = await db
           .select({
@@ -63,7 +67,7 @@ export class GetOrgService {
         }
 
         const today = new Date().toISOString().slice(0, 10);
-        const [roster] = await db
+        const rosterRows = await db
           .select({
             id: eventRosters.id,
             eventId: eventRosters.eventId,
@@ -92,27 +96,25 @@ export class GetOrgService {
               sql`CASE WHEN ${orgEvents.startDate} < ${today} THEN ${orgEvents.startDate} END`
             ),
             desc(eventRosters.createdAt)
-          )
-          .limit(1);
-        if (roster) {
-          myRoster = {
-            id: roster.id,
-            eventId: roster.eventId,
-            type: roster.type as "coach" | "dancer",
-            eventName: roster.eventName,
-            eventStartDate: roster.eventStartDate,
-            eventEndDate: roster.eventEndDate,
-            isActive: roster.isActive,
-            hasStarted: hasEventStarted(
-              roster.eventStartDate,
-              roster.eventStartTime,
-              roster.eventTimezone
-            ),
-          };
-        }
+          );
+        myRosters = rosterRows.map((roster) => ({
+          id: roster.id,
+          eventId: roster.eventId,
+          type: roster.type as "coach" | "dancer",
+          eventName: roster.eventName,
+          eventStartDate: roster.eventStartDate,
+          eventEndDate: roster.eventEndDate,
+          isActive: roster.isActive,
+          hasStarted: hasEventStarted(
+            roster.eventStartDate,
+            roster.eventStartTime,
+            roster.eventTimezone
+          ),
+        }));
+        myRoster = myRosters[0] ?? null;
       }
 
-      return { org, membership, myRoster };
+      return { org, membership, myRoster, myRosters };
     });
   }
 }

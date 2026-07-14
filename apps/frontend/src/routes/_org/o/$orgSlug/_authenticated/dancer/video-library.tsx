@@ -11,15 +11,18 @@ import {
 import { adminQueries } from "@/features/org/api/admin-queries";
 import { orgQueries } from "@/features/org/api/queries";
 import { isAfter, subDays } from "date-fns";
+import { dancerEventSearchSchema } from "@/features/org/api/scouting-schemas";
+import { useOrg } from "@/features/org/context/use-org";
 
 export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/dancer/video-library",
 )({
+  validateSearch: dancerEventSearchSchema,
   beforeLoad: async ({ context, params }) => {
     const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     );
-    const features = ((data as any)?.features ?? {}) as Record<string, boolean>;
+    const features = (data.features ?? {}) as Record<string, boolean>;
     if (!features.video_library) {
       throw redirect({ to: "/o/$orgSlug/dancer", params });
     }
@@ -29,16 +32,19 @@ export const Route = createFileRoute(
 
 function DancerVideoLibrary() {
   const { orgSlug } = Route.useParams();
+  const { eventId: searchEventId } = Route.useSearch();
+  const { myRosters } = useOrg();
   const { data: events } = useSuspenseQuery(adminQueries.events(orgSlug));
-  const activeEvent = events.find((e) => e.isActive);
-  const eventId = activeEvent?.id ?? "";
+  const eventId =
+    searchEventId ??
+    myRosters.find((roster) => roster.type === "dancer")?.eventId ??
+    "";
+  const event = events.find((candidate) => candidate.id === eventId);
 
   const { data: categories = [] } = useQuery(
     videoQueries.categories(orgSlug, eventId),
   );
-  const { data: videos = [] } = useQuery(
-    videoQueries.videos(orgSlug, eventId),
-  );
+  const { data: videos = [] } = useQuery(videoQueries.videos(orgSlug, eventId));
 
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search);
@@ -59,7 +65,9 @@ function DancerVideoLibrary() {
 
         if (deferredSearch) {
           const q = deferredSearch.toLowerCase();
-          catVideos = catVideos.filter((v) => v.title.toLowerCase().includes(q));
+          catVideos = catVideos.filter((v) =>
+            v.title.toLowerCase().includes(q),
+          );
         }
 
         return { category: cat, videos: catVideos };
@@ -75,10 +83,10 @@ function DancerVideoLibrary() {
     [categories, videos],
   );
 
-  if (!activeEvent) {
+  if (!event) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-muted-foreground text-sm">No active event.</p>
+        <p className="text-muted-foreground text-sm">No registered event.</p>
       </div>
     );
   }
@@ -91,7 +99,10 @@ function DancerVideoLibrary() {
         </h1>
       </header>
 
-      <section aria-label="Video stats" className="border-border flex items-stretch border-y">
+      <section
+        aria-label="Video stats"
+        className="border-border flex items-stretch border-y"
+      >
         <StatCell label="Total Videos" value={videos.length} />
         <StatCell label="Categories" value={categoriesWithVideos.length} />
         <StatCell label="New This Week" value={newThisWeek} accent="blue" />

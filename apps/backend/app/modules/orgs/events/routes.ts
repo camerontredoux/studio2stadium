@@ -345,7 +345,7 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
-        middleware.orgEvent(),
+        middleware.orgEvent("dancerSelfRead"),
         middleware.orgMember(),
       ]);
     router
@@ -371,7 +371,7 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
-        middleware.orgEvent(),
+        middleware.orgEvent("dancerSelfRead"),
         middleware.orgMember(),
       ]);
 
@@ -381,7 +381,7 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
-        middleware.orgEvent(),
+        middleware.orgEvent("dancerSelfRead"),
         middleware.orgMember(),
       ]);
     router
@@ -411,7 +411,7 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
-        middleware.orgEvent(),
+        middleware.orgEvent("dancerSelfRead"),
         middleware.orgMember(),
       ]);
     router

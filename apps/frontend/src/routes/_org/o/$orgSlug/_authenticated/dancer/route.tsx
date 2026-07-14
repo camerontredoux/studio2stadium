@@ -24,14 +24,17 @@ export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/dancer")({
         orgQueries.org(params.orgSlug),
       ))) as {
       membership?: { role: string; type: string } | null;
-      myRoster?: { id: string } | null;
+      myRosters?: Array<{ id: string; type: string }>;
     } | null;
     const role = data?.membership?.role;
     const type = data?.membership?.type;
     if (role !== "admin" && role !== "owner" && type !== "dancer") {
       throw redirect({ to: "/" });
     }
-    if (role !== "admin" && !data?.myRoster) {
+    const hasDancerRoster = data?.myRosters?.some(
+      (roster) => roster.type === "dancer",
+    );
+    if (role !== "admin" && !hasDancerRoster) {
       throw redirect({
         to: "/o/$orgSlug/no-access",
         params: { orgSlug: params.orgSlug },

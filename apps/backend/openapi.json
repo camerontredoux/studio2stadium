@@ -5096,6 +5096,21 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "eventId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
           }
         ],
         "responses": {
@@ -5105,6 +5120,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgsIdSchoolsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -5125,6 +5150,21 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "eventId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
           }
         ],
         "responses": {
@@ -5140,6 +5180,16 @@
           },
           "409": {
             "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
@@ -5575,6 +5625,21 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "eventId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
           }
         ],
         "responses": {
@@ -5590,6 +5655,16 @@
           },
           "409": {
             "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
@@ -12262,11 +12337,14 @@
                   "id": {
                     "type": "string"
                   },
+                  "type": {
+                    "$ref": "#/components/schemas/UploadKind"
+                  },
                   "eventId": {
                     "type": "string"
                   },
-                  "type": {
-                    "$ref": "#/components/schemas/UploadKind"
+                  "isActive": {
+                    "type": "boolean"
                   },
                   "eventName": {
                     "type": "string"
@@ -12277,21 +12355,18 @@
                   "eventEndDate": {
                     "type": "string"
                   },
-                  "isActive": {
-                    "type": "boolean"
-                  },
                   "hasStarted": {
                     "type": "boolean"
                   }
                 },
                 "required": [
                   "id",
-                  "eventId",
                   "type",
+                  "eventId",
+                  "isActive",
                   "eventName",
                   "eventStartDate",
                   "eventEndDate",
-                  "isActive",
                   "hasStarted"
                 ]
               },
@@ -12299,6 +12374,48 @@
                 "type": "null"
               }
             ]
+          },
+          "myRosters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "type": {
+                  "$ref": "#/components/schemas/UploadKind"
+                },
+                "eventId": {
+                  "type": "string"
+                },
+                "isActive": {
+                  "type": "boolean"
+                },
+                "eventName": {
+                  "type": "string"
+                },
+                "eventStartDate": {
+                  "type": "string"
+                },
+                "eventEndDate": {
+                  "type": "string"
+                },
+                "hasStarted": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "type",
+                "eventId",
+                "isActive",
+                "eventName",
+                "eventStartDate",
+                "eventEndDate",
+                "hasStarted"
+              ]
+            }
           }
         },
         "required": [
@@ -12311,7 +12428,8 @@
           "features",
           "settings",
           "membership",
-          "myRoster"
+          "myRoster",
+          "myRosters"
         ]
       },
       "OrgsIdEventsResponse": {

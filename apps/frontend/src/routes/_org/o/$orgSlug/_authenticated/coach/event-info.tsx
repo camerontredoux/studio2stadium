@@ -36,7 +36,7 @@ import {
 } from "@/features/org/components/dashboard-shared";
 import { useEventPhase } from "@/features/org/hooks/use-event-phase";
 import type { EventPhaseInfo } from "@/features/org/hooks/use-event-phase";
-import { CoachEventAccessBanner } from "@/features/org/components/coach-event-access-banner";
+import { EventAccessBanner } from "@/features/org/components/event-access-banner";
 
 export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/coach/event-info",
@@ -90,11 +90,24 @@ function PreEventDashboard({
         phase={phase}
         dateRange={formatDateRange(event.startDate, event.endDate)}
       />
-      <CoachEventAccessBanner
-        orgSlug={orgSlug}
+      <EventAccessBanner
         eventName={event.name}
         startDate={event.startDate}
-      />
+        action={
+          <Button
+            variant="outline"
+            render={
+              <Link to="/o/$orgSlug/coach/dancers" params={{ orgSlug }} />
+            }
+          >
+            <SearchIcon />
+            Browse all dancers
+          </Button>
+        }
+      >
+        Ratings, favorites, notes, and callbacks unlock during your event. You
+        can browse dancers from every event now.
+      </EventAccessBanner>
       <div className="grid flex-1 content-start gap-6 p-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <section className="flex max-w-2xl flex-col gap-3 py-2">
           <p className="text-muted-foreground max-w-xl text-sm leading-relaxed">

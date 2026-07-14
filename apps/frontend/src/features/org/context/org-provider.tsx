@@ -9,6 +9,8 @@ import {
   type MyRoster,
 } from "./org-context";
 
+const EMPTY_ROSTERS: MyRoster[] = [];
+
 export function OrgProvider({
   slug,
   children,
@@ -22,8 +24,9 @@ export function OrgProvider({
   const features = (data.features ?? {}) as Record<string, boolean>;
   const membership =
     (data as { membership?: OrgMembership | null }).membership ?? null;
-  const myRoster =
-    (data as { myRoster?: MyRoster | null }).myRoster ?? null;
+  const myRoster = (data as { myRoster?: MyRoster | null }).myRoster ?? null;
+  const myRosters =
+    (data as { myRosters?: MyRoster[] }).myRosters ?? EMPTY_ROSTERS;
 
   const value = useMemo<OrgContextValue>(
     () => ({
@@ -39,10 +42,11 @@ export function OrgProvider({
       settings: (data.settings ?? {}) as Record<string, unknown>,
       membership,
       myRoster,
+      myRosters,
       isAdmin: membership?.role === "admin" || session?.role === "admin",
       hasFeature: (key) => Boolean(features[key]),
     }),
-    [data, features, membership, myRoster, session?.role],
+    [data, features, membership, myRoster, myRosters, session?.role],
   );
 
   useEffect(() => {

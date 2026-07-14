@@ -29,6 +29,7 @@ export interface OrgContextValue {
   settings: Record<string, unknown>;
   membership: OrgMembership | null;
   myRoster: MyRoster | null;
+  myRosters: MyRoster[];
   isAdmin: boolean;
   hasFeature: (key: string) => boolean;
 }

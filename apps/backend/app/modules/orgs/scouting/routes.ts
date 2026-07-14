@@ -82,6 +82,19 @@ router
   .group(() => {
     router.get(":slug/schools", [ListSchools]);
     router.get(":slug/my-selections", [ListSelections]);
+  })
+  .prefix("orgs")
+  .use([
+    middleware.auth(),
+    middleware.org(),
+    middleware.orgEvent("dancerSelfRead"),
+    middleware.orgMember(),
+    middleware.orgDancer(),
+  ])
+  .openapi({ tags: ["Org School Selections"] });
+
+router
+  .group(() => {
     router.post(":slug/my-selections", [CreateSelection]);
     router.delete(":slug/my-selections/:id", [DeleteSelection]);
   })
@@ -157,7 +170,7 @@ router
   .use([
     middleware.auth(),
     middleware.org(),
-    middleware.orgEvent(),
+    middleware.orgEvent("dancerSelfRead"),
     middleware.orgMember(),
     middleware.orgDancer(),
     middleware.orgFeature("callbacks"),
