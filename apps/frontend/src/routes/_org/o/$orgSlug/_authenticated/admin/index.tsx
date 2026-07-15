@@ -30,12 +30,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { EventScheduleDialog } from "@/components/event-schedule-dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -1042,28 +1037,12 @@ function ScheduleUploadPanel({
       </AlertDialog>
 
       {fileUrl && (
-        <Dialog open={expanded} onOpenChange={setExpanded}>
-          <DialogContent className="max-w-5xl" bottomStickOnMobile={false}>
-            <DialogHeader>
-              <DialogTitle>Event Schedule</DialogTitle>
-            </DialogHeader>
-            <div className="h-[80vh] w-full px-6 pb-6">
-              {scheduleKey?.endsWith(".pdf") ? (
-                <iframe
-                  src={fileUrl}
-                  className="h-full w-full rounded-md border"
-                  title="Event schedule"
-                />
-              ) : (
-                <img
-                  src={fileUrl}
-                  alt="Event schedule"
-                  className="h-full w-full rounded-md object-contain"
-                />
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
+        <EventScheduleDialog
+          open={expanded}
+          onOpenChange={setExpanded}
+          fileUrl={fileUrl}
+          isPdf={scheduleKey?.endsWith(".pdf") ?? false}
+        />
       )}
     </>
   );

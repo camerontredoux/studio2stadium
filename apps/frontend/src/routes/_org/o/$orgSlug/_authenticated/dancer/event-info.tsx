@@ -11,13 +11,8 @@ import {
   UserCheckIcon,
 } from "lucide-react";
 
+import { EventScheduleDialog } from "@/components/event-schedule-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
@@ -545,28 +540,12 @@ function SchedulePreviewPanel({
         </div>
       </div>
 
-      <Dialog open={expanded} onOpenChange={setExpanded}>
-        <DialogContent className="max-w-5xl" bottomStickOnMobile={false}>
-          <DialogHeader>
-            <DialogTitle>Event Schedule</DialogTitle>
-          </DialogHeader>
-          <div className="h-[80vh] w-full px-6 pb-6">
-            {isPdf ? (
-              <iframe
-                src={fileUrl}
-                className="h-full w-full rounded-md border"
-                title="Event schedule"
-              />
-            ) : (
-              <img
-                src={fileUrl}
-                alt="Event schedule"
-                className="h-full w-full rounded-md object-contain"
-              />
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <EventScheduleDialog
+        open={expanded}
+        onOpenChange={setExpanded}
+        fileUrl={fileUrl}
+        isPdf={isPdf}
+      />
     </>
   );
 }
