@@ -1,5 +1,13 @@
+import { Button } from "@/components/ui/button";
 import { cn } from "@/components/utils/cn";
 import type { RosterStatus } from "@/features/org/api/roster-queries";
+
+/**
+ * The activation widget and the reset action share one wrapping row so the
+ * button drops to its own line on narrow viewports instead of overflowing.
+ */
+export const ROSTER_HEADER_ACTIONS_CLASS_NAME =
+  "flex flex-wrap items-center gap-x-3 gap-y-2";
 
 export interface RosterPageHeaderStats {
   total: number;
@@ -17,6 +25,7 @@ export interface RosterPageHeaderProps {
   isLoading?: boolean;
   status: RosterStatus;
   onStatusChange: (status: RosterStatus) => void;
+  onResetCheckIn?: () => void;
 }
 
 export function RosterPageHeader({
@@ -26,6 +35,7 @@ export function RosterPageHeader({
   isLoading = false,
   status,
   onStatusChange,
+  onResetCheckIn,
 }: RosterPageHeaderProps) {
   const activationPct =
     stats.total === 0 ? 0 : Math.round((stats.activated / stats.total) * 100);
@@ -41,31 +51,43 @@ export function RosterPageHeader({
             {eventName}
           </span>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="text-sm 2xl:text-base">
-            <span className="font-semibold tabular-nums">
-              {isLoading ? "–" : stats.activated.toLocaleString()}
-            </span>
-            <span className="text-muted-foreground">
-              /{isLoading ? "–" : stats.total.toLocaleString()} activated
-            </span>
-          </div>
-          <div
-            className="bg-border h-0.5 w-[120px] overflow-hidden"
-            role="progressbar"
-            aria-valuenow={activationPct}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label="Roster activation progress"
-          >
+        <div className={ROSTER_HEADER_ACTIONS_CLASS_NAME}>
+          <div className="flex items-center gap-3">
+            <div className="text-sm 2xl:text-base">
+              <span className="font-semibold tabular-nums">
+                {isLoading ? "–" : stats.activated.toLocaleString()}
+              </span>
+              <span className="text-muted-foreground">
+                /{isLoading ? "–" : stats.total.toLocaleString()} activated
+              </span>
+            </div>
             <div
-              className="bg-foreground h-full"
-              style={{ width: `${activationPct}%` }}
-            />
+              className="bg-border h-0.5 w-[120px] overflow-hidden"
+              role="progressbar"
+              aria-valuenow={activationPct}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Roster activation progress"
+            >
+              <div
+                className="bg-foreground h-full"
+                style={{ width: `${activationPct}%` }}
+              />
+            </div>
+            <span className="text-muted-foreground text-[11px] tabular-nums 2xl:text-xs">
+              {activationPct}%
+            </span>
           </div>
-          <span className="text-muted-foreground text-[11px] tabular-nums 2xl:text-xs">
-            {activationPct}%
-          </span>
+          {onResetCheckIn && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onResetCheckIn}
+              disabled={isLoading || !stats.checkedIn}
+            >
+              Reset check-in
+            </Button>
+          )}
         </div>
       </header>
 
