@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { EventScheduleDialog } from "@/components/event-schedule-dialog";
+import { openEventSchedule } from "@/components/event-schedule-dialog-utils";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
@@ -517,7 +518,7 @@ function SchedulePreviewPanel({
             variant="ghost"
             size="icon"
             className="size-5"
-            onClick={() => setExpanded(true)}
+            onClick={() => openEventSchedule(fileUrl, setExpanded)}
             aria-label="Expand schedule"
           >
             <ExpandIcon className="size-3" />
