@@ -12,6 +12,7 @@ import {
 import { useState } from "react";
 
 import { EventScheduleDialog } from "@/components/event-schedule-dialog";
+import { openEventSchedule } from "@/components/event-schedule-dialog-utils";
 import { Button } from "@/components/ui/button";
 import { toastManager } from "@/components/ui/toast-manager";
 import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
@@ -501,7 +502,7 @@ function SchedulePreviewPanel({
             variant="ghost"
             size="icon"
             className="size-5"
-            onClick={() => setExpanded(true)}
+            onClick={() => openEventSchedule(fileUrl, setExpanded)}
             aria-label="Expand schedule"
           >
             <ExpandIcon className="size-3" />

@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { EventScheduleDialog } from "@/components/event-schedule-dialog";
+import { openEventSchedule } from "@/components/event-schedule-dialog-utils";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -866,7 +867,9 @@ function ScheduleUploadPanel({
                 variant="ghost"
                 size="icon"
                 className="size-5"
-                onClick={() => setExpanded(true)}
+                onClick={() =>
+                  fileUrl && openEventSchedule(fileUrl, setExpanded)
+                }
                 aria-label="Expand schedule"
               >
                 <ExpandIcon className="size-3" />
