@@ -9,7 +9,9 @@ import {
   useResendInvites,
   useUpdateRoster,
 } from "@/features/org/api/roster-queries";
+import { useResetCheckIn } from "@/features/org/api/check-in-queries";
 import { DataGrid, StatusBadge } from "@/features/org/components/data-grid";
+import { ResetCheckInDialog } from "@/features/org/components/reset-check-in-dialog";
 import { rosterBulkActions } from "@/features/org/components/roster-bulk-actions";
 import { RosterDetailSheet } from "@/features/org/components/roster-detail-sheet";
 import { RosterPageHeader } from "@/features/org/components/roster-page-header";
@@ -162,6 +164,7 @@ function DancersPage() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
   const openSheetRafRef = useRef<number | null>(null);
 
   const sortBy = sorting[0]?.id as SortColumn | undefined;
@@ -187,10 +190,15 @@ function DancersPage() {
 
   const data = (listQuery.data?.data ?? []) as RosterEntryWithCheckIn[];
   const total = listQuery.data?.total ?? 0;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const checkedInCount = (statsQuery.data as any)?.checkedIn as
+    | number
+    | undefined;
 
   const updateMutation = useUpdateRoster();
   const deleteMutation = useDeleteRosters();
   const resendMutation = useResendInvites();
+  const resetCheckInMutation = useResetCheckIn();
 
   const selectedEntry = data.find((r) => r.id === selectedId) ?? null;
 
@@ -307,6 +315,23 @@ function DancersPage() {
     },
   });
 
+  const handleResetCheckIn = async () => {
+    if (!active) return;
+    try {
+      const result = await resetCheckInMutation.mutateAsync({
+        slug: orgSlug,
+        eventId: active.id,
+      });
+      setResetOpen(false);
+      toastManager.add({
+        title: `Check-in reset for ${result.reset} dancer${result.reset === 1 ? "" : "s"}`,
+        type: "success",
+      });
+    } catch {
+      toastManager.add({ title: "Failed to reset check-in", type: "error" });
+    }
+  };
+
   if (!active) {
     return (
       <div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
@@ -324,8 +349,7 @@ function DancersPage() {
           total: statsQuery.data?.total ?? 0,
           activated: statsQuery.data?.active ?? 0,
           pending: statsQuery.data?.pending ?? 0,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          checkedIn: checkInEnabled ? ((statsQuery.data as any)?.checkedIn as number | undefined) : undefined,
+          checkedIn: checkInEnabled ? checkedInCount : undefined,
         }}
         isLoading={statsQuery.isLoading}
         status={status}
@@ -333,6 +357,9 @@ function DancersPage() {
           setStatus(next);
           setPage(0);
         }}
+        onResetCheckIn={
+          checkInEnabled ? () => setResetOpen(true) : undefined
+        }
       />
       <DataGrid
         storageKey="roster-dancers"
@@ -372,6 +399,15 @@ function DancersPage() {
         onOpenChange={setSheetOpen}
         checkInEnabled={checkInEnabled}
         freeTierEnabled={freeTierEnabled}
+      />
+
+      <ResetCheckInDialog
+        open={resetOpen}
+        onOpenChange={setResetOpen}
+        eventName={active.name}
+        checkedInCount={checkedInCount ?? 0}
+        isPending={resetCheckInMutation.isPending}
+        onConfirm={handleResetCheckIn}
       />
     </div>
   );

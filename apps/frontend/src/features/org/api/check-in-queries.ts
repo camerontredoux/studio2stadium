@@ -68,6 +68,21 @@ export function useDancerCheckIn(slug: string, eventId: string) {
   });
 }
 
+export function useResetCheckIn() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ slug, eventId }: { slug: string; eventId: string }) =>
+      rawClient
+        .POST(`/orgs/${slug}/events/${eventId}/rosters/check-in/reset`)
+        .then((r) => r.data as { reset: number }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [...ROSTER_LIST_KEY_PREFIX] });
+      qc.invalidateQueries({ queryKey: [...ROSTER_STATS_KEY_PREFIX] });
+    },
+  });
+}
+
 export function useAdminCheckInToggle() {
   const qc = useQueryClient();
 

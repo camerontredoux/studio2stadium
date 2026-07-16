@@ -58,6 +58,8 @@ const AudioUploadUrlController = () =>
 const ViewAsController = () => import("./view-as/controller.ts");
 const CheckInController = () => import("./check-in/controller.ts");
 const AdminCheckInController = () => import("./rosters/check-in/controller.ts");
+const ResetCheckInController = () =>
+  import("./rosters/check-in/reset/controller.ts");
 const CheckInStatusController = () => import("./check-in/status-controller.ts");
 const ScheduleController = () => import("./schedule/controller.ts");
 const TestEmailsController = () => import("./test-emails/controller.ts");
@@ -355,6 +357,14 @@ router
         middleware.org(),
         middleware.orgEvent(),
         middleware.orgMember(),
+      ]);
+    router
+      .post(":slug/events/:id/rosters/check-in/reset", [ResetCheckInController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
       ]);
     router
       .post(":slug/events/:id/rosters/:rosterId/check-in", [
