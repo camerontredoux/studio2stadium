@@ -6,23 +6,21 @@ import {
 } from "@/components/ui/dialog";
 
 export const EVENT_SCHEDULE_DIALOG_CLASS_NAME =
-  "h-[calc(100svh-2rem)] max-w-5xl overflow-hidden sm:h-auto";
+  "max-sm:h-[100svh] max-sm:max-w-none max-sm:rounded-none max-sm:border-x-0 max-w-5xl overflow-hidden sm:h-auto";
 
 export const EVENT_SCHEDULE_CONTENT_CLASS_NAME =
-  "min-h-0 flex-1 overflow-auto px-6 pb-6 sm:h-[80vh] sm:flex-none";
+  "min-h-0 flex-1 overflow-hidden max-sm:p-0 sm:px-6 sm:pb-6 sm:h-[80vh] sm:flex-none";
 
 type EventScheduleDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   fileUrl: string;
-  isPdf: boolean;
 };
 
 export function EventScheduleDialog({
   open,
   onOpenChange,
   fileUrl,
-  isPdf,
 }: EventScheduleDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -30,23 +28,21 @@ export function EventScheduleDialog({
         className={EVENT_SCHEDULE_DIALOG_CLASS_NAME}
         bottomStickOnMobile={false}
       >
-        <DialogHeader className="shrink-0">
+        <DialogHeader className="shrink-0 max-sm:sr-only">
           <DialogTitle>Event Schedule</DialogTitle>
         </DialogHeader>
         <div className={EVENT_SCHEDULE_CONTENT_CLASS_NAME}>
-          {isPdf ? (
-            <iframe
-              src={fileUrl}
-              className="h-full w-full rounded-md border"
-              title="Event schedule"
-            />
-          ) : (
-            <img
-              src={fileUrl}
-              alt="Event schedule"
-              className="h-full w-full rounded-md object-contain"
-            />
-          )}
+          {/* An <img> can't be scrolled/zoomed on mobile once it's laid out
+              in the page. An iframe hands the file to the browser's native
+              PDF/image viewer, which handles pinch-zoom and scrolling for
+              both file types itself - it must be the only scroll container
+              (no overflow-auto wrapper) or iOS Safari won't forward touch
+              scroll into it. */}
+          <iframe
+            src={fileUrl}
+            className="h-full w-full max-sm:border-0 sm:rounded-md sm:border"
+            title="Event schedule"
+          />
         </div>
       </DialogContent>
     </Dialog>

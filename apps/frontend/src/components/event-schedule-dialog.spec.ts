@@ -6,12 +6,15 @@ import {
 } from "./event-schedule-dialog";
 
 describe("EventScheduleDialog", () => {
-  it("bounds the mobile dialog and makes its schedule content scrollable", () => {
-    expect(EVENT_SCHEDULE_DIALOG_CLASS_NAME).toContain("h-[calc(100svh-2rem)]");
+  it("opens nearly full-screen on mobile without changing the desktop layout", () => {
+    expect(EVENT_SCHEDULE_DIALOG_CLASS_NAME).toContain("max-sm:h-[100svh]");
+    expect(EVENT_SCHEDULE_DIALOG_CLASS_NAME).toContain("max-sm:max-w-none");
+    expect(EVENT_SCHEDULE_DIALOG_CLASS_NAME).toContain("max-w-5xl");
     expect(EVENT_SCHEDULE_DIALOG_CLASS_NAME).toContain("sm:h-auto");
-    expect(EVENT_SCHEDULE_CONTENT_CLASS_NAME).toContain("min-h-0");
-    expect(EVENT_SCHEDULE_CONTENT_CLASS_NAME).toContain("flex-1");
-    expect(EVENT_SCHEDULE_CONTENT_CLASS_NAME).toContain("overflow-auto");
-    expect(EVENT_SCHEDULE_CONTENT_CLASS_NAME).toContain("sm:h-[80vh]");
+  });
+
+  it("lets the iframe be the sole scroll/zoom surface instead of nesting it in a scrollable wrapper", () => {
+    expect(EVENT_SCHEDULE_CONTENT_CLASS_NAME).toContain("overflow-hidden");
+    expect(EVENT_SCHEDULE_CONTENT_CLASS_NAME).not.toContain("overflow-auto");
   });
 });

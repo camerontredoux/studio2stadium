@@ -544,7 +544,6 @@ function SchedulePreviewPanel({
         open={expanded}
         onOpenChange={setExpanded}
         fileUrl={fileUrl}
-        isPdf={isPdf}
       />
     </>
   );

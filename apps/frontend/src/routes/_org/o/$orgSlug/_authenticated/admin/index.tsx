@@ -1041,7 +1041,6 @@ function ScheduleUploadPanel({
           open={expanded}
           onOpenChange={setExpanded}
           fileUrl={fileUrl}
-          isPdf={scheduleKey?.endsWith(".pdf") ?? false}
         />
       )}
     </>
