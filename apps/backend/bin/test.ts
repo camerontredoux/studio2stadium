@@ -59,4 +59,39 @@ new Ignitor(APP_ROOT, { importer: IMPORTER })
   .catch((error) => {
     process.exitCode = 1;
     prettyPrintError(error);
+  })
+  .finally(async () => {
+    /**
+     * Something in the test environment keeps the event loop alive after Japa
+     * has finished and the app has terminated, so the runner would otherwise
+     * hang forever instead of exiting. Each hung run holds onto its Postgres
+     * connections, so repeated runs exhaust the server's connection limit.
+     * Force the exit, preserving whatever exit code Japa set.
+     */
+    await flushOutput();
+    process.exit(process.exitCode ?? 0);
   });
+
+/**
+ * process.exit() discards anything still buffered in stdout/stderr, which
+ * truncates the reporter's output when it is piped to a file or another
+ * process. Wait for both streams to drain first.
+ */
+function flushOutput() {
+  return new Promise<void>((resolve) => {
+    let pending = 0;
+    const settle = () => {
+      pending -= 1;
+      if (pending === 0) resolve();
+    };
+
+    for (const stream of [process.stdout, process.stderr]) {
+      if (stream.writableLength > 0) {
+        pending += 1;
+        stream.write("", settle);
+      }
+    }
+
+    if (pending === 0) resolve();
+  });
+}
