@@ -7,6 +7,7 @@ import { subscriptions } from "#database/schema/subscriptions";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
 import { SetRosterPaidService } from "#modules/orgs/events/rosters/set-paid/service";
+import { normalizeEmail } from "#utils/normalize-email";
 import hash from "@adonisjs/core/services/hash";
 import { faker } from "@faker-js/faker";
 import type { ApiClient } from "@japa/api-client";
@@ -22,13 +23,14 @@ interface TestDancerOptions {
 }
 
 async function createDancer(options: TestDancerOptions = {}) {
-  const email = faker.internet.email().toLowerCase();
+  const displayEmail = faker.internet.email().toLowerCase();
+  const email = await normalizeEmail(displayEmail);
   const [user] = await db
     .insert(users)
     .values({
       username: faker.internet.username().toLowerCase(),
       email,
-      displayEmail: email,
+      displayEmail,
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
       password: await hash.make(PASSWORD),
@@ -50,13 +52,14 @@ async function createDancer(options: TestDancerOptions = {}) {
 }
 
 async function createSchool() {
-  const email = faker.internet.email().toLowerCase();
+  const displayEmail = faker.internet.email().toLowerCase();
+  const email = await normalizeEmail(displayEmail);
   const [user] = await db
     .insert(users)
     .values({
       username: faker.internet.username().toLowerCase(),
       email,
-      displayEmail: email,
+      displayEmail,
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
       password: await hash.make(PASSWORD),
