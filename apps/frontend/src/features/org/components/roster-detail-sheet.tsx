@@ -115,21 +115,28 @@ export function RosterDetailSheet({
   }, [open, entry, reset]);
 
   const onSubmit = async (data: FormValues) => {
-    if (!entry || isActive) return;
+    if (!entry) return;
 
-    const body: Record<string, unknown> = {
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-    };
-    if (isDancer) {
-      body.bibNumber = data.bibNumber;
-      body.profile = {
-        gradYear: data.gradYear,
-        gpa: data.gpa,
-      };
+    let body: Record<string, unknown>;
+    if (isActive) {
+      // Registered entries: bib number is the only field admins can change.
+      if (!isDancer) return;
+      body = { bibNumber: data.bibNumber };
     } else {
-      body.organization = data.organization;
+      body = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+      };
+      if (isDancer) {
+        body.bibNumber = data.bibNumber;
+        body.profile = {
+          gradYear: data.gradYear,
+          gpa: data.gpa,
+        };
+      } else {
+        body.organization = data.organization;
+      }
     }
 
     try {
@@ -261,8 +268,9 @@ export function RosterDetailSheet({
           <SheetContent>
             {isActive && (
               <div className="mx-4 mt-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
-                This {isDancer ? "dancer" : "coach"} has registered and
-                connected their profile. Admin edits are disabled.
+                {isDancer
+                  ? "This dancer has registered and connected their profile. You can still update their bib number; other details are managed by the dancer."
+                  : "This coach has registered and connected their profile. Admin edits are disabled."}
               </div>
             )}
             <form
@@ -271,7 +279,7 @@ export function RosterDetailSheet({
               className="flex flex-col gap-6 px-4 pt-2 pb-4"
             >
               {/* Roster Info */}
-              <fieldset className="flex flex-col gap-4" disabled={isActive}>
+              <fieldset className="flex flex-col gap-4">
                 <legend className="text-muted-foreground mb-1 text-xs font-medium tracking-wide uppercase">
                   Roster Info
                 </legend>
@@ -281,7 +289,11 @@ export function RosterDetailSheet({
                   render={({ field, fieldState }) => (
                     <Field name={field.name} invalid={fieldState.invalid}>
                       <FieldLabel>First name</FieldLabel>
-                      <Input {...field} value={field.value ?? ""} />
+                      <Input
+                        {...field}
+                        value={field.value ?? ""}
+                        disabled={isActive}
+                      />
                       <FieldError error={fieldState.error} />
                     </Field>
                   )}
@@ -292,7 +304,11 @@ export function RosterDetailSheet({
                   render={({ field, fieldState }) => (
                     <Field name={field.name} invalid={fieldState.invalid}>
                       <FieldLabel>Last name</FieldLabel>
-                      <Input {...field} value={field.value ?? ""} />
+                      <Input
+                        {...field}
+                        value={field.value ?? ""}
+                        disabled={isActive}
+                      />
                       <FieldError error={fieldState.error} />
                     </Field>
                   )}
@@ -307,6 +323,7 @@ export function RosterDetailSheet({
                         {...field}
                         type="email"
                         value={field.value ?? ""}
+                        disabled={isActive}
                       />
                       <FieldError error={fieldState.error} />
                     </Field>
@@ -343,7 +360,11 @@ export function RosterDetailSheet({
                     render={({ field, fieldState }) => (
                       <Field name={field.name} invalid={fieldState.invalid}>
                         <FieldLabel>Organization</FieldLabel>
-                        <Input {...field} value={field.value ?? ""} />
+                        <Input
+                          {...field}
+                          value={field.value ?? ""}
+                          disabled={isActive}
+                        />
                         <FieldError error={fieldState.error} />
                       </Field>
                     )}
@@ -529,7 +550,7 @@ export function RosterDetailSheet({
                 <SheetClose render={<Button variant="ghost" />}>
                   Cancel
                 </SheetClose>
-                {!isActive && (
+                {(!isActive || isDancer) && (
                   <Button type="submit" form={FORM_ID} disabled={saving}>
                     {saving ? <Spinner label="Saving..." /> : "Save changes"}
                   </Button>
