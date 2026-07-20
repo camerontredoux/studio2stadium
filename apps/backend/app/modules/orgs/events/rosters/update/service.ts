@@ -68,8 +68,19 @@ export class UpdateRosterService {
         throw new RosterNotFoundError();
       }
 
+      // Registered entries are owned by the dancer's own profile, so admins
+      // may only adjust the bib number (event roster metadata). Any attempt to
+      // edit the other fields is rejected.
       if (row.userId !== null) {
-        throw new RosterActiveReadonlyError();
+        const editsLockedFields =
+          input.firstName !== undefined ||
+          input.lastName !== undefined ||
+          input.email !== undefined ||
+          input.organization !== undefined ||
+          input.profile !== undefined;
+        if (editsLockedFields) {
+          throw new RosterActiveReadonlyError();
+        }
       }
 
       if (row.type === "coach" && input.profile !== undefined) {

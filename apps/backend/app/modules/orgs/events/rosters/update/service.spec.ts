@@ -169,6 +169,51 @@ test.group("UpdateRosterService", (group) => {
     );
   });
 
+  test("allows updating the bib number for an active dancer", async ({
+    assert,
+  }) => {
+    const actor = await makeActorUser();
+    const { event } = await makeOrgAndEvent();
+    const [user] = await db
+      .insert(users)
+      .values({
+        username: `u_${Date.now()}_${Math.random()}`,
+        email: "bibactive@example.com",
+        displayEmail: "bibactive@example.com",
+        firstName: "Bib",
+        lastName: "Active",
+        password: "hashed",
+        role: "user",
+        type: "dancer",
+      })
+      .returning();
+    const [row] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: event.id,
+        type: "dancer",
+        email: "bibactive@example.com",
+        firstName: "Bib",
+        lastName: "Active",
+        bibNumber: 7,
+        userId: user!.id,
+      })
+      .returning();
+
+    const service = new UpdateRosterService();
+    const result = await service.execute(
+      event.id,
+      row!.id,
+      { bibNumber: 42 },
+      { eventId: event.id, actorId: actor.id }
+    );
+
+    assert.equal(result.bibNumber, 42);
+    // Other fields remain untouched.
+    assert.equal(result.firstName, "Bib");
+    assert.equal(result.lastName, "Active");
+  });
+
   test("rejects profile field updates for coaches", async ({ assert }) => {
     const actor = await makeActorUser();
     const { event } = await makeOrgAndEvent();
