@@ -420,11 +420,8 @@ function DancerSearch() {
     },
   );
 
-  /* --- Active dancers only (registered/claimed accounts) --- */
-  const activeDancers = useMemo(
-    () => (dancers ?? []).filter((d) => d.isRegistered),
-    [dancers],
-  );
+  /* --- All roster dancers, regardless of activation status --- */
+  const activeDancers = useMemo(() => dancers ?? [], [dancers]);
 
   /* --- Derived filter options --- */
   const availableYears = useMemo(() => {
@@ -446,7 +443,6 @@ function DancerSearch() {
   /* --- Client-side filtering --- */
   const filteredData: SearchDancerRow[] = useMemo(() => {
     let result = (dancers ?? [])
-      .filter((d) => d.isRegistered)
       .map((d) => ({
         ...d,
         isFavorited: d.isFavorited ?? false,
