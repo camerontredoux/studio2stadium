@@ -133,7 +133,9 @@ export class ListDancersService {
           studio: sql<
             string | null
           >`COALESCE(${eventDancerProfiles.studio}, ${dancerProfiles.studio})`,
-          state: eventDancerProfiles.state,
+          state: sql<
+            string | null
+          >`COALESCE(${eventDancerProfiles.state}, ${dancerProfiles.location})`,
           interestedInMySchool: interestedSubquery,
           isFavorited: isFavoritedSubquery,
           rating: ratingSubquery,
