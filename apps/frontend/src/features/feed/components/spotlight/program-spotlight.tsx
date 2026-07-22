@@ -1,5 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useSession } from "@/lib/session";
+import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { US_STATES } from "@/utils/constants/states";
 import { STYLES } from "@/utils/constants/styles";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -34,10 +36,14 @@ function MatchTierBadge({ matchTier }: { matchTier: MatchTier }) {
 }
 
 export function ProgramSpotlight() {
+  const session = useSession();
+  const { data: subscription } = useSubscribed();
   const { data } = useSuspenseQuery(feedQueries.recommended());
 
+  const showChecklist = subscription.subscribed || !session.orgAccountTier;
+
   if (data.length === 0) {
-    return <ProfileChecklist />;
+    return showChecklist ? <ProfileChecklist /> : null;
   }
 
   const recommended = data[0];
