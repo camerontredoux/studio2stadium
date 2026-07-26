@@ -145,6 +145,22 @@ export function FreeTierInviteEmail({
         <Text style={paragraphStyle}>
           Right now, coaches can only see your basic registration information.
         </Text>
+        <ReactEmailButton
+          href={inviteUrl}
+          style={{
+            display: "inline-block",
+            backgroundColor: colors.primary,
+            color: "#ffffff",
+            fontSize: "14px",
+            fontWeight: "600",
+            padding: "10px 24px",
+            borderRadius: "6px",
+            textDecoration: "none",
+            margin: "0 0 24px",
+          }}
+        >
+          Complete My Free Profile
+        </ReactEmailButton>
         <Text
           style={{
             fontSize: "18px",
@@ -216,22 +232,6 @@ export function FreeTierInviteEmail({
               </Column>
             </Row>
           ))}
-          <ReactEmailButton
-            href={inviteUrl}
-            style={{
-              display: "inline-block",
-              backgroundColor: colors.primary,
-              color: "#ffffff",
-              fontSize: "14px",
-              fontWeight: "600",
-              padding: "10px 24px",
-              borderRadius: "6px",
-              textDecoration: "none",
-              marginTop: "16px",
-            }}
-          >
-            Complete My Free Profile
-          </ReactEmailButton>
         </Section>
 
         {/* ── Recruiting Doesn't End ── */}

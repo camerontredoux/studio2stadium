@@ -468,7 +468,7 @@ export function RosterDetailSheet({
                       <span className="text-muted-foreground text-xs">
                         {isActive
                           ? paid
-                            ? "Full S2S access with premium features."
+                            ? "Enable paid organization access"
                             : "Limited profile, YouTube-only video."
                           : "Applied when the dancer activates their account."}
                       </span>
