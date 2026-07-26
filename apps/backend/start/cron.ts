@@ -2,10 +2,12 @@ import { CronJob } from "cron";
 import CacheSkillsService from "../services/cache-skills.ts";
 import ExpireSubscriptionsService from "../services/expire-subscriptions.ts";
 import PublishOutboxService from "../services/publish-outbox.ts";
+import ReapStuckVideoUploadsService from "../services/reap-stuck-video-uploads.ts";
 
 const cacheSkillsService = new CacheSkillsService();
 const expireSubscriptionsService = new ExpireSubscriptionsService();
 const publishOutboxService = new PublishOutboxService();
+const reapStuckVideoUploadsService = new ReapStuckVideoUploadsService();
 
 // Cache skill rarity every hour
 new CronJob("0 * * * *", async () => {
@@ -19,6 +21,16 @@ new CronJob("0 0 * * *", async () => {
     await expireSubscriptionsService.run();
   } catch (error) {
     console.error("[Cron]: Error expiring subscriptions:", error);
+  }
+}).start();
+
+// Reconcile stuck/abandoned direct video uploads every hour so they stop
+// consuming users' direct-video limit (recovers ready ones, fails abandoned)
+new CronJob("0 * * * *", async () => {
+  try {
+    await reapStuckVideoUploadsService.run();
+  } catch (error) {
+    console.error("[Cron]: Error reaping stuck video uploads:", error);
   }
 }).start();
 
