@@ -190,21 +190,11 @@ export function FreeTierInviteEmail({
         >
           <Text
             style={{
-              fontSize: "18px",
-              fontWeight: "700",
-              color: colors.text,
-              margin: "0 0 8px",
-            }}
-          >
-            Complete Your Free Profile
-          </Text>
-          <Text
-            style={{
               ...paragraphStyle,
               margin: "0 0 12px",
             }}
           >
-            Add:
+            Complete Your Profile With:
           </Text>
           {checkItems.map((item) => (
             <Row key={item} style={{ margin: "0 0 4px" }}>
