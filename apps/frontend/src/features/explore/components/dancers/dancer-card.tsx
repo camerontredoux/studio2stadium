@@ -48,7 +48,9 @@ export function DancerCard({ dancer, isFollowing }: DancerCardProps) {
           </div>
           <p className="text-muted-foreground flex items-center gap-1 text-sm">
             <MapPinIcon className="text-brand size-3.5 shrink-0" />{" "}
-            {US_STATES[dancer.location as keyof typeof US_STATES] || "Unknown"}
+            {US_STATES[dancer.location as keyof typeof US_STATES] ||
+              dancer.location ||
+              "Unknown"}
           </p>
         </div>
         <div className="flex flex-wrap gap-1.5">
