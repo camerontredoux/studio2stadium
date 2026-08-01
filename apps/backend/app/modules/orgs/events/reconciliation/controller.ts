@@ -28,6 +28,11 @@ export class ResendInviteController {
     if ("notFound" in result) {
       return response.notFound({ message: "Invite not found." });
     }
+    if ("alreadyClaimed" in result) {
+      return response.conflict({
+        message: "This coach has already registered.",
+      });
+    }
     return response.ok({ resent: true });
   }
 }

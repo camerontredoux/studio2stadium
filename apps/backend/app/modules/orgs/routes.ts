@@ -56,7 +56,7 @@ router
       .openapi({
         summary: "Look up a school invite by token",
         description:
-          "Returns prefill data (email, organization, event/org names, brand color) for a school account invite. Returns 410 if the invite is invalid, expired, or already consumed.",
+          "Returns the invite state (valid | consumed | expired | invalid) plus prefill data (email, organization, event/org names, brand color) when valid, so the school register page can show the right message. Always 200.",
       });
 
     router

@@ -69,6 +69,11 @@ export class ReconciliationService {
     );
     if (!invite) return { notFound: true } as const;
 
+    // An already-claimed invite must never be re-emailed — the coach has already
+    // registered. listUnclaimed still surfaces consumed invites (with a badge),
+    // so the resend action can reach this path; treat it as a no-op.
+    if (invite.consumedAt) return { alreadyClaimed: true } as const;
+
     // Stable resend: reuse the existing token so previously emailed links stay
     // valid, extend expiry without ever shortening it, and never reset
     // consumedAt (an already-claimed invite must not be reopened).

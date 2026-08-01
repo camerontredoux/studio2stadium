@@ -3991,6 +3991,15 @@ export interface paths {
                         "application/json": components["schemas"]["Error"];
                     };
                 };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
             };
         };
         delete?: never;
@@ -5894,7 +5903,7 @@ export interface paths {
         };
         /**
          * Look up a school invite by token
-         * @description Returns prefill data (email, organization, event/org names, brand color) for a school account invite. Returns 410 if the invite is invalid, expired, or already consumed.
+         * @description Returns the invite state (valid | consumed | expired | invalid) plus prefill data (email, organization, event/org names, brand color) when valid, so the school register page can show the right message. Always 200.
          */
         get: {
             parameters: {

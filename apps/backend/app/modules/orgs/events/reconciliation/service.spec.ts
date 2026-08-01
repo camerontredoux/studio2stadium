@@ -38,7 +38,7 @@ test.group("ReconciliationService.resendInvite", (group) => {
     mail.restore();
   });
 
-  test("keeps the same token and preserves consumedAt on resend", async ({
+  test("does not resend or reopen an already-claimed invite", async ({
     assert,
   }) => {
     const { org, event } = await makeOrgAndEvent();
@@ -59,17 +59,17 @@ test.group("ReconciliationService.resendInvite", (group) => {
 
     const service = new ReconciliationService(new DatabaseService());
     const result = await service.resendInvite(invite!.id, event.id, org.slug);
-    assert.deepEqual(result, { resent: true });
+    // The coach has already registered — resend is a no-op (no email), and the
+    // guard returns before the send/expiry-bump path.
+    assert.deepEqual(result, { alreadyClaimed: true });
 
     const [after] = await db
       .select()
       .from(schoolInvites)
       .where(eq(schoolInvites.id, invite!.id));
-    // Token reused, not regenerated.
+    // Token, claim, and expiry all untouched.
     assert.equal(after!.token, "stable_admin_token");
-    // Claim preserved (never reopened).
     assert.isNotNull(after!.consumedAt);
-    // Expiry not shortened below the far-future value.
     assert.equal(after!.expiresAt.getTime(), farFuture.getTime());
   });
 

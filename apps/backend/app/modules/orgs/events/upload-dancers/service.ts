@@ -231,7 +231,11 @@ export class UploadDancersService {
                   lastName: r.lastName,
                   bibNumber: r.bibNumber,
                   paid: r.paid,
-                  userId,
+                  // Preserve an existing account link on re-upload: a dancer who
+                  // registered but has not created a dancerProfiles row yet won't
+                  // match the join above (userId === null), and we must not clobber
+                  // their existing roster link back to null.
+                  userId: userId ?? existing.userId,
                   expirationDate: userId
                     ? rowExpiration
                     : existing.expirationDate,
@@ -295,11 +299,13 @@ export class UploadDancersService {
                 .limit(1);
 
               let token: string;
+              let alreadyConsumed = false;
               if (existingInvite) {
                 // Reuse the existing token so previously emailed links stay
                 // valid; extend expiry without shortening and never reset
                 // consumedAt (an already-registered invite stays consumed).
                 token = existingInvite.token;
+                alreadyConsumed = existingInvite.consumedAt !== null;
                 const newExpiresAt =
                   existingInvite.expiresAt > inviteExpiry
                     ? existingInvite.expiresAt
@@ -318,13 +324,17 @@ export class UploadDancersService {
                 });
               }
 
-              // Push the effective token so the email link matches what's stored.
-              inviteTokens.push({
-                email: r.email,
-                firstName: r.firstName,
-                token,
-                paid: r.paid,
-              });
+              // Don't re-email an already-registered dancer (mirrors
+              // upload-coaches, which excludes consumed invites). Push the
+              // effective token only when the invite is still claimable.
+              if (!alreadyConsumed) {
+                inviteTokens.push({
+                  email: r.email,
+                  firstName: r.firstName,
+                  token,
+                  paid: r.paid,
+                });
+              }
             }
           }
         }
