@@ -8,7 +8,7 @@ import type { DancerProfile } from "@/features/dancer/types";
 import { AvatarUploadDialog } from "@/shared/images/components/avatar-upload/avatar-upload-dialog";
 import { ProfilePicture } from "@/shared/images/components/profile-picture";
 import { calculateAge } from "@/utils/calculate-age";
-import { US_STATES } from "@/utils/constants/states";
+import { REGIONS } from "@/utils/constants/states";
 import {
   MailIcon,
   MapPinIcon,
@@ -72,9 +72,7 @@ export function HeroContent({
             <div className="flex items-center gap-1.5">
               <MapPinIcon className="text-brand size-3.5 shrink-0" />
               <span className="text-nowrap">
-                {US_STATES[dancer.location as keyof typeof US_STATES] ||
-                  dancer.location ||
-                  "Unknown"}
+                {REGIONS[dancer.location as keyof typeof REGIONS] || "Unknown"}
               </span>
             </div>
             <div className="flex min-w-0 items-center gap-1.5">
