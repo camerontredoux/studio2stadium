@@ -355,6 +355,10 @@ type OrgsIdEventsIdCheckinPost = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/check-in/controller.ts').default['handle'], false>
 }
+type OrgsIdEventsIdRostersCheckinResetPost = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/check-in/reset/controller.ts').default['handle'], false>
+}
 type OrgsIdEventsIdRostersIdCheckinPost = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/check-in/controller.ts').default['handle'], false>
@@ -506,6 +510,10 @@ type OrgsRegisterSchoolPost = {
 type OrgsInvitesSchoolIdGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/invite-lookup-school/controller.ts').default['handle'], false>
+}
+type OrgsIdInvitesDancerIdGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/invite-lookup-dancer/controller.ts').default['handle'], false>
 }
 type SkillsGetHead = {
   request: unknown
@@ -1246,6 +1254,13 @@ export interface ApiDefinition {
               '$get': OrgsIdEventsIdRostersSearchdancersGetHead;
               '$head': OrgsIdEventsIdRostersSearchdancersGetHead;
             };
+            'check-in': {
+              'reset': {
+                '$url': {
+                };
+                '$post': OrgsIdEventsIdRostersCheckinResetPost;
+              };
+            };
           };
           'checklist': {
             '$url': {
@@ -1500,6 +1515,16 @@ export interface ApiDefinition {
         '$url': {
         };
         '$post': OrgsIdRegisterPost;
+      };
+      'invites': {
+        'dancer': {
+          ':token': {
+            '$url': {
+            };
+            '$get': OrgsIdInvitesDancerIdGetHead;
+            '$head': OrgsIdInvitesDancerIdGetHead;
+          };
+        };
       };
     };
     '$url': {

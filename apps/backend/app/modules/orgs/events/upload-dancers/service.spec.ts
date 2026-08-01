@@ -156,6 +156,60 @@ newghost@x.co,Ghost,Dancer,202`;
     assert.isAbove(invite!.expiresAt.getTime(), Date.now());
   });
 
+  test("re-upload keeps the same dancer_invite token and does not reset consumedAt", async ({
+    assert,
+  }) => {
+    const csv1 = `email,firstName,lastName,bibNumber
+reupload@x.co,Re,Upload,501`;
+    const csv2 = `email,firstName,lastName,bibNumber
+reupload@x.co,Re,Upload,502`;
+
+    const svc = new UploadDancersService();
+    await svc.execute({
+      orgId: summit.id,
+      eventId: event.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://reupload1.csv",
+      csv: csv1,
+    });
+
+    const [afterFirst] = await db
+      .select()
+      .from(dancerInvites)
+      .where(eq(dancerInvites.email, "reupload@x.co"));
+    const firstToken = afterFirst!.token;
+    assert.isNotNull(firstToken);
+
+    // Simulate registration: mark consumed and push expiry beyond the 30-day
+    // upload window.
+    const farFuture = new Date(Date.now() + 1000 * 60 * 60 * 24 * 90);
+    const consumedAt = new Date();
+    await db
+      .update(dancerInvites)
+      .set({ consumedAt, expiresAt: farFuture })
+      .where(eq(dancerInvites.id, afterFirst!.id));
+
+    await svc.execute({
+      orgId: summit.id,
+      eventId: event.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://reupload2.csv",
+      csv: csv2,
+    });
+
+    const invites = await db
+      .select()
+      .from(dancerInvites)
+      .where(eq(dancerInvites.email, "reupload@x.co"));
+    assert.lengthOf(invites, 1);
+    // Same token — a previously emailed link keeps working.
+    assert.equal(invites[0]!.token, firstToken);
+    // consumedAt untouched — an already-registered invite stays consumed.
+    assert.isNotNull(invites[0]!.consumedAt);
+    // Expiry not shortened below the far-future value.
+    assert.equal(invites[0]!.expiresAt.getTime(), farFuture.getTime());
+  });
+
   test("re-upload updates bib number on existing roster row", async ({
     assert,
   }) => {

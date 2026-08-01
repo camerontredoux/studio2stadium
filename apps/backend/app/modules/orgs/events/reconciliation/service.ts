@@ -5,7 +5,6 @@ import { orgMemberships, organizations } from "#database/schema/organizations";
 import { users } from "#database/schema/users";
 import { inject } from "@adonisjs/core";
 import { and, eq, isNull, notInArray, sql } from "drizzle-orm";
-import { randomBytes } from "node:crypto";
 import { sendSchoolAccountInviteEmail } from "#shared/org/school-account-invite-email";
 
 @inject()
@@ -70,13 +69,17 @@ export class ReconciliationService {
     );
     if (!invite) return { notFound: true } as const;
 
-    const token = randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 14 * 86400000);
-
+    // Stable resend: reuse the existing token so previously emailed links stay
+    // valid, extend expiry without ever shortening it, and never reset
+    // consumedAt (an already-claimed invite must not be reopened).
+    const token = invite.token;
+    const resendExpiry = new Date(Date.now() + 14 * 86400000);
+    const expiresAt =
+      invite.expiresAt > resendExpiry ? invite.expiresAt : resendExpiry;
     await this.db.use((db) =>
       db
         .update(schoolInvites)
-        .set({ token, expiresAt, consumedAt: null })
+        .set({ expiresAt })
         .where(eq(schoolInvites.id, inviteId))
     );
 

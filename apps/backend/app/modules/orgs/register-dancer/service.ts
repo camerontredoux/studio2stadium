@@ -8,7 +8,7 @@ import {
 import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { inject } from "@adonisjs/core";
 import hash from "@adonisjs/core/services/hash";
-import { and, desc, eq, gt, inArray, isNull } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 
 export class InviteInvalidError extends Error {
@@ -39,14 +39,24 @@ export class RegisterDancerService {
         .where(
           and(
             eq(dancerInvites.token, input.token),
-            eq(dancerInvites.orgId, org.id),
-            gt(dancerInvites.expiresAt, new Date()),
-            isNull(dancerInvites.consumedAt)
+            eq(dancerInvites.orgId, org.id)
           )
         )
         .limit(1);
       if (!invite) {
-        throw new InviteInvalidError();
+        throw new InviteInvalidError(
+          "This invite link is not valid. Check for a newer invitation email, or sign in if you already have an account."
+        );
+      }
+      if (invite.consumedAt) {
+        throw new InviteInvalidError(
+          "You've already created your account. Please sign in."
+        );
+      }
+      if (invite.expiresAt <= new Date()) {
+        throw new InviteInvalidError(
+          "This invite has expired. Ask your organization to resend your invitation."
+        );
       }
 
       // Org-provisioned accounts get a tier based on org features and paid status.

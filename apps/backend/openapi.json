@@ -3326,6 +3326,40 @@
         }
       }
     },
+    "/orgs/{slug}/events/{id}/rosters/check-in/reset": {
+      "post": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdRostersCheckinResetResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/orgs/{slug}/events/{id}/checklist": {
       "get": {
         "parameters": [
@@ -5797,6 +5831,45 @@
         "description": "Consumes a one-time invite token and creates a new dancer account with an org membership and a time-limited premium grant."
       }
     },
+    "/orgs/{slug}/invites/dancer/{token}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdInvitesDancerIdResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "Look up a dancer invite by token",
+        "description": "Returns the invite state (valid | consumed | expired | invalid) plus prefill data (email, org name, brand color) when valid, so the dancer register page can show the right message. Always 200."
+      }
+    },
     "/orgs/register/school": {
       "post": {
         "requestBody": {
@@ -5866,16 +5939,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgsInvitesSchoolIdResponse"
-                }
-              }
-            }
-          },
-          "410": {
-            "description": "Unknown Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -13885,6 +13948,17 @@
           ]
         }
       },
+      "OrgsIdEventsIdRostersCheckinResetResponse": {
+        "type": "object",
+        "properties": {
+          "reset": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "reset"
+        ]
+      },
       "OrgsIdEventsIdChecklistResponse": {
         "type": "array",
         "items": {
@@ -16392,6 +16466,78 @@
           "userId"
         ]
       },
+      "OrgsIdInvitesDancerIdResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "expired",
+              "invalid",
+              "valid",
+              "consumed"
+            ]
+          },
+          "email": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "orgName": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "orgSlug": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "brandColor": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expiresAt": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "email",
+          "orgName",
+          "orgSlug",
+          "brandColor",
+          "expiresAt"
+        ]
+      },
       "OrgsRegisterSchoolRequest": {
         "type": "object",
         "properties": {
@@ -16447,8 +16593,24 @@
       "OrgsInvitesSchoolIdResponse": {
         "type": "object",
         "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "expired",
+              "invalid",
+              "valid",
+              "consumed"
+            ]
+          },
           "email": {
-            "type": "string"
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "organization": {
             "oneOf": [
@@ -16461,16 +16623,44 @@
             ]
           },
           "eventId": {
-            "type": "string"
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "eventName": {
-            "type": "string"
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "orgName": {
-            "type": "string"
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "orgSlug": {
-            "type": "string"
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "brandColor": {
             "oneOf": [
@@ -16483,10 +16673,18 @@
             ]
           },
           "expiresAt": {
-            "type": "string"
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
+          "status",
           "email",
           "organization",
           "eventId",

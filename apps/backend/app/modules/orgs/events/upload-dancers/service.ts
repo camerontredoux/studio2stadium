@@ -278,13 +278,6 @@ export class UploadDancersService {
                 });
             } else {
               // Create dancer invite for unmatched rows
-              const token = randomToken();
-              inviteTokens.push({
-                email: r.email,
-                firstName: r.firstName,
-                token,
-                paid: r.paid,
-              });
               const inviteExpiry = new Date(
                 Date.now() + 1000 * 60 * 60 * 24 * 30
               ); // 30 days
@@ -301,12 +294,22 @@ export class UploadDancersService {
                 )
                 .limit(1);
 
+              let token: string;
               if (existingInvite) {
+                // Reuse the existing token so previously emailed links stay
+                // valid; extend expiry without shortening and never reset
+                // consumedAt (an already-registered invite stays consumed).
+                token = existingInvite.token;
+                const newExpiresAt =
+                  existingInvite.expiresAt > inviteExpiry
+                    ? existingInvite.expiresAt
+                    : inviteExpiry;
                 await tx
                   .update(dancerInvites)
-                  .set({ token, expiresAt: inviteExpiry, consumedAt: null })
+                  .set({ expiresAt: newExpiresAt })
                   .where(eq(dancerInvites.id, existingInvite.id));
               } else {
+                token = randomToken();
                 await tx.insert(dancerInvites).values({
                   orgId,
                   email: r.email,
@@ -314,6 +317,14 @@ export class UploadDancersService {
                   expiresAt: inviteExpiry,
                 });
               }
+
+              // Push the effective token so the email link matches what's stored.
+              inviteTokens.push({
+                email: r.email,
+                firstName: r.firstName,
+                token,
+                paid: r.paid,
+              });
             }
           }
         }

@@ -11,6 +11,7 @@ import { useOrg } from "@/features/org/context/use-org";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AuthPagesSelect } from "@/components/shared/auth-pages-select";
 import { Link } from "@tanstack/react-router";
+import { MailIcon } from "lucide-react";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -31,6 +32,14 @@ export function OrgRegisterForm({
   onSuccess: () => void;
 }) {
   const { org } = useOrg();
+
+  const inviteQuery = $api.useQuery(
+    "get",
+    "/orgs/{slug}/invites/dancer/{token}",
+    { params: { path: { slug: org.slug, token } } },
+    { retry: false },
+  );
+
   const { mutate, isPending } = $api.useMutation(
     "post",
     "/orgs/{slug}/register",
@@ -65,6 +74,66 @@ export function OrgRegisterForm({
     );
   };
 
+  if (inviteQuery.isLoading) {
+    return (
+      <div className="flex w-full justify-center py-12">
+        <Spinner label="Loading invite..." />
+      </div>
+    );
+  }
+
+  if (
+    inviteQuery.isError ||
+    !inviteQuery.data ||
+    inviteQuery.data.status === "expired" ||
+    inviteQuery.data.status === "invalid"
+  ) {
+    return (
+      <Frame>
+        <FramePanel className="flex flex-col gap-3 text-sm">
+          <p className="font-medium">This invite link is no longer valid.</p>
+          <p className="text-muted-foreground">
+            It may have expired or been replaced by a newer invitation from{" "}
+            {org.name}. Ask an admin to resend your invitation.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="self-start"
+            render={
+              <Link to="/o/$orgSlug/login" params={{ orgSlug: org.slug }} />
+            }
+          >
+            Go to {org.name} sign in
+          </Button>
+        </FramePanel>
+      </Frame>
+    );
+  }
+
+  if (inviteQuery.data.status === "consumed") {
+    return (
+      <Frame>
+        <FramePanel className="flex flex-col gap-3 text-sm">
+          <p className="font-medium">You've already created your account.</p>
+          <p className="text-muted-foreground">
+            This invite has already been used. Please sign in to {org.name}.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="self-start"
+            render={
+              <Link to="/o/$orgSlug/login" params={{ orgSlug: org.slug }} />
+            }
+          >
+            Go to {org.name} sign in
+          </Button>
+        </FramePanel>
+      </Frame>
+    );
+  }
+
   return (
     <form
       className="flex w-full flex-col gap-3"
@@ -72,6 +141,20 @@ export function OrgRegisterForm({
     >
       <Frame>
         <FramePanel className="flex w-full flex-col gap-3 sm:gap-5">
+          <div className="flex gap-3 rounded-xl border border-border/70 bg-linear-to-br from-muted/50 to-muted/25 p-3 shadow-xs sm:gap-3.5 sm:p-4 dark:border-border/50 dark:from-muted/35 dark:to-muted/15">
+            <div className="bg-background/85 text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/60 shadow-xs dark:bg-background/60">
+              <MailIcon aria-hidden className="size-4.5" strokeWidth={1.75} />
+            </div>
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <p className="text-muted-foreground text-[10px] font-semibold tracking-wide uppercase sm:text-xs">
+                Invitation for
+              </p>
+              <p className="text-foreground truncate text-sm font-semibold tracking-tight sm:text-base">
+                {inviteQuery.data.email}
+              </p>
+            </div>
+          </div>
+
           <Controller
             control={control}
             name="firstName"

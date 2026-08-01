@@ -65,7 +65,7 @@ test.group("ResendInvitesService", (group) => {
     mail.restore();
   });
 
-  test("regenerates tokens and sends emails for pending dancers", async ({
+  test("reuses existing dancer token and creates one for pending dancers", async ({
     assert,
   }) => {
     const actor = await makeActorUser();
@@ -89,11 +89,12 @@ test.group("ResendInvitesService", (group) => {
         },
       ])
       .returning();
-    // Pre-existing stale invite for a@
+    // Pre-existing invite for a@ — its token must be preserved (a previously
+    // emailed link must keep working).
     await db.insert(dancerInvites).values({
       orgId: org.id,
       email: "a@example.com",
-      token: "old_token_should_be_deleted",
+      token: "existing_token_should_be_reused",
       expiresAt: new Date(Date.now() + 1000),
     });
 
@@ -110,22 +111,93 @@ test.group("ResendInvitesService", (group) => {
     assert.equal(result.skipped, 0);
     assert.lengthOf(result.failed, 0);
 
-    // Old invite should be gone
-    const oldInvites = await db
+    // Existing invite is preserved (same token, not deleted).
+    const [inviteA] = await db
       .select()
       .from(dancerInvites)
-      .where(eq(dancerInvites.token, "old_token_should_be_deleted"));
-    assert.lengthOf(oldInvites, 0);
+      .where(eq(dancerInvites.email, "a@example.com"));
+    assert.equal(inviteA!.token, "existing_token_should_be_reused");
+    // Expiry extended to at least ~14 days out (non-shortening).
+    assert.isAbove(inviteA!.expiresAt.getTime(), Date.now() + 13 * 86400000);
 
-    // New invites should exist
-    const newInvites = await db
+    // Dancer without a prior invite gets a fresh one.
+    const [inviteB] = await db
+      .select()
+      .from(dancerInvites)
+      .where(eq(dancerInvites.email, "b@example.com"));
+    assert.isNotNull(inviteB);
+    assert.isAbove(inviteB!.token.length, 10);
+
+    const allInvites = await db
       .select()
       .from(dancerInvites)
       .where(eq(dancerInvites.orgId, org.id));
-    assert.lengthOf(newInvites, 2);
+    assert.lengthOf(allInvites, 2);
   });
 
-  test("reissues a fresh unconsumed invite for a pending coach", async ({
+  test("resending twice keeps the same token and never resets consumedAt", async ({
+    assert,
+  }) => {
+    const actor = await makeActorUser();
+    const { org, event } = await makeOrgAndEvent();
+    const [row] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: event.id,
+        type: "dancer",
+        email: "stable@example.com",
+        firstName: "Stable",
+        lastName: "Dancer",
+      })
+      .returning();
+
+    const service = new ResendInvitesService();
+    await service.execute(
+      org.slug,
+      event.id,
+      { ids: [row!.id] },
+      { eventId: event.id, actorId: actor.id },
+      { pacingMs: 0 }
+    );
+
+    const [afterFirst] = await db
+      .select()
+      .from(dancerInvites)
+      .where(eq(dancerInvites.email, "stable@example.com"));
+    const firstToken = afterFirst!.token;
+    assert.isNotNull(firstToken);
+
+    // Simulate the dancer registering (invite consumed) with an expiry further
+    // out than the 14-day resend window.
+    const farFuture = new Date(Date.now() + 1000 * 60 * 60 * 24 * 60);
+    const consumedAt = new Date();
+    await db
+      .update(dancerInvites)
+      .set({ consumedAt, expiresAt: farFuture })
+      .where(eq(dancerInvites.id, afterFirst!.id));
+
+    // Resend again — must not change the token, must not shorten expiry, and
+    // must not re-open the consumed invite.
+    await service.execute(
+      org.slug,
+      event.id,
+      { ids: [row!.id] },
+      { eventId: event.id, actorId: actor.id },
+      { pacingMs: 0 }
+    );
+
+    const invites = await db
+      .select()
+      .from(dancerInvites)
+      .where(eq(dancerInvites.email, "stable@example.com"));
+    assert.lengthOf(invites, 1);
+    assert.equal(invites[0]!.token, firstToken);
+    assert.isNotNull(invites[0]!.consumedAt);
+    // Expiry not shortened below the far-future value.
+    assert.equal(invites[0]!.expiresAt.getTime(), farFuture.getTime());
+  });
+
+  test("keeps the same coach token and preserves consumedAt on resend", async ({
     assert,
   }) => {
     const actor = await makeActorUser();
@@ -141,14 +213,19 @@ test.group("ResendInvitesService", (group) => {
         organization: "Example University",
       })
       .returning();
-    const oldExpiresAt = new Date(Date.now() - 86400000);
+    // A previously emailed coach invite that has already been claimed and whose
+    // expiry sits further out than the resend window. The token must be
+    // preserved (the emailed link keeps working), consumedAt must not be reset
+    // (the claim stays), and expiry must not be shortened.
+    const consumedAt = new Date();
+    const farFuture = new Date(Date.now() + 1000 * 60 * 60 * 24 * 60);
     await db.insert(schoolInvites).values({
       eventId: event.id,
       email: coach!.email,
       organization: coach!.organization,
       token: "old_coach_token",
-      expiresAt: oldExpiresAt,
-      consumedAt: new Date(),
+      expiresAt: farFuture,
+      consumedAt,
     });
 
     const service = new ResendInvitesService();
@@ -169,9 +246,12 @@ test.group("ResendInvitesService", (group) => {
       .from(schoolInvites)
       .where(eq(schoolInvites.eventId, event.id));
     assert.lengthOf(invites, 1);
-    assert.notEqual(invites[0]!.token, "old_coach_token");
-    assert.isNull(invites[0]!.consumedAt);
-    assert.isAbove(invites[0]!.expiresAt.getTime(), Date.now() + 13 * 86400000);
+    // Token reused, not regenerated.
+    assert.equal(invites[0]!.token, "old_coach_token");
+    // Consumed invite stays consumed (never reopened).
+    assert.isNotNull(invites[0]!.consumedAt);
+    // Expiry not shortened below the far-future value.
+    assert.equal(invites[0]!.expiresAt.getTime(), farFuture.getTime());
   });
 
   test("skips a registered coach", async ({ assert }) => {

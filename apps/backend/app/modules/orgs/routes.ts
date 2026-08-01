@@ -11,6 +11,8 @@ const RegisterSchoolController = () =>
   import("./register-school/controller.ts");
 const InviteLookupSchoolController = () =>
   import("./invite-lookup-school/controller.ts");
+const InviteLookupDancerController = () =>
+  import("./invite-lookup-dancer/controller.ts");
 const UpdateOrgSettingsController = () =>
   import("./update-settings/controller.ts");
 
@@ -55,6 +57,14 @@ router
         summary: "Look up a school invite by token",
         description:
           "Returns prefill data (email, organization, event/org names, brand color) for a school account invite. Returns 410 if the invite is invalid, expired, or already consumed.",
+      });
+
+    router
+      .get(":slug/invites/dancer/:token", [InviteLookupDancerController])
+      .openapi({
+        summary: "Look up a dancer invite by token",
+        description:
+          "Returns the invite state (valid | consumed | expired | invalid) plus prefill data (email, org name, brand color) when valid, so the dancer register page can show the right message. Always 200.",
       });
   })
   .prefix("orgs")

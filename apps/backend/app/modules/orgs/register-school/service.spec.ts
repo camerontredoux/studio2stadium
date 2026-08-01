@@ -174,7 +174,9 @@ test.group("School invite + activation paths", (group) => {
     assert.equal(membership!.type, "coach");
   });
 
-  test("Path B: second click on same token returns 410", async ({ client }) => {
+  test("Path B: second click on a consumed token returns 410 with already-registered message", async ({
+    client,
+  }) => {
     const [summit] = await db
       .select()
       .from(organizations)
@@ -207,6 +209,65 @@ test.group("School invite + activation paths", (group) => {
       location: "NY",
     });
     res.assertStatus(410);
+    res.assertBodyContains({
+      message: "You've already created your account. Please sign in.",
+    });
+  });
+
+  test("Expired token returns 410 with expired message", async ({ client }) => {
+    const [summit] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "summit"));
+    const [event] = await db
+      .insert(orgEvents)
+      .values({
+        orgId: summit!.id,
+        name: "Expired Event",
+        startDate: "2026-06-01",
+        endDate: "2026-06-02",
+      })
+      .returning();
+
+    const tok = token();
+    await db.insert(schoolInvites).values({
+      eventId: event!.id,
+      email: "expired@example.com",
+      token: tok,
+      expiresAt: new Date(Date.now() - 86400000),
+    });
+
+    const res = await client.post("/orgs/register/school").json({
+      token: tok,
+      firstName: "Ex",
+      lastName: "Pired",
+      password: "CorrectHorse1!",
+      name: "Expired School",
+      location: "NY",
+    });
+    res.assertStatus(410);
+    res.assertBodyContains({
+      message:
+        "This invite has expired. Ask your organization to resend your invitation.",
+    });
+  });
+
+  test("Unknown token returns 410 with not-valid message", async ({
+    client,
+  }) => {
+    const res = await client.post("/orgs/register/school").json({
+      token: token(),
+      firstName: "No",
+      lastName: "Body",
+      password: "CorrectHorse1!",
+      name: "Nobody School",
+      location: "NY",
+    });
+    res.assertStatus(410);
+    res.assertBodyContains({
+      message:
+        "This invite link is not valid. Check for a newer invitation email, or sign in if you already have an account.",
+    });
   });
 
   test("Path B: UPSERT on re-upload — same CSV row twice does not throw", async ({

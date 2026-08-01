@@ -85,7 +85,12 @@ export function OrgSchoolRegisterForm({
     );
   }
 
-  if (inviteQuery.isError || !inviteQuery.data) {
+  if (
+    inviteQuery.isError ||
+    !inviteQuery.data ||
+    inviteQuery.data.status === "expired" ||
+    inviteQuery.data.status === "invalid"
+  ) {
     return (
       <Frame>
         <FramePanel className="flex flex-col gap-3 text-sm">
@@ -93,6 +98,29 @@ export function OrgSchoolRegisterForm({
           <p className="text-muted-foreground">
             Your invite may have expired, been used, or been replaced by a newer
             one from {org.name}. Ask the admin to resend your invitation.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="self-start"
+            render={
+              <Link to="/o/$orgSlug/login" params={{ orgSlug: org.slug }} />
+            }
+          >
+            Go to {org.name} sign in
+          </Button>
+        </FramePanel>
+      </Frame>
+    );
+  }
+
+  if (inviteQuery.data.status === "consumed") {
+    return (
+      <Frame>
+        <FramePanel className="flex flex-col gap-3 text-sm">
+          <p className="font-medium">You've already created your account.</p>
+          <p className="text-muted-foreground">
+            This invite has already been used. Please sign in to {org.name}.
           </p>
           <Button
             type="button"

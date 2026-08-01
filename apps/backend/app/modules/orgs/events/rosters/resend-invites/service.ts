@@ -92,27 +92,52 @@ export class ResendInvitesService {
       let task: EmailSendTask;
 
       if (row.type === "dancer") {
-        const token = randomToken();
-        const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14);
+        // Resolved inside the tx on first prepare, then reused across email
+        // retries so a transient send failure never re-runs the tx or changes
+        // the token that was emailed.
+        let token: string;
         task = {
           recipient: row.email,
           send: async () => {
             if (!invitePrepared) {
               await this.db.tx(async (tx) => {
-                await tx
-                  .delete(dancerInvites)
+                const [existing] = await tx
+                  .select()
+                  .from(dancerInvites)
                   .where(
                     and(
                       eq(dancerInvites.orgId, org.id),
                       eq(dancerInvites.email, row.email)
                     )
-                  );
-                await tx.insert(dancerInvites).values({
-                  orgId: org.id,
-                  email: row.email,
-                  token,
-                  expiresAt,
-                });
+                  )
+                  .limit(1);
+
+                const nowPlus14d = new Date(
+                  Date.now() + 1000 * 60 * 60 * 24 * 14
+                );
+
+                if (existing) {
+                  // Reuse the existing token so previously emailed links stay
+                  // valid; extend expiry without ever shortening it and never
+                  // reset consumedAt (an already-registered invite stays consumed).
+                  token = existing.token;
+                  const newExpiresAt =
+                    existing.expiresAt > nowPlus14d
+                      ? existing.expiresAt
+                      : nowPlus14d;
+                  await tx
+                    .update(dancerInvites)
+                    .set({ expiresAt: newExpiresAt })
+                    .where(eq(dancerInvites.id, existing.id));
+                } else {
+                  token = randomToken();
+                  await tx.insert(dancerInvites).values({
+                    orgId: org.id,
+                    email: row.email,
+                    token,
+                    expiresAt: nowPlus14d,
+                  });
+                }
               });
               invitePrepared = true;
             }
@@ -128,32 +153,54 @@ export class ResendInvitesService {
           },
         };
       } else {
-        const token = randomBytes(32).toString("hex");
-        // Coach invites must outlive far-future events, matching upload-coaches.
-        const expiresAt = schoolInviteExpiry(event?.startDate);
+        // Resolved inside the tx on first prepare, then reused across email
+        // retries so a transient send failure never re-runs the tx or changes
+        // the token that was emailed.
+        let token: string;
         task = {
           recipient: row.email,
           send: async () => {
             if (!invitePrepared) {
-              await this.db.use((db) =>
-                db
-                  .insert(schoolInvites)
-                  .values({
+              await this.db.tx(async (tx) => {
+                const [existing] = await tx
+                  .select()
+                  .from(schoolInvites)
+                  .where(
+                    and(
+                      eq(schoolInvites.eventId, eventId),
+                      eq(schoolInvites.email, row.email)
+                    )
+                  )
+                  .limit(1);
+
+                // Coach invites must outlive far-future events, matching
+                // upload-coaches.
+                const expiresAt = schoolInviteExpiry(event?.startDate);
+
+                if (existing) {
+                  // Reuse the existing token so previously emailed links stay
+                  // valid; extend expiry without ever shortening it and never
+                  // reset consumedAt (an already-claimed invite stays consumed).
+                  token = existing.token;
+                  const newExpiresAt =
+                    existing.expiresAt > expiresAt
+                      ? existing.expiresAt
+                      : expiresAt;
+                  await tx
+                    .update(schoolInvites)
+                    .set({ expiresAt: newExpiresAt })
+                    .where(eq(schoolInvites.id, existing.id));
+                } else {
+                  token = randomBytes(32).toString("hex");
+                  await tx.insert(schoolInvites).values({
                     eventId,
                     email: row.email,
                     organization: row.organization,
                     token,
                     expiresAt,
-                  })
-                  .onConflictDoUpdate({
-                    target: [schoolInvites.eventId, schoolInvites.email],
-                    set: {
-                      token,
-                      expiresAt,
-                      consumedAt: null,
-                    },
-                  })
-              );
+                  });
+                }
+              });
               invitePrepared = true;
             }
 
