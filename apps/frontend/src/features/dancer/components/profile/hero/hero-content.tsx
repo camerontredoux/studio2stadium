@@ -73,7 +73,6 @@ export function HeroContent({
               <MapPinIcon className="text-brand size-3.5 shrink-0" />
               <span className="text-nowrap">
                 {US_STATES[dancer.location as keyof typeof US_STATES] ||
-                  dancer.location ||
                   "Unknown"}
               </span>
             </div>
