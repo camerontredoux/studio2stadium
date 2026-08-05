@@ -1,21 +1,5 @@
 import { ProfileCard } from "@/components/shared/profile-card/profile-card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
 import { US_STATES } from "@/utils/constants/states";
 import { Link } from "@tanstack/react-router";
 import {
@@ -24,23 +8,17 @@ import {
   ClockIcon,
   EyeIcon,
   MapPinIcon,
-  PlayIcon,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { recruitingQueries } from "../../api/queries";
 import { useUpdateSubmissionStatus } from "../../api/mutations";
 import type { SchoolSubmission } from "../../types";
+import { SubmissionStatusSelect } from "./submission-status-select";
+import { SubmissionVideoDialog } from "./submission-video-dialog";
 
 interface SchoolSubmissionCardProps {
   submission: SchoolSubmission;
 }
-
-const STATUS_OPTIONS = [
-  { value: "pending", label: "Pending" },
-  { value: "in_review", label: "In Review" },
-  { value: "accepted", label: "Accepted" },
-  { value: "released", label: "Released" },
-] as const;
 
 function statusBadge(status: SchoolSubmission["status"]) {
   switch (status) {
@@ -124,8 +102,7 @@ export function SchoolSubmissionCard({
     }
   };
 
-  const handleStatusChange = (status: string) => {
-    const newStatus = status as SchoolSubmission["status"];
+  const handleStatusChange = (newStatus: SchoolSubmission["status"]) => {
     const previous = optimisticUpdate({ status: newStatus });
     updateMutation.mutate(
       {
@@ -150,8 +127,8 @@ export function SchoolSubmissionCard({
         username: dancer.username,
       }}
     >
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <div className="flex items-start justify-between gap-2">
+      <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 flex-col gap-2">
           <div className="flex min-w-0 flex-col">
             <h3 className="flex min-w-0 items-center gap-1 text-base leading-tight font-semibold">
               <Link
@@ -170,67 +147,25 @@ export function SchoolSubmissionCard({
               </p>
             )}
           </div>
-          {submission.youtubeId && (
-            <Dialog onOpenChange={handleOpenChange}>
-              <DialogTrigger
-                render={
-                  <Button
-                    variant="outline"
-                    size="xs"
-                    className="relative z-10 shrink-0 gap-1"
-                  />
-                }
-              >
-                <PlayIcon className="size-3" /> Watch Video
-              </DialogTrigger>
-              <DialogContent
-                showCloseButton={false}
-                className="max-w-7xl overflow-clip"
-              >
-                <iframe
-                  src={`https://www.youtube.com/embed/${submission.youtubeId}`}
-                  title={`${dancer.name}'s CRV`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="aspect-video h-full w-full"
-                />
-                <DialogFooter className="flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground text-sm">
-                      Status:
-                    </span>
-                    <Select
-                      items={STATUS_OPTIONS}
-                      value={submission.status}
-                      onValueChange={(value) =>
-                        value && handleStatusChange(value)
-                      }
-                      disabled={updateMutation.isPending}
-                    >
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {STATUS_OPTIONS.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {updateMutation.isPending && <Spinner />}
-                  </div>
-                  <DialogClose render={<Button variant="secondary" />}>
-                    Close
-                  </DialogClose>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          )}
+          <div className="flex flex-wrap items-center gap-1.5">
+            {statusBadge(submission.status)}
+            {watchedBadge(submission.watched)}
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-1.5">
-          {statusBadge(submission.status)}
-          {watchedBadge(submission.watched)}
+        <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">
+          {submission.youtubeId && (
+            <SubmissionVideoDialog
+              youtubeId={submission.youtubeId}
+              title={`${dancer.name}'s CRV`}
+              onOpenChange={handleOpenChange}
+              className="w-full sm:w-auto"
+            />
+          )}
+          <SubmissionStatusSelect
+            value={submission.status}
+            onValueChange={handleStatusChange}
+            pending={updateMutation.isPending}
+          />
         </div>
       </div>
     </ProfileCard>
