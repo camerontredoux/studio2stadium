@@ -1,0 +1,18 @@
+# Cloudflare Pages header rules. Copied verbatim from public/ into the build
+# output root, which is where Pages expects this file.
+
+# Vite emits content-hashed filenames into /assets, so the bytes behind any one
+# of these URLs never change. Cache them for a year and skip revalidation.
+# Only /assets/* is safe here -- files served straight out of public/ (such as
+# background.jpg) keep stable names across deploys and must stay revalidated.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# index.html is the one file whose URL is stable across deploys, and it is what
+# points the app at the current chunk hashes. It must always be revalidated, or
+# an open tab will keep requesting chunks that the latest deploy no longer has.
+/
+  Cache-Control: public, max-age=0, must-revalidate
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
