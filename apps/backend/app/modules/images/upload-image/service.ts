@@ -1,6 +1,8 @@
 import { dancerProfiles } from "#database/schema/dancers";
 import { images } from "#database/schema/media";
 import { DatabaseService } from "#database/service";
+import { E_BAD_REQUEST } from "#exceptions/bad-request";
+import { BLOG_ATTACHMENTS } from "#modules/blog/shared/attachments";
 import { GetMediaPermissionsService } from "#modules/media/permissions/service";
 import { inject } from "@adonisjs/core";
 import drive from "@adonisjs/drive/services/main";
@@ -27,7 +29,19 @@ export class UploadImageService {
     private permissions: GetMediaPermissionsService
   ) {}
 
-  async execute(userId: string, { contentType, type }: Validator) {
+  async execute(userId: string, { contentType, type, size }: Validator) {
+    // Blog PDF attachments: enforce MIME + size up front for fast feedback.
+    // (The post-create flow re-verifies against real R2 metadata.)
+    const isBlogPdf =
+      type === "blog" && contentType === BLOG_ATTACHMENTS.contentType;
+    if (
+      isBlogPdf &&
+      size !== undefined &&
+      size > BLOG_ATTACHMENTS.maxFileSize
+    ) {
+      throw new E_BAD_REQUEST("PDF attachments must be 10 MB or smaller.");
+    }
+
     if (type === "feed") {
       const [[imageCount], dancerProfile, permissions] = await Promise.all([
         this.db.use((db) =>
@@ -70,9 +84,11 @@ export class UploadImageService {
     const disk = drive.use("r2");
 
     const ext = type === "schedule" ? extFromMime(contentType) : "";
+    // Blog PDFs get a `.pdf` extension so the download route and orphan sweep
+    // can recognize them by key shape; blog content images keep the bare key.
     const key =
       type === "blog"
-        ? `blog/${randomUUID()}`
+        ? `blog/${randomUUID()}${isBlogPdf ? ".pdf" : ""}`
         : `${type}/${userId}/${randomUUID()}${ext}`;
 
     const signedUrl = await disk.getSignedUploadUrl(key, {
