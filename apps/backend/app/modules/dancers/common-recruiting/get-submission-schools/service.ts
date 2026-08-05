@@ -10,6 +10,8 @@ import { and, eq, isNull, not, notInArray, or } from "drizzle-orm";
 // toggle) instead of a hardcoded list.
 const HIDDEN_SCHOOL_USER_IDS = [
   "04be95ed-ca37-4acc-94cf-c02691798bf8", // University of Tennessee
+  "c5f879a1-42b8-4fd1-a38d-76a567cbb6d3", // Studio 2 Stadium
+  "cb4d3f31-ec01-4466-8ce9-bb0bc0bc12b6", // SummitTesting
 ];
 
 @inject()
