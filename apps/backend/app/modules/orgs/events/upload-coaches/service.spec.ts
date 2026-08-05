@@ -174,6 +174,59 @@ coach2@usc.edu,Coach,Two,USC`;
     assert.lengthOf(rosters, 1);
   });
 
+  test("re-uploading a pending coach keeps the same invite token and preserves consumedAt", async ({
+    assert,
+  }) => {
+    const csv = `email,firstName,lastName,organization
+pending@ucla.edu,Pending,Coach,UCLA`;
+
+    const svc = new UploadCoachesService();
+    await svc.execute({
+      orgId: summit.id,
+      eventId: event.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://1.csv",
+      csv,
+    });
+
+    const [firstInvite] = await db
+      .select()
+      .from(schoolInvites)
+      .where(eq(schoolInvites.email, "pending@ucla.edu"));
+    assert.isNotNull(firstInvite);
+    const originalToken = firstInvite!.token;
+
+    // Simulate the coach claiming the invite before a second upload happens.
+    const consumedAt = new Date();
+    await db
+      .update(schoolInvites)
+      .set({ consumedAt })
+      .where(eq(schoolInvites.id, firstInvite!.id));
+
+    // Re-upload the same coach. The invite token must not be regenerated and
+    // the claim (consumedAt) must be preserved.
+    await svc.execute({
+      orgId: summit.id,
+      eventId: event.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://2.csv",
+      csv,
+    });
+
+    const invites = await db
+      .select()
+      .from(schoolInvites)
+      .where(eq(schoolInvites.email, "pending@ucla.edu"));
+    assert.lengthOf(invites, 1);
+    assert.equal(invites[0]!.token, originalToken);
+    assert.isNotNull(invites[0]!.consumedAt);
+    // Expiry is never shortened by a re-upload.
+    assert.isAtLeast(
+      invites[0]!.expiresAt.getTime(),
+      firstInvite!.expiresAt.getTime()
+    );
+  });
+
   test("CSV with parse errors returns preconditionFailed — no partial commit", async ({
     assert,
   }) => {

@@ -156,6 +156,115 @@ newghost@x.co,Ghost,Dancer,202`;
     assert.isAbove(invite!.expiresAt.getTime(), Date.now());
   });
 
+  test("re-upload keeps the same dancer_invite token and does not reset consumedAt", async ({
+    assert,
+  }) => {
+    const csv1 = `email,firstName,lastName,bibNumber
+reupload@x.co,Re,Upload,501`;
+    const csv2 = `email,firstName,lastName,bibNumber
+reupload@x.co,Re,Upload,502`;
+
+    const svc = new UploadDancersService();
+    await svc.execute({
+      orgId: summit.id,
+      eventId: event.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://reupload1.csv",
+      csv: csv1,
+    });
+
+    const [afterFirst] = await db
+      .select()
+      .from(dancerInvites)
+      .where(eq(dancerInvites.email, "reupload@x.co"));
+    const firstToken = afterFirst!.token;
+    assert.isNotNull(firstToken);
+
+    // Simulate registration: mark consumed and push expiry beyond the 30-day
+    // upload window.
+    const farFuture = new Date(Date.now() + 1000 * 60 * 60 * 24 * 90);
+    const consumedAt = new Date();
+    await db
+      .update(dancerInvites)
+      .set({ consumedAt, expiresAt: farFuture })
+      .where(eq(dancerInvites.id, afterFirst!.id));
+
+    await svc.execute({
+      orgId: summit.id,
+      eventId: event.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://reupload2.csv",
+      csv: csv2,
+    });
+
+    const invites = await db
+      .select()
+      .from(dancerInvites)
+      .where(eq(dancerInvites.email, "reupload@x.co"));
+    assert.lengthOf(invites, 1);
+    // Same token — a previously emailed link keeps working.
+    assert.equal(invites[0]!.token, firstToken);
+    // consumedAt untouched — an already-registered invite stays consumed.
+    assert.isNotNull(invites[0]!.consumedAt);
+    // Expiry not shortened below the far-future value.
+    assert.equal(invites[0]!.expiresAt.getTime(), farFuture.getTime());
+  });
+
+  test("re-upload preserves an existing account link for a registered dancer with no profile row", async ({
+    assert,
+  }) => {
+    // A registered dancer whose account has NO dancerProfiles row yet, so the
+    // upload's dancerProfiles join won't match — the post-register / pre-profile
+    // window. Re-upload must not clobber the existing roster link back to null.
+    const [dancer] = await db
+      .insert(users)
+      .values({
+        username: "linked1",
+        email: "linked@x.co",
+        displayEmail: "linked@x.co",
+        firstName: "Linked",
+        lastName: "Dancer",
+        password: "x",
+        role: "user",
+        type: "dancer",
+        verified: true,
+      })
+      .returning();
+    await db.insert(eventRosters).values({
+      eventId: event.id,
+      type: "dancer",
+      email: "linked@x.co",
+      firstName: "Linked",
+      lastName: "Dancer",
+      bibNumber: 601,
+      userId: dancer!.id,
+    });
+    await db.insert(dancerInvites).values({
+      orgId: summit.id,
+      email: "linked@x.co",
+      token: "linked_consumed_token",
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+      consumedAt: new Date(),
+    });
+
+    const csv = `email,firstName,lastName,bibNumber
+linked@x.co,Linked,Dancer,601`;
+    await new UploadDancersService().execute({
+      orgId: summit.id,
+      eventId: event.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://linked.csv",
+      csv,
+    });
+
+    const [roster] = await db
+      .select()
+      .from(eventRosters)
+      .where(eq(eventRosters.email, "linked@x.co"));
+    // The existing account link must survive the re-upload (not reset to null).
+    assert.equal(roster!.userId, dancer!.id);
+  });
+
   test("re-upload updates bib number on existing roster row", async ({
     assert,
   }) => {

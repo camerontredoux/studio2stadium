@@ -231,7 +231,11 @@ export class UploadDancersService {
                   lastName: r.lastName,
                   bibNumber: r.bibNumber,
                   paid: r.paid,
-                  userId,
+                  // Preserve an existing account link on re-upload: a dancer who
+                  // registered but has not created a dancerProfiles row yet won't
+                  // match the join above (userId === null), and we must not clobber
+                  // their existing roster link back to null.
+                  userId: userId ?? existing.userId,
                   expirationDate: userId
                     ? rowExpiration
                     : existing.expirationDate,
@@ -278,13 +282,6 @@ export class UploadDancersService {
                 });
             } else {
               // Create dancer invite for unmatched rows
-              const token = randomToken();
-              inviteTokens.push({
-                email: r.email,
-                firstName: r.firstName,
-                token,
-                paid: r.paid,
-              });
               const inviteExpiry = new Date(
                 Date.now() + 1000 * 60 * 60 * 24 * 30
               ); // 30 days
@@ -301,17 +298,41 @@ export class UploadDancersService {
                 )
                 .limit(1);
 
+              let token: string;
+              let alreadyConsumed = false;
               if (existingInvite) {
+                // Reuse the existing token so previously emailed links stay
+                // valid; extend expiry without shortening and never reset
+                // consumedAt (an already-registered invite stays consumed).
+                token = existingInvite.token;
+                alreadyConsumed = existingInvite.consumedAt !== null;
+                const newExpiresAt =
+                  existingInvite.expiresAt > inviteExpiry
+                    ? existingInvite.expiresAt
+                    : inviteExpiry;
                 await tx
                   .update(dancerInvites)
-                  .set({ token, expiresAt: inviteExpiry, consumedAt: null })
+                  .set({ expiresAt: newExpiresAt })
                   .where(eq(dancerInvites.id, existingInvite.id));
               } else {
+                token = randomToken();
                 await tx.insert(dancerInvites).values({
                   orgId,
                   email: r.email,
                   token,
                   expiresAt: inviteExpiry,
+                });
+              }
+
+              // Don't re-email an already-registered dancer (mirrors
+              // upload-coaches, which excludes consumed invites). Push the
+              // effective token only when the invite is still claimable.
+              if (!alreadyConsumed) {
+                inviteTokens.push({
+                  email: r.email,
+                  firstName: r.firstName,
+                  token,
+                  paid: r.paid,
                 });
               }
             }

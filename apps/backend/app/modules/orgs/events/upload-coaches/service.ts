@@ -18,7 +18,7 @@ import {
 } from "#shared/org/throttled-email-sender";
 import { enforceEmailRole } from "#shared/org/role-guard";
 import { verifyPreviewToken } from "#shared/org/preview-token";
-import { and, eq, inArray, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { randomBytes } from "node:crypto";
 import logger from "@adonisjs/core/services/logger";
 
@@ -188,7 +188,12 @@ export class UploadCoachesService {
                   target: [orgMemberships.userId, orgMemberships.orgId],
                 });
             } else {
-              // Mint a school invite for unmatched rows; UPSERT on re-upload
+              // Mint a school invite for unmatched rows. On re-upload keep the
+              // token STABLE per (eventId, email): preserve the existing row's
+              // token so previously emailed links stay valid, extend expiry
+              // without ever shortening it, and never reset consumedAt (an
+              // already-claimed invite must not be reopened). The fresh token +
+              // expiry below are only used for the first-time INSERT.
               const token = randomBytes(32).toString("hex");
               const expiresAt = schoolInviteExpiry(event.startDate);
               await tx
@@ -203,9 +208,7 @@ export class UploadCoachesService {
                 .onConflictDoUpdate({
                   target: [schoolInvites.eventId, schoolInvites.email],
                   set: {
-                    token,
-                    expiresAt,
-                    consumedAt: null,
+                    expiresAt: sql`greatest(${schoolInvites.expiresAt}, excluded.expires_at)`,
                   },
                 });
             }

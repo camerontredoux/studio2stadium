@@ -1,20 +1,15 @@
 import { DatabaseService } from "#database/service";
-import { schoolInvites } from "#database/schema/schools";
-import { organizations } from "#database/schema/organizations";
-import { orgEvents } from "#database/schema/org-events";
+import { dancerInvites, organizations } from "#database/schema/organizations";
 import { inject } from "@adonisjs/core";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
-export type InviteLookupSchoolResult =
+export type InviteLookupDancerResult =
   | { status: "invalid" }
   | { status: "consumed" }
   | { status: "expired" }
   | {
       status: "valid";
       email: string;
-      organization: string | null;
-      eventId: string;
-      eventName: string;
       orgName: string;
       orgSlug: string;
       brandColor: string | null;
@@ -22,27 +17,28 @@ export type InviteLookupSchoolResult =
     };
 
 @inject()
-export class InviteLookupSchoolService {
+export class InviteLookupDancerService {
   constructor(private db: DatabaseService) {}
 
-  async execute(token: string): Promise<InviteLookupSchoolResult> {
+  async execute(
+    orgSlug: string,
+    token: string
+  ): Promise<InviteLookupDancerResult> {
     return this.db.use(async (db) => {
       const [row] = await db
         .select({
-          email: schoolInvites.email,
-          organization: schoolInvites.organization,
-          eventId: schoolInvites.eventId,
-          expiresAt: schoolInvites.expiresAt,
-          consumedAt: schoolInvites.consumedAt,
-          eventName: orgEvents.name,
+          email: dancerInvites.email,
+          expiresAt: dancerInvites.expiresAt,
+          consumedAt: dancerInvites.consumedAt,
           orgName: organizations.name,
           orgSlug: organizations.slug,
           brandColor: organizations.primaryColor,
         })
-        .from(schoolInvites)
-        .innerJoin(orgEvents, eq(orgEvents.id, schoolInvites.eventId))
-        .innerJoin(organizations, eq(organizations.id, orgEvents.orgId))
-        .where(eq(schoolInvites.token, token))
+        .from(dancerInvites)
+        .innerJoin(organizations, eq(organizations.id, dancerInvites.orgId))
+        .where(
+          and(eq(dancerInvites.token, token), eq(organizations.slug, orgSlug))
+        )
         .limit(1);
 
       if (!row) return { status: "invalid" as const };
@@ -51,9 +47,6 @@ export class InviteLookupSchoolService {
       return {
         status: "valid" as const,
         email: row.email,
-        organization: row.organization,
-        eventId: row.eventId,
-        eventName: row.eventName,
         orgName: row.orgName,
         orgSlug: row.orgSlug,
         brandColor: row.brandColor,

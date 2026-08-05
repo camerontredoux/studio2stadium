@@ -5,7 +5,7 @@ import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { orgMemberships } from "#database/schema/organizations";
 import { inject } from "@adonisjs/core";
 import hash from "@adonisjs/core/services/hash";
-import { and, eq, gt, isNull } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 
 export class InviteInvalidError extends Error {
@@ -24,17 +24,23 @@ export class RegisterSchoolService {
       const [invite] = await tx
         .select()
         .from(schoolInvites)
-        .where(
-          and(
-            eq(schoolInvites.token, input.token),
-            gt(schoolInvites.expiresAt, new Date()),
-            isNull(schoolInvites.consumedAt)
-          )
-        )
+        .where(eq(schoolInvites.token, input.token))
         .limit(1);
 
       if (!invite) {
-        throw new InviteInvalidError();
+        throw new InviteInvalidError(
+          "This invite link is not valid. Check for a newer invitation email, or sign in if you already have an account."
+        );
+      }
+      if (invite.consumedAt) {
+        throw new InviteInvalidError(
+          "You've already created your account. Please sign in."
+        );
+      }
+      if (invite.expiresAt <= new Date()) {
+        throw new InviteInvalidError(
+          "This invite has expired. Ask your organization to resend your invitation."
+        );
       }
 
       const usernameSeed = invite.email.split("@")[0] ?? "school";

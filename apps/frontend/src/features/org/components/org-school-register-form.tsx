@@ -85,7 +85,14 @@ export function OrgSchoolRegisterForm({
     );
   }
 
-  if (inviteQuery.isError || !inviteQuery.data) {
+  // Only a definitive negative status from the server blocks the form. The
+  // lookup has retries disabled, so a transient failure must NOT dead-end a
+  // coach holding a valid token — fall through and let the backend validate
+  // the token on submit.
+  if (
+    inviteQuery.data?.status === "expired" ||
+    inviteQuery.data?.status === "invalid"
+  ) {
     return (
       <Frame>
         <FramePanel className="flex flex-col gap-3 text-sm">
@@ -93,6 +100,29 @@ export function OrgSchoolRegisterForm({
           <p className="text-muted-foreground">
             Your invite may have expired, been used, or been replaced by a newer
             one from {org.name}. Ask the admin to resend your invitation.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="self-start"
+            render={
+              <Link to="/o/$orgSlug/login" params={{ orgSlug: org.slug }} />
+            }
+          >
+            Go to {org.name} sign in
+          </Button>
+        </FramePanel>
+      </Frame>
+    );
+  }
+
+  if (inviteQuery.data?.status === "consumed") {
+    return (
+      <Frame>
+        <FramePanel className="flex flex-col gap-3 text-sm">
+          <p className="font-medium">You've already created your account.</p>
+          <p className="text-muted-foreground">
+            This invite has already been used. Please sign in to {org.name}.
           </p>
           <Button
             type="button"
@@ -144,24 +174,26 @@ export function OrgSchoolRegisterForm({
     >
       <Frame>
         <FramePanel className="flex w-full flex-col gap-3 sm:gap-5">
-          <div className="flex gap-3 rounded-xl border border-border/70 bg-linear-to-br from-muted/50 to-muted/25 p-3 shadow-xs sm:gap-3.5 sm:p-4 dark:border-border/50 dark:from-muted/35 dark:to-muted/15">
-            <div className="bg-background/85 text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/60 shadow-xs dark:bg-background/60">
-              <MailIcon aria-hidden className="size-4.5" strokeWidth={1.75} />
-            </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <p className="text-muted-foreground text-[10px] font-semibold tracking-wide uppercase sm:text-xs">
-                Invitation for
-              </p>
-              <p className="text-foreground truncate text-sm font-semibold tracking-tight sm:text-base">
-                {inviteQuery.data.email}
-              </p>
-              {inviteQuery.data.eventName ? (
-                <p className="text-muted-foreground line-clamp-2 text-xs leading-snug sm:text-sm">
-                  {inviteQuery.data.eventName}
+          {inviteQuery.data?.email && (
+            <div className="flex gap-3 rounded-xl border border-border/70 bg-linear-to-br from-muted/50 to-muted/25 p-3 shadow-xs sm:gap-3.5 sm:p-4 dark:border-border/50 dark:from-muted/35 dark:to-muted/15">
+              <div className="bg-background/85 text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/60 shadow-xs dark:bg-background/60">
+                <MailIcon aria-hidden className="size-4.5" strokeWidth={1.75} />
+              </div>
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <p className="text-muted-foreground text-[10px] font-semibold tracking-wide uppercase sm:text-xs">
+                  Invitation for
                 </p>
-              ) : null}
+                <p className="text-foreground truncate text-sm font-semibold tracking-tight sm:text-base">
+                  {inviteQuery.data?.email}
+                </p>
+                {inviteQuery.data?.eventName ? (
+                  <p className="text-muted-foreground line-clamp-2 text-xs leading-snug sm:text-sm">
+                    {inviteQuery.data?.eventName}
+                  </p>
+                ) : null}
+              </div>
             </div>
-          </div>
+          )}
 
           <Controller
             control={control}

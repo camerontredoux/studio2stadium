@@ -144,6 +144,55 @@ test.group("POST /orgs/:slug/register", (group) => {
     res.assertStatus(400);
   });
 
+  test("returns a distinct 'expired' message for an expired token", async ({
+    client,
+    assert,
+  }) => {
+    const [summit] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "summit"));
+    await db.insert(dancerInvites).values({
+      orgId: summit!.id,
+      email: "expmsg@example.com",
+      token: "tok_expmsg_01234",
+      expiresAt: new Date(Date.now() - 1000),
+    });
+    const res = await client.post("/orgs/summit/register").json({
+      token: "tok_expmsg_01234",
+      firstName: "Exp",
+      lastName: "Msg",
+      password: "CorrectHorse1!",
+    });
+    res.assertStatus(400);
+    assert.include(res.body().message, "expired");
+  });
+
+  test("returns a distinct 'already created' message for a consumed token", async ({
+    client,
+    assert,
+  }) => {
+    const [summit] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "summit"));
+    await db.insert(dancerInvites).values({
+      orgId: summit!.id,
+      email: "consumedmsg@example.com",
+      token: "tok_consmsg_abc01",
+      expiresAt: new Date(Date.now() + 86400000),
+      consumedAt: new Date(),
+    });
+    const res = await client.post("/orgs/summit/register").json({
+      token: "tok_consmsg_abc01",
+      firstName: "Con",
+      lastName: "Sumed",
+      password: "CorrectHorse1!",
+    });
+    res.assertStatus(400);
+    assert.include(res.body().message, "already created");
+  });
+
   test("links all matching pending roster rows in the same org", async ({
     client,
     assert,

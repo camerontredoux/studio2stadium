@@ -1,21 +1,21 @@
 import { inject } from "@adonisjs/core";
 import type { HttpContext } from "@adonisjs/core/http";
 import {
-  InviteLookupSchoolService,
-  type InviteLookupSchoolResult,
+  InviteLookupDancerService,
+  type InviteLookupDancerResult,
 } from "./service.ts";
 
-export default class InviteLookupSchoolController {
+export default class InviteLookupDancerController {
   @inject()
   async handle(
     { params, response }: HttpContext,
-    service: InviteLookupSchoolService
+    service: InviteLookupDancerService
   ) {
     const token = typeof params.token === "string" ? params.token.trim() : "";
-    const result: InviteLookupSchoolResult =
-      token.length < 8 || token.length > 128
+    const result: InviteLookupDancerResult =
+      token.length < 8 || token.length > 64
         ? { status: "invalid" }
-        : await service.execute(token);
+        : await service.execute(params.slug, token);
 
     // Return a single flat shape (nullable prefill fields) so the generated
     // OpenAPI/TanStack Query type keeps every field; a branch-per-status return
@@ -23,9 +23,6 @@ export default class InviteLookupSchoolController {
     return response.ok({
       status: result.status,
       email: result.status === "valid" ? result.email : null,
-      organization: result.status === "valid" ? result.organization : null,
-      eventId: result.status === "valid" ? result.eventId : null,
-      eventName: result.status === "valid" ? result.eventName : null,
       orgName: result.status === "valid" ? result.orgName : null,
       orgSlug: result.status === "valid" ? result.orgSlug : null,
       brandColor: result.status === "valid" ? result.brandColor : null,

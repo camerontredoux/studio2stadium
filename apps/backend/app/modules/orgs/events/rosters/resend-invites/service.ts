@@ -12,7 +12,7 @@ import {
   sendThrottledEmails,
   type EmailSendTask,
 } from "#shared/org/throttled-email-sender";
-import { and, eq, inArray, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 import type { AuditContext } from "#database/audit";
 
@@ -92,27 +92,52 @@ export class ResendInvitesService {
       let task: EmailSendTask;
 
       if (row.type === "dancer") {
-        const token = randomToken();
-        const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14);
+        // Resolved inside the tx on first prepare, then reused across email
+        // retries so a transient send failure never re-runs the tx or changes
+        // the token that was emailed.
+        let token: string;
         task = {
           recipient: row.email,
           send: async () => {
             if (!invitePrepared) {
               await this.db.tx(async (tx) => {
-                await tx
-                  .delete(dancerInvites)
+                const [existing] = await tx
+                  .select()
+                  .from(dancerInvites)
                   .where(
                     and(
                       eq(dancerInvites.orgId, org.id),
                       eq(dancerInvites.email, row.email)
                     )
-                  );
-                await tx.insert(dancerInvites).values({
-                  orgId: org.id,
-                  email: row.email,
-                  token,
-                  expiresAt,
-                });
+                  )
+                  .limit(1);
+
+                const nowPlus14d = new Date(
+                  Date.now() + 1000 * 60 * 60 * 24 * 14
+                );
+
+                if (existing) {
+                  // Reuse the existing token so previously emailed links stay
+                  // valid; extend expiry without ever shortening it and never
+                  // reset consumedAt (an already-registered invite stays consumed).
+                  token = existing.token;
+                  const newExpiresAt =
+                    existing.expiresAt > nowPlus14d
+                      ? existing.expiresAt
+                      : nowPlus14d;
+                  await tx
+                    .update(dancerInvites)
+                    .set({ expiresAt: newExpiresAt })
+                    .where(eq(dancerInvites.id, existing.id));
+                } else {
+                  token = randomToken();
+                  await tx.insert(dancerInvites).values({
+                    orgId: org.id,
+                    email: row.email,
+                    token,
+                    expiresAt: nowPlus14d,
+                  });
+                }
               });
               invitePrepared = true;
             }
@@ -128,32 +153,41 @@ export class ResendInvitesService {
           },
         };
       } else {
-        const token = randomBytes(32).toString("hex");
-        // Coach invites must outlive far-future events, matching upload-coaches.
-        const expiresAt = schoolInviteExpiry(event?.startDate);
+        // Resolved on first prepare, then reused across email retries so a
+        // transient send failure never re-runs the upsert or changes the token.
+        let token: string;
         task = {
           recipient: row.email,
           send: async () => {
             if (!invitePrepared) {
-              await this.db.use((db) =>
+              // Coach invites must outlive far-future events, matching
+              // upload-coaches.
+              const expiresAt = schoolInviteExpiry(event?.startDate);
+              // Atomic upsert on the (eventId, email) unique index: reuse the
+              // existing token (never overwrite it), extend expiry without
+              // shortening, and never reset consumedAt. RETURNING yields the
+              // effective token — the preserved one on conflict, the fresh one
+              // on insert. Using the constraint as the conflict target avoids
+              // the SELECT-then-INSERT race a duplicate insert would expose.
+              const [invite] = await this.db.use((db) =>
                 db
                   .insert(schoolInvites)
                   .values({
                     eventId,
                     email: row.email,
                     organization: row.organization,
-                    token,
+                    token: randomBytes(32).toString("hex"),
                     expiresAt,
                   })
                   .onConflictDoUpdate({
                     target: [schoolInvites.eventId, schoolInvites.email],
                     set: {
-                      token,
-                      expiresAt,
-                      consumedAt: null,
+                      expiresAt: sql`greatest(${schoolInvites.expiresAt}, excluded.expires_at)`,
                     },
                   })
+                  .returning({ token: schoolInvites.token })
               );
+              token = invite!.token;
               invitePrepared = true;
             }
 

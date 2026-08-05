@@ -3547,6 +3547,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/events/{id}/rosters/check-in/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdRostersCheckinResetResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/events/{id}/checklist": {
         parameters: {
             query?: never;
@@ -3946,6 +3984,15 @@ export interface paths {
                 };
                 /** @description Not Found */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -5744,6 +5791,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/invites/dancer/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Look up a dancer invite by token
+         * @description Returns the invite state (valid | consumed | expired | invalid) plus prefill data (email, org name, brand color) when valid, so the dancer register page can show the right message. Always 200.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    token: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdInvitesDancerIdResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/register/school": {
         parameters: {
             query?: never;
@@ -5814,7 +5903,7 @@ export interface paths {
         };
         /**
          * Look up a school invite by token
-         * @description Returns prefill data (email, organization, event/org names, brand color) for a school account invite. Returns 410 if the invite is invalid, expired, or already consumed.
+         * @description Returns the invite state (valid | consumed | expired | invalid) plus prefill data (email, organization, event/org names, brand color) when valid, so the school register page can show the right message. Always 200.
          */
         get: {
             parameters: {
@@ -5834,15 +5923,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["OrgsInvitesSchoolIdResponse"];
-                    };
-                };
-                /** @description Unknown Response */
-                410: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -10685,6 +10765,9 @@ export interface components {
             avatar: string | null;
             username: string;
         }[];
+        OrgsIdEventsIdRostersCheckinResetResponse: {
+            reset: number;
+        };
         OrgsIdEventsIdChecklistResponse: {
             id: string;
             createdAt: string;
@@ -11136,6 +11219,15 @@ export interface components {
         OrgsIdRegisterResponse: {
             userId: string;
         };
+        OrgsIdInvitesDancerIdResponse: {
+            /** @enum {string} */
+            status: "expired" | "invalid" | "valid" | "consumed";
+            email: string | null;
+            orgName: string | null;
+            orgSlug: string | null;
+            brandColor: string | null;
+            expiresAt: string | null;
+        };
         OrgsRegisterSchoolRequest: {
             city?: string | null;
             firstName: string;
@@ -11149,14 +11241,16 @@ export interface components {
             userId: string;
         };
         OrgsInvitesSchoolIdResponse: {
-            email: string;
+            /** @enum {string} */
+            status: "expired" | "invalid" | "valid" | "consumed";
+            email: string | null;
             organization: string | null;
-            eventId: string;
-            eventName: string;
-            orgName: string;
-            orgSlug: string;
+            eventId: string | null;
+            eventName: string | null;
+            orgName: string | null;
+            orgSlug: string | null;
             brandColor: string | null;
-            expiresAt: string;
+            expiresAt: string | null;
         };
         SkillsResponse: {
             name: string;
