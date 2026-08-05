@@ -1,12 +1,20 @@
 # Cloudflare Pages header rules. Copied verbatim from public/ into the build
 # output root, which is where Pages expects this file.
 
-# Vite emits content-hashed filenames into /assets, so the bytes behind any one
-# of these URLs never change. Cache them for a year and skip revalidation.
-# Only /assets/* is safe here -- files served straight out of public/ (such as
-# background.jpg) keep stable names across deploys and must stay revalidated.
-/assets/*
-  Cache-Control: public, max-age=31536000, immutable
+# NOTE: do not add a long-lived Cache-Control rule for /assets/* here.
+#
+# Pages answers a request for a missing asset with the SPA fallback -- index.html,
+# 200, text/html -- rather than a 404, and header rules are applied to that
+# fallback response too. A `/assets/* immutable` rule therefore tells browsers and
+# the edge to store an HTML body under a .js URL and never revalidate it, which
+# turns a transient stale-chunk error into a permanent one that a reload cannot
+# clear. Verified against production: a cache MISS on a missing chunk returned
+# `content-type: text/html` alongside `max-age=31536000, immutable`.
+#
+# Caching /assets/* aggressively is only safe once missing assets stop falling
+# back to HTML, which on Pages needs a Function in front of /assets. Until then
+# the platform default (max-age=14400, must-revalidate) is what we want, because
+# it expires on its own.
 
 # index.html is the one file whose URL is stable across deploys, and it is what
 # points the app at the current chunk hashes. It must always be revalidated, or
