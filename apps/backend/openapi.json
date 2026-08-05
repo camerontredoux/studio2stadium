@@ -1729,6 +1729,48 @@
         "description": "Returns a list of all blog posts"
       }
     },
+    "/blog/posts/{postId}/attachments/{attachmentId}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "attachmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Blog"
+        ],
+        "summary": "Download a blog post attachment",
+        "description": "Streams a post's PDF attachment as a download. Addresses the file by attachment id; the underlying storage key is resolved server-side."
+      }
+    },
     "/feed": {
       "get": {
         "parameters": [
@@ -3319,6 +3361,40 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/rosters/check-in/reset": {
+      "post": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdRostersCheckinResetResponse"
                 }
               }
             }
@@ -10647,6 +10723,44 @@
               }
             ]
           },
+          "attachments": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "size": {
+                      "oneOf": [
+                        {
+                          "type": [
+                            "string",
+                            "number"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "key": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "key"
+                  ]
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "title": {
             "type": "string"
           },
@@ -11788,6 +11902,43 @@
             },
             "slug": {
               "type": "string"
+            },
+            "attachments": {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "size": {
+                        "type": "number"
+                      },
+                      "contentType": {
+                        "type": "string"
+                      },
+                      "uploadedAt": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "size",
+                      "contentType",
+                      "uploadedAt"
+                    ]
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "required": [
@@ -11796,7 +11947,8 @@
             "title",
             "description",
             "thumbnail",
-            "slug"
+            "slug",
+            "attachments"
           ]
         }
       },
@@ -13884,6 +14036,17 @@
             "username"
           ]
         }
+      },
+      "OrgsIdEventsIdRostersCheckinResetResponse": {
+        "type": "object",
+        "properties": {
+          "reset": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "reset"
+        ]
       },
       "OrgsIdEventsIdChecklistResponse": {
         "type": "array",
@@ -18970,6 +19133,19 @@
       "ImagesPresignRequest": {
         "type": "object",
         "properties": {
+          "size": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "type": {
             "type": "string",
             "enum": [

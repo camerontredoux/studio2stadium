@@ -2077,6 +2077,55 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/blog/posts/{postId}/attachments/{attachmentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download a blog post attachment
+         * @description Streams a post's PDF attachment as a download. Addresses the file by attachment id; the underlying storage key is resolved server-side.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    postId: string;
+                    attachmentId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/feed": {
         parameters: {
             query?: never;
@@ -3541,6 +3590,44 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/rosters/check-in/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdRostersCheckinResetResponse"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -10090,6 +10177,11 @@ export interface components {
         };
         AdminBlogRequest: {
             tags?: string[] | null;
+            attachments?: {
+                size?: (string | number) | null;
+                name: string;
+                key: string;
+            }[] | null;
             title: string;
             description: string;
             thumbnail: string;
@@ -10318,6 +10410,13 @@ export interface components {
             description: string;
             thumbnail: string;
             slug: string;
+            attachments: {
+                id: string;
+                name: string;
+                size: number;
+                contentType: string;
+                uploadedAt: string;
+            }[] | null;
         }[];
         FeedResponse: {
             feed: {
@@ -10685,6 +10784,9 @@ export interface components {
             avatar: string | null;
             username: string;
         }[];
+        OrgsIdEventsIdRostersCheckinResetResponse: {
+            reset: number;
+        };
         OrgsIdEventsIdChecklistResponse: {
             id: string;
             createdAt: string;
@@ -11601,6 +11703,7 @@ export interface components {
             key: string;
         };
         ImagesPresignRequest: {
+            size?: (string | number) | null;
             /** @enum {string} */
             type: "id" | "avatar" | "schedule" | "feed" | "blog";
             contentType: string;

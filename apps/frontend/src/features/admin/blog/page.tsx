@@ -26,6 +26,7 @@ export function BlogPage() {
           thumbnail: data.thumbnail,
           content: data.content,
           tags: data.tags,
+          attachments: data.attachments,
         },
       },
       {

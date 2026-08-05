@@ -183,6 +183,10 @@ type BlogGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/blog/get-posts/controller.ts').default['handle'], false>
 }
+type BlogPostsIdAttachmentsIdGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/blog/get-attachment/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/blog/get-attachment/controller.ts').default['handle'], true>
+}
 type FeedGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/feed/get-feed/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/feed/get-feed/controller.ts').default['handle'], true>
@@ -354,6 +358,10 @@ type OrgsIdEventsIdCheckinStatusGetHead = {
 type OrgsIdEventsIdCheckinPost = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/check-in/controller.ts').default['handle'], false>
+}
+type OrgsIdEventsIdRostersCheckinResetPost = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/check-in/reset/controller.ts').default['handle'], false>
 }
 type OrgsIdEventsIdRostersIdCheckinPost = {
   request: unknown
@@ -1102,6 +1110,18 @@ export interface ApiDefinition {
     };
     '$get': BlogGetHead;
     '$head': BlogGetHead;
+    'posts': {
+      ':postId': {
+        'attachments': {
+          ':attachmentId': {
+            '$url': {
+            };
+            '$get': BlogPostsIdAttachmentsIdGetHead;
+            '$head': BlogPostsIdAttachmentsIdGetHead;
+          };
+        };
+      };
+    };
   };
   'feed': {
     '$url': {
@@ -1245,6 +1265,13 @@ export interface ApiDefinition {
               };
               '$get': OrgsIdEventsIdRostersSearchdancersGetHead;
               '$head': OrgsIdEventsIdRostersSearchdancersGetHead;
+            };
+            'check-in': {
+              'reset': {
+                '$url': {
+                };
+                '$post': OrgsIdEventsIdRostersCheckinResetPost;
+              };
             };
           };
           'checklist': {

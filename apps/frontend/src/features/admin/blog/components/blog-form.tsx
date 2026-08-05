@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { blogPostSchema, type BlogPostFormData } from "../api/schemas";
+import { PdfAttachments } from "./pdf-attachments";
 import { RichTextEditor } from "./rich-text-editor";
 import { ThumbnailUpload } from "@/shared/images/components/thumbnail-upload";
 
@@ -31,6 +32,7 @@ export function BlogForm({ onSubmit, formId }: BlogFormProps) {
       thumbnail: "",
       content: "",
       tags: [],
+      attachments: [],
     },
   });
 
@@ -78,6 +80,23 @@ export function BlogForm({ onSubmit, formId }: BlogFormProps) {
             )}
           />
           <FieldError error={errors.content} />
+        </Field>
+
+        <Field invalid={!!errors.attachments}>
+          <FieldLabel>PDF attachments (optional)</FieldLabel>
+          <Controller
+            name="attachments"
+            control={control}
+            render={({ field }) => (
+              <PdfAttachments
+                value={field.value ?? []}
+                onChange={field.onChange}
+              />
+            )}
+          />
+          {/* Per-file/limit feedback is surfaced inline by PdfAttachments via
+              toasts; the array-level zod error mirrors the client cap. */}
+          <FieldError error={errors.attachments?.root} />
         </Field>
 
         <Field invalid={!!errors.tags}>
