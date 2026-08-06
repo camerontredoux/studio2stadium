@@ -4,6 +4,9 @@ export const DIVISIONS = {
   "division-ii": "Division II",
   "division-iii": "Division III",
   "naia": "NAIA",
+  "njcaa": "NJCAA",
+  "community-college": "Community College",
+  "other": "Other",
 } as const;
 
 export type DivisionCode = keyof typeof DIVISIONS;
