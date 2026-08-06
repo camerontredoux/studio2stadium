@@ -108,6 +108,9 @@ const body = JSON.stringify({ email: config.email, password: config.password });
 const headers = {
   "content-type": "application/json",
   accept: "application/json",
+  // Cloudflare 403s User-Agent-less POSTs as bots — send one, or every
+  // request dies at the edge before ever reaching the app.
+  "user-agent": "studio2stadium-loadtest/1.0",
   ...(config.mobile ? { "x-client-type": "mobile" } : {}),
 };
 // NB: no Origin header on purpose — prod CORS only allows the two app origins;
