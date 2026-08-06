@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // login-stress.mjs — sustained-concurrency load test for POST /auth/login
 //
-// Zero dependencies. Node 22+ (uses global fetch, AbortSignal.timeout).
+// Zero dependencies. Node 22+ (uses node:http/https with a fresh connection
+// per request — no keep-alive — so one client fans out across all origins).
 //
 // It holds N logins in flight at once for a fixed duration (a "soak" test):
 // every time a request finishes, another is launched immediately, so exactly
@@ -9,8 +10,8 @@
 // report with latency percentiles and a status-code breakdown.
 //
 // ─────────────────────────────────────────────────────────────────────────
-// SAFETY: the default target is PRODUCTION (a single 1 vCPU Fly box that runs
-// an argon2 verify per login and is shared with real users). Firing 200
+// SAFETY: the default target is PRODUCTION (Fly machines running an argon2
+// verify per login, shared with real users). Firing 200
 // concurrent logins at it can degrade or take down the live site. The script
 // REFUSES to hit a *.studio2stadium.com host unless you pass --yes-production.
 // Ctrl-C stops launching new requests and drains cleanly.
@@ -97,7 +98,7 @@ const transport = target.protocol === "https:" ? https : http;
 const isProd = /(^|\.)studio2stadium\.com$/.test(host);
 if (isProd && !config.yesProduction) {
   die(
-    `Target ${host} is PRODUCTION (single 1 vCPU box, argon2 per login, real users).\n` +
+    `Target ${host} is PRODUCTION (argon2 per login, shared with real users).\n` +
       "  Re-run with --yes-production once you accept it may degrade the live site.\n" +
       "  Have a plan to watch it and press Ctrl-C to abort.",
   );
@@ -108,6 +109,9 @@ const body = JSON.stringify({ email: config.email, password: config.password });
 const headers = {
   "content-type": "application/json",
   accept: "application/json",
+  // Cloudflare 403s User-Agent-less POSTs as bots — send one, or every request
+  // dies at the edge (fast non-2xx, never reaches the app) before hashing.
+  "user-agent": "studio2stadium-loadtest/1.0",
   ...(config.mobile ? { "x-client-type": "mobile" } : {}),
 };
 // NB: no Origin header on purpose — prod CORS only allows the two app origins;
