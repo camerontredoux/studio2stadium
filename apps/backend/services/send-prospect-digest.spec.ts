@@ -130,13 +130,22 @@ test.group("SendProspectDigestService", (group) => {
 
   test("sends one digest per recipient when enabled", async ({ assert }) => {
     const { school, user } = await makeSchool();
-    const dancer = await makeDancer("x");
-    await db.insert(crvSubmissions).values({
-      dancerId: dancer.id,
-      schoolId: school.id,
-      status: "pending",
-      createdAt: denver("2026-09-01T12:00:00"),
-    });
+    const early = await makeDancer("early");
+    const fresh = await makeDancer("fresh");
+    await db.insert(crvSubmissions).values([
+      {
+        dancerId: early.id,
+        schoolId: school.id,
+        status: "pending",
+        createdAt: denver("2026-06-15T12:00:00"),
+      },
+      {
+        dancerId: fresh.id,
+        schoolId: school.id,
+        status: "pending",
+        createdAt: denver("2026-09-01T12:00:00"),
+      },
+    ]);
 
     const mailer = mail.fake();
 
@@ -146,6 +155,41 @@ test.group("SendProspectDigestService", (group) => {
 
     assert.equal(result.sent, 1);
     mailer.mails.assertSent(ProspectDigestMail, (m) => m.message.hasTo(user.email));
+
+    // Pin fresh -> newSubmissions and early -> earlySubmissions: the rendered
+    // template puts "New Submissions" before "Early Submissions", so the
+    // fresh dancer must appear before the early dancer in that order.
+    const [sent] = mailer.mails.sent((m) => m.message.hasTo(user.email));
+    sent!.message.assertHtmlIncludes(
+      /New Submissions[\s\S]*Dan fresh[\s\S]*Early Submissions[\s\S]*Dan early/
+    );
+  });
+
+  test("uses the provided `now` to compute the cutoff, not the wall clock", async ({
+    assert,
+  }) => {
+    const { school } = await makeSchool();
+    const dancer = await makeDancer("mid-cycle");
+
+    await db.insert(crvSubmissions).values({
+      dancerId: dancer.id,
+      schoolId: school.id,
+      status: "pending",
+      createdAt: denver("2026-06-15T12:00:00"),
+    });
+
+    mail.fake();
+
+    // now=2026-07-15 resolves to the *previous* cycle's cutoff (2025-08-01),
+    // not the wall-clock cutoff (2026-08-01). A June 15 2026 submission is
+    // `fresh` under 2025-08-01 but would be `early` under 2026-08-01 —
+    // proving `now`, not `new Date()`, drives the cutoff.
+    const result = await new SendProspectDigestService({ enabled: true }).run({
+      dryRun: true,
+      now: denver("2026-07-15T09:00:00"),
+    });
+
+    assert.deepEqual(result.buckets, [{ schoolId: school.id, early: 0, fresh: 1 }]);
   });
 
   test("skips entirely when the kill switch is off", async ({ assert }) => {
@@ -158,7 +202,7 @@ test.group("SendProspectDigestService", (group) => {
       createdAt: denver("2026-09-01T12:00:00"),
     });
 
-    mail.fake();
+    const mailer = mail.fake();
 
     const result = await new SendProspectDigestService({ enabled: false }).run({
       now: denver("2027-01-02T09:00:00"),
@@ -166,5 +210,6 @@ test.group("SendProspectDigestService", (group) => {
 
     assert.isTrue(result.skipped);
     assert.equal(result.sent, 0);
+    mailer.mails.assertNoneSent();
   });
 });

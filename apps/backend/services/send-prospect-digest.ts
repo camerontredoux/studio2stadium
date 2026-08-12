@@ -77,7 +77,7 @@ export default class SendProspectDigestService {
 
       const dancer: DigestDancer = {
         name: `${row.firstName} ${row.lastName}`.trim(),
-        profileUrl: `${siteUrl}/dancer/${row.username}`,
+        profileUrl: `${siteUrl}/${row.username}`,
       };
 
       if (row.createdAt < cutoff) {
@@ -109,6 +109,7 @@ export default class SendProspectDigestService {
     }
 
     if (dryRun) {
+      console.log(`[ProspectDigest][dry-run]: cutoff ${cutoff.toISOString()}`);
       for (const r of recipients) {
         const b = bySchool.get(r.schoolId) ?? { early: [], fresh: [] };
         console.log(
