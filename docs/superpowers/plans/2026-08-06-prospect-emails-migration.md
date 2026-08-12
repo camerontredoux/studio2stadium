@@ -4,7 +4,7 @@
 
 **Goal:** Move the two coach-facing prospect emails off AWS Lambda + EventBridge Scheduler into the AdonisJS app's in-process cron, fixing the dead endpoint, the never-scheduled September send, and the broken early/new submission split.
 
-**Architecture:** Two jobs registered in `start/cron.ts`, each wrapped in a Postgres session-level advisory lock so only one of the two Fly machines executes a given tick. Each job's logic lives in a service under `apps/backend/services/`, invoked by both cron and a new ace command that supports `--dry-run`. Email bodies are React Email templates in `packages/emails`, sent through the existing `@adonisjs/mail` SES transport.
+**Architecture:** Two jobs registered in `start/cron.ts`, each wrapped in a `cron_job_runs` claim row so only one of the two Fly machines executes a given tick. Each job's logic lives in a service under `apps/backend/services/`, invoked by both cron and a new ace command that supports `--dry-run`. Email bodies are React Email templates in `packages/emails`, sent through the existing `@adonisjs/mail` SES transport.
 
 **Tech Stack:** AdonisJS 6, Drizzle ORM (`drizzle-orm/postgres-js`), postgres.js 3.4, `cron` v4, Luxon, React Email (`@stos/emails`), Japa, `@adonisjs/mail` v10.
 
@@ -22,6 +22,9 @@
 - Reminder subject: `Quick Reminder: Update Your Prospect Statuses`
 - Digest subject: `Your Studio 2 Stadium Recruiting Submissions`
 - Never use `rg -r` when searching — it is `--replace`, not "recursive", and silently rewrites match output.
+- `DATABASE_URL` in both `.env` and `.env.production` is Supabase's **transaction-mode pooler** (`...pooler.supabase.com:6543`, with `prepare: false` in `connection.ts`). Statements issued outside an explicit transaction are not guaranteed to land on the same server connection, so session-level advisory locks (`pg_advisory_lock` / `pg_try_advisory_lock`) cannot be used for cross-machine coordination — the unlock can miss the connection holding the lock and leak it permanently.
+- `drizzle.config.ts` does `import "dotenv/config"`, so `pnpm db:migrate` and `pnpm db:push` target **production** unless `DATABASE_URL` is overridden on the command line. Never run either without an explicit override. `pnpm db:generate` does not connect to a database and is safe.
+- The test database is `s2s_test` on localhost (`.env.test`). New tables must be applied there before their specs can pass; nothing in `tests/bootstrap.ts` migrates it automatically.
 
 ## File Structure
 
@@ -29,8 +32,9 @@
 
 | Path | Responsibility |
 |---|---|
-| `apps/backend/app/shared/cron/advisory-lock.ts` | `withAdvisoryLock` — single-machine execution guard |
-| `apps/backend/app/shared/cron/advisory-lock.spec.ts` | Lock tests |
+| `apps/backend/app/database/schema/cron.ts` | `cronJobRuns` — one row per executed tick |
+| `apps/backend/app/shared/cron/claim-run.ts` | `withCronClaim` / `cronRunKey` — single-machine execution guard |
+| `apps/backend/app/shared/cron/claim-run.spec.ts` | Claim and run-key tests |
 | `apps/backend/app/shared/prospect-emails/cutoff.ts` | `mostRecentAugustFirst` — Denver-aware cutoff |
 | `apps/backend/app/shared/prospect-emails/cutoff.spec.ts` | Cutoff tests (pure logic) |
 | `apps/backend/app/shared/prospect-emails/recipients.ts` | `findProspectEmailRecipients` — shared targeting query |
@@ -54,149 +58,259 @@
 
 | Path | Change |
 |---|---|
-| `apps/backend/app/database/connection.ts` | Export the raw `client` so the lock can reserve a connection |
+| `apps/backend/app/database/schema/index.ts` | Re-export `./cron.ts` |
 | `apps/backend/start/env.ts` | Add `CRON_EMAILS_ENABLED` |
 | `apps/backend/adonisrc.ts` | Add `services/**/*.spec.ts` to the functional suite |
 | `apps/backend/start/cron.ts` | Register both jobs |
 | `apps/backend/app/modules/users/routes.ts` | Register the unsubscribe route |
 | `packages/emails/src/index.ts` | Export both new templates |
 
-**Why a reserved connection for the lock:** a session-level advisory lock belongs to one connection. `db.execute()` goes through a pool and may unlock on a different connection than it locked, silently leaking the lock. `pg_advisory_xact_lock` inside a transaction would solve that but holds a transaction open for the entire send, doing external SES I/O inside it. `client.reserve()` (postgres.js 3.4, confirmed present) pins one connection without a transaction.
+**Why a claim row rather than an advisory lock:** `#start/cron` is preloaded on every Fly machine, so each schedule fires once per machine and every coach would get duplicate mail. The obvious guard — a Postgres advisory lock — does not work against this database. `DATABASE_URL` is Supabase's transaction-mode pooler (port 6543), where each statement outside an explicit transaction may execute on a different server connection; a session-level lock taken on one connection would be unlocked on another, leaking permanently and silently disabling the job forever. `pg_advisory_xact_lock` inside a transaction would be pooler-safe but holds a transaction open across every SES send.
+
+Instead, each machine inserts `(job, runKey)` into `cron_job_runs` under a unique constraint with `on conflict do nothing`. Exactly one insert returns a row; that machine runs the job. This is a single atomic statement, correct under any pooling mode, and leaves an audit trail of which ticks actually executed.
 
 ---
 
-### Task 1: Advisory lock helper and env kill switch
+### Task 1: Cron tick claim and env kill switch
 
 **Files:**
-- Modify: `apps/backend/app/database/connection.ts`
+- Create: `apps/backend/app/database/schema/cron.ts`
+- Modify: `apps/backend/app/database/schema/index.ts`
+- Generate: one migration under `apps/backend/app/database/drizzle/`
 - Modify: `apps/backend/start/env.ts`
-- Create: `apps/backend/app/shared/cron/advisory-lock.ts`
-- Test: `apps/backend/app/shared/cron/advisory-lock.spec.ts`
+- Create: `apps/backend/app/shared/cron/claim-run.ts`
+- Test: `apps/backend/app/shared/cron/claim-run.spec.ts`
 
 **Interfaces:**
 - Consumes: nothing.
 - Produces:
-  - `client` — the raw postgres.js client, exported from `#database/connection`
-  - `withAdvisoryLock<T>(key: number, fn: () => Promise<T>): Promise<T | null>` — returns `null` when the lock was already held
-  - `PROSPECT_REMINDER_LOCK_KEY = 4820001`, `PROSPECT_DIGEST_LOCK_KEY = 4820002`
+  - `cronJobRuns` — table exported from `#database/schema/cron`
+  - `cronRunKey(now: Date, zone?: string): string`
+  - `withCronClaim<T>(job: string, runKey: string, fn: () => Promise<T>): Promise<T | null>` — returns `null` when another machine already claimed the tick
+  - `PROSPECT_REMINDER_JOB = "prospect-reminder"`, `PROSPECT_DIGEST_JOB = "prospect-digest"`
   - `env.get("CRON_EMAILS_ENABLED")` — `boolean | undefined`
 
-- [ ] **Step 1: Write the failing test**
+- [ ] **Step 1: Add the schema**
 
-Create `apps/backend/app/shared/cron/advisory-lock.spec.ts`:
+Create `apps/backend/app/database/schema/cron.ts`. Match the style of `app/database/schema/global.ts` — `import * as pg from "drizzle-orm/pg-core"` and the shared `timestamps` helper.
+
+```ts
+import * as pg from "drizzle-orm/pg-core";
+import { timestamps } from "./helpers/columns.ts";
+
+/**
+ * One row per scheduled job tick that actually executed.
+ *
+ * `#start/cron` is preloaded on every Fly machine, so each schedule fires once
+ * per machine. Inserting `(job, runKey)` under a unique constraint elects a
+ * single winner per tick: the machine whose insert returns a row runs the job,
+ * the others get nothing back and skip.
+ *
+ * A session-level advisory lock cannot do this here — DATABASE_URL is
+ * Supabase's transaction-mode pooler, which may route each statement outside a
+ * transaction to a different server connection, so the unlock would miss the
+ * connection holding the lock and leak it permanently.
+ *
+ * Append-only, and gains roughly fourteen rows a year, so it needs no pruning.
+ */
+export const cronJobRuns = pg.pgTable(
+  "cron_job_runs",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    job: pg.text().notNull(),
+    runKey: pg.text().notNull(),
+    ...timestamps,
+  },
+  (table) => [pg.uniqueIndex().on(table.job, table.runKey)]
+);
+```
+
+Add `export * from "./cron.ts";` to `apps/backend/app/database/schema/index.ts`.
+
+- [ ] **Step 2: Generate and apply the migration**
+
+Generate the migration (this does not connect to any database):
+
+```bash
+cd apps/backend && pnpm db:generate
+```
+
+Apply it to the **test** database only. `drizzle.config.ts` does `import "dotenv/config"`, so an un-overridden `db:migrate` targets production — always pass the URL explicitly:
+
+```bash
+cd apps/backend && DATABASE_URL="$(rg -N '^DATABASE_URL=' .env.test | cut -d= -f2-)" pnpm db:migrate
+```
+
+Expected: the new migration applies. If `drizzle-kit migrate` reports the journal is out of sync with `s2s_test`, fall back to `DATABASE_URL="<test url>" pnpm db:push` — still with the explicit override, never bare.
+
+Do not apply anything to production; that happens in Task 11 via the Fly release command.
+
+- [ ] **Step 3: Write the failing test**
+
+Create `apps/backend/app/shared/cron/claim-run.spec.ts`:
 
 ```ts
 import { test } from "@japa/runner";
+import { DateTime } from "luxon";
+import { db } from "#database/connection";
+import { cronJobRuns } from "#database/schema/cron";
 import {
-  withAdvisoryLock,
-  PROSPECT_REMINDER_LOCK_KEY,
-} from "./advisory-lock.ts";
+  cronRunKey,
+  PROSPECT_DIGEST_JOB,
+  PROSPECT_REMINDER_JOB,
+  withCronClaim,
+} from "./claim-run.ts";
 
-test.group("withAdvisoryLock", () => {
+function denver(iso: string): Date {
+  return DateTime.fromISO(iso, { zone: "America/Denver" }).toJSDate();
+}
+
+test.group("cronRunKey", () => {
+  test("midnight Denver resolves to that date", async ({ assert }) => {
+    assert.equal(cronRunKey(denver("2026-09-01T00:00:00")), "2026-09-01");
+  });
+
+  test("09:00 Denver resolves to that date", async ({ assert }) => {
+    assert.equal(cronRunKey(denver("2027-01-02T09:00:00")), "2027-01-02");
+  });
+
+  test("a machine one second early derives the same key", async ({ assert }) => {
+    assert.equal(cronRunKey(denver("2026-08-31T23:59:59")), "2026-09-01");
+  });
+
+  test("a machine one second late derives the same key", async ({ assert }) => {
+    assert.equal(cronRunKey(denver("2026-09-01T00:00:01")), "2026-09-01");
+  });
+});
+
+test.group("withCronClaim", (group) => {
+  group.each.setup(async () => {
+    await db.delete(cronJobRuns).execute();
+  });
+
   test("runs the callback and returns its value", async ({ assert }) => {
-    const result = await withAdvisoryLock(PROSPECT_REMINDER_LOCK_KEY, async () => "ran");
+    const result = await withCronClaim(PROSPECT_REMINDER_JOB, "2026-09-01", async () => "ran");
     assert.equal(result, "ran");
   });
 
-  test("returns null and skips the callback when the lock is held", async ({
+  test("a second claim on the same tick returns null and skips the callback", async ({
     assert,
   }) => {
-    let innerRan = false;
+    let secondRan = false;
 
-    const outer = await withAdvisoryLock(PROSPECT_REMINDER_LOCK_KEY, async () => {
-      const inner = await withAdvisoryLock(PROSPECT_REMINDER_LOCK_KEY, async () => {
-        innerRan = true;
-        return "inner";
-      });
-      return inner;
+    await withCronClaim(PROSPECT_REMINDER_JOB, "2026-09-01", async () => "first");
+    const second = await withCronClaim(PROSPECT_REMINDER_JOB, "2026-09-01", async () => {
+      secondRan = true;
+      return "second";
     });
 
-    assert.isNull(outer);
-    assert.isFalse(innerRan);
+    assert.isNull(second);
+    assert.isFalse(secondRan);
   });
 
-  test("releases the lock when the callback throws", async ({ assert }) => {
+  test("a different run key claims independently", async ({ assert }) => {
+    await withCronClaim(PROSPECT_REMINDER_JOB, "2026-09-01", async () => "first");
+    const next = await withCronClaim(PROSPECT_REMINDER_JOB, "2026-10-01", async () => "next");
+    assert.equal(next, "next");
+  });
+
+  test("a different job with the same run key claims independently", async ({ assert }) => {
+    await withCronClaim(PROSPECT_REMINDER_JOB, "2027-01-02", async () => "reminder");
+    const digest = await withCronClaim(PROSPECT_DIGEST_JOB, "2027-01-02", async () => "digest");
+    assert.equal(digest, "digest");
+  });
+
+  test("keeps the claim when the callback throws", async ({ assert }) => {
     await assert.rejects(() =>
-      withAdvisoryLock(PROSPECT_REMINDER_LOCK_KEY, async () => {
+      withCronClaim(PROSPECT_REMINDER_JOB, "2026-09-01", async () => {
         throw new Error("boom");
       })
     );
 
-    const after = await withAdvisoryLock(PROSPECT_REMINDER_LOCK_KEY, async () => "reacquired");
-    assert.equal(after, "reacquired");
+    let retried = false;
+    const again = await withCronClaim(PROSPECT_REMINDER_JOB, "2026-09-01", async () => {
+      retried = true;
+      return "again";
+    });
+
+    assert.isNull(again);
+    assert.isFalse(retried);
   });
 });
 ```
 
-Note on the second test: the nested call reserves a *different* connection from the pool, so it genuinely contends for the lock. `pg_try_advisory_lock` is non-blocking, so the inner call returns `false` immediately rather than deadlocking. The outer call therefore returns whatever the inner returned — `null`.
+The last test pins deliberate behavior, not an oversight: the claim is committed before `fn` runs, so a machine that crashes mid-send does not hand the tick to its peer. For a mailing to every coach, a duplicate send is worse than a missed one, and a missed one is replayable through the ace command in Task 9.
 
-- [ ] **Step 2: Run test to verify it fails**
+- [ ] **Step 4: Run test to verify it fails**
 
-Run: `cd apps/backend && pnpm test --files="app/shared/cron/advisory-lock.spec.ts"`
-Expected: FAIL — cannot resolve `./advisory-lock.ts`
+Run: `cd apps/backend && pnpm test --files="app/shared/cron/claim-run.spec.ts"`
+Expected: FAIL — cannot resolve `./claim-run.ts`
 
-- [ ] **Step 3: Export the raw client**
+- [ ] **Step 5: Write the claim helper**
 
-Modify `apps/backend/app/database/connection.ts` — change the `client` line to export it:
-
-```ts
-export const client = postgres(env.get("DATABASE_URL"), { prepare: false });
-```
-
-Leave the rest of the file unchanged; `drizzle({ client, relations, casing: "snake_case" })` still refers to the same binding.
-
-- [ ] **Step 4: Write the lock helper**
-
-Create `apps/backend/app/shared/cron/advisory-lock.ts`:
+Create `apps/backend/app/shared/cron/claim-run.ts`:
 
 ```ts
-import { client } from "#database/connection";
+import { db } from "#database/connection";
+import { cronJobRuns } from "#database/schema/cron";
+import { DateTime } from "luxon";
+
+export const PROSPECT_REMINDER_JOB = "prospect-reminder";
+export const PROSPECT_DIGEST_JOB = "prospect-digest";
+
+const CRON_TZ = "America/Denver";
 
 /**
- * Distinct keys per job. Postgres advisory locks share one global namespace,
- * so these must not collide with any other advisory lock in the app.
+ * A tick identifier that every machine firing the same tick agrees on.
+ *
+ * Machine clocks drift, and the reminder fires at exactly midnight Denver — a
+ * machine a second early would otherwise derive the previous day's key, find it
+ * already claimed from last month, and skip. Rounding to the nearest Denver
+ * midnight absorbs up to twelve hours of skew.
+ *
+ * This assumes jobs using it are not scheduled near noon. Both prospect jobs
+ * fire at 00:00 and 09:00.
  */
-export const PROSPECT_REMINDER_LOCK_KEY = 4820001;
-export const PROSPECT_DIGEST_LOCK_KEY = 4820002;
+export function cronRunKey(now: Date, zone: string = CRON_TZ): string {
+  const local = DateTime.fromJSDate(now, { zone });
+
+  const nearestMidnight =
+    local.hour < 12 ? local.startOf("day") : local.startOf("day").plus({ days: 1 });
+
+  return nearestMidnight.toISODate()!;
+}
 
 /**
- * Run `fn` only if this process can take the advisory lock for `key`.
+ * Run `fn` only on the machine that claims this tick; return null on the others.
  *
- * The app runs multiple Fly machines and `#start/cron` is preloaded on each of
- * them, so without this every scheduled job fires once per machine. The first
- * machine to acquire the lock runs the job; the others return null immediately.
+ * The insert is a single atomic statement, so it is correct under the
+ * transaction-mode connection pooler that a session-level advisory lock is not.
  *
- * Uses a reserved connection rather than the pool: a session-level advisory
- * lock belongs to the connection that took it, and unlocking on a different
- * pooled connection would leak the lock permanently.
+ * The claim is committed before `fn` runs and is never rolled back on failure:
+ * a crash mid-send does not release the tick to another machine. Duplicate mail
+ * to every coach is worse than a missed send, and a missed send can be replayed
+ * with `node ace send:prospect-emails`.
  */
-export async function withAdvisoryLock<T>(
-  key: number,
+export async function withCronClaim<T>(
+  job: string,
+  runKey: string,
   fn: () => Promise<T>
 ): Promise<T | null> {
-  const reserved = await client.reserve();
+  const claimed = await db
+    .insert(cronJobRuns)
+    .values({ job, runKey })
+    .onConflictDoNothing()
+    .returning({ id: cronJobRuns.id });
 
-  try {
-    const [row] = await reserved<{ locked: boolean }[]>`
-      select pg_try_advisory_lock(${key}) as locked
-    `;
-
-    if (!row?.locked) {
-      return null;
-    }
-
-    try {
-      return await fn();
-    } finally {
-      await reserved`select pg_advisory_unlock(${key})`;
-    }
-  } finally {
-    reserved.release();
+  if (claimed.length === 0) {
+    return null;
   }
+
+  return await fn();
 }
 ```
 
-- [ ] **Step 5: Add the env kill switch**
+- [ ] **Step 6: Add the env kill switch**
 
 Modify `apps/backend/start/env.ts` — add below the `HEALTH_SECRET` line:
 
@@ -210,21 +324,21 @@ Modify `apps/backend/start/env.ts` — add below the `HEALTH_SECRET` line:
   CRON_EMAILS_ENABLED: Env.schema.boolean.optional(),
 ```
 
-- [ ] **Step 6: Run tests to verify they pass**
+- [ ] **Step 7: Run tests to verify they pass**
 
-Run: `cd apps/backend && pnpm test --files="app/shared/cron/advisory-lock.spec.ts"`
-Expected: PASS, 3 tests
+Run: `cd apps/backend && pnpm test --files="app/shared/cron/claim-run.spec.ts"`
+Expected: PASS, 9 tests
 
-- [ ] **Step 7: Typecheck**
+- [ ] **Step 8: Typecheck**
 
 Run: `cd apps/backend && pnpm typecheck`
 Expected: no errors
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
-git add apps/backend/app/shared/cron apps/backend/app/database/connection.ts apps/backend/start/env.ts
-git commit -m "feat(backend): add advisory lock helper and cron email kill switch"
+git add apps/backend/app/shared/cron apps/backend/app/database/schema/cron.ts apps/backend/app/database/schema/index.ts apps/backend/app/database/drizzle apps/backend/start/env.ts
+git commit -m "feat(backend): add cron tick claim table and email kill switch"
 ```
 
 ---
@@ -1923,7 +2037,7 @@ git commit -m "feat(backend): add send:prospect-emails ace command with dry run"
 - Modify: `apps/backend/start/cron.ts`
 
 **Interfaces:**
-- Consumes: `withAdvisoryLock`, `PROSPECT_REMINDER_LOCK_KEY`, `PROSPECT_DIGEST_LOCK_KEY` (Task 1); both services (Tasks 6, 8).
+- Consumes: `withCronClaim`, `cronRunKey`, `PROSPECT_REMINDER_JOB`, `PROSPECT_DIGEST_JOB` (Task 1); both services (Tasks 6, 8).
 - Produces: three registered `CronJob`s.
 
 The four existing jobs in this file are intentionally left unchanged.
@@ -1934,10 +2048,11 @@ Modify `apps/backend/start/cron.ts` — add to the existing import block:
 
 ```ts
 import {
-  PROSPECT_DIGEST_LOCK_KEY,
-  PROSPECT_REMINDER_LOCK_KEY,
-  withAdvisoryLock,
-} from "#shared/cron/advisory-lock";
+  cronRunKey,
+  PROSPECT_DIGEST_JOB,
+  PROSPECT_REMINDER_JOB,
+  withCronClaim,
+} from "#shared/cron/claim-run";
 import SendProspectDigestService from "../services/send-prospect-digest.ts";
 import SendProspectRemindersService from "../services/send-prospect-reminders.ts";
 ```
@@ -1965,11 +2080,13 @@ CronJob.from({
   start: true,
   onTick: async () => {
     try {
-      const ran = await withAdvisoryLock(PROSPECT_REMINDER_LOCK_KEY, () =>
-        sendProspectRemindersService.run()
+      const ran = await withCronClaim(
+        PROSPECT_REMINDER_JOB,
+        cronRunKey(new Date()),
+        () => sendProspectRemindersService.run()
       );
       if (ran === null) {
-        console.log("[ProspectReminder]: another machine holds the lock; skipping");
+        console.log("[ProspectReminder]: tick already claimed by another machine; skipping");
       }
     } catch (error) {
       console.error("[ProspectReminder]: job failed:", error);
@@ -1992,12 +2109,14 @@ for (const [label, cronTime] of [
     start: true,
     onTick: async () => {
       try {
-        const ran = await withAdvisoryLock(PROSPECT_DIGEST_LOCK_KEY, () =>
-          sendProspectDigestService.run()
+        const ran = await withCronClaim(
+          PROSPECT_DIGEST_JOB,
+          cronRunKey(new Date()),
+          () => sendProspectDigestService.run()
         );
         if (ran === null) {
           console.log(
-            `[ProspectDigest][${label}]: another machine holds the lock; skipping`
+            `[ProspectDigest][${label}]: tick already claimed by another machine; skipping`
           );
         }
       } catch (error) {
@@ -2064,6 +2183,8 @@ flyctl machines list -a studio2stadium-dev
 
 Expected: 2 machines `started`, checks passing.
 
+The `cron_job_runs` migration is applied by `fly.toml`'s `release_command = "node bin/migrate.js"`, so no manual migration step is needed. Confirm it landed — the release logs should show `[migrate] migrations applied successfully`, and the table must exist before either job can claim a tick.
+
 - [ ] **Step 2: Dry run against production data**
 
 ```bash
@@ -2097,7 +2218,13 @@ Wait for the next monthly reminder tick (1st of the month, 00:00 Denver). Check 
 flyctl logs -a studio2stadium-dev | rg "ProspectReminder"
 ```
 
-Expected: exactly one `sent N/N` line, and one `another machine holds the lock; skipping` line from the other machine. **Two `sent` lines means the lock is not working — disable `CRON_EMAILS_ENABLED` immediately and fix Task 1.**
+Expected: exactly one `sent N/N` line, and one `tick already claimed by another machine; skipping` line from the other machine. **Two `sent` lines means the claim is not working — disable `CRON_EMAILS_ENABLED` immediately and fix Task 1.**
+
+Cross-check the claim table directly — it should hold exactly one row for this tick:
+
+```sql
+select job, run_key, created_at from cron_job_runs order by created_at desc limit 5;
+```
 
 - [ ] **Step 6: Delete the AWS resources**
 
