@@ -2269,6 +2269,10 @@ flyctl ssh console -a studio2stadium-dev -C "node ace send:prospect-emails remin
 flyctl ssh console -a studio2stadium-dev -C "node ace send:prospect-emails digest --dry-run"
 ```
 
+**Expect the command to hang after printing its summary.** The AdonisJS `startApp: true` commands in this app do not exit on their own once work completes — verified against the pre-existing `sweep:blog-orphans --dry-run`, so this is app-wide teardown behavior, not specific to these jobs. Ctrl+C once the `Dry run: N recipient(s), nothing sent.` line prints. Do not read the hang as the job still working, and do not wrap these in a script that waits for exit.
+
+For scale: the dev database resolved **175 recipients** during Task 9's verification. Production will differ, but a result in that order of magnitude is expected; a count of 0 or in the thousands means something is wrong — stop and investigate before enabling.
+
 Read the recipient lists. Confirm the counts are plausible and that the digest shows non-zero counts in **both** buckets for at least some schools — if every school shows `0 new`, the cutoff logic is wrong and Task 2 needs revisiting before any real send.
 
 - [ ] **Step 3: Send one real email to yourself**
