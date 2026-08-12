@@ -10,6 +10,7 @@ const GetAccountController = () => import("./get-account/controller.ts");
 const UpdateAccountController = () => import("./update-account/controller.ts");
 const GetActivityController = () => import("./get-activity/controller.ts");
 const GetMyOrgsController = () => import("./get-my-orgs/controller.ts");
+const UnsubscribeController = () => import("./unsubscribe/controller.ts");
 
 router
   .group(() => {
@@ -62,3 +63,8 @@ router
   })
   .prefix("users")
   .openapi({ tags: ["Users"] });
+
+// Outside the .prefix("users") group — the URL is baked into already-sent
+// emails and into the List-Unsubscribe header, so it must stay at /unsubscribe.
+router.get("unsubscribe", [UnsubscribeController]);
+router.post("unsubscribe", [UnsubscribeController]);
