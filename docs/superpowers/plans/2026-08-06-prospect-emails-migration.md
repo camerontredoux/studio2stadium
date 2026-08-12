@@ -1890,7 +1890,10 @@ export default class SendProspectDigestService {
 
       const dancer: DigestDancer = {
         name: `${row.firstName} ${row.lastName}`.trim(),
-        profileUrl: `${siteUrl}/dancer/${row.username}`,
+        // Bare username — the frontend profile route is a top-level dynamic
+        // segment (`_app/(routes)/$username.tsx`), not `/dancer/:username`.
+        // Matches the existing link built at schools/show-interest/event.ts:51.
+        profileUrl: `${siteUrl}/${row.username}`,
       };
 
       if (row.createdAt < cutoff) {
