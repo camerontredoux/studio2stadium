@@ -1154,8 +1154,11 @@ export class ProspectReminderMail extends BaseMail {
 
 - [ ] **Step 4: Build the emails package and typecheck**
 
-Run: `cd packages/emails && pnpm build 2>/dev/null || true; cd ../../apps/backend && pnpm typecheck`
-Expected: no errors. If `@stos/emails` does not resolve the new export, check whether `packages/emails` has a build step in its `package.json` and run it.
+```bash
+cd packages/emails && pnpm build && cd ../../apps/backend && pnpm typecheck
+```
+
+Expected: both succeed. **The build is mandatory, not best-effort** — `packages/emails/package.json` declares `"exports": { ".": "./build/index.js" }` and builds with tsup, so the backend resolves the compiled output, not the source. A new template that is exported but not rebuilt is invisible to `@stos/emails`. Do not suppress the build's exit code or output; a failing build must stop the task, not be swallowed.
 
 - [ ] **Step 5: Commit**
 
@@ -1599,10 +1602,10 @@ export class ProspectDigestMail extends BaseMail {
 
 `siteUrl` is still used for `reviewUrl`, which is a frontend route. Only the unsubscribe link switches to `API_URL`.
 
-- [ ] **Step 4: Typecheck and commit**
+- [ ] **Step 4: Build, typecheck, and commit**
 
 ```bash
-cd apps/backend && pnpm typecheck
+cd packages/emails && pnpm build && cd ../../apps/backend && pnpm typecheck
 git add packages/emails/src/templates/ProspectSubmissionsDigestEmail.tsx packages/emails/src/index.ts apps/backend/app/shared/prospect-emails/digest-email.ts
 git commit -m "feat(emails): add prospect submissions digest template"
 ```
