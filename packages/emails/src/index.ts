@@ -94,6 +94,11 @@ export {
   type SchoolAccountInviteEmailProps,
 } from "./templates/SchoolAccountInviteEmail.js";
 
+export {
+  ProspectReminderEmail,
+  type ProspectReminderEmailProps,
+} from "./templates/ProspectReminderEmail.js";
+
 // Render utilities
 export { renderEmail, renderEmailText } from "./render.js";
 
