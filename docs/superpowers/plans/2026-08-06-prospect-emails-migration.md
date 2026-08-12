@@ -2238,11 +2238,26 @@ git commit -m "feat(backend): schedule prospect reminder and digest cron jobs"
 - Consumes: everything above.
 - Produces: a working live schedule and four deleted AWS resources.
 
-Do not begin until Tasks 1–10 are merged and deployed.
+> ⚠️ **Step 1 happens BEFORE the pull request is opened, not after Tasks 1–10 are merged.**
+>
+> `.github/workflows/deploy.yml` runs `flyctl deploy --remote-only` on the **`pull_request`** event for paths `apps/backend/**`, with **no branch filter**. There is one Fly app — `studio2stadium-dev` serves `api.studio2stadium.com` — so **opening the PR deploys this branch to production.**
+>
+> This branch makes `API_URL` a required env var. Without the secret already set, every machine crashes at `Env.create` on boot. `bin/migrate.ts` reads raw `process.env.DATABASE_URL` and never boots the Adonis app, so `release_command` *succeeds* and the failure surfaces only as machines roll — with `min_machines_running = 2` that is a live outage, not a clean aborted deploy.
 
-- [ ] **Step 1: Deploy with the kill switch off**
+- [ ] **Step 1: Set `API_URL` — before opening the PR**
 
-Deploy to Fly. Do **not** set `CRON_EMAILS_ENABLED`. Confirm both machines are healthy:
+```bash
+flyctl certs list -a studio2stadium-dev        # confirm the hostname first
+flyctl secrets set API_URL=https://api.studio2stadium.com -a studio2stadium-dev
+```
+
+`API_URL` is a required (non-optional) `Env.schema.string()`. Setting it is what makes the PR-triggered deploy survivable. It is also the host mailbox providers POST to for one-click unsubscribe — if the value is wrong, unsubscribe silently 404s exactly like the retired Lambdas did.
+
+Do **not** set `CRON_EMAILS_ENABLED` yet.
+
+- [ ] **Step 2: Open the PR and let it deploy**
+
+Confirm both machines are healthy afterward:
 
 ```bash
 flyctl machines list -a studio2stadium-dev
@@ -2252,17 +2267,9 @@ Expected: 2 machines `started`, checks passing.
 
 The `cron_job_runs` migration is applied by `fly.toml`'s `release_command = "node bin/migrate.js"`, so no manual migration step is needed. Confirm it landed — the release logs should show `[migrate] migrations applied successfully`, and the table must exist before either job can claim a tick.
 
-- [ ] **Step 1b: Set `API_URL`**
+Because the kill switch is unset, the cron jobs are registered and ticking but will refuse to send. That is the intended state until Step 5.
 
-The app will not boot without it — `API_URL` is a required (non-optional) env var, so this must be set as part of the same deploy, not after:
-
-```bash
-flyctl secrets set API_URL=https://api.studio2stadium.com -a studio2stadium-dev
-```
-
-Confirm the value matches the certificate on the app (`flyctl certs list -a studio2stadium-dev`). This is the host mailbox providers will POST to for one-click unsubscribe; if it is wrong, unsubscribe silently 404s exactly like the retired Lambdas did.
-
-- [ ] **Step 2: Dry run against production data**
+- [ ] **Step 3: Dry run against production data**
 
 ```bash
 flyctl ssh console -a studio2stadium-dev -C "node ace send:prospect-emails reminder --dry-run"
@@ -2275,15 +2282,28 @@ For scale: the dev database resolved **175 recipients** during Task 9's verifica
 
 Read the recipient lists. Confirm the counts are plausible and that the digest shows non-zero counts in **both** buckets for at least some schools — if every school shows `0 new`, the cutoff logic is wrong and Task 2 needs revisiting before any real send.
 
-- [ ] **Step 3: Send one real email to yourself**
+- [ ] **Step 4: Send one real email to yourself**
 
-Temporarily set a `notifications = true` school account you control as the only match, or send via a one-off script using `ProspectReminderMail` directly. Verify in the received message:
+Send via a one-off script constructing `ProspectReminderMail` and `ProspectDigestMail` directly, addressed to yourself.
+
+> **Do not** try to make your own account "the only match" by flipping other users' `notifications` to `false`. With ~175 live recipients that means opting out 174 real coaches, who get no notice, and whose own re-opt-in lives behind account settings they have no reason to visit. It is the single most destructive step available in this runbook.
+
+Verify in the received messages — **both emails, not just the reminder**, because the digest is the one that fires first (see Step 5):
+
+Reminder:
 - Subject is exactly `Quick Reminder: Update Your Prospect Statuses`
 - The `List-Unsubscribe` header is present and its URL returns 200
-- Clicking unsubscribe flips `users.notifications` to false
+- Clicking unsubscribe shows a confirmation page and does **not** change anything until you submit it
+- Submitting flips `users.notifications` to false
 - The CTA links to `/school/common-recruiting-videos`
 
-- [ ] **Step 4: Enable the kill switch**
+Digest:
+- Subject is exactly `Your Studio 2 Stadium Recruiting Submissions`
+- Both "New Submissions" and "Early Submissions" sections render, with the right dancers under each
+- Dancer links resolve — they are `SITE_URL/{username}`, with **no** `/dancer` segment
+- The `List-Unsubscribe` header is present
+
+- [ ] **Step 5: Enable the kill switch — know which job fires first**
 
 ```bash
 flyctl secrets set CRON_EMAILS_ENABLED=true -a studio2stadium-dev
@@ -2291,9 +2311,11 @@ flyctl secrets set CRON_EMAILS_ENABLED=true -a studio2stadium-dev
 
 This restarts the machines. Confirm both come back healthy.
 
-- [ ] **Step 5: Verify one real scheduled run**
+> **The first live send is the September 1 digest, not the reminder.** The reminder expression deliberately skips September, so its next fire is **October 1 at 00:00 Denver**, while the digest fires **September 1 at 09:00 Denver**. Enabling the switch at any point before September 1 arms an unattended digest send to every recipient — roughly seven weeks before the reminder run. Either complete Step 4's digest verification first, or hold the switch until after September 1 and let the reminder be your first observed run.
 
-Wait for the next monthly reminder tick (1st of the month, 00:00 Denver). Check logs:
+- [ ] **Step 6: Verify one real scheduled run**
+
+Watch whichever job fires first given when you enabled the switch. Check logs:
 
 ```bash
 flyctl logs -a studio2stadium-dev | rg "ProspectReminder"
@@ -2307,9 +2329,9 @@ Cross-check the claim table directly — it should hold exactly one row for this
 select job, run_key, created_at from cron_job_runs order by created_at desc limit 5;
 ```
 
-- [ ] **Step 6: Delete the AWS resources**
+- [ ] **Step 7: Delete the AWS resources**
 
-Only after step 5 confirms a clean run:
+Only after step 6 confirms a clean run:
 
 ```bash
 aws scheduler delete-schedule --name sendProspectReminder
@@ -2318,7 +2340,7 @@ aws lambda delete-function --function-name sendProspectEmailReminderMonthly
 aws lambda delete-function --function-name sendProspectStatusJanuary
 ```
 
-- [ ] **Step 7: Verify teardown**
+- [ ] **Step 8: Verify teardown**
 
 ```bash
 aws scheduler list-schedules --query "Schedules[].Name" --output text
@@ -2327,7 +2349,7 @@ aws lambda list-functions --query "Functions[?contains(FunctionName,'Prospect')]
 
 Expected: no `sendProspectReminder`, no `sendProspectStatusJanuary2nd`, no Prospect Lambdas. The school newsletter schedules (`send-weekly-report-to-schools*`) must still be present — they are out of scope and separately broken.
 
-- [ ] **Step 8: Commit the rollout note**
+- [ ] **Step 9: Commit the rollout note**
 
 Append a short "Rolled out YYYY-MM-DD" note to the spec's teardown section recording which resources were deleted, then:
 
@@ -2344,8 +2366,12 @@ Not in this plan, by decision in the spec:
 
 - `send-weekly-report-to-schools` and `send-weekly-report-to-schools-third-sundays` → `sendSchoolWeeklyNewsletter`. Same dead-shim pattern, equally broken, separate migration.
 - Duplicate-fire on the four pre-existing jobs in `start/cron.ts`. `PublishOutboxService` in particular runs every 10 seconds on both machines and can double-publish to SQS.
-- A frontend page for the unsubscribe route. It currently returns JSON.
+- A frontend page for the unsubscribe route. `GET /unsubscribe` now returns an HTML confirmation page, but the `POST` that follows it returns raw JSON into the coach's browser.
 
-## Known Risk
+## Known Risks
 
-`auto_stop_machines` is `'off'` with `min_machines_running = 2`, so ticks land. If autostop is ever enabled and the app scales to zero, a scheduled tick is missed silently with no retry — a property the retired EventBridge trigger did provide. Anyone changing `fly.toml`'s machine settings needs to know these jobs depend on a machine being awake.
+**Cron requires an awake machine.** `auto_stop_machines` is `'off'` with `min_machines_running = 2`, so ticks land. If autostop is ever enabled and the app scales to zero, a scheduled tick is missed silently with no retry — a property the retired EventBridge trigger did provide. Anyone changing `fly.toml`'s machine settings needs to know these jobs depend on a machine being awake.
+
+**A partial send is not safely replayable.** The claim row is committed before sending and is deliberately never released, so a crash at, say, 80 of 175 recipients leaves the tick claimed, the other machine skipping, and no automatic retry. The manual recovery is `node ace send:prospect-emails <job>` — but that resolves recipients fresh and **re-sends to all 175, including the 80 who already received it.** The replay is not idempotent. That is the accepted trade (a duplicate mailing is worse than a missed one, so the automatic path never retries), but whoever reaches for the ace command mid-incident needs to know the manual path makes exactly the trade the automatic path refused.
+
+**`API_URL` is a whole-backend dependency.** It is a required env var, so a deploy missing the secret fails `Env.create` and takes down the entire API, not just these emails. Deliberate — a misconfigured value would otherwise silently mail dead unsubscribe links — but the blast radius is wider than the feature. See Task 11 Step 1.
