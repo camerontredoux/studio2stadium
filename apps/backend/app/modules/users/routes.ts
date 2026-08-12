@@ -66,5 +66,10 @@ router
 
 // Outside the .prefix("users") group — the URL is baked into already-sent
 // emails and into the List-Unsubscribe header, so it must stay at /unsubscribe.
-router.get("unsubscribe", [UnsubscribeController]);
-router.post("unsubscribe", [UnsubscribeController]);
+//
+// GET renders a confirmation page and never writes to the database — mail
+// security scanners and prefetchers GET link targets with no human intent.
+// POST performs the actual opt-out: the confirmation page's form submit, or
+// a mailbox provider's RFC 8058 one-click.
+router.get("unsubscribe", [UnsubscribeController, "confirm"]);
+router.post("unsubscribe", [UnsubscribeController, "handle"]);
