@@ -993,12 +993,25 @@ router.post("unsubscribe", [UnsubscribeController]);
 
 Both routes must be unauthenticated — do not attach `middleware.auth()`. A recipient clicking unsubscribe in their mail client has no session, and mailbox providers POST without credentials.
 
-RFC 8058 one-click requires POST; GET is what a human clicking the link hits. Verify in step 10 that both verbs resolve.
+**GET must not write.** Only POST performs the update. `GET /unsubscribe?token=…` returns a small self-contained HTML confirmation page whose form POSTs back to the same URL. Corporate mail security (Outlook SafeLinks, Proofpoint URL Defense) and prefetchers fetch email link targets with no human intent; a mutating GET lets them silently opt a coach out of every future send, and because the recipient query filters on `notifications = true` there is no signal that it happened. RFC 8058 pairs `List-Unsubscribe-Post` with POST for exactly this reason. It also fixes the human-facing side effect: `start/kernel.ts` registers `force-json-response`, so a coach clicking a mutating GET would land on a raw JSON blob.
+
+The route spec in step 9b pins this: a valid-token GET must leave `notifications` unchanged.
 
 - [ ] **Step 9: Run tests to verify they pass**
 
 Run: `cd apps/backend && pnpm test --files="app/modules/users/unsubscribe/service.spec.ts"`
 Expected: PASS, 3 tests
+
+- [ ] **Step 9b: Cover the route with an HTTP spec**
+
+The route path is the one thing the retired system got silently wrong, so it needs a test, not just a manual check. `tests/bootstrap.ts` already configures `@japa/api-client` and several existing specs use `client.get(` / `client.post(` — this is house convention.
+
+Cover:
+
+- `GET /unsubscribe` with no token → 400 (proves the path resolves at top level, not under `/users`)
+- `POST /unsubscribe` with no token → 400
+- `GET /unsubscribe?token=<valid>` → 200 **and `notifications` still `true`** — the regression test for the confirm-don't-mutate rule
+- `POST /unsubscribe?token=<valid>` → 200 and `notifications` now `false`
 
 - [ ] **Step 10: Verify the route responds**
 
@@ -1021,7 +1034,7 @@ git add apps/backend/app/shared/prospect-emails/unsubscribe-token.ts apps/backen
 git commit -m "feat(backend): add signed unsubscribe token and route"
 ```
 
-`.env` and `.env.test` are gitignored; changing them is local setup, not part of the commit. Confirm `.env.example` documents `API_URL` so the next developer's app boots.
+`.env.test` **is tracked** (only `.env` is gitignored, via `.gitignore:51`), so it must be committed — `API_URL` is required, and a tracked-but-stale `.env.test` fails Env validation at boot and breaks `pnpm test` for everyone who pulls the branch. Commit the localhost value only, never a production host. `.env` stays uncommitted; `.env.example` documents `API_URL` for that path.
 
 ---
 
