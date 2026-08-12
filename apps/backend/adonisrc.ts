@@ -125,6 +125,7 @@ export default defineConfig({
           "app/shared/**/*.spec.ts",
           "app/utils/**/*.spec.ts",
           "commands/**/*.spec.ts",
+          "services/**/*.spec.ts",
         ],
         name: "functional",
         timeout: 30000,
