@@ -99,6 +99,12 @@ export {
   type ProspectReminderEmailProps,
 } from "./templates/ProspectReminderEmail.js";
 
+export {
+  ProspectSubmissionsDigestEmail,
+  type ProspectSubmissionsDigestEmailProps,
+  type DigestDancer,
+} from "./templates/ProspectSubmissionsDigestEmail.js";
+
 // Render utilities
 export { renderEmail, renderEmailText } from "./render.js";
 
