@@ -1,4 +1,4 @@
-import { defineConfig } from "@adonisjs/core/app"
+import { defineConfig } from "@adonisjs/core/app";
 
 export default defineConfig({
   /*
@@ -77,7 +77,7 @@ export default defineConfig({
     () => import("@adonisjs/cache/cache_provider"),
     () => import("@adonisjs/drive/drive_provider"),
     () => import("#payments/stripe/provider"),
-    () => import('@adonisjs/transmit/transmit_provider')
+    () => import("@adonisjs/transmit/transmit_provider"),
   ],
 
   /*
@@ -133,4 +133,4 @@ export default defineConfig({
     ],
     forceExit: false,
   },
-})
+});

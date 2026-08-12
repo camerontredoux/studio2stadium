@@ -22,7 +22,9 @@ export function mostRecentAugustFirst(now: Date): Date {
   ).startOf("day");
 
   const cutoff =
-    local < augustThisYear ? augustThisYear.minus({ years: 1 }) : augustThisYear;
+    local < augustThisYear
+      ? augustThisYear.minus({ years: 1 })
+      : augustThisYear;
 
   return cutoff.toJSDate();
 }

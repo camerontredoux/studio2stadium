@@ -32,7 +32,9 @@ export default class SendProspectEmails extends BaseCommand {
 
   async run() {
     if (this.job !== "reminder" && this.job !== "digest") {
-      this.logger.error(`Unknown job '${this.job}'. Expected 'reminder' or 'digest'.`);
+      this.logger.error(
+        `Unknown job '${this.job}'. Expected 'reminder' or 'digest'.`
+      );
       this.exitCode = 1;
       return;
     }
@@ -50,7 +52,9 @@ export default class SendProspectEmails extends BaseCommand {
     }
 
     if (result.dryRun) {
-      this.logger.info(`Dry run: ${result.recipients} recipient(s), nothing sent.`);
+      this.logger.info(
+        `Dry run: ${result.recipients} recipient(s), nothing sent.`
+      );
       return;
     }
 

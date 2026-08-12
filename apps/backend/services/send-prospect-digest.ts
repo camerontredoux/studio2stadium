@@ -38,13 +38,21 @@ export default class SendProspectDigestService {
   ): Promise<ProspectDigestResult> {
     const dryRun = opts.dryRun ?? false;
     const now = opts.now ?? new Date();
-    const enabled = this.options.enabled ?? env.get("CRON_EMAILS_ENABLED") === true;
+    const enabled =
+      this.options.enabled ?? env.get("CRON_EMAILS_ENABLED") === true;
 
     const cutoff = mostRecentAugustFirst(now);
     const recipients = await findProspectEmailRecipients();
 
     if (recipients.length === 0) {
-      return { recipients: 0, sent: 0, failed: 0, skipped: false, dryRun, buckets: [] };
+      return {
+        recipients: 0,
+        sent: 0,
+        failed: 0,
+        skipped: false,
+        dryRun,
+        buckets: [],
+      };
     }
 
     const siteUrl = env.get("SITE_URL").replace(/\/$/, "");
@@ -70,7 +78,10 @@ export default class SendProspectDigestService {
         )
       );
 
-    const bySchool = new Map<string, { early: DigestDancer[]; fresh: DigestDancer[] }>();
+    const bySchool = new Map<
+      string,
+      { early: DigestDancer[]; fresh: DigestDancer[] }
+    >();
 
     for (const row of rows) {
       const bucket = bySchool.get(row.schoolId) ?? { early: [], fresh: [] };
@@ -91,7 +102,11 @@ export default class SendProspectDigestService {
 
     const buckets: DigestBucketCount[] = recipients.map((r) => {
       const b = bySchool.get(r.schoolId) ?? { early: [], fresh: [] };
-      return { schoolId: r.schoolId, early: b.early.length, fresh: b.fresh.length };
+      return {
+        schoolId: r.schoolId,
+        early: b.early.length,
+        fresh: b.fresh.length,
+      };
     });
 
     if (!dryRun && !enabled) {
@@ -132,7 +147,10 @@ export default class SendProspectDigestService {
     // Sequential, not Promise.all: SES throttles, and one failure must not
     // abort the rest.
     for (const recipient of recipients) {
-      const bucket = bySchool.get(recipient.schoolId) ?? { early: [], fresh: [] };
+      const bucket = bySchool.get(recipient.schoolId) ?? {
+        early: [],
+        fresh: [],
+      };
 
       try {
         await mail.send(
@@ -147,7 +165,10 @@ export default class SendProspectDigestService {
         sent += 1;
       } catch (error) {
         failed += 1;
-        console.error(`[ProspectDigest]: failed to email ${recipient.email}:`, error);
+        console.error(
+          `[ProspectDigest]: failed to email ${recipient.email}:`,
+          error
+        );
       }
     }
 
@@ -155,6 +176,13 @@ export default class SendProspectDigestService {
       `[ProspectDigest]: cutoff ${cutoff.toISOString()}, sent ${sent}/${recipients.length}, ${failed} failed`
     );
 
-    return { recipients: recipients.length, sent, failed, skipped: false, dryRun, buckets };
+    return {
+      recipients: recipients.length,
+      sent,
+      failed,
+      skipped: false,
+      dryRun,
+      buckets,
+    };
   }
 }

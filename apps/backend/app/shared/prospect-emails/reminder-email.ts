@@ -1,6 +1,10 @@
 import env from "#start/env";
 import { BaseMail } from "@adonisjs/mail";
-import { ProspectReminderEmail, renderEmail, renderEmailText } from "@stos/emails";
+import {
+  ProspectReminderEmail,
+  renderEmail,
+  renderEmailText,
+} from "@stos/emails";
 import { unsubscribeUrl } from "./unsubscribe-token.ts";
 
 interface ProspectReminderMailData {

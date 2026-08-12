@@ -42,7 +42,9 @@ test.group("UnsubscribeService", (group) => {
     assert.isFalse(after!.notifications);
   });
 
-  test("returns false for a forged token and changes nothing", async ({ assert }) => {
+  test("returns false for a forged token and changes nothing", async ({
+    assert,
+  }) => {
     const user = await makeUser();
     const service = new UnsubscribeService();
 

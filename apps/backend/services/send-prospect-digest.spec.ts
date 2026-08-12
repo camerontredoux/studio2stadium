@@ -104,7 +104,9 @@ test.group("SendProspectDigestService", (group) => {
     });
 
     assert.equal(result.recipients, 1);
-    assert.deepEqual(result.buckets, [{ schoolId: school.id, early: 1, fresh: 1 }]);
+    assert.deepEqual(result.buckets, [
+      { schoolId: school.id, early: 1, fresh: 1 },
+    ]);
   });
 
   test("a January run does not put everything in early", async ({ assert }) => {
@@ -125,7 +127,9 @@ test.group("SendProspectDigestService", (group) => {
       now: denver("2027-01-02T09:00:00"),
     });
 
-    assert.deepEqual(result.buckets, [{ schoolId: school.id, early: 0, fresh: 1 }]);
+    assert.deepEqual(result.buckets, [
+      { schoolId: school.id, early: 0, fresh: 1 },
+    ]);
   });
 
   test("sends one digest per recipient when enabled", async ({ assert }) => {
@@ -154,7 +158,9 @@ test.group("SendProspectDigestService", (group) => {
     });
 
     assert.equal(result.sent, 1);
-    mailer.mails.assertSent(ProspectDigestMail, (m) => m.message.hasTo(user.email));
+    mailer.mails.assertSent(ProspectDigestMail, (m) =>
+      m.message.hasTo(user.email)
+    );
 
     // Pin fresh -> newSubmissions and early -> earlySubmissions: the rendered
     // template puts "New Submissions" before "Early Submissions", so the
@@ -189,7 +195,9 @@ test.group("SendProspectDigestService", (group) => {
       now: denver("2026-07-15T09:00:00"),
     });
 
-    assert.deepEqual(result.buckets, [{ schoolId: school.id, early: 0, fresh: 1 }]);
+    assert.deepEqual(result.buckets, [
+      { schoolId: school.id, early: 0, fresh: 1 },
+    ]);
   });
 
   test("skips entirely when the kill switch is off", async ({ assert }) => {

@@ -30,7 +30,11 @@ async function makeSchoolWithPendingSubmission() {
 
   const [school] = await db
     .insert(schoolProfiles)
-    .values({ userId: schoolUser!.id, name: `School ${handle}`, location: "CO" })
+    .values({
+      userId: schoolUser!.id,
+      name: `School ${handle}`,
+      location: "CO",
+    })
     .returning();
 
   const [dancerUser] = await db
@@ -75,7 +79,9 @@ test.group("SendProspectRemindersService", (group) => {
     await makeSchoolWithPendingSubmission();
     const mailer = mail.fake();
 
-    const result = await new SendProspectRemindersService().run({ dryRun: true });
+    const result = await new SendProspectRemindersService().run({
+      dryRun: true,
+    });
 
     assert.equal(result.recipients, 1);
     assert.equal(result.sent, 0);
@@ -95,8 +101,8 @@ test.group("SendProspectRemindersService", (group) => {
     assert.equal(result.sent, 1);
     assert.equal(result.failed, 0);
     assert.isFalse(result.skipped);
-    mailer.mails.assertSent(ProspectReminderMail, (mail) =>
-      mail.message.hasTo(schoolUser.email)
+    mailer.mails.assertSent(ProspectReminderMail, (m) =>
+      m.message.hasTo(schoolUser.email)
     );
   });
 
@@ -126,7 +132,9 @@ test.group("SendProspectRemindersService", (group) => {
       return await (original as (...a: unknown[]) => Promise<unknown>)(...args);
     }) as typeof mailer.send;
 
-    const result = await new SendProspectRemindersService({ enabled: true }).run();
+    const result = await new SendProspectRemindersService({
+      enabled: true,
+    }).run();
 
     assert.equal(result.recipients, 2);
     assert.equal(result.sent, 1);

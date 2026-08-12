@@ -22,7 +22,9 @@ export function cronRunKey(now: Date, zone: string = CRON_TZ): string {
   const local = DateTime.fromJSDate(now, { zone });
 
   const nearestMidnight =
-    local.hour < 12 ? local.startOf("day") : local.startOf("day").plus({ days: 1 });
+    local.hour < 12
+      ? local.startOf("day")
+      : local.startOf("day").plus({ days: 1 });
 
   return nearestMidnight.toISODate()!;
 }

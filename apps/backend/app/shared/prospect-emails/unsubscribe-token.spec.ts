@@ -21,12 +21,20 @@ test.group("unsubscribe tokens", () => {
     assert.isNull(verifyUnsubscribeToken("not-a-real-token"));
   });
 
-  test("rejects a token encrypted for a different purpose", async ({ assert }) => {
-    const wrongPurpose = encryption.encrypt("user-123", undefined, "some-other-purpose");
+  test("rejects a token encrypted for a different purpose", async ({
+    assert,
+  }) => {
+    const wrongPurpose = encryption.encrypt(
+      "user-123",
+      undefined,
+      "some-other-purpose"
+    );
     assert.isNull(verifyUnsubscribeToken(wrongPurpose));
   });
 
-  test("builds a url with the token in the query string", async ({ assert }) => {
+  test("builds a url with the token in the query string", async ({
+    assert,
+  }) => {
     const url = unsubscribeUrl("https://api.example.com/", "user-123");
     assert.match(url, /^https:\/\/api\.example\.com\/unsubscribe\?token=/);
     assert.notInclude(url, "user-123");

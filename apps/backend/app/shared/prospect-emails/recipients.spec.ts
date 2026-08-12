@@ -87,15 +87,19 @@ test.group("findProspectEmailRecipients", (group) => {
   test("includes a school with an in_review submission", async ({ assert }) => {
     const { school } = await makeSchool();
     const dancer = await makeDancer();
-    await db
-      .insert(crvSubmissions)
-      .values({ dancerId: dancer.id, schoolId: school.id, status: "in_review" });
+    await db.insert(crvSubmissions).values({
+      dancerId: dancer.id,
+      schoolId: school.id,
+      status: "in_review",
+    });
 
     const recipients = await findProspectEmailRecipients();
     assert.lengthOf(recipients, 1);
   });
 
-  test("excludes schools whose submissions are all resolved", async ({ assert }) => {
+  test("excludes schools whose submissions are all resolved", async ({
+    assert,
+  }) => {
     const { school } = await makeSchool();
     const accepted = await makeDancer();
     const released = await makeDancer();
@@ -108,7 +112,9 @@ test.group("findProspectEmailRecipients", (group) => {
     assert.isEmpty(recipients);
   });
 
-  test("excludes schools whose user opted out of notifications", async ({ assert }) => {
+  test("excludes schools whose user opted out of notifications", async ({
+    assert,
+  }) => {
     const { school } = await makeSchool({ notifications: false });
     const dancer = await makeDancer();
     await db
@@ -119,7 +125,9 @@ test.group("findProspectEmailRecipients", (group) => {
     assert.isEmpty(recipients);
   });
 
-  test("returns one row per school regardless of submission count", async ({ assert }) => {
+  test("returns one row per school regardless of submission count", async ({
+    assert,
+  }) => {
     const { school } = await makeSchool();
     const first = await makeDancer();
     const second = await makeDancer();

@@ -15,7 +15,9 @@ test.group("mostRecentAugustFirst", () => {
     );
   });
 
-  test("January 2 2027 run resolves back to August 1 2026", async ({ assert }) => {
+  test("January 2 2027 run resolves back to August 1 2026", async ({
+    assert,
+  }) => {
     const cutoff = mostRecentAugustFirst(denver("2027-01-02T09:00:00"));
     assert.equal(
       DateTime.fromJSDate(cutoff, { zone: PROSPECT_TZ }).toISODate(),
@@ -29,7 +31,9 @@ test.group("mostRecentAugustFirst", () => {
     assert.equal(sept.getTime(), jan.getTime());
   });
 
-  test("exactly August 1 midnight counts as the current cycle", async ({ assert }) => {
+  test("exactly August 1 midnight counts as the current cycle", async ({
+    assert,
+  }) => {
     const cutoff = mostRecentAugustFirst(denver("2026-08-01T00:00:00"));
     assert.equal(
       DateTime.fromJSDate(cutoff, { zone: PROSPECT_TZ }).toISODate(),

@@ -21,7 +21,8 @@ export default class SendProspectRemindersService {
 
   async run(opts: { dryRun?: boolean } = {}): Promise<ProspectJobResult> {
     const dryRun = opts.dryRun ?? false;
-    const enabled = this.options.enabled ?? env.get("CRON_EMAILS_ENABLED") === true;
+    const enabled =
+      this.options.enabled ?? env.get("CRON_EMAILS_ENABLED") === true;
 
     const recipients = await findProspectEmailRecipients();
 
@@ -40,7 +41,9 @@ export default class SendProspectRemindersService {
 
     if (dryRun) {
       for (const r of recipients) {
-        console.log(`[ProspectReminder][dry-run]: would email ${r.email} (${r.schoolName})`);
+        console.log(
+          `[ProspectReminder][dry-run]: would email ${r.email} (${r.schoolName})`
+        );
       }
       return {
         recipients: recipients.length,
@@ -78,6 +81,12 @@ export default class SendProspectRemindersService {
       `[ProspectReminder]: sent ${sent}/${recipients.length}, ${failed} failed`
     );
 
-    return { recipients: recipients.length, sent, failed, skipped: false, dryRun };
+    return {
+      recipients: recipients.length,
+      sent,
+      failed,
+      skipped: false,
+      dryRun,
+    };
   }
 }
