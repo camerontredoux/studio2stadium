@@ -30,6 +30,14 @@ export default await Env.create(new URL("../", import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Scheduled email jobs (default off; must be explicitly
+  | enabled in production after a verified dry run)
+  |----------------------------------------------------------
+  */
+  CRON_EMAILS_ENABLED: Env.schema.boolean.optional(),
+
+  /*
+  |----------------------------------------------------------
   | Sentry error monitoring (optional; disabled when unset)
   |----------------------------------------------------------
   */
