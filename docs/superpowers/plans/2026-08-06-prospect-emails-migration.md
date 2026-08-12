@@ -1049,7 +1049,7 @@ git commit -m "feat(backend): add signed unsubscribe token and route"
 - Consumes: `unsubscribeUrl` (Task 4).
 - Produces:
   - `ProspectReminderEmail(props: ProspectReminderEmailProps)` — `{ reviewUrl: string }`
-  - `ProspectReminderMail` — BaseMail subclass taking `{ email, userId, schoolName }`
+  - `ProspectReminderMail` — BaseMail subclass taking `{ email, userId }`. No `schoolName`: the reminder body is static, so per-school data would be dead weight. Task 6 calls it as `new ProspectReminderMail({ email, userId })`.
 
 Copy is ported from the old `ProspectEmailReminder` constant in the legacy repo at `app/src/email-templates/index.ts:1026`.
 
