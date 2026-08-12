@@ -19,6 +19,7 @@
 - `CRON_EMAILS_ENABLED` defaults to **off**. Both jobs must refuse to send when it is not `true`.
 - Both emails set `List-Unsubscribe` and `List-Unsubscribe-Post: List-Unsubscribe=One-Click`.
 - The unsubscribe token MUST NOT be a bare `users.id`. The old system used one, letting anyone unsubscribe anyone by guessing a UUID.
+- **`SITE_URL` is the frontend** (`http://localhost:5174` locally, `studio2stadium.com` in production) and is correct for the "review your prospects" CTA, which is a frontend route. It is **wrong** for the unsubscribe link: that route lives on the AdonisJS backend (`api.studio2stadium.com`), and `start/routes.ts` applies no global `/api` prefix. Unsubscribe URLs are built from a new `API_URL` env var. Pointing them at `SITE_URL` would reproduce the dead-endpoint bug that killed the original emails, and would silently break RFC 8058 one-click unsubscribe, since mailbox providers POST to that URL and would get a 404.
 - Reminder subject: `Quick Reminder: Update Your Prospect Statuses`
 - Digest subject: `Your Studio 2 Stadium Recruiting Submissions`
 - Never use `rg -r` when searching — it is `--replace`, not "recursive", and silently rewrites match output.
@@ -59,7 +60,7 @@
 | Path | Change |
 |---|---|
 | `apps/backend/app/database/schema/index.ts` | Re-export `./cron.ts` |
-| `apps/backend/start/env.ts` | Add `CRON_EMAILS_ENABLED` |
+| `apps/backend/start/env.ts` | Add `CRON_EMAILS_ENABLED` (Task 1) and `API_URL` (Task 4) |
 | `apps/backend/adonisrc.ts` | Add `services/**/*.spec.ts` to the functional suite |
 | `apps/backend/start/cron.ts` | Register both jobs |
 | `apps/backend/app/modules/users/routes.ts` | Register the unsubscribe route |
@@ -702,14 +703,17 @@ git commit -m "feat(backend): add shared prospect email recipient query"
 - Create: `apps/backend/app/modules/users/unsubscribe/controller.ts`
 - Test: `apps/backend/app/modules/users/unsubscribe/service.spec.ts`
 - Modify: `apps/backend/app/modules/users/routes.ts`
+- Modify: `apps/backend/start/env.ts` (add `API_URL`)
+- Modify: `apps/backend/.env`, `.env.test`, `.env.example` (add `API_URL`)
 
 **Interfaces:**
 - Consumes: nothing.
 - Produces:
   - `signUnsubscribeToken(userId: string): string`
   - `verifyUnsubscribeToken(token: string): string | null` — returns the userId, or `null` if forged/expired
-  - `unsubscribeUrl(siteUrl: string, userId: string): string`
+  - `unsubscribeUrl(apiUrl: string, userId: string): string`
   - `UnsubscribeService.execute(token: string): Promise<boolean>`
+  - `env.get("API_URL")` — the backend's own public base URL
 
 The token is an encrypted, signed payload produced by AdonisJS's `encryption` service (keyed on `APP_KEY`), with a purpose string so it cannot be replayed against another feature, and a 1-year expiry to outlive a recruiting cycle.
 
@@ -747,8 +751,8 @@ test.group("unsubscribe tokens", () => {
   });
 
   test("builds a url with the token in the query string", async ({ assert }) => {
-    const url = unsubscribeUrl("https://example.com/", "user-123");
-    assert.match(url, /^https:\/\/example\.com\/unsubscribe\?token=/);
+    const url = unsubscribeUrl("https://api.example.com/", "user-123");
+    assert.match(url, /^https:\/\/api\.example\.com\/unsubscribe\?token=/);
     assert.notInclude(url, "user-123");
   });
 });
@@ -791,12 +795,41 @@ export function verifyUnsubscribeToken(token: string): string | null {
   return encryption.decrypt<string>(token, PURPOSE);
 }
 
-export function unsubscribeUrl(siteUrl: string, userId: string): string {
-  const base = siteUrl.replace(/\/$/, "");
+/**
+ * Build the unsubscribe link.
+ *
+ * `apiUrl` must be the **backend's** public base URL (`API_URL`), not
+ * `SITE_URL`. The unsubscribe route is registered on this AdonisJS app, and
+ * `start/routes.ts` applies no global `/api` prefix. `SITE_URL` points at the
+ * frontend, which has no such route — sending mailbox providers there would
+ * 404 their RFC 8058 one-click POST and silently break unsubscribe, the same
+ * way the retired Lambdas silently 404'd against the apex domain.
+ */
+export function unsubscribeUrl(apiUrl: string, userId: string): string {
+  const base = apiUrl.replace(/\/$/, "");
   const token = encodeURIComponent(signUnsubscribeToken(userId));
   return `${base}/unsubscribe?token=${token}`;
 }
 ```
+
+- [ ] **Step 3b: Add the `API_URL` env var**
+
+Modify `apps/backend/start/env.ts` — add next to `SITE_URL`:
+
+```ts
+  /*
+  |----------------------------------------------------------
+  | This backend's own public base URL. SITE_URL is the
+  | frontend; links that must resolve to an API route
+  | (unsubscribe) use this instead.
+  |----------------------------------------------------------
+  */
+  API_URL: Env.schema.string(),
+```
+
+Add it to `apps/backend/.env` (`http://localhost:3333`), `.env.test` (same), and `.env.example`. Match the `PORT` value already configured for local dev — read it from `.env` rather than assuming 3333.
+
+`.env.production` is not committed and is set on Fly; Task 11 sets the secret there.
 
 - [ ] **Step 4: Run token tests to verify they pass**
 
@@ -945,17 +978,22 @@ export default class UnsubscribeController {
 
 - [ ] **Step 8: Register the route**
 
-Modify `apps/backend/app/modules/users/routes.ts`. Follow the existing structure in that file — add the controller lazy-import alongside the others and register both verbs. RFC 8058 one-click requires POST; GET is what a human clicking the link in a mail client hits.
+Modify `apps/backend/app/modules/users/routes.ts`. Add the controller lazy-import alongside the others.
+
+**The existing `router.group(...)` in this file ends with `.prefix("users")`** (verified), so registering inside it would produce `/users/unsubscribe` and not match `unsubscribeUrl()`. Register these two **outside** that group, at the top level:
 
 ```ts
 const UnsubscribeController = () => import("./unsubscribe/controller.ts");
 
-// inside the existing router.group(...)
+// Outside the .prefix("users") group — the URL is baked into already-sent
+// emails and into the List-Unsubscribe header, so it must stay at /unsubscribe.
 router.get("unsubscribe", [UnsubscribeController]);
 router.post("unsubscribe", [UnsubscribeController]);
 ```
 
-Both routes must be unauthenticated — do not attach `middleware.auth()`. Read the file first; if its group is prefixed (e.g. `/users`), register these two at the top level instead so the URL matches `unsubscribeUrl()`'s `/unsubscribe` path. If a prefix is unavoidable, update `unsubscribeUrl` in `app/shared/prospect-emails/unsubscribe-token.ts` to match and re-run its spec.
+Both routes must be unauthenticated — do not attach `middleware.auth()`. A recipient clicking unsubscribe in their mail client has no session, and mailbox providers POST without credentials.
+
+RFC 8058 one-click requires POST; GET is what a human clicking the link hits. Verify in step 10 that both verbs resolve.
 
 - [ ] **Step 9: Run tests to verify they pass**
 
@@ -967,18 +1005,23 @@ Expected: PASS, 3 tests
 Run: `cd apps/backend && pnpm dev` in one shell, then in another:
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}\n" "http://localhost:3333/unsubscribe"
+curl -s -o /dev/null -w "GET  %{http_code}\n" "http://localhost:3333/unsubscribe"
+curl -s -o /dev/null -w "POST %{http_code}\n" -X POST "http://localhost:3333/unsubscribe"
 ```
 
-Expected: `400` (missing token), not `404`. A `404` means the route did not register — fix step 8 before continuing.
+Expected: `400` from **both** (missing token), not `404`. A `404` means the route did not register at the top level — fix step 8 before continuing. Both verbs matter: GET is the human click, POST is the mailbox provider's RFC 8058 one-click.
+
+Use the app's real port from `.env` if it is not 3333.
 
 - [ ] **Step 11: Typecheck and commit**
 
 ```bash
 cd apps/backend && pnpm typecheck
-git add apps/backend/app/shared/prospect-emails/unsubscribe-token.ts apps/backend/app/shared/prospect-emails/unsubscribe-token.spec.ts apps/backend/app/modules/users/unsubscribe apps/backend/app/modules/users/routes.ts
+git add apps/backend/app/shared/prospect-emails/unsubscribe-token.ts apps/backend/app/shared/prospect-emails/unsubscribe-token.spec.ts apps/backend/app/modules/users/unsubscribe apps/backend/app/modules/users/routes.ts apps/backend/start/env.ts apps/backend/.env.example
 git commit -m "feat(backend): add signed unsubscribe token and route"
 ```
+
+`.env` and `.env.test` are gitignored; changing them is local setup, not part of the commit. Confirm `.env.example` documents `API_URL` so the next developer's app boots.
 
 ---
 
@@ -1087,7 +1130,9 @@ export class ProspectReminderMail extends BaseMail {
 
     // RFC 8058: one-click unsubscribe. Both headers are required — mailbox
     // providers ignore List-Unsubscribe-Post without List-Unsubscribe.
-    const url = unsubscribeUrl(siteUrl, this.data.userId);
+    // Built from API_URL, not SITE_URL: the route is on this backend, and
+    // providers POST to it unauthenticated.
+    const url = unsubscribeUrl(env.get("API_URL"), this.data.userId);
     this.message.header("List-Unsubscribe", `<${url}>`);
     this.message.header("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
   }
@@ -1531,12 +1576,15 @@ export class ProspectDigestMail extends BaseMail {
     this.message.html(await renderEmail(template));
     this.message.text(await renderEmailText(template));
 
-    const url = unsubscribeUrl(siteUrl, this.data.userId);
+    // API_URL, not SITE_URL — see the reminder mail class and Global Constraints.
+    const url = unsubscribeUrl(env.get("API_URL"), this.data.userId);
     this.message.header("List-Unsubscribe", `<${url}>`);
     this.message.header("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
   }
 }
 ```
+
+`siteUrl` is still used for `reviewUrl`, which is a frontend route. Only the unsubscribe link switches to `API_URL`.
 
 - [ ] **Step 4: Typecheck and commit**
 
@@ -2184,6 +2232,16 @@ flyctl machines list -a studio2stadium-dev
 Expected: 2 machines `started`, checks passing.
 
 The `cron_job_runs` migration is applied by `fly.toml`'s `release_command = "node bin/migrate.js"`, so no manual migration step is needed. Confirm it landed — the release logs should show `[migrate] migrations applied successfully`, and the table must exist before either job can claim a tick.
+
+- [ ] **Step 1b: Set `API_URL`**
+
+The app will not boot without it — `API_URL` is a required (non-optional) env var, so this must be set as part of the same deploy, not after:
+
+```bash
+flyctl secrets set API_URL=https://api.studio2stadium.com -a studio2stadium-dev
+```
+
+Confirm the value matches the certificate on the app (`flyctl certs list -a studio2stadium-dev`). This is the host mailbox providers will POST to for one-click unsubscribe; if it is wrong, unsubscribe silently 404s exactly like the retired Lambdas did.
 
 - [ ] **Step 2: Dry run against production data**
 
