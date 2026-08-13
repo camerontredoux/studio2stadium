@@ -1,3 +1,4 @@
+import { BirthdayField } from "@/components/shared/birthday-field";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,6 +23,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { useUpdateProfile } from "@/features/dancer/api/mutations";
 import { dancerQueries } from "@/features/dancer/api/queries";
+import { birthdaySchema } from "@/lib/schemas";
+import { makeBirthday } from "@/utils/birthday";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { PencilIcon } from "lucide-react";
@@ -32,6 +35,7 @@ import { z } from "zod";
 const academicSchema = z.object({
   gpa: z.coerce.number().optional(),
   gradYear: z.coerce.number().optional(),
+  birthday: birthdaySchema,
 });
 
 type AcademicFormData = z.infer<typeof academicSchema>;
@@ -46,12 +50,20 @@ export function AcademicDialog({ username }: { username: string }) {
     defaultValues: {
       gpa: data.gpa ?? undefined,
       gradYear: data.gradYear ?? undefined,
+      birthday: data.birthday
+        ? {
+            month: parseInt(data.birthday.split("-")[1]),
+            day: parseInt(data.birthday.split("-")[2]),
+            year: parseInt(data.birthday.split("-")[0]),
+          }
+        : undefined,
     },
   });
 
   const handleSubmit = (formData: AcademicFormData) => {
+    const birthday = makeBirthday(formData.birthday);
     mutate(
-      { body: formData },
+      { body: { ...formData, birthday } },
       {
         onSuccess: () => {
           toastManager.add({
@@ -78,7 +90,7 @@ export function AcademicDialog({ username }: { username: string }) {
         <DialogHeader>
           <DialogTitle>Academic Info</DialogTitle>
           <DialogDescription>
-            Update your GPA and graduation year.
+            Update your GPA, graduation year, and birth date.
           </DialogDescription>
         </DialogHeader>
         <DialogPanel>
@@ -147,6 +159,11 @@ export function AcademicDialog({ username }: { username: string }) {
                     <FieldError error={fieldState.error} />
                   </Field>
                 )}
+              />
+              <Controller
+                control={form.control}
+                name="birthday"
+                render={() => <BirthdayField name="birthday" />}
               />
             </form>
           </FormProvider>
