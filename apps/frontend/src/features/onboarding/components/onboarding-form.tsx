@@ -1,6 +1,15 @@
 import { useAnchoredErrorToast } from "@/components/hooks/use-anchored-error-toast";
 import { BirthdayField } from "@/components/shared/birthday-field";
 import LocationSelect from "@/components/shared/location-select";
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogPopup,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Frame, FramePanel } from "@/components/ui/frame";
@@ -10,8 +19,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { handleApiError } from "@/lib/api/errors";
 import { makeBirthday } from "@/utils/birthday";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
 import { PhoneIcon } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import {
   Controller,
   FormProvider,
@@ -30,6 +40,9 @@ export function OnboardingForm({ redirect }: { redirect?: string }) {
   const submitRef = useRef<HTMLButtonElement>(null);
   const errorToast = useAnchoredErrorToast(submitRef);
 
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingData, setPendingData] = useState<OnboardSchema | null>(null);
+
   const form = useForm<OnboardSchema>({
     resolver: zodResolver(schemas.onboard),
     defaultValues: {
@@ -38,13 +51,22 @@ export function OnboardingForm({ redirect }: { redirect?: string }) {
     },
   });
 
-  const onSubmit = (data: OnboardSchema) => {
-    const birthday = makeBirthday(data.birthday);
+  // Validation runs before the confirmation opens, so an invalid or missing
+  // birth date never reaches the alert.
+  const onValid = (data: OnboardSchema) => {
+    setPendingData(data);
+    setConfirmOpen(true);
+  };
+
+  const onConfirm = () => {
+    if (!pendingData) return;
+
+    const birthday = makeBirthday(pendingData.birthday);
 
     mutate(
       {
         body: {
-          ...data,
+          ...pendingData,
           platform: "core",
           birthday,
         },
@@ -60,6 +82,9 @@ export function OnboardingForm({ redirect }: { redirect?: string }) {
             errorToast.show(error.message);
           },
         }),
+        // Close the alert so field errors and the anchored toast aren't
+        // trapped behind the backdrop.
+        onSettled: () => setConfirmOpen(false),
       },
     );
   };
@@ -74,7 +99,7 @@ export function OnboardingForm({ redirect }: { redirect?: string }) {
     <FormProvider {...form}>
       <form
         className="flex flex-col gap-3"
-        onSubmit={(e) => form.handleSubmit(onSubmit, onError)(e)}
+        onSubmit={(e) => form.handleSubmit(onValid, onError)(e)}
       >
         <Frame>
           <FramePanel className="flex flex-col gap-3">
@@ -130,6 +155,56 @@ export function OnboardingForm({ redirect }: { redirect?: string }) {
           {isPending ? <Spinner label="Onboarding..." /> : "Continue"}
         </Button>
       </form>
+
+      <AlertDialog
+        open={confirmOpen}
+        // Can't be dismissed mid-request.
+        onOpenChange={(open) => {
+          if (isPending) return;
+          setConfirmOpen(open);
+        }}
+      >
+        <AlertDialogPopup>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Is this the dancer's birth date?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingData ? (
+                <>
+                  You entered{" "}
+                  <span className="text-foreground font-medium">
+                    {format(
+                      new Date(
+                        pendingData.birthday.year,
+                        pendingData.birthday.month - 1,
+                        pendingData.birthday.day,
+                      ),
+                      "MMMM d, yyyy",
+                    )}
+                  </span>
+                  . Make sure this is the dancer's birth date — not a parent's
+                  or guardian's.
+                </>
+              ) : null}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose
+              render={<Button variant="ghost" disabled={isPending} />}
+            >
+              Go back
+            </AlertDialogClose>
+            <Button onClick={onConfirm} disabled={isPending}>
+              {isPending ? (
+                <Spinner label="Submitting..." />
+              ) : (
+                "Yes, that's correct"
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogPopup>
+      </AlertDialog>
     </FormProvider>
   );
 }
