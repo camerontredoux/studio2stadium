@@ -60,7 +60,7 @@ export function DancerSidebar() {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
-  const { data: dancerCallbacks } = useQuery({
+  useQuery({
     ...scoutingQueries.dancerCallbacks(orgSlug),
     enabled: hasFeature("callbacks"),
   });
@@ -74,14 +74,11 @@ export function DancerSidebar() {
     },
   );
 
-  const hasCallbacks =
-    Array.isArray(dancerCallbacks) && dancerCallbacks.length > 0;
-
   const navSections: {
     title: string;
     items: { label: string; icon: any; to: string }[];
   }[] = [
-    ...(hasCallbacks
+    ...(hasFeature("callbacks")
       ? [
           {
             title: "Event",
