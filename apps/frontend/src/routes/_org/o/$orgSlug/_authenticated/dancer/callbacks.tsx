@@ -37,12 +37,9 @@ export const Route = createFileRoute(
     if (!eventId) {
       throw redirect({ to: "/o/$orgSlug/dancer", params });
     }
-    const data = await context.queryClient.ensureQueryData(
+    await context.queryClient.ensureQueryData(
       scoutingQueries.dancerCallbacks(params.orgSlug, eventId),
     );
-    if (!data || (Array.isArray(data) && data.length === 0)) {
-      throw redirect({ to: "/o/$orgSlug/dancer", params });
-    }
   },
   component: DancerCallbacksPage,
 });
@@ -85,8 +82,17 @@ function DancerCallbacksPage() {
           <MegaphoneIcon className="text-muted-foreground size-4 opacity-40" />
         </div>
 
-        <div className="divide-border divide-y">
-          {schools.map((cb) => (
+        {schools.length === 0 ? (
+          <div className="text-muted-foreground flex flex-col items-center justify-center gap-2 py-24">
+            <MegaphoneIcon className="size-8 opacity-40" />
+            <p className="text-sm">No callbacks yet</p>
+            <p className="text-xs opacity-60">
+              Schools that call you back will appear here.
+            </p>
+          </div>
+        ) : (
+          <div className="divide-border divide-y">
+            {schools.map((cb) => (
             <Link
               key={cb.coachRosterId}
               to="/o/$orgSlug/dancer/schools"
@@ -106,8 +112,9 @@ function DancerCallbacksPage() {
                 </p>
               </div>
             </Link>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
