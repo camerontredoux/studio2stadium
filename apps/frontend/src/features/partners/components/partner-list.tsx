@@ -9,7 +9,8 @@ import dicLogo from "@/assets/partner-logos/dic.jpg";
 import dtuLogo from "@/assets/partner-logos/dtu.jpg";
 import ndcaLogo from "@/assets/partner-logos/ndca.jpg";
 import vaultLogo from "@/assets/partner-logos/thevault.png";
-import velocityLogo from "@/assets/partner-logos/velocity.jpg";
+import velocityLogo from "@/assets/partner-logos/velocity.png";
+import ceventLogo from "@/assets/partner-logos/c-event.png";
 
 const partners: Partner[] = [
   {
@@ -68,7 +69,7 @@ const partners: Partner[] = [
       "National touring dance convention producing 20+ events annually with classes and competitions across the US.",
     logo: velocityLogo,
     longDescription:
-      "Velocity Dance Convention is a National Touring Dance Convention & Competition that produces over 20 events per season across the US. Dancers from all over the country take class from our industry leading choreographers and compete for awards and scholarships.",
+      "Velocity Dance Convention is a nationally touring dance convention and competition focused on providing dancers with exceptional education, performance opportunities, scholarships, and meaningful experiences throughout the year. In partnership with Studio2Stadium, Velocity hosts a Collegiate Dance Team Night at Season Finale, giving dancers the opportunity to connect with collegiate dance programs, meet current team members and coaches, and gain a closer look at the collegiate dance team experience.",
     website: "https://www.velocitydanceconvention.com/",
   },
   {
@@ -100,6 +101,15 @@ const partners: Partner[] = [
     longDescription:
       "Elevate Your Presence from the Studio to the Sidelines. You’ve mastered the technique and perfected the performance, now it’s time to master your visual impact. In the high-stakes world of collegiate and professional dance auditions, the right look doesn’t just boost your confidence; it ensures you aren’t overlooked in a sea of talent. The Aesthetic Edit offers specialized Color Analysis designed specifically for dancers transitioning to the next level. We identify the precise palette that makes your skin glow, your eyes pop, and your energy radiate under stadium lights. S2S discount offering: The Offer Dancers coming from Studio2Stadium can use code STUDIO2STADIUM for 20% off my services: Virtual Experience: $100, In-Person Experience (San Diego/Scottsdale): $200",
     website: "https://theaesthetic-edit.com/service-2-color-analysis",
+  },
+  {
+    id: "c-event-pics",
+    name: "C Event Pics",
+    description: "C Event Pics provides professional photography for dance competitions, conventions, live events and dance studios, capturing everything from performances on stage to the energy and moments happening throughout the weekend. Their team focuses on creating polished, high-quality images that showcase dancers, studios, and events while preserving the memories that make each experience special.",
+    logo: ceventLogo,
+    longDescription:
+      "C Event Pics provides professional photography for dance competitions, conventions, live events and dance studios, capturing everything from performances on stage to the energy and moments happening throughout the weekend. Their team focuses on creating polished, high-quality images that showcase dancers, studios, and events while preserving the memories that make each experience special.",
+    website: "https://www.ceventpics.com/",
   }
 ];
 
