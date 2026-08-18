@@ -3,6 +3,10 @@ import { OrgAuthLayout } from "@/features/org/components/org-auth-layout";
 import { OrgLoginForm } from "@/features/org/components/org-login-form";
 import { orgQueries } from "@/features/org/api/queries";
 import { isReservedOrgSlug } from "@/features/org/lib/reserved-slugs";
+import {
+  resolveOrgDestination,
+  type OrgAccess,
+} from "@/features/org/lib/org-destination";
 import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 
@@ -31,19 +35,11 @@ function OrgLoginPage() {
       <OrgLoginForm
         onSuccess={async () => {
           queryClient.clear();
-          const org = await queryClient.fetchQuery(orgQueries.org(orgSlug));
-          const membership = (org as { membership?: { role: string; type: string } | null }).membership;
+          const org = (await queryClient.fetchQuery(
+            orgQueries.org(orgSlug),
+          )) as OrgAccess;
 
-          let destination: string;
-          if (redirect) {
-            destination = redirect;
-          } else if (membership?.role === "admin") {
-            destination = `/o/${orgSlug}/admin`;
-          } else if (membership?.type === "coach") {
-            destination = `/o/${orgSlug}/coach`;
-          } else {
-            destination = `/o/${orgSlug}/dancer`;
-          }
+          const destination = redirect ?? resolveOrgDestination(orgSlug, org);
 
           navigate({ to: destination, replace: true });
         }}

@@ -9,6 +9,11 @@ import { DancerSidebar } from "@/features/org/components/dancer-sidebar";
 import { PreviewModeBanner } from "@/features/org/components/preview-mode-banner";
 import { orgQueries } from "@/features/org/api/queries";
 import { queries } from "@/lib/session";
+import {
+  ORG_AREA_ROUTES,
+  resolveOrgArea,
+  type OrgAccess,
+} from "@/features/org/lib/org-destination";
 
 export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/dancer")({
   beforeLoad: async ({ context, params }) => {
@@ -22,21 +27,11 @@ export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/dancer")({
     ) ??
       (await context.queryClient.ensureQueryData(
         orgQueries.org(params.orgSlug),
-      ))) as {
-      membership?: { role: string; type: string } | null;
-      myRosters?: Array<{ id: string; type: string }>;
-    } | null;
-    const role = data?.membership?.role;
-    const type = data?.membership?.type;
-    if (role !== "admin" && role !== "owner" && type !== "dancer") {
-      throw redirect({ to: "/" });
-    }
-    const hasDancerRoster = data?.myRosters?.some(
-      (roster) => roster.type === "dancer",
-    );
-    if (role !== "admin" && !hasDancerRoster) {
+      ))) as OrgAccess | null;
+    const area = resolveOrgArea(data);
+    if (area !== "dancer") {
       throw redirect({
-        to: "/o/$orgSlug/no-access",
+        to: ORG_AREA_ROUTES[area],
         params: { orgSlug: params.orgSlug },
       });
     }
