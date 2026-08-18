@@ -15,6 +15,11 @@ import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import { AdminCommandsProvider } from "@/features/org/hooks/use-admin-commands";
 import { orgQueries } from "@/features/org/api/queries";
 import { queries } from "@/lib/session";
+import {
+  ORG_AREA_ROUTES,
+  resolveOrgArea,
+  type OrgAccess,
+} from "@/features/org/lib/org-destination";
 
 export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/admin")({
   beforeLoad: async ({ context, params }) => {
@@ -25,10 +30,13 @@ export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/admin")({
 
     const data = (await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
-    )) as { membership?: { role: string; type: string } | null } | null;
-    const role = data?.membership?.role;
-    if (role !== "admin") {
-      throw redirect({ to: "/" });
+    )) as OrgAccess | null;
+    const area = resolveOrgArea(data);
+    if (area !== "admin") {
+      throw redirect({
+        to: ORG_AREA_ROUTES[area],
+        params: { orgSlug: params.orgSlug },
+      });
     }
   },
   component: AdminLayout,

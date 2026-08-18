@@ -9,6 +9,11 @@ import { CoachSidebar } from "@/features/org/components/coach-sidebar";
 import { PreviewModeBanner } from "@/features/org/components/preview-mode-banner";
 import { orgQueries } from "@/features/org/api/queries";
 import { queries } from "@/lib/session";
+import {
+  ORG_AREA_ROUTES,
+  resolveOrgArea,
+  type OrgAccess,
+} from "@/features/org/lib/org-destination";
 
 export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/coach")({
   beforeLoad: async ({ context, params }) => {
@@ -22,18 +27,11 @@ export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/coach")({
     ) ??
       (await context.queryClient.ensureQueryData(
         orgQueries.org(params.orgSlug),
-      ))) as {
-      membership?: { role: string; type: string } | null;
-      myRoster?: { id: string } | null;
-    } | null;
-    const role = data?.membership?.role;
-    const type = data?.membership?.type;
-    if (role !== "admin" && type !== "coach") {
-      throw redirect({ to: "/" });
-    }
-    if (role !== "admin" && !data?.myRoster) {
+      ))) as OrgAccess | null;
+    const area = resolveOrgArea(data);
+    if (area !== "coach") {
       throw redirect({
-        to: "/o/$orgSlug/no-access",
+        to: ORG_AREA_ROUTES[area],
         params: { orgSlug: params.orgSlug },
       });
     }
