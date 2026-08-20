@@ -890,7 +890,7 @@ export interface paths {
                 query?: {
                     limit?: (string | number) | null;
                     page?: (string | number) | null;
-                    sortBy?: ("location" | "email" | "username" | "firstName" | "lastName" | "verified" | "createdAt" | "gpa" | "gradYear") | null;
+                    sortBy?: ("location" | "email" | "createdAt" | "username" | "firstName" | "lastName" | "verified" | "gpa" | "gradYear") | null;
                     sortDirection?: ("asc" | "desc") | null;
                 };
                 header?: never;
@@ -3018,7 +3018,7 @@ export interface paths {
                     org?: string | null;
                     limit?: (string | number) | null;
                     page?: (string | number) | null;
-                    sortBy?: ("email" | "firstName" | "lastName" | "createdAt" | "organization" | "bibNumber" | "checkedInAt" | "isRegistered") | null;
+                    sortBy?: ("email" | "createdAt" | "firstName" | "lastName" | "organization" | "bibNumber" | "checkedInAt" | "isRegistered") | null;
                     sortDir?: ("asc" | "desc") | null;
                     type: components["schemas"]["UploadKind"];
                 };
@@ -5494,6 +5494,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/admin/dancers/{dancerRosterId}/callbacks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    dancerRosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdAdminDancersIdCallbacksResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/showcases": {
         parameters: {
             query?: never;
@@ -5569,6 +5607,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/showcases/publish-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdShowcasesPublishpreviewResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/showcases/publish": {
         parameters: {
             query?: never;
@@ -5587,7 +5662,11 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdShowcasesPublishRequest"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -5600,6 +5679,15 @@ export interface paths {
                 };
                 /** @description Unknown Response */
                 409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -9809,6 +9897,76 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/unsubscribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UnsubscribeResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/videos/{id}": {
         parameters: {
             query?: never;
@@ -10024,6 +10182,7 @@ export interface components {
             /** @enum {string} */
             status: "accepted" | "rejected" | "pending";
             notes: string | null;
+            createdAt: string;
             school: {
                 id: string;
                 user: {
@@ -10038,7 +10197,6 @@ export interface components {
                 name: string;
                 location: string;
             };
-            createdAt: string;
             thumbnail: string | null;
         }[];
         AdminApplicationsIdStatusRequest: {
@@ -10308,10 +10466,10 @@ export interface components {
                 username: string;
                 avatar: string | null;
             } | null;
+            createdAt: string;
             /** @enum {string} */
             role: "admin" | "member";
             type: components["schemas"]["UploadKind"];
-            createdAt: string;
         }[];
         AdminOrgsIdMembersRequest: {
             email: string;
@@ -10325,11 +10483,11 @@ export interface components {
         };
         AdminOrgsIdMembersIdResponse: {
             id: string;
+            createdAt: string;
+            updatedAt: string;
             /** @enum {string} */
             role: "admin" | "member";
             type: components["schemas"]["UploadKind"];
-            createdAt: string;
-            updatedAt: string;
             userId: string;
             orgId: string;
         };
@@ -10352,8 +10510,8 @@ export interface components {
             mediaId?: string | null;
         };
         AuthSignupRequest: {
-            phone?: string | null;
             name?: string | null;
+            phone?: string | null;
             location?: string | null;
             city?: string | null;
             email: string;
@@ -10520,8 +10678,8 @@ export interface components {
             data: {
                 link: string | null;
                 id: string;
-                type: string;
                 createdAt: string;
+                type: string;
                 metadata?: Record<string, never>;
                 actor: {
                     name: string;
@@ -10701,10 +10859,10 @@ export interface components {
             data: {
                 id: string;
                 email: string;
+                createdAt: string;
                 type: components["schemas"]["UploadKind"];
                 firstName: string;
                 lastName: string;
-                createdAt: string;
                 profile: {
                     studio: string | null;
                     gpa: number | null;
@@ -10747,10 +10905,10 @@ export interface components {
         OrgsIdEventsIdRostersIdResponse: {
             id: string;
             email: string;
+            createdAt: string;
             type: components["schemas"]["UploadKind"];
             firstName: string;
             lastName: string;
-            createdAt: string;
             profile: {
                 studio: string | null;
                 gpa: number | null;
@@ -10780,10 +10938,10 @@ export interface components {
         OrgsIdEventsIdRostersIdAttachResponse: {
             id: string;
             email: string;
+            createdAt: string;
             type: components["schemas"]["UploadKind"];
             firstName: string;
             lastName: string;
-            createdAt: string;
             organization: string | null;
             eventId: string;
             bibNumber: number | null;
@@ -10792,11 +10950,11 @@ export interface components {
         OrgsIdEventsIdRostersIdCheckinResponse: {
             id: string;
             email: string;
+            createdAt: string;
+            updatedAt: string;
             type: components["schemas"]["UploadKind"];
             firstName: string;
             lastName: string;
-            createdAt: string;
-            updatedAt: string;
             userId: string | null;
             organization: string | null;
             eventId: string;
@@ -11061,11 +11219,11 @@ export interface components {
         OrgsIdEventsViewasResponse: {
             id: string;
             email: string;
+            createdAt: string;
+            updatedAt: string;
             type: components["schemas"]["UploadKind"];
             firstName: string;
             lastName: string;
-            createdAt: string;
-            updatedAt: string;
             userId: string | null;
             organization: string | null;
             eventId: string;
@@ -11233,6 +11391,17 @@ export interface components {
             }[];
             uniqueCallbacks: number;
         };
+        OrgsIdAdminDancersIdCallbacksResponse: {
+            createdAt: string;
+            firstName: string;
+            lastName: string;
+            organization: string | null;
+            coachRosterId: string;
+            showcaseId: string;
+            showcaseNumber: number;
+            showcaseStatus: string;
+            isPublished: boolean;
+        }[];
         OrgsIdShowcasesResponse: {
             number: number;
             id: string;
@@ -11248,7 +11417,28 @@ export interface components {
             lastName: string;
             coachCount: number;
         }[];
+        OrgsIdShowcasesPublishpreviewResponse: {
+            coaches: {
+                coachRosterId: string;
+                firstName: string;
+                lastName: string;
+                organization: string | null;
+                total: number;
+                willPublish: number;
+                willDrop: number;
+            }[];
+            maxCallbacks: number;
+            totalCallbacks: number;
+            totalWillPublish: number;
+            totalWillDrop: number;
+            coachesOverCap: number;
+        };
+        OrgsIdShowcasesPublishRequest: {
+            publishAll?: (string | number | boolean) | null;
+        };
         OrgsIdShowcasesPublishResponse: {
+            publishedCount: number;
+            totalCallbacks: number;
             message: string;
         };
         OrgsIdShowcasesNextResponse: {
@@ -11260,11 +11450,16 @@ export interface components {
             publishedAt: string | null;
         };
         OrgsIdDancerCallbacksResponse: {
-            coachRosterId: string;
-            firstName: string;
-            lastName: string;
-            organization: string | null;
-        }[];
+            publishedShowcaseCount: number;
+            callbacks: {
+                firstName: string;
+                lastName: string;
+                organization: string | null;
+                coachRosterId: string;
+                firstShowcaseNumber: number;
+                showcaseNumbers: number[];
+            }[];
+        };
         OrgsIdSettingsRequest: {
             defaultTimezone?: string | null;
         };
@@ -11291,10 +11486,10 @@ export interface components {
         };
         OrgsRegisterSchoolRequest: {
             city?: string | null;
+            name: string;
             firstName: string;
             lastName: string;
             password: string;
-            name: string;
             location: string;
             token: string;
         };
@@ -11368,10 +11563,10 @@ export interface components {
         DancersResponse: {
             dancers: {
                 id: string;
-                username: string;
-                avatar: string | null;
                 createdAt: string;
                 name: string;
+                username: string;
+                avatar: string | null;
                 birthday: string;
                 location: string;
                 gpa: number | null;
@@ -11462,6 +11657,7 @@ export interface components {
             id: string;
             /** @enum {string} */
             status: "accepted" | "pending" | "released" | "in_review";
+            updatedAt: string;
             school: {
                 avatar: string | null;
                 username: string;
@@ -11469,7 +11665,6 @@ export interface components {
                 name: string;
                 location: string;
             };
-            updatedAt: string;
             watched: boolean;
             watchedAt: string | null;
         }[];
@@ -11530,10 +11725,10 @@ export interface components {
             }[];
             videos: {
                 id: string;
-                /** @enum {string} */
-                type: "youtube" | "cloudflare";
                 createdAt: string;
                 updatedAt: string;
+                /** @enum {string} */
+                type: "youtube" | "cloudflare";
                 userId: string;
                 thumbnail: string | null;
                 mediaId: string;
@@ -11620,10 +11815,10 @@ export interface components {
         EventsResponse: {
             events: {
                 id: string;
-                /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 date: string;
                 time: string;
+                /** @enum {string} */
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 location: string;
                 title: string;
                 organizer: {
@@ -11662,10 +11857,10 @@ export interface components {
         }[];
         EventsUpcomingResponse: {
             id: string;
-            /** @enum {string} */
-            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             date: string;
             time: string;
+            /** @enum {string} */
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             location: string;
             title: string;
             organizer: {
@@ -11703,10 +11898,10 @@ export interface components {
         }[];
         EventsIdResponse: {
             id: string;
-            /** @enum {string} */
-            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             createdAt: string;
             updatedAt: string;
+            /** @enum {string} */
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             location: string;
             website: string | null;
             schoolId: string;
@@ -11767,10 +11962,10 @@ export interface components {
         };
         SchoolsResponse: {
             id: string;
-            username: string;
-            avatar: string | null;
             createdAt: string;
             name: string;
+            username: string;
+            avatar: string | null;
             location: string;
             gpa: number | null;
             division: string | null;
@@ -11806,9 +12001,9 @@ export interface components {
                     rarityBonus: number;
                 }[];
             };
+            name: string;
             username: string;
             avatar: string | null;
-            name: string;
             location: string;
             gpa: number | null;
             about: string | null;
@@ -11862,10 +12057,10 @@ export interface components {
         SchoolsMeFollowingIdsResponse: string[];
         SchoolsMeFavoritesResponse: {
             id: string;
-            username: string;
-            avatar: string | null;
             createdAt: string;
             name: string;
+            username: string;
+            avatar: string | null;
             /** @enum {string} */
             platformName: "core" | "prodigy";
             comment: string | null;
@@ -11902,6 +12097,8 @@ export interface components {
             id: string;
             /** @enum {string} */
             status: "accepted" | "pending" | "released" | "in_review";
+            createdAt: string;
+            updatedAt: string;
             dancer: {
                 id: string;
                 username: string;
@@ -11910,8 +12107,6 @@ export interface components {
                 gradYear: number | null;
                 location: string;
             };
-            createdAt: string;
-            updatedAt: string;
             watched: boolean;
             watchedAt: string | null;
             youtubeId: string | null;
@@ -11928,12 +12123,12 @@ export interface components {
         };
         SchoolsIdResponse: {
             id: string;
-            username: string;
-            displayEmail: string;
-            avatar: string | null;
             createdAt: string;
             updatedAt: string;
             name: string;
+            username: string;
+            displayEmail: string;
+            avatar: string | null;
             userId: string;
             location: string;
             instagram: string | null;
@@ -11957,10 +12152,10 @@ export interface components {
             size: number | null;
             videos: {
                 id: string;
-                /** @enum {string} */
-                type: "youtube" | "cloudflare";
                 createdAt: string;
                 updatedAt: string;
+                /** @enum {string} */
+                type: "youtube" | "cloudflare";
                 userId: string;
                 thumbnail: string | null;
                 mediaId: string;
@@ -11992,10 +12187,10 @@ export interface components {
             }[];
             events: {
                 id: string;
-                /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 createdAt: string;
                 updatedAt: string;
+                /** @enum {string} */
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 location: string;
                 website: string | null;
                 schoolId: string;
@@ -12009,10 +12204,10 @@ export interface components {
             }[];
             globalEvents: {
                 id: string;
-                /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 createdAt: string;
                 updatedAt: string;
+                /** @enum {string} */
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 location: string;
                 website: string;
                 title: string;
@@ -12064,9 +12259,9 @@ export interface components {
         };
         UsersMeOrgsResponse: {
             id: string;
+            name: string;
             role: ("admin" | "member") | null;
             type: components["schemas"]["UploadKind"];
-            name: string;
             slug: string;
             logoUrl: string | null;
             primaryColor: string | null;
@@ -12076,6 +12271,9 @@ export interface components {
             images: number;
             following: number;
             followers: number;
+        };
+        UnsubscribeResponse: {
+            message: string;
         };
         VideosYoutubeRequest: {
             caption?: string | null;

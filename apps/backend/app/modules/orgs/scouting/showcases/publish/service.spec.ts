@@ -179,6 +179,87 @@ test.group("PublishShowcaseService", (group) => {
     assert.lengthOf(published, 2);
   });
 
+  test("preview reports which coaches are over the cap", async ({ assert }) => {
+    const { event, showcase } = await setup();
+    const overCap = await addCoach(event.id, "Over");
+    const underCap = await addCoach(event.id, "Under");
+
+    const dancers = [];
+    for (let i = 1; i <= 7; i++) {
+      dancers.push(await addDancer(event.id, i, `D${i}`));
+    }
+
+    for (const d of dancers) {
+      await db.insert(eventCallbacks).values({
+        eventId: event.id,
+        showcaseId: showcase.id,
+        coachRosterId: overCap.id,
+        dancerRosterId: d.id,
+      });
+    }
+    await db.insert(eventCallbacks).values({
+      eventId: event.id,
+      showcaseId: showcase.id,
+      coachRosterId: underCap.id,
+      dancerRosterId: dancers[0]!.id,
+    });
+
+    const svc = new PublishShowcaseService();
+    const preview = await svc.preview(event.id, showcase.id, 5);
+
+    assert.equal(preview.totalCallbacks, 8);
+    assert.equal(preview.totalWillPublish, 6);
+    assert.equal(preview.totalWillDrop, 2);
+    assert.equal(preview.coachesOverCap, 1);
+
+    const over = preview.coaches.find((c) => c.coachRosterId === overCap.id);
+    assert.equal(over!.total, 7);
+    assert.equal(over!.willPublish, 5);
+    assert.equal(over!.willDrop, 2);
+
+    const under = preview.coaches.find((c) => c.coachRosterId === underCap.id);
+    assert.equal(under!.willDrop, 0);
+
+    // Preview must not write anything.
+    const published = await db
+      .select()
+      .from(publishedCallbacks)
+      .where(eq(publishedCallbacks.showcaseId, showcase.id));
+    assert.lengthOf(published, 0);
+  });
+
+  test("maxCallbacks of -1 publishes every callback a coach made", async ({
+    assert,
+  }) => {
+    const { event, showcase } = await setup();
+    const coach = await addCoach(event.id, "All");
+
+    const dancers = [];
+    for (let i = 1; i <= 7; i++) {
+      dancers.push(await addDancer(event.id, i, `D${i}`));
+    }
+
+    for (const d of dancers) {
+      await db.insert(eventCallbacks).values({
+        eventId: event.id,
+        showcaseId: showcase.id,
+        coachRosterId: coach.id,
+        dancerRosterId: d.id,
+      });
+    }
+
+    const svc = new PublishShowcaseService();
+    const result = await svc.execute(event.id, showcase.id, -1);
+
+    assert.equal(result.publishedCount, 7);
+
+    const published = await db
+      .select()
+      .from(publishedCallbacks)
+      .where(eq(publishedCallbacks.showcaseId, showcase.id));
+    assert.lengthOf(published, 7);
+  });
+
   test("rejects publish if showcase is not active", async ({ assert }) => {
     const { event, showcase } = await setup();
     await db
