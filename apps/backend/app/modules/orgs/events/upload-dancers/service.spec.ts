@@ -108,14 +108,15 @@ dancer1@x.co,Dancer,One,101`;
     assert.equal(result.rowsAdded, 1);
     assert.equal(result.rowsErrored, 0);
 
-    // Roster row has userId set; expirationDate is null (no grant window)
+    // Roster row has userId set, and a matched dancer gets the tier window
+    // dated from the event end (2026-06-14) plus the default 3 months.
     const [roster] = await db
       .select()
       .from(eventRosters)
       .where(eq(eventRosters.email, "dancer1@x.co"));
     assert.equal(roster!.userId, dancer.id);
     assert.isNotNull(roster!.userId);
-    assert.isNull(roster!.expirationDate);
+    assert.equal(roster!.expirationDate, "2026-09-14");
 
     // No premium grant created
     const grants = await db
@@ -130,6 +131,100 @@ dancer1@x.co,Dancer,One,101`;
       .from(orgMemberships)
       .where(eq(orgMemberships.userId, dancer.id));
     assert.equal(mem!.type, "dancer");
+  });
+
+  test("matched dancer with a pre-existing account gets an org tier", async ({
+    assert,
+  }) => {
+    // Regression: a dancer who already had an S2S account never goes through
+    // the invite flow that assigns a tier, so she used to be left on NULL —
+    // the plain free tier, which cannot add any video at all, not even YouTube.
+    const dancer = await createUser({
+      username: "preexisting",
+      email: "preexisting@x.co",
+    });
+
+    const svc = new UploadDancersService();
+    await svc.execute({
+      orgId: summit.id,
+      eventId: event.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://dancers.csv",
+      csv: `email,firstName,lastName,bibNumber
+preexisting@x.co,Pre,Existing,201`,
+    });
+
+    const [u] = await db
+      .select({
+        tier: users.orgAccountTier,
+        expiresAt: users.orgAccountTierExpiresAt,
+      })
+      .from(users)
+      .where(eq(users.id, dancer.id));
+    assert.equal(u!.tier, "standard");
+    assert.equal(u!.expiresAt!.toISOString().split("T")[0], "2026-09-14");
+  });
+
+  test("free-tier org grants a tier to paid dancers only", async ({
+    assert,
+  }) => {
+    const [freeOrg] = await db
+      .insert(organizations)
+      .values({
+        slug: "freetier",
+        name: "Free Tier Org",
+        features: { freeTierUsers: true },
+        settings: {},
+      })
+      .returning();
+    const [freeEvent] = await db
+      .insert(orgEvents)
+      .values({
+        orgId: freeOrg!.id,
+        name: "Free Tier Event",
+        startDate: "2026-08-22",
+        endDate: "2026-08-23",
+        isActive: true,
+      })
+      .returning();
+
+    const paid = await createUser({ username: "paid", email: "paid@x.co" });
+    const unpaid = await createUser({
+      username: "unpaid",
+      email: "unpaid@x.co",
+    });
+
+    const svc = new UploadDancersService();
+    await svc.execute({
+      orgId: freeOrg!.id,
+      eventId: freeEvent!.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://dancers.csv",
+      csv: `email,firstName,lastName,bibNumber,paid
+paid@x.co,Paid,Dancer,301,yes
+unpaid@x.co,Unpaid,Dancer,302,no`,
+    });
+
+    const [paidUser] = await db
+      .select({
+        tier: users.orgAccountTier,
+        expiresAt: users.orgAccountTierExpiresAt,
+      })
+      .from(users)
+      .where(eq(users.id, paid.id));
+    assert.equal(paidUser!.tier, "standard");
+    assert.equal(
+      paidUser!.expiresAt!.toISOString().split("T")[0],
+      "2026-11-23"
+    );
+
+    // Unpaid stays null rather than being pushed down to 'limited', which
+    // would revoke the photo upload a plain free account already has.
+    const [unpaidUser] = await db
+      .select({ tier: users.orgAccountTier })
+      .from(users)
+      .where(eq(users.id, unpaid.id));
+    assert.isNull(unpaidUser!.tier);
   });
 
   test("unmatched dancer gets dancer_invite token", async ({ assert }) => {
