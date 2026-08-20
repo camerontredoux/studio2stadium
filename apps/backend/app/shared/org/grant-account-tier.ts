@@ -5,7 +5,7 @@ import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { and, eq } from "drizzle-orm";
 
 export interface GrantedOrgTier {
-  tier: "standard";
+  tier: "standard" | "limited";
   expiresAt: Date;
   /** True when the account already held a tier and only the window moved out. */
   extended: boolean;
@@ -76,19 +76,23 @@ export async function grantOrgAccountTier(
       )
     );
 
-  // Free-tier orgs sell the upgrade themselves, so only paid rows carry an
-  // entitlement there. Measuring the window from entitling rows alone means an
-  // unpaid appearance at a later event cannot stretch access someone paid for.
-  const entitlingRows = freeTier
-    ? rosterRows.filter((r) => r.paid === true)
-    : rosterRows;
+  if (rosterRows.length === 0) return null;
 
-  // Nothing to grant. Leave the account exactly as it is rather than pushing an
-  // unpaid dancer down to 'limited', which would revoke the photo upload a
-  // plain free account already has.
-  if (entitlingRows.length === 0) return null;
+  // The paid flag decides the *level*, not the duration, and only one org uses
+  // it at all: in a free-tier org an unpaid dancer is 'limited', everywhere else
+  // every roster row earns 'standard'.
+  const entitledToStandard =
+    !freeTier || rosterRows.some((r) => r.paid === true);
 
-  const latestEnd = entitlingRows
+  // Never downgrade. An unpaid dancer keeps whatever she already had, and an
+  // account with no tier keeps none — 'limited' is *more* restrictive than null,
+  // so granting it here would revoke the photo upload a free account has.
+  const tier = entitledToStandard ? "standard" : user.tier;
+  if (tier === null) return null;
+
+  // The duration comes from the roster, paid or not: being uploaded to another
+  // event means she is still attending, so her window runs from that event.
+  const latestEnd = rosterRows
     .map((r) => r.endDate)
     .reduce((a, b) => (a > b ? a : b));
 
@@ -101,15 +105,15 @@ export async function grantOrgAccountTier(
   const current = user.expiresAt;
   const expiresAt = current && current > earned ? current : earned;
 
-  const tierChanged = user.tier !== "standard";
+  const tierChanged = user.tier !== tier;
   const windowMoved =
     current === null || expiresAt.getTime() !== current.getTime();
   if (!tierChanged && !windowMoved) return null;
 
   await tx
     .update(users)
-    .set({ orgAccountTier: "standard", orgAccountTierExpiresAt: expiresAt })
+    .set({ orgAccountTier: tier, orgAccountTierExpiresAt: expiresAt })
     .where(eq(users.id, userId));
 
-  return { tier: "standard", expiresAt, extended: user.tier !== null };
+  return { tier, expiresAt, extended: user.tier !== null };
 }
