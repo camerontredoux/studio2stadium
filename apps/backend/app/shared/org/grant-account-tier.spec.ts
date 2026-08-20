@@ -180,7 +180,7 @@ test.group("grantOrgAccountTier", (group) => {
     assert.equal(after.tier, "standard");
   });
 
-  test("leaves a limited account alone while nothing is paid", async ({
+  test("does not upgrade a limited account while nothing is paid", async ({
     assert,
   }) => {
     const org = await createOrg("freeorg", true);
@@ -192,7 +192,10 @@ test.group("grantOrgAccountTier", (group) => {
       .set({ orgAccountTier: "limited" })
       .where(eq(users.id, dancer.id));
 
-    assert.isNull(await grant(dancer.id, org.id));
+    // Still not upgraded — the paid flag governs the level — though the window
+    // itself does move, which "extends a limited account" covers below.
+    const granted = await grant(dancer.id, org.id);
+    assert.equal(granted?.tier, "limited");
     const after = await tierOf(dancer.id);
     assert.equal(after.tier, "limited");
   });
@@ -277,7 +280,7 @@ test.group("grantOrgAccountTier", (group) => {
     assert.equal(after.expiresAt!.toISOString().split("T")[0], "2027-01-01");
   });
 
-  test("an unpaid later event does not stretch paid access", async ({
+  test("a later event extends the window even when that row is unpaid", async ({
     assert,
   }) => {
     const org = await createOrg("freeorg", true);
@@ -286,12 +289,59 @@ test.group("grantOrgAccountTier", (group) => {
     await addRoster(paidEvent.id, dancer.id, "paidthenfree@x.co", true);
     await grant(dancer.id, org.id);
 
-    // Shows up again but does not buy the upgrade this time.
+    // Shows up again without buying the upgrade. Being rostered is what keeps
+    // the window alive; the paid flag only governs the level.
     const freeEvent = await createEvent(org.id, "2026-08-23");
     await addRoster(freeEvent.id, dancer.id, "paidthenfree@x.co", false);
 
-    assert.isNull(await grant(dancer.id, org.id));
+    const granted = await grant(dancer.id, org.id);
+    assert.equal(granted?.tier, "standard");
     const after = await tierOf(dancer.id);
-    assert.equal(after.expiresAt!.toISOString().split("T")[0], "2026-08-10");
+    assert.equal(after.expiresAt!.toISOString().split("T")[0], "2026-11-23");
+  });
+
+  test("extends a limited account without upgrading it", async ({ assert }) => {
+    // The org that uses the paid flag is the only place 'limited' exists. An
+    // unpaid dancer still attends events, so her window still tracks them.
+    const org = await createOrg("freeorg", true);
+    const first = await createEvent(org.id, "2026-05-10", false);
+    const dancer = await createDancer("limitedreturn@x.co");
+    await addRoster(first.id, dancer.id, "limitedreturn@x.co", false);
+    await db
+      .update(users)
+      .set({
+        orgAccountTier: "limited",
+        orgAccountTierExpiresAt: new Date("2026-08-10T00:00:00.000Z"),
+      })
+      .where(eq(users.id, dancer.id));
+
+    const second = await createEvent(org.id, "2026-08-23");
+    await addRoster(second.id, dancer.id, "limitedreturn@x.co", false);
+
+    const granted = await grant(dancer.id, org.id);
+    assert.equal(granted?.tier, "limited");
+    const after = await tierOf(dancer.id);
+    assert.equal(after.tier, "limited");
+    assert.equal(after.expiresAt!.toISOString().split("T")[0], "2026-11-23");
+  });
+
+  test("extends on a new roster in an org with no paid flag at all", async ({
+    assert,
+  }) => {
+    // Most orgs never set `paid`; every roster row there earns the full window.
+    const org = await createOrg("noflags", false);
+    const first = await createEvent(org.id, "2026-05-10", false);
+    const dancer = await createDancer("noflag@x.co");
+    await addRoster(first.id, dancer.id, "noflag@x.co", null);
+    await grant(dancer.id, org.id);
+    const initial = await tierOf(dancer.id);
+    assert.equal(initial.expiresAt!.toISOString().split("T")[0], "2026-08-10");
+
+    const second = await createEvent(org.id, "2026-08-23");
+    await addRoster(second.id, dancer.id, "noflag@x.co", null);
+
+    await grant(dancer.id, org.id);
+    const after = await tierOf(dancer.id);
+    assert.equal(after.expiresAt!.toISOString().split("T")[0], "2026-11-23");
   });
 });
