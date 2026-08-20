@@ -875,6 +875,14 @@ type UsersActivityGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/users/get-activity/controller.ts').default['handle'], false>
 }
+type UnsubscribeGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/users/unsubscribe/controller.ts').default['confirm'], false>
+}
+type UnsubscribePost = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/users/unsubscribe/controller.ts').default['handle'], false>
+}
 type VideosIdDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/videos/delete-video/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/videos/delete-video/controller.ts').default['handle'], true>
@@ -2001,6 +2009,13 @@ export interface ApiDefinition {
       '$get': UsersActivityGetHead;
       '$head': UsersActivityGetHead;
     };
+  };
+  'unsubscribe': {
+    '$url': {
+    };
+    '$get': UnsubscribeGetHead;
+    '$head': UnsubscribeGetHead;
+    '$post': UnsubscribePost;
   };
   'videos': {
     ':id': {

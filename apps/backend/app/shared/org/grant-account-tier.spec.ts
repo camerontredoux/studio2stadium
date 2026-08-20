@@ -124,7 +124,7 @@ test.group("grantOrgAccountTier", (group) => {
 
     const result = await grant(dancer.id, org.id);
 
-    assert.equal(result, "standard");
+    assert.equal(result?.tier, "standard");
     const { tier, expiresAt } = await tierOf(dancer.id);
     assert.equal(tier, "standard");
     // Event end + the default 3 month window.
@@ -156,18 +156,37 @@ test.group("grantOrgAccountTier", (group) => {
     const dancer = await createDancer("any@x.co");
     await addRoster(event.id, dancer.id, "any@x.co", false);
 
-    assert.equal(await grant(dancer.id, org.id), "standard");
+    const granted = await grant(dancer.id, org.id);
+    assert.equal(granted?.tier, "standard");
     const after = await tierOf(dancer.id);
     assert.equal(after.tier, "standard");
   });
 
-  test("never overwrites a tier the account already has", async ({
+  test("upgrades a limited account once a paid roster row appears", async ({
     assert,
   }) => {
     const org = await createOrg("freeorg", true);
     const event = await createEvent(org.id, "2026-08-23");
     const dancer = await createDancer("limited@x.co");
     await addRoster(event.id, dancer.id, "limited@x.co", true);
+    await db
+      .update(users)
+      .set({ orgAccountTier: "limited" })
+      .where(eq(users.id, dancer.id));
+
+    const granted = await grant(dancer.id, org.id);
+    assert.equal(granted?.tier, "standard");
+    const after = await tierOf(dancer.id);
+    assert.equal(after.tier, "standard");
+  });
+
+  test("leaves a limited account alone while nothing is paid", async ({
+    assert,
+  }) => {
+    const org = await createOrg("freeorg", true);
+    const event = await createEvent(org.id, "2026-08-23");
+    const dancer = await createDancer("stilllimited@x.co");
+    await addRoster(event.id, dancer.id, "stilllimited@x.co", false);
     await db
       .update(users)
       .set({ orgAccountTier: "limited" })
@@ -188,7 +207,8 @@ test.group("grantOrgAccountTier", (group) => {
     await addRoster(early.id, dancer.id, "multi@x.co", false);
     await addRoster(late.id, dancer.id, "multi@x.co", true);
 
-    assert.equal(await grant(dancer.id, org.id), "standard");
+    const granted = await grant(dancer.id, org.id);
+    assert.equal(granted?.tier, "standard");
     const { expiresAt } = await tierOf(dancer.id);
     assert.equal(expiresAt!.toISOString().split("T")[0], "2026-11-23");
   });
@@ -214,5 +234,64 @@ test.group("grantOrgAccountTier", (group) => {
     assert.isNull(await grant(dancer.id, org.id));
     const after = await tierOf(dancer.id);
     assert.isNull(after.tier);
+  });
+  test("extends the window when the dancer returns for a later event", async ({
+    assert,
+  }) => {
+    const org = await createOrg("freeorg", true);
+    const first = await createEvent(org.id, "2026-05-10", false);
+    const dancer = await createDancer("returning@x.co");
+    await addRoster(first.id, dancer.id, "returning@x.co", true);
+
+    await grant(dancer.id, org.id);
+    const initial = await tierOf(dancer.id);
+    assert.equal(initial.expiresAt!.toISOString().split("T")[0], "2026-08-10");
+
+    // Same dancer, next stop on the tour.
+    const second = await createEvent(org.id, "2026-08-23");
+    await addRoster(second.id, dancer.id, "returning@x.co", true);
+
+    const result = await grant(dancer.id, org.id);
+    assert.isTrue(result?.extended);
+    const after = await tierOf(dancer.id);
+    assert.equal(after.expiresAt!.toISOString().split("T")[0], "2026-11-23");
+  });
+
+  test("never shortens a window that already reaches further", async ({
+    assert,
+  }) => {
+    const org = await createOrg("freeorg", true);
+    const event = await createEvent(org.id, "2026-05-10");
+    const dancer = await createDancer("longwindow@x.co");
+    await addRoster(event.id, dancer.id, "longwindow@x.co", true);
+
+    // Granted under a more generous setting, or by another org's event.
+    const generous = new Date("2027-01-01T00:00:00.000Z");
+    await db
+      .update(users)
+      .set({ orgAccountTier: "standard", orgAccountTierExpiresAt: generous })
+      .where(eq(users.id, dancer.id));
+
+    assert.isNull(await grant(dancer.id, org.id));
+    const after = await tierOf(dancer.id);
+    assert.equal(after.expiresAt!.toISOString().split("T")[0], "2027-01-01");
+  });
+
+  test("an unpaid later event does not stretch paid access", async ({
+    assert,
+  }) => {
+    const org = await createOrg("freeorg", true);
+    const paidEvent = await createEvent(org.id, "2026-05-10", false);
+    const dancer = await createDancer("paidthenfree@x.co");
+    await addRoster(paidEvent.id, dancer.id, "paidthenfree@x.co", true);
+    await grant(dancer.id, org.id);
+
+    // Shows up again but does not buy the upgrade this time.
+    const freeEvent = await createEvent(org.id, "2026-08-23");
+    await addRoster(freeEvent.id, dancer.id, "paidthenfree@x.co", false);
+
+    assert.isNull(await grant(dancer.id, org.id));
+    const after = await tierOf(dancer.id);
+    assert.equal(after.expiresAt!.toISOString().split("T")[0], "2026-08-10");
   });
 });
