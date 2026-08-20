@@ -3,7 +3,7 @@ import { dancerQueries } from "@/features/dancer/api/queries";
 import { queries } from "@/shared/engagement/api/queries";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { EyeIcon, EyeOffIcon, Share2Icon } from "lucide-react";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { DancerFollowersDialog } from "../../followers-dialog";
 import { DancerFollowingDialog } from "../../following-dialog";
 import { useProfile } from "../context/use-profile";
@@ -30,29 +30,22 @@ export function HeroFooter({ dancerId }: { dancerId: string }) {
     <div className="flex w-full flex-wrap items-center justify-between gap-2">
       <div className="flex items-center gap-2 max-sm:w-full">
         {isOwner && (
-          <>
-            {!isPreview && (
-              <Button size="sm" className="flex-1 sm:hidden">
-                <Share2Icon className="size-4" /> Share
-              </Button>
+          <Button
+            size="sm"
+            variant={isPreview ? "destructive-outline" : "outline"}
+            className="flex-1"
+            onClick={handlePreview}
+          >
+            {isPreview ? (
+              <>
+                <EyeOffIcon className="size-4" /> End Preview
+              </>
+            ) : (
+              <>
+                <EyeIcon className="size-4" /> Preview
+              </>
             )}
-            <Button
-              size="sm"
-              variant={isPreview ? "destructive-outline" : "outline"}
-              className="flex-1"
-              onClick={handlePreview}
-            >
-              {isPreview ? (
-                <>
-                  <EyeOffIcon className="size-4" /> End Preview
-                </>
-              ) : (
-                <>
-                  <EyeIcon className="size-4" /> Preview
-                </>
-              )}
-            </Button>
-          </>
+          </Button>
         )}
 
         {!isOwner ? <FavoriteButton dancerId={dancerId} /> : null}
