@@ -26,7 +26,24 @@ export default await Env.create(new URL("../", import.meta.url), {
   ]),
   SITE_URL: Env.schema.string(),
 
+  /*
+  |----------------------------------------------------------
+  | This backend's own public base URL. SITE_URL is the
+  | frontend; links that must resolve to an API route
+  | (unsubscribe) use this instead.
+  |----------------------------------------------------------
+  */
+  API_URL: Env.schema.string(),
+
   HEALTH_SECRET: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Scheduled email jobs (default off; must be explicitly
+  | enabled in production after a verified dry run)
+  |----------------------------------------------------------
+  */
+  CRON_EMAILS_ENABLED: Env.schema.boolean.optional(),
 
   /*
   |----------------------------------------------------------

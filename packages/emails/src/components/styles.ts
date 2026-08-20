@@ -51,3 +51,10 @@ export const listItemStyle = {
   color: colors.text,
   marginBottom: "8px",
 };
+
+export const unsubscribeTextStyle = {
+  fontSize: "12px",
+  lineHeight: "1.6",
+  color: colors.textMuted,
+  margin: "24px 0 0",
+};
