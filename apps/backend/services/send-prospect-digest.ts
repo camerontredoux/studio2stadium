@@ -6,6 +6,7 @@ import { users } from "#database/schema/users";
 import { mostRecentAugustFirst } from "#shared/prospect-emails/cutoff";
 import { ProspectDigestMail } from "#shared/prospect-emails/digest-email";
 import { findProspectEmailRecipients } from "#shared/prospect-emails/recipients";
+import { sendThrottledEmails } from "#shared/org/throttled-email-sender";
 import mail from "@adonisjs/mail/services/main";
 import type { DigestDancer } from "@stos/emails";
 import { and, eq, inArray } from "drizzle-orm";
@@ -49,7 +50,7 @@ export default class SendProspectDigestService {
         recipients: 0,
         sent: 0,
         failed: 0,
-        skipped: false,
+        skipped: !dryRun && !enabled,
         dryRun,
         buckets: [],
       };
@@ -61,6 +62,7 @@ export default class SendProspectDigestService {
       .select({
         schoolId: crvSubmissions.schoolId,
         createdAt: crvSubmissions.createdAt,
+        dancerId: dancerProfiles.id,
         username: users.username,
         firstName: users.firstName,
         lastName: users.lastName,
@@ -87,6 +89,7 @@ export default class SendProspectDigestService {
       const bucket = bySchool.get(row.schoolId) ?? { early: [], fresh: [] };
 
       const dancer: DigestDancer = {
+        id: row.dancerId,
         name: `${row.firstName} ${row.lastName}`.trim(),
         profileUrl: `${siteUrl}/${row.username}`,
       };
@@ -141,36 +144,37 @@ export default class SendProspectDigestService {
       };
     }
 
-    let sent = 0;
-    let failed = 0;
+    const { sent, failed } = await sendThrottledEmails(
+      recipients.map((recipient) => {
+        const bucket = bySchool.get(recipient.schoolId) ?? {
+          early: [],
+          fresh: [],
+        };
 
-    // Sequential, not Promise.all: SES throttles, and one failure must not
-    // abort the rest.
-    for (const recipient of recipients) {
-      const bucket = bySchool.get(recipient.schoolId) ?? {
-        early: [],
-        fresh: [],
-      };
-
-      try {
-        await mail.send(
-          new ProspectDigestMail({
-            email: recipient.email,
-            userId: recipient.userId,
-            schoolName: recipient.schoolName,
-            newSubmissions: bucket.fresh,
-            earlySubmissions: bucket.early,
-          })
-        );
-        sent += 1;
-      } catch (error) {
-        failed += 1;
-        console.error(
-          `[ProspectDigest]: failed to email ${recipient.email}:`,
-          error
-        );
+        return {
+          recipient: recipient.email,
+          send: async () => {
+            await mail.send(
+              new ProspectDigestMail({
+                email: recipient.email,
+                userId: recipient.userId,
+                schoolName: recipient.schoolName,
+                newSubmissions: bucket.fresh,
+                earlySubmissions: bucket.early,
+              })
+            );
+          },
+        };
+      }),
+      {
+        onTerminalFailure: (task, error) => {
+          console.error(
+            `[ProspectDigest]: failed to email ${task.recipient}:`,
+            error
+          );
+        },
       }
-    }
+    );
 
     console.log(
       `[ProspectDigest]: cutoff ${cutoff.toISOString()}, sent ${sent}/${recipients.length}, ${failed} failed`

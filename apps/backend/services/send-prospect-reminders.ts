@@ -1,6 +1,7 @@
 import env from "#start/env";
 import { findProspectEmailRecipients } from "#shared/prospect-emails/recipients";
 import { ProspectReminderMail } from "#shared/prospect-emails/reminder-email";
+import { sendThrottledEmails } from "#shared/org/throttled-email-sender";
 import mail from "@adonisjs/mail/services/main";
 
 export interface ProspectJobResult {
@@ -54,28 +55,27 @@ export default class SendProspectRemindersService {
       };
     }
 
-    let sent = 0;
-    let failed = 0;
-
-    // Sequential, not Promise.all: SES throttles, and a monthly job has no
-    // latency budget worth risking a rate-limit rejection for.
-    for (const recipient of recipients) {
-      try {
-        await mail.send(
-          new ProspectReminderMail({
-            email: recipient.email,
-            userId: recipient.userId,
-          })
-        );
-        sent += 1;
-      } catch (error) {
-        failed += 1;
-        console.error(
-          `[ProspectReminder]: failed to email ${recipient.email}:`,
-          error
-        );
+    const { sent, failed } = await sendThrottledEmails(
+      recipients.map((recipient) => ({
+        recipient: recipient.email,
+        send: async () => {
+          await mail.send(
+            new ProspectReminderMail({
+              email: recipient.email,
+              userId: recipient.userId,
+            })
+          );
+        },
+      })),
+      {
+        onTerminalFailure: (task, error) => {
+          console.error(
+            `[ProspectReminder]: failed to email ${task.recipient}:`,
+            error
+          );
+        },
       }
-    }
+    );
 
     console.log(
       `[ProspectReminder]: sent ${sent}/${recipients.length}, ${failed} failed`

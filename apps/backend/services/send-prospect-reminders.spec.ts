@@ -119,6 +119,27 @@ test.group("SendProspectRemindersService", (group) => {
     mailer.mails.assertNoneSent();
   });
 
+  test("dry run still reports recipients when the kill switch is off", async ({
+    assert,
+  }) => {
+    await makeSchoolWithPendingSubmission();
+    const mailer = mail.fake();
+
+    // The production pre-flight runs a dry run with the kill switch off —
+    // there is no staging environment, so this is the one path rehearsed
+    // against production data. It must report recipients, not act like the
+    // kill switch is on.
+    const result = await new SendProspectRemindersService({
+      enabled: false,
+    }).run({ dryRun: true });
+
+    assert.equal(result.recipients, 1);
+    assert.equal(result.sent, 0);
+    assert.isFalse(result.skipped);
+    assert.isTrue(result.dryRun);
+    mailer.mails.assertNoneSent();
+  });
+
   test("one failure does not abort the rest", async ({ assert }) => {
     await makeSchoolWithPendingSubmission();
     await makeSchoolWithPendingSubmission();

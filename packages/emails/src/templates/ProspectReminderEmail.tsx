@@ -1,13 +1,21 @@
-import { Text } from "@react-email/components";
+import { Link, Text } from "@react-email/components";
 import { Layout } from "../components/Layout.js";
 import { Button } from "../components/Button.js";
-import { paragraphStyle } from "../components/styles.js";
+import {
+  linkStyle,
+  paragraphStyle,
+  unsubscribeTextStyle,
+} from "../components/styles.js";
 
 export interface ProspectReminderEmailProps {
   reviewUrl: string;
+  unsubscribeUrl: string;
 }
 
-export function ProspectReminderEmail({ reviewUrl }: ProspectReminderEmailProps) {
+export function ProspectReminderEmail({
+  reviewUrl,
+  unsubscribeUrl,
+}: ProspectReminderEmailProps) {
   return (
     <Layout preview="A quick reminder to review and update your prospects">
       <Text style={paragraphStyle}>Hi Coach,</Text>
@@ -30,6 +38,12 @@ export function ProspectReminderEmail({ reviewUrl }: ProspectReminderEmailProps)
         With appreciation,
         <br />
         Abbey &amp; The Studio 2 Stadium Team
+      </Text>
+      <Text style={unsubscribeTextStyle}>
+        Don&rsquo;t want these reminders?{" "}
+        <Link href={unsubscribeUrl} style={linkStyle}>
+          Unsubscribe
+        </Link>
       </Text>
     </Layout>
   );

@@ -21,8 +21,12 @@ export class ProspectReminderMail extends BaseMail {
 
   async prepare() {
     const siteUrl = env.get("SITE_URL").replace(/\/$/, "");
+    // Built from API_URL, not SITE_URL: the route is on this backend, and
+    // providers POST to it unauthenticated.
+    const url = unsubscribeUrl(env.get("API_URL"), this.data.userId);
     const template = ProspectReminderEmail({
       reviewUrl: `${siteUrl}/school/common-recruiting-videos`,
+      unsubscribeUrl: url,
     });
 
     this.message.to(this.data.email);
@@ -31,9 +35,6 @@ export class ProspectReminderMail extends BaseMail {
 
     // RFC 8058: one-click unsubscribe. Both headers are required — mailbox
     // providers ignore List-Unsubscribe-Post without List-Unsubscribe.
-    // Built from API_URL, not SITE_URL: the route is on this backend, and
-    // providers POST to it unauthenticated.
-    const url = unsubscribeUrl(env.get("API_URL"), this.data.userId);
     this.message.header("List-Unsubscribe", `<${url}>`);
     this.message.header("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
   }

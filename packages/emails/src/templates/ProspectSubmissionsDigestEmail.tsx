@@ -6,9 +6,11 @@ import {
   listItemStyle,
   listStyle,
   paragraphStyle,
+  unsubscribeTextStyle,
 } from "../components/styles.js";
 
 export interface DigestDancer {
+  id: string;
   name: string;
   profileUrl: string;
 }
@@ -18,6 +20,7 @@ export interface ProspectSubmissionsDigestEmailProps {
   newSubmissions: DigestDancer[];
   earlySubmissions: DigestDancer[];
   reviewUrl: string;
+  unsubscribeUrl: string;
 }
 
 function DancerList({ dancers }: { dancers: DigestDancer[] }) {
@@ -28,7 +31,7 @@ function DancerList({ dancers }: { dancers: DigestDancer[] }) {
   return (
     <ul style={listStyle}>
       {dancers.map((dancer) => (
-        <li key={dancer.profileUrl} style={listItemStyle}>
+        <li key={dancer.id} style={listItemStyle}>
           <Link href={dancer.profileUrl} style={linkStyle}>
             {dancer.name}
           </Link>
@@ -43,6 +46,7 @@ export function ProspectSubmissionsDigestEmail({
   newSubmissions,
   earlySubmissions,
   reviewUrl,
+  unsubscribeUrl,
 }: ProspectSubmissionsDigestEmailProps) {
   return (
     <Layout preview={`Recruiting submissions ready for ${schoolName} to review`}>
@@ -65,6 +69,12 @@ export function ProspectSubmissionsDigestEmail({
       <DancerList dancers={earlySubmissions} />
 
       <Button href={reviewUrl}>Update Status</Button>
+      <Text style={unsubscribeTextStyle}>
+        Don&rsquo;t want these digests?{" "}
+        <Link href={unsubscribeUrl} style={linkStyle}>
+          Unsubscribe
+        </Link>
+      </Text>
     </Layout>
   );
 }

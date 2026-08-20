@@ -75,8 +75,11 @@ CronJob.from({
         () => sendProspectRemindersService.run()
       );
       if (ran === null) {
+        const host = process.env.FLY_MACHINE_ID
+          ? ` (this machine: ${process.env.FLY_MACHINE_ID})`
+          : "";
         console.log(
-          "[ProspectReminder]: tick already claimed by another machine; skipping"
+          `[ProspectReminder]: tick already claimed by another machine; skipping${host}`
         );
       }
     } catch (error) {
@@ -106,8 +109,11 @@ for (const [label, cronTime] of [
           () => sendProspectDigestService.run()
         );
         if (ran === null) {
+          const host = process.env.FLY_MACHINE_ID
+            ? ` (this machine: ${process.env.FLY_MACHINE_ID})`
+            : "";
           console.log(
-            `[ProspectDigest][${label}]: tick already claimed by another machine; skipping`
+            `[ProspectDigest][${label}]: tick already claimed by another machine; skipping${host}`
           );
         }
       } catch (error) {

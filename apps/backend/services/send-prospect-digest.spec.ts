@@ -220,4 +220,34 @@ test.group("SendProspectDigestService", (group) => {
     assert.equal(result.sent, 0);
     mailer.mails.assertNoneSent();
   });
+
+  test("dry run still reports recipients when the kill switch is off", async ({
+    assert,
+  }) => {
+    const { school } = await makeSchool();
+    const dancer = await makeDancer("z");
+    await db.insert(crvSubmissions).values({
+      dancerId: dancer.id,
+      schoolId: school.id,
+      status: "pending",
+      createdAt: denver("2026-09-01T12:00:00"),
+    });
+
+    const mailer = mail.fake();
+
+    // The production pre-flight runs a dry run with the kill switch off —
+    // there is no staging environment, so this is the one path rehearsed
+    // against production data. It must report recipients, not act like the
+    // kill switch is on.
+    const result = await new SendProspectDigestService({ enabled: false }).run({
+      dryRun: true,
+      now: denver("2027-01-02T09:00:00"),
+    });
+
+    assert.equal(result.recipients, 1);
+    assert.equal(result.sent, 0);
+    assert.isFalse(result.skipped);
+    assert.isTrue(result.dryRun);
+    mailer.mails.assertNoneSent();
+  });
 });

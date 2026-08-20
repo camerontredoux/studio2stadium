@@ -71,5 +71,9 @@ router
 // security scanners and prefetchers GET link targets with no human intent.
 // POST performs the actual opt-out: the confirmation page's form submit, or
 // a mailbox provider's RFC 8058 one-click.
+//
+// Deliberately not wrapped in .group().openapi() like the rest of this
+// module's routes: these are unauthenticated, mailbox-provider-facing
+// endpoints, not part of the app's documented API surface.
 router.get("unsubscribe", [UnsubscribeController, "confirm"]);
 router.post("unsubscribe", [UnsubscribeController, "handle"]);

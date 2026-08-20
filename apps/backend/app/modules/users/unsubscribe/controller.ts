@@ -1,5 +1,5 @@
 import { inject } from "@adonisjs/core";
-import { HttpContext } from "@adonisjs/core/http";
+import type { HttpContext } from "@adonisjs/core/http";
 import { UnsubscribeService } from "./service.ts";
 
 function escapeHtmlAttribute(value: string): string {
@@ -26,7 +26,7 @@ function confirmationPage(token: string): string {
 </head>
 <body>
 <h1>Unsubscribe from Studio 2 Stadium emails?</h1>
-<p>Click the button below to stop receiving prospect emails from Studio 2 Stadium.</p>
+<p>Clicking the button below stops <strong>all</strong> notification emails from Studio 2 Stadium — not just this one. That includes recruiting updates, billing notices, and other account emails. You can re-enable notifications any time in your account settings.</p>
 <form method="POST" action="/unsubscribe">
 <input type="hidden" name="token" value="${escapeHtmlAttribute(token)}">
 <button type="submit">Unsubscribe</button>
@@ -80,7 +80,8 @@ export default class UnsubscribeController {
     }
 
     return ctx.response.ok({
-      message: "You have been unsubscribed from Studio 2 Stadium emails.",
+      message:
+        "You have been unsubscribed from all Studio 2 Stadium notification emails. You can re-enable them any time in your account settings.",
     });
   }
 }
