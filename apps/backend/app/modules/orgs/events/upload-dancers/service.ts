@@ -22,6 +22,7 @@ import {
   type EmailSendTask,
 } from "#shared/org/throttled-email-sender";
 import { enforceEmailRole } from "#shared/org/role-guard";
+import { grantOrgAccountTier } from "#shared/org/grant-account-tier";
 import { verifyPreviewToken } from "#shared/org/preview-token";
 import { and, eq, inArray } from "drizzle-orm";
 import logger from "@adonisjs/core/services/logger";
@@ -280,6 +281,12 @@ export class UploadDancersService {
                 .onConflictDoNothing({
                   target: [orgMemberships.userId, orgMemberships.orgId],
                 });
+
+              // Matched dancers already had an account, so they never got a tier
+              // from the invite flow. Grant what their roster entitles them to —
+              // without this a paid dancer sits on the plain free tier and the
+              // video dialog tells her to buy premium she has already paid for.
+              await grantOrgAccountTier(tx, { userId, orgId });
             } else {
               // Create dancer invite for unmatched rows
               const inviteExpiry = new Date(

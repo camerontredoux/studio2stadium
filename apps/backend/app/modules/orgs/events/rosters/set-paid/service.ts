@@ -1,7 +1,8 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
-import { eventRosters } from "#database/schema/org-events";
+import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { users } from "#database/schema/users";
+import { grantOrgAccountTier } from "#shared/org/grant-account-tier";
 import { and, eq } from "drizzle-orm";
 import type { AuditContext } from "#database/audit";
 
@@ -62,13 +63,26 @@ export class SetRosterPaidService {
         const userId = row.userId;
 
         if (paid) {
-          // Bump limited → standard (leave null accounts untouched)
+          // Bump limited → standard
           await tx
             .update(users)
             .set({ orgAccountTier: "standard" })
             .where(
               and(eq(users.id, userId), eq(users.orgAccountTier, "limited"))
             );
+
+          // A null-tier account is one that existed before it was linked to this
+          // roster, so it never received a tier. Now that it is marked paid it is
+          // entitled to one; without this it stays on the plain free tier, which
+          // cannot add video at all.
+          const [event] = await tx
+            .select({ orgId: orgEvents.orgId })
+            .from(orgEvents)
+            .where(eq(orgEvents.id, eventId))
+            .limit(1);
+          if (event?.orgId) {
+            await grantOrgAccountTier(tx, { userId, orgId: event.orgId });
+          }
         } else {
           // Downgrade standard → limited (leave null accounts untouched)
           await tx
