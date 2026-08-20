@@ -27,6 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTab } from "@/components/ui/tabs";
 import { cn } from "@/components/utils/cn";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { orgQueries } from "@/features/org/api/queries";
+import { resolveMaxCallbacks } from "@/features/org/lib/max-callbacks";
 import {
   LivePulse,
   StatCell,
@@ -100,7 +101,7 @@ function AdminCallbacksPage() {
   );
   const { data: org } = useSuspenseQuery(orgQueries.org(orgSlug));
   const orgSettings = ((org as any)?.settings ?? {}) as Record<string, unknown>;
-  const maxCallbacks = Number(orgSettings.max_callbacks_per_coach) || 5;
+  const maxCallbacks = resolveMaxCallbacks(orgSettings);
   const qc = useQueryClient();
   const sseStatus = useTransmitStatus();
   const [sheetRosterId, setSheetRosterId] = useState<string | null>(null);

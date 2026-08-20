@@ -4,6 +4,10 @@ import transmit from "@adonisjs/transmit/services/main";
 import { PublishShowcaseService } from "./service.ts";
 import { EnsureActiveShowcaseService } from "../ensure-active/service.ts";
 import { schema } from "./validator.ts";
+import {
+  UNLIMITED_CALLBACKS,
+  resolveMaxCallbacks,
+} from "#shared/org/max-callbacks";
 
 export default class PublishShowcaseController {
   @inject()
@@ -21,12 +25,9 @@ export default class PublishShowcaseController {
       });
     }
 
-    const settings = (ctx.org!.settings ?? {}) as {
-      max_callbacks_per_coach?: number;
-    };
     const maxCallbacks = payload.publishAll
-      ? -1
-      : (settings.max_callbacks_per_coach ?? 5);
+      ? UNLIMITED_CALLBACKS
+      : resolveMaxCallbacks(ctx.org!.settings);
 
     const result = await service.execute(
       ctx.orgEvent!.id,

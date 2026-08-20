@@ -2,6 +2,7 @@ import { inject } from "@adonisjs/core";
 import type { HttpContext } from "@adonisjs/core/http";
 import { PublishShowcaseService } from "../publish/service.ts";
 import { EnsureActiveShowcaseService } from "../ensure-active/service.ts";
+import { resolveMaxCallbacks } from "#shared/org/max-callbacks";
 
 export default class PublishPreviewController {
   @inject()
@@ -11,10 +12,7 @@ export default class PublishPreviewController {
     ensureShowcase: EnsureActiveShowcaseService
   ) {
     const showcase = await ensureShowcase.execute(ctx.orgEvent!.id);
-    const settings = (ctx.org!.settings ?? {}) as {
-      max_callbacks_per_coach?: number;
-    };
-    const maxCallbacks = settings.max_callbacks_per_coach ?? 5;
+    const maxCallbacks = resolveMaxCallbacks(ctx.org!.settings);
 
     const preview = await service.preview(
       ctx.orgEvent!.id,
