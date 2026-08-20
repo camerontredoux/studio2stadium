@@ -1134,7 +1134,7 @@ export class ProspectReminderMail extends BaseMail {
   async prepare() {
     const siteUrl = env.get("SITE_URL").replace(/\/$/, "");
     const template = ProspectReminderEmail({
-      reviewUrl: `${siteUrl}/school/common-recruiting-videos`,
+      reviewUrl: `${siteUrl}/recruiting`,
     });
 
     this.message.to(this.data.email);
@@ -1585,7 +1585,7 @@ export class ProspectDigestMail extends BaseMail {
       schoolName: this.data.schoolName,
       newSubmissions: this.data.newSubmissions,
       earlySubmissions: this.data.earlySubmissions,
-      reviewUrl: `${siteUrl}/school/common-recruiting-videos`,
+      reviewUrl: `${siteUrl}/recruiting`,
     });
 
     this.message.to(this.data.email);
@@ -2295,7 +2295,7 @@ Reminder:
 - The `List-Unsubscribe` header is present and its URL returns 200
 - Clicking unsubscribe shows a confirmation page and does **not** change anything until you submit it
 - Submitting flips `users.notifications` to false
-- The CTA links to `/school/common-recruiting-videos`
+- The CTA links to `/recruiting`
 
 Digest:
 - Subject is exactly `Your Studio 2 Stadium Recruiting Submissions`

@@ -25,7 +25,7 @@ export class ProspectReminderMail extends BaseMail {
     // providers POST to it unauthenticated.
     const url = unsubscribeUrl(env.get("API_URL"), this.data.userId);
     const template = ProspectReminderEmail({
-      reviewUrl: `${siteUrl}/school/common-recruiting-videos`,
+      reviewUrl: `${siteUrl}/recruiting`,
       unsubscribeUrl: url,
     });
 

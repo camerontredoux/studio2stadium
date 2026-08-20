@@ -32,7 +32,7 @@ export class ProspectDigestMail extends BaseMail {
       schoolName: this.data.schoolName,
       newSubmissions: this.data.newSubmissions,
       earlySubmissions: this.data.earlySubmissions,
-      reviewUrl: `${siteUrl}/school/common-recruiting-videos`,
+      reviewUrl: `${siteUrl}/recruiting`,
       unsubscribeUrl: url,
     });
 
