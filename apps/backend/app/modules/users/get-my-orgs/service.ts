@@ -1,6 +1,7 @@
 import { DatabaseService } from "#database/service";
 import { organizations, orgMemberships } from "#database/schema/organizations";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
+import { users } from "#database/schema/users";
 import { inject } from "@adonisjs/core";
 import { and, desc, eq } from "drizzle-orm";
 
@@ -20,6 +21,23 @@ export class GetMyOrgsService {
 
   async execute(userId: string): Promise<MyOrgEntry[]> {
     return this.db.use(async (db) => {
+      const [account] = await db
+        .select({
+          tier: users.orgAccountTier,
+          expiresAt: users.orgAccountTierExpiresAt,
+        })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+
+      // Once the advisory window closes the dancer is a plain free user, so the
+      // org stops appearing for her. Only a lapsed window hides anything: a
+      // dancer still inside hers, and one who never had a tier at all (an unpaid
+      // free-tier attendee), both keep seeing the org they are rostered on.
+      const dancerAccessExpired = Boolean(
+        account?.tier && account.expiresAt && account.expiresAt < new Date()
+      );
+
       const [rosterRows, membershipRows] = await Promise.all([
         db
           .selectDistinctOn([organizations.id], {
@@ -82,12 +100,21 @@ export class GetMyOrgsService {
           name: r.name,
           logoUrl: r.logoUrl,
           primaryColor: r.primaryColor,
-          role: existing?.role ?? (r.membershipRole as "admin" | "member" | null) ?? null,
-          type: existing?.type ?? (r.membershipType ?? r.rosterType) as "coach" | "dancer",
+          role:
+            existing?.role ??
+            (r.membershipRole as "admin" | "member" | null) ??
+            null,
+          type:
+            existing?.type ??
+            ((r.membershipType ?? r.rosterType) as "coach" | "dancer"),
         });
       }
 
-      return [...orgsById.values()];
+      // Coach and admin entries are staff access, unrelated to the dancer tier,
+      // so an expired window never hides them.
+      return [...orgsById.values()].filter(
+        (org) => !(dancerAccessExpired && org.type === "dancer")
+      );
     });
   }
 }

@@ -103,7 +103,10 @@ export function DancerPage({ username }: DancerPageProps) {
           <div className="flex flex-col gap-3 lg:gap-4">
             <DancerHero dancer={data} />
 
-            {isOwner && !isPreview && data.orgAccountTier && !data.subscribed ? (
+            {isOwner &&
+            !isPreview &&
+            (data.orgAccountTier || data.orgAccessExpired) &&
+            !data.subscribed ? (
               <div className="border-brand/20 bg-brand/5 flex items-center justify-between rounded-lg border p-4">
                 <div className="flex items-center gap-3">
                   <div className="bg-brand/10 rounded-full p-2">

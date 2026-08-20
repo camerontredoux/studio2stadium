@@ -774,11 +774,11 @@
                   "enum": [
                     "location",
                     "email",
+                    "createdAt",
                     "username",
                     "firstName",
                     "lastName",
                     "verified",
-                    "createdAt",
                     "gpa",
                     "gradYear"
                   ]
@@ -2653,9 +2653,9 @@
                   "type": "string",
                   "enum": [
                     "email",
+                    "createdAt",
                     "firstName",
                     "lastName",
-                    "createdAt",
                     "organization",
                     "bibNumber",
                     "checkedInAt",
@@ -9257,6 +9257,50 @@
         "description": "Returns the user's activity"
       }
     },
+    "/unsubscribe": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnsubscribeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/videos/{id}": {
       "delete": {
         "parameters": [
@@ -9515,6 +9559,9 @@
                 }
               ]
             },
+            "createdAt": {
+              "type": "string"
+            },
             "school": {
               "type": "object",
               "properties": {
@@ -9577,9 +9624,6 @@
                 "location"
               ]
             },
-            "createdAt": {
-              "type": "string"
-            },
             "thumbnail": {
               "oneOf": [
                 {
@@ -9595,8 +9639,8 @@
             "id",
             "status",
             "notes",
-            "school",
             "createdAt",
+            "school",
             "thumbnail"
           ]
         }
@@ -11276,6 +11320,9 @@
                 }
               ]
             },
+            "createdAt": {
+              "type": "string"
+            },
             "role": {
               "type": "string",
               "enum": [
@@ -11285,17 +11332,14 @@
             },
             "type": {
               "$ref": "#/components/schemas/UploadKind"
-            },
-            "createdAt": {
-              "type": "string"
             }
           },
           "required": [
             "id",
             "user",
+            "createdAt",
             "role",
-            "type",
-            "createdAt"
+            "type"
           ]
         }
       },
@@ -11357,6 +11401,12 @@
           "id": {
             "type": "string"
           },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
           "role": {
             "type": "string",
             "enum": [
@@ -11367,12 +11417,6 @@
           "type": {
             "$ref": "#/components/schemas/UploadKind"
           },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "type": "string"
-          },
           "userId": {
             "type": "string"
           },
@@ -11382,10 +11426,10 @@
         },
         "required": [
           "id",
-          "role",
-          "type",
           "createdAt",
           "updatedAt",
+          "role",
+          "type",
           "userId",
           "orgId"
         ]
@@ -11474,7 +11518,7 @@
       "AuthSignupRequest": {
         "type": "object",
         "properties": {
-          "phone": {
+          "name": {
             "oneOf": [
               {
                 "type": "string"
@@ -11484,7 +11528,7 @@
               }
             ]
           },
-          "name": {
+          "phone": {
             "oneOf": [
               {
                 "type": "string"
@@ -12286,10 +12330,10 @@
                 "id": {
                   "type": "string"
                 },
-                "type": {
+                "createdAt": {
                   "type": "string"
                 },
-                "createdAt": {
+                "type": {
                   "type": "string"
                 },
                 "metadata": {
@@ -12343,8 +12387,8 @@
               "required": [
                 "link",
                 "id",
-                "type",
                 "createdAt",
+                "type",
                 "actor",
                 "message",
                 "read"
@@ -13271,6 +13315,9 @@
                 "email": {
                   "type": "string"
                 },
+                "createdAt": {
+                  "type": "string"
+                },
                 "type": {
                   "$ref": "#/components/schemas/UploadKind"
                 },
@@ -13278,9 +13325,6 @@
                   "type": "string"
                 },
                 "lastName": {
-                  "type": "string"
-                },
-                "createdAt": {
                   "type": "string"
                 },
                 "profile": {
@@ -13438,10 +13482,10 @@
               "required": [
                 "id",
                 "email",
+                "createdAt",
                 "type",
                 "firstName",
                 "lastName",
-                "createdAt",
                 "profile",
                 "organization",
                 "eventId",
@@ -13603,6 +13647,9 @@
           "email": {
             "type": "string"
           },
+          "createdAt": {
+            "type": "string"
+          },
           "type": {
             "$ref": "#/components/schemas/UploadKind"
           },
@@ -13610,9 +13657,6 @@
             "type": "string"
           },
           "lastName": {
-            "type": "string"
-          },
-          "createdAt": {
             "type": "string"
           },
           "profile": {
@@ -13750,10 +13794,10 @@
         "required": [
           "id",
           "email",
+          "createdAt",
           "type",
           "firstName",
           "lastName",
-          "createdAt",
           "profile",
           "organization",
           "eventId",
@@ -13815,6 +13859,9 @@
           "email": {
             "type": "string"
           },
+          "createdAt": {
+            "type": "string"
+          },
           "type": {
             "$ref": "#/components/schemas/UploadKind"
           },
@@ -13822,9 +13869,6 @@
             "type": "string"
           },
           "lastName": {
-            "type": "string"
-          },
-          "createdAt": {
             "type": "string"
           },
           "organization": {
@@ -13857,10 +13901,10 @@
         "required": [
           "id",
           "email",
+          "createdAt",
           "type",
           "firstName",
           "lastName",
-          "createdAt",
           "organization",
           "eventId",
           "bibNumber",
@@ -13876,6 +13920,12 @@
           "email": {
             "type": "string"
           },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
           "type": {
             "$ref": "#/components/schemas/UploadKind"
           },
@@ -13883,12 +13933,6 @@
             "type": "string"
           },
           "lastName": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
             "type": "string"
           },
           "userId": {
@@ -13971,11 +14015,11 @@
         "required": [
           "id",
           "email",
+          "createdAt",
+          "updatedAt",
           "type",
           "firstName",
           "lastName",
-          "createdAt",
-          "updatedAt",
           "userId",
           "organization",
           "eventId",
@@ -15279,6 +15323,12 @@
           "email": {
             "type": "string"
           },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
           "type": {
             "$ref": "#/components/schemas/UploadKind"
           },
@@ -15286,12 +15336,6 @@
             "type": "string"
           },
           "lastName": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
             "type": "string"
           },
           "userId": {
@@ -15374,11 +15418,11 @@
         "required": [
           "id",
           "email",
+          "createdAt",
+          "updatedAt",
           "type",
           "firstName",
           "lastName",
-          "createdAt",
-          "updatedAt",
           "userId",
           "organization",
           "eventId",
@@ -16679,6 +16723,9 @@
               }
             ]
           },
+          "name": {
+            "type": "string"
+          },
           "firstName": {
             "type": "string"
           },
@@ -16686,9 +16733,6 @@
             "type": "string"
           },
           "password": {
-            "type": "string"
-          },
-          "name": {
             "type": "string"
           },
           "location": {
@@ -16699,10 +16743,10 @@
           }
         },
         "required": [
+          "name",
           "firstName",
           "lastName",
           "password",
-          "name",
           "location",
           "token"
         ]
@@ -17061,6 +17105,12 @@
                 "id": {
                   "type": "string"
                 },
+                "createdAt": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
                 "username": {
                   "type": "string"
                 },
@@ -17073,12 +17123,6 @@
                       "type": "null"
                     }
                   ]
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
                 },
                 "birthday": {
                   "type": "string"
@@ -17115,10 +17159,10 @@
               },
               "required": [
                 "id",
-                "username",
-                "avatar",
                 "createdAt",
                 "name",
+                "username",
+                "avatar",
                 "birthday",
                 "location",
                 "gpa",
@@ -17586,6 +17630,9 @@
                 "in_review"
               ]
             },
+            "updatedAt": {
+              "type": "string"
+            },
             "school": {
               "type": "object",
               "properties": {
@@ -17620,9 +17667,6 @@
                 "location"
               ]
             },
-            "updatedAt": {
-              "type": "string"
-            },
             "watched": {
               "type": "boolean"
             },
@@ -17640,8 +17684,8 @@
           "required": [
             "id",
             "status",
-            "school",
             "updatedAt",
+            "school",
             "watched",
             "watchedAt"
           ]
@@ -17969,18 +18013,18 @@
                 "id": {
                   "type": "string"
                 },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
                 "type": {
                   "type": "string",
                   "enum": [
                     "youtube",
                     "cloudflare"
                   ]
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "updatedAt": {
-                  "type": "string"
                 },
                 "userId": {
                   "type": "string"
@@ -18014,9 +18058,9 @@
               },
               "required": [
                 "id",
-                "type",
                 "createdAt",
                 "updatedAt",
+                "type",
                 "userId",
                 "thumbnail",
                 "mediaId",
@@ -18303,6 +18347,9 @@
           },
           "subscribed": {
             "type": "boolean"
+          },
+          "orgAccessExpired": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -18336,7 +18383,8 @@
           "events",
           "globalEvents",
           "submission",
-          "subscribed"
+          "subscribed",
+          "orgAccessExpired"
         ]
       },
       "DancersIdFavoriteResponse": {
@@ -18472,6 +18520,12 @@
                   "id": {
                     "type": "string"
                   },
+                  "date": {
+                    "type": "string"
+                  },
+                  "time": {
+                    "type": "string"
+                  },
                   "type": {
                     "type": "string",
                     "enum": [
@@ -18493,12 +18547,6 @@
                       "performance",
                       "camp"
                     ]
-                  },
-                  "date": {
-                    "type": "string"
-                  },
-                  "time": {
-                    "type": "string"
                   },
                   "location": {
                     "type": "string"
@@ -18548,9 +18596,9 @@
                 },
                 "required": [
                   "id",
-                  "type",
                   "date",
                   "time",
+                  "type",
                   "location",
                   "title",
                   "organizer",
@@ -18712,6 +18760,12 @@
             "id": {
               "type": "string"
             },
+            "date": {
+              "type": "string"
+            },
+            "time": {
+              "type": "string"
+            },
             "type": {
               "type": "string",
               "enum": [
@@ -18733,12 +18787,6 @@
                 "performance",
                 "camp"
               ]
-            },
-            "date": {
-              "type": "string"
-            },
-            "time": {
-              "type": "string"
             },
             "location": {
               "type": "string"
@@ -18771,9 +18819,9 @@
           },
           "required": [
             "id",
-            "type",
             "date",
             "time",
+            "type",
             "location",
             "title",
             "organizer"
@@ -18946,6 +18994,12 @@
           "id": {
             "type": "string"
           },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
           "type": {
             "type": "string",
             "enum": [
@@ -18967,12 +19021,6 @@
               "performance",
               "camp"
             ]
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "type": "string"
           },
           "location": {
             "type": "string"
@@ -19104,9 +19152,9 @@
         },
         "required": [
           "id",
-          "type",
           "createdAt",
           "updatedAt",
+          "type",
           "location",
           "website",
           "schoolId",
@@ -19351,6 +19399,12 @@
             "id": {
               "type": "string"
             },
+            "createdAt": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
             "username": {
               "type": "string"
             },
@@ -19363,12 +19417,6 @@
                   "type": "null"
                 }
               ]
-            },
-            "createdAt": {
-              "type": "string"
-            },
-            "name": {
-              "type": "string"
             },
             "location": {
               "type": "string"
@@ -19412,10 +19460,10 @@
           },
           "required": [
             "id",
-            "username",
-            "avatar",
             "createdAt",
             "name",
+            "username",
+            "avatar",
             "location",
             "gpa",
             "division",
@@ -19548,6 +19596,9 @@
                 "matchedSkills"
               ]
             },
+            "name": {
+              "type": "string"
+            },
             "username": {
               "type": "string"
             },
@@ -19560,9 +19611,6 @@
                   "type": "null"
                 }
               ]
-            },
-            "name": {
-              "type": "string"
             },
             "location": {
               "type": "string"
@@ -19639,9 +19687,9 @@
           },
           "required": [
             "id",
+            "name",
             "username",
             "avatar",
-            "name",
             "location",
             "gpa",
             "about",
@@ -19959,6 +20007,12 @@
             "id": {
               "type": "string"
             },
+            "createdAt": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
             "username": {
               "type": "string"
             },
@@ -19971,12 +20025,6 @@
                   "type": "null"
                 }
               ]
-            },
-            "createdAt": {
-              "type": "string"
-            },
-            "name": {
-              "type": "string"
             },
             "platformName": {
               "type": "string",
@@ -20018,10 +20066,10 @@
           },
           "required": [
             "id",
-            "username",
-            "avatar",
             "createdAt",
             "name",
+            "username",
+            "avatar",
             "platformName",
             "comment",
             "rating",
@@ -20184,6 +20232,12 @@
                 "in_review"
               ]
             },
+            "createdAt": {
+              "type": "string"
+            },
+            "updatedAt": {
+              "type": "string"
+            },
             "dancer": {
               "type": "object",
               "properties": {
@@ -20229,12 +20283,6 @@
                 "location"
               ]
             },
-            "createdAt": {
-              "type": "string"
-            },
-            "updatedAt": {
-              "type": "string"
-            },
             "watched": {
               "type": "boolean"
             },
@@ -20262,9 +20310,9 @@
           "required": [
             "id",
             "status",
-            "dancer",
             "createdAt",
             "updatedAt",
+            "dancer",
             "watched",
             "watchedAt",
             "youtubeId"
@@ -20334,6 +20382,15 @@
           "id": {
             "type": "string"
           },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
           "username": {
             "type": "string"
           },
@@ -20349,15 +20406,6 @@
                 "type": "null"
               }
             ]
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
           },
           "userId": {
             "type": "string"
@@ -20535,18 +20583,18 @@
                 "id": {
                   "type": "string"
                 },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
                 "type": {
                   "type": "string",
                   "enum": [
                     "youtube",
                     "cloudflare"
                   ]
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "updatedAt": {
-                  "type": "string"
                 },
                 "userId": {
                   "type": "string"
@@ -20580,9 +20628,9 @@
               },
               "required": [
                 "id",
-                "type",
                 "createdAt",
                 "updatedAt",
+                "type",
                 "userId",
                 "thumbnail",
                 "mediaId",
@@ -20720,6 +20768,12 @@
                 "id": {
                   "type": "string"
                 },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
                 "type": {
                   "type": "string",
                   "enum": [
@@ -20741,12 +20795,6 @@
                     "performance",
                     "camp"
                   ]
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "updatedAt": {
-                  "type": "string"
                 },
                 "location": {
                   "type": "string"
@@ -20812,9 +20860,9 @@
               },
               "required": [
                 "id",
-                "type",
                 "createdAt",
                 "updatedAt",
+                "type",
                 "location",
                 "website",
                 "schoolId",
@@ -20834,6 +20882,12 @@
               "type": "object",
               "properties": {
                 "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
                   "type": "string"
                 },
                 "type": {
@@ -20857,12 +20911,6 @@
                     "performance",
                     "camp"
                   ]
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "updatedAt": {
-                  "type": "string"
                 },
                 "location": {
                   "type": "string"
@@ -20891,9 +20939,9 @@
               },
               "required": [
                 "id",
-                "type",
                 "createdAt",
                 "updatedAt",
+                "type",
                 "location",
                 "website",
                 "title",
@@ -20908,12 +20956,12 @@
         },
         "required": [
           "id",
-          "username",
-          "displayEmail",
-          "avatar",
           "createdAt",
           "updatedAt",
           "name",
+          "username",
+          "displayEmail",
+          "avatar",
           "userId",
           "location",
           "instagram",
@@ -21146,6 +21194,9 @@
             "id": {
               "type": "string"
             },
+            "name": {
+              "type": "string"
+            },
             "role": {
               "oneOf": [
                 {
@@ -21162,9 +21213,6 @@
             },
             "type": {
               "$ref": "#/components/schemas/UploadKind"
-            },
-            "name": {
-              "type": "string"
             },
             "slug": {
               "type": "string"
@@ -21192,9 +21240,9 @@
           },
           "required": [
             "id",
+            "name",
             "role",
             "type",
-            "name",
             "slug",
             "logoUrl",
             "primaryColor"
@@ -21222,6 +21270,17 @@
           "images",
           "following",
           "followers"
+        ]
+      },
+      "UnsubscribeResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
         ]
       },
       "VideosYoutubeRequest": {

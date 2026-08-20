@@ -2,40 +2,49 @@ import type { Transaction } from "#database/service";
 import { users } from "#database/schema/users";
 import { organizations } from "#database/schema/organizations";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+
+export interface GrantedOrgTier {
+  tier: "standard";
+  expiresAt: Date;
+  /** True when the account already held a tier and only the window moved out. */
+  extended: boolean;
+}
 
 /**
- * Gives a pre-existing account the org tier its roster entitles it to.
+ * Brings an account's org tier up to what its roster entitles it to.
  *
- * `RegisterDancerService` assigns a tier when it *creates* an account from an
- * invite. A dancer who already had an S2S account — or who made one outside the
- * invite link — instead gets joined to a roster row by the CSV upload or the
- * attach flow, and those paths used to leave `org_account_tier` NULL.
+ * Org accounts get advisory access to the paid experience for a window the org
+ * configures (`tierExpiryMonths`), after which they fall back to the plain S2S
+ * free tier unless they subscribe. Two things have to hold for that to work:
  *
- * NULL is the plain free tier: no direct video, *no YouTube video*, 4 photos.
- * So a paid dancer who happened to already have an account ended up with
- * strictly less access than the unpaid 'limited' dancers beside her on the same
- * roster, and the video dialog told her to buy premium she had already paid for.
+ *  1. A dancer who already had an S2S account — rather than one created by the
+ *     invite flow, which assigns a tier on insert — still gets her window when a
+ *     CSV upload or the attach flow links her to a roster row.
+ *  2. A dancer who comes back for another event gets her window measured from
+ *     the *latest* event she is entitled by, not whichever one happened to
+ *     create her account.
  *
- * This only ever grants. It never downgrades: an account that already carries a
- * tier is left untouched, and an unpaid dancer in a free-tier org keeps NULL
- * rather than being pushed to 'limited' (which would revoke the photo upload
- * she currently has).
+ * The window is therefore recomputed on every link and only ever moves outward.
+ * This function never shortens an expiry and never downgrades a tier, so it is
+ * safe to call on any link, re-upload, or paid-flag change. Explicit revocation
+ * stays with `SetRosterPaidService`.
  *
- * Returns the tier granted, or null when nothing changed.
+ * Returns what the account ended up with, or null when nothing changed.
  */
 export async function grantOrgAccountTier(
   tx: Transaction,
   { userId, orgId }: { userId: string; orgId: string }
-): Promise<"standard" | null> {
+): Promise<GrantedOrgTier | null> {
   const [user] = await tx
-    .select({ tier: users.orgAccountTier })
+    .select({
+      tier: users.orgAccountTier,
+      expiresAt: users.orgAccountTierExpiresAt,
+    })
     .from(users)
     .where(eq(users.id, userId))
     .limit(1);
-
-  // Already tiered (org-provisioned, or reconciled by an earlier link).
-  if (!user || user.tier !== null) return null;
+  if (!user) return null;
 
   const [org] = await tx
     .select({
@@ -55,9 +64,6 @@ export async function grantOrgAccountTier(
   const tierExpiryMonths =
     Number(orgSettings.tierExpiryMonths ?? orgFeatures.tierExpiryMonths) || 3;
 
-  // Every dancer roster row this user holds in this org. A dancer can appear on
-  // several events of a recurring competition; paid on any one of them counts,
-  // and the tier runs from the latest event.
   const rosterRows = await tx
     .select({ paid: eventRosters.paid, endDate: orgEvents.endDate })
     .from(eventRosters)
@@ -70,24 +76,40 @@ export async function grantOrgAccountTier(
       )
     );
 
-  if (rosterRows.length === 0) return null;
+  // Free-tier orgs sell the upgrade themselves, so only paid rows carry an
+  // entitlement there. Measuring the window from entitling rows alone means an
+  // unpaid appearance at a later event cannot stretch access someone paid for.
+  const entitlingRows = freeTier
+    ? rosterRows.filter((r) => r.paid === true)
+    : rosterRows;
 
-  // Free-tier orgs sell the upgrade themselves: unpaid dancers are not
-  // entitled to 'standard', and we leave them NULL rather than downgrading.
-  if (freeTier && !rosterRows.some((r) => r.paid === true)) return null;
+  // Nothing to grant. Leave the account exactly as it is rather than pushing an
+  // unpaid dancer down to 'limited', which would revoke the photo upload a
+  // plain free account already has.
+  if (entitlingRows.length === 0) return null;
 
-  const latestEnd = rosterRows
+  const latestEnd = entitlingRows
     .map((r) => r.endDate)
     .reduce((a, b) => (a > b ? a : b));
 
-  const expiresAt = new Date(latestEnd);
-  expiresAt.setMonth(expiresAt.getMonth() + tierExpiryMonths);
+  const earned = new Date(latestEnd);
+  earned.setMonth(earned.getMonth() + tierExpiryMonths);
 
-  const updated = await tx
+  // Only ever outward: a dancer who already reaches further — a longer window
+  // from another event, or one granted when the org's setting was larger —
+  // keeps what she has.
+  const current = user.expiresAt;
+  const expiresAt = current && current > earned ? current : earned;
+
+  const tierChanged = user.tier !== "standard";
+  const windowMoved =
+    current === null || expiresAt.getTime() !== current.getTime();
+  if (!tierChanged && !windowMoved) return null;
+
+  await tx
     .update(users)
     .set({ orgAccountTier: "standard", orgAccountTierExpiresAt: expiresAt })
-    .where(and(eq(users.id, userId), isNull(users.orgAccountTier)))
-    .returning({ id: users.id });
+    .where(eq(users.id, userId));
 
-  return updated.length > 0 ? "standard" : null;
+  return { tier: "standard", expiresAt, extended: user.tier !== null };
 }

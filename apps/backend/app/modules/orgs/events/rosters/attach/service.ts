@@ -8,7 +8,10 @@ import {
 } from "#database/schema/org-events";
 import { users } from "#database/schema/users";
 import { dancerProfiles } from "#database/schema/dancers";
-import { grantOrgAccountTier } from "#shared/org/grant-account-tier";
+import {
+  grantOrgAccountTier,
+  type GrantedOrgTier,
+} from "#shared/org/grant-account-tier";
 import { inject } from "@adonisjs/core";
 import { and, eq, isNull, ne, sql } from "drizzle-orm";
 
@@ -145,7 +148,7 @@ export class AttachAccountService {
         .where(eq(orgEvents.id, eventId))
         .limit(1);
 
-      let tierGranted: "standard" | null = null;
+      let tierGranted: GrantedOrgTier | null = null;
 
       if (event?.orgId) {
         const orgId = event.orgId;
@@ -163,11 +166,10 @@ export class AttachAccountService {
             target: [orgMemberships.userId, orgMemberships.orgId],
           });
 
-        // The account existed before this link, so it never went through the
-        // invite flow that assigns a tier. Grant what the roster entitles it to,
-        // otherwise a paid dancer is stuck on the plain free tier and cannot add
-        // any video at all. Runs after the roster update above so the row this
-        // reads already carries `userId`.
+        // Bring the account's advisory window up to what this roster entitles
+        // it to: granted outright if it had no tier, extended if this event runs
+        // later than whatever it already had. Runs after the roster update above
+        // so the row this reads already carries `userId`.
         tierGranted = await grantOrgAccountTier(tx, {
           userId: targetUserId,
           orgId,
@@ -195,7 +197,8 @@ export class AttachAccountService {
           targetUserId,
           previousEmail: oldEmail,
           newEmail: targetUser.email,
-          tierGranted,
+          tierGranted: tierGranted?.tier ?? null,
+          tierExpiresAt: tierGranted?.expiresAt ?? null,
         },
       });
 

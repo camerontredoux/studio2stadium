@@ -52,6 +52,10 @@ export class Service {
       videos: profileVideos,
       subscribed: status.subscribed,
       orgAccountTier: effectiveTier,
+      // The tier itself is nulled once the window closes, which leaves the
+      // client unable to tell a lapsed org dancer from someone who was never in
+      // an org. The upsell is aimed squarely at the former, so say so explicitly.
+      orgAccessExpired: Boolean(tierExpired),
     };
   }
 

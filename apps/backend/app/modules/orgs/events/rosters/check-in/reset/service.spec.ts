@@ -40,11 +40,36 @@ test.group("ResetCheckInService", (group) => {
     await db.delete(eventRosters).execute();
     await db.delete(orgEvents).execute();
 
-    const [org] = await db.select().from(organizations).limit(1);
-    orgId = org.id;
+    // Own fixtures rather than whichever org and user happen to be left in the
+    // database: borrowing ambient rows made this group depend on which specs ran
+    // before it, so adding a spec file elsewhere could break it.
+    const [org] = await db
+      .insert(organizations)
+      .values({
+        slug: `reset-checkin-${Date.now().toString(36)}`,
+        name: "Reset Check-In Org",
+        features: {},
+        settings: {},
+      })
+      .returning();
+    orgId = org!.id;
 
-    const [actor] = await db.select().from(users).limit(1);
-    actorId = actor.id;
+    const actorEmail = `reset-checkin-actor-${Date.now().toString(36)}@x.co`;
+    const [actor] = await db
+      .insert(users)
+      .values({
+        username: actorEmail.split("@")[0]!,
+        email: actorEmail,
+        displayEmail: actorEmail,
+        firstName: "Reset",
+        lastName: "Actor",
+        password: "x",
+        role: "admin",
+        type: "school",
+        verified: true,
+      })
+      .returning();
+    actorId = actor!.id;
 
     const [ev] = await db
       .insert(orgEvents)
