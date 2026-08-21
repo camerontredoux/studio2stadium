@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   createFileRoute,
   Link,
@@ -31,13 +31,16 @@ export const Route = createFileRoute(
     const org = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     );
+    // Having no dancer roster is not a reason to bounce the dancer off her own
+    // Callbacks page. Leave eventId undefined and let the backend resolve the
+    // org's active event.
     const eventId =
       deps.eventId ??
       org.myRosters.find((roster) => roster.type === "dancer")?.eventId;
-    if (!eventId) {
-      throw redirect({ to: "/o/$orgSlug/dancer", params });
-    }
-    await context.queryClient.ensureQueryData(
+    // prefetchQuery, not ensureQueryData: warming the cache must not be able to
+    // fail the navigation. A dancer who is not on an event roster still reaches
+    // her Callbacks page and sees the pre-release state.
+    await context.queryClient.prefetchQuery(
       scoutingQueries.dancerCallbacks(params.orgSlug, eventId),
     );
   },
@@ -50,16 +53,15 @@ function DancerCallbacksPage() {
   });
   const { eventId: searchEventId } = Route.useSearch();
   const { myRosters } = useOrg();
+  // Undefined rather than "" — an empty string fails the API's uuid check,
+  // while undefined lets the backend resolve the active event.
   const eventId =
     searchEventId ??
-    myRosters.find((roster) => roster.type === "dancer")?.eventId ??
-    "";
-  const { data } = useSuspenseQuery(
-    scoutingQueries.dancerCallbacks(orgSlug, eventId),
-  );
+    myRosters.find((roster) => roster.type === "dancer")?.eventId;
+  const { data } = useQuery(scoutingQueries.dancerCallbacks(orgSlug, eventId));
 
-  const schools = data.callbacks;
-  const isReleased = data.publishedShowcaseCount > 0;
+  const schools = data?.callbacks ?? [];
+  const isReleased = (data?.publishedShowcaseCount ?? 0) > 0;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-4">

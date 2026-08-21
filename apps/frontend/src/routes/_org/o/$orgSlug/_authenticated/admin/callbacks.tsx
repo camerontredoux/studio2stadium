@@ -20,6 +20,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
@@ -472,35 +473,37 @@ function PublishDialog({
         </DialogHeader>
 
         {willDrop > 0 && (
-          <div className="border-warning/50 bg-warning/10 flex flex-col gap-2 rounded-md border p-3">
-            <p className="text-sm font-medium">
-              {willDrop} callback{willDrop === 1 ? "" : "s"} will not be
-              released
-            </p>
-            <p className="text-muted-foreground text-xs">
-              {preview!.coachesOverCap} school
-              {preview!.coachesOverCap === 1 ? "" : "s"} selected more than{" "}
-              {maxCallbacks} dancer{maxCallbacks === 1 ? "" : "s"}. Those
-              dancers will not see the callback. Publish all to release every
-              selection.
-            </p>
-            <ul className="text-muted-foreground flex flex-col gap-0.5 text-xs">
-              {droppedCoaches.map((coach) => (
-                <li
-                  key={coach.coachRosterId}
-                  className="flex justify-between gap-3"
-                >
-                  <span className="truncate">
-                    {coach.organization ||
-                      `${coach.firstName} ${coach.lastName}`}
-                  </span>
-                  <span className="shrink-0 tabular-nums">
-                    {coach.willPublish} of {coach.total}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <DialogPanel>
+            <div className="border-warning/50 bg-warning/10 flex flex-col gap-2 rounded-md border p-3">
+              <p className="text-sm font-medium">
+                {willDrop} callback{willDrop === 1 ? "" : "s"} will not be
+                released
+              </p>
+              <p className="text-muted-foreground text-xs">
+                {preview!.coachesOverCap} school
+                {preview!.coachesOverCap === 1 ? "" : "s"} selected more than{" "}
+                {maxCallbacks} dancer{maxCallbacks === 1 ? "" : "s"}. Those
+                dancers will not see the callback. Publish all to release every
+                selection.
+              </p>
+              <ul className="text-muted-foreground flex flex-col gap-0.5 text-xs">
+                {droppedCoaches.map((coach) => (
+                  <li
+                    key={coach.coachRosterId}
+                    className="flex justify-between gap-3"
+                  >
+                    <span className="truncate">
+                      {coach.organization ||
+                        `${coach.firstName} ${coach.lastName}`}
+                    </span>
+                    <span className="shrink-0 tabular-nums">
+                      {coach.willPublish} of {coach.total}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </DialogPanel>
         )}
 
         <DialogFooter>
