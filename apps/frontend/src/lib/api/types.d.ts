@@ -11402,6 +11402,8 @@ export interface components {
             latestShowcaseNumber: number;
             callbackCount: number;
             releasedCount: number;
+            showcaseNumber: number;
+            isPublished: boolean;
         }[];
         OrgsIdShowcasesResponse: {
             number: number;
