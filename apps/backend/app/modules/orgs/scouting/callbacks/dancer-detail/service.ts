@@ -4,6 +4,8 @@ import {
   eventShowcases,
 } from "#database/schema/event-features";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
+import { users } from "#database/schema/users";
+import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 
@@ -17,13 +19,17 @@ export class DancerCallbackDetailService {
    * can tell a dancer who to connect with before results go out.
    */
   async execute(orgId: string, dancerRosterId: string) {
-    return this.db.use((db) =>
+    const rows = await this.db.use((db) =>
       db
         .select({
           coachRosterId: eventCallbacks.coachRosterId,
           firstName: eventRosters.firstName,
           lastName: eventRosters.lastName,
           organization: eventRosters.organization,
+          // Null when the school has never claimed its account: no profile to
+          // link to and no picture to show.
+          username: users.username,
+          avatar: users.avatar,
           showcaseId: eventShowcases.id,
           showcaseNumber: eventShowcases.number,
           showcaseStatus: eventShowcases.status,
@@ -45,6 +51,7 @@ export class DancerCallbackDetailService {
           eventRosters,
           eq(eventRosters.id, eventCallbacks.coachRosterId)
         )
+        .leftJoin(users, eq(users.id, eventRosters.userId))
         .where(
           and(
             eq(eventCallbacks.dancerRosterId, dancerRosterId),
@@ -58,5 +65,10 @@ export class DancerCallbackDetailService {
           asc(eventRosters.lastName)
         )
     );
+
+    return rows.map(({ avatar, ...row }) => ({
+      ...row,
+      avatarUrl: imageUrl(avatar, "avatar"),
+    }));
   }
 }

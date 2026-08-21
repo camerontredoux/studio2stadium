@@ -4,6 +4,8 @@ import {
   publishedCallbacks,
 } from "#database/schema/event-features";
 import { eventRosters } from "#database/schema/org-events";
+import { users } from "#database/schema/users";
+import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
 import { and, eq, sql } from "drizzle-orm";
 
@@ -41,6 +43,10 @@ export class DancerCallbacksService {
           firstName: eventRosters.firstName,
           lastName: eventRosters.lastName,
           organization: eventRosters.organization,
+          // Null when the school has never claimed its account: no profile to
+          // link to and no picture to show.
+          username: users.username,
+          avatar: users.avatar,
           firstShowcaseNumber: sql<number>`MIN(${eventShowcases.number})::int`,
           showcaseNumbers: sql<
             number[]
@@ -55,6 +61,7 @@ export class DancerCallbacksService {
           eventRosters,
           eq(eventRosters.id, publishedCallbacks.coachRosterId)
         )
+        .leftJoin(users, eq(users.id, eventRosters.userId))
         .where(
           and(
             eq(eventShowcases.eventId, eventId),
@@ -68,7 +75,9 @@ export class DancerCallbacksService {
           publishedCallbacks.coachRosterId,
           eventRosters.firstName,
           eventRosters.lastName,
-          eventRosters.organization
+          eventRosters.organization,
+          users.username,
+          users.avatar
         )
         .orderBy(
           sql`MIN(${eventShowcases.number})`,
@@ -76,6 +85,12 @@ export class DancerCallbacksService {
         )
     );
 
-    return { publishedShowcaseCount, callbacks };
+    return {
+      publishedShowcaseCount,
+      callbacks: callbacks.map(({ avatar, ...cb }) => ({
+        ...cb,
+        avatarUrl: imageUrl(avatar, "avatar"),
+      })),
+    };
   }
 }

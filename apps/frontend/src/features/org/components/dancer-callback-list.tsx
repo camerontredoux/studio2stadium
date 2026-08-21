@@ -1,8 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { Loader2Icon, SchoolIcon } from "lucide-react";
+import { Loader2Icon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
+import {
+  SchoolAvatar,
+  SchoolNameLink,
+} from "@/features/org/components/school-identity";
 
 /**
  * Which schools called this dancer back — admin-only. Includes callbacks the
@@ -42,13 +46,17 @@ export function DancerCallbackList({
               key={`${cb.showcaseId}-${cb.coachRosterId}`}
               className="flex items-center gap-2.5 px-2.5 py-2"
             >
-              <span className="flex size-6 shrink-0 items-center justify-center rounded border border-blue-500/20 bg-blue-500/10">
-                <SchoolIcon className="size-3 text-blue-600 dark:text-blue-400" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">
-                  {cb.organization || "Unknown School"}
-                </p>
+              <SchoolAvatar
+                avatarUrl={cb.avatarUrl}
+                organization={cb.organization}
+                className="size-6"
+              />
+              <div className="flex min-w-0 flex-1 flex-col">
+                <SchoolNameLink
+                  username={cb.username}
+                  organization={cb.organization}
+                  className="text-sm font-medium"
+                />
                 <p className="text-muted-foreground truncate text-xs">
                   {cb.firstName} {cb.lastName} · Showcase {cb.showcaseNumber}
                 </p>
