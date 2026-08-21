@@ -11392,17 +11392,16 @@ export interface components {
             uniqueCallbacks: number;
         };
         OrgsIdAdminDancersIdCallbacksResponse: {
-            createdAt: string;
             username: string | null;
             firstName: string;
             lastName: string;
             organization: string | null;
             coachRosterId: string;
-            showcaseId: string;
             avatarUrl: string | null;
-            showcaseNumber: number;
-            showcaseStatus: string;
-            isPublished: boolean;
+            showcaseNumbers: number[];
+            latestShowcaseNumber: number;
+            callbackCount: number;
+            releasedCount: number;
         }[];
         OrgsIdShowcasesResponse: {
             number: number;
@@ -11460,8 +11459,8 @@ export interface components {
                 organization: string | null;
                 coachRosterId: string;
                 avatarUrl: string | null;
-                firstShowcaseNumber: number;
                 showcaseNumbers: number[];
+                firstShowcaseNumber: number;
             }[];
         };
         OrgsIdSettingsRequest: {

@@ -41,31 +41,42 @@ export function DancerCallbackList({
         </p>
       ) : (
         <ul className="divide-border border-border divide-y rounded-md border">
-          {callbacks.map((cb) => (
-            <li
-              key={`${cb.showcaseId}-${cb.coachRosterId}`}
-              className="flex items-center gap-2.5 px-2.5 py-2"
-            >
-              <SchoolAvatar
-                avatarUrl={cb.avatarUrl}
-                organization={cb.organization}
-                className="size-6"
-              />
-              <div className="flex min-w-0 flex-1 flex-col">
-                <SchoolNameLink
-                  username={cb.username}
+          {callbacks.map((cb) => {
+            const allReleased = cb.releasedCount === cb.callbackCount;
+            const noneReleased = cb.releasedCount === 0;
+            return (
+              <li
+                key={cb.coachRosterId}
+                className="flex items-center gap-2.5 px-2.5 py-2"
+              >
+                <SchoolAvatar
+                  avatarUrl={cb.avatarUrl}
                   organization={cb.organization}
-                  className="text-sm font-medium"
+                  className="size-6"
                 />
-                <p className="text-muted-foreground truncate text-xs">
-                  {cb.firstName} {cb.lastName} · Showcase {cb.showcaseNumber}
-                </p>
-              </div>
-              <Badge variant={cb.isPublished ? "success" : "warning"}>
-                {cb.isPublished ? "Released" : "Not released"}
-              </Badge>
-            </li>
-          ))}
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <SchoolNameLink
+                    username={cb.username}
+                    organization={cb.organization}
+                    className="text-sm font-medium"
+                  />
+                  <p className="text-muted-foreground truncate text-xs">
+                    {cb.firstName} {cb.lastName} ·{" "}
+                    {cb.showcaseNumbers.length === 1
+                      ? `Showcase ${cb.showcaseNumbers[0]}`
+                      : `Showcases ${cb.showcaseNumbers.join(", ")}`}
+                  </p>
+                </div>
+                <Badge variant={noneReleased ? "warning" : "success"}>
+                  {allReleased
+                    ? "Released"
+                    : noneReleased
+                      ? "Not released"
+                      : `${cb.releasedCount} of ${cb.callbackCount} released`}
+                </Badge>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
