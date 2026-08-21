@@ -87,6 +87,15 @@ export class DancerCallbackDetailService {
     return rows.map(({ avatar, ...row }) => ({
       ...row,
       avatarUrl: imageUrl(avatar, "avatar"),
+      // Transitional, for frontend bundles built before this endpoint started
+      // collapsing rows. The API and the SPA deploy separately, so an older
+      // cached bundle can read a newer response; without these it silently
+      // renders a blank showcase and "Not released" for callbacks that are
+      // released, which is worse than showing less detail. Safe to delete once
+      // both halves have shipped together.
+      showcaseNumber: row.latestShowcaseNumber,
+      isPublished:
+        row.callbackCount > 0 && row.releasedCount === row.callbackCount,
     }));
   }
 }
