@@ -17,8 +17,20 @@ export class DancerCallbackDetailService {
    * Every school that called this dancer back, across every showcase of the
    * event — including callbacks that have not been published yet, so admins
    * can tell a dancer who to connect with before results go out.
+   *
+   * One row per school, not per callback. A school that called the same dancer
+   * back in several showcases is a single school to connect with, so its
+   * showcases are collapsed into one row and counted, rather than repeating the
+   * school down the list.
    */
   async execute(orgId: string, dancerRosterId: string) {
+    const isPublished = sql<boolean>`EXISTS (
+      SELECT 1 FROM published_callbacks pc
+      WHERE pc.showcase_id = ${eventCallbacks.showcaseId}
+        AND pc.coach_roster_id = ${eventCallbacks.coachRosterId}
+        AND pc.dancer_roster_id = ${eventCallbacks.dancerRosterId}
+    )`;
+
     const rows = await this.db.use((db) =>
       db
         .select({
@@ -30,16 +42,12 @@ export class DancerCallbackDetailService {
           // link to and no picture to show.
           username: users.username,
           avatar: users.avatar,
-          showcaseId: eventShowcases.id,
-          showcaseNumber: eventShowcases.number,
-          showcaseStatus: eventShowcases.status,
-          createdAt: eventCallbacks.createdAt,
-          isPublished: sql<boolean>`EXISTS (
-            SELECT 1 FROM published_callbacks pc
-            WHERE pc.showcase_id = ${eventCallbacks.showcaseId}
-              AND pc.coach_roster_id = ${eventCallbacks.coachRosterId}
-              AND pc.dancer_roster_id = ${eventCallbacks.dancerRosterId}
-          )`,
+          showcaseNumbers: sql<
+            number[]
+          >`ARRAY_AGG(DISTINCT ${eventShowcases.number} ORDER BY ${eventShowcases.number} DESC)`,
+          latestShowcaseNumber: sql<number>`MAX(${eventShowcases.number})::int`,
+          callbackCount: sql<number>`COUNT(*)::int`,
+          releasedCount: sql<number>`COUNT(*) FILTER (WHERE ${isPublished})::int`,
         })
         .from(eventCallbacks)
         .innerJoin(
@@ -59,8 +67,18 @@ export class DancerCallbackDetailService {
             eq(eventRosters.isStaff, false)
           )
         )
+        .groupBy(
+          eventCallbacks.coachRosterId,
+          eventRosters.firstName,
+          eventRosters.lastName,
+          eventRosters.organization,
+          users.username,
+          users.avatar
+        )
+        // Most recently interested school first, so the admin sees who is
+        // currently in play before who called back rounds ago.
         .orderBy(
-          desc(eventShowcases.number),
+          desc(sql`MAX(${eventShowcases.number})`),
           asc(eventRosters.organization),
           asc(eventRosters.lastName)
         )
