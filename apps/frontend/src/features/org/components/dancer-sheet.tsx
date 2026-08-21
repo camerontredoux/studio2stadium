@@ -19,6 +19,7 @@ import { FavoriteButton } from "./favorite-button";
 import { CallbackButton } from "./callback-button";
 import { RatingInput } from "./rating-input";
 import { NotesEditor } from "./notes-editor";
+import { DancerCallbackList } from "./dancer-callback-list";
 import { toastManager } from "@/components/ui/toast-manager";
 import { Link } from "@tanstack/react-router";
 
@@ -28,7 +29,10 @@ interface DancerSheetProps {
   onOpenChange: (open: boolean) => void;
   readOnly?: boolean;
   onFavoriteToggle?: (rosterId: string, current: boolean) => void;
-  onSave?: (rosterId: string, saved: { rating?: number; hasNote?: boolean }) => void;
+  onSave?: (
+    rosterId: string,
+    saved: { rating?: number; hasNote?: boolean },
+  ) => void;
 }
 
 export function DancerSheet({
@@ -64,9 +68,12 @@ function DancerSheetContent({
   rosterId: string;
   readOnly?: boolean;
   onFavoriteToggle?: (rosterId: string, current: boolean) => void;
-  onSave?: (rosterId: string, saved: { rating?: number; hasNote?: boolean }) => void;
+  onSave?: (
+    rosterId: string,
+    saved: { rating?: number; hasNote?: boolean },
+  ) => void;
 }) {
-  const { org, hasFeature } = useOrg();
+  const { org, hasFeature, isAdmin } = useOrg();
   const qc = useQueryClient();
   const { data: dancer, isLoading } = useQuery(
     scoutingQueries.dancer(org.slug, rosterId),
@@ -77,10 +84,12 @@ function DancerSheetContent({
   const [isSaving, setIsSaving] = useState(false);
 
   const currentNotes = notes ?? dancer?.note ?? "";
-  const currentRating = rating !== undefined ? rating : (dancer?.rating ?? null);
+  const currentRating =
+    rating !== undefined ? rating : (dancer?.rating ?? null);
   const isDirty =
     dancer != null &&
-    (currentNotes !== (dancer.note ?? "") || currentRating !== (dancer.rating ?? null));
+    (currentNotes !== (dancer.note ?? "") ||
+      currentRating !== (dancer.rating ?? null));
 
   const upsertNotes = $api.useMutation(
     "put",
@@ -130,11 +139,16 @@ function DancerSheetContent({
         });
       }
 
-      const dancerQueryKey = scoutingQueries.dancer(org.slug, rosterId).queryKey;
+      const dancerQueryKey = scoutingQueries.dancer(
+        org.slug,
+        rosterId,
+      ).queryKey;
 
       if (!notesFailed) {
         qc.setQueryData(dancerQueryKey, (old: any) =>
-          old ? { ...old, note: trimmedNotes === "" ? null : currentNotes } : old,
+          old
+            ? { ...old, note: trimmedNotes === "" ? null : currentNotes }
+            : old,
         );
         setNotes(null);
       }
@@ -210,7 +224,7 @@ function DancerSheetContent({
               <Link
                 to="/$username"
                 params={{ username }}
-                className="text-indigo-400 hover:text-indigo-300 text-sm"
+                className="text-sm text-indigo-400 hover:text-indigo-300"
               >
                 Visit Profile →
               </Link>
@@ -243,7 +257,7 @@ function DancerSheetContent({
         )}
 
         <div className={readOnly ? "pt-2" : undefined}>
-          <label className="text-muted-foreground mb-1 block text-xs uppercase tracking-wide">
+          <label className="text-muted-foreground mb-1 block text-xs tracking-wide uppercase">
             Bio
           </label>
           {dancer.bio ? (
@@ -257,15 +271,16 @@ function DancerSheetContent({
           )}
         </div>
 
+        {isAdmin && hasFeature("callbacks") && (
+          <DancerCallbackList orgSlug={org.slug} dancerRosterId={rosterId} />
+        )}
+
         {!readOnly && (
           <div className="flex flex-1 flex-col">
-            <label className="text-muted-foreground mb-1 block text-xs uppercase tracking-wide">
+            <label className="text-muted-foreground mb-1 block text-xs tracking-wide uppercase">
               Notes
             </label>
-            <NotesEditor
-              value={currentNotes}
-              onChange={(v) => setNotes(v)}
-            />
+            <NotesEditor value={currentNotes} onChange={(v) => setNotes(v)} />
           </div>
         )}
       </SheetContent>

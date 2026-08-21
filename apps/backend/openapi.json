@@ -5557,6 +5557,43 @@
         ]
       }
     },
+    "/orgs/{slug}/admin/dancers/{dancerRosterId}/callbacks": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dancerRosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdAdminDancersIdCallbacksResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Admin Callbacks"
+        ]
+      }
+    },
     "/orgs/{slug}/showcases": {
       "get": {
         "parameters": [
@@ -5623,8 +5660,46 @@
         ]
       }
     },
+    "/orgs/{slug}/showcases/publish-preview": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdShowcasesPublishpreviewResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Admin Showcases"
+        ]
+      }
+    },
     "/orgs/{slug}/showcases/publish": {
       "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdShowcasesPublishRequest"
+              }
+            }
+          }
+        },
         "parameters": [
           {
             "name": "slug",
@@ -5648,6 +5723,16 @@
           },
           "409": {
             "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
@@ -16417,6 +16502,81 @@
           "uniqueCallbacks"
         ]
       },
+      "OrgsIdAdminDancersIdCallbacksResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "createdAt": {
+              "type": "string"
+            },
+            "username": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "organization": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "coachRosterId": {
+              "type": "string"
+            },
+            "showcaseId": {
+              "type": "string"
+            },
+            "avatarUrl": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "showcaseNumber": {
+              "type": "number"
+            },
+            "showcaseStatus": {
+              "type": "string"
+            },
+            "isPublished": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "createdAt",
+            "username",
+            "firstName",
+            "lastName",
+            "organization",
+            "coachRosterId",
+            "showcaseId",
+            "avatarUrl",
+            "showcaseNumber",
+            "showcaseStatus",
+            "isPublished"
+          ]
+        }
+      },
       "OrgsIdShowcasesResponse": {
         "type": "array",
         "items": {
@@ -16495,14 +16655,114 @@
           ]
         }
       },
+      "OrgsIdShowcasesPublishpreviewResponse": {
+        "type": "object",
+        "properties": {
+          "coaches": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "coachRosterId": {
+                  "type": "string"
+                },
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "organization": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "total": {
+                  "type": "number"
+                },
+                "willPublish": {
+                  "type": "number"
+                },
+                "willDrop": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "coachRosterId",
+                "firstName",
+                "lastName",
+                "organization",
+                "total",
+                "willPublish",
+                "willDrop"
+              ]
+            }
+          },
+          "maxCallbacks": {
+            "type": "number"
+          },
+          "totalCallbacks": {
+            "type": "number"
+          },
+          "totalWillPublish": {
+            "type": "number"
+          },
+          "totalWillDrop": {
+            "type": "number"
+          },
+          "coachesOverCap": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "coaches",
+          "maxCallbacks",
+          "totalCallbacks",
+          "totalWillPublish",
+          "totalWillDrop",
+          "coachesOverCap"
+        ]
+      },
+      "OrgsIdShowcasesPublishRequest": {
+        "type": "object",
+        "properties": {
+          "publishAll": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
       "OrgsIdShowcasesPublishResponse": {
         "type": "object",
         "properties": {
+          "publishedCount": {
+            "type": "number"
+          },
+          "totalCallbacks": {
+            "type": "number"
+          },
           "message": {
             "type": "string"
           }
         },
         "required": [
+          "publishedCount",
+          "totalCallbacks",
           "message"
         ]
       },
@@ -16545,37 +16805,82 @@
         ]
       },
       "OrgsIdDancerCallbacksResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "coachRosterId": {
-              "type": "string"
-            },
-            "firstName": {
-              "type": "string"
-            },
-            "lastName": {
-              "type": "string"
-            },
-            "organization": {
-              "oneOf": [
-                {
+        "type": "object",
+        "properties": {
+          "publishedShowcaseCount": {
+            "type": "number"
+          },
+          "callbacks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "firstName": {
                   "type": "string"
                 },
-                {
-                  "type": "null"
+                "lastName": {
+                  "type": "string"
+                },
+                "organization": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "coachRosterId": {
+                  "type": "string"
+                },
+                "avatarUrl": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "firstShowcaseNumber": {
+                  "type": "number"
+                },
+                "showcaseNumbers": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
                 }
+              },
+              "required": [
+                "username",
+                "firstName",
+                "lastName",
+                "organization",
+                "coachRosterId",
+                "avatarUrl",
+                "firstShowcaseNumber",
+                "showcaseNumbers"
               ]
             }
-          },
-          "required": [
-            "coachRosterId",
-            "firstName",
-            "lastName",
-            "organization"
-          ]
-        }
+          }
+        },
+        "required": [
+          "publishedShowcaseCount",
+          "callbacks"
+        ]
       },
       "OrgsIdSettingsRequest": {
         "type": "object",

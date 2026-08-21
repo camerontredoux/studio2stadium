@@ -21,9 +21,13 @@ const CreateCallback = () => import("./callbacks/create/controller.ts");
 const DeleteCallback = () => import("./callbacks/delete/controller.ts");
 const AdminCallbackBoard = () =>
   import("./callbacks/admin-board/controller.ts");
+const DancerCallbackDetail = () =>
+  import("./callbacks/dancer-detail/controller.ts");
 
 const ListShowcases = () => import("./showcases/list/controller.ts");
 const PublishShowcase = () => import("./showcases/publish/controller.ts");
+const PublishPreview = () =>
+  import("./showcases/publish-preview/controller.ts");
 const StartNextShowcase = () => import("./showcases/next/controller.ts");
 const PublishedCallbacks = () =>
   import("./showcases/published-callbacks/controller.ts");
@@ -132,6 +136,9 @@ router
 router
   .group(() => {
     router.get(":slug/admin/callbacks", [AdminCallbackBoard]);
+    router.get(":slug/admin/dancers/:dancerRosterId/callbacks", [
+      DancerCallbackDetail,
+    ]);
   })
   .prefix("orgs")
   .use([
@@ -148,6 +155,7 @@ router
   .group(() => {
     router.get(":slug/showcases", [ListShowcases]);
     router.get(":slug/showcases/:showcaseId/callbacks", [PublishedCallbacks]);
+    router.get(":slug/showcases/publish-preview", [PublishPreview]);
     router.post(":slug/showcases/publish", [PublishShowcase]);
     router.post(":slug/showcases/next", [StartNextShowcase]);
   })

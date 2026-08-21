@@ -169,7 +169,10 @@ test.group("dancer cross-event access", (group) => {
       .qs({ eventId: futureEvent!.id })
       .header("Authorization", authorization);
     callbackResponse.assertStatus(200);
-    assert.deepEqual(callbackResponse.body(), []);
+    assert.deepEqual(callbackResponse.body(), {
+      publishedShowcaseCount: 0,
+      callbacks: [],
+    });
 
     await assert.rejects(
       () => new CheckInService().execute(futureEvent!.id, dancer.id),

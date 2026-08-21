@@ -52,6 +52,18 @@ export const scoutingQueries = {
     $api.queryOptions("get", "/orgs/{slug}/dancer/callbacks", {
       params: { path: { slug }, query: { eventId } },
     }),
+  publishPreview: (slug: string) =>
+    $api.queryOptions("get", "/orgs/{slug}/showcases/publish-preview", {
+      params: { path: { slug } },
+    }),
+  dancerCallbackDetail: (slug: string, dancerRosterId: string) =>
+    $api.queryOptions(
+      "get",
+      "/orgs/{slug}/admin/dancers/{dancerRosterId}/callbacks",
+      {
+        params: { path: { slug, dancerRosterId } },
+      },
+    ),
   publishedCallbacks: (slug: string, showcaseId: string) =>
     $api.queryOptions("get", "/orgs/{slug}/showcases/{showcaseId}/callbacks", {
       params: { path: { slug, showcaseId } },

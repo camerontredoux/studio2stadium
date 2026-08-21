@@ -1,6 +1,15 @@
-import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { createFileRoute, redirect, useParams } from "@tanstack/react-router";
-import { ChevronDownIcon, Megaphone, SendIcon, SkipForwardIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  Megaphone,
+  SendIcon,
+  SkipForwardIcon,
+} from "lucide-react";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +20,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
@@ -18,6 +28,7 @@ import { Tabs, TabsContent, TabsList, TabsTab } from "@/components/ui/tabs";
 import { cn } from "@/components/utils/cn";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { orgQueries } from "@/features/org/api/queries";
+import { resolveMaxCallbacks } from "@/features/org/lib/max-callbacks";
 import {
   LivePulse,
   StatCell,
@@ -91,7 +102,7 @@ function AdminCallbacksPage() {
   );
   const { data: org } = useSuspenseQuery(orgQueries.org(orgSlug));
   const orgSettings = ((org as any)?.settings ?? {}) as Record<string, unknown>;
-  const maxCallbacks = Number(orgSettings.max_callbacks_per_coach) || 5;
+  const maxCallbacks = resolveMaxCallbacks(orgSettings);
   const qc = useQueryClient();
   const sseStatus = useTransmitStatus();
   const [sheetRosterId, setSheetRosterId] = useState<string | null>(null);
@@ -135,26 +146,25 @@ function AdminCallbacksPage() {
         qc.invalidateQueries({
           queryKey: scoutingQueries.showcases(orgSlug).queryKey,
         });
+        qc.invalidateQueries({
+          queryKey: scoutingQueries.publishPreview(orgSlug).queryKey,
+        });
       },
     },
   );
 
-  const nextMutation = $api.useMutation(
-    "post",
-    "/orgs/{slug}/showcases/next",
-    {
-      onSuccess: () => {
-        setNextOpen(false);
-        toastManager.add({ title: "New showcase started", type: "success" });
-        qc.invalidateQueries({
-          queryKey: scoutingQueries.adminCallbacks(orgSlug).queryKey,
-        });
-        qc.invalidateQueries({
-          queryKey: scoutingQueries.showcases(orgSlug).queryKey,
-        });
-      },
+  const nextMutation = $api.useMutation("post", "/orgs/{slug}/showcases/next", {
+    onSuccess: () => {
+      setNextOpen(false);
+      toastManager.add({ title: "New showcase started", type: "success" });
+      qc.invalidateQueries({
+        queryKey: scoutingQueries.adminCallbacks(orgSlug).queryKey,
+      });
+      qc.invalidateQueries({
+        queryKey: scoutingQueries.showcases(orgSlug).queryKey,
+      });
     },
-  );
+  });
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
@@ -164,8 +174,8 @@ function AdminCallbacksPage() {
           <h1 className="text-lg font-semibold tracking-tight">Callbacks</h1>
           {showcase && (
             <Badge variant={isPublished ? "success" : "info"} size="lg">
-              Showcase {showcase.number} (
-              {isPublished ? "Published" : "Active"})
+              Showcase {showcase.number} ({isPublished ? "Published" : "Active"}
+              )
             </Badge>
           )}
           {!isPublished && (
@@ -183,9 +193,11 @@ function AdminCallbacksPage() {
               disabled={data.uniqueCallbacks === 0}
               loading={publishMutation.isPending}
               maxCallbacks={maxCallbacks}
-              onConfirm={() =>
+              orgSlug={orgSlug}
+              onConfirm={(publishAll) =>
                 publishMutation.mutate({
                   params: { path: { slug: orgSlug } },
+                  body: { publishAll },
                 })
               }
             />
@@ -219,20 +231,24 @@ function AdminCallbacksPage() {
         />
       </section>
 
+      {!isPublished && data.uniqueCallbacks > 0 && (
+        <div className="border-border text-muted-foreground border-b px-4 py-2 text-xs">
+          These callbacks are not visible to dancers yet — publish the showcase
+          to release them.
+        </div>
+      )}
+
       {/* Tabs */}
       <Tabs defaultValue="current" className="flex-1">
         {publishedShowcases.length > 0 && (
-          <TabsList variant="underline" className="ml-3 mt-1">
+          <TabsList variant="underline" className="mt-1 ml-3">
             <TabsTab value="current">Current</TabsTab>
             <TabsTab value="previous">Previous</TabsTab>
           </TabsList>
         )}
 
         <TabsContent value="current" className="flex-1">
-          <CallbackBibGrid
-            bibs={data.bibs}
-            onSelectDancer={setSheetRosterId}
-          />
+          <CallbackBibGrid bibs={data.bibs} onSelectDancer={setSheetRosterId} />
         </TabsContent>
 
         {publishedShowcases.length > 0 && (
@@ -331,7 +347,7 @@ function CallbackBibGrid({
             onClick={() => onSelectDancer(bib.dancerRosterId)}
             className="bg-muted hover:bg-accent flex cursor-pointer flex-col items-center justify-center rounded-lg px-3 py-2.5 transition-colors"
           >
-            <span className="text-xl font-bold tabular-nums leading-none">
+            <span className="text-xl leading-none font-bold tabular-nums">
               {bib.bibNumber != null
                 ? String(bib.bibNumber).padStart(2, "0")
                 : "—"}
@@ -418,14 +434,24 @@ function PublishDialog({
   loading,
   onConfirm,
   maxCallbacks,
+  orgSlug,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   disabled: boolean;
   loading: boolean;
-  onConfirm: () => void;
+  onConfirm: (publishAll: boolean) => void;
   maxCallbacks: number;
+  orgSlug: string;
 }) {
+  const { data: preview } = useQuery({
+    ...scoutingQueries.publishPreview(orgSlug),
+    enabled: open,
+  });
+
+  const droppedCoaches = preview?.coaches.filter((c) => c.willDrop > 0) ?? [];
+  const willDrop = preview?.totalWillDrop ?? 0;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger
@@ -445,9 +471,57 @@ function PublishDialog({
               : `This will lock in the top ${maxCallbacks} callbacks per coach (ranked by rating, then recency) and make them visible to dancers.`}
           </DialogDescription>
         </DialogHeader>
+
+        {willDrop > 0 && (
+          <DialogPanel>
+            <div className="border-warning/50 bg-warning/10 flex flex-col gap-2 rounded-md border p-3">
+              <p className="text-sm font-medium">
+                {willDrop} callback{willDrop === 1 ? "" : "s"} will not be
+                released
+              </p>
+              <p className="text-muted-foreground text-xs">
+                {preview!.coachesOverCap} school
+                {preview!.coachesOverCap === 1 ? "" : "s"} selected more than{" "}
+                {maxCallbacks} dancer{maxCallbacks === 1 ? "" : "s"}. Those
+                dancers will not see the callback. Publish all to release every
+                selection.
+              </p>
+              <ul className="text-muted-foreground flex flex-col gap-0.5 text-xs">
+                {droppedCoaches.map((coach) => (
+                  <li
+                    key={coach.coachRosterId}
+                    className="flex justify-between gap-3"
+                  >
+                    <span className="truncate">
+                      {coach.organization ||
+                        `${coach.firstName} ${coach.lastName}`}
+                    </span>
+                    <span className="shrink-0 tabular-nums">
+                      {coach.willPublish} of {coach.total}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </DialogPanel>
+        )}
+
         <DialogFooter>
-          <Button onClick={onConfirm} disabled={loading}>
-            {loading ? "Publishing..." : "Publish"}
+          {willDrop > 0 && (
+            <Button
+              variant="outline"
+              onClick={() => onConfirm(true)}
+              disabled={loading}
+            >
+              Publish all {preview!.totalCallbacks}
+            </Button>
+          )}
+          <Button onClick={() => onConfirm(false)} disabled={loading}>
+            {loading
+              ? "Publishing..."
+              : willDrop > 0
+                ? `Publish top ${maxCallbacks}`
+                : "Publish"}
           </Button>
         </DialogFooter>
       </DialogContent>

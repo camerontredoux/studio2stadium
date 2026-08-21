@@ -471,6 +471,10 @@ type OrgsIdAdminCallbacksGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/admin-board/controller.ts').default['handle'], false>
 }
+type OrgsIdAdminDancersIdCallbacksGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/dancer-detail/controller.ts').default['handle'], false>
+}
 type OrgsIdShowcasesGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/list/controller.ts').default['handle'], false>
@@ -479,9 +483,13 @@ type OrgsIdShowcasesIdCallbacksGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/published-callbacks/controller.ts').default['handle'], false>
 }
-type OrgsIdShowcasesPublishPost = {
+type OrgsIdShowcasesPublishpreviewGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/publish/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/publish-preview/controller.ts').default['handle'], false>
+}
+type OrgsIdShowcasesPublishPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/showcases/publish/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/publish/controller.ts').default['handle'], true>
 }
 type OrgsIdShowcasesNextPost = {
   request: unknown
@@ -1493,6 +1501,16 @@ export interface ApiDefinition {
           '$get': OrgsIdAdminCallbacksGetHead;
           '$head': OrgsIdAdminCallbacksGetHead;
         };
+        'dancers': {
+          ':dancerRosterId': {
+            'callbacks': {
+              '$url': {
+              };
+              '$get': OrgsIdAdminDancersIdCallbacksGetHead;
+              '$head': OrgsIdAdminDancersIdCallbacksGetHead;
+            };
+          };
+        };
       };
       'showcases': {
         '$url': {
@@ -1506,6 +1524,12 @@ export interface ApiDefinition {
             '$get': OrgsIdShowcasesIdCallbacksGetHead;
             '$head': OrgsIdShowcasesIdCallbacksGetHead;
           };
+        };
+        'publish-preview': {
+          '$url': {
+          };
+          '$get': OrgsIdShowcasesPublishpreviewGetHead;
+          '$head': OrgsIdShowcasesPublishpreviewGetHead;
         };
         'publish': {
           '$url': {

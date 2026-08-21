@@ -5494,6 +5494,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/admin/dancers/{dancerRosterId}/callbacks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    dancerRosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdAdminDancersIdCallbacksResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/showcases": {
         parameters: {
             query?: never;
@@ -5569,6 +5607,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/showcases/publish-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdShowcasesPublishpreviewResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/showcases/publish": {
         parameters: {
             query?: never;
@@ -5587,7 +5662,11 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdShowcasesPublishRequest"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -5600,6 +5679,15 @@ export interface paths {
                 };
                 /** @description Unknown Response */
                 409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -11303,6 +11391,19 @@ export interface components {
             }[];
             uniqueCallbacks: number;
         };
+        OrgsIdAdminDancersIdCallbacksResponse: {
+            createdAt: string;
+            username: string | null;
+            firstName: string;
+            lastName: string;
+            organization: string | null;
+            coachRosterId: string;
+            showcaseId: string;
+            avatarUrl: string | null;
+            showcaseNumber: number;
+            showcaseStatus: string;
+            isPublished: boolean;
+        }[];
         OrgsIdShowcasesResponse: {
             number: number;
             id: string;
@@ -11318,7 +11419,28 @@ export interface components {
             lastName: string;
             coachCount: number;
         }[];
+        OrgsIdShowcasesPublishpreviewResponse: {
+            coaches: {
+                coachRosterId: string;
+                firstName: string;
+                lastName: string;
+                organization: string | null;
+                total: number;
+                willPublish: number;
+                willDrop: number;
+            }[];
+            maxCallbacks: number;
+            totalCallbacks: number;
+            totalWillPublish: number;
+            totalWillDrop: number;
+            coachesOverCap: number;
+        };
+        OrgsIdShowcasesPublishRequest: {
+            publishAll?: (string | number | boolean) | null;
+        };
         OrgsIdShowcasesPublishResponse: {
+            publishedCount: number;
+            totalCallbacks: number;
             message: string;
         };
         OrgsIdShowcasesNextResponse: {
@@ -11330,11 +11452,18 @@ export interface components {
             publishedAt: string | null;
         };
         OrgsIdDancerCallbacksResponse: {
-            coachRosterId: string;
-            firstName: string;
-            lastName: string;
-            organization: string | null;
-        }[];
+            publishedShowcaseCount: number;
+            callbacks: {
+                username: string | null;
+                firstName: string;
+                lastName: string;
+                organization: string | null;
+                coachRosterId: string;
+                avatarUrl: string | null;
+                firstShowcaseNumber: number;
+                showcaseNumbers: number[];
+            }[];
+        };
         OrgsIdSettingsRequest: {
             defaultTimezone?: string | null;
         };
