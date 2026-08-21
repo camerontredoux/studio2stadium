@@ -16560,12 +16560,6 @@
             },
             "releasedCount": {
               "type": "number"
-            },
-            "showcaseNumber": {
-              "type": "number"
-            },
-            "isPublished": {
-              "type": "boolean"
             }
           },
           "required": [
@@ -16578,9 +16572,7 @@
             "showcaseNumbers",
             "latestShowcaseNumber",
             "callbackCount",
-            "releasedCount",
-            "showcaseNumber",
-            "isPublished"
+            "releasedCount"
           ]
         }
       },

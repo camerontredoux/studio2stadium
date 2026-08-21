@@ -150,36 +150,6 @@ test.group("DancerCallbackDetailService", (group) => {
     assert.equal(rows[1]!.organization, "University of Idaho");
   });
 
-  test("keeps the pre-collapse fields readable by older frontend bundles", async ({
-    assert,
-  }) => {
-    const { org, event } = await setup();
-    const published = await addShowcase(event.id, 1, "published");
-    const active = await addShowcase(event.id, 2, "active");
-    const released = await addCoach(event.id, "Rel", "Released University");
-    const mixed = await addCoach(event.id, "Mix", "Mixed University");
-    const dancer = await addDancer(event.id, 1);
-
-    await callback(event.id, published.id, released.id, dancer.id, true);
-    await callback(event.id, published.id, mixed.id, dancer.id, true);
-    await callback(event.id, active.id, mixed.id, dancer.id, false);
-
-    const rows = await new DancerCallbackDetailService().execute(
-      org.id,
-      dancer.id
-    );
-
-    const rel = rows.find((r) => r.organization === "Released University")!;
-    assert.equal(rel.showcaseNumber, 1);
-    assert.isTrue(rel.isPublished);
-
-    // A school with a pending callback must not read as fully released to an
-    // older bundle, which only has this boolean to go on.
-    const mix = rows.find((r) => r.organization === "Mixed University")!;
-    assert.equal(mix.showcaseNumber, 2);
-    assert.isFalse(mix.isPublished);
-  });
-
   test("counts released and pending callbacks separately on a collapsed row", async ({
     assert,
   }) => {
