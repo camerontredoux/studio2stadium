@@ -16507,9 +16507,6 @@
         "items": {
           "type": "object",
           "properties": {
-            "createdAt": {
-              "type": "string"
-            },
             "username": {
               "oneOf": [
                 {
@@ -16539,9 +16536,6 @@
             "coachRosterId": {
               "type": "string"
             },
-            "showcaseId": {
-              "type": "string"
-            },
             "avatarUrl": {
               "oneOf": [
                 {
@@ -16552,27 +16546,40 @@
                 }
               ]
             },
-            "showcaseNumber": {
+            "showcaseNumbers": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "latestShowcaseNumber": {
               "type": "number"
             },
-            "showcaseStatus": {
-              "type": "string"
+            "callbackCount": {
+              "type": "number"
+            },
+            "releasedCount": {
+              "type": "number"
+            },
+            "showcaseNumber": {
+              "type": "number"
             },
             "isPublished": {
               "type": "boolean"
             }
           },
           "required": [
-            "createdAt",
             "username",
             "firstName",
             "lastName",
             "organization",
             "coachRosterId",
-            "showcaseId",
             "avatarUrl",
+            "showcaseNumbers",
+            "latestShowcaseNumber",
+            "callbackCount",
+            "releasedCount",
             "showcaseNumber",
-            "showcaseStatus",
             "isPublished"
           ]
         }
@@ -16854,14 +16861,14 @@
                     }
                   ]
                 },
-                "firstShowcaseNumber": {
-                  "type": "number"
-                },
                 "showcaseNumbers": {
                   "type": "array",
                   "items": {
                     "type": "number"
                   }
+                },
+                "firstShowcaseNumber": {
+                  "type": "number"
                 }
               },
               "required": [
@@ -16871,8 +16878,8 @@
                 "organization",
                 "coachRosterId",
                 "avatarUrl",
-                "firstShowcaseNumber",
-                "showcaseNumbers"
+                "showcaseNumbers",
+                "firstShowcaseNumber"
               ]
             }
           }
