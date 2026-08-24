@@ -124,8 +124,29 @@ function generateSummary(entry: AuditLogEntry | AuditLogChildEntry): string {
       const count = (meta.count as number) ?? 1;
       return `Deleted ${count} ${(RESOURCE_LABELS[entry.resource] ?? entry.resource).toLowerCase()}${count !== 1 ? "s" : ""}`;
     }
-    case "activate":
-      return "Activated event";
+    case "activate": {
+      // Every `activate` entry written today is a roster entry being linked to
+      // an account, not an event being switched on. Saying "Activated event"
+      // for a reassignment hid the single most consequential action an admin
+      // can take on a dancer's registration.
+      if (entry.resource !== "roster") {
+        return `Activated ${(RESOURCE_LABELS[entry.resource] ?? entry.resource).toLowerCase()}`;
+      }
+      const before = meta.before as { email?: string } | undefined;
+      const after = meta.after as { email?: string } | undefined;
+      const previousEmail =
+        before?.email ?? (meta.previousEmail as string | undefined);
+      const newEmail = after?.email ?? (meta.newEmail as string | undefined);
+
+      if (meta.relinked === true) {
+        return previousEmail && newEmail
+          ? `Reassigned roster entry from ${previousEmail} to ${newEmail}`
+          : "Reassigned roster entry to a different account";
+      }
+      return newEmail
+        ? `Linked roster entry to ${newEmail}`
+        : "Linked roster entry to an account";
+    }
     case "resend_invite": {
       const sent = (meta.sent as number) ?? 0;
       return `Resent ${sent} invite${sent !== 1 ? "s" : ""}`;
@@ -694,6 +715,9 @@ function AuditLogPage() {
     { id: "actor", label: "Actor" },
     { id: "action", label: "Action" },
     { id: "resource", label: "Resource" },
+    // Who the entry happened *to*. Without this the log answers "who did
+    // something" but never "what happened to this dancer".
+    { id: "dancer", label: "Dancer" },
     { id: "summary", label: "Summary" },
   ];
   const tableColumnCount = columns.length + 1;
@@ -745,7 +769,7 @@ function AuditLogPage() {
                 setSearch(e.target.value);
                 setPage(0);
               }}
-              placeholder="Search by actor name..."
+              placeholder="Search by dancer, email, or admin..."
               className="bg-background border-border focus:border-ring h-7 w-full rounded-md border pr-2 pl-7 text-xs transition-colors outline-none 2xl:text-sm"
             />
           </div>
@@ -1041,6 +1065,7 @@ function AuditLogPage() {
                       "py-1.5",
                       col.id === "actor" && "hidden sm:table-cell",
                       col.id === "resource" && "hidden md:table-cell",
+                      col.id === "dancer" && "hidden lg:table-cell",
                     )}
                   >
                     {col.label}
@@ -1133,6 +1158,29 @@ function AuditLogPage() {
                         <span className="text-muted-foreground">
                           {RESOURCE_LABELS[entry.resource] ?? entry.resource}
                         </span>
+                      </td>
+
+                      {/* Dancer the entry is about */}
+                      <td className="hidden px-2 py-1.5 lg:table-cell">
+                        {entry.subject ? (
+                          <span className="inline-block max-w-40 truncate">
+                            <span className="font-medium">
+                              {[
+                                entry.subject.firstName,
+                                entry.subject.lastName,
+                              ]
+                                .filter(Boolean)
+                                .join(" ")}
+                            </span>
+                            {entry.subject.bibNumber !== null && (
+                              <span className="text-muted-foreground ml-1 text-[10px]">
+                                #{entry.subject.bibNumber}
+                              </span>
+                            )}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
                       </td>
 
                       {/* Summary */}

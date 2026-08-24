@@ -1,6 +1,6 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
-import { eventAuditLog } from "#database/schema/org-events";
+import { eventAuditLog, eventRosters } from "#database/schema/org-events";
 import { users } from "#database/schema/users";
 import { and, asc, count, desc, eq, gte, isNull, lte, sql } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
@@ -39,13 +39,36 @@ export class ListAuditLogService {
       filters.push(lte(eventAuditLog.createdAt, new Date(q.to)));
     }
 
-    const actorAlias = users;
-
     const searchFilters = [...filters];
     if (q.search) {
       const pattern = `%${q.search}%`;
+      // Matches the actor, the dancer the entry is about, and any identity the
+      // entry recorded at the time. That last part is what makes an entry
+      // findable by an address the roster no longer carries: attaching an
+      // account rewrites the roster's email in place, so searching for the
+      // address a dancer was originally uploaded under would otherwise return
+      // nothing — precisely when you most need the history.
       searchFilters.push(
-        sql`(${actorAlias.firstName} ilike ${pattern} or ${actorAlias.lastName} ilike ${pattern} or ${actorAlias.email} ilike ${pattern})`
+        sql`(
+          ${users.firstName} ilike ${pattern}
+          or ${users.lastName} ilike ${pattern}
+          or ${users.email} ilike ${pattern}
+          or ${eventRosters.firstName} ilike ${pattern}
+          or ${eventRosters.lastName} ilike ${pattern}
+          or ${eventRosters.email} ilike ${pattern}
+          or ${eventAuditLog.metadata}->'before'->>'email' ilike ${pattern}
+          or ${eventAuditLog.metadata}->'after'->>'email' ilike ${pattern}
+          or ${eventAuditLog.metadata}->>'previousEmail' ilike ${pattern}
+          or ${eventAuditLog.metadata}->>'newEmail' ilike ${pattern}
+          or (
+            ${eventAuditLog.resource} = 'csv_upload'
+            and exists (
+              select 1 from csv_upload_rows cur
+              where cur.csv_upload_id = ${eventAuditLog.resourceId}
+                and cur.email ilike ${pattern}
+            )
+          )
+        )`
       );
     }
 
@@ -53,6 +76,13 @@ export class ListAuditLogService {
       sortDir === "asc"
         ? asc(eventAuditLog.createdAt)
         : desc(eventAuditLog.createdAt);
+
+    // `resourceId` is polymorphic, so the join has to be narrowed to the rows
+    // where it actually points at a roster entry.
+    const subjectJoin = and(
+      eq(eventAuditLog.resourceId, eventRosters.id),
+      eq(eventAuditLog.resource, "roster")
+    );
 
     return this.db.use(async (db) => {
       const [rows, totalRow] = await Promise.all([
@@ -71,6 +101,11 @@ export class ListAuditLogService {
             actorLastName: users.lastName,
             actorEmail: users.email,
             actorAvatar: users.avatar,
+            subjectRosterId: eventRosters.id,
+            subjectFirstName: eventRosters.firstName,
+            subjectLastName: eventRosters.lastName,
+            subjectEmail: eventRosters.email,
+            subjectBibNumber: eventRosters.bibNumber,
             childCount: sql<number>`(
               select count(*)::int from event_audit_log c
               where c.parent_id = ${eventAuditLog.id}
@@ -78,6 +113,7 @@ export class ListAuditLogService {
           })
           .from(eventAuditLog)
           .innerJoin(users, eq(users.id, eventAuditLog.actorId))
+          .leftJoin(eventRosters, subjectJoin)
           .where(and(...searchFilters))
           .orderBy(orderExpr)
           .limit(limit)
@@ -86,6 +122,7 @@ export class ListAuditLogService {
           .select({ v: count() })
           .from(eventAuditLog)
           .innerJoin(users, eq(users.id, eventAuditLog.actorId))
+          .leftJoin(eventRosters, subjectJoin)
           .where(and(...searchFilters)),
       ]);
 
@@ -109,6 +146,18 @@ export class ListAuditLogService {
             email: r.actorEmail,
             avatarUrl: r.actorAvatar,
           },
+          // Who the entry is about, when that is a roster entry. Null for
+          // event/checklist/video rows, and for roster entries that have since
+          // been deleted.
+          subject: r.subjectRosterId
+            ? {
+                rosterId: r.subjectRosterId,
+                firstName: r.subjectFirstName,
+                lastName: r.subjectLastName,
+                email: r.subjectEmail,
+                bibNumber: r.subjectBibNumber,
+              }
+            : null,
           childCount: r.childCount,
         })),
         total: Number(totalRow[0]?.v ?? 0),
