@@ -1,12 +1,6 @@
 name: Deploy
 
 on:
-  pull_request:
-    paths:
-      - 'apps/backend/**'
-      - 'packages/openapi/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
   push:
     paths:
       - 'apps/backend/**'
