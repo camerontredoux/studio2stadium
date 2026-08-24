@@ -1,10 +1,11 @@
 import { test } from "@japa/runner";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { db } from "#database/connection";
 import { DatabaseService } from "#database/service";
 import { organizations } from "#database/schema/organizations";
 import { orgEvents, eventRosters } from "#database/schema/org-events";
 import { schoolInvites } from "#database/schema/schools";
+import { users } from "#database/schema/users";
 import mail from "@adonisjs/mail/services/main";
 import { ReconciliationService } from "./service.ts";
 
@@ -100,5 +101,91 @@ test.group("ReconciliationService.resendInvite", (group) => {
     // Expiry pushed out to ~14 days.
     assert.isAbove(after!.expiresAt.getTime(), Date.now() + 13 * 86400000);
     assert.isNull(after!.consumedAt);
+  });
+});
+
+const SEARCH_EMAILS = [
+  "recon-search-wilson@test.com",
+  "recon-search-harman@test.com",
+];
+
+test.group("ReconciliationService.searchSchoolUsers", (group) => {
+  group.each.setup(async () => {
+    await db.delete(users).where(inArray(users.email, SEARCH_EMAILS)).execute();
+
+    await db.insert(users).values([
+      {
+        username: "recon_search_wilson",
+        email: SEARCH_EMAILS[0]!,
+        displayEmail: SEARCH_EMAILS[0]!,
+        firstName: "Jane",
+        lastName: "Wilson",
+        password: "x",
+        role: "user" as const,
+        type: "school" as const,
+        verified: true,
+      },
+      {
+        username: "recon_search_harman",
+        email: SEARCH_EMAILS[1]!,
+        displayEmail: SEARCH_EMAILS[1]!,
+        firstName: "Jane",
+        lastName: "Harman",
+        password: "x",
+        role: "user" as const,
+        type: "school" as const,
+        verified: true,
+      },
+    ]);
+
+    return async () => {
+      await db
+        .delete(users)
+        .where(inArray(users.email, SEARCH_EMAILS))
+        .execute();
+    };
+  });
+
+  test("matches a query spanning first and last name", async ({ assert }) => {
+    const service = new ReconciliationService(new DatabaseService());
+    const results = await service.searchSchoolUsers("Jane Wil");
+    const emails = results.map((r) => r.email);
+
+    assert.include(emails, SEARCH_EMAILS[0]);
+    assert.notInclude(emails, SEARCH_EMAILS[1]);
+  });
+
+  test("still matches on a single name fragment and on email", async ({
+    assert,
+  }) => {
+    const service = new ReconciliationService(new DatabaseService());
+
+    const byName = await service.searchSchoolUsers("Jane");
+    const nameEmails = byName.map((r) => r.email);
+    assert.include(nameEmails, SEARCH_EMAILS[0]);
+    assert.include(nameEmails, SEARCH_EMAILS[1]);
+
+    const byEmail = await service.searchSchoolUsers("recon-search-harman@");
+    const emailEmails = byEmail.map((r) => r.email);
+    assert.include(emailEmails, SEARCH_EMAILS[1]);
+  });
+
+  test("ranks name prefixes above mid-string matches", async ({ assert }) => {
+    const service = new ReconciliationService(new DatabaseService());
+    const results = await service.searchSchoolUsers("Jane H");
+
+    assert.equal(results[0]?.email, SEARCH_EMAILS[1]);
+  });
+
+  test("ignores surrounding whitespace and short queries", async ({
+    assert,
+  }) => {
+    const service = new ReconciliationService(new DatabaseService());
+
+    assert.isEmpty(await service.searchSchoolUsers(" J "));
+
+    const results = await service.searchSchoolUsers("  Jane Wilson  ");
+    const emails = results.map((r) => r.email);
+    assert.include(emails, SEARCH_EMAILS[0]);
   });
 });
