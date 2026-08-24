@@ -9,6 +9,8 @@ import { useCreateRosterClaim } from "@/features/org/api/roster-claim-queries";
 import { CheckCircle2Icon, ShieldXIcon } from "lucide-react";
 import { useState } from "react";
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export const Route = createFileRoute("/_org/o/$orgSlug/no-access")({
   component: NoAccessPage,
 });
@@ -25,7 +27,11 @@ function NoAccessPage() {
 
   const createClaim = useCreateRosterClaim();
 
-  const canSubmit = firstName.trim().length > 0 && lastName.trim().length > 0;
+  const trimmedEmail = claimedEmail.trim();
+  const emailInvalid =
+    trimmedEmail.length > 0 && !EMAIL_PATTERN.test(trimmedEmail);
+  const canSubmit =
+    firstName.trim().length > 0 && lastName.trim().length > 0 && !emailInvalid;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +53,7 @@ function NoAccessPage() {
       setError(
         e2?.code === "ALREADY_ON_ROSTER"
           ? "This account is already on the roster. Try refreshing the page."
-          : (e2?.message ?? "Could not send your request. Please try again.")
+          : (e2?.message ?? "Could not send your request. Please try again."),
       );
     }
   };
@@ -90,10 +96,9 @@ function NoAccessPage() {
         <div className="space-y-1.5">
           <h2 className="text-lg font-semibold">No event access</h2>
           <p className="text-muted-foreground text-sm">
-            You are not currently on the roster for this event. If you were
-            registered by a parent or your studio, it may be under a different
-            email address &mdash; let the organizer know and they can connect it
-            to this account.
+            You are not on the roster for this event. If a parent or studio
+            registered you, it may be under a different email. Let the organizer
+            know and they can connect it to this account.
           </p>
         </div>
 
@@ -149,11 +154,18 @@ function NoAccessPage() {
                 type="email"
                 value={claimedEmail}
                 onChange={(e) => setClaimedEmail(e.target.value)}
-                placeholder="A parent's or studio's email, if you know it"
+                placeholder="Email"
+                aria-invalid={emailInvalid}
               />
-              <p className="text-muted-foreground text-xs">
-                Helps the organizer find you faster. Leave blank if unsure.
-              </p>
+              {emailInvalid ? (
+                <p className="text-destructive text-xs">
+                  Enter a valid email address.
+                </p>
+              ) : (
+                <p className="text-muted-foreground text-xs">
+                  Helps the organizer find you faster. Leave blank if unsure.
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5">

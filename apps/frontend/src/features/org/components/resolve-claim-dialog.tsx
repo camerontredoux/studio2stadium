@@ -37,7 +37,7 @@ import {
   type RosterClaim,
 } from "@/features/org/api/roster-claim-queries";
 import { useQuery } from "@tanstack/react-query";
-import { SearchIcon, TriangleAlertIcon } from "lucide-react";
+import { ArrowDown, SearchIcon, TriangleAlertIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface ResolveClaimDialogProps {
@@ -61,7 +61,7 @@ export function ResolveClaimDialog({
   claim,
   onSuccess,
 }: ResolveClaimDialogProps) {
-  // Seeded with the name she gave, since that is what the roster was most
+  // Seeded with the name they gave, since that is what the roster was most
   // likely uploaded under.
   const [query, setQuery] = useState(claim.claimed.lastName);
   const [debouncedQuery, setDebouncedQuery] = useState(claim.claimed.lastName);
@@ -86,7 +86,7 @@ export function ResolveClaimDialog({
   // Must stay referentially stable — Base UI reads it in a layout effect.
   const entries = useMemo<RosterEntry[]>(
     () => rosterQuery.data?.data ?? [],
-    [rosterQuery.data]
+    [rosterQuery.data],
   );
   // Module-scope, so already referentially stable — Base UI requires that.
 
@@ -101,7 +101,7 @@ export function ResolveClaimDialog({
       if (!next) reset();
       onOpenChange(next);
     },
-    [onOpenChange, reset]
+    [onOpenChange, reset],
   );
 
   const handleConfirm = async () => {
@@ -144,16 +144,18 @@ export function ResolveClaimDialog({
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogPopup>
           <DialogHeader>
-            <DialogTitle>Find her roster entry</DialogTitle>
+            <DialogTitle>Find their roster entry</DialogTitle>
             <DialogDescription>
-              Choose the entry that belongs to {requesterName}. Her account will
-              be linked to it and the entry updated to match.
+              Pick the entry that belongs to {requesterName}. Their account gets
+              linked to it.
             </DialogDescription>
           </DialogHeader>
           <DialogPanel>
             <div className="flex flex-col gap-3">
               <div className="bg-muted/50 rounded-md border p-3 text-sm">
-                <p className="text-muted-foreground text-xs">She says she registered as</p>
+                <p className="text-muted-foreground text-xs">
+                  They say they registered as
+                </p>
                 <p className="font-medium">
                   {claim.claimed.firstName} {claim.claimed.lastName}
                 </p>
@@ -207,7 +209,9 @@ export function ResolveClaimDialog({
             </div>
           </DialogPanel>
           <DialogFooter>
-            <DialogClose render={<Button variant="ghost" />}>Cancel</DialogClose>
+            <DialogClose render={<Button variant="ghost" />}>
+              Cancel
+            </DialogClose>
           </DialogFooter>
         </DialogPopup>
       </Dialog>
@@ -226,47 +230,56 @@ export function ResolveClaimDialog({
                 : "Connect this roster entry?"}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {picked?.linkedUser ? (
-                <>
-                  <span className="font-medium">
-                    {picked.firstName} {picked.lastName}
-                  </span>{" "}
-                  is currently linked to{" "}
-                  <span className="font-medium">
-                    {[
-                      picked.linkedUser.firstName,
-                      picked.linkedUser.lastName,
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                  </span>{" "}
-                  ({picked.linkedUser.email}). Connecting it to{" "}
-                  <span className="font-medium">{requesterName}</span> will
-                  unregister them from this event, along with any callbacks they
-                  have received.
-                </>
-              ) : (
-                <>
-                  <span className="font-medium">{requesterName}</span> will be
-                  linked to{" "}
-                  <span className="font-medium">
-                    {picked?.firstName} {picked?.lastName}
-                  </span>{" "}
-                  ({picked?.email}).
-                </>
-              )}
+              Roster entry{" "}
+              <span className="text-foreground font-medium">
+                {picked?.firstName} {picked?.lastName}
+              </span>{" "}
+              ({picked?.email}) will be linked to a different account.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          {picked?.linkedUser && (
-            <div className="border-destructive/30 bg-destructive/5 text-destructive mx-6 flex gap-2 rounded-md border p-3 text-sm">
-              <TriangleAlertIcon className="mt-0.5 size-4 shrink-0" />
-              <p>
-                If a parent registered on her behalf this is expected. If it is
-                a different dancer, stop and check first.
-              </p>
+          <div className="mx-6 mb-4 flex flex-col gap-3">
+            <div className="border-border flex flex-col gap-2 rounded-md border p-3 text-sm">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-muted-foreground text-xs">From</span>
+                {picked?.linkedUser ? (
+                  <>
+                    <span className="font-medium">
+                      {[picked.linkedUser.firstName, picked.linkedUser.lastName]
+                        .filter(Boolean)
+                        .join(" ")}
+                    </span>
+                    <span className="text-muted-foreground text-xs break-all">
+                      {picked.linkedUser.email}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-muted-foreground">
+                    No account linked
+                  </span>
+                )}
+              </div>
+              <ArrowDown className="text-muted-foreground size-4" />
+              <div className="flex flex-col gap-0.5">
+                <span className="text-muted-foreground text-xs">To</span>
+                <span className="font-medium">{requesterName}</span>
+                <span className="text-muted-foreground text-xs break-all">
+                  {claim.requester.email}
+                </span>
+              </div>
             </div>
-          )}
+
+            {picked?.linkedUser && (
+              <div className="border-destructive/30 bg-destructive/5 text-destructive flex gap-2 rounded-md border p-3 text-sm">
+                <TriangleAlertIcon className="mt-0.5 size-4 shrink-0" />
+                <p>
+                  This unregisters the current account from the event and drops
+                  any callbacks it received. If it is a different dancer, stop
+                  and check first.
+                </p>
+              </div>
+            )}
+          </div>
 
           <AlertDialogFooter>
             <AlertDialogClose render={<Button variant="ghost" />}>

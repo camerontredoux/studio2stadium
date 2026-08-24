@@ -41,7 +41,7 @@ export class ListRosterClaimsService {
       return {
         data: rows.map((r) => ({
           id: r.id,
-          // What she says she was registered as — the admin matches this
+          // What they say they were registered as — the admin matches this
           // against the roster.
           claimed: {
             firstName: r.claimedFirstName,

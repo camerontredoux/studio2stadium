@@ -64,7 +64,15 @@ export function AdminSidebar() {
   const { org, membership, hasFeature } = useOrg();
 
   const navSections = useMemo(() => {
-    const sections: { title: string; items: { label: string; icon: any; to: string }[] }[] = [
+    const sections: {
+      title: string;
+      items: {
+        label: string;
+        icon: any;
+        to: string;
+        fullWidth?: boolean;
+      }[];
+    }[] = [
       {
         title: "Rosters",
         items: [
@@ -82,6 +90,7 @@ export function AdminSidebar() {
             label: "Requests",
             icon: InboxIcon,
             to: "/o/$orgSlug/admin/roster-claims",
+            fullWidth: true,
           },
         ],
       },
@@ -165,7 +174,8 @@ export function AdminSidebar() {
     : location.pathname.includes("/coach")
       ? "Coach"
       : "Dancer";
-  const canSwitchView = membership?.role === "admin" || session.role === "admin";
+  const canSwitchView =
+    membership?.role === "admin" || session.role === "admin";
 
   function handleSelectView(view: "Admin" | "Coach" | "Dancer") {
     if (view === "Admin") {
@@ -255,33 +265,41 @@ export function AdminSidebar() {
                   <SidebarGroupLabel className="text-muted-foreground px-3 pt-2 pb-1 text-[10px] font-semibold tracking-widest uppercase">
                     {section.title}
                   </SidebarGroupLabel>
-                  <div className={`border-sidebar-border border-t ${section.items.length > 1 ? "grid grid-cols-2" : ""}`}>
-                    {section.items.map(({ label, icon: Icon, to }) => {
-                      const isActive = isItemActive(to);
-                      return (
-                        <Link
-                          key={label}
-                          to={to}
-                          params={{ orgSlug }}
-                          className={`border-sidebar-border flex min-h-10 items-center gap-2 border-t-2 border-r px-3 py-2 transition-colors even:border-r-0 ${
-                            isActive
-                              ? "border-t-primary text-primary bg-sidebar-accent/40"
-                              : "text-sidebar-foreground hover:bg-sidebar-accent/20 border-t-transparent"
-                          }`}
-                        >
-                          <Icon
-                            className={`size-3.5 shrink-0 ${
+                  <div
+                    className={`border-sidebar-border border-t ${section.items.length > 1 ? "grid grid-cols-2" : ""}`}
+                  >
+                    {section.items.map(
+                      ({ label, icon: Icon, to, fullWidth }) => {
+                        const isActive = isItemActive(to);
+                        return (
+                          <Link
+                            key={label}
+                            to={to}
+                            params={{ orgSlug }}
+                            className={`border-sidebar-border flex min-h-10 items-center gap-2 border-t-2 px-3 py-2 transition-colors ${
+                              fullWidth
+                                ? "col-span-2"
+                                : "border-r even:border-r-0"
+                            } ${
                               isActive
-                                ? "text-primary/80"
-                                : "text-muted-foreground"
+                                ? "border-t-primary text-primary bg-sidebar-accent/40"
+                                : "text-sidebar-foreground hover:bg-sidebar-accent/20 border-t-transparent"
                             }`}
-                          />
-                          <span className="text-xs leading-none font-semibold">
-                            {label}
-                          </span>
-                        </Link>
-                      );
-                    })}
+                          >
+                            <Icon
+                              className={`size-3.5 shrink-0 ${
+                                isActive
+                                  ? "text-primary/80"
+                                  : "text-muted-foreground"
+                              }`}
+                            />
+                            <span className="text-xs leading-none font-semibold">
+                              {label}
+                            </span>
+                          </Link>
+                        );
+                      },
+                    )}
                   </div>
                 </section>
               ))}
@@ -362,7 +380,11 @@ export function AdminSidebar() {
                     closeOnClick
                     render={
                       <Link
-                        to={session.type === "school" ? "/explore/$username" : "/$username"}
+                        to={
+                          session.type === "school"
+                            ? "/explore/$username"
+                            : "/$username"
+                        }
                         params={{ username: session.username }}
                       />
                     }
@@ -402,7 +424,11 @@ export function AdminSidebar() {
                         [
                           { value: "light", label: "Light", icon: SunIcon },
                           { value: "dark", label: "Dark", icon: MoonIcon },
-                          { value: "system", label: "System", icon: MonitorIcon },
+                          {
+                            value: "system",
+                            label: "System",
+                            icon: MonitorIcon,
+                          },
                         ] as const
                       ).map(({ value, label, icon: Icon }) => (
                         <MenuItem
@@ -435,4 +461,3 @@ export function AdminSidebar() {
     </Sidebar>
   );
 }
-

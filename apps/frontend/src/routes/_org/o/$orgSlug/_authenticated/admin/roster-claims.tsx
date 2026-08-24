@@ -1,3 +1,12 @@
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogPopup,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -16,16 +25,22 @@ import { InboxIcon } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute(
-  "/_org/o/$orgSlug/_authenticated/admin/roster-claims"
+  "/_org/o/$orgSlug/_authenticated/admin/roster-claims",
 )({
   component: RosterClaimsPage,
 });
 
-function initials(person: { firstName: string | null; lastName: string | null }) {
+function initials(person: {
+  firstName: string | null;
+  lastName: string | null;
+}) {
   return `${person.firstName?.[0] ?? ""}${person.lastName?.[0] ?? ""}`;
 }
 
-function fullName(person: { firstName: string | null; lastName: string | null }) {
+function fullName(person: {
+  firstName: string | null;
+  lastName: string | null;
+}) {
   return [person.firstName, person.lastName].filter(Boolean).join(" ");
 }
 
@@ -70,13 +85,6 @@ function RosterClaimsPage() {
       </header>
 
       <div className="min-h-0 flex-1 overflow-y-auto p-4">
-        <p className="text-muted-foreground mb-4 max-w-2xl text-sm">
-          Dancers who could not find their registration. This usually means the
-          roster was uploaded with a parent&rsquo;s or studio&rsquo;s email, so
-          the entry is linked to that account instead of hers. Match the request
-          to the right roster entry to connect it.
-        </p>
-
         {claims.isLoading ? (
           <div className="flex justify-center py-12">
             <Spinner label="Loading requests..." />
@@ -87,7 +95,7 @@ function RosterClaimsPage() {
             <p className="text-sm">No pending requests.</p>
           </div>
         ) : (
-          <ul className="flex max-w-3xl flex-col gap-3">
+          <ul className="flex flex-col gap-2">
             {rows.map((claim) => (
               <ClaimCard
                 key={claim.id}
@@ -121,66 +129,104 @@ function ClaimCard({
   onReject: () => void;
   onResolved: () => void;
 }) {
+  const [confirmDismiss, setConfirmDismiss] = useState(false);
+
   return (
-    <li className="border-border rounded-lg border p-4">
-      <div className="flex items-start gap-3">
-        <Avatar className="size-9">
-          <AvatarImage src={claim.requester.avatarUrl ?? undefined} />
-          <AvatarFallback className="text-xs">
-            {initials(claim.requester)}
-          </AvatarFallback>
-        </Avatar>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium">{fullName(claim.requester)}</p>
-          <p className="text-muted-foreground text-xs">
-            {claim.requester.email}
-          </p>
-          <p className="text-muted-foreground mt-0.5 text-xs">
-            Asked {formatDistanceToNow(new Date(claim.createdAt), {
-              addSuffix: true,
-            })}
-          </p>
+    <li className="border-border rounded-lg border px-3 py-2.5">
+      <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+        <div className="flex min-w-0 items-center gap-2.5 md:w-64 md:shrink-0">
+          <Avatar className="size-8 shrink-0">
+            <AvatarImage src={claim.requester.avatarUrl ?? undefined} />
+            <AvatarFallback className="text-xs">
+              {initials(claim.requester)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium">
+              {fullName(claim.requester)}
+            </p>
+            <p className="text-muted-foreground truncate text-xs">
+              {claim.requester.email} ·{" "}
+              {formatDistanceToNow(new Date(claim.createdAt), {
+                addSuffix: true,
+              })}
+            </p>
+          </div>
+        </div>
+
+        <dl className="min-w-0 flex-1 md:pl-4">
+          <dt className="text-foreground text-xs font-medium">Registered as</dt>
+          <dd className="truncate text-sm">
+            <span className="font-medium">
+              {claim.claimed.firstName} {claim.claimed.lastName}
+            </span>
+            {claim.claimed.email && (
+              <span className="text-muted-foreground">
+                {" "}
+                · {claim.claimed.email}
+              </span>
+            )}
+          </dd>
+        </dl>
+
+        <div className="flex shrink-0 gap-2 md:justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setConfirmDismiss(true)}
+            disabled={rejecting}
+          >
+            {rejecting ? <Spinner label="Dismissing…" /> : "Dismiss"}
+          </Button>
+          <FindEntryButton
+            claim={claim}
+            orgSlug={orgSlug}
+            eventId={eventId}
+            onResolved={onResolved}
+          />
         </div>
       </div>
-
-      <dl className="mt-3 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
-        <div className="flex gap-2">
-          <dt className="text-muted-foreground">Registered as</dt>
-          <dd className="font-medium">
-            {claim.claimed.firstName} {claim.claimed.lastName}
-          </dd>
-        </div>
-        {claim.claimed.email && (
-          <div className="flex gap-2">
-            <dt className="text-muted-foreground">Email used</dt>
-            <dd className="font-medium">{claim.claimed.email}</dd>
-          </div>
-        )}
-      </dl>
 
       {claim.note && (
-        <p className="bg-muted/50 mt-3 rounded-md p-2.5 text-sm">{claim.note}</p>
+        <p className="bg-muted/50 mt-2 rounded-md px-2.5 py-1.5 text-sm">
+          <span className="text-muted-foreground">Note: </span>
+          {claim.note}
+        </p>
       )}
 
-      <div className="mt-4 flex justify-end gap-2">
-        <Button variant="ghost" onClick={onReject} disabled={rejecting}>
-          {rejecting ? <Spinner label="Dismissing…" /> : "Dismiss"}
-        </Button>
-        <FindEntryButton
-          claim={claim}
-          orgSlug={orgSlug}
-          eventId={eventId}
-          onResolved={onResolved}
-        />
-      </div>
+      <AlertDialog open={confirmDismiss} onOpenChange={setConfirmDismiss}>
+        <AlertDialogPopup>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Dismiss this request?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This request will be removed from the list.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose render={<Button variant="ghost" />}>
+              Cancel
+            </AlertDialogClose>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                setConfirmDismiss(false);
+                onReject();
+              }}
+              disabled={rejecting}
+            >
+              Dismiss request
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogPopup>
+      </AlertDialog>
     </li>
   );
 }
 
 /**
  * Approving runs through the same guarded reassignment an admin would perform
- * by hand — the request records *why*, it is not a second way to move a roster
- * entry. The confirmation still names whoever currently holds it.
+ * by hand. The request records why it happened, it is not a second way to move
+ * a roster entry. The confirmation still names whoever currently holds it.
  */
 function FindEntryButton({
   claim,
@@ -197,7 +243,7 @@ function FindEntryButton({
 
   if (!eventId) {
     return (
-      <Button disabled title="Select an event first">
+      <Button disabled size="sm" title="Select an event first">
         Find roster entry
       </Button>
     );
@@ -205,7 +251,9 @@ function FindEntryButton({
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>Find roster entry</Button>
+      <Button size="sm" onClick={() => setOpen(true)}>
+        Find roster entry
+      </Button>
       {open && (
         <ResolveClaimDialog
           open={open}
