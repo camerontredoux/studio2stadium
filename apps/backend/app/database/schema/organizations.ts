@@ -1,5 +1,11 @@
 import * as pg from "drizzle-orm/pg-core";
-import { orgMemberType, orgRole, premiumGrantSource } from "./enums.ts";
+import {
+  isNotRosterTypeSql,
+  isRosterTypeSql,
+  orgMemberType,
+  orgRole,
+  premiumGrantSource,
+} from "./enums.ts";
 import { timestamps } from "./helpers/columns.ts";
 import { users } from "./users.ts";
 
@@ -36,7 +42,27 @@ export const orgMemberships = pg.pgTable(
     ...timestamps,
   },
   (table) => [
-    pg.uniqueIndex().on(table.userId, table.orgId),
+    // An Organizer runs the Org's events; a Coach recruits at them. The two are
+    // orthogonal, so the same person may hold both memberships (ADR 0003).
+    // Coach and dancer stay mutually exclusive, exactly as before organizer
+    // existed — the original index is kept, narrowed to those two rows.
+    // Left unnamed to keep the original auto-generated index name.
+    pg.uniqueIndex().on(table.userId, table.orgId).where(isRosterTypeSql()),
+    // The complement: one organizer membership per person per Org. It caps the
+    // person, not the Org — an Org may have several Organizers, each with their
+    // own row.
+    //
+    // This is the one predicate that cannot be phrased positively: `organizer`
+    // is added by the same migration, and Postgres refuses DDL naming an enum
+    // label added in its own transaction. The cost is that it reads as "not a
+    // Roster type" rather than "is an organizer", so a fourth member type added
+    // later would silently share this uniqueness slot and could not coexist
+    // with an organizer membership. Whoever adds one should split this index —
+    // `where type = 'organizer'` is safe in any later migration.
+    pg
+      .uniqueIndex("org_memberships_organizer_per_user_per_org")
+      .on(table.userId, table.orgId)
+      .where(isNotRosterTypeSql()),
     pg.index().on(table.orgId),
     pg.index().on(table.userId),
   ]

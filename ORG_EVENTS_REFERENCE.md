@@ -268,6 +268,37 @@ Backfill: `node ace backfill:staff-rosters` flags pre-existing admin-attended ro
 Two role systems: platform `role` (`admin`/`prodigy_admin`/`user`) on `users`; org `orgRole`
 (`admin`/`member`) on `org_memberships`.
 
+### Org member types vs roster types (`organizer`)
+`org_member_type` is `coach`|`dancer`|`organizer`, but only `coach`|`dancer` can appear on a
+Roster. `event_rosters.type` and `csv_uploads.type` are typed `RosterType` in TypeScript and carry
+the `event_rosters_roster_type` / `csv_uploads_roster_type` CHECKs, so an Organizer can never
+become a Roster Entry (ADR 0003). All of these predicates come from one fragment,
+`isRosterTypeSql()` in `schema/enums.ts` — the CHECKs, the membership partial index, and the
+ON CONFLICT `where` must stay identical or Postgres stops inferring the index. It is written
+positively (`type in ('coach','dancer')`) rather than as `<> 'organizer'`: DDL may not name a
+label added in the same migration, and a member type added later then stays out of rosters until
+someone decides otherwise. `org_memberships_organizer_per_user_per_org` is the one place the
+negative form (`isNotRosterTypeSql()`) is unavoidable — which means a fourth member type added
+later would share the organizer's uniqueness slot. Adding one? Split that index first
+(`where type = 'organizer'` is safe in any migration after the label is committed).
+
+An Organizer administers the org by definition, whatever `org_memberships.role` says: use
+`grantsOrgAdmin()` (`#shared/org/membership`, mirrored in `@/lib/access`) rather than comparing
+`role === "admin"` by hand. Coach and dancer remain mutually exclusive per person per org
+(`org_memberships_user_id_org_id_index`, now partial), but an organizer membership sits alongside
+them — someone who runs an event may also coach at it. That means a user can hold **more than one**
+membership row per org: read them all and collapse with `resolveEffectiveMembership()`, and use
+`hasMemberType()` for "is this person a coach here?" checks. Participant upserts must pass
+`rosterTypeMembershipConflict()` so Postgres infers the partial index. Load memberships with
+`loadOrgMemberships()` rather than a hand-rolled `.limit(1)` lookup.
+
+Reclassifying pre-ADR-0003 data: `node ace backfill:organizers` (dry run by default,
+`--no-dry-run` to apply, `--org=slug` to scope). It only flips admin coach memberships whose owner
+holds **no** real Roster Entry. Someone with a roster row genuinely coached, and flipping them
+would leave that row — and so their place in every coach-facing list, which reads `event_rosters`
+and never `org_memberships` — while removing the coach membership that explains it. Those are
+reported for a human to give an organizer membership *alongside* the coach one.
+
 **View-as flow (how staff rosters get created):** admin picks "Coach/Dancer" in the
 `ViewSwitcher` → `POST :slug/events/view-as { type }` (`modules/orgs/events/view-as/`, admin-only)
 upserts their `is_staff` roster. `OrgEventMiddleware` resolves `ctx.orgRoster` using the

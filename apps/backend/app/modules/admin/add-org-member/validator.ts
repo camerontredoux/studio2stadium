@@ -8,7 +8,7 @@ export const schema = vine.create(
     }),
     email: vine.string().email(),
     role: vine.enum(["admin", "member"]),
-    type: vine.enum(["coach", "dancer"]),
+    type: vine.enum(["coach", "dancer", "organizer"]),
   })
 );
 

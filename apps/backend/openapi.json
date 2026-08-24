@@ -11620,7 +11620,12 @@
               ]
             },
             "type": {
-              "$ref": "#/components/schemas/UploadKind"
+              "type": "string",
+              "enum": [
+                "dancer",
+                "coach",
+                "organizer"
+              ]
             }
           },
           "required": [
@@ -11646,7 +11651,12 @@
             ]
           },
           "type": {
-            "$ref": "#/components/schemas/UploadKind"
+            "type": "string",
+            "enum": [
+              "dancer",
+              "coach",
+              "organizer"
+            ]
           }
         },
         "required": [
@@ -11675,7 +11685,12 @@
           "type": {
             "oneOf": [
               {
-                "$ref": "#/components/schemas/UploadKind"
+                "type": "string",
+                "enum": [
+                  "dancer",
+                  "coach",
+                  "organizer"
+                ]
               },
               {
                 "type": "null"
@@ -11704,7 +11719,12 @@
             ]
           },
           "type": {
-            "$ref": "#/components/schemas/UploadKind"
+            "type": "string",
+            "enum": [
+              "dancer",
+              "coach",
+              "organizer"
+            ]
           },
           "userId": {
             "type": "string"
@@ -12014,7 +12034,12 @@
                       ]
                     },
                     "type": {
-                      "$ref": "#/components/schemas/UploadKind"
+                      "type": "string",
+                      "enum": [
+                        "dancer",
+                        "coach",
+                        "organizer"
+                      ]
                     }
                   },
                   "required": [
@@ -12158,7 +12183,12 @@
                   ]
                 },
                 "type": {
-                  "$ref": "#/components/schemas/UploadKind"
+                  "type": "string",
+                  "enum": [
+                    "dancer",
+                    "coach",
+                    "organizer"
+                  ]
                 }
               },
               "required": [
@@ -12840,7 +12870,12 @@
                     ]
                   },
                   "type": {
-                    "$ref": "#/components/schemas/UploadKind"
+                    "type": "string",
+                    "enum": [
+                      "dancer",
+                      "coach",
+                      "organizer"
+                    ]
                   }
                 },
                 "required": [
@@ -19152,12 +19187,6 @@
                 "title": {
                   "type": "string"
                 },
-                "startDatetime": {
-                  "type": "string"
-                },
-                "endDatetime": {
-                  "type": "string"
-                },
                 "organizer": {
                   "oneOf": [
                     {
@@ -19175,6 +19204,12 @@
                       "type": "null"
                     }
                   ]
+                },
+                "startDatetime": {
+                  "type": "string"
+                },
+                "endDatetime": {
+                  "type": "string"
                 }
               },
               "required": [
@@ -19182,9 +19217,9 @@
                 "type",
                 "location",
                 "title",
+                "organizer",
                 "startDatetime",
-                "endDatetime",
-                "organizer"
+                "endDatetime"
               ]
             }
           },
@@ -19974,6 +20009,36 @@
           "description": {
             "type": "string"
           },
+          "organizer": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              },
+              "avatar": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "events": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "name",
+              "username",
+              "avatar",
+              "events"
+            ]
+          },
           "address": {
             "oneOf": [
               {
@@ -20037,36 +20102,6 @@
           "startTime": {
             "type": "string"
           },
-          "organizer": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "username": {
-                "type": "string"
-              },
-              "avatar": {
-                "oneOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "events": {
-                "type": "number"
-              }
-            },
-            "required": [
-              "name",
-              "username",
-              "avatar",
-              "events"
-            ]
-          },
           "attendees": {
             "type": "number"
           },
@@ -20090,13 +20125,13 @@
           "schoolId",
           "title",
           "description",
+          "organizer",
           "address",
           "tags",
           "cost",
           "startDate",
           "endDate",
           "startTime",
-          "organizer",
           "attendees",
           "saved",
           "eventAttendees",
@@ -22142,7 +22177,12 @@
               ]
             },
             "type": {
-              "$ref": "#/components/schemas/UploadKind"
+              "type": "string",
+              "enum": [
+                "dancer",
+                "coach",
+                "organizer"
+              ]
             },
             "slug": {
               "type": "string"

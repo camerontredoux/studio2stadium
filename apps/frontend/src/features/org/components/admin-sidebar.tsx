@@ -51,6 +51,7 @@ import {
 import { useMemo } from "react";
 import { useOrgTheme } from "@/features/org/hooks/use-org-theme";
 import { type TernaryDarkMode } from "usehooks-ts";
+import { grantsOrgAdmin } from "@/lib/access";
 
 const dashboardItem = {
   label: "Dashboard",
@@ -175,7 +176,7 @@ export function AdminSidebar() {
       ? "Coach"
       : "Dancer";
   const canSwitchView =
-    membership?.role === "admin" || session.role === "admin";
+    grantsOrgAdmin(membership) || session.role === "admin";
 
   function handleSelectView(view: "Admin" | "Coach" | "Dancer") {
     if (view === "Admin") {

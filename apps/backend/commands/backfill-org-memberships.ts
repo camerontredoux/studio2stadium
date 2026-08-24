@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { db } from "#database/connection";
 import { platforms, users } from "#database/schema/users";
 import { organizations, orgMemberships } from "#database/schema/organizations";
+import { rosterTypeMembershipConflict } from "#shared/org/membership";
 
 /**
  * One-shot data migration: map every `user_platforms` row into an equivalent
@@ -52,9 +53,7 @@ export async function backfillOrgMemberships(): Promise<number> {
         type: memberType,
         role: membershipRole,
       })
-      .onConflictDoNothing({
-        target: [orgMemberships.userId, orgMemberships.orgId],
-      });
+      .onConflictDoNothing(rosterTypeMembershipConflict());
     inserted += 1;
   }
 

@@ -2,13 +2,31 @@ import { describe, expect, it } from "vitest";
 
 import { resolveOrgArea, resolveOrgDestination } from "./org-destination";
 
-const dancerRoster = { id: "r1", type: "dancer" };
-const coachRoster = { id: "r2", type: "coach" };
+const dancerRoster = { id: "r1", type: "dancer" } as const;
+const coachRoster = { id: "r2", type: "coach" } as const;
 
 describe("resolveOrgArea", () => {
   it("sends org admins to the admin area", () => {
     expect(
       resolveOrgArea({ membership: { role: "admin", type: "coach" } }),
+    ).toBe("admin");
+  });
+
+  it("sends organizers to the admin area, roster or not", () => {
+    expect(
+      resolveOrgArea({ membership: { role: "member", type: "organizer" } }),
+    ).toBe("admin");
+    expect(
+      resolveOrgArea({ membership: { role: "admin", type: "organizer" } }),
+    ).toBe("admin");
+  });
+
+  it("still sends an organizer who also coaches to the admin area", () => {
+    expect(
+      resolveOrgArea({
+        membership: { role: "member", type: "organizer" },
+        myRosters: [coachRoster],
+      }),
     ).toBe("admin");
   });
 

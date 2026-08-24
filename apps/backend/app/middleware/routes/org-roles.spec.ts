@@ -15,10 +15,16 @@ type CtxState = {
   notFoundBody: { message: string } | null;
 };
 
+/**
+ * Mirrors what OrgMemberMiddleware attaches: `orgMemberships` is the full set
+ * and `orgMembership` the effective one. Tests that pass a single membership
+ * get a one-row set, which is what a person with one membership really has.
+ */
 function mockCtx(opts: {
   user: { id: string } | null;
   org?: { id: string; slug: string } | null;
   membership?: { role: string; type: string } | null;
+  memberships?: Array<{ role: string; type: string }>;
 }) {
   const state: CtxState = {
     nextCalled: false,
@@ -43,6 +49,8 @@ function mockCtx(opts: {
     },
     org: opts.org ?? undefined,
     orgMembership: opts.membership ?? undefined,
+    orgMemberships:
+      opts.memberships ?? (opts.membership ? [opts.membership] : undefined),
   };
   const next = async () => {
     state.nextCalled = true;
@@ -148,6 +156,18 @@ test.group("org role middlewares", (group) => {
     assert.isNotNull(state.forbiddenBody);
   });
 
+  test("orgAdmin allows an organizer even at role=member", async ({
+    assert,
+  }) => {
+    const { ctx, state, next } = mockCtx({
+      user: { id: "u2b" },
+      membership: { role: "member", type: "organizer" },
+    });
+    await new OrgAdminMiddleware().handle(ctx, next);
+    assert.isTrue(state.nextCalled);
+    assert.isNull(state.forbiddenBody);
+  });
+
   // ----- orgCoach ------
   test("orgCoach allows type=coach", async ({ assert }) => {
     const { ctx, state, next } = mockCtx({
@@ -174,6 +194,41 @@ test.group("org role middlewares", (group) => {
     });
     await new OrgCoachMiddleware().handle(ctx, next);
     assert.isFalse(state.nextCalled);
+  });
+
+  test("orgCoach lets an organizer through, as an org admin", async ({
+    assert,
+  }) => {
+    const { ctx, state, next } = mockCtx({
+      user: { id: "u5b" },
+      membership: { role: "member", type: "organizer" },
+    });
+    await new OrgCoachMiddleware().handle(ctx, next);
+    assert.isTrue(state.nextCalled);
+  });
+
+  test("orgMember picks the organizer when a user holds two memberships", async ({
+    assert,
+  }) => {
+    const user = await createUser("m4");
+    const [summit] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "summit"));
+    await db.insert(orgMemberships).values([
+      { userId: user.id, orgId: summit!.id, role: "member", type: "coach" },
+      { userId: user.id, orgId: summit!.id, role: "member", type: "organizer" },
+    ]);
+
+    const { ctx, state, next } = mockCtx({
+      user: { id: user.id },
+      org: summit as any,
+    });
+    await new OrgMemberMiddleware().handle(ctx, next);
+
+    assert.isTrue(state.nextCalled);
+    assert.equal(ctx.orgMembership?.type, "organizer");
+    assert.lengthOf(ctx.orgMemberships ?? [], 2);
   });
 
   // ----- orgDancer ------

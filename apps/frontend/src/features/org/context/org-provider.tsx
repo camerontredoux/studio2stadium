@@ -8,6 +8,7 @@ import {
   type OrgMembership,
   type MyRoster,
 } from "./org-context";
+import { grantsOrgAdmin } from "@/lib/access";
 
 const EMPTY_ROSTERS: MyRoster[] = [];
 
@@ -43,7 +44,7 @@ export function OrgProvider({
       membership,
       myRoster,
       myRosters,
-      isAdmin: membership?.role === "admin" || session?.role === "admin",
+      isAdmin: grantsOrgAdmin(membership) || session?.role === "admin",
       hasFeature: (key) => Boolean(features[key]),
     }),
     [data, features, membership, myRoster, myRosters, session?.role],

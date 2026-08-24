@@ -1,10 +1,12 @@
+import type { RosterType } from "#database/schema/enums";
 import { DatabaseService } from "#database/service";
 import { eventRosters } from "#database/schema/org-events";
 import { inject } from "@adonisjs/core";
 import type { SessionUser } from "#auth/provider";
 import { and, eq } from "drizzle-orm";
 
-type ViewAsType = "coach" | "dancer";
+/** Admins preview the event as a Coach or a Dancer; there is no organizer view. */
+type ViewAsType = RosterType;
 
 /**
  * Provisions an admin's staff "preview" roster for the active event so they can

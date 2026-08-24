@@ -1,8 +1,14 @@
 import { db } from "#database/connection";
 import { orgEvents, eventRosters } from "#database/schema/org-events";
-import { orgMemberships } from "#database/schema/organizations";
 import type { HttpContext } from "@adonisjs/core/http";
 import type { NextFn } from "@adonisjs/core/types/http";
+import {
+  grantsOrgAdmin,
+  hasMemberType,
+  loadOrgMemberships,
+  resolveEffectiveMembership,
+} from "#shared/org/membership";
+import { isRosterType } from "#database/schema/enums";
 import { and, desc, eq, sql } from "drizzle-orm";
 
 declare module "@adonisjs/core/http" {
@@ -33,18 +39,9 @@ export default class OrgEventMiddleware {
       const user = await ctx.auth.getUserOrFail();
 
       if (mode === "dancerSelfRead" && user.role !== "admin") {
-        const [membership] = await db
-          .select({ role: orgMemberships.role, type: orgMemberships.type })
-          .from(orgMemberships)
-          .where(
-            and(
-              eq(orgMemberships.userId, user.id),
-              eq(orgMemberships.orgId, ctx.org.id)
-            )
-          )
-          .limit(1);
+        const memberships = await loadOrgMemberships(db, user.id, ctx.org.id);
 
-        if (membership?.type === "dancer") {
+        if (hasMemberType(memberships, "dancer")) {
           const requestedEventId =
             (ctx.params.id as string | undefined) ??
             (ctx.request.input("eventId") as string | undefined);
@@ -102,9 +99,10 @@ export default class OrgEventMiddleware {
       // the LIMIT 1 lookup would be ambiguous. The frontend sends the acting
       // type via `x-act-as-type` while in preview mode; honour it. Real
       // participants only ever have one row, so this is a no-op for them.
+      // Only a Roster type can be acted as — an organizer never has a roster.
       const actAs = ctx.request.header("x-act-as-type");
       const actAsType =
-        actAs === "coach" || actAs === "dancer" ? actAs : undefined;
+        typeof actAs === "string" && isRosterType(actAs) ? actAs : undefined;
 
       const [roster] = ev
         ? await db
@@ -126,18 +124,10 @@ export default class OrgEventMiddleware {
 
       // Non-admin members must have a roster entry for the active event
       if (!roster && user.role !== "admin") {
-        const [membership] = await db
-          .select({ role: orgMemberships.role, type: orgMemberships.type })
-          .from(orgMemberships)
-          .where(
-            and(
-              eq(orgMemberships.userId, user.id),
-              eq(orgMemberships.orgId, ctx.org.id)
-            )
-          )
-          .limit(1);
+        const memberships = await loadOrgMemberships(db, user.id, ctx.org.id);
+        const membership = resolveEffectiveMembership(memberships);
         const browseRosters =
-          mode === "coachDancerRead" && membership?.type === "coach"
+          mode === "coachDancerRead" && hasMemberType(memberships, "coach")
             ? await db
                 .select({ exists: sql<boolean>`true` })
                 .from(eventRosters)
@@ -152,7 +142,7 @@ export default class OrgEventMiddleware {
                 .limit(1)
             : [];
         const canBrowseDancers = browseRosters.length > 0;
-        if ((!membership || membership.role !== "admin") && !canBrowseDancers) {
+        if (!grantsOrgAdmin(membership) && !canBrowseDancers) {
           return ctx.response.forbidden({
             message: "Not on event roster.",
           });
