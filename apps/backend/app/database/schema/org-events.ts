@@ -1,8 +1,13 @@
 // apps/backend/app/database/schema/org-events.ts
 import { sql } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import { auditAction, auditResource, orgMemberType } from "./enums.ts";
-import { timestamps } from "./helpers/columns.ts";
+import {
+  auditAction,
+  auditResource,
+  csvRowOutcome,
+  orgMemberType,
+} from "./enums.ts";
+import { citext, timestamps } from "./helpers/columns.ts";
 import { organizations } from "./organizations.ts";
 import { users } from "./users.ts";
 
@@ -127,6 +132,50 @@ export const csvUploads = pg.pgTable(
     ...timestamps,
   },
   (table) => [pg.index().on(table.eventId, table.createdAt)]
+);
+
+/**
+ * A per-row snapshot of what a roster CSV actually contained.
+ *
+ * The uploaded file itself is not kept, and the roster entries it creates are
+ * mutable — attaching an account rewrites an entry's email and name in place.
+ * Without this, "what did the spreadsheet say for this dancer, and what did it
+ * do?" becomes unanswerable the moment anything downstream edits the entry,
+ * which is exactly when someone asks.
+ */
+export const csvUploadRows = pg.pgTable(
+  "csv_upload_rows",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    csvUploadId: pg
+      .uuid()
+      .notNull()
+      .references(() => csvUploads.id, { onDelete: "cascade" }),
+    rowNumber: pg.integer().notNull(),
+    // The identity as written in the file — deliberately a copy, never a join,
+    // so later edits to the roster entry cannot rewrite history.
+    email: citext().notNull(),
+    firstName: pg.text(),
+    lastName: pg.text(),
+    bibNumber: pg.integer(),
+    paid: pg.boolean(),
+    outcome: csvRowOutcome().notNull(),
+    rosterId: pg
+      .uuid()
+      .references(() => eventRosters.id, { onDelete: "set null" }),
+    // The account this row matched at upload time, if any. Null means the row
+    // produced an invite rather than an immediate link.
+    matchedUserId: pg.uuid().references(() => users.id, {
+      onDelete: "set null",
+    }),
+    ...timestamps,
+  },
+  (table) => [
+    pg.index().on(table.csvUploadId),
+    // Drives "show me every CSV line ever uploaded for this address".
+    pg.index().on(table.email),
+    pg.index().on(table.rosterId),
+  ]
 );
 
 export const eventVideoCategories = pg.pgTable(

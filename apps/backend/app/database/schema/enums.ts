@@ -95,6 +95,9 @@ export const auditAction = pgEnum("audit_action", [
   "resend_invite",
 ]);
 
+/** What a CSV row did to the roster: created a new entry, or changed one. */
+export const csvRowOutcome = pgEnum("csv_row_outcome", ["added", "updated"]);
+
 export const auditResource = pgEnum("audit_resource", [
   "roster",
   "event",
