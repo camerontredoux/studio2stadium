@@ -1,6 +1,9 @@
-import type { OrgMemberType } from "#database/schema/enums";
+import type { db } from "#database/connection";
+import { isRosterTypeSql, type OrgMemberType } from "#database/schema/enums";
 import { orgMemberships } from "#database/schema/organizations";
-import { sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+
+type AnyDb = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 /**
  * The part of an `org_memberships` row that access decisions read. Kept
@@ -66,8 +69,27 @@ export function resolveEffectiveMembership<T extends OrgMembershipLike>(
  * an organizer membership sits alongside them and is deliberately outside this
  * index, so upserting one never disturbs the other (ADR 0003).
  */
-export const nonOrganizerMembershipConflict = () => ({
+export const rosterTypeMembershipConflict = () => ({
   target: [orgMemberships.userId, orgMemberships.orgId],
-  // Must match the index predicate for Postgres to infer the partial index.
-  where: sql`type in ('coach', 'dancer')`,
+  // Same fragment the index is declared with, so Postgres can infer it.
+  where: isRosterTypeSql(),
 });
+
+/**
+ * Every membership a person holds in one Org. Always read the full set: since
+ * an Organizer may also coach at their own event (ADR 0003), a single-row
+ * lookup would return an arbitrary one of the two. Collapse with
+ * `resolveEffectiveMembership`, or ask `hasMemberType` about a specific type.
+ */
+export async function loadOrgMemberships(
+  conn: AnyDb,
+  userId: string,
+  orgId: string
+) {
+  return conn
+    .select()
+    .from(orgMemberships)
+    .where(
+      and(eq(orgMemberships.userId, userId), eq(orgMemberships.orgId, orgId))
+    );
+}

@@ -1,9 +1,11 @@
 import { db } from "#database/connection";
-import { orgMemberships } from "#database/schema/organizations";
+import { type orgMemberships } from "#database/schema/organizations";
 import type { HttpContext } from "@adonisjs/core/http";
 import type { NextFn } from "@adonisjs/core/types/http";
-import { resolveEffectiveMembership } from "#shared/org/membership";
-import { and, eq } from "drizzle-orm";
+import {
+  loadOrgMemberships,
+  resolveEffectiveMembership,
+} from "#shared/org/membership";
 
 declare module "@adonisjs/core/http" {
   interface HttpContext {
@@ -47,15 +49,7 @@ export default class OrgMemberMiddleware {
       return next();
     }
 
-    const memberships = await db
-      .select()
-      .from(orgMemberships)
-      .where(
-        and(
-          eq(orgMemberships.userId, user.id),
-          eq(orgMemberships.orgId, ctx.org.id)
-        )
-      );
+    const memberships = await loadOrgMemberships(db, user.id, ctx.org.id);
     const membership = resolveEffectiveMembership(memberships);
 
     if (!membership) {

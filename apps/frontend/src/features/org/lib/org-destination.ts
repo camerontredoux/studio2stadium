@@ -1,14 +1,18 @@
-import { grantsOrgAdmin } from "@/lib/access";
+import {
+  grantsOrgAdmin,
+  type OrgMemberType,
+  type RosterType,
+} from "@/lib/access";
 
 export interface OrgAccess {
-  membership?: { role: string; type: string } | null;
+  membership?: { role: "admin" | "member"; type: OrgMemberType } | null;
   myRoster?: { id: string } | null;
-  myRosters?: Array<{ id: string; type: string }>;
+  myRosters?: Array<{ id: string; type: RosterType }>;
 }
 
 export type OrgArea = "admin" | "coach" | "dancer" | "no-access";
 
-const hasRoster = (access: OrgAccess | null | undefined, type: string) =>
+const hasRoster = (access: OrgAccess | null | undefined, type: RosterType) =>
   access?.myRosters?.some((roster) => roster.type === type) ?? false;
 
 /**

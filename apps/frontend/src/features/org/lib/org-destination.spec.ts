@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import { resolveOrgArea, resolveOrgDestination } from "./org-destination";
 
-const dancerRoster = { id: "r1", type: "dancer" };
-const coachRoster = { id: "r2", type: "coach" };
+const dancerRoster = { id: "r1", type: "dancer" } as const;
+const coachRoster = { id: "r2", type: "coach" } as const;
 
 describe("resolveOrgArea", () => {
   it("sends org admins to the admin area", () => {

@@ -7,7 +7,10 @@ import type { OrgMemberType } from "./types";
  * `grantsOrgAdmin` in the backend's `#shared/org/membership`.
  */
 export function grantsOrgAdmin(
-  membership: { role: string; type: OrgMemberType | string } | null | undefined,
+  membership:
+    | { role: "admin" | "member"; type: OrgMemberType }
+    | null
+    | undefined,
 ): boolean {
   if (!membership) return false;
   return membership.role === "admin" || membership.type === "organizer";

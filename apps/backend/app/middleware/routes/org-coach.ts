@@ -13,10 +13,10 @@ import type { NextFn } from "@adonisjs/core/types/http";
 export default class OrgCoachMiddleware {
   async handle(ctx: HttpContext, next: NextFn) {
     const membership = ctx.orgMembership;
-    if (!membership) {
+    const memberships = ctx.orgMemberships;
+    if (!membership || !memberships) {
       return ctx.response.forbidden({ message: "Membership not resolved." });
     }
-    const memberships = ctx.orgMemberships ?? [membership];
     if (!hasMemberType(memberships, "coach") && !grantsOrgAdmin(membership)) {
       return ctx.response.forbidden({ message: "Coach access required." });
     }

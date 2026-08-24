@@ -1,11 +1,11 @@
 import { db } from "#database/connection";
 import { orgEvents, eventRosters } from "#database/schema/org-events";
-import { orgMemberships } from "#database/schema/organizations";
 import type { HttpContext } from "@adonisjs/core/http";
 import type { NextFn } from "@adonisjs/core/types/http";
 import {
   grantsOrgAdmin,
   hasMemberType,
+  loadOrgMemberships,
   resolveEffectiveMembership,
 } from "#shared/org/membership";
 import { isRosterType } from "#database/schema/enums";
@@ -39,17 +39,7 @@ export default class OrgEventMiddleware {
       const user = await ctx.auth.getUserOrFail();
 
       if (mode === "dancerSelfRead" && user.role !== "admin") {
-        // A person can hold more than one membership in an org (ADR 0003), so
-        // read them all rather than an arbitrary first row.
-        const memberships = await db
-          .select({ role: orgMemberships.role, type: orgMemberships.type })
-          .from(orgMemberships)
-          .where(
-            and(
-              eq(orgMemberships.userId, user.id),
-              eq(orgMemberships.orgId, ctx.org.id)
-            )
-          );
+        const memberships = await loadOrgMemberships(db, user.id, ctx.org.id);
 
         if (hasMemberType(memberships, "dancer")) {
           const requestedEventId =
@@ -134,15 +124,7 @@ export default class OrgEventMiddleware {
 
       // Non-admin members must have a roster entry for the active event
       if (!roster && user.role !== "admin") {
-        const memberships = await db
-          .select({ role: orgMemberships.role, type: orgMemberships.type })
-          .from(orgMemberships)
-          .where(
-            and(
-              eq(orgMemberships.userId, user.id),
-              eq(orgMemberships.orgId, ctx.org.id)
-            )
-          );
+        const memberships = await loadOrgMemberships(db, user.id, ctx.org.id);
         const membership = resolveEffectiveMembership(memberships);
         const browseRosters =
           mode === "coachDancerRead" && hasMemberType(memberships, "coach")

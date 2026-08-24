@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { pgEnum } from "drizzle-orm/pg-core";
 
 export const prospectStatus = pgEnum("prospect_status", [
@@ -106,6 +107,29 @@ export type RosterType = (typeof ROSTER_TYPES)[number];
 
 export const isRosterType = (value: string): value is RosterType =>
   (ROSTER_TYPES as readonly string[]).includes(value);
+
+/**
+ * SQL predicate for "this row's `type` is a Roster type". Shared by the roster
+ * CHECK constraints, the membership partial indexes, and the ON CONFLICT clause
+ * that has to infer one of those indexes — Postgres only infers a partial index
+ * when the statement's predicate implies the index's, so these must not drift.
+ *
+ * Written as a positive list rather than `<> 'organizer'` for two reasons: DDL
+ * may not name an enum label added in the same transaction, and a member type
+ * added later then stays out of rosters until someone decides otherwise.
+ */
+export const isRosterTypeSql = () =>
+  sql`type in (${sql.join(
+    ROSTER_TYPES.map((t) => sql`${t}`),
+    sql`, `
+  )})`;
+
+/** The complement of `isRosterTypeSql`, for indexes over the non-Roster types. */
+export const isNotRosterTypeSql = () =>
+  sql`type not in (${sql.join(
+    ROSTER_TYPES.map((t) => sql`${t}`),
+    sql`, `
+  )})`;
 export const premiumGrantSource = pgEnum("premium_grant_source", ["org_event"]);
 export const orgAccountTier = pgEnum("org_account_tier", [
   "standard",

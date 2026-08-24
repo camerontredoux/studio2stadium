@@ -1,7 +1,7 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "fa0ab202-713c-47bf-8a56-5194cd0a462b",
+  "id": "5445b437-b7de-468a-a1af-da8c8d97310d",
   "prevIds": [
     "5bccd7e0-87f6-425b-9afd-d5e5466ea8f1"
   ],
@@ -7774,7 +7774,7 @@
       "with": "",
       "method": "btree",
       "concurrently": false,
-      "name": "org_memberships_one_organizer_per_org",
+      "name": "org_memberships_organizer_per_user_per_org",
       "entityType": "indexes",
       "schema": "public",
       "table": "org_memberships"
@@ -12004,14 +12004,14 @@
     },
     {
       "value": "type in ('coach', 'dancer')",
-      "name": "csv_uploads_participant_type",
+      "name": "csv_uploads_roster_type",
       "entityType": "checks",
       "schema": "public",
       "table": "csv_uploads"
     },
     {
       "value": "type in ('coach', 'dancer')",
-      "name": "event_rosters_participant_type",
+      "name": "event_rosters_roster_type",
       "entityType": "checks",
       "schema": "public",
       "table": "event_rosters"

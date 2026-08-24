@@ -3,7 +3,7 @@ import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { organizations, orgMemberships } from "#database/schema/organizations";
 import { users } from "#database/schema/users";
 import { seedOrganizations } from "#commands/backfill-organizations";
-import { nonOrganizerMembershipConflict } from "#shared/org/membership";
+import { rosterTypeMembershipConflict } from "#shared/org/membership";
 import { test } from "@japa/runner";
 import { and, eq, sql } from "drizzle-orm";
 
@@ -113,11 +113,11 @@ test.group("organizer membership", (group) => {
     await db
       .insert(orgMemberships)
       .values({ userId, orgId, type: "coach", role: "member" })
-      .onConflictDoNothing(nonOrganizerMembershipConflict());
+      .onConflictDoNothing(rosterTypeMembershipConflict());
     await db
       .insert(orgMemberships)
       .values({ userId, orgId, type: "coach", role: "member" })
-      .onConflictDoNothing(nonOrganizerMembershipConflict());
+      .onConflictDoNothing(rosterTypeMembershipConflict());
 
     const held = await db
       .select({ type: orgMemberships.type })

@@ -7,7 +7,7 @@ import { inject } from "@adonisjs/core";
 import hash from "@adonisjs/core/services/hash";
 import { and, eq, isNull } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
-import { nonOrganizerMembershipConflict } from "#shared/org/membership";
+import { rosterTypeMembershipConflict } from "#shared/org/membership";
 
 export class InviteInvalidError extends Error {
   constructor(message = "Invite is invalid or has expired.") {
@@ -104,7 +104,7 @@ export class RegisterSchoolService {
             type: "coach",
             role: "member",
           })
-          .onConflictDoNothing(nonOrganizerMembershipConflict());
+          .onConflictDoNothing(rosterTypeMembershipConflict());
       }
 
       await tx

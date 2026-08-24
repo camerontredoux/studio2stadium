@@ -1,12 +1,13 @@
 import transmit from "@adonisjs/transmit/services/main";
 import router from "@adonisjs/core/services/router";
 import { db } from "#database/connection";
-import { organizations, orgMemberships } from "#database/schema/organizations";
+import { organizations } from "#database/schema/organizations";
 import {
   grantsOrgAdmin,
+  loadOrgMemberships,
   resolveEffectiveMembership,
 } from "#shared/org/membership";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 // Register transmit routes inline to work around a @poppinss/utils
 // version mismatch that breaks the built-in controllers.
@@ -59,17 +60,7 @@ transmit.authorize<{ slug: string }>(
       .limit(1);
     if (!org) return false;
 
-    // A person can hold several memberships in one org (ADR 0003), so read
-    // them all rather than whichever row came back first.
-    const memberships = await db
-      .select()
-      .from(orgMemberships)
-      .where(
-        and(
-          eq(orgMemberships.userId, user.id),
-          eq(orgMemberships.orgId, org.id)
-        )
-      );
+    const memberships = await loadOrgMemberships(db, user.id, org.id);
 
     return grantsOrgAdmin(resolveEffectiveMembership(memberships));
   }

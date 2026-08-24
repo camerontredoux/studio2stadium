@@ -271,10 +271,14 @@ Two role systems: platform `role` (`admin`/`prodigy_admin`/`user`) on `users`; o
 ### Org member types vs roster types (`organizer`)
 `org_member_type` is `coach`|`dancer`|`organizer`, but only `coach`|`dancer` can appear on a
 Roster. `event_rosters.type` and `csv_uploads.type` are typed `RosterType` in TypeScript and carry
-a `... type in ('coach','dancer')` CHECK, so an Organizer can never become a Roster Entry
-(ADR 0003). Predicates are written positively rather than as `<> 'organizer'` — the DDL must not
-name a label added in the same migration, and a member type added later then stays out of rosters
-until someone decides otherwise.
+the `event_rosters_roster_type` / `csv_uploads_roster_type` CHECKs, so an Organizer can never
+become a Roster Entry (ADR 0003). All of these predicates come from one fragment,
+`isRosterTypeSql()` in `schema/enums.ts` — the CHECKs, the membership partial index, and the
+ON CONFLICT `where` must stay identical or Postgres stops inferring the index. It is written
+positively (`type in ('coach','dancer')`) rather than as `<> 'organizer'`: DDL may not name a
+label added in the same migration, and a member type added later then stays out of rosters until
+someone decides otherwise. `org_memberships_organizer_per_user_per_org` is the one place the
+negative form (`isNotRosterTypeSql()`) is unavoidable.
 
 An Organizer administers the org by definition, whatever `org_memberships.role` says: use
 `grantsOrgAdmin()` (`#shared/org/membership`, mirrored in `@/lib/access`) rather than comparing
@@ -283,7 +287,8 @@ An Organizer administers the org by definition, whatever `org_memberships.role` 
 them — someone who runs an event may also coach at it. That means a user can hold **more than one**
 membership row per org: read them all and collapse with `resolveEffectiveMembership()`, and use
 `hasMemberType()` for "is this person a coach here?" checks. Participant upserts must pass
-`nonOrganizerMembershipConflict()` so Postgres infers the partial index.
+`rosterTypeMembershipConflict()` so Postgres infers the partial index. Load memberships with
+`loadOrgMemberships()` rather than a hand-rolled `.limit(1)` lookup.
 
 **View-as flow (how staff rosters get created):** admin picks "Coach/Dancer" in the
 `ViewSwitcher` → `POST :slug/events/view-as { type }` (`modules/orgs/events/view-as/`, admin-only)

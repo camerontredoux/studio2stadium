@@ -6,7 +6,7 @@ import { users } from "#database/schema/users";
 import { inject } from "@adonisjs/core";
 import { and, eq, isNull, notInArray, sql } from "drizzle-orm";
 import { sendSchoolAccountInviteEmail } from "#shared/org/school-account-invite-email";
-import { nonOrganizerMembershipConflict } from "#shared/org/membership";
+import { rosterTypeMembershipConflict } from "#shared/org/membership";
 
 @inject()
 export class ReconciliationService {
@@ -162,7 +162,7 @@ export class ReconciliationService {
             type: "coach",
             role: "member",
           })
-          .onConflictDoNothing(nonOrganizerMembershipConflict());
+          .onConflictDoNothing(rosterTypeMembershipConflict());
       }
 
       // Mark matching unconsumed invite consumed

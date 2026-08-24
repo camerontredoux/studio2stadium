@@ -7,6 +7,7 @@ import {
   csvRowOutcome,
   orgMemberType,
   rosterClaimStatus,
+  isRosterTypeSql,
   type RosterType,
 } from "./enums.ts";
 import { citext, timestamps } from "./helpers/columns.ts";
@@ -95,10 +96,7 @@ export const eventRosters = pg.pgTable(
     pg.index().on(table.eventId, table.type),
     pg.index().on(table.userId),
     // A Roster Entry is a Coach or a Dancer, never an Organizer (ADR 0003).
-    pg.check(
-      "event_rosters_participant_type",
-      sql`type in ('coach', 'dancer')`
-    ),
+    pg.check("event_rosters_roster_type", isRosterTypeSql()),
   ]
 );
 
@@ -144,7 +142,7 @@ export const csvUploads = pg.pgTable(
   },
   (table) => [
     pg.index().on(table.eventId, table.createdAt),
-    pg.check("csv_uploads_participant_type", sql`type in ('coach', 'dancer')`),
+    pg.check("csv_uploads_roster_type", isRosterTypeSql()),
   ]
 );
 

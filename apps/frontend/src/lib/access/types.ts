@@ -18,7 +18,7 @@ export type OrgMemberType = ApiSchemas["AdminOrgsIdMembersRequest"]["type"];
  * a roster row, a CSV upload, an admin previewing the event — is one of these,
  * never an Organizer.
  */
-export type RosterType = ApiSchemas["UploadKind"];
+export type RosterType = Exclude<OrgMemberType, "organizer">;
 
 export const ORG_MEMBER_TYPE_LABELS: Record<OrgMemberType, string> = {
   coach: "Coach",

@@ -7,7 +7,7 @@ import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { schoolInvites, schoolProfiles } from "#database/schema/schools";
 import { seedOrganizations } from "#commands/backfill-organizations";
 import { randomBytes } from "node:crypto";
-import { nonOrganizerMembershipConflict } from "#shared/org/membership";
+import { rosterTypeMembershipConflict } from "#shared/org/membership";
 
 function token() {
   return randomBytes(32).toString("hex");
@@ -538,7 +538,7 @@ test.group("School invite + activation paths", (group) => {
         type: "coach",
         role: "member",
       })
-      .onConflictDoNothing(nonOrganizerMembershipConflict());
+      .onConflictDoNothing(rosterTypeMembershipConflict());
 
     const [linked] = await db
       .select()
