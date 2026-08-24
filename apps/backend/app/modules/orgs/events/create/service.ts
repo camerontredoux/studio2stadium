@@ -38,6 +38,10 @@ export class CreateEventService {
         .where(eq(users.id, actorId))
         .limit(1);
 
+      // The creator is an Organizer running the event, not a participant in it
+      // (ADR 0003). Seed the row as a staff/preview roster so it anchors FKs and
+      // matches what "view as coach" would provision, while staying out of every
+      // participant-facing and aggregate query.
       if (actor) {
         await tx.insert(eventRosters).values({
           eventId: ev!.id,
@@ -46,6 +50,7 @@ export class CreateEventService {
           email: actor.displayEmail,
           firstName: actor.firstName,
           lastName: actor.lastName,
+          isStaff: true,
         });
       }
 

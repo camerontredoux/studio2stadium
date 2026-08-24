@@ -13,6 +13,7 @@ import { CreateEventService } from "./service.ts";
 import { DatabaseService } from "#database/service";
 import { eq } from "drizzle-orm";
 import { E_DATABASE_ERROR } from "#exceptions/database";
+import { ListRosterService } from "../rosters/list/service.ts";
 import CreateEventController from "./controller.ts";
 import OrgAdminMiddleware from "#middleware/routes/org-admin";
 
@@ -140,6 +141,44 @@ test.group("CreateEventService", (group) => {
     );
     assert.isFalse(ev1.isActive);
     assert.isFalse(ev2.isActive);
+  });
+
+  test("the creator does not appear in the event's coach roster", async ({
+    assert,
+  }) => {
+    const actor = await makeActorUser();
+    const [summit] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "summit"));
+
+    const ev = await svc.execute(
+      summit!.id,
+      {
+        name: "Creator Roster",
+        startDate: "2026-06-13",
+        endDate: "2026-06-14",
+        isActive: true,
+      },
+      actor.id
+    );
+
+    const coaches = await new ListRosterService(new DatabaseService()).execute(
+      ev.id,
+      { type: "coach" }
+    );
+    assert.lengthOf(coaches.data, 0);
+    assert.equal(coaches.total, 0);
+
+    // The row still exists to anchor FKs — it is just flagged as staff, exactly
+    // as "view as coach" would have provisioned it.
+    const [row] = await db
+      .select()
+      .from(eventRosters)
+      .where(eq(eventRosters.eventId, ev.id));
+    assert.exists(row);
+    assert.equal(row!.userId, actor.id);
+    assert.isTrue(row!.isStaff);
   });
 });
 
