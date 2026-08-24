@@ -278,7 +278,9 @@ ON CONFLICT `where` must stay identical or Postgres stops inferring the index. I
 positively (`type in ('coach','dancer')`) rather than as `<> 'organizer'`: DDL may not name a
 label added in the same migration, and a member type added later then stays out of rosters until
 someone decides otherwise. `org_memberships_organizer_per_user_per_org` is the one place the
-negative form (`isNotRosterTypeSql()`) is unavoidable.
+negative form (`isNotRosterTypeSql()`) is unavoidable — which means a fourth member type added
+later would share the organizer's uniqueness slot. Adding one? Split that index first
+(`where type = 'organizer'` is safe in any migration after the label is committed).
 
 An Organizer administers the org by definition, whatever `org_memberships.role` says: use
 `grantsOrgAdmin()` (`#shared/org/membership`, mirrored in `@/lib/access`) rather than comparing

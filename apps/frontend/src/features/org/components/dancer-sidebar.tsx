@@ -44,6 +44,7 @@ import {
 } from "lucide-react";
 import { useOrgTheme } from "@/features/org/hooks/use-org-theme";
 import { type TernaryDarkMode } from "usehooks-ts";
+import { grantsOrgAdmin } from "@/lib/access";
 
 const dashboardItem = {
   label: "Event Info",
@@ -124,7 +125,7 @@ export function DancerSidebar() {
     : location.pathname.includes("/coach")
       ? "Coach"
       : "Dancer";
-  const canSwitchView = membership?.role === "admin" || session.role === "admin";
+  const canSwitchView = grantsOrgAdmin(membership) || session.role === "admin";
 
   function handleSelectView(view: "Admin" | "Coach" | "Dancer") {
     if (view === "Admin") {

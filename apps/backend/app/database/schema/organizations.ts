@@ -50,8 +50,15 @@ export const orgMemberships = pg.pgTable(
     pg.uniqueIndex().on(table.userId, table.orgId).where(isRosterTypeSql()),
     // The complement: one organizer membership per person per Org. It caps the
     // person, not the Org — an Org may have several Organizers, each with their
-    // own row. Necessarily phrased as "not a Roster type", the one place the
-    // positive form of the predicate cannot be used.
+    // own row.
+    //
+    // This is the one predicate that cannot be phrased positively: `organizer`
+    // is added by the same migration, and Postgres refuses DDL naming an enum
+    // label added in its own transaction. The cost is that it reads as "not a
+    // Roster type" rather than "is an organizer", so a fourth member type added
+    // later would silently share this uniqueness slot and could not coexist
+    // with an organizer membership. Whoever adds one should split this index —
+    // `where type = 'organizer'` is safe in any later migration.
     pg
       .uniqueIndex("org_memberships_organizer_per_user_per_org")
       .on(table.userId, table.orgId)
