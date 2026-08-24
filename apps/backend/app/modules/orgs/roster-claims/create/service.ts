@@ -21,7 +21,7 @@ export class CreateRosterClaimService {
 
   async execute(orgId: string, requesterId: string, input: CreateClaimValidator) {
     return this.db.use(async (db) => {
-      // Nothing to claim if she can already see her registration — this is the
+      // Nothing to claim if they can already see their registration — this is the
       // path for dancers who find nothing, and saying so is more useful than
       // queuing a request an admin would only close again.
       const [existing] = await db
