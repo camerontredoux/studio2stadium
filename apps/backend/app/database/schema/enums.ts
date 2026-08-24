@@ -86,6 +86,21 @@ export const orgAccountTier = pgEnum("org_account_tier", [
   "limited",
 ]);
 
+/**
+ * The Event Tier bought for one Org Event: what was sold, and therefore what is
+ * enforced (ADR 0002). Distinct from `org_account_tier`, which is a Dancer's
+ * Account Tier — see CONTEXT.md. The capabilities and limits each name maps to
+ * live in `#shared/org/event-tiers`, which reads these values in order: each
+ * name includes everything the one before it does, so the order is load-bearing
+ * and new names go in the position their capabilities put them.
+ */
+export const eventTier = pgEnum("event_tier", [
+  "core",
+  "regional",
+  "national",
+  "enterprise",
+]);
+
 export const auditAction = pgEnum("audit_action", [
   "upload",
   "create",

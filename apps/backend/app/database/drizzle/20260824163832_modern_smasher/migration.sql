@@ -1,0 +1,2 @@
+CREATE TYPE "event_tier" AS ENUM('core', 'regional', 'national', 'enterprise');--> statement-breakpoint
+ALTER TABLE "org_events" ADD COLUMN "event_tier" "event_tier" DEFAULT 'enterprise'::"event_tier" NOT NULL;
