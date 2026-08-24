@@ -30,6 +30,22 @@ describe("resolveOrgArea", () => {
     ).toBe("dancer");
   });
 
+  it("lets a member in without an event roster", () => {
+    // Between events a member has no roster, but still belongs in their area.
+    expect(
+      resolveOrgArea({
+        membership: { role: "member", type: "dancer" },
+        myRosters: [],
+      }),
+    ).toBe("dancer");
+    expect(
+      resolveOrgArea({
+        membership: { role: "member", type: "coach" },
+        myRosters: [],
+      }),
+    ).toBe("coach");
+  });
+
   it("falls back to rosters when the user has no membership row", () => {
     expect(resolveOrgArea({ myRosters: [dancerRoster] })).toBe("dancer");
     expect(resolveOrgArea({ myRosters: [coachRoster] })).toBe("coach");
@@ -40,12 +56,6 @@ describe("resolveOrgArea", () => {
       "no-access",
     );
     expect(resolveOrgArea(null)).toBe("no-access");
-    expect(
-      resolveOrgArea({
-        membership: { role: "member", type: "dancer" },
-        myRosters: [],
-      }),
-    ).toBe("no-access");
   });
 });
 

@@ -67,7 +67,8 @@ function DancerEventInfo() {
   if (!event) {
     return (
       <div className="text-muted-foreground py-12 text-center">
-        No registered event.
+        You are not on an event roster yet. Your event will appear here once the
+        organizer adds you.
       </div>
     );
   }

@@ -56,6 +56,17 @@ function EventInfo() {
     );
   }
 
+  // Members of the org who are not on any event roster yet: the scouting
+  // dashboard has nothing to show them and its endpoints require a roster.
+  if (!isAdmin && !myRoster) {
+    return (
+      <div className="text-muted-foreground py-12 text-center">
+        You are not on an event roster yet. Your event will appear here once the
+        organizer adds you.
+      </div>
+    );
+  }
+
   if (isAdmin && !myRoster && activeEvent) {
     return <AttendEventGate orgSlug={orgSlug} eventName={activeEvent.name} />;
   }
