@@ -15,6 +15,12 @@ const InviteLookupDancerController = () =>
   import("./invite-lookup-dancer/controller.ts");
 const UpdateOrgSettingsController = () =>
   import("./update-settings/controller.ts");
+const CreateRosterClaimController = () =>
+  import("./roster-claims/create/controller.ts");
+const ListRosterClaimsController = () =>
+  import("./roster-claims/list/controller.ts");
+const ResolveRosterClaimController = () =>
+  import("./roster-claims/resolve/controller.ts");
 
 router
   .group(() => {
@@ -38,6 +44,48 @@ router
         middleware.orgMember(),
         middleware.orgAdmin(),
       ]);
+
+    // Deliberately gated on auth + org only. The dancer making this request
+    // has no membership — that absence is the entire reason she is here — so
+    // orgMember() would reject exactly the people the flow exists for.
+    router
+      .post(":slug/roster-claims", [CreateRosterClaimController])
+      .use([middleware.auth(), middleware.org()])
+      .openapi({
+        summary: "Claim a roster entry",
+        description:
+          "Lets a dancer who cannot find her registration ask the organization to link her account to a roster entry. Creates a pending request for an org admin to resolve; it never links anything on its own. Re-submitting updates the open request rather than creating another.",
+      });
+
+    router
+      .get(":slug/admin/roster-claims", [ListRosterClaimsController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ])
+      .openapi({
+        summary: "List roster claim requests",
+        description:
+          "Pending (default), approved or rejected claims for the organization.",
+      });
+
+    router
+      .post(":slug/admin/roster-claims/:claimId/resolve", [
+        ResolveRosterClaimController,
+      ])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ])
+      .openapi({
+        summary: "Resolve a roster claim request",
+        description:
+          "Approve a claim against a chosen roster entry, or reject it. Approving performs the same audited reassignment as attaching an account by hand.",
+      });
 
     router.post(":slug/register", [RegisterDancerController]).openapi({
       summary: "Dancer self-registration via invite token",

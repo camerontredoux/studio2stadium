@@ -81,6 +81,7 @@ import { Route as OrgOOrgSlugAuthenticatedCoachEventInfoRouteImport } from './ro
 import { Route as OrgOOrgSlugAuthenticatedAdminVideoLibraryRouteImport } from './routes/_org/o/$orgSlug/_authenticated/admin/video-library'
 import { Route as OrgOOrgSlugAuthenticatedAdminUploadsRouteImport } from './routes/_org/o/$orgSlug/_authenticated/admin/uploads'
 import { Route as OrgOOrgSlugAuthenticatedAdminSettingsRouteImport } from './routes/_org/o/$orgSlug/_authenticated/admin/settings'
+import { Route as OrgOOrgSlugAuthenticatedAdminRosterClaimsRouteImport } from './routes/_org/o/$orgSlug/_authenticated/admin/roster-claims'
 import { Route as OrgOOrgSlugAuthenticatedAdminReconciliationRouteImport } from './routes/_org/o/$orgSlug/_authenticated/admin/reconciliation'
 import { Route as OrgOOrgSlugAuthenticatedAdminDancersRouteImport } from './routes/_org/o/$orgSlug/_authenticated/admin/dancers'
 import { Route as OrgOOrgSlugAuthenticatedAdminCoachesRouteImport } from './routes/_org/o/$orgSlug/_authenticated/admin/coaches'
@@ -479,6 +480,12 @@ const OrgOOrgSlugAuthenticatedAdminSettingsRoute =
     path: '/settings',
     getParentRoute: () => OrgOOrgSlugAuthenticatedAdminRouteRoute,
   } as any)
+const OrgOOrgSlugAuthenticatedAdminRosterClaimsRoute =
+  OrgOOrgSlugAuthenticatedAdminRosterClaimsRouteImport.update({
+    id: '/roster-claims',
+    path: '/roster-claims',
+    getParentRoute: () => OrgOOrgSlugAuthenticatedAdminRouteRoute,
+  } as any)
 const OrgOOrgSlugAuthenticatedAdminReconciliationRoute =
   OrgOOrgSlugAuthenticatedAdminReconciliationRouteImport.update({
     id: '/reconciliation',
@@ -571,6 +578,7 @@ export interface FileRoutesByFullPath {
   '/o/$orgSlug/admin/coaches': typeof OrgOOrgSlugAuthenticatedAdminCoachesRoute
   '/o/$orgSlug/admin/dancers': typeof OrgOOrgSlugAuthenticatedAdminDancersRoute
   '/o/$orgSlug/admin/reconciliation': typeof OrgOOrgSlugAuthenticatedAdminReconciliationRoute
+  '/o/$orgSlug/admin/roster-claims': typeof OrgOOrgSlugAuthenticatedAdminRosterClaimsRoute
   '/o/$orgSlug/admin/settings': typeof OrgOOrgSlugAuthenticatedAdminSettingsRoute
   '/o/$orgSlug/admin/uploads': typeof OrgOOrgSlugAuthenticatedAdminUploadsRoute
   '/o/$orgSlug/admin/video-library': typeof OrgOOrgSlugAuthenticatedAdminVideoLibraryRoute
@@ -639,6 +647,7 @@ export interface FileRoutesByTo {
   '/o/$orgSlug/admin/coaches': typeof OrgOOrgSlugAuthenticatedAdminCoachesRoute
   '/o/$orgSlug/admin/dancers': typeof OrgOOrgSlugAuthenticatedAdminDancersRoute
   '/o/$orgSlug/admin/reconciliation': typeof OrgOOrgSlugAuthenticatedAdminReconciliationRoute
+  '/o/$orgSlug/admin/roster-claims': typeof OrgOOrgSlugAuthenticatedAdminRosterClaimsRoute
   '/o/$orgSlug/admin/settings': typeof OrgOOrgSlugAuthenticatedAdminSettingsRoute
   '/o/$orgSlug/admin/uploads': typeof OrgOOrgSlugAuthenticatedAdminUploadsRoute
   '/o/$orgSlug/admin/video-library': typeof OrgOOrgSlugAuthenticatedAdminVideoLibraryRoute
@@ -719,6 +728,7 @@ export interface FileRoutesById {
   '/_org/o/$orgSlug/_authenticated/admin/coaches': typeof OrgOOrgSlugAuthenticatedAdminCoachesRoute
   '/_org/o/$orgSlug/_authenticated/admin/dancers': typeof OrgOOrgSlugAuthenticatedAdminDancersRoute
   '/_org/o/$orgSlug/_authenticated/admin/reconciliation': typeof OrgOOrgSlugAuthenticatedAdminReconciliationRoute
+  '/_org/o/$orgSlug/_authenticated/admin/roster-claims': typeof OrgOOrgSlugAuthenticatedAdminRosterClaimsRoute
   '/_org/o/$orgSlug/_authenticated/admin/settings': typeof OrgOOrgSlugAuthenticatedAdminSettingsRoute
   '/_org/o/$orgSlug/_authenticated/admin/uploads': typeof OrgOOrgSlugAuthenticatedAdminUploadsRoute
   '/_org/o/$orgSlug/_authenticated/admin/video-library': typeof OrgOOrgSlugAuthenticatedAdminVideoLibraryRoute
@@ -795,6 +805,7 @@ export interface FileRouteTypes {
     | '/o/$orgSlug/admin/coaches'
     | '/o/$orgSlug/admin/dancers'
     | '/o/$orgSlug/admin/reconciliation'
+    | '/o/$orgSlug/admin/roster-claims'
     | '/o/$orgSlug/admin/settings'
     | '/o/$orgSlug/admin/uploads'
     | '/o/$orgSlug/admin/video-library'
@@ -863,6 +874,7 @@ export interface FileRouteTypes {
     | '/o/$orgSlug/admin/coaches'
     | '/o/$orgSlug/admin/dancers'
     | '/o/$orgSlug/admin/reconciliation'
+    | '/o/$orgSlug/admin/roster-claims'
     | '/o/$orgSlug/admin/settings'
     | '/o/$orgSlug/admin/uploads'
     | '/o/$orgSlug/admin/video-library'
@@ -942,6 +954,7 @@ export interface FileRouteTypes {
     | '/_org/o/$orgSlug/_authenticated/admin/coaches'
     | '/_org/o/$orgSlug/_authenticated/admin/dancers'
     | '/_org/o/$orgSlug/_authenticated/admin/reconciliation'
+    | '/_org/o/$orgSlug/_authenticated/admin/roster-claims'
     | '/_org/o/$orgSlug/_authenticated/admin/settings'
     | '/_org/o/$orgSlug/_authenticated/admin/uploads'
     | '/_org/o/$orgSlug/_authenticated/admin/video-library'
@@ -1470,6 +1483,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgOOrgSlugAuthenticatedAdminSettingsRouteImport
       parentRoute: typeof OrgOOrgSlugAuthenticatedAdminRouteRoute
     }
+    '/_org/o/$orgSlug/_authenticated/admin/roster-claims': {
+      id: '/_org/o/$orgSlug/_authenticated/admin/roster-claims'
+      path: '/roster-claims'
+      fullPath: '/o/$orgSlug/admin/roster-claims'
+      preLoaderRoute: typeof OrgOOrgSlugAuthenticatedAdminRosterClaimsRouteImport
+      parentRoute: typeof OrgOOrgSlugAuthenticatedAdminRouteRoute
+    }
     '/_org/o/$orgSlug/_authenticated/admin/reconciliation': {
       id: '/_org/o/$orgSlug/_authenticated/admin/reconciliation'
       path: '/reconciliation'
@@ -1698,6 +1718,7 @@ interface OrgOOrgSlugAuthenticatedAdminRouteRouteChildren {
   OrgOOrgSlugAuthenticatedAdminCoachesRoute: typeof OrgOOrgSlugAuthenticatedAdminCoachesRoute
   OrgOOrgSlugAuthenticatedAdminDancersRoute: typeof OrgOOrgSlugAuthenticatedAdminDancersRoute
   OrgOOrgSlugAuthenticatedAdminReconciliationRoute: typeof OrgOOrgSlugAuthenticatedAdminReconciliationRoute
+  OrgOOrgSlugAuthenticatedAdminRosterClaimsRoute: typeof OrgOOrgSlugAuthenticatedAdminRosterClaimsRoute
   OrgOOrgSlugAuthenticatedAdminSettingsRoute: typeof OrgOOrgSlugAuthenticatedAdminSettingsRoute
   OrgOOrgSlugAuthenticatedAdminUploadsRoute: typeof OrgOOrgSlugAuthenticatedAdminUploadsRoute
   OrgOOrgSlugAuthenticatedAdminVideoLibraryRoute: typeof OrgOOrgSlugAuthenticatedAdminVideoLibraryRoute
@@ -1714,6 +1735,8 @@ const OrgOOrgSlugAuthenticatedAdminRouteRouteChildren: OrgOOrgSlugAuthenticatedA
       OrgOOrgSlugAuthenticatedAdminDancersRoute,
     OrgOOrgSlugAuthenticatedAdminReconciliationRoute:
       OrgOOrgSlugAuthenticatedAdminReconciliationRoute,
+    OrgOOrgSlugAuthenticatedAdminRosterClaimsRoute:
+      OrgOOrgSlugAuthenticatedAdminRosterClaimsRoute,
     OrgOOrgSlugAuthenticatedAdminSettingsRoute:
       OrgOOrgSlugAuthenticatedAdminSettingsRoute,
     OrgOOrgSlugAuthenticatedAdminUploadsRoute:
