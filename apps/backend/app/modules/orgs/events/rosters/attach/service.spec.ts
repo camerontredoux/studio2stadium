@@ -194,3 +194,111 @@ test.group("AttachAccountService", (group) => {
     assert.isTrue(meta.confirmed);
   });
 });
+
+const SEARCH_EMAILS = [
+  "search-wilson@test.com",
+  "search-harman@test.com",
+  "search-nolastname@test.com",
+];
+
+test.group("AttachAccountService.searchDancerUsers", (group) => {
+  group.each.setup(async () => {
+    await db.delete(users).where(inArray(users.email, SEARCH_EMAILS)).execute();
+
+    await db.insert(users).values([
+      {
+        username: "search_wilson",
+        email: SEARCH_EMAILS[0],
+        displayEmail: SEARCH_EMAILS[0],
+        firstName: "Lucy",
+        lastName: "Wilson",
+        password: "x",
+        role: "user" as const,
+        type: "dancer" as const,
+        verified: true,
+      },
+      {
+        username: "search_harman",
+        email: SEARCH_EMAILS[1],
+        displayEmail: SEARCH_EMAILS[1],
+        firstName: "Lucy",
+        lastName: "Harman",
+        password: "x",
+        role: "user" as const,
+        type: "dancer" as const,
+        verified: true,
+      },
+      {
+        username: "search_nolastname",
+        email: SEARCH_EMAILS[2],
+        displayEmail: SEARCH_EMAILS[2],
+        firstName: "Lucille",
+        lastName: "",
+        password: "x",
+        role: "user" as const,
+        type: "dancer" as const,
+        verified: true,
+      },
+    ]);
+
+    return async () => {
+      await db
+        .delete(users)
+        .where(inArray(users.email, SEARCH_EMAILS))
+        .execute();
+    };
+  });
+
+  test("matches a query spanning first and last name", async ({ assert }) => {
+    const svc = new AttachAccountService();
+    const results = await svc.searchDancerUsers("Lucy Wil");
+    const emails = results.map((r) => r.email);
+
+    assert.include(emails, SEARCH_EMAILS[0]);
+    assert.notInclude(emails, SEARCH_EMAILS[1]);
+  });
+
+  test("still matches on a single name fragment", async ({ assert }) => {
+    const svc = new AttachAccountService();
+    const results = await svc.searchDancerUsers("Lucy");
+    const emails = results.map((r) => r.email);
+
+    assert.include(emails, SEARCH_EMAILS[0]);
+    assert.include(emails, SEARCH_EMAILS[1]);
+  });
+
+  test("matches on email", async ({ assert }) => {
+    const svc = new AttachAccountService();
+    const results = await svc.searchDancerUsers("search-harman@");
+    const emails = results.map((r) => r.email);
+
+    assert.include(emails, SEARCH_EMAILS[1]);
+  });
+
+  test("matches accounts with a blank last name", async ({ assert }) => {
+    const svc = new AttachAccountService();
+    const results = await svc.searchDancerUsers("Lucille");
+    const emails = results.map((r) => r.email);
+
+    assert.include(emails, SEARCH_EMAILS[2]);
+  });
+
+  test("ranks name prefixes above mid-string matches", async ({ assert }) => {
+    const svc = new AttachAccountService();
+    const results = await svc.searchDancerUsers("Lucy H");
+
+    assert.equal(results[0]?.email, SEARCH_EMAILS[1]);
+  });
+
+  test("ignores surrounding whitespace and short queries", async ({
+    assert,
+  }) => {
+    const svc = new AttachAccountService();
+
+    assert.isEmpty(await svc.searchDancerUsers(" L "));
+
+    const results = await svc.searchDancerUsers("  Lucy Wilson  ");
+    const emails = results.map((r) => r.email);
+    assert.include(emails, SEARCH_EMAILS[0]);
+  });
+});

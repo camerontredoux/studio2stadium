@@ -309,9 +309,20 @@ export class AttachAccountService {
   }
 
   async searchDancerUsers(query: string) {
-    if (query.length < 2) return [];
+    const trimmed = query.trim();
+    if (trimmed.length < 2) return [];
 
-    const term = `%${query.toLowerCase()}%`;
+    // "Lucy Wil" spans two columns, so matching the raw query against each
+    // column on its own finds nothing. Every whitespace-separated token has to
+    // match somewhere — the joined full name included — which keeps typing
+    // more of a name narrowing the list instead of emptying it.
+    const tokens = trimmed.toLowerCase().split(/\s+/).filter(Boolean);
+    const fullName = sql`lower(coalesce(${users.firstName}, '') || ' ' || coalesce(${users.lastName}, ''))`;
+
+    const matchesToken = tokens.map((token) => {
+      const term = `%${token}%`;
+      return sql`(lower(${users.email}) like ${term} OR ${fullName} like ${term})`;
+    });
 
     return this.db.use((db) =>
       db
@@ -324,11 +335,14 @@ export class AttachAccountService {
           username: users.username,
         })
         .from(users)
-        .where(
-          and(
-            eq(users.type, "dancer"),
-            sql`(lower(${users.email}) like ${term} OR lower(${users.firstName}) like ${term} OR lower(${users.lastName}) like ${term})`
-          )
+        .where(and(eq(users.type, "dancer"), ...matchesToken))
+        // The limit truncates, so order it: names that start with the query
+        // come first, then alphabetically, so the list stays stable as the
+        // admin keeps typing.
+        .orderBy(
+          sql`case when ${fullName} like ${`${trimmed.toLowerCase()}%`} then 0 else 1 end`,
+          sql`${fullName}`,
+          users.email
         )
         .limit(20)
     );
