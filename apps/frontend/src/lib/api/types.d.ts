@@ -10969,6 +10969,12 @@ export interface components {
             accentColor: string | null;
             features: Record<string, never>;
             settings: Record<string, never>;
+            activeEvent: {
+                id: string;
+                /** @enum {string} */
+                eventTier: "core" | "regional" | "national" | "enterprise";
+                capabilities: ("video_library" | "callbacks" | "check_in" | "school_selections")[];
+            } | null;
             membership: {
                 /** @enum {string} */
                 role: "admin" | "member";

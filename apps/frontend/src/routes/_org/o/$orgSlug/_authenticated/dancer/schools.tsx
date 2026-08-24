@@ -18,6 +18,7 @@ import type { ColumnDef, SortingState } from "@tanstack/react-table";
 import { $api } from "@/lib/api/client";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { orgQueries } from "@/features/org/api/queries";
+import { hasOrgFeature } from "@/features/org/lib/entitlement";
 import { useOrg } from "@/features/org/context/use-org";
 import { StatCell } from "@/features/org/components/dashboard-shared";
 import { DancerTable } from "@/features/org/components/dancer-table/dancer-table";
@@ -45,8 +46,7 @@ export const Route = createFileRoute(
     const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     );
-    const features = (data.features ?? {}) as Record<string, boolean>;
-    if (!features.school_selections) {
+    if (!hasOrgFeature(data, "school_selections")) {
       throw redirect({ to: "/o/$orgSlug/dancer", params });
     }
   },

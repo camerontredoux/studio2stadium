@@ -31,6 +31,72 @@ test.group("GET /orgs/:slug", (group) => {
     assert.equal(body.settings.max_school_selections, 3);
   });
 
+  test("carries the active event's Event Tier and what it includes", async ({
+    client,
+    assert,
+  }) => {
+    const [org] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "summit"));
+    const [event] = await db
+      .insert(orgEvents)
+      .values({
+        orgId: org!.id,
+        name: "Entitlement Event",
+        startDate: "2026-09-01",
+        endDate: "2026-09-02",
+        isActive: true,
+        eventTier: "regional",
+      })
+      .returning();
+
+    const response = await client.get("/orgs/summit");
+    response.assertStatus(200);
+    const { activeEvent } = response.body();
+    assert.equal(activeEvent.id, event!.id);
+    assert.equal(activeEvent.eventTier, "regional");
+    assert.sameMembers(activeEvent.capabilities, [
+      "check_in",
+      "school_selections",
+      "callbacks",
+    ]);
+  });
+
+  test("a Core active event includes none of the gated capabilities", async ({
+    client,
+    assert,
+  }) => {
+    const [org] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "summit"));
+    await db.insert(orgEvents).values({
+      orgId: org!.id,
+      name: "Core Event",
+      startDate: "2026-09-01",
+      endDate: "2026-09-02",
+      isActive: true,
+      eventTier: "core",
+    });
+
+    const response = await client.get("/orgs/summit");
+    response.assertStatus(200);
+    // Empty rather than absent: the org's own flags say `callbacks: true`, and
+    // a client that cannot tell "no capabilities" from "no answer" would fall
+    // back to them.
+    assert.deepEqual(response.body().activeEvent.capabilities, []);
+  });
+
+  test("activeEvent is null when the org has no active event", async ({
+    client,
+    assert,
+  }) => {
+    const response = await client.get("/orgs/core");
+    response.assertStatus(200);
+    assert.isNull(response.body().activeEvent);
+  });
+
   test("returns 404 for unknown slug", async ({ client }) => {
     const response = await client.get("/orgs/does-not-exist");
     response.assertStatus(404);

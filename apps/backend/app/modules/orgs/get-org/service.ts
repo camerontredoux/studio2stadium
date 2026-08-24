@@ -3,6 +3,11 @@ import { resolveEffectiveMembership } from "#shared/org/membership";
 import { DatabaseService } from "#database/service";
 import { organizations, orgMemberships } from "#database/schema/organizations";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
+import {
+  EVENT_TIER_DEFINITIONS,
+  type EventTier,
+  type EventTierCapability,
+} from "#shared/org/event-tiers";
 import { hasEventStarted } from "#utils/event-time";
 import { inject } from "@adonisjs/core";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
@@ -18,6 +23,21 @@ export interface OrgRosterSummary {
   hasStarted: boolean;
 }
 
+/**
+ * What the Org's active Org Event entitles its people to.
+ *
+ * Entitlement is bought per event (ADR 0002), so the frontend's convenience
+ * gating has to ask the active event rather than the Org. The capabilities are
+ * sent resolved rather than as a bare Event Tier so that the mapping from sold
+ * name to capabilities stays in `#shared/org/event-tiers` alone, and a client
+ * cannot drift from it.
+ */
+export interface ActiveEventEntitlement {
+  id: string;
+  eventTier: EventTier;
+  capabilities: EventTierCapability[];
+}
+
 export interface GetOrgResult {
   org: typeof organizations.$inferSelect;
   /**
@@ -30,6 +50,7 @@ export interface GetOrgResult {
   } | null;
   myRoster: OrgRosterSummary | null;
   myRosters: OrgRosterSummary[];
+  activeEvent: ActiveEventEntitlement | null;
 }
 
 @inject()
@@ -47,6 +68,21 @@ export class GetOrgService {
         .where(eq(organizations.slug, slug))
         .limit(1);
       if (!org) return null;
+
+      const [activeEventRow] = await db
+        .select({ id: orgEvents.id, eventTier: orgEvents.eventTier })
+        .from(orgEvents)
+        .where(and(eq(orgEvents.orgId, org.id), eq(orgEvents.isActive, true)))
+        .limit(1);
+      const activeEvent: GetOrgResult["activeEvent"] = activeEventRow
+        ? {
+            id: activeEventRow.id,
+            eventTier: activeEventRow.eventTier,
+            capabilities: [
+              ...EVENT_TIER_DEFINITIONS[activeEventRow.eventTier].capabilities,
+            ],
+          }
+        : null;
 
       let membership: GetOrgResult["membership"] = null;
       let myRoster: GetOrgResult["myRoster"] = null;
@@ -114,7 +150,7 @@ export class GetOrgService {
         myRoster = myRosters[0] ?? null;
       }
 
-      return { org, membership, myRoster, myRosters };
+      return { org, membership, myRoster, myRosters, activeEvent };
     });
   }
 }

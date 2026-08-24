@@ -12897,6 +12897,47 @@
             "type": "object",
             "properties": {}
           },
+          "activeEvent": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "eventTier": {
+                    "type": "string",
+                    "enum": [
+                      "core",
+                      "regional",
+                      "national",
+                      "enterprise"
+                    ]
+                  },
+                  "capabilities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "video_library",
+                        "callbacks",
+                        "check_in",
+                        "school_selections"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "eventTier",
+                  "capabilities"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "membership": {
             "oneOf": [
               {
@@ -13026,6 +13067,7 @@
           "accentColor",
           "features",
           "settings",
+          "activeEvent",
           "membership",
           "myRoster",
           "myRosters"

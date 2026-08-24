@@ -9,6 +9,7 @@ import {
   type MyRoster,
 } from "./org-context";
 import { grantsOrgAdmin } from "@/lib/access";
+import { hasOrgFeature } from "@/features/org/lib/entitlement";
 
 const EMPTY_ROSTERS: MyRoster[] = [];
 
@@ -23,6 +24,7 @@ export function OrgProvider({
   const { data } = useSuspenseQuery(orgQueries.org(slug));
 
   const features = (data.features ?? {}) as Record<string, boolean>;
+  const activeEvent = data.activeEvent ?? null;
   const membership =
     (data as { membership?: OrgMembership | null }).membership ?? null;
   const myRoster = (data as { myRoster?: MyRoster | null }).myRoster ?? null;
@@ -45,9 +47,19 @@ export function OrgProvider({
       myRoster,
       myRosters,
       isAdmin: grantsOrgAdmin(membership) || session?.role === "admin",
-      hasFeature: (key) => Boolean(features[key]),
+      // Capabilities come from the active Org Event, org-wide configuration
+      // from the Org — see `hasOrgFeature`.
+      hasFeature: (key) => hasOrgFeature({ features, activeEvent }, key),
     }),
-    [data, features, membership, myRoster, myRosters, session?.role],
+    [
+      data,
+      features,
+      activeEvent,
+      membership,
+      myRoster,
+      myRosters,
+      session?.role,
+    ],
   );
 
   useEffect(() => {
