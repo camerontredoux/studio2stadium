@@ -21,10 +21,16 @@ _Avoid_: Event on its own, which is ambiguous — see Platform Event.
 A public, school-hosted or global event browsed in the main S2S app. A different concept from an Org
 Event and a different set of tables; the two are never mixed.
 
-**Tier**:
+**Event Tier**:
 The bundle of features and limits bought for one Org Event — Core, Regional, National, or
 Enterprise. What is sold and what is enforced are the same thing.
-_Avoid_: Plan, package, subscription — nothing here recurs.
+_Avoid_: Plan, package, subscription — nothing here recurs. Never bare "tier", which is ambiguous
+with Account Tier.
+
+**Account Tier**:
+The level of platform access a Dancer's account holds — standard or limited. An Org Event grants one
+for a window the Org configures, after which it lapses unless the Dancer subscribes.
+_Avoid_: Bare "tier"; premium, which is the Dancer's own paid subscription rather than a grant.
 
 ### People
 
@@ -72,5 +78,5 @@ access to Dancer profiles.
 _Avoid_: Approval, which refers to Schools appearing in the public directory — a different check.
 
 **Premium Grant**:
-Time-limited premium access given to a Dancer because of something they took part in, such as an Org
-Event. Expires; not a purchase the Dancer made.
+The record of an Account Tier being given to a Dancer because of something they took part in, such
+as an Org Event. Expires; not a purchase the Dancer made.

@@ -1,8 +1,8 @@
 # Tier entitlement lives on the Org Event
 
 Feature flags are org-level today: `organizations.features` is untyped `jsonb`, read through
-`useOrg()` and enforced in route `beforeLoad` guards. Because a Tier is bought per Org Event, we put
-the purchased Tier on `org_events` and resolve entitlement from the active event, leaving
+`useOrg()` and enforced in route `beforeLoad` guards. Because an Event Tier is bought per Org Event, we put
+the purchased Event Tier on `org_events` and resolve entitlement from the active event, leaving
 `organizations.features` for genuine org-wide configuration such as branding and free-tier settings.
 
 Keeping entitlement org-level was cheaper — no migration, no guard rewrite — but an Org buying Core
