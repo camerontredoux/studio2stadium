@@ -10,7 +10,9 @@ export class EventStatsService {
   async execute(eventId: string) {
     return this.db.use(async (db) => {
       // All counts derived from eventRosters.userId per activation semantics:
-      // activated = userId IS NOT NULL, pending = userId IS NULL
+      // activated = userId IS NOT NULL, pending = userId IS NULL.
+      // Staff "view-as" rows are preview sandboxes owned by admins, never
+      // participants, so they are excluded from every count below.
       const [coachActivated] = await db
         .select({ v: count() })
         .from(eventRosters)
@@ -18,6 +20,7 @@ export class EventStatsService {
           and(
             eq(eventRosters.eventId, eventId),
             eq(eventRosters.type, "coach"),
+            eq(eventRosters.isStaff, false),
             isNotNull(eventRosters.userId)
           )
         );
@@ -29,6 +32,7 @@ export class EventStatsService {
           and(
             eq(eventRosters.eventId, eventId),
             eq(eventRosters.type, "coach"),
+            eq(eventRosters.isStaff, false),
             isNull(eventRosters.userId)
           )
         );
@@ -40,6 +44,7 @@ export class EventStatsService {
           and(
             eq(eventRosters.eventId, eventId),
             eq(eventRosters.type, "dancer"),
+            eq(eventRosters.isStaff, false),
             isNotNull(eventRosters.userId)
           )
         );
@@ -51,6 +56,7 @@ export class EventStatsService {
           and(
             eq(eventRosters.eventId, eventId),
             eq(eventRosters.type, "dancer"),
+            eq(eventRosters.isStaff, false),
             isNull(eventRosters.userId)
           )
         );
