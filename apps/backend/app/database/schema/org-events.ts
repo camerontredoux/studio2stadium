@@ -7,6 +7,7 @@ import {
   csvRowOutcome,
   orgMemberType,
   rosterClaimStatus,
+  type RosterType,
 } from "./enums.ts";
 import { citext, timestamps } from "./helpers/columns.ts";
 import { organizations } from "./organizations.ts";
@@ -50,7 +51,10 @@ export const eventRosters = pg.pgTable(
       .notNull()
       .references(() => orgEvents.id, { onDelete: "cascade" }),
     userId: pg.uuid().references(() => users.id, { onDelete: "set null" }),
-    type: orgMemberType().notNull(),
+    // A Roster Entry is a Coach or a Dancer. Organizers run the event rather
+    // than taking part in it (ADR 0003), so `organizer` is excluded here at the
+    // type level and by the `event_rosters_type_not_organizer` CHECK below.
+    type: orgMemberType().$type<RosterType>().notNull(),
     bibNumber: pg.integer(),
     email: pg.text().notNull(),
     firstName: pg.text().notNull(),
@@ -90,6 +94,11 @@ export const eventRosters = pg.pgTable(
       .where(sql`bib_number IS NOT NULL`),
     pg.index().on(table.eventId, table.type),
     pg.index().on(table.userId),
+    // A Roster Entry is a Coach or a Dancer, never an Organizer (ADR 0003).
+    pg.check(
+      "event_rosters_participant_type",
+      sql`type in ('coach', 'dancer')`
+    ),
   ]
 );
 
@@ -120,7 +129,8 @@ export const csvUploads = pg.pgTable(
       .uuid()
       .notNull()
       .references(() => orgEvents.id, { onDelete: "cascade" }),
-    type: orgMemberType().notNull(),
+    // Rosters are uploaded as Coaches or Dancers; there is no organizer CSV.
+    type: orgMemberType().$type<RosterType>().notNull(),
     fileUrl: pg.text().notNull(),
     uploadedBy: pg
       .uuid()
@@ -132,7 +142,10 @@ export const csvUploads = pg.pgTable(
     errorDetails: pg.jsonb(),
     ...timestamps,
   },
-  (table) => [pg.index().on(table.eventId, table.createdAt)]
+  (table) => [
+    pg.index().on(table.eventId, table.createdAt),
+    pg.check("csv_uploads_participant_type", sql`type in ('coach', 'dancer')`),
+  ]
 );
 
 /**

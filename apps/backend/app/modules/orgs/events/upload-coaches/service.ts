@@ -21,6 +21,7 @@ import { verifyPreviewToken } from "#shared/org/preview-token";
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { randomBytes } from "node:crypto";
 import logger from "@adonisjs/core/services/logger";
+import { nonOrganizerMembershipConflict } from "#shared/org/membership";
 
 @inject()
 export class UploadCoachesService {
@@ -184,9 +185,7 @@ export class UploadCoachesService {
                   type: "coach",
                   role: "member",
                 })
-                .onConflictDoNothing({
-                  target: [orgMemberships.userId, orgMemberships.orgId],
-                });
+                .onConflictDoNothing(nonOrganizerMembershipConflict());
             } else {
               // Mint a school invite for unmatched rows. On re-upload keep the
               // token STABLE per (eventId, email): preserve the existing row's

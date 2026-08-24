@@ -1,14 +1,20 @@
 import { createContext } from "react";
 
+import type { OrgMemberType, RosterType } from "@/lib/access";
+
 export interface OrgMembership {
   role: "admin" | "member";
-  type: "coach" | "dancer";
+  /**
+   * The user's highest-privilege membership type. A person may hold both an
+   * organizer and a coach membership in the same Org (ADR 0003).
+   */
+  type: OrgMemberType;
 }
 
 export interface MyRoster {
   id: string;
   eventId: string;
-  type: "coach" | "dancer";
+  type: RosterType;
   eventName: string;
   eventStartDate: string;
   eventEndDate: string;

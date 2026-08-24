@@ -54,12 +54,14 @@ export class ListSchoolsService {
             // Exclude rosters owned by an admin — admins are never real
             // participating schools, even if they hold a non-staff roster
             // created before the is_staff flag existed. Covers both org-level
-            // admins (org_memberships.role) and platform admins (users.role).
+            // admins (org_memberships.role, plus Organizers, who administer by
+            // definition) and platform admins (users.role).
             sql`NOT EXISTS (
               SELECT 1 FROM ${orgMemberships}
               WHERE ${orgMemberships.userId} = ${eventRosters.userId}
                 AND ${orgMemberships.orgId} = ${orgId}
-                AND ${orgMemberships.role} = 'admin'
+                AND (${orgMemberships.role} = 'admin'
+                     OR ${orgMemberships.type} = 'organizer')
             )`,
             sql`${users.role} IS DISTINCT FROM 'admin'`
           )

@@ -268,6 +268,23 @@ Backfill: `node ace backfill:staff-rosters` flags pre-existing admin-attended ro
 Two role systems: platform `role` (`admin`/`prodigy_admin`/`user`) on `users`; org `orgRole`
 (`admin`/`member`) on `org_memberships`.
 
+### Org member types vs roster types (`organizer`)
+`org_member_type` is `coach`|`dancer`|`organizer`, but only `coach`|`dancer` can appear on a
+Roster. `event_rosters.type` and `csv_uploads.type` are typed `RosterType` in TypeScript and carry
+a `... type in ('coach','dancer')` CHECK, so an Organizer can never become a Roster Entry
+(ADR 0003). Predicates are written positively rather than as `<> 'organizer'` — the DDL must not
+name a label added in the same migration, and a member type added later then stays out of rosters
+until someone decides otherwise.
+
+An Organizer administers the org by definition, whatever `org_memberships.role` says: use
+`grantsOrgAdmin()` (`#shared/org/membership`, mirrored in `@/lib/access`) rather than comparing
+`role === "admin"` by hand. Coach and dancer remain mutually exclusive per person per org
+(`org_memberships_user_id_org_id_index`, now partial), but an organizer membership sits alongside
+them — someone who runs an event may also coach at it. That means a user can hold **more than one**
+membership row per org: read them all and collapse with `resolveEffectiveMembership()`, and use
+`hasMemberType()` for "is this person a coach here?" checks. Participant upserts must pass
+`nonOrganizerMembershipConflict()` so Postgres infers the partial index.
+
 **View-as flow (how staff rosters get created):** admin picks "Coach/Dancer" in the
 `ViewSwitcher` → `POST :slug/events/view-as { type }` (`modules/orgs/events/view-as/`, admin-only)
 upserts their `is_staff` roster. `OrgEventMiddleware` resolves `ctx.orgRoster` using the

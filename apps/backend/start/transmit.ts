@@ -2,6 +2,10 @@ import transmit from "@adonisjs/transmit/services/main";
 import router from "@adonisjs/core/services/router";
 import { db } from "#database/connection";
 import { organizations, orgMemberships } from "#database/schema/organizations";
+import {
+  grantsOrgAdmin,
+  resolveEffectiveMembership,
+} from "#shared/org/membership";
 import { and, eq } from "drizzle-orm";
 
 // Register transmit routes inline to work around a @poppinss/utils
@@ -55,7 +59,9 @@ transmit.authorize<{ slug: string }>(
       .limit(1);
     if (!org) return false;
 
-    const [membership] = await db
+    // A person can hold several memberships in one org (ADR 0003), so read
+    // them all rather than whichever row came back first.
+    const memberships = await db
       .select()
       .from(orgMemberships)
       .where(
@@ -63,9 +69,8 @@ transmit.authorize<{ slug: string }>(
           eq(orgMemberships.userId, user.id),
           eq(orgMemberships.orgId, org.id)
         )
-      )
-      .limit(1);
+      );
 
-    return membership?.role === "admin";
+    return grantsOrgAdmin(resolveEffectiveMembership(memberships));
   }
 );

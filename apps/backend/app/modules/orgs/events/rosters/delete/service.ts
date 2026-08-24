@@ -1,6 +1,7 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
+import { ROSTER_TYPES } from "#database/schema/enums";
 import { orgMemberships } from "#database/schema/organizations";
 import { and, eq, inArray } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
@@ -56,7 +57,10 @@ export class DeleteRosterService {
         });
       }
 
-      // Rescind org access for users with no remaining roster entries
+      // Rescind participant org access for users with no remaining roster
+      // entries. An Organizer's membership is never a consequence of a Roster
+      // Entry, so it is left alone — removing someone from a roster must not
+      // strip the org from the person who runs it (ADR 0003).
       const affectedUserIds = [
         ...new Set(
           before
@@ -86,7 +90,8 @@ export class DeleteRosterService {
               and(
                 eq(orgMemberships.userId, userId),
                 eq(orgMemberships.orgId, orgId),
-                eq(orgMemberships.role, "member")
+                eq(orgMemberships.role, "member"),
+                inArray(orgMemberships.type, [...ROSTER_TYPES])
               )
             );
         }

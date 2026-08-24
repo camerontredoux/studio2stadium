@@ -12,6 +12,24 @@ describe("resolveOrgArea", () => {
     ).toBe("admin");
   });
 
+  it("sends organizers to the admin area, roster or not", () => {
+    expect(
+      resolveOrgArea({ membership: { role: "member", type: "organizer" } }),
+    ).toBe("admin");
+    expect(
+      resolveOrgArea({ membership: { role: "admin", type: "organizer" } }),
+    ).toBe("admin");
+  });
+
+  it("still sends an organizer who also coaches to the admin area", () => {
+    expect(
+      resolveOrgArea({
+        membership: { role: "member", type: "organizer" },
+        myRosters: [coachRoster],
+      }),
+    ).toBe("admin");
+  });
+
   it("sends coaches to the coach area", () => {
     expect(
       resolveOrgArea({

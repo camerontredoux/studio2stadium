@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { orgMemberType, orgRole, premiumGrantSource } from "./enums.ts";
 import { timestamps } from "./helpers/columns.ts";
@@ -36,7 +37,24 @@ export const orgMemberships = pg.pgTable(
     ...timestamps,
   },
   (table) => [
-    pg.uniqueIndex().on(table.userId, table.orgId),
+    // An Organizer runs the Org's events; a Coach recruits at them. The two are
+    // orthogonal, so the same person may hold both memberships (ADR 0003).
+    // Coach and dancer stay mutually exclusive, exactly as before organizer
+    // existed — the original index is kept, narrowed to those two rows.
+    // Left unnamed to keep the original auto-generated index name.
+    //
+    // The predicates name the participant types rather than excluding
+    // `organizer` so the DDL never mentions a label added in the same
+    // migration, which Postgres rejects. It also fails safe: a member type
+    // added later is excluded from this index until someone decides otherwise.
+    pg
+      .uniqueIndex()
+      .on(table.userId, table.orgId)
+      .where(sql`type in ('coach', 'dancer')`),
+    pg
+      .uniqueIndex("org_memberships_one_organizer_per_org")
+      .on(table.userId, table.orgId)
+      .where(sql`type not in ('coach', 'dancer')`),
     pg.index().on(table.orgId),
     pg.index().on(table.userId),
   ]

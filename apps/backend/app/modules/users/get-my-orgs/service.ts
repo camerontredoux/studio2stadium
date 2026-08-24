@@ -1,3 +1,5 @@
+import type { OrgMemberType } from "#database/schema/enums";
+import { resolveEffectiveMembership } from "#shared/org/membership";
 import { DatabaseService } from "#database/service";
 import { organizations, orgMemberships } from "#database/schema/organizations";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
@@ -12,7 +14,11 @@ export interface MyOrgEntry {
   logoUrl: string | null;
   primaryColor: string | null;
   role: "admin" | "member" | null;
-  type: "coach" | "dancer";
+  /**
+   * The user's standing in this org. An Organizer runs it; the roster type is
+   * only a fallback for someone rostered without a membership row.
+   */
+  type: OrgMemberType;
 }
 
 @inject()
@@ -80,15 +86,26 @@ export class GetMyOrgsService {
 
       const orgsById = new Map<string, MyOrgEntry>();
 
+      // A person can hold more than one membership in an org (ADR 0003), so
+      // collapse them to the highest-privilege one rather than letting the last
+      // row read win.
+      const membershipsByOrg = new Map<string, typeof membershipRows>();
       for (const r of membershipRows) {
-        orgsById.set(r.id, {
-          id: r.id,
-          slug: r.slug,
-          name: r.name,
-          logoUrl: r.logoUrl,
-          primaryColor: r.primaryColor,
-          role: r.role,
-          type: r.type,
+        const bucket = membershipsByOrg.get(r.id);
+        if (bucket) bucket.push(r);
+        else membershipsByOrg.set(r.id, [r]);
+      }
+
+      for (const [orgId, rows] of membershipsByOrg) {
+        const effective = resolveEffectiveMembership(rows)!;
+        orgsById.set(orgId, {
+          id: effective.id,
+          slug: effective.slug,
+          name: effective.name,
+          logoUrl: effective.logoUrl,
+          primaryColor: effective.primaryColor,
+          role: effective.role,
+          type: effective.type,
         });
       }
 
@@ -104,9 +121,7 @@ export class GetMyOrgsService {
             existing?.role ??
             (r.membershipRole as "admin" | "member" | null) ??
             null,
-          type:
-            existing?.type ??
-            ((r.membershipType ?? r.rosterType) as "coach" | "dancer"),
+          type: existing?.type ?? r.membershipType ?? r.rosterType,
         });
       }
 

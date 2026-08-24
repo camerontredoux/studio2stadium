@@ -1,3 +1,5 @@
+import type { OrgMemberType, RosterType } from "#database/schema/enums";
+import { resolveEffectiveMembership } from "#shared/org/membership";
 import { DatabaseService } from "#database/service";
 import { organizations, orgMemberships } from "#database/schema/organizations";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
@@ -8,7 +10,7 @@ import { and, asc, desc, eq, sql } from "drizzle-orm";
 export interface OrgRosterSummary {
   id: string;
   eventId: string;
-  type: "coach" | "dancer";
+  type: RosterType;
   eventName: string;
   eventStartDate: string;
   eventEndDate: string;
@@ -18,9 +20,13 @@ export interface OrgRosterSummary {
 
 export interface GetOrgResult {
   org: typeof organizations.$inferSelect;
+  /**
+   * The user's highest-privilege membership. A person may hold both an
+   * organizer and a coach membership in the same Org (ADR 0003).
+   */
   membership: {
     role: "admin" | "member";
-    type: "coach" | "dancer";
+    type: OrgMemberType;
   } | null;
   myRoster: OrgRosterSummary | null;
   myRosters: OrgRosterSummary[];
@@ -46,7 +52,7 @@ export class GetOrgService {
       let myRoster: GetOrgResult["myRoster"] = null;
       let myRosters: GetOrgResult["myRosters"] = [];
       if (userId) {
-        const [row] = await db
+        const membershipRows = await db
           .select({
             role: orgMemberships.role,
             type: orgMemberships.type,
@@ -57,14 +63,8 @@ export class GetOrgService {
               eq(orgMemberships.orgId, org.id),
               eq(orgMemberships.userId, userId)
             )
-          )
-          .limit(1);
-        if (row) {
-          membership = {
-            role: row.role as "admin" | "member",
-            type: row.type as "coach" | "dancer",
-          };
-        }
+          );
+        membership = resolveEffectiveMembership(membershipRows);
 
         const today = new Date().toISOString().slice(0, 10);
         const rosterRows = await db
@@ -100,7 +100,7 @@ export class GetOrgService {
         myRosters = rosterRows.map((roster) => ({
           id: roster.id,
           eventId: roster.eventId,
-          type: roster.type as "coach" | "dancer",
+          type: roster.type,
           eventName: roster.eventName,
           eventStartDate: roster.eventStartDate,
           eventEndDate: roster.eventEndDate,

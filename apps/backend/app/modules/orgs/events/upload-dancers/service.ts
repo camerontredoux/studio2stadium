@@ -27,6 +27,7 @@ import { grantOrgAccountTier } from "#shared/org/grant-account-tier";
 import { verifyPreviewToken } from "#shared/org/preview-token";
 import { and, eq, inArray } from "drizzle-orm";
 import logger from "@adonisjs/core/services/logger";
+import { nonOrganizerMembershipConflict } from "#shared/org/membership";
 
 function randomToken(): string {
   return randomBytes(32).toString("base64url");
@@ -314,9 +315,7 @@ export class UploadDancersService {
                   type: "dancer",
                   role: "member",
                 })
-                .onConflictDoNothing({
-                  target: [orgMemberships.userId, orgMemberships.orgId],
-                });
+                .onConflictDoNothing(nonOrganizerMembershipConflict());
 
               // Matched dancers already had an account, so they never got a tier
               // from the invite flow. Grant what their roster entitles them to —

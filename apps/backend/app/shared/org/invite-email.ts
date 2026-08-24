@@ -4,6 +4,7 @@ import mail from "@adonisjs/mail/services/main";
 import { OrgInviteEmail, renderEmail, renderEmailText } from "@stos/emails";
 import type { organizations } from "#database/schema/organizations";
 import type { orgEvents } from "#database/schema/org-events";
+import type { RosterType } from "#database/schema/enums";
 
 interface OrgInviteMailData {
   email: string;
@@ -82,7 +83,7 @@ export async function sendOrgInviteEmail(opts: {
   event?: typeof orgEvents.$inferSelect | null;
   email: string;
   firstName: string;
-  type: "coach" | "dancer";
+  type: RosterType;
   token?: string;
 }): Promise<void> {
   const { org, event, email, firstName, type, token } = opts;
@@ -122,7 +123,7 @@ export async function sendOrgInviteEmailOrThrow(opts: {
   event?: typeof orgEvents.$inferSelect | null;
   email: string;
   firstName: string;
-  type: "coach" | "dancer";
+  type: RosterType;
   token?: string;
 }): Promise<void> {
   const { org, event, email, firstName, type, token } = opts;

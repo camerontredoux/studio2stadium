@@ -2,11 +2,19 @@ import { db } from "#database/connection";
 import { orgMemberships } from "#database/schema/organizations";
 import type { HttpContext } from "@adonisjs/core/http";
 import type { NextFn } from "@adonisjs/core/types/http";
+import { resolveEffectiveMembership } from "#shared/org/membership";
 import { and, eq } from "drizzle-orm";
 
 declare module "@adonisjs/core/http" {
   interface HttpContext {
+    /**
+     * The user's highest-privilege membership in this org. A person may hold
+     * both an organizer and a coach membership (ADR 0003), so checks that care
+     * about one specific type must read `orgMemberships` instead.
+     */
     orgMembership?: typeof orgMemberships.$inferSelect;
+    /** Every membership the user holds in this org. */
+    orgMemberships?: (typeof orgMemberships.$inferSelect)[];
   }
 }
 
@@ -25,7 +33,7 @@ export default class OrgMemberMiddleware {
 
     // System admins can access any org without membership
     if (user.role === "admin") {
-      ctx.orgMembership = {
+      const synthetic = {
         id: "system-admin",
         userId: user.id,
         orgId: ctx.org.id,
@@ -34,10 +42,12 @@ export default class OrgMemberMiddleware {
         createdAt: new Date(),
         updatedAt: new Date(),
       } as typeof orgMemberships.$inferSelect;
+      ctx.orgMembership = synthetic;
+      ctx.orgMemberships = [synthetic];
       return next();
     }
 
-    const [membership] = await db
+    const memberships = await db
       .select()
       .from(orgMemberships)
       .where(
@@ -45,8 +55,8 @@ export default class OrgMemberMiddleware {
           eq(orgMemberships.userId, user.id),
           eq(orgMemberships.orgId, ctx.org.id)
         )
-      )
-      .limit(1);
+      );
+    const membership = resolveEffectiveMembership(memberships);
 
     if (!membership) {
       return ctx.response.forbidden({
@@ -54,6 +64,7 @@ export default class OrgMemberMiddleware {
       });
     }
 
+    ctx.orgMemberships = memberships;
     ctx.orgMembership = membership;
     return next();
   }

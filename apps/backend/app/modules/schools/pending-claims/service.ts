@@ -8,6 +8,7 @@ import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { orgMemberships } from "#database/schema/organizations";
 import { inject } from "@adonisjs/core";
 import { and, eq, isNull, notInArray, sql } from "drizzle-orm";
+import { nonOrganizerMembershipConflict } from "#shared/org/membership";
 
 @inject()
 export class PendingClaimsService {
@@ -86,9 +87,7 @@ export class PendingClaimsService {
         await tx
           .insert(orgMemberships)
           .values({ userId, orgId: event.orgId, type: "coach", role: "member" })
-          .onConflictDoNothing({
-            target: [orgMemberships.userId, orgMemberships.orgId],
-          });
+          .onConflictDoNothing(nonOrganizerMembershipConflict());
       }
 
       await tx

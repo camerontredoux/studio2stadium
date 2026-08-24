@@ -14,6 +14,7 @@ import {
 } from "#shared/org/grant-account-tier";
 import { inject } from "@adonisjs/core";
 import { and, eq, isNull, ne, sql } from "drizzle-orm";
+import { nonOrganizerMembershipConflict } from "#shared/org/membership";
 
 export class RosterNotFoundError extends Error {
   code = "ROSTER_NOT_FOUND" as const;
@@ -218,9 +219,7 @@ export class AttachAccountService {
             type: "dancer",
             role: "member",
           })
-          .onConflictDoNothing({
-            target: [orgMemberships.userId, orgMemberships.orgId],
-          });
+          .onConflictDoNothing(nonOrganizerMembershipConflict());
 
         // Bring the account's advisory window up to what this roster entitles
         // it to: granted outright if it had no tier, extended if this event runs

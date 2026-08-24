@@ -79,7 +79,33 @@ export const videoUploadStatus = pgEnum("video_upload_status", [
 ]);
 
 export const orgRole = pgEnum("org_role", ["admin", "member"]);
-export const orgMemberType = pgEnum("org_member_type", ["coach", "dancer"]);
+/**
+ * What a person is inside an Org. Shared by `org_memberships` and, in the
+ * narrowed `RosterType` form below, by `event_rosters` and `csv_uploads`.
+ *
+ * `organizer` is the person who runs the Org's events and buys S2S Live. They
+ * administer the Org but never evaluate dancers and never appear on a Roster —
+ * see docs/adr/0003-organizer-is-a-distinct-member-type.md.
+ */
+export const orgMemberType = pgEnum("org_member_type", [
+  "coach",
+  "dancer",
+  "organizer",
+]);
+
+export type OrgMemberType = (typeof orgMemberType.enumValues)[number];
+
+/**
+ * The subset of `org_member_type` a Roster Entry may hold. An Organizer runs
+ * the event rather than taking part in it, so an organizer membership must
+ * never produce a Roster Entry — `event_rosters.type` and `csv_uploads.type`
+ * are typed to this and carry a matching CHECK constraint.
+ */
+export const ROSTER_TYPES = ["coach", "dancer"] as const;
+export type RosterType = (typeof ROSTER_TYPES)[number];
+
+export const isRosterType = (value: string): value is RosterType =>
+  (ROSTER_TYPES as readonly string[]).includes(value);
 export const premiumGrantSource = pgEnum("premium_grant_source", ["org_event"]);
 export const orgAccountTier = pgEnum("org_account_tier", [
   "standard",

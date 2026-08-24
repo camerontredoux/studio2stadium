@@ -10664,17 +10664,19 @@ export interface components {
             createdAt: string;
             /** @enum {string} */
             role: "admin" | "member";
-            type: components["schemas"]["UploadKind"];
+            /** @enum {string} */
+            type: "dancer" | "coach" | "organizer";
         }[];
         AdminOrgsIdMembersRequest: {
             email: string;
             /** @enum {string} */
             role: "admin" | "member";
-            type: components["schemas"]["UploadKind"];
+            /** @enum {string} */
+            type: "dancer" | "coach" | "organizer";
         };
         AdminOrgsIdMembersIdRequest: {
             role?: ("admin" | "member") | null;
-            type?: components["schemas"]["UploadKind"] | null;
+            type?: ("dancer" | "coach" | "organizer") | null;
         };
         AdminOrgsIdMembersIdResponse: {
             id: string;
@@ -10682,7 +10684,8 @@ export interface components {
             updatedAt: string;
             /** @enum {string} */
             role: "admin" | "member";
-            type: components["schemas"]["UploadKind"];
+            /** @enum {string} */
+            type: "dancer" | "coach" | "organizer";
             userId: string;
             orgId: string;
         };
@@ -10750,7 +10753,8 @@ export interface components {
                     orgSlug: string;
                     /** @enum {string} */
                     role: "admin" | "member";
-                    type: components["schemas"]["UploadKind"];
+                    /** @enum {string} */
+                    type: "dancer" | "coach" | "organizer";
                 }[];
                 platforms: ("core" | "prodigy")[];
             };
@@ -10779,7 +10783,8 @@ export interface components {
                 orgSlug: string;
                 /** @enum {string} */
                 role: "admin" | "member";
-                type: components["schemas"]["UploadKind"];
+                /** @enum {string} */
+                type: "dancer" | "coach" | "organizer";
             }[];
             platforms: ("core" | "prodigy")[];
         };
@@ -10915,7 +10920,8 @@ export interface components {
             membership: {
                 /** @enum {string} */
                 role: "admin" | "member";
-                type: components["schemas"]["UploadKind"];
+                /** @enum {string} */
+                type: "dancer" | "coach" | "organizer";
             } | null;
             myRoster: {
                 id: string;
@@ -12026,11 +12032,11 @@ export interface components {
                 type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 location: string;
                 title: string;
-                startDatetime: string;
-                endDatetime: string;
                 organizer: {
                     name: string;
                 } | null;
+                startDatetime: string;
+                endDatetime: string;
             }[];
             globalEvents: {
                 id: string;
@@ -12171,6 +12177,12 @@ export interface components {
             schoolId: string;
             title: string;
             description: string;
+            organizer: {
+                name: string;
+                username: string;
+                avatar: string | null;
+                events: number;
+            };
             address: string | null;
             tags: string[] | null;
             cost: string | null;
@@ -12182,12 +12194,6 @@ export interface components {
             startDate: string;
             endDate: string;
             startTime: string;
-            organizer: {
-                name: string;
-                username: string;
-                avatar: string | null;
-                events: number;
-            };
             attendees: number;
             saved: boolean;
             eventAttendees: number;
@@ -12525,7 +12531,8 @@ export interface components {
             id: string;
             name: string;
             role: ("admin" | "member") | null;
-            type: components["schemas"]["UploadKind"];
+            /** @enum {string} */
+            type: "dancer" | "coach" | "organizer";
             slug: string;
             logoUrl: string | null;
             primaryColor: string | null;
