@@ -27,7 +27,12 @@ import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { useTransmitSubscription } from "@/features/org/hooks/use-transmit";
 import { useSession } from "@/lib/session";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, useLocation, useNavigate, useParams } from "@tanstack/react-router";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "@tanstack/react-router";
 import {
   CalendarIcon,
   CheckIcon,
@@ -54,15 +59,18 @@ const dashboardItem = {
 
 export function DancerSidebar() {
   const session = useSession();
-  const { org, membership, hasFeature } = useOrg();
+  const { org, membership, myRosters, hasFeature } = useOrg();
   const { orgSlug } = useParams({ strict: false }) as { orgSlug: string };
   const location = useLocation();
   const navigate = useNavigate();
   const qc = useQueryClient();
 
+  // Members with no dancer roster yet have no callbacks to fetch, and the
+  // endpoint requires a roster on the event.
+  const hasDancerRoster = myRosters.some((roster) => roster.type === "dancer");
   useQuery({
     ...scoutingQueries.dancerCallbacks(orgSlug),
-    enabled: hasFeature("callbacks"),
+    enabled: hasFeature("callbacks") && hasDancerRoster,
   });
 
   useTransmitSubscription(
@@ -124,7 +132,8 @@ export function DancerSidebar() {
     : location.pathname.includes("/coach")
       ? "Coach"
       : "Dancer";
-  const canSwitchView = membership?.role === "admin" || session.role === "admin";
+  const canSwitchView =
+    membership?.role === "admin" || session.role === "admin";
 
   function handleSelectView(view: "Admin" | "Coach" | "Dancer") {
     if (view === "Admin") {
@@ -239,7 +248,9 @@ export function DancerSidebar() {
                   <SidebarGroupLabel className="text-muted-foreground px-3 pt-2 pb-1 text-[10px] font-semibold tracking-widest uppercase">
                     {section.title}
                   </SidebarGroupLabel>
-                  <div className={`border-sidebar-border border-t ${section.items.length > 1 ? "grid grid-cols-2" : ""}`}>
+                  <div
+                    className={`border-sidebar-border border-t ${section.items.length > 1 ? "grid grid-cols-2" : ""}`}
+                  >
                     {section.items.map(({ label, icon: Icon, to }) => {
                       const isActive = isItemActive(to);
                       return (
@@ -346,7 +357,11 @@ export function DancerSidebar() {
                     closeOnClick
                     render={
                       <Link
-                        to={session.type === "school" ? "/explore/$username" : "/$username"}
+                        to={
+                          session.type === "school"
+                            ? "/explore/$username"
+                            : "/$username"
+                        }
                         params={{ username: session.username }}
                       />
                     }
@@ -386,7 +401,11 @@ export function DancerSidebar() {
                         [
                           { value: "light", label: "Light", icon: SunIcon },
                           { value: "dark", label: "Dark", icon: MoonIcon },
-                          { value: "system", label: "System", icon: MonitorIcon },
+                          {
+                            value: "system",
+                            label: "System",
+                            icon: MonitorIcon,
+                          },
                         ] as const
                       ).map(({ value, label, icon: Icon }) => (
                         <MenuItem
