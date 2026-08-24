@@ -269,8 +269,9 @@ export function AdminSidebar() {
                     className={`border-sidebar-border border-t ${section.items.length > 1 ? "grid grid-cols-2" : ""}`}
                   >
                     {section.items.map(
-                      ({ label, icon: Icon, to, fullWidth }) => {
+                      ({ label, icon: Icon, to, fullWidth }, index) => {
                         const isActive = isItemActive(to);
+                        const inFirstRow = index < 2;
                         return (
                           <Link
                             key={label}
@@ -283,7 +284,11 @@ export function AdminSidebar() {
                             } ${
                               isActive
                                 ? "border-t-primary text-primary bg-sidebar-accent/40"
-                                : "text-sidebar-foreground hover:bg-sidebar-accent/20 border-t-transparent"
+                                : `text-sidebar-foreground hover:bg-sidebar-accent/20 ${
+                                    inFirstRow
+                                      ? "border-t-transparent"
+                                      : "border-t-sidebar-border"
+                                  }`
                             }`}
                           >
                             <Icon
