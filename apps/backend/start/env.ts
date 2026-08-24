@@ -35,6 +35,15 @@ export default await Env.create(new URL("../", import.meta.url), {
   */
   API_URL: Env.schema.string(),
 
+  /*
+  |----------------------------------------------------------
+  | The S2S Live marketing site's public base URL. The buyer's
+  | browser returns here after an Event Tier Checkout Session,
+  | separate from SITE_URL (the product frontend).
+  |----------------------------------------------------------
+  */
+  MARKETING_SITE_URL: Env.schema.string(),
+
   HEALTH_SECRET: Env.schema.string(),
 
   /*
@@ -119,6 +128,17 @@ export default await Env.create(new URL("../", import.meta.url), {
   STRIPE_WEBHOOK_SECRET: Env.schema.string.optional(),
   STRIPE_PRICE_ID_MONTHLY: Env.schema.string(),
   STRIPE_PRICE_ID_YEARLY: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | One Stripe one-time Price per self-serve Event Tier (see
+  | #shared/org/event-tiers). Enterprise has no fixed price and
+  | stays a sales conversation, so it has none here.
+  |----------------------------------------------------------
+  */
+  STRIPE_PRICE_ID_EVENT_TIER_CORE: Env.schema.string(),
+  STRIPE_PRICE_ID_EVENT_TIER_REGIONAL: Env.schema.string(),
+  STRIPE_PRICE_ID_EVENT_TIER_NATIONAL: Env.schema.string(),
 
   /*
   |----------------------------------------------------------

@@ -4,6 +4,7 @@ import "#modules/auth/routes";
 import "#modules/blog/routes";
 import "#modules/contact/routes";
 import "#modules/dancers/routes";
+import "#modules/event-tiers/routes";
 import "#modules/events/routes";
 import "#modules/feed/routes";
 import "#modules/health/routes";

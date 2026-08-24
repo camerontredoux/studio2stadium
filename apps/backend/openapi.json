@@ -7641,6 +7641,46 @@
         "description": "Deletes an achievement for the authenticated dancer"
       }
     },
+    "/event-tiers/checkout": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventtiersCheckoutRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventtiersCheckoutResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Event Tiers"
+        ],
+        "summary": "Create an Event Tier checkout session",
+        "description": "Creates a one-time payment Checkout Session for the chosen Event Tier. Called by the marketing site before the buyer has a product session."
+      }
+    },
     "/events": {
       "get": {
         "parameters": [
@@ -13225,6 +13265,15 @@
           "name": {
             "type": "string"
           },
+          "eventTier": {
+            "type": "string",
+            "enum": [
+              "core",
+              "regional",
+              "national",
+              "enterprise"
+            ]
+          },
           "orgId": {
             "type": "string"
           },
@@ -13303,6 +13352,7 @@
           "createdAt",
           "updatedAt",
           "name",
+          "eventTier",
           "orgId",
           "startDate",
           "endDate",
@@ -19471,6 +19521,53 @@
             ]
           }
         }
+      },
+      "EventtiersCheckoutRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "eventTier": {
+            "type": "string",
+            "enum": [
+              "core",
+              "regional",
+              "national"
+            ]
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "eventName": {
+            "type": "string"
+          },
+          "orgName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId",
+          "eventTier",
+          "startDate",
+          "endDate",
+          "eventName",
+          "orgName"
+        ]
+      },
+      "EventtiersCheckoutResponse": {
+        "type": "object",
+        "properties": {
+          "clientSecret": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "clientSecret"
+        ]
       },
       "EventsResponse": {
         "type": "array",

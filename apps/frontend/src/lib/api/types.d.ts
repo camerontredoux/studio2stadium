@@ -7935,6 +7935,58 @@ export interface paths {
         };
         trace?: never;
     };
+    "/event-tiers/checkout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create an Event Tier checkout session
+         * @description Creates a one-time payment Checkout Session for the chosen Event Tier. Called by the marketing site before the buyer has a product session.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["EventtiersCheckoutRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventtiersCheckoutResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/events": {
         parameters: {
             query?: never;
@@ -10979,6 +11031,8 @@ export interface components {
             createdAt: string;
             updatedAt: string;
             name: string;
+            /** @enum {string} */
+            eventTier: "core" | "regional" | "national" | "enterprise";
             orgId: string;
             startDate: string;
             endDate: string;
@@ -12081,6 +12135,18 @@ export interface components {
         DancersAchievementsAchievementsIdRequest: {
             title?: string | null;
             description?: string | null;
+        };
+        EventtiersCheckoutRequest: {
+            userId: string;
+            /** @enum {string} */
+            eventTier: "core" | "regional" | "national";
+            startDate: string;
+            endDate: string;
+            eventName: string;
+            orgName: string;
+        };
+        EventtiersCheckoutResponse: {
+            clientSecret: string;
         };
         EventsResponse: {
             events: {

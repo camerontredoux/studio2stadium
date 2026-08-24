@@ -699,6 +699,10 @@ type DancersAchievementsAchievementsIdPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/update-achievement/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/profile/update-achievement/controller.ts').default['handle'], true>
 }
+type EventtiersCheckoutPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/event-tiers/checkout/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/event-tiers/checkout/controller.ts').default['handle'], true>
+}
 type EventsFiltersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/events/get-event-filters/controller.ts').default['handle'], false>
@@ -1817,6 +1821,13 @@ export interface ApiDefinition {
           '$patch': DancersAchievementsAchievementsIdPatch;
         };
       };
+    };
+  };
+  'event-tiers': {
+    'checkout': {
+      '$url': {
+      };
+      '$post': EventtiersCheckoutPost;
     };
   };
   'events': {
