@@ -292,6 +292,13 @@ membership row per org: read them all and collapse with `resolveEffectiveMembers
 `rosterTypeMembershipConflict()` so Postgres infers the partial index. Load memberships with
 `loadOrgMemberships()` rather than a hand-rolled `.limit(1)` lookup.
 
+Reclassifying pre-ADR-0003 data: `node ace backfill:organizers` (dry run by default,
+`--no-dry-run` to apply, `--org=slug` to scope). It only flips admin coach memberships whose owner
+holds **no** real Roster Entry. Someone with a roster row genuinely coached, and flipping them
+would leave that row — and so their place in every coach-facing list, which reads `event_rosters`
+and never `org_memberships` — while removing the coach membership that explains it. Those are
+reported for a human to give an organizer membership *alongside* the coach one.
+
 **View-as flow (how staff rosters get created):** admin picks "Coach/Dancer" in the
 `ViewSwitcher` → `POST :slug/events/view-as { type }` (`modules/orgs/events/view-as/`, admin-only)
 upserts their `is_staff` roster. `OrgEventMiddleware` resolves `ctx.orgRoster` using the
