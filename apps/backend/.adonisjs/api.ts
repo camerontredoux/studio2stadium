@@ -511,6 +511,18 @@ type OrgsIdSettingsPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/update-settings/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/update-settings/controller.ts').default['handle'], true>
 }
+type OrgsIdRosterclaimsPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/roster-claims/create/validator.ts')['createClaimSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/roster-claims/create/controller.ts').default['handle'], true>
+}
+type OrgsIdAdminRosterclaimsGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/roster-claims/list/validator.ts')['listClaimsSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/roster-claims/list/controller.ts').default['handle'], true>
+}
+type OrgsIdAdminRosterclaimsIdResolvePost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/roster-claims/resolve/validator.ts')['resolveClaimSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/roster-claims/resolve/controller.ts').default['handle'], true>
+}
 type OrgsIdRegisterPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/register-dancer/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/register-dancer/controller.ts').default['handle'], true>
@@ -1511,6 +1523,19 @@ export interface ApiDefinition {
             };
           };
         };
+        'roster-claims': {
+          '$url': {
+          };
+          '$get': OrgsIdAdminRosterclaimsGetHead;
+          '$head': OrgsIdAdminRosterclaimsGetHead;
+          ':claimId': {
+            'resolve': {
+              '$url': {
+              };
+              '$post': OrgsIdAdminRosterclaimsIdResolvePost;
+            };
+          };
+        };
       };
       'showcases': {
         '$url': {
@@ -1558,6 +1583,11 @@ export interface ApiDefinition {
         '$url': {
         };
         '$patch': OrgsIdSettingsPatch;
+      };
+      'roster-claims': {
+        '$url': {
+        };
+        '$post': OrgsIdRosterclaimsPost;
       };
       'register': {
         '$url': {
