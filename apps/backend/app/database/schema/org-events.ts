@@ -5,6 +5,7 @@ import {
   auditAction,
   auditResource,
   csvRowOutcome,
+  eventTier,
   orgMemberType,
   rosterClaimStatus,
 } from "./enums.ts";
@@ -27,6 +28,12 @@ export const orgEvents = pg.pgTable(
     venueAddress: pg.text(),
     contactEmail: pg.text(),
     isActive: pg.boolean().notNull().default(false),
+    // The Event Tier bought for this event — the sold name whose capabilities
+    // and limits are defined in `#shared/org/event-tiers`. Every event that
+    // existed when this column arrived is grandfathered at Enterprise (ADR
+    // 0006), and the default keeps hand-built events there until the purchase
+    // flow starts setting it from what was actually paid for.
+    eventTier: eventTier().notNull().default("enterprise"),
     schedulePdfUrl: pg.text(),
     startTime: pg.text(),
     timezone: pg.text(),
