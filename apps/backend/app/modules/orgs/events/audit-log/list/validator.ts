@@ -16,8 +16,19 @@ export const schema = vine.compile(
         "resend_invite",
       ] as const)
       .optional(),
+    // Must stay in step with the `audit_resource` enum — entries are written
+    // for every value here, so omitting one silently makes those rows
+    // unfilterable rather than failing loudly.
     resource: vine
-      .enum(["roster", "event", "checklist", "csv_upload", "invite"] as const)
+      .enum([
+        "roster",
+        "event",
+        "checklist",
+        "csv_upload",
+        "invite",
+        "video_category",
+        "video",
+      ] as const)
       .optional(),
     actorId: vine.string().trim().minLength(1).optional(),
     from: vine.string().trim().minLength(1).optional(),

@@ -12,6 +12,7 @@ import {
   orgEvents,
   eventRosters,
   csvUploads,
+  csvUploadRows,
 } from "#database/schema/org-events";
 import { normalizeRowEmails, parseDancerCsv } from "#shared/org/csv-parser";
 import { sendOrgInviteEmailOrThrow } from "#shared/org/invite-email";
@@ -189,6 +190,19 @@ export class UploadDancersService {
         let added = 0;
         let updated = 0;
         let activated = 0;
+        // Collected as we go and written once the upload row exists, so every
+        // line keeps a record of what it said and what it did.
+        const rowSnapshots: {
+          rowNumber: number;
+          email: string;
+          firstName: string | null;
+          lastName: string | null;
+          bibNumber: number | null;
+          paid: boolean | null;
+          outcome: "added" | "updated";
+          rosterId: string | null;
+          matchedUserId: string | null;
+        }[] = [];
 
         if (rowsToProcess.length > 0) {
           // Match only users with a dancer profile (same idea as coach CSV + school profile).
@@ -243,8 +257,19 @@ export class UploadDancersService {
                 })
                 .where(eq(eventRosters.id, existing.id));
               updated += 1;
+              rowSnapshots.push({
+                rowNumber: r.csvRow,
+                email: r.email,
+                firstName: r.firstName,
+                lastName: r.lastName,
+                bibNumber: r.bibNumber ?? null,
+                paid: r.paid ?? null,
+                outcome: "updated",
+                rosterId: existing.id,
+                matchedUserId: userId,
+              });
             } else {
-              await tx
+              const [inserted] = await tx
                 .insert(eventRosters)
                 .values({
                   eventId,
@@ -259,6 +284,17 @@ export class UploadDancersService {
                 })
                 .returning();
               added += 1;
+              rowSnapshots.push({
+                rowNumber: r.csvRow,
+                email: r.email,
+                firstName: r.firstName,
+                lastName: r.lastName,
+                bibNumber: r.bibNumber ?? null,
+                paid: r.paid ?? null,
+                outcome: "added",
+                rosterId: inserted?.id ?? null,
+                matchedUserId: userId,
+              });
               if (userId) {
                 activated += 1;
                 matchedNotifications.push({
@@ -360,6 +396,15 @@ export class UploadDancersService {
             errorDetails: [] as any,
           })
           .returning();
+
+        if (rowSnapshots.length > 0) {
+          await tx.insert(csvUploadRows).values(
+            rowSnapshots.map((row) => ({
+              csvUploadId: upload!.id,
+              ...row,
+            }))
+          );
+        }
 
         // Backfill csvUploadId on all roster rows just inserted/updated
         if (rowsToProcess.length > 0) {

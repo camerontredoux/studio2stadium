@@ -595,6 +595,7 @@ export function RosterDetailSheet({
           eventId={eventId}
           rosterId={entry.id}
           isRelink={isActive}
+          linkedUser={entry.linkedUser ?? null}
           onSuccess={() => onOpenChange(false)}
         />
       )}

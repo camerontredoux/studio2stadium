@@ -3662,11 +3662,13 @@
                 {
                   "type": "string",
                   "enum": [
+                    "video",
                     "roster",
                     "event",
                     "checklist",
                     "csv_upload",
-                    "invite"
+                    "invite",
+                    "video_category"
                   ]
                 },
                 {
@@ -13562,6 +13564,61 @@
                 },
                 "isRegistered": {
                   "type": "boolean"
+                },
+                "linkedUser": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "firstName": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "lastName": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "avatarUrl": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "email",
+                        "firstName",
+                        "lastName",
+                        "avatarUrl"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 }
               },
               "required": [
@@ -13577,7 +13634,8 @@
                 "bibNumber",
                 "checkedInAt",
                 "paid",
-                "isRegistered"
+                "isRegistered",
+                "linkedUser"
               ]
             }
           },
@@ -13927,6 +13985,20 @@
       "OrgsIdEventsIdRostersIdAttachRequest": {
         "type": "object",
         "properties": {
+          "confirmRelink": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "targetUserId": {
             "type": "string"
           }
@@ -14487,6 +14559,68 @@
                 },
                 "childCount": {
                   "type": "number"
+                },
+                "subject": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "rosterId": {
+                          "type": "string"
+                        },
+                        "firstName": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "lastName": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "email": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "bibNumber": {
+                          "oneOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "rosterId",
+                        "firstName",
+                        "lastName",
+                        "email",
+                        "bibNumber"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 }
               },
               "required": [
@@ -14499,7 +14633,8 @@
                 "metadata",
                 "parentId",
                 "actor",
-                "childCount"
+                "childCount",
+                "subject"
               ]
             }
           },

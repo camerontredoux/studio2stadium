@@ -12,6 +12,7 @@ import {
   orgEvents,
   eventRosters,
   csvUploads,
+  csvUploadRows,
 } from "#database/schema/org-events";
 import { seedOrganizations } from "#commands/backfill-organizations";
 import { eq } from "drizzle-orm";
@@ -459,5 +460,102 @@ fresh2@x.co,Fresh,Two,2`;
       .from(eventRosters)
       .where(eq(eventRosters.eventId, freshEvent!.id));
     assert.lengthOf(rosters, 2);
+  });
+
+  test("keeps a snapshot of every uploaded row", async ({ assert }) => {
+    const dancer = await createUser({
+      username: "snapshot1",
+      email: "snapshot1@x.co",
+    });
+
+    const csv = `email,firstName,lastName,bibNumber
+snapshot1@x.co,Snap,One,201
+nobody@x.co,No,Body,202`;
+
+    const svc = new UploadDancersService();
+    await svc.execute({
+      orgId: summit.id,
+      eventId: event.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://dancers.csv",
+      csv,
+    });
+
+    const snapshots = await db.select().from(csvUploadRows);
+    assert.lengthOf(snapshots, 2);
+
+    const matched = snapshots.find((r) => r.email === "snapshot1@x.co")!;
+    assert.equal(matched.outcome, "added");
+    assert.equal(matched.matchedUserId, dancer.id);
+    assert.equal(matched.bibNumber, 201);
+    assert.isNotNull(matched.rosterId);
+
+    // A row that matched no account produced an invite, not a link.
+    const pending = snapshots.find((r) => r.email === "nobody@x.co")!;
+    assert.equal(pending.outcome, "added");
+    assert.isNull(pending.matchedUserId);
+  });
+
+  test("snapshot survives the roster entry being rewritten", async ({
+    assert,
+  }) => {
+    const csv = `email,firstName,lastName,bibNumber
+original@x.co,Original,Name,301`;
+
+    const svc = new UploadDancersService();
+    await svc.execute({
+      orgId: summit.id,
+      eventId: event.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://dancers.csv",
+      csv,
+    });
+
+    // Stand in for an account attach, which rewrites the entry's identity.
+    await db
+      .update(eventRosters)
+      .set({ email: "rewritten@x.co", firstName: "Rewritten" })
+      .where(eq(eventRosters.email, "original@x.co"));
+
+    // The address the dancer was uploaded under is still discoverable, which
+    // is the whole point of keeping the snapshot.
+    const [snapshot] = await db
+      .select()
+      .from(csvUploadRows)
+      .where(eq(csvUploadRows.email, "original@x.co"));
+    assert.exists(snapshot);
+    assert.equal(snapshot!.firstName, "Original");
+  });
+
+  test("records an updated row as updated on re-upload", async ({ assert }) => {
+    const csv = `email,firstName,lastName,bibNumber
+repeat@x.co,Repeat,Row,401`;
+
+    const svc = new UploadDancersService();
+    await svc.execute({
+      orgId: summit.id,
+      eventId: event.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://dancers.csv",
+      csv,
+    });
+    await svc.execute({
+      orgId: summit.id,
+      eventId: event.id,
+      uploaderId: uploader.id,
+      fileUrl: "test://dancers-2.csv",
+      csv,
+    });
+
+    const snapshots = await db
+      .select()
+      .from(csvUploadRows)
+      .where(eq(csvUploadRows.email, "repeat@x.co"));
+
+    assert.lengthOf(snapshots, 2);
+    assert.sameMembers(
+      snapshots.map((r) => r.outcome),
+      ["added", "updated"]
+    );
   });
 });
