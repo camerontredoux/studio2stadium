@@ -24,7 +24,7 @@ export function OrgProvider({
   const { data } = useSuspenseQuery(orgQueries.org(slug));
 
   const features = (data.features ?? {}) as Record<string, boolean>;
-  const activeEvent = data.activeEvent ?? null;
+  const activeEventCapabilities = data.activeEventCapabilities ?? null;
   const membership =
     (data as { membership?: OrgMembership | null }).membership ?? null;
   const myRoster = (data as { myRoster?: MyRoster | null }).myRoster ?? null;
@@ -49,12 +49,13 @@ export function OrgProvider({
       isAdmin: grantsOrgAdmin(membership) || session?.role === "admin",
       // Capabilities come from the active Org Event, org-wide configuration
       // from the Org — see `hasOrgFeature`.
-      hasFeature: (key) => hasOrgFeature({ features, activeEvent }, key),
+      hasFeature: (key) =>
+        hasOrgFeature({ features, activeEventCapabilities }, key),
     }),
     [
       data,
       features,
-      activeEvent,
+      activeEventCapabilities,
       membership,
       myRoster,
       myRosters,

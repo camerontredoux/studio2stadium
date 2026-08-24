@@ -2,32 +2,28 @@ import { describe, expect, it } from "vitest";
 
 import { hasOrgFeature } from "./entitlement";
 
-const coreEvent = { id: "e1", eventTier: "core", capabilities: [] } as const;
-const regionalEvent = {
-  id: "e2",
-  eventTier: "regional",
-  capabilities: ["check_in", "school_selections", "callbacks"],
-} as const;
+const core = [] as const;
+const regional = ["check_in", "school_selections", "callbacks"] as const;
 
 describe("hasOrgFeature", () => {
   it("gates a capability on the active event, not the org", () => {
     expect(
       hasOrgFeature(
-        { features: { callbacks: true }, activeEvent: coreEvent },
+        { features: { callbacks: true }, activeEventCapabilities: core },
         "callbacks",
       ),
     ).toBe(false);
 
     expect(
       hasOrgFeature(
-        { features: {}, activeEvent: regionalEvent },
+        { features: {}, activeEventCapabilities: regional },
         "callbacks",
       ),
     ).toBe(true);
   });
 
   it("gates each capability separately", () => {
-    const org = { features: {}, activeEvent: regionalEvent };
+    const org = { features: {}, activeEventCapabilities: regional };
     expect(hasOrgFeature(org, "check_in")).toBe(true);
     expect(hasOrgFeature(org, "school_selections")).toBe(true);
     expect(hasOrgFeature(org, "video_library")).toBe(false);
@@ -36,7 +32,7 @@ describe("hasOrgFeature", () => {
   it("grants no capability when there is no active event", () => {
     expect(
       hasOrgFeature(
-        { features: { callbacks: true }, activeEvent: null },
+        { features: { callbacks: true }, activeEventCapabilities: null },
         "callbacks",
       ),
     ).toBe(false);
@@ -45,12 +41,15 @@ describe("hasOrgFeature", () => {
   it("still reads org-wide configuration from the org", () => {
     expect(
       hasOrgFeature(
-        { features: { freeTierUsers: true }, activeEvent: coreEvent },
+        { features: { freeTierUsers: true }, activeEventCapabilities: core },
         "freeTierUsers",
       ),
     ).toBe(true);
     expect(
-      hasOrgFeature({ features: {}, activeEvent: null }, "freeTierUsers"),
+      hasOrgFeature(
+        { features: {}, activeEventCapabilities: null },
+        "freeTierUsers",
+      ),
     ).toBe(false);
   });
 

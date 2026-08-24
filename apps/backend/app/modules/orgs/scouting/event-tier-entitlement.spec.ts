@@ -30,7 +30,7 @@ function dateFromToday(days: number) {
   return date.toISOString().slice(0, 10);
 }
 
-async function createCoachUser(username: string) {
+async function createUser(username: string, type: "school" | "dancer") {
   const email = `${username}@example.com`;
   const [user] = await db
     .insert(users)
@@ -42,7 +42,7 @@ async function createCoachUser(username: string) {
       lastName: "Test",
       password: "hashed",
       role: "user",
-      type: "school",
+      type,
       verified: true,
     })
     .returning();
@@ -92,7 +92,7 @@ async function orgWithEvents(slug: string, eventTiers: EventTier[]) {
     )
     .returning();
 
-  const coach = await createCoachUser(`${slug.replace(/-/g, "_")}_coach`);
+  const coach = await createUser(`${slug.replace(/-/g, "_")}_coach`, "school");
   await db.insert(orgMemberships).values({
     orgId: org!.id,
     userId: coach.id,
@@ -206,6 +206,54 @@ test.group("Event Tier entitlement", (group) => {
       .header("Authorization", `Bearer ${token}`);
 
     res.assertStatus(404);
+  });
+
+  test("a Dancer reading her own event gates on the event she asked for", async ({
+    client,
+  }) => {
+    // `orgEvent("dancerSelfRead")` resolves the *requested* event rather than
+    // the Org's active one, so entitlement follows the event the Dancer is
+    // actually looking at. With a switcher across events of different Event
+    // Tiers, that is the answer that matches what she is being shown.
+    const { org, events } = await orgWithEvents("dancer-org", [
+      "core",
+      "national",
+    ]);
+    const [coreEvent, nationalEvent] = events;
+    const dancer = await createUser("switching_dancer", "dancer");
+    await db.insert(orgMemberships).values({
+      orgId: org.id,
+      userId: dancer.id,
+      role: "member",
+      type: "dancer",
+    });
+    await db.insert(eventRosters).values(
+      events.map((event) => ({
+        eventId: event.id,
+        userId: dancer.id,
+        type: "dancer" as const,
+        email: dancer.email,
+        firstName: "Switching",
+        lastName: "Dancer",
+      }))
+    );
+    const token = await loginUser(dancer.id);
+
+    // The Core event is the active one, so anything reading the active event
+    // would answer Core for both requests.
+    await activate(org.id, coreEvent!.id);
+
+    const atCore = await client
+      .get(`/orgs/${org.slug}/dancer/callbacks`)
+      .qs({ eventId: coreEvent!.id })
+      .header("Authorization", `Bearer ${token}`);
+    atCore.assertStatus(404);
+
+    const atNational = await client
+      .get(`/orgs/${org.slug}/dancer/callbacks`)
+      .qs({ eventId: nationalEvent!.id })
+      .header("Authorization", `Bearer ${token}`);
+    atNational.assertStatus(200);
   });
 
   test("a grandfathered Enterprise event keeps the access it had", async ({

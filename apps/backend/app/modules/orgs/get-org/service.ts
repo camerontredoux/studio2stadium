@@ -5,7 +5,6 @@ import { organizations, orgMemberships } from "#database/schema/organizations";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
 import {
   EVENT_TIER_DEFINITIONS,
-  type EventTier,
   type EventTierCapability,
 } from "#shared/org/event-tiers";
 import { hasEventStarted } from "#utils/event-time";
@@ -23,21 +22,6 @@ export interface OrgRosterSummary {
   hasStarted: boolean;
 }
 
-/**
- * What the Org's active Org Event entitles its people to.
- *
- * Entitlement is bought per event (ADR 0002), so the frontend's convenience
- * gating has to ask the active event rather than the Org. The capabilities are
- * sent resolved rather than as a bare Event Tier so that the mapping from sold
- * name to capabilities stays in `#shared/org/event-tiers` alone, and a client
- * cannot drift from it.
- */
-export interface ActiveEventEntitlement {
-  id: string;
-  eventTier: EventTier;
-  capabilities: EventTierCapability[];
-}
-
 export interface GetOrgResult {
   org: typeof organizations.$inferSelect;
   /**
@@ -50,7 +34,18 @@ export interface GetOrgResult {
   } | null;
   myRoster: OrgRosterSummary | null;
   myRosters: OrgRosterSummary[];
-  activeEvent: ActiveEventEntitlement | null;
+  /**
+   * What the Org's active Org Event includes, or `null` when it has no active
+   * event — which is not the same answer as an active event that includes
+   * nothing, and a client that cannot tell them apart would fall back to the
+   * Org's flags.
+   *
+   * Entitlement is bought per event (ADR 0002), so the frontend's convenience
+   * gating asks this rather than `org.features`. Sent resolved rather than as a
+   * bare Event Tier so that the mapping from sold name to capabilities stays in
+   * `#shared/org/event-tiers` alone and no client can drift from it.
+   */
+  activeEventCapabilities: EventTierCapability[] | null;
 }
 
 @inject()
@@ -69,19 +64,13 @@ export class GetOrgService {
         .limit(1);
       if (!org) return null;
 
-      const [activeEventRow] = await db
-        .select({ id: orgEvents.id, eventTier: orgEvents.eventTier })
+      const [activeEvent] = await db
+        .select({ eventTier: orgEvents.eventTier })
         .from(orgEvents)
         .where(and(eq(orgEvents.orgId, org.id), eq(orgEvents.isActive, true)))
         .limit(1);
-      const activeEvent: GetOrgResult["activeEvent"] = activeEventRow
-        ? {
-            id: activeEventRow.id,
-            eventTier: activeEventRow.eventTier,
-            capabilities: [
-              ...EVENT_TIER_DEFINITIONS[activeEventRow.eventTier].capabilities,
-            ],
-          }
+      const activeEventCapabilities = activeEvent
+        ? [...EVENT_TIER_DEFINITIONS[activeEvent.eventTier].capabilities]
         : null;
 
       let membership: GetOrgResult["membership"] = null;
@@ -150,7 +139,13 @@ export class GetOrgService {
         myRoster = myRosters[0] ?? null;
       }
 
-      return { org, membership, myRoster, myRosters, activeEvent };
+      return {
+        org,
+        membership,
+        myRoster,
+        myRosters,
+        activeEventCapabilities,
+      };
     });
   }
 }

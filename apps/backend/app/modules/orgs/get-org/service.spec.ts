@@ -31,7 +31,7 @@ test.group("GET /orgs/:slug", (group) => {
     assert.equal(body.settings.max_school_selections, 3);
   });
 
-  test("carries the active event's Event Tier and what it includes", async ({
+  test("carries what the active event's Event Tier includes", async ({
     client,
     assert,
   }) => {
@@ -39,24 +39,18 @@ test.group("GET /orgs/:slug", (group) => {
       .select()
       .from(organizations)
       .where(eq(organizations.slug, "summit"));
-    const [event] = await db
-      .insert(orgEvents)
-      .values({
-        orgId: org!.id,
-        name: "Entitlement Event",
-        startDate: "2026-09-01",
-        endDate: "2026-09-02",
-        isActive: true,
-        eventTier: "regional",
-      })
-      .returning();
+    await db.insert(orgEvents).values({
+      orgId: org!.id,
+      name: "Entitlement Event",
+      startDate: "2026-09-01",
+      endDate: "2026-09-02",
+      isActive: true,
+      eventTier: "regional",
+    });
 
     const response = await client.get("/orgs/summit");
     response.assertStatus(200);
-    const { activeEvent } = response.body();
-    assert.equal(activeEvent.id, event!.id);
-    assert.equal(activeEvent.eventTier, "regional");
-    assert.sameMembers(activeEvent.capabilities, [
+    assert.sameMembers(response.body().activeEventCapabilities, [
       "check_in",
       "school_selections",
       "callbacks",
@@ -82,19 +76,19 @@ test.group("GET /orgs/:slug", (group) => {
 
     const response = await client.get("/orgs/summit");
     response.assertStatus(200);
-    // Empty rather than absent: the org's own flags say `callbacks: true`, and
-    // a client that cannot tell "no capabilities" from "no answer" would fall
-    // back to them.
-    assert.deepEqual(response.body().activeEvent.capabilities, []);
+    // Empty rather than null: the org's own flags say `callbacks: true`, and a
+    // client that cannot tell "an event including nothing" from "no active
+    // event" would fall back to them.
+    assert.deepEqual(response.body().activeEventCapabilities, []);
   });
 
-  test("activeEvent is null when the org has no active event", async ({
+  test("capabilities are null when the org has no active event", async ({
     client,
     assert,
   }) => {
     const response = await client.get("/orgs/core");
     response.assertStatus(200);
-    assert.isNull(response.body().activeEvent);
+    assert.isNull(response.body().activeEventCapabilities);
   });
 
   test("returns 404 for unknown slug", async ({ client }) => {
