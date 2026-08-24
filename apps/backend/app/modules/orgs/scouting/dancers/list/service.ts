@@ -143,6 +143,7 @@ export class ListDancersService {
           isCalledBack: isCalledBackSubquery,
           username: users.username,
           userId: eventRosters.userId,
+          email: eventRosters.email,
           eventId: eventRosters.eventId,
           createdAt: eventRosters.createdAt,
         })
@@ -161,16 +162,20 @@ export class ListDancersService {
     });
 
     // Across all of the org's events the same dancer can hold a roster row per
-    // event. Collapse to one row per dancer — keyed by their account when
-    // registered, otherwise left distinct — preferring the active event's row
-    // so the coach's favorites/ratings/callbacks stay wired to it.
+    // event. Collapse to one row per dancer — keyed by their account, falling
+    // back to email for rows no one has claimed — preferring the active event's
+    // row so the coach's favorites/ratings/callbacks stay wired to it.
     const deduped = selectedEventId
       ? rows
       : this.dedupeByDancer(rows, activeEventId);
 
     return deduped.map((row) => ({
       rosterId: row.rosterId,
-      bibNumber: row.bibNumber,
+      // A bib only identifies a dancer at the event that issued it. When the
+      // coach browses the org's history, a dancer who is not on the active
+      // event's roster is shown without one rather than under a stale number.
+      bibNumber:
+        selectedEventId || row.eventId === activeEventId ? row.bibNumber : null,
       firstName: row.firstName,
       lastName: row.lastName,
       isRegistered: row.isRegistered,
@@ -194,13 +199,24 @@ export class ListDancersService {
       rosterId: string;
       bibNumber: number | null;
       userId: string | null;
+      email: string | null;
       eventId: string;
       createdAt: Date | null;
     },
   >(rows: T[], activeEventId: string | null): T[] {
+    // An older event's row for the same person is often still unclaimed, so it
+    // carries no account to match on. Email is the only identity those rows
+    // share with the claimed row, and rosters are unique by email per event.
+    const accountByEmail = new Map<string, string>();
+    for (const row of rows) {
+      const email = this.normalizeEmail(row.email);
+      if (!email || !row.userId || accountByEmail.has(email)) continue;
+      accountByEmail.set(email, row.userId);
+    }
+
     const byDancer = new Map<string, T>();
     for (const row of rows) {
-      const key = row.userId ?? `roster:${row.rosterId}`;
+      const key = this.dancerKey(row, accountByEmail);
       const current = byDancer.get(key);
       if (!current || this.isBetterRow(row, current, activeEventId)) {
         byDancer.set(key, row);
@@ -209,6 +225,21 @@ export class ListDancersService {
     return [...byDancer.values()].sort(
       (a, b) => (a.bibNumber ?? Infinity) - (b.bibNumber ?? Infinity)
     );
+  }
+
+  private dancerKey(
+    row: { rosterId: string; userId: string | null; email: string | null },
+    accountByEmail: Map<string, string>
+  ) {
+    if (row.userId) return `user:${row.userId}`;
+    const email = this.normalizeEmail(row.email);
+    if (!email) return `roster:${row.rosterId}`;
+    const account = accountByEmail.get(email);
+    return account ? `user:${account}` : `email:${email}`;
+  }
+
+  private normalizeEmail(email: string | null) {
+    return email?.trim().toLowerCase() || null;
   }
 
   private isBetterRow(

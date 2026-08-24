@@ -349,4 +349,154 @@ test.group("ListDancersService", (group) => {
     assert.equal(all.length, 1);
     assert.equal(all[0]!.rosterId, activeRoster!.id);
   });
+
+  test("keeps distinct unclaimed dancers apart across events", async ({
+    assert,
+  }) => {
+    const [pastEvent] = await db
+      .insert(orgEvents)
+      .values({
+        orgId: summit.id,
+        name: "Summit 2025",
+        startDate: "2025-06-13",
+        endDate: "2025-06-14",
+        isActive: false,
+      })
+      .returning();
+
+    await db.insert(eventRosters).values([
+      {
+        eventId: pastEvent!.id,
+        type: "dancer",
+        email: "one@x.co",
+        firstName: "One",
+        lastName: "Dancer",
+        bibNumber: 12,
+      },
+      {
+        eventId: event.id,
+        type: "dancer",
+        email: "two@x.co",
+        firstName: "Two",
+        lastName: "Dancer",
+        bibNumber: 14,
+      },
+    ]);
+
+    const svc = new ListDancersService();
+    const all = await svc.execute(summit.id, event.id, null, {});
+    assert.equal(all.length, 2);
+  });
+
+  test("hides the bib of a dancer who is not on the active event", async ({
+    assert,
+  }) => {
+    const [pastEvent] = await db
+      .insert(orgEvents)
+      .values({
+        orgId: summit.id,
+        name: "Summit 2025",
+        startDate: "2025-06-13",
+        endDate: "2025-06-14",
+        isActive: false,
+      })
+      .returning();
+
+    await db.insert(eventRosters).values([
+      {
+        eventId: pastEvent!.id,
+        type: "dancer",
+        email: "gone@x.co",
+        firstName: "Gone",
+        lastName: "Dancer",
+        bibNumber: 12,
+      },
+      {
+        eventId: event.id,
+        type: "dancer",
+        email: "here@x.co",
+        firstName: "Here",
+        lastName: "Dancer",
+        bibNumber: 300,
+      },
+    ]);
+
+    const svc = new ListDancersService();
+    const all = await svc.execute(summit.id, event.id, null, {});
+    const gone = all.find((r) => r.lastName === "Dancer" && !r.bibNumber);
+    const here = all.find((r) => r.firstName === "Here");
+    assert.equal(here!.bibNumber, 300);
+    assert.isNotNull(gone);
+    assert.isNull(gone!.bibNumber);
+
+    // Browsing that past event directly still shows the bib it issued.
+    const pastOnly = await svc.execute(
+      summit.id,
+      event.id,
+      null,
+      {},
+      false,
+      undefined,
+      pastEvent!.id
+    );
+    assert.equal(pastOnly[0]!.bibNumber, 12);
+  });
+  test("dedupes an unclaimed past-event row against the dancer's claimed row", async ({
+    assert,
+  }) => {
+    const [abbey] = await db
+      .insert(users)
+      .values({
+        username: "abbey",
+        email: "abbey@x.co",
+        displayEmail: "abbey@x.co",
+        firstName: "Abbey",
+        lastName: "Nugent",
+        password: "x",
+        role: "user",
+        type: "dancer",
+        verified: true,
+      })
+      .returning();
+
+    const [pastEvent] = await db
+      .insert(orgEvents)
+      .values({
+        orgId: summit.id,
+        name: "Summit 2025",
+        startDate: "2025-06-13",
+        endDate: "2025-06-14",
+        isActive: false,
+      })
+      .returning();
+
+    // The past-event row was never claimed, so it holds no userId — only the
+    // email ties it back to the dancer's row on the active event.
+    await db.insert(eventRosters).values({
+      eventId: pastEvent!.id,
+      type: "dancer",
+      email: "Abbey@X.co",
+      firstName: "Abbey",
+      lastName: "Nugent",
+      bibNumber: 12,
+    });
+    const [activeRoster] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: event.id,
+        type: "dancer",
+        email: "abbey@x.co",
+        firstName: "Abbey",
+        lastName: "Nugent",
+        bibNumber: 200,
+        userId: abbey!.id,
+      })
+      .returning();
+
+    const svc = new ListDancersService();
+    const all = await svc.execute(summit.id, event.id, null, {});
+    assert.equal(all.length, 1);
+    assert.equal(all[0]!.rosterId, activeRoster!.id);
+    assert.equal(all[0]!.bibNumber, 200);
+  });
 });
