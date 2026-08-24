@@ -1,6 +1,8 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { eventDancerProfiles, eventRosters } from "#database/schema/org-events";
+import { users } from "#database/schema/users";
+import { imageUrl } from "#utils/image-url";
 import {
   and,
   asc,
@@ -93,12 +95,18 @@ export class ListRosterService {
             bio: eventDancerProfiles.bio,
             checkedInAt: eventRosters.checkedInAt,
             paid: eventRosters.paid,
+            linkedUserId: users.id,
+            linkedUserEmail: users.email,
+            linkedUserFirstName: users.firstName,
+            linkedUserLastName: users.lastName,
+            linkedUserAvatar: users.avatar,
           })
           .from(eventRosters)
           .leftJoin(
             eventDancerProfiles,
             eq(eventDancerProfiles.rosterId, eventRosters.id)
           )
+          .leftJoin(users, eq(users.id, eventRosters.userId))
           .where(and(...filters))
           .orderBy(orderExpr)
           .limit(limit)
@@ -122,6 +130,18 @@ export class ListRosterService {
           isRegistered: r.isRegistered,
           checkedInAt: r.checkedInAt?.toISOString() ?? null,
           paid: r.paid,
+          // The account this entry currently belongs to. The roster's own
+          // email/name are rewritten to match on attach, so they cannot be
+          // relied on to show who actually holds the entry.
+          linkedUser: r.linkedUserId
+            ? {
+                id: r.linkedUserId,
+                email: r.linkedUserEmail!,
+                firstName: r.linkedUserFirstName,
+                lastName: r.linkedUserLastName,
+                avatarUrl: imageUrl(r.linkedUserAvatar, "avatar"),
+              }
+            : null,
           createdAt:
             r.createdAt instanceof Date
               ? r.createdAt.toISOString()

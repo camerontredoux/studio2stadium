@@ -36,6 +36,32 @@ export class DuplicateRosterError extends Error {
   }
 }
 
+/**
+ * Raised when the roster entry is already claimed by a *different* account.
+ *
+ * Relinking rewrites the entry's userId, email and name in place, which
+ * silently unregisters whoever held it — they lose the event from their
+ * profile and can no longer see their callbacks. That is recoverable only if
+ * someone noticed, so it has to be an explicit decision rather than a
+ * side effect of picking a name out of a search box. The caller re-sends the
+ * request with `confirmRelink` once a human has seen who they are displacing.
+ */
+export class RosterAlreadyLinkedError extends Error {
+  code = "ROSTER_ALREADY_LINKED" as const;
+  constructor(
+    readonly currentUser: {
+      id: string;
+      email: string;
+      firstName: string | null;
+      lastName: string | null;
+    }
+  ) {
+    super(
+      "This roster entry is already linked to a different account. Confirm the change to reassign it."
+    );
+  }
+}
+
 @inject()
 export class AttachAccountService {
   constructor(private db: DatabaseService = new DatabaseService()) {}
@@ -44,7 +70,8 @@ export class AttachAccountService {
     eventId: string,
     rosterId: string,
     targetUserId: string,
-    actorId: string
+    actorId: string,
+    confirmRelink = false
   ) {
     // Validate target user exists and is a dancer
     const [targetUser] = await this.db.use((db) =>
@@ -93,6 +120,35 @@ export class AttachAccountService {
       if (!roster) throw new RosterNotFoundError();
 
       const oldEmail = roster.email;
+      const oldFirstName = roster.firstName;
+      const oldLastName = roster.lastName;
+      const previousUserId = roster.userId;
+      const isRelink = previousUserId !== null && previousUserId !== targetUserId;
+
+      // Reassigning a claimed entry unregisters its current holder, so it takes
+      // a deliberate confirmation. Re-running an attach for the account that
+      // already holds it stays a no-op and needs no gate.
+      if (isRelink && !confirmRelink) {
+        const [currentUser] = await tx
+          .select({
+            id: users.id,
+            email: users.email,
+            firstName: users.firstName,
+            lastName: users.lastName,
+          })
+          .from(users)
+          .where(eq(users.id, previousUserId))
+          .limit(1);
+
+        throw new RosterAlreadyLinkedError(
+          currentUser ?? {
+            id: previousUserId,
+            email: oldEmail,
+            firstName: oldFirstName,
+            lastName: oldLastName,
+          }
+        );
+      }
 
       // Update roster entry with user's data
       await tx
@@ -195,6 +251,35 @@ export class AttachAccountService {
         metadata: {
           type: "attach_to_account",
           targetUserId,
+          previousUserId,
+          // A relink reassigns the entry away from a real account; a plain
+          // attach claims a pending row. They read very differently when
+          // someone is reconstructing what happened to a dancer.
+          relinked: isRelink,
+          confirmed: isRelink ? confirmRelink : null,
+          // The full before-state. Recording only the email here used to make
+          // a reassignment unreconstructable: the entry's name was overwritten
+          // in place and the original was lost with it.
+          before: {
+            userId: previousUserId,
+            email: oldEmail,
+            firstName: oldFirstName,
+            lastName: oldLastName,
+          },
+          after: {
+            userId: targetUserId,
+            email: targetUser.email,
+            firstName: targetUser.firstName,
+            lastName: targetUser.lastName,
+          },
+          diff: {
+            userId: { from: previousUserId, to: targetUserId },
+            email: { from: oldEmail, to: targetUser.email },
+            firstName: { from: oldFirstName, to: targetUser.firstName },
+            lastName: { from: oldLastName, to: targetUser.lastName },
+          },
+          // Retained so entries written before the richer shape landed stay
+          // comparable with new ones.
           previousEmail: oldEmail,
           newEmail: targetUser.email,
           tierGranted: tierGranted?.tier ?? null,

@@ -3793,7 +3793,7 @@ export interface paths {
                     search?: string | null;
                     actorId?: string | null;
                     action?: ("upload" | "create" | "update" | "delete" | "activate" | "resend_invite") | null;
-                    resource?: ("roster" | "event" | "checklist" | "csv_upload" | "invite") | null;
+                    resource?: ("video" | "roster" | "event" | "checklist" | "csv_upload" | "invite" | "video_category") | null;
                     from?: string | null;
                     to?: string | null;
                     limit?: (string | number) | null;
@@ -10879,6 +10879,13 @@ export interface components {
                 checkedInAt: string | null;
                 paid: boolean | null;
                 isRegistered: boolean;
+                linkedUser: {
+                    id: string;
+                    email: string;
+                    firstName: string | null;
+                    lastName: string | null;
+                    avatarUrl: string | null;
+                } | null;
             }[];
             total: number;
         };
@@ -10933,6 +10940,7 @@ export interface components {
             isRegistered: boolean;
         };
         OrgsIdEventsIdRostersIdAttachRequest: {
+            confirmRelink?: (string | number | boolean) | null;
             targetUserId: string;
         };
         OrgsIdEventsIdRostersIdAttachResponse: {
@@ -11037,6 +11045,13 @@ export interface components {
                     avatarUrl: string | null;
                 };
                 childCount: number;
+                subject: {
+                    rosterId: string;
+                    firstName: string | null;
+                    lastName: string | null;
+                    email: string | null;
+                    bibNumber: number | null;
+                } | null;
             }[];
             total: number;
         };
