@@ -98,6 +98,16 @@ export const auditAction = pgEnum("audit_action", [
 /** What a CSV row did to the roster: created a new entry, or changed one. */
 export const csvRowOutcome = pgEnum("csv_row_outcome", ["added", "updated"]);
 
+/**
+ * A dancer's claim that a roster entry is hers. Only ever resolved by an org
+ * admin — the dancer is asking, never asserting.
+ */
+export const rosterClaimStatus = pgEnum("roster_claim_status", [
+  "pending",
+  "approved",
+  "rejected",
+]);
+
 export const auditResource = pgEnum("audit_resource", [
   "roster",
   "event",

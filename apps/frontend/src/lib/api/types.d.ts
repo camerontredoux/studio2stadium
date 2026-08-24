@@ -5532,6 +5532,138 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/admin/roster-claims": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List roster claim requests
+         * @description Pending (default), approved or rejected claims for the organization.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    status?: ("rejected" | "pending" | "approved") | null;
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdAdminRosterclaimsResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/admin/roster-claims/{claimId}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resolve a roster claim request
+         * @description Approve a claim against a chosen roster entry, or reject it. Approving performs the same audited reassignment as attaching an account by hand.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    claimId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdAdminRosterclaimsIdResolveRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/showcases": {
         parameters: {
             query?: never;
@@ -5863,6 +5995,69 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/orgs/{slug}/roster-claims": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Claim a roster entry
+         * @description Lets a dancer who cannot find her registration ask the organization to link her account to a roster entry. Creates a pending request for an org admin to resolve; it never links anything on its own. Re-submitting updates the open request rather than creating another.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdRosterclaimsRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdRosterclaimsResponse"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/orgs/{slug}/register": {
@@ -11418,6 +11613,34 @@ export interface components {
             callbackCount: number;
             releasedCount: number;
         }[];
+        OrgsIdAdminRosterclaimsResponse: {
+            data: {
+                id: string;
+                /** @enum {string} */
+                status: "rejected" | "pending" | "approved";
+                note: string | null;
+                createdAt: string;
+                resolvedRosterId: string | null;
+                resolvedAt: string | null;
+                claimed: {
+                    firstName: string;
+                    lastName: string;
+                    email: string | null;
+                };
+                requester: {
+                    id: string;
+                    email: string;
+                    firstName: string;
+                    lastName: string;
+                    avatarUrl: string | null;
+                };
+            }[];
+        };
+        OrgsIdAdminRosterclaimsIdResolveRequest: {
+            rosterId?: string | null;
+            /** @enum {string} */
+            action: "approve" | "reject";
+        };
         OrgsIdShowcasesResponse: {
             number: number;
             id: string;
@@ -11483,6 +11706,28 @@ export interface components {
         };
         OrgsIdSettingsResponse: {
             settings: Record<string, never>;
+        };
+        OrgsIdRosterclaimsRequest: {
+            note?: string | null;
+            claimedEmail?: string | null;
+            claimedFirstName: string;
+            claimedLastName: string;
+        };
+        OrgsIdRosterclaimsResponse: {
+            id: string;
+            /** @enum {string} */
+            status: "rejected" | "pending" | "approved";
+            note: string | null;
+            createdAt: string;
+            updatedAt: string;
+            orgId: string;
+            requesterId: string;
+            claimedFirstName: string;
+            claimedLastName: string;
+            claimedEmail: string | null;
+            resolvedRosterId: string | null;
+            resolvedBy: string | null;
+            resolvedAt: string | null;
         };
         OrgsIdRegisterRequest: {
             firstName: string;

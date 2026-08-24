@@ -6,6 +6,7 @@ import {
   auditResource,
   csvRowOutcome,
   orgMemberType,
+  rosterClaimStatus,
 } from "./enums.ts";
 import { citext, timestamps } from "./helpers/columns.ts";
 import { organizations } from "./organizations.ts";
@@ -175,6 +176,60 @@ export const csvUploadRows = pg.pgTable(
     // Drives "show me every CSV line ever uploaded for this address".
     pg.index().on(table.email),
     pg.index().on(table.rosterId),
+  ]
+);
+
+/**
+ * A dancer asking an org to connect her account to a roster entry.
+ *
+ * A roster entry's email is the org's *contact* address, which is frequently a
+ * parent's. The dancer then signs in with her own address, finds nothing, and
+ * creates a second account — the entry is already claimed by the parent's
+ * account, so nothing can link them automatically. This is the request that
+ * used to arrive as a support email.
+ *
+ * Deliberately a request, not an action: resolving it reassigns a roster entry
+ * away from whoever holds it, which only an org admin may decide. The dancer
+ * supplies the claim; the admin verifies it against the roster.
+ */
+export const rosterClaimRequests = pg.pgTable(
+  "roster_claim_requests",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    orgId: pg
+      .uuid()
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    // The account that will receive the roster entry if this is approved.
+    requesterId: pg
+      .uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    // What the dancer tells us to help an admin find her on the roster. Free
+    // text on purpose: she may know only the name her studio registered her
+    // under, or the address a parent used.
+    claimedFirstName: pg.text().notNull(),
+    claimedLastName: pg.text().notNull(),
+    claimedEmail: citext(),
+    note: pg.text(),
+    status: rosterClaimStatus().notNull().default("pending"),
+    // Set when approved — the entry the admin decided this claim refers to.
+    resolvedRosterId: pg
+      .uuid()
+      .references(() => eventRosters.id, { onDelete: "set null" }),
+    resolvedBy: pg.uuid().references(() => users.id, { onDelete: "set null" }),
+    resolvedAt: pg.timestamp({ withTimezone: true }),
+    ...timestamps,
+  },
+  (table) => [
+    pg.index().on(table.orgId, table.status),
+    pg.index().on(table.requesterId),
+    // One open claim per dancer per org: re-asking should update the queue,
+    // not flood it.
+    pg
+      .uniqueIndex("roster_claim_requests_one_open_per_requester")
+      .on(table.orgId, table.requesterId)
+      .where(sql`status = 'pending'`),
   ]
 );
 
