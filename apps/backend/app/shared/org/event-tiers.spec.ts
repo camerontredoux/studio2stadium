@@ -6,6 +6,7 @@ import {
   DEFAULT_MAX_SCHOOL_SELECTIONS,
   eventTierIncludes,
   eventTierLimits,
+  isEventTierCapability,
 } from "./event-tiers.ts";
 import { DEFAULT_MAX_CALLBACKS_PER_COACH } from "./max-callbacks.ts";
 
@@ -95,5 +96,22 @@ test.group("Event Tiers", () => {
         assert.isNull(limits.maxSchoolSelections, eventTier);
       }
     }
+  });
+});
+
+test.group("isEventTierCapability", () => {
+  test("recognises every capability an Event Tier can include", async ({
+    assert,
+  }) => {
+    for (const capability of EVENT_TIER_CAPABILITIES) {
+      assert.isTrue(isEventTierCapability(capability));
+    }
+  });
+
+  test("rejects org-wide configuration keys", async ({ assert }) => {
+    // `freeTierUsers` is bought with the Org rather than the event, so it must
+    // keep resolving from `organizations.features`.
+    assert.isFalse(isEventTierCapability("freeTierUsers"));
+    assert.isFalse(isEventTierCapability("something_else"));
   });
 });

@@ -3,6 +3,8 @@ import { resolveEffectiveMembership } from "#shared/org/membership";
 import { DatabaseService } from "#database/service";
 import { organizations, orgMemberships } from "#database/schema/organizations";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
+import { resolveCapabilities } from "#shared/org/entitlement";
+import type { EventTierCapability } from "#shared/org/event-tiers";
 import { hasEventStarted } from "#utils/event-time";
 import { inject } from "@adonisjs/core";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
@@ -30,6 +32,16 @@ export interface GetOrgResult {
   } | null;
   myRoster: OrgRosterSummary | null;
   myRosters: OrgRosterSummary[];
+  /**
+   * Every capability in force for the Org's active event: what its Event Tier
+   * includes, with any staff override on the Org applied (ADR 0002 and
+   * `#shared/org/entitlement`).
+   *
+   * Resolved here rather than sent as a bare Event Tier so that the frontend's
+   * convenience gating cannot hold its own copy of either the tier mapping or
+   * the override rule and drift from what the middleware enforces.
+   */
+  activeEventCapabilities: EventTierCapability[];
 }
 
 @inject()
@@ -47,6 +59,16 @@ export class GetOrgService {
         .where(eq(organizations.slug, slug))
         .limit(1);
       if (!org) return null;
+
+      const [activeEvent] = await db
+        .select({ eventTier: orgEvents.eventTier })
+        .from(orgEvents)
+        .where(and(eq(orgEvents.orgId, org.id), eq(orgEvents.isActive, true)))
+        .limit(1);
+      const activeEventCapabilities = resolveCapabilities(
+        org.features,
+        activeEvent?.eventTier
+      );
 
       let membership: GetOrgResult["membership"] = null;
       let myRoster: GetOrgResult["myRoster"] = null;
@@ -114,7 +136,13 @@ export class GetOrgService {
         myRoster = myRosters[0] ?? null;
       }
 
-      return { org, membership, myRoster, myRosters };
+      return {
+        org,
+        membership,
+        myRoster,
+        myRosters,
+        activeEventCapabilities,
+      };
     });
   }
 }

@@ -10995,6 +10995,7 @@ export interface components {
                 eventEndDate: string;
                 hasStarted: boolean;
             }[];
+            activeEventCapabilities: ("video_library" | "callbacks" | "check_in" | "school_selections")[];
         };
         OrgsIdEventsResponse: {
             gpa: boolean;
