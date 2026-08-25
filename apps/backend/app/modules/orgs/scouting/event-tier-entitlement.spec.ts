@@ -191,21 +191,35 @@ test.group("Event Tier entitlement", (group) => {
     atNational.assertStatus(200);
   });
 
-  test("an org feature flag cannot grant what the active event's Event Tier lacks", async ({
+  test("an explicit org flag overrides what the Event Tier includes", async ({
     client,
   }) => {
-    const { org, token } = await orgWithEvents("flagged-core-org", ["core"]);
+    // Turned on for an event that did not buy it.
+    const core = await orgWithEvents("flagged-core-org", ["core"]);
     await db
       .update(organizations)
       .set({ features: { callbacks: true } })
-      .where(eq(organizations.id, org.id))
+      .where(eq(organizations.id, core.org.id))
       .execute();
+    const granted = await client
+      .get(`/orgs/${core.org.slug}/callbacks`)
+      .header("Authorization", `Bearer ${core.token}`);
+    granted.assertStatus(200);
 
-    const res = await client
-      .get(`/orgs/${org.slug}/callbacks`)
-      .header("Authorization", `Bearer ${token}`);
-
-    res.assertStatus(404);
+    // Turned off for an event that did — which is how every Org configured
+    // before Event Tiers existed keeps the access it was given.
+    const enterprise = await orgWithEvents("flagged-enterprise-org", [
+      "enterprise",
+    ]);
+    await db
+      .update(organizations)
+      .set({ features: { callbacks: false } })
+      .where(eq(organizations.id, enterprise.org.id))
+      .execute();
+    const denied = await client
+      .get(`/orgs/${enterprise.org.slug}/callbacks`)
+      .header("Authorization", `Bearer ${enterprise.token}`);
+    denied.assertStatus(404);
   });
 
   test("a Dancer reading her own event gates on the event she asked for", async ({

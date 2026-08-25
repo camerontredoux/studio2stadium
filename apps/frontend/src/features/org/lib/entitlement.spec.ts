@@ -6,7 +6,7 @@ const core = [] as const;
 const regional = ["check_in", "school_selections", "callbacks"] as const;
 
 describe("hasOrgFeature", () => {
-  it("gates a capability on the active event, not the org", () => {
+  it("reads the backend's resolved list, not the org's flags", () => {
     expect(
       hasOrgFeature(
         { features: { callbacks: true }, activeEventCapabilities: core },
@@ -29,10 +29,10 @@ describe("hasOrgFeature", () => {
     expect(hasOrgFeature(org, "video_library")).toBe(false);
   });
 
-  it("grants no capability when there is no active event", () => {
+  it("grants no capability when the resolved list is empty", () => {
     expect(
       hasOrgFeature(
-        { features: { callbacks: true }, activeEventCapabilities: null },
+        { features: { callbacks: true }, activeEventCapabilities: [] },
         "callbacks",
       ),
     ).toBe(false);
@@ -47,7 +47,7 @@ describe("hasOrgFeature", () => {
     ).toBe(true);
     expect(
       hasOrgFeature(
-        { features: {}, activeEventCapabilities: null },
+        { features: {}, activeEventCapabilities: [] },
         "freeTierUsers",
       ),
     ).toBe(false);

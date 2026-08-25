@@ -13017,23 +13017,16 @@
             }
           },
           "activeEventCapabilities": {
-            "oneOf": [
-              {
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "enum": [
-                    "video_library",
-                    "callbacks",
-                    "check_in",
-                    "school_selections"
-                  ]
-                }
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "video_library",
+                "callbacks",
+                "check_in",
+                "school_selections"
+              ]
+            }
           }
         },
         "required": [

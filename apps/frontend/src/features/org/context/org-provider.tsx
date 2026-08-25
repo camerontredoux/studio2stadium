@@ -24,7 +24,7 @@ export function OrgProvider({
   const { data } = useSuspenseQuery(orgQueries.org(slug));
 
   const features = (data.features ?? {}) as Record<string, boolean>;
-  const activeEventCapabilities = data.activeEventCapabilities ?? null;
+  const activeEventCapabilities = data.activeEventCapabilities;
   const membership =
     (data as { membership?: OrgMembership | null }).membership ?? null;
   const myRoster = (data as { myRoster?: MyRoster | null }).myRoster ?? null;

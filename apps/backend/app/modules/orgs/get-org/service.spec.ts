@@ -35,10 +35,11 @@ test.group("GET /orgs/:slug", (group) => {
     client,
     assert,
   }) => {
+    // The core org overrides nothing, so its Event Tier alone decides.
     const [org] = await db
       .select()
       .from(organizations)
-      .where(eq(organizations.slug, "summit"));
+      .where(eq(organizations.slug, "core"));
     await db.insert(orgEvents).values({
       orgId: org!.id,
       name: "Entitlement Event",
@@ -48,7 +49,7 @@ test.group("GET /orgs/:slug", (group) => {
       eventTier: "regional",
     });
 
-    const response = await client.get("/orgs/summit");
+    const response = await client.get("/orgs/core");
     response.assertStatus(200);
     assert.sameMembers(response.body().activeEventCapabilities, [
       "check_in",
@@ -57,14 +58,14 @@ test.group("GET /orgs/:slug", (group) => {
     ]);
   });
 
-  test("a Core active event includes none of the gated capabilities", async ({
+  test("a Core active event with no overrides includes nothing", async ({
     client,
     assert,
   }) => {
     const [org] = await db
       .select()
       .from(organizations)
-      .where(eq(organizations.slug, "summit"));
+      .where(eq(organizations.slug, "core"));
     await db.insert(orgEvents).values({
       orgId: org!.id,
       name: "Core Event",
@@ -74,21 +75,48 @@ test.group("GET /orgs/:slug", (group) => {
       eventTier: "core",
     });
 
-    const response = await client.get("/orgs/summit");
+    const response = await client.get("/orgs/core");
     response.assertStatus(200);
-    // Empty rather than null: the org's own flags say `callbacks: true`, and a
-    // client that cannot tell "an event including nothing" from "no active
-    // event" would fall back to them.
     assert.deepEqual(response.body().activeEventCapabilities, []);
   });
 
-  test("capabilities are null when the org has no active event", async ({
+  test("an org's explicit flags override the active event's Event Tier", async ({
     client,
     assert,
   }) => {
+    // The summit org switches callbacks, school_selections and video_library on
+    // and never mentions check_in, so a Core event keeps the first three and
+    // takes its answer on the fourth from the Event Tier.
+    const [org] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "summit"));
+    await db.insert(orgEvents).values({
+      orgId: org!.id,
+      name: "Overridden Event",
+      startDate: "2026-09-01",
+      endDate: "2026-09-02",
+      isActive: true,
+      eventTier: "core",
+    });
+
+    const response = await client.get("/orgs/summit");
+    response.assertStatus(200);
+    assert.sameMembers(response.body().activeEventCapabilities, [
+      "callbacks",
+      "school_selections",
+      "video_library",
+    ]);
+  });
+
+  test("an org with no active event resolves to its overrides alone", async ({
+    client,
+    assert,
+  }) => {
+    // The core org overrides nothing, so there is nothing to grant.
     const response = await client.get("/orgs/core");
     response.assertStatus(200);
-    assert.isNull(response.body().activeEventCapabilities);
+    assert.deepEqual(response.body().activeEventCapabilities, []);
   });
 
   test("returns 404 for unknown slug", async ({ client }) => {

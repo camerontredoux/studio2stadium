@@ -2,22 +2,22 @@ import type { components } from "@/lib/api/types";
 
 /**
  * What an Org Event includes is bought per event (ADR 0002), so the org area's
- * convenience gating asks the active Org Event rather than the Org. The
- * backend's `OrgFeatureMiddleware` stays authoritative; this only decides what
- * to show, and must agree with it or it shows Coaches and Dancers features
- * their event does not have.
+ * convenience gating asks the active Org Event rather than the Org. The backend
+ * resolves that answer — the event's Event Tier, with any staff override on the
+ * Org applied — and sends the result, so the rule lives in one place and this
+ * cannot drift from what `OrgFeatureMiddleware` enforces.
+ *
+ * The middleware stays authoritative; this only decides what to show.
  */
 
 type OrgPayload = components["schemas"]["OrgsIdResponse"];
 
 /**
  * The capabilities an Event Tier can include, taken from the generated API
- * types rather than restated — the Event Tier they come from is resolved
- * server-side, and a second hand-written list here could drift from it.
+ * types rather than restated — a second hand-written list here could drift from
+ * the backend's.
  */
-export type EventTierCapability = NonNullable<
-  OrgPayload["activeEventCapabilities"]
->[number];
+export type EventTierCapability = OrgPayload["activeEventCapabilities"][number];
 
 /**
  * Org-wide configuration that gates UI but is not bought per event. These keys
@@ -37,7 +37,7 @@ export type OrgFeatureKey = EventTierCapability | OrgConfigurationFlag;
 /** As much of the `GET /orgs/{slug}` payload as gating needs. */
 export interface OrgEntitlementSource {
   features?: unknown;
-  activeEventCapabilities?: readonly EventTierCapability[] | null;
+  activeEventCapabilities?: readonly EventTierCapability[];
 }
 
 function isOrgConfigurationFlag(key: string): key is OrgConfigurationFlag {

@@ -3,10 +3,8 @@ import { resolveEffectiveMembership } from "#shared/org/membership";
 import { DatabaseService } from "#database/service";
 import { organizations, orgMemberships } from "#database/schema/organizations";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
-import {
-  EVENT_TIER_DEFINITIONS,
-  type EventTierCapability,
-} from "#shared/org/event-tiers";
+import { resolveCapabilities } from "#shared/org/entitlement";
+import type { EventTierCapability } from "#shared/org/event-tiers";
 import { hasEventStarted } from "#utils/event-time";
 import { inject } from "@adonisjs/core";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
@@ -35,17 +33,15 @@ export interface GetOrgResult {
   myRoster: OrgRosterSummary | null;
   myRosters: OrgRosterSummary[];
   /**
-   * What the Org's active Org Event includes, or `null` when it has no active
-   * event — which is not the same answer as an active event that includes
-   * nothing, and a client that cannot tell them apart would fall back to the
-   * Org's flags.
+   * Every capability in force for the Org's active event: what its Event Tier
+   * includes, with any staff override on the Org applied (ADR 0002 and
+   * `#shared/org/entitlement`).
    *
-   * Entitlement is bought per event (ADR 0002), so the frontend's convenience
-   * gating asks this rather than `org.features`. Sent resolved rather than as a
-   * bare Event Tier so that the mapping from sold name to capabilities stays in
-   * `#shared/org/event-tiers` alone and no client can drift from it.
+   * Resolved here rather than sent as a bare Event Tier so that the frontend's
+   * convenience gating cannot hold its own copy of either the tier mapping or
+   * the override rule and drift from what the middleware enforces.
    */
-  activeEventCapabilities: EventTierCapability[] | null;
+  activeEventCapabilities: EventTierCapability[];
 }
 
 @inject()
@@ -69,9 +65,10 @@ export class GetOrgService {
         .from(orgEvents)
         .where(and(eq(orgEvents.orgId, org.id), eq(orgEvents.isActive, true)))
         .limit(1);
-      const activeEventCapabilities = activeEvent
-        ? [...EVENT_TIER_DEFINITIONS[activeEvent.eventTier].capabilities]
-        : null;
+      const activeEventCapabilities = resolveCapabilities(
+        org.features,
+        activeEvent?.eventTier
+      );
 
       let membership: GetOrgResult["membership"] = null;
       let myRoster: GetOrgResult["myRoster"] = null;
