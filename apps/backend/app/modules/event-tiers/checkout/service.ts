@@ -6,6 +6,7 @@ import stripe from "#payments/stripe/main";
 import env from "#start/env";
 import { inject } from "@adonisjs/core";
 import { eq } from "drizzle-orm";
+import { toCheckoutMetadata } from "./metadata.ts";
 import { type PurchasableEventTier, type Validator } from "./validator.ts";
 
 /**
@@ -58,13 +59,7 @@ export class Service {
           quantity: 1,
         },
       ],
-      metadata: {
-        eventTier: payload.eventTier,
-        orgName: payload.orgName,
-        eventName: payload.eventName,
-        startDate: payload.startDate,
-        endDate: payload.endDate,
-      },
+      metadata: toCheckoutMetadata(payload),
       return_url: `${env.get("MARKETING_SITE_URL")}/s2s-live`,
     });
   }
