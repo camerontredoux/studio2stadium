@@ -100,7 +100,7 @@ test.group("ProvisionPurchaseService", (group) => {
     assert.equal(memberships[0]!.role, "admin");
   });
 
-  test("the buyer's Org Event is the Org's active one when nothing else is running", async ({
+  test("the Org Event is created inactive, for the Organizer to configure and activate", async ({
     assert,
   }) => {
     const buyer = await makeBuyer("active");
@@ -110,10 +110,14 @@ test.group("ProvisionPurchaseService", (group) => {
       buyerUserId: buyer.id,
       purchase: purchase(),
     });
-    assert.isTrue(first.event.isActive);
 
-    // A purchase made while a previous event is still running must not take that
-    // event off the floor — the Organizer switches over when they are ready.
+    // What arrives from checkout is a name and two dates. The active event is
+    // what `OrgEventMiddleware` routes every request in the Org's area into, so
+    // a purchase must not put an unconfigured event there — the Organizer sets
+    // the event up and activates it through `orgs/events/update`, which is also
+    // what stands the previous active event down.
+    assert.isFalse(first.event.isActive);
+
     const second = await svc.execute({
       reference: "cs_active_2",
       buyerUserId: buyer.id,
@@ -121,12 +125,12 @@ test.group("ProvisionPurchaseService", (group) => {
     });
     assert.isFalse(second.event.isActive);
 
-    const [stillActive] = await db
+    const active = await db
       .select({ id: orgEvents.id })
       .from(orgEvents)
       .where(eq(orgEvents.isActive, true));
 
-    assert.equal(stillActive!.id, first.event.id);
+    assert.lengthOf(active, 0);
   });
 
   test("a second purchase by the same buyer adds an Org Event to their existing Org", async ({

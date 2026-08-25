@@ -105,13 +105,9 @@ export class ProvisionPurchaseService {
         throw new E_NOT_FOUND("No account exists for that user");
       }
 
-      const { org, isNew } = await this.resolveOrg(
-        tx,
-        buyer.id,
-        input.purchase.orgName
-      );
+      const org = await this.resolveOrg(tx, buyer.id, input.purchase.orgName);
 
-      const event = await this.createEvent(tx, org.id, isNew, input.purchase);
+      const event = await this.createEvent(tx, org.id, input.purchase);
 
       // The buyer administers the Org they bought for. `organizer`, never
       // `coach`: an Organizer runs the event rather than recruiting at it (ADR
@@ -185,14 +181,14 @@ export class ProvisionPurchaseService {
       .orderBy(asc(orgMemberships.createdAt))
       .limit(1);
 
-    if (existing) return { org: existing.org, isNew: false };
+    if (existing) return existing.org;
 
     const [org] = await tx
       .insert(organizations)
       .values({ name: orgName, slug: await this.freeSlug(tx, orgName) })
       .returning();
 
-    return { org: org!, isNew: true };
+    return org!;
   }
 
   /** The best slug for this Org name that nothing else has taken. */
@@ -220,25 +216,18 @@ export class ProvisionPurchaseService {
     return free;
   }
 
-  private async hasActiveEvent(tx: Transaction, orgId: string) {
-    const [active] = await tx
-      .select({ id: orgEvents.id })
-      .from(orgEvents)
-      .where(and(eq(orgEvents.orgId, orgId), eq(orgEvents.isActive, true)))
-      .limit(1);
-
-    return Boolean(active);
-  }
-
   /**
    * The Org Event that was bought, stamped with the Event Tier it was bought at
    * — that is where entitlement lives (ADR 0002), so the sold name and the
    * enforced one are set together.
    *
-   * It becomes the Org's active event only when nothing else is active. An Org
-   * has one active event at a time, and a purchase made while a previous event
-   * is still running must not take that event off the floor; the Organizer
-   * switches over when they are ready.
+   * It is created inactive, and provisioning never touches that flag. An Org's
+   * active event is the one the whole product routes into — `OrgEventMiddleware`
+   * resolves it for every request into the Org's area — and what arrives here is
+   * a name and a pair of dates, with no venue, no roster, and no checklist done.
+   * The Organizer configures the event and then activates it through
+   * `orgs/events/update`, which is also the only place that knows to stand the
+   * previous active event down.
    *
    * No Roster Entry is created for the buyer. `CreateEventService` seeds a staff
    * roster row for the admin who creates an event through the product, which is
@@ -249,11 +238,8 @@ export class ProvisionPurchaseService {
   private async createEvent(
     tx: Transaction,
     orgId: string,
-    isNewOrg: boolean,
     purchase: CheckoutMetadata
   ) {
-    const isActive = isNewOrg || !(await this.hasActiveEvent(tx, orgId));
-
     const [event] = await tx
       .insert(orgEvents)
       .values({
@@ -262,7 +248,6 @@ export class ProvisionPurchaseService {
         startDate: purchase.startDate,
         endDate: purchase.endDate,
         eventTier: purchase.eventTier,
-        isActive,
       })
       .returning();
 
