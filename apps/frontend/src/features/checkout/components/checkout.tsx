@@ -12,7 +12,7 @@ export function Checkout() {
 
   const [plan, setPlan] = useState<"basic" | "premium">("premium");
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly" | null>(
-    null,
+    "yearly",
   );
 
   const [granting, setGranting] = useState(false);
