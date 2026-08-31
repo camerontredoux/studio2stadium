@@ -462,6 +462,81 @@ test.group("coach cross-event scouting access", (group) => {
     assert.lengthOf(activeFavorites.body(), 0);
   });
 
+  test("a coach absent from the active event still reads her past favorites", async ({
+    client,
+    assert,
+  }) => {
+    const [org] = await db
+      .insert(organizations)
+      .values({ name: "Absent Now Org", slug: "absent-now-org" })
+      .returning();
+    const [pastEvent] = await db
+      .insert(orgEvents)
+      .values([
+        {
+          orgId: org!.id,
+          name: "Tempe",
+          startDate: dateFromToday(-60),
+          endDate: dateFromToday(-58),
+        },
+        {
+          orgId: org!.id,
+          name: "Austin",
+          startDate: dateFromToday(-1),
+          endDate: dateFromToday(1),
+          isActive: true,
+        },
+      ])
+      .returning();
+    const coach = await createUser("lapsed_coach");
+    await db.insert(orgMemberships).values({
+      orgId: org!.id,
+      userId: coach.id,
+      role: "member",
+      type: "coach",
+    });
+    // Rostered at Tempe only — she is not attending the event running now.
+    const [pastCoachRoster] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: pastEvent!.id,
+        userId: coach.id,
+        type: "coach",
+        email: coach.email,
+        firstName: "Lapsed",
+        lastName: "Coach",
+      })
+      .returning();
+    const [pastDancer] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: pastEvent!.id,
+        type: "dancer",
+        email: "lapsed-dancer@example.com",
+        firstName: "Lapsed",
+        lastName: "Dancer",
+        bibNumber: 70,
+      })
+      .returning();
+    await db.insert(eventFavorites).values({
+      eventId: pastEvent!.id,
+      coachRosterId: pastCoachRoster!.id,
+      dancerRosterId: pastDancer!.id,
+    });
+
+    const token = await loginUser(coach.id);
+
+    const favorites = await client
+      .get(`/orgs/${org!.slug}/favorites`)
+      .qs({ eventId: pastEvent!.id })
+      .header("Authorization", `Bearer ${token}`);
+    favorites.assertStatus(200);
+    assert.deepEqual(
+      favorites.body().map((row: { rosterId: string }) => row.rosterId),
+      [pastDancer!.id]
+    );
+  });
+
   test("a coach who never attended an event sees an empty, flagged board for it", async ({
     client,
     assert,

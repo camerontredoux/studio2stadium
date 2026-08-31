@@ -23,7 +23,8 @@ export class GetDancerByIdService {
   async execute(
     orgId: string,
     dancerRosterId: string,
-    view: ScoutingViewScope | null
+    view: ScoutingViewScope | null,
+    requireEventMatch: boolean = false
   ) {
     const viewEventId = view?.eventId ?? null;
     const coachRosterId = view?.coachRosterId ?? null;
@@ -79,6 +80,13 @@ export class GetDancerByIdService {
     if (rows.length === 0) return null;
 
     const dancer = rows[0];
+
+    // Pairing an explicitly requested event with a roster row from a different
+    // one would silently return empty marks, which reads as "nothing scouted"
+    // rather than the mismatch it is. Only applies to an explicit selection —
+    // under "All events" the scope is the active event while the collapsed row
+    // may legitimately come from an older one.
+    if (requireEventMatch && dancer!.eventId !== viewEventId) return null;
 
     let note: string | null = null;
     let rating: number | null = null;

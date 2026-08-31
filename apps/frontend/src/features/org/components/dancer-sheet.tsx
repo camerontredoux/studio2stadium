@@ -153,6 +153,7 @@ function DancerSheetContent({
       const dancerQueryKey = scoutingQueries.dancer(
         org.slug,
         rosterId,
+        eventId,
       ).queryKey;
 
       if (!notesFailed) {
@@ -248,6 +249,14 @@ function DancerSheetContent({
         {/* A past event is read-only, but the coach still needs to see what she
             scouted there — so the marks render either way and only the controls
             that write are withheld. */}
+        {readOnly && dancer.isViewerRostered === false && (
+          <p className="text-muted-foreground bg-muted/50 rounded-md px-3 py-2 text-sm">
+            {eventName
+              ? `You weren't rostered at ${eventName}, so there's nothing scouted here.`
+              : "You weren't rostered at this event, so there's nothing scouted here."}
+          </p>
+        )}
+
         <div className="flex items-center gap-2 pt-2">
           <div className="flex-1">
             <RatingInput
@@ -260,12 +269,14 @@ function DancerSheetContent({
             <CallbackButton
               dancerRosterId={rosterId}
               isCalledBack={dancer.isCalledBack ?? false}
+              eventId={eventId}
             />
           )}
           {!readOnly && (
             <FavoriteButton
               dancerRosterId={rosterId}
               isFavorited={dancer.isFavorited}
+              eventId={eventId}
               onToggle={onFavoriteToggle}
             />
           )}
@@ -305,9 +316,7 @@ function DancerSheetContent({
             </p>
           ) : (
             <p className="text-muted-foreground/50 text-sm italic">
-              {dancer.isViewerRostered === false && eventName
-                ? `You weren't rostered at ${eventName}.`
-                : "No notes from this event"}
+              No notes from this event
             </p>
           )}
         </div>

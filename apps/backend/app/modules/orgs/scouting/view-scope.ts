@@ -56,6 +56,7 @@ export async function resolveScoutingViewScope(
         eq(eventShowcases.status, "active")
       )
     )
+    .orderBy(desc(eventShowcases.number))
     .limit(1);
 
   return {

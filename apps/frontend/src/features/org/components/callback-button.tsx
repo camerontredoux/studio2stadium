@@ -8,15 +8,23 @@ import type { MouseEvent } from "react";
 export function CallbackButton({
   dancerRosterId,
   isCalledBack,
+  eventId,
   onToggle,
 }: {
   dancerRosterId: string;
   isCalledBack: boolean;
+  /** Must match the event the surrounding view reads, or the optimistic
+   *  update lands on a cache entry nothing is rendering. */
+  eventId?: string;
   onToggle?: (rosterId: string, current: boolean) => void;
 }) {
   const { org } = useOrg();
   const qc = useQueryClient();
-  const dancerKey = scoutingQueries.dancer(org.slug, dancerRosterId).queryKey;
+  const dancerKey = scoutingQueries.dancer(
+    org.slug,
+    dancerRosterId,
+    eventId,
+  ).queryKey;
   const callbacksKey = scoutingQueries.callbacks(org.slug).queryKey;
   const dancersPrefix = ["get", "/orgs/{slug}/dancers"] as const;
 

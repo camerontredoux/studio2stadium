@@ -137,10 +137,13 @@ function DancerSearch() {
     interested: interested || undefined,
     eventId: selectedEventId,
   };
-  const { data: dancers, isLoading } = useQuery({
+  const { data: dancers, isLoading: isDancersLoading } = useQuery({
     ...scoutingQueries.dancers(orgSlug, dancerParams),
     enabled: isEventResolved,
   });
+  // A disabled query reports isLoading false, so without the sentinel the table
+  // would flash its empty state while the default event is still resolving.
+  const isLoading = isDancersLoading || !isEventResolved;
   const { data: favorites } = useQuery({
     ...scoutingQueries.favorites(orgSlug, selectedEventId),
     enabled: isEventResolved && (canScout || Boolean(selectedEventId)),
@@ -167,6 +170,12 @@ function DancerSearch() {
 
   /* --- Sheet --- */
   const [sheetRosterId, setSheetRosterId] = useState<string | null>(null);
+
+  // The open sheet is scoped to the event it was opened against, so it must not
+  // outlive a change of event.
+  useEffect(() => {
+    setSheetRosterId(null);
+  }, [eventId]);
 
   /* --- Favorite toggle (optimistic on dancers list) --- */
   const qc = useQueryClient();
@@ -647,6 +656,7 @@ function DancerSearch() {
             }
             onBack={() => setCompareMode(false)}
             onOpenSheet={(rosterId) => setSheetRosterId(rosterId)}
+            eventId={selectedEventId}
           />
         ) : (
           <>

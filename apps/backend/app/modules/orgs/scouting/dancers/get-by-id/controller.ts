@@ -33,7 +33,12 @@ export default class GetDancerByIdController {
       };
     }
 
-    const result = await service.execute(ctx.org!.id, rosterId, view);
+    const result = await service.execute(
+      ctx.org!.id,
+      rosterId,
+      view,
+      Boolean(query.eventId)
+    );
     if (!result) return ctx.response.notFound({ message: "Dancer not found." });
     return ctx.response.ok(result);
   }

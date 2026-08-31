@@ -41,6 +41,10 @@ router
       description: "Coach-scoped dancer search by name, bib number, or event.",
     });
     router.get(":slug/dancers/:rosterId", [GetDancerById]);
+    // Reading a past event's favorites has to survive the coach not being on
+    // the active event's roster, so it belongs with the other browse routes
+    // rather than with the writes below.
+    router.get(":slug/favorites", [ListFavorites]);
   })
   .prefix("orgs")
   .use([
@@ -54,7 +58,6 @@ router
 
 router
   .group(() => {
-    router.get(":slug/favorites", [ListFavorites]);
     router
       .post(":slug/favorites", [CreateFavorite])
       .use(middleware.orgEventDancer());
