@@ -1,4 +1,8 @@
-FROM node:24-slim AS base
+# Pinned to 24.19: Node 24.20 broke the WHATWG URL parsing that jsonschema@1.5.0
+# (via @adonisjs/ace) relies on to resolve $refs, so `adonis-kit index` fails to
+# generate packages/openapi/build/commands/main.js and the backend build cannot
+# resolve it. Unpin once ace/jsonschema ship a fix.
+FROM node:24.19-slim AS base
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Install dependencies
@@ -17,6 +21,9 @@ FROM deps AS build
 COPY apps/backend ./apps/backend
 
 RUN pnpm --filter @stos/openapi build
+# adonis-kit index swallows its own errors and exits 0, so verify the generated
+# command index exists before the backend build imports it.
+RUN test -f packages/openapi/build/commands/main.js
 RUN pnpm --filter @stos/emails build
 RUN pnpm --filter backend build
 
