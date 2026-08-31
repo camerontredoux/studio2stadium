@@ -98,24 +98,17 @@ export class ListDancersService {
           )`
         : sql<boolean>`false`;
 
-      // A finished event has no active showcase, so fall back to the event as a
-      // whole there — otherwise this column would read false for every past
-      // event while the detail sheet, which matches on eventId, said true.
-      const isCalledBackSubquery = !viewCoachRosterId
-        ? sql<boolean>`false`
-        : viewShowcaseId
+      // Callbacks belong to the showcase running at the time and are not
+      // retained across events, so a finished event reports none.
+      const isCalledBackSubquery =
+        viewCoachRosterId && viewShowcaseId
           ? sql<boolean>`EXISTS (
             SELECT 1 FROM ${eventCallbacks}
             WHERE ${eventCallbacks.dancerRosterId} = ${eventRosters.id}
               AND ${eventCallbacks.coachRosterId} = ${viewCoachRosterId}
               AND ${eventCallbacks.showcaseId} = ${viewShowcaseId}
           )`
-          : sql<boolean>`EXISTS (
-            SELECT 1 FROM ${eventCallbacks}
-            WHERE ${eventCallbacks.dancerRosterId} = ${eventRosters.id}
-              AND ${eventCallbacks.coachRosterId} = ${viewCoachRosterId}
-              AND ${eventCallbacks.eventId} = ${viewEventId}
-          )`;
+          : sql<boolean>`false`;
 
       if (filterCheckedInOnly) {
         filters.push(isNotNull(eventRosters.checkedInAt));

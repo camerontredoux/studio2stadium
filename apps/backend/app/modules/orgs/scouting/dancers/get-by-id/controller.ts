@@ -37,7 +37,8 @@ export default class GetDancerByIdController {
       ctx.org!.id,
       rosterId,
       view,
-      Boolean(query.eventId)
+      Boolean(query.eventId),
+      view !== null && view.eventId === ctx.orgEvent?.id
     );
     if (!result) return ctx.response.notFound({ message: "Dancer not found." });
     return ctx.response.ok(result);

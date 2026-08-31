@@ -24,7 +24,8 @@ export class GetDancerByIdService {
     orgId: string,
     dancerRosterId: string,
     view: ScoutingViewScope | null,
-    requireEventMatch: boolean = false
+    requireEventMatch: boolean = false,
+    isActiveEvent: boolean = true
   ) {
     const viewEventId = view?.eventId ?? null;
     const coachRosterId = view?.coachRosterId ?? null;
@@ -152,7 +153,9 @@ export class GetDancerByIdService {
       note = noteRow[0]?.content ?? null;
       rating = ratingRow[0]?.rating ?? null;
       isFavorited = favoriteRow.length > 0;
-      isCalledBack = callbackRow.length > 0;
+      // Callbacks belong to the event in progress and are not retained across
+      // events, unlike favorites, notes and ratings.
+      isCalledBack = isActiveEvent && callbackRow.length > 0;
     }
 
     return {

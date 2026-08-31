@@ -410,6 +410,18 @@ test.group("coach cross-event scouting access", (group) => {
       dancerRosterId: pastDancer!.id,
       rating: 5,
     });
+    // Callbacks are per-event and deliberately not retained, unlike the marks
+    // above — the past event's showcase is published, not active.
+    const [pastShowcase] = await db
+      .insert(eventShowcases)
+      .values({ eventId: pastEvent!.id, number: 1, status: "published" })
+      .returning();
+    await db.insert(eventCallbacks).values({
+      eventId: pastEvent!.id,
+      showcaseId: pastShowcase!.id,
+      coachRosterId: pastCoachRoster!.id,
+      dancerRosterId: pastDancer!.id,
+    });
 
     const token = await loginUser(coach.id);
 
@@ -423,6 +435,7 @@ test.group("coach cross-event scouting access", (group) => {
     assert.isTrue(listed.isFavorited);
     assert.isTrue(listed.hasNote);
     assert.equal(listed.rating, 5);
+    assert.isFalse(listed.isCalledBack);
 
     const favorites = await client
       .get(`/orgs/${org!.slug}/favorites`)
@@ -443,6 +456,7 @@ test.group("coach cross-event scouting access", (group) => {
     assert.equal(detail.body().rating, 5);
     assert.isTrue(detail.body().isFavorited);
     assert.isTrue(detail.body().isViewerRostered);
+    assert.isFalse(detail.body().isCalledBack);
 
     // "All events" keeps the active-event scoping, so the Tempe marks stay out.
     const allEvents = await client
