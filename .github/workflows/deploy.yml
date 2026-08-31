@@ -1,12 +1,16 @@
 name: Deploy
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'apps/backend/**'
       - 'packages/openapi/**'
       - 'package.json'
       - 'pnpm-lock.yaml'
+      - 'Dockerfile'
+      - 'fly.toml'
+      - '.github/workflows/deploy.yml'
     branches: [main]
 
 jobs:
