@@ -3,6 +3,7 @@ import type { HttpContext } from "@adonisjs/core/http";
 import { GetDancerByIdService } from "./service.ts";
 import { eventQuerySchema } from "../../event-query-validator.ts";
 import {
+  findActiveShowcaseId,
   resolveScoutingViewScope,
   type ScoutingViewScope,
 } from "../../view-scope.ts";
@@ -29,7 +30,7 @@ export default class GetDancerByIdController {
       view = {
         eventId: ctx.orgEvent.id,
         coachRosterId: ctx.orgRoster.id,
-        showcaseId: null,
+        showcaseId: await findActiveShowcaseId(ctx.orgEvent.id),
       };
     }
 
@@ -37,8 +38,7 @@ export default class GetDancerByIdController {
       ctx.org!.id,
       rosterId,
       view,
-      Boolean(query.eventId),
-      view !== null && view.eventId === ctx.orgEvent?.id
+      Boolean(query.eventId)
     );
     if (!result) return ctx.response.notFound({ message: "Dancer not found." });
     return ctx.response.ok(result);

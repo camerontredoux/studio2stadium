@@ -45,23 +45,30 @@ export async function resolveScoutingViewScope(
     .orderBy(desc(eventRosters.createdAt))
     .limit(1);
 
-  // Read-only lookup on purpose: a past event must never have a showcase
-  // opened on it just because someone browsed back to it.
+  return {
+    eventId: event.id,
+    coachRosterId: roster?.id ?? null,
+    showcaseId: await findActiveShowcaseId(event.id),
+  };
+}
+
+/**
+ * Read-only on purpose: a past event must never have a showcase opened on it
+ * just because someone browsed back to it. A finished event's showcase is
+ * published rather than active, which is what keeps its callbacks — unlike its
+ * favorites, notes and ratings — out of the coach's view.
+ */
+export async function findActiveShowcaseId(eventId: string) {
   const [showcase] = await db
     .select({ id: eventShowcases.id })
     .from(eventShowcases)
     .where(
       and(
-        eq(eventShowcases.eventId, event.id),
+        eq(eventShowcases.eventId, eventId),
         eq(eventShowcases.status, "active")
       )
     )
     .orderBy(desc(eventShowcases.number))
     .limit(1);
-
-  return {
-    eventId: event.id,
-    coachRosterId: roster?.id ?? null,
-    showcaseId: showcase?.id ?? null,
-  };
+  return showcase?.id ?? null;
 }

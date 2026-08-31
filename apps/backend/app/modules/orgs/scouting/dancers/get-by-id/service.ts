@@ -24,11 +24,11 @@ export class GetDancerByIdService {
     orgId: string,
     dancerRosterId: string,
     view: ScoutingViewScope | null,
-    requireEventMatch: boolean = false,
-    isActiveEvent: boolean = true
+    requireEventMatch: boolean = false
   ) {
     const viewEventId = view?.eventId ?? null;
     const coachRosterId = view?.coachRosterId ?? null;
+    const viewShowcaseId = view?.showcaseId ?? null;
     const rows = await this.db.use((db) =>
       db
         .select({
@@ -135,27 +135,29 @@ export class GetDancerByIdService {
             )
             .limit(1)
         ),
-        this.db.use((db) =>
-          db
-            .select({ id: eventCallbacks.id })
-            .from(eventCallbacks)
-            .where(
-              and(
-                eq(eventCallbacks.eventId, viewEventId!),
-                eq(eventCallbacks.coachRosterId, coachRosterId),
-                eq(eventCallbacks.dancerRosterId, dancerRosterId)
-              )
-            )
-            .limit(1)
-        ),
+        viewShowcaseId === null
+          ? Promise.resolve([])
+          : this.db.use((db) =>
+              db
+                .select({ id: eventCallbacks.id })
+                .from(eventCallbacks)
+                .where(
+                  and(
+                    eq(eventCallbacks.showcaseId, viewShowcaseId),
+                    eq(eventCallbacks.coachRosterId, coachRosterId),
+                    eq(eventCallbacks.dancerRosterId, dancerRosterId)
+                  )
+                )
+                .limit(1)
+            ),
       ]);
 
       note = noteRow[0]?.content ?? null;
       rating = ratingRow[0]?.rating ?? null;
       isFavorited = favoriteRow.length > 0;
-      // Callbacks belong to the event in progress and are not retained across
-      // events, unlike favorites, notes and ratings.
-      isCalledBack = isActiveEvent && callbackRow.length > 0;
+      // Scoped to the showcase, exactly as the dancer list is, so a row and the
+      // sheet opened from it never disagree.
+      isCalledBack = callbackRow.length > 0;
     }
 
     return {

@@ -227,6 +227,7 @@ test.group("coach cross-event scouting access", (group) => {
 
   test("an active-event coach retains full scouting writes", async ({
     client,
+    assert,
   }) => {
     const [org] = await db
       .insert(organizations)
@@ -318,6 +319,23 @@ test.group("coach cross-event scouting access", (group) => {
       .json({ dancerRosterId: dancer!.id })
       .header("Authorization", `Bearer ${token}`);
     callback.assertStatus(201);
+
+    // The row and the sheet opened from it read callbacks the same way.
+    const afterCallback = await client
+      .get(`/orgs/${org!.slug}/dancers`)
+      .qs({ eventId: event!.id })
+      .header("Authorization", `Bearer ${token}`);
+    afterCallback.assertStatus(200);
+    const calledBackRow = afterCallback
+      .body()
+      .find((row: { rosterId: string }) => row.rosterId === dancer!.id);
+    assert.isTrue(calledBackRow.isCalledBack);
+    const calledBackSheet = await client
+      .get(`/orgs/${org!.slug}/dancers/${dancer!.id}`)
+      .qs({ eventId: event!.id })
+      .header("Authorization", `Bearer ${token}`);
+    calledBackSheet.assertStatus(200);
+    assert.isTrue(calledBackSheet.body().isCalledBack);
     const crossEventRating = await client
       .put(`/orgs/${org!.slug}/dancers/${otherEventDancer!.id}/rating`)
       .json({ rating: 5 })
@@ -474,6 +492,90 @@ test.group("coach cross-event scouting access", (group) => {
       .header("Authorization", `Bearer ${token}`);
     activeFavorites.assertStatus(200);
     assert.lengthOf(activeFavorites.body(), 0);
+  });
+
+  test("starting the next showcase clears the callback in the list and the sheet alike", async ({
+    client,
+    assert,
+  }) => {
+    const [org] = await db
+      .insert(organizations)
+      .values({
+        name: "Showcase Org",
+        slug: "showcase-org",
+        features: { callbacks: true },
+      })
+      .returning();
+    const [event] = await db
+      .insert(orgEvents)
+      .values({
+        orgId: org!.id,
+        name: "Austin",
+        startDate: dateFromToday(-1),
+        endDate: dateFromToday(1),
+        isActive: true,
+      })
+      .returning();
+    const coach = await createUser("showcase_coach");
+    await db.insert(orgMemberships).values({
+      orgId: org!.id,
+      userId: coach.id,
+      role: "member",
+      type: "coach",
+    });
+    const [coachRoster] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: event!.id,
+        userId: coach.id,
+        type: "coach",
+        email: coach.email,
+        firstName: "Showcase",
+        lastName: "Coach",
+      })
+      .returning();
+    const [dancer] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: event!.id,
+        type: "dancer",
+        email: "showcase-dancer@example.com",
+        firstName: "Showcase",
+        lastName: "Dancer",
+        bibNumber: 80,
+      })
+      .returning();
+    // The callback was made during showcase 1, which has since been published
+    // and replaced by showcase 2 as the one running.
+    const [firstShowcase] = await db
+      .insert(eventShowcases)
+      .values({ eventId: event!.id, number: 1, status: "published" })
+      .returning();
+    await db
+      .insert(eventShowcases)
+      .values({ eventId: event!.id, number: 2, status: "active" });
+    await db.insert(eventCallbacks).values({
+      eventId: event!.id,
+      showcaseId: firstShowcase!.id,
+      coachRosterId: coachRoster!.id,
+      dancerRosterId: dancer!.id,
+    });
+
+    const token = await loginUser(coach.id);
+
+    const list = await client
+      .get(`/orgs/${org!.slug}/dancers`)
+      .qs({ eventId: event!.id })
+      .header("Authorization", `Bearer ${token}`);
+    list.assertStatus(200);
+    assert.isFalse(list.body()[0].isCalledBack);
+
+    const detail = await client
+      .get(`/orgs/${org!.slug}/dancers/${dancer!.id}`)
+      .qs({ eventId: event!.id })
+      .header("Authorization", `Bearer ${token}`);
+    detail.assertStatus(200);
+    assert.isFalse(detail.body().isCalledBack);
   });
 
   test("a coach absent from the active event still reads her past favorites", async ({
