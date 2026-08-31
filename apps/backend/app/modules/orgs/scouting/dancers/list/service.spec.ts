@@ -436,7 +436,6 @@ test.group("ListDancersService", (group) => {
       null,
       {},
       false,
-      undefined,
       pastEvent!.id
     );
     assert.equal(pastOnly[0]!.bibNumber, 12);

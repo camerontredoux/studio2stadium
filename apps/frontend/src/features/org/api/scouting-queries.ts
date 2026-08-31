@@ -16,13 +16,13 @@ export const scoutingQueries = {
         query: params,
       },
     }),
-  dancer: (slug: string, rosterId: string) =>
+  dancer: (slug: string, rosterId: string, eventId?: string) =>
     $api.queryOptions("get", "/orgs/{slug}/dancers/{rosterId}", {
-      params: { path: { slug, rosterId } },
+      params: { path: { slug, rosterId }, query: { eventId } },
     }),
-  favorites: (slug: string) =>
+  favorites: (slug: string, eventId?: string) =>
     $api.queryOptions("get", "/orgs/{slug}/favorites", {
-      params: { path: { slug } },
+      params: { path: { slug }, query: { eventId } },
     }),
   rankings: (slug: string) =>
     $api.queryOptions("get", "/orgs/{slug}/rankings", {

@@ -8,16 +8,24 @@ import type { MouseEvent } from "react";
 export function FavoriteButton({
   dancerRosterId,
   isFavorited,
+  eventId,
   onToggle,
 }: {
   dancerRosterId: string;
   isFavorited: boolean;
+  /** Must match the event the surrounding view reads, or the optimistic
+   *  update lands on a cache entry nothing is rendering. */
+  eventId?: string;
   onToggle?: (rosterId: string, current: boolean) => void;
 }) {
   const { org } = useOrg();
   const qc = useQueryClient();
-  const dancerKey = scoutingQueries.dancer(org.slug, dancerRosterId).queryKey;
-  const favKey = scoutingQueries.favorites(org.slug).queryKey;
+  const dancerKey = scoutingQueries.dancer(
+    org.slug,
+    dancerRosterId,
+    eventId,
+  ).queryKey;
+  const favKey = scoutingQueries.favorites(org.slug, eventId).queryKey;
 
   const dancersPrefix = ["get", "/orgs/{slug}/dancers"] as const;
 

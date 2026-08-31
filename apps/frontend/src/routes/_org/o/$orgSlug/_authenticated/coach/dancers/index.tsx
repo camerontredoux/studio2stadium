@@ -86,7 +86,9 @@ function DancerSearch() {
   const [rated, setRated] = useState(false);
   const [hasNotes, setHasNotes] = useState(false);
   const [calledBack, setCalledBack] = useState(false);
-  const [eventId, setEventId] = useState<string | null>(null);
+  // `undefined` until the event list resolves, so the picker can default to the
+  // event in progress instead of flashing the org's whole history.
+  const [eventId, setEventId] = useState<string | null | undefined>(undefined);
   const deferredSearch = useDeferredValue(search);
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -118,18 +120,34 @@ function DancerSearch() {
   }, [rated]);
 
   /* --- Data --- */
+  const { data: events } = useQuery(adminQueries.events(orgSlug));
+
+  useEffect(() => {
+    if (eventId !== undefined || !events) return;
+    setEventId(events.find((event) => event.isActive)?.id ?? null);
+  }, [events, eventId]);
+
+  const isEventResolved = eventId !== undefined;
+  const selectedEventId = eventId ?? undefined;
+  const selectedEventName = events?.find(
+    (event) => event.id === selectedEventId,
+  )?.name;
+
   const dancerParams = {
     interested: interested || undefined,
-    eventId: eventId ?? undefined,
+    eventId: selectedEventId,
   };
-  const { data: dancers, isLoading } = useQuery(
-    scoutingQueries.dancers(orgSlug, dancerParams),
-  );
-  const { data: favorites } = useQuery({
-    ...scoutingQueries.favorites(orgSlug),
-    enabled: canScout,
+  const { data: dancers, isLoading: isDancersLoading } = useQuery({
+    ...scoutingQueries.dancers(orgSlug, dancerParams),
+    enabled: isEventResolved,
   });
-  const { data: events } = useQuery(adminQueries.events(orgSlug));
+  // A disabled query reports isLoading false, so without the sentinel the table
+  // would flash its empty state while the default event is still resolving.
+  const isLoading = isDancersLoading || !isEventResolved;
+  const { data: favorites } = useQuery({
+    ...scoutingQueries.favorites(orgSlug, selectedEventId),
+    enabled: isEventResolved && (canScout || Boolean(selectedEventId)),
+  });
 
   /* --- Compare clipboard --- */
   const [compareIds, setCompareIds] = useState<string[]>([]);
@@ -153,11 +171,17 @@ function DancerSearch() {
   /* --- Sheet --- */
   const [sheetRosterId, setSheetRosterId] = useState<string | null>(null);
 
+  // The open sheet is scoped to the event it was opened against, so it must not
+  // outlive a change of event.
+  useEffect(() => {
+    setSheetRosterId(null);
+  }, [eventId]);
+
   /* --- Favorite toggle (optimistic on dancers list) --- */
   const qc = useQueryClient();
   const dancersKey = scoutingQueries.dancers(orgSlug, dancerParams).queryKey;
 
-  const favKey = scoutingQueries.favorites(orgSlug).queryKey;
+  const favKey = scoutingQueries.favorites(orgSlug, selectedEventId).queryKey;
 
   const addFav = $api.useMutation("post", "/orgs/{slug}/favorites", {
     onMutate: async ({ body }) => {
@@ -207,7 +231,7 @@ function DancerSearch() {
     },
     meta: {
       invalidateQueries: [
-        scoutingQueries.favorites(orgSlug).queryKey,
+        scoutingQueries.favorites(orgSlug, selectedEventId).queryKey,
         dancersKey,
         scoutingQueries.rankings(orgSlug).queryKey,
       ],
@@ -248,7 +272,7 @@ function DancerSearch() {
       },
       meta: {
         invalidateQueries: [
-          scoutingQueries.favorites(orgSlug).queryKey,
+          scoutingQueries.favorites(orgSlug, selectedEventId).queryKey,
           dancersKey,
           scoutingQueries.rankings(orgSlug).queryKey,
         ],
@@ -632,6 +656,7 @@ function DancerSearch() {
             }
             onBack={() => setCompareMode(false)}
             onOpenSheet={(rosterId) => setSheetRosterId(rosterId)}
+            eventId={selectedEventId}
           />
         ) : (
           <>
@@ -651,7 +676,7 @@ function DancerSearch() {
             </section>
 
             <DancerFilterToolbar
-              eventId={eventId}
+              eventId={eventId ?? null}
               onEventIdChange={setEventId}
               events={(events ?? []).map((event) => ({
                 id: event.id,
@@ -754,6 +779,8 @@ function DancerSearch() {
       <DancerSheet
         rosterId={sheetRosterId}
         open={sheetRosterId !== null}
+        eventId={selectedEventId}
+        eventName={selectedEventName}
         onOpenChange={(open) => {
           if (!open) setSheetRosterId(null);
         }}

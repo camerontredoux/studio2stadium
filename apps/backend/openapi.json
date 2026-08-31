@@ -4811,6 +4811,21 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "eventId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
           }
         ],
         "responses": {
@@ -5009,6 +5024,21 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "eventId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           }
         ],
@@ -16248,6 +16278,9 @@
           },
           "favoritedMyRosterId": {
             "type": "null"
+          },
+          "isViewerRostered": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -16273,7 +16306,8 @@
           "isRegistered",
           "isFavorited",
           "isCalledBack",
-          "favoritedMyRosterId"
+          "favoritedMyRosterId",
+          "isViewerRostered"
         ]
       },
       "OrgsIdDancersIdNotesRequest": {

@@ -408,12 +408,12 @@ type OrgsIdDancersGetHead = {
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/dancers/list/controller.ts').default['handle'], true>
 }
 type OrgsIdDancersIdGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/dancers/get-by-id/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/event-query-validator.ts')['eventQuerySchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/dancers/get-by-id/controller.ts').default['handle'], true>
 }
 type OrgsIdFavoritesGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/favorites/list/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/event-query-validator.ts')['eventQuerySchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/favorites/list/controller.ts').default['handle'], true>
 }
 type OrgsIdFavoritesPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/favorites/create/validator.ts')['schema']>>

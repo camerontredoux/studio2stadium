@@ -28,6 +28,9 @@ interface DancerSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   readOnly?: boolean;
+  /** Event whose scouting marks to show — defaults to the org's active event. */
+  eventId?: string;
+  eventName?: string;
   onFavoriteToggle?: (rosterId: string, current: boolean) => void;
   onSave?: (
     rosterId: string,
@@ -40,6 +43,8 @@ export function DancerSheet({
   open,
   onOpenChange,
   readOnly,
+  eventId,
+  eventName,
   onFavoriteToggle,
   onSave,
 }: DancerSheetProps) {
@@ -50,6 +55,8 @@ export function DancerSheet({
           <DancerSheetContent
             rosterId={rosterId}
             readOnly={readOnly}
+            eventId={eventId}
+            eventName={eventName}
             onFavoriteToggle={onFavoriteToggle}
             onSave={onSave}
           />
@@ -62,11 +69,15 @@ export function DancerSheet({
 function DancerSheetContent({
   rosterId,
   readOnly,
+  eventId,
+  eventName,
   onFavoriteToggle,
   onSave,
 }: {
   rosterId: string;
   readOnly?: boolean;
+  eventId?: string;
+  eventName?: string;
   onFavoriteToggle?: (rosterId: string, current: boolean) => void;
   onSave?: (
     rosterId: string,
@@ -76,7 +87,7 @@ function DancerSheetContent({
   const { org, hasFeature, isAdmin } = useOrg();
   const qc = useQueryClient();
   const { data: dancer, isLoading } = useQuery(
-    scoutingQueries.dancer(org.slug, rosterId),
+    scoutingQueries.dancer(org.slug, rosterId, eventId),
   );
 
   const [notes, setNotes] = useState<string | null>(null);
@@ -142,6 +153,7 @@ function DancerSheetContent({
       const dancerQueryKey = scoutingQueries.dancer(
         org.slug,
         rosterId,
+        eventId,
       ).queryKey;
 
       if (!notesFailed) {
@@ -234,27 +246,44 @@ function DancerSheetContent({
       </SheetHeader>
 
       <SheetContent className="flex flex-col gap-4 px-4 pt-5 pb-3">
-        {!readOnly && (
-          <div className="flex items-center gap-2 pt-2">
-            <div className="flex-1">
-              <RatingInput
-                value={currentRating}
-                onChange={(v) => setRating(v)}
-              />
-            </div>
-            {hasFeature("callbacks") && (
-              <CallbackButton
-                dancerRosterId={rosterId}
-                isCalledBack={dancer.isCalledBack ?? false}
-              />
-            )}
+        {/* A past event is read-only, but the coach still needs to see what she
+            scouted there — so the marks render either way and only the controls
+            that write are withheld. */}
+        {readOnly && dancer.isViewerRostered === false && (
+          <p className="text-muted-foreground bg-muted/50 rounded-md px-3 py-2 text-sm">
+            {eventName
+              ? `You weren't rostered at ${eventName}, so there's nothing scouted here.`
+              : "You weren't rostered at this event, so there's nothing scouted here."}
+          </p>
+        )}
+
+        <div className="flex items-center gap-2 pt-2">
+          <div className="flex-1">
+            <RatingInput
+              value={currentRating}
+              onChange={(v) => setRating(v)}
+              readOnly={readOnly}
+            />
+          </div>
+          {!readOnly && hasFeature("callbacks") && (
+            <CallbackButton
+              dancerRosterId={rosterId}
+              isCalledBack={dancer.isCalledBack ?? false}
+              eventId={eventId}
+            />
+          )}
+          {!readOnly && (
             <FavoriteButton
               dancerRosterId={rosterId}
               isFavorited={dancer.isFavorited}
+              eventId={eventId}
               onToggle={onFavoriteToggle}
             />
-          </div>
-        )}
+          )}
+          {readOnly && dancer.isFavorited && (
+            <Badge variant="secondary">Favorited</Badge>
+          )}
+        </div>
 
         <div className={readOnly ? "pt-2" : undefined}>
           <label className="text-muted-foreground mb-1 block text-xs tracking-wide uppercase">
@@ -275,14 +304,22 @@ function DancerSheetContent({
           <DancerCallbackList orgSlug={org.slug} dancerRosterId={rosterId} />
         )}
 
-        {!readOnly && (
-          <div className="flex flex-1 flex-col">
-            <label className="text-muted-foreground mb-1 block text-xs tracking-wide uppercase">
-              Notes
-            </label>
+        <div className="flex flex-1 flex-col">
+          <label className="text-muted-foreground mb-1 block text-xs tracking-wide uppercase">
+            Notes
+          </label>
+          {!readOnly ? (
             <NotesEditor value={currentNotes} onChange={(v) => setNotes(v)} />
-          </div>
-        )}
+          ) : dancer.note ? (
+            <p className="text-muted-foreground text-sm whitespace-pre-wrap">
+              {dancer.note}
+            </p>
+          ) : (
+            <p className="text-muted-foreground/50 text-sm italic">
+              No notes from this event
+            </p>
+          )}
+        </div>
       </SheetContent>
 
       {!readOnly && (

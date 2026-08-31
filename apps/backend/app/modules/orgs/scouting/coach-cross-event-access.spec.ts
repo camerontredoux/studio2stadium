@@ -227,6 +227,7 @@ test.group("coach cross-event scouting access", (group) => {
 
   test("an active-event coach retains full scouting writes", async ({
     client,
+    assert,
   }) => {
     const [org] = await db
       .insert(organizations)
@@ -318,11 +319,409 @@ test.group("coach cross-event scouting access", (group) => {
       .json({ dancerRosterId: dancer!.id })
       .header("Authorization", `Bearer ${token}`);
     callback.assertStatus(201);
+
+    // The row and the sheet opened from it read callbacks the same way.
+    const afterCallback = await client
+      .get(`/orgs/${org!.slug}/dancers`)
+      .qs({ eventId: event!.id })
+      .header("Authorization", `Bearer ${token}`);
+    afterCallback.assertStatus(200);
+    const calledBackRow = afterCallback
+      .body()
+      .find((row: { rosterId: string }) => row.rosterId === dancer!.id);
+    assert.isTrue(calledBackRow.isCalledBack);
+    const calledBackSheet = await client
+      .get(`/orgs/${org!.slug}/dancers/${dancer!.id}`)
+      .qs({ eventId: event!.id })
+      .header("Authorization", `Bearer ${token}`);
+    calledBackSheet.assertStatus(200);
+    assert.isTrue(calledBackSheet.body().isCalledBack);
     const crossEventRating = await client
       .put(`/orgs/${org!.slug}/dancers/${otherEventDancer!.id}/rating`)
       .json({ rating: 5 })
       .header("Authorization", `Bearer ${token}`);
     crossEventRating.assertStatus(403);
+  });
+
+  test("a coach reads back a past event's favorites, notes and ratings by filtering to it", async ({
+    client,
+    assert,
+  }) => {
+    const [org] = await db
+      .insert(organizations)
+      .values({ name: "History Org", slug: "history-org" })
+      .returning();
+    const [pastEvent, activeEvent] = await db
+      .insert(orgEvents)
+      .values([
+        {
+          orgId: org!.id,
+          name: "Tempe",
+          startDate: dateFromToday(-60),
+          endDate: dateFromToday(-58),
+        },
+        {
+          orgId: org!.id,
+          name: "Austin",
+          startDate: dateFromToday(-1),
+          endDate: dateFromToday(1),
+          isActive: true,
+        },
+      ])
+      .returning();
+    const coach = await createUser("history_coach");
+    await db.insert(orgMemberships).values({
+      orgId: org!.id,
+      userId: coach.id,
+      role: "member",
+      type: "coach",
+    });
+    // A coach holds a separate roster row per event — the reason the past
+    // event's marks were unreachable through the active-event roster.
+    const [pastCoachRoster] = await db
+      .insert(eventRosters)
+      .values([
+        {
+          eventId: pastEvent!.id,
+          userId: coach.id,
+          type: "coach",
+          email: coach.email,
+          firstName: "History",
+          lastName: "Coach",
+        },
+        {
+          eventId: activeEvent!.id,
+          userId: coach.id,
+          type: "coach",
+          email: coach.email,
+          firstName: "History",
+          lastName: "Coach",
+        },
+      ])
+      .returning();
+    const [pastDancer] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: pastEvent!.id,
+        type: "dancer",
+        email: "tempe-dancer@example.com",
+        firstName: "Tempe",
+        lastName: "Dancer",
+        bibNumber: 50,
+      })
+      .returning();
+
+    await db.insert(eventFavorites).values({
+      eventId: pastEvent!.id,
+      coachRosterId: pastCoachRoster!.id,
+      dancerRosterId: pastDancer!.id,
+    });
+    await db.insert(eventNotes).values({
+      eventId: pastEvent!.id,
+      coachRosterId: pastCoachRoster!.id,
+      dancerRosterId: pastDancer!.id,
+      content: "Great turns at Tempe",
+    });
+    await db.insert(eventRatings).values({
+      eventId: pastEvent!.id,
+      coachRosterId: pastCoachRoster!.id,
+      dancerRosterId: pastDancer!.id,
+      rating: 5,
+    });
+    // Callbacks are per-event and deliberately not retained, unlike the marks
+    // above — the past event's showcase is published, not active.
+    const [pastShowcase] = await db
+      .insert(eventShowcases)
+      .values({ eventId: pastEvent!.id, number: 1, status: "published" })
+      .returning();
+    await db.insert(eventCallbacks).values({
+      eventId: pastEvent!.id,
+      showcaseId: pastShowcase!.id,
+      coachRosterId: pastCoachRoster!.id,
+      dancerRosterId: pastDancer!.id,
+    });
+
+    const token = await loginUser(coach.id);
+
+    const list = await client
+      .get(`/orgs/${org!.slug}/dancers`)
+      .qs({ eventId: pastEvent!.id })
+      .header("Authorization", `Bearer ${token}`);
+    list.assertStatus(200);
+    const listed = list.body()[0];
+    assert.equal(listed.rosterId, pastDancer!.id);
+    assert.isTrue(listed.isFavorited);
+    assert.isTrue(listed.hasNote);
+    assert.equal(listed.rating, 5);
+    assert.isFalse(listed.isCalledBack);
+
+    const favorites = await client
+      .get(`/orgs/${org!.slug}/favorites`)
+      .qs({ eventId: pastEvent!.id })
+      .header("Authorization", `Bearer ${token}`);
+    favorites.assertStatus(200);
+    assert.deepEqual(
+      favorites.body().map((row: { rosterId: string }) => row.rosterId),
+      [pastDancer!.id]
+    );
+
+    const detail = await client
+      .get(`/orgs/${org!.slug}/dancers/${pastDancer!.id}`)
+      .qs({ eventId: pastEvent!.id })
+      .header("Authorization", `Bearer ${token}`);
+    detail.assertStatus(200);
+    assert.equal(detail.body().note, "Great turns at Tempe");
+    assert.equal(detail.body().rating, 5);
+    assert.isTrue(detail.body().isFavorited);
+    assert.isTrue(detail.body().isViewerRostered);
+    assert.isFalse(detail.body().isCalledBack);
+
+    // "All events" keeps the active-event scoping, so the Tempe marks stay out.
+    const allEvents = await client
+      .get(`/orgs/${org!.slug}/dancers`)
+      .header("Authorization", `Bearer ${token}`);
+    allEvents.assertStatus(200);
+    const collapsed = allEvents
+      .body()
+      .find((row: { rosterId: string }) => row.rosterId === pastDancer!.id);
+    assert.isFalse(collapsed.isFavorited);
+    assert.isFalse(collapsed.hasNote);
+
+    const activeFavorites = await client
+      .get(`/orgs/${org!.slug}/favorites`)
+      .header("Authorization", `Bearer ${token}`);
+    activeFavorites.assertStatus(200);
+    assert.lengthOf(activeFavorites.body(), 0);
+  });
+
+  test("starting the next showcase clears the callback in the list and the sheet alike", async ({
+    client,
+    assert,
+  }) => {
+    const [org] = await db
+      .insert(organizations)
+      .values({
+        name: "Showcase Org",
+        slug: "showcase-org",
+        features: { callbacks: true },
+      })
+      .returning();
+    const [event] = await db
+      .insert(orgEvents)
+      .values({
+        orgId: org!.id,
+        name: "Austin",
+        startDate: dateFromToday(-1),
+        endDate: dateFromToday(1),
+        isActive: true,
+      })
+      .returning();
+    const coach = await createUser("showcase_coach");
+    await db.insert(orgMemberships).values({
+      orgId: org!.id,
+      userId: coach.id,
+      role: "member",
+      type: "coach",
+    });
+    const [coachRoster] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: event!.id,
+        userId: coach.id,
+        type: "coach",
+        email: coach.email,
+        firstName: "Showcase",
+        lastName: "Coach",
+      })
+      .returning();
+    const [dancer] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: event!.id,
+        type: "dancer",
+        email: "showcase-dancer@example.com",
+        firstName: "Showcase",
+        lastName: "Dancer",
+        bibNumber: 80,
+      })
+      .returning();
+    // The callback was made during showcase 1, which has since been published
+    // and replaced by showcase 2 as the one running.
+    const [firstShowcase] = await db
+      .insert(eventShowcases)
+      .values({ eventId: event!.id, number: 1, status: "published" })
+      .returning();
+    await db
+      .insert(eventShowcases)
+      .values({ eventId: event!.id, number: 2, status: "active" });
+    await db.insert(eventCallbacks).values({
+      eventId: event!.id,
+      showcaseId: firstShowcase!.id,
+      coachRosterId: coachRoster!.id,
+      dancerRosterId: dancer!.id,
+    });
+
+    const token = await loginUser(coach.id);
+
+    const list = await client
+      .get(`/orgs/${org!.slug}/dancers`)
+      .qs({ eventId: event!.id })
+      .header("Authorization", `Bearer ${token}`);
+    list.assertStatus(200);
+    assert.isFalse(list.body()[0].isCalledBack);
+
+    const detail = await client
+      .get(`/orgs/${org!.slug}/dancers/${dancer!.id}`)
+      .qs({ eventId: event!.id })
+      .header("Authorization", `Bearer ${token}`);
+    detail.assertStatus(200);
+    assert.isFalse(detail.body().isCalledBack);
+  });
+
+  test("a coach absent from the active event still reads her past favorites", async ({
+    client,
+    assert,
+  }) => {
+    const [org] = await db
+      .insert(organizations)
+      .values({ name: "Absent Now Org", slug: "absent-now-org" })
+      .returning();
+    const [pastEvent] = await db
+      .insert(orgEvents)
+      .values([
+        {
+          orgId: org!.id,
+          name: "Tempe",
+          startDate: dateFromToday(-60),
+          endDate: dateFromToday(-58),
+        },
+        {
+          orgId: org!.id,
+          name: "Austin",
+          startDate: dateFromToday(-1),
+          endDate: dateFromToday(1),
+          isActive: true,
+        },
+      ])
+      .returning();
+    const coach = await createUser("lapsed_coach");
+    await db.insert(orgMemberships).values({
+      orgId: org!.id,
+      userId: coach.id,
+      role: "member",
+      type: "coach",
+    });
+    // Rostered at Tempe only — she is not attending the event running now.
+    const [pastCoachRoster] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: pastEvent!.id,
+        userId: coach.id,
+        type: "coach",
+        email: coach.email,
+        firstName: "Lapsed",
+        lastName: "Coach",
+      })
+      .returning();
+    const [pastDancer] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: pastEvent!.id,
+        type: "dancer",
+        email: "lapsed-dancer@example.com",
+        firstName: "Lapsed",
+        lastName: "Dancer",
+        bibNumber: 70,
+      })
+      .returning();
+    await db.insert(eventFavorites).values({
+      eventId: pastEvent!.id,
+      coachRosterId: pastCoachRoster!.id,
+      dancerRosterId: pastDancer!.id,
+    });
+
+    const token = await loginUser(coach.id);
+
+    const favorites = await client
+      .get(`/orgs/${org!.slug}/favorites`)
+      .qs({ eventId: pastEvent!.id })
+      .header("Authorization", `Bearer ${token}`);
+    favorites.assertStatus(200);
+    assert.deepEqual(
+      favorites.body().map((row: { rosterId: string }) => row.rosterId),
+      [pastDancer!.id]
+    );
+  });
+
+  test("a coach who never attended an event sees an empty, flagged board for it", async ({
+    client,
+    assert,
+  }) => {
+    const [org] = await db
+      .insert(organizations)
+      .values({ name: "Absent Org", slug: "absent-org" })
+      .returning();
+    const [missedEvent, activeEvent] = await db
+      .insert(orgEvents)
+      .values([
+        {
+          orgId: org!.id,
+          name: "Lakeland",
+          startDate: dateFromToday(-60),
+          endDate: dateFromToday(-58),
+        },
+        {
+          orgId: org!.id,
+          name: "Austin",
+          startDate: dateFromToday(-1),
+          endDate: dateFromToday(1),
+          isActive: true,
+        },
+      ])
+      .returning();
+    const coach = await createUser("absent_coach");
+    await db.insert(orgMemberships).values({
+      orgId: org!.id,
+      userId: coach.id,
+      role: "member",
+      type: "coach",
+    });
+    await db.insert(eventRosters).values({
+      eventId: activeEvent!.id,
+      userId: coach.id,
+      type: "coach",
+      email: coach.email,
+      firstName: "Absent",
+      lastName: "Coach",
+    });
+    const [missedDancer] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: missedEvent!.id,
+        type: "dancer",
+        email: "lakeland-dancer@example.com",
+        firstName: "Lakeland",
+        lastName: "Dancer",
+        bibNumber: 60,
+      })
+      .returning();
+
+    const token = await loginUser(coach.id);
+
+    const favorites = await client
+      .get(`/orgs/${org!.slug}/favorites`)
+      .qs({ eventId: missedEvent!.id })
+      .header("Authorization", `Bearer ${token}`);
+    favorites.assertStatus(200);
+    assert.lengthOf(favorites.body(), 0);
+
+    const detail = await client
+      .get(`/orgs/${org!.slug}/dancers/${missedDancer!.id}`)
+      .qs({ eventId: missedEvent!.id })
+      .header("Authorization", `Bearer ${token}`);
+    detail.assertStatus(200);
+    assert.isFalse(detail.body().isViewerRostered);
+    assert.isNull(detail.body().note);
   });
 
   test("dancer denial and org-admin coach access are unchanged", async ({

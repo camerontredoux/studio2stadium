@@ -15,6 +15,7 @@ import { dancerProfiles } from "#database/schema/dancers";
 import { users } from "#database/schema/users";
 import { and, eq, ilike, isNotNull, or, sql } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
+import type { ScoutingViewScope } from "../../view-scope.ts";
 
 @inject()
 export class ListDancersService {
@@ -23,10 +24,9 @@ export class ListDancersService {
   async execute(
     orgId: string,
     activeEventId: string | null,
-    coachRosterId: string | null,
+    view: ScoutingViewScope | null,
     q: Validator,
     filterCheckedInOnly: boolean = false,
-    showcaseId?: string,
     selectedEventId?: string
   ) {
     const rows = await this.db.use((db) => {
@@ -53,50 +53,60 @@ export class ListDancersService {
         );
       }
 
-      const interestedSubquery = coachRosterId
+      // The coach's own marks live on the event being viewed, not on whichever
+      // event the org happens to have active. Browsing back to a past event
+      // re-scopes both halves of the (eventId, coachRosterId) key; a coach who
+      // never attended that event has no roster row there and sees nothing.
+      const viewEventId = view?.eventId ?? null;
+      const viewCoachRosterId = view?.coachRosterId ?? null;
+      const viewShowcaseId = view?.showcaseId ?? null;
+
+      const interestedSubquery = viewCoachRosterId
         ? sql<boolean>`EXISTS (
             SELECT 1 FROM event_school_selections ess
             WHERE ess.dancer_roster_id = ${eventRosters.id}
-              AND ess.coach_roster_id = ${coachRosterId}
-              AND ess.event_id = ${activeEventId}
+              AND ess.coach_roster_id = ${viewCoachRosterId}
+              AND ess.event_id = ${viewEventId}
           )`
         : sql<boolean>`false`;
 
-      const isFavoritedSubquery = coachRosterId
+      const isFavoritedSubquery = viewCoachRosterId
         ? sql<boolean>`EXISTS (
             SELECT 1 FROM ${eventFavorites}
             WHERE ${eventFavorites.dancerRosterId} = ${eventRosters.id}
-              AND ${eventFavorites.coachRosterId} = ${coachRosterId}
-              AND ${eventFavorites.eventId} = ${activeEventId}
+              AND ${eventFavorites.coachRosterId} = ${viewCoachRosterId}
+              AND ${eventFavorites.eventId} = ${viewEventId}
           )`
         : sql<boolean>`false`;
 
-      const ratingSubquery = coachRosterId
+      const ratingSubquery = viewCoachRosterId
         ? sql<number | null>`(
             SELECT ${eventRatings.rating} FROM ${eventRatings}
             WHERE ${eventRatings.dancerRosterId} = ${eventRosters.id}
-              AND ${eventRatings.coachRosterId} = ${coachRosterId}
-              AND ${eventRatings.eventId} = ${activeEventId}
+              AND ${eventRatings.coachRosterId} = ${viewCoachRosterId}
+              AND ${eventRatings.eventId} = ${viewEventId}
             LIMIT 1
           )`
         : sql<number | null>`NULL`;
 
-      const hasNoteSubquery = coachRosterId
+      const hasNoteSubquery = viewCoachRosterId
         ? sql<boolean>`EXISTS (
             SELECT 1 FROM ${eventNotes}
             WHERE ${eventNotes.dancerRosterId} = ${eventRosters.id}
-              AND ${eventNotes.coachRosterId} = ${coachRosterId}
-              AND ${eventNotes.eventId} = ${activeEventId}
+              AND ${eventNotes.coachRosterId} = ${viewCoachRosterId}
+              AND ${eventNotes.eventId} = ${viewEventId}
           )`
         : sql<boolean>`false`;
 
+      // Callbacks belong to the showcase running at the time and are not
+      // retained across events, so a finished event reports none.
       const isCalledBackSubquery =
-        coachRosterId && showcaseId
+        viewCoachRosterId && viewShowcaseId
           ? sql<boolean>`EXISTS (
             SELECT 1 FROM ${eventCallbacks}
             WHERE ${eventCallbacks.dancerRosterId} = ${eventRosters.id}
-              AND ${eventCallbacks.coachRosterId} = ${coachRosterId}
-              AND ${eventCallbacks.showcaseId} = ${showcaseId}
+              AND ${eventCallbacks.coachRosterId} = ${viewCoachRosterId}
+              AND ${eventCallbacks.showcaseId} = ${viewShowcaseId}
           )`
           : sql<boolean>`false`;
 
@@ -105,13 +115,13 @@ export class ListDancersService {
         filters.push(isNotNull(eventRosters.userId));
       }
 
-      if (q.interested && coachRosterId) {
+      if (q.interested && viewCoachRosterId) {
         filters.push(
           sql`EXISTS (
             SELECT 1 FROM event_school_selections ess
             WHERE ess.dancer_roster_id = ${eventRosters.id}
-              AND ess.coach_roster_id = ${coachRosterId}
-              AND ess.event_id = ${activeEventId}
+              AND ess.coach_roster_id = ${viewCoachRosterId}
+              AND ess.event_id = ${viewEventId}
           )`
         );
       }
