@@ -14,6 +14,7 @@ import {
 } from "#database/schema/event-features";
 import { users } from "#database/schema/users";
 import { and, eq, sql } from "drizzle-orm";
+import type { ScoutingViewScope } from "../../view-scope.ts";
 
 @inject()
 export class GetDancerByIdService {
@@ -21,10 +22,11 @@ export class GetDancerByIdService {
 
   async execute(
     orgId: string,
-    activeEventId: string | null,
     dancerRosterId: string,
-    coachRosterId: string | null
+    view: ScoutingViewScope | null
   ) {
+    const viewEventId = view?.eventId ?? null;
+    const coachRosterId = view?.coachRosterId ?? null;
     const rows = await this.db.use((db) =>
       db
         .select({
@@ -83,7 +85,7 @@ export class GetDancerByIdService {
     let isFavorited = false;
     let isCalledBack = false;
 
-    if (coachRosterId !== null && activeEventId !== null) {
+    if (coachRosterId !== null && viewEventId !== null) {
       const [noteRow, ratingRow, favoriteRow, callbackRow] = await Promise.all([
         this.db.use((db) =>
           db
@@ -91,7 +93,7 @@ export class GetDancerByIdService {
             .from(eventNotes)
             .where(
               and(
-                eq(eventNotes.eventId, activeEventId!),
+                eq(eventNotes.eventId, viewEventId!),
                 eq(eventNotes.coachRosterId, coachRosterId),
                 eq(eventNotes.dancerRosterId, dancerRosterId)
               )
@@ -104,7 +106,7 @@ export class GetDancerByIdService {
             .from(eventRatings)
             .where(
               and(
-                eq(eventRatings.eventId, activeEventId!),
+                eq(eventRatings.eventId, viewEventId!),
                 eq(eventRatings.coachRosterId, coachRosterId),
                 eq(eventRatings.dancerRosterId, dancerRosterId)
               )
@@ -117,7 +119,7 @@ export class GetDancerByIdService {
             .from(eventFavorites)
             .where(
               and(
-                eq(eventFavorites.eventId, activeEventId!),
+                eq(eventFavorites.eventId, viewEventId!),
                 eq(eventFavorites.coachRosterId, coachRosterId),
                 eq(eventFavorites.dancerRosterId, dancerRosterId)
               )
@@ -130,7 +132,7 @@ export class GetDancerByIdService {
             .from(eventCallbacks)
             .where(
               and(
-                eq(eventCallbacks.eventId, activeEventId!),
+                eq(eventCallbacks.eventId, viewEventId!),
                 eq(eventCallbacks.coachRosterId, coachRosterId),
                 eq(eventCallbacks.dancerRosterId, dancerRosterId)
               )
@@ -152,6 +154,9 @@ export class GetDancerByIdService {
       isFavorited,
       isCalledBack,
       favoritedMyRosterId: null,
+      // Lets the sheet distinguish "nothing scouted here" from "you were never
+      // at this event", so an empty panel does not read as lost data.
+      isViewerRostered: coachRosterId !== null,
     };
   }
 }

@@ -4770,7 +4770,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    eventId?: string | null;
+                };
                 header?: never;
                 path: {
                     slug: string;
@@ -4957,7 +4959,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    eventId?: string | null;
+                };
                 header?: never;
                 path: {
                     slug: string;
@@ -11547,6 +11551,7 @@ export interface components {
             isFavorited: boolean;
             isCalledBack: boolean;
             favoritedMyRosterId: null;
+            isViewerRostered: boolean;
         };
         OrgsIdDancersIdNotesRequest: {
             content: string;

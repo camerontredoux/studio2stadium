@@ -3,9 +3,11 @@ import { Rating, RatingItem } from "@/components/ui/rating";
 export function RatingInput({
   value,
   onChange,
+  readOnly = false,
 }: {
   value: number | null;
   onChange: (value: number) => void;
+  readOnly?: boolean;
 }) {
   const onSet = (n: number) => {
     navigator.vibrate?.(10);
@@ -14,7 +16,7 @@ export function RatingInput({
 
   return (
     <div className="flex items-center gap-1">
-      <Rating value={value ?? 0} onValueChange={onSet}>
+      <Rating value={value ?? 0} onValueChange={onSet} readOnly={readOnly}>
         {Array.from({ length: 5 }, (_, i) => (
           <RatingItem key={i} index={i} />
         ))}
