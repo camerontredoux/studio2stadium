@@ -431,18 +431,18 @@ function DancerSearch() {
     [orgSlug, addCallback, removeCallback],
   );
 
-  const columns = useSearchColumns(
-    canScout ? handleFavoriteToggle : undefined,
-    {
-      enableSelection: canScout,
-      onRate: canScout ? handleRate : undefined,
-      onOpenNotes: canScout ? handleOpenNotes : undefined,
-      onCallbackToggle:
-        canScout && callbacksEnabled ? handleCallbackToggle : undefined,
-      showRank: rated,
-      canScoutDancer,
-    },
-  );
+  // The handlers are passed in regardless of whether this coach can scout right
+  // now, so the columns stay on the table and keep showing what she marked at
+  // the event she is viewing. `canScoutDancer` decides per row whether a cell
+  // is interactive or read-only.
+  const columns = useSearchColumns(handleFavoriteToggle, {
+    enableSelection: canScout,
+    onRate: canScout ? handleRate : undefined,
+    onOpenNotes: handleOpenNotes,
+    onCallbackToggle: callbacksEnabled ? handleCallbackToggle : undefined,
+    showRank: rated,
+    canScoutDancer,
+  });
 
   /* --- All roster dancers, regardless of activation status --- */
   const activeDancers = useMemo(() => dancers ?? [], [dancers]);
@@ -466,15 +466,14 @@ function DancerSearch() {
 
   /* --- Client-side filtering --- */
   const filteredData: SearchDancerRow[] = useMemo(() => {
-    let result = (dancers ?? [])
-      .map((d) => ({
-        ...d,
-        isFavorited: d.isFavorited ?? false,
-        isCalledBack: d.isCalledBack ?? false,
-        hasNote: d.hasNote ?? false,
-        rating: d.rating ?? null,
-        interestedInMySchool: d.interestedInMySchool ?? false,
-      }));
+    let result = (dancers ?? []).map((d) => ({
+      ...d,
+      isFavorited: d.isFavorited ?? false,
+      isCalledBack: d.isCalledBack ?? false,
+      hasNote: d.hasNote ?? false,
+      rating: d.rating ?? null,
+      interestedInMySchool: d.interestedInMySchool ?? false,
+    }));
 
     if (yearFilter !== null) {
       result = result.filter((d) => d.gradYear === yearFilter);

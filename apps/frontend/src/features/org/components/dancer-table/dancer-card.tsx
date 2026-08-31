@@ -48,6 +48,49 @@ export function DancerCard({
         {dancer.gpa != null ? dancer.gpa.toFixed(1) : "—"}
       </span>
 
+      {/* Read-only marks: what she scouted at this event, without the controls
+          that would write to it. */}
+      {readOnly && (
+        <div className="mt-1 flex items-center gap-3">
+          {dancer.isFavorited && (
+            <span title="Favorited" aria-label="Favorited">
+              <Heart className="size-4 fill-current text-red-500" />
+            </span>
+          )}
+
+          {dancer.rating != null ? (
+            <Rating disabled size="sm" value={dancer.rating}>
+              {Array.from({ length: 5 }, (_, i) => (
+                <RatingItem key={i} index={i} />
+              ))}
+            </Rating>
+          ) : (
+            <span className="text-muted-foreground text-sm">{"—"}</span>
+          )}
+
+          {dancer.isCalledBack && (
+            <span
+              className="bg-muted text-muted-foreground flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
+              title="Called back"
+            >
+              <Megaphone className="size-3" />
+              Called
+            </span>
+          )}
+
+          {dancer.hasNote && (
+            <button
+              type="button"
+              onClick={() => onOpenNotes(dancer.rosterId)}
+              className="text-muted-foreground hover:text-foreground flex cursor-pointer items-center justify-center transition-colors"
+              aria-label="View notes"
+            >
+              <PencilIcon className="size-4" />
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Action bar */}
       {!readOnly && (
         <div className="mt-1 flex items-center gap-3">

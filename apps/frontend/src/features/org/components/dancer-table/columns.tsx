@@ -160,7 +160,19 @@ export function favoriteToggleColumn(
             }`}
           />
         </button>
-      ) : null,
+      ) : row.original.isFavorited ? (
+        <span
+          className="flex items-center justify-center"
+          title="Favorited"
+          aria-label="Favorited"
+        >
+          <Heart className="size-4 fill-current text-red-500" />
+        </span>
+      ) : (
+        <span className="text-muted-foreground flex justify-center text-sm">
+          {"—"}
+        </span>
+      ),
   };
 }
 
@@ -194,7 +206,17 @@ export function callbackToggleColumn(
           <Megaphone className="size-3" />
           {row.original.isCalledBack ? "Called" : "Call"}
         </button>
-      ) : null,
+      ) : row.original.isCalledBack ? (
+        <span
+          className="bg-muted text-muted-foreground flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
+          title="Called back"
+        >
+          <Megaphone className="size-3" />
+          Called
+        </span>
+      ) : (
+        <span className="text-muted-foreground text-sm">{"—"}</span>
+      ),
   };
 }
 
@@ -273,7 +295,10 @@ export function ratingQuickActionColumn(
     header: "Rating",
     size: 120,
     cell: ({ row }) => {
-      if (!canInteract(row.original)) return null;
+      // Not scoutable from here (another event's row), but the rating she left
+      // there is still hers to see — render it read-only rather than blank.
+      if (!canInteract(row.original))
+        return <ReadOnlyRating rating={row.original.rating} />;
       const rating = row.original.rating;
       return (
         <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
@@ -317,8 +342,27 @@ export function notesQuickActionColumn(
     size: 40,
     enableSorting: false,
     cell: ({ row }) => {
-      if (!canInteract(row.original)) return null;
       const hasNote = row.original.hasNote;
+      if (!canInteract(row.original))
+        return hasNote ? (
+          <div className="flex items-center justify-center">
+            <button
+              type="button"
+              className="text-muted-foreground hover:text-foreground flex cursor-pointer items-center justify-center transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenNotes(row.original.rosterId);
+              }}
+              aria-label="View notes"
+            >
+              <PencilIcon className="size-3.5" />
+            </button>
+          </div>
+        ) : (
+          <span className="text-muted-foreground flex justify-center text-sm">
+            {"—"}
+          </span>
+        );
       const Icon = hasNote ? PencilIcon : PlusIcon;
       return (
         <div className="flex items-center justify-center">
@@ -339,23 +383,26 @@ export function notesQuickActionColumn(
   };
 }
 
+function ReadOnlyRating({ rating }: { rating: number | null }) {
+  if (rating == null)
+    return <span className="text-muted-foreground text-sm">{"—"}</span>;
+  return (
+    <Rating disabled size="sm" value={rating}>
+      {Array.from({ length: 5 }, (_, i) => (
+        <RatingItem key={i} index={i} />
+      ))}
+    </Rating>
+  );
+}
+
 export function ratingDisplayColumn(): ColumnDef<{ rating: number | null }> {
   return {
     accessorKey: "rating",
     header: "Rating",
     size: 120,
-    cell: ({ getValue }) => {
-      const rating = getValue<number | null>();
-      if (rating == null)
-        return <span className="text-muted-foreground text-sm">{"—"}</span>;
-      return (
-        <Rating disabled size="sm" value={rating}>
-          {Array.from({ length: 5 }, (_, i) => (
-            <RatingItem key={i} index={i} />
-          ))}
-        </Rating>
-      );
-    },
+    cell: ({ getValue }) => (
+      <ReadOnlyRating rating={getValue<number | null>()} />
+    ),
   };
 }
 
