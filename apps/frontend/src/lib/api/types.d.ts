@@ -11985,6 +11985,7 @@ export interface components {
             id: string;
             /** @enum {string} */
             status: "accepted" | "pending" | "released" | "in_review";
+            createdAt: string;
             updatedAt: string;
             school: {
                 avatar: string | null;
