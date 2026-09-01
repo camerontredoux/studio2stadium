@@ -15,6 +15,7 @@ import { SchoolSubmissionsList } from "./school-submissions-list";
 export function SchoolSubmissionsPage() {
   const [watched, setWatched] = useState("all");
   const [status, setStatus] = useState("all");
+  const [watchingId, setWatchingId] = useState<string | null>(null);
 
   return (
     <SidebarLayout
@@ -57,7 +58,12 @@ export function SchoolSubmissionsPage() {
         </div>
 
         <Suspense fallback={<SchoolListSkeleton />}>
-          <SchoolSubmissionsList status={status} watched={watched} />
+          <SchoolSubmissionsList
+            status={status}
+            watched={watched}
+            watchingId={watchingId}
+            onWatchingChange={setWatchingId}
+          />
         </Suspense>
       </div>
     </SidebarLayout>
