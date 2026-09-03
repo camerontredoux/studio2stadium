@@ -15,6 +15,7 @@ export class Service {
           status: true,
           watched: true,
           watchedAt: true,
+          createdAt: true,
           updatedAt: true,
         },
         with: {
