@@ -131,7 +131,8 @@ export function SchoolJoinedEmail({
       </Section>
 
       <Text style={headline}>
-        A new school just joined{" "}
+        A new school just joined
+        <br />
         <span style={headlineAccent}>Studio 2 Stadium.</span>
       </Text>
       <div style={heroDivider} />
