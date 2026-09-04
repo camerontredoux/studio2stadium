@@ -133,7 +133,7 @@ export function SchoolJoinedEmail({
       <Text style={headline}>
         A new school just joined
         <br />
-        <span style={headlineAccent}>Studio 2 Stadium.</span>
+        <span style={headlineAccent}>Studio 2 Stadium</span>
       </Text>
       <div style={heroDivider} />
       <Text style={bodyText}>
@@ -151,6 +151,7 @@ export function SchoolJoinedEmail({
       <Section style={band}>
         <Text style={bandBody}>
           More schools are joining every week.{" "}
+          <br />
           <span style={bandGold}>
             Upgrade now and take the lead in your dance journey.
           </span>

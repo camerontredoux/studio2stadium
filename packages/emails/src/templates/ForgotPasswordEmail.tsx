@@ -142,7 +142,7 @@ export function ForgotPasswordEmail({ resetUrl }: ForgotPasswordEmailProps) {
       </Section>
 
       <Text style={headline}>
-        Let's get you back <span style={headlineAccent}>in.</span>
+        Let's get you back in
       </Text>
       <div style={heroDivider} />
       <Text style={bodyText}>
