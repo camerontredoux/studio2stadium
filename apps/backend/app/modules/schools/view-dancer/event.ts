@@ -62,6 +62,7 @@ class ProfileViewedHandler {
         dancerName: dancer.user.firstName,
         schoolName: school.name,
         schoolProfileUrl,
+        schoolLogoUrl: school.user.avatar ?? undefined,
         freemium: !isPremium,
         upgradeUrl,
       })
