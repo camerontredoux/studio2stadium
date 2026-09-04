@@ -9,7 +9,8 @@ export interface PremiumWelcomeEmailProps {
 }
 
 const PROFILE_URL_DEFAULT = "https://app.studio2stadium.com/profile";
-const CONSULTATION_URL_DEFAULT = "https://app.studio2stadium.com/consultation";
+const CONSULTATION_URL_DEFAULT =
+  "https://calendly.com/studiotostadium/s2s-dancer-consulting-coaching-call";
 
 const HERO_BG = "https://studio2stadium.com/img/premium-welcome-2x.jpg";
 
