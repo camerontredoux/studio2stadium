@@ -41,23 +41,6 @@ const sectionRule = {
   lineHeight: "1px",
 };
 
-const iconTile = {
-  width: "128px",
-  height: "128px",
-  borderRadius: "50%",
-  backgroundColor: "#F8F6F0",
-  border: `1px solid ${colors.border}`,
-  textAlign: "center" as const,
-  verticalAlign: "middle" as const,
-  overflow: "hidden" as const,
-};
-
-const iconMark = {
-  fontSize: "56px",
-  lineHeight: "128px",
-  margin: 0,
-};
-
 const headline = {
   fontSize: "26px",
   fontWeight: "bold" as const,
@@ -134,25 +117,6 @@ const bandGold = {
   fontWeight: "bold" as const,
 };
 
-function LockIcon() {
-  return (
-    <table
-      role="presentation"
-      cellPadding={0}
-      cellSpacing={0}
-      align="center"
-      style={{ margin: "0 auto" }}>
-      <tbody>
-        <tr>
-          <td style={iconTile}>
-            <Text style={iconMark}>🔒</Text>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  );
-}
-
 export function ForgotPasswordEmail({ resetUrl }: ForgotPasswordEmailProps) {
   return (
     <Layout preview="Reset your password">
@@ -175,10 +139,6 @@ export function ForgotPasswordEmail({ resetUrl }: ForgotPasswordEmailProps) {
             <div style={sectionRule} />
           </Column>
         </Row>
-      </Section>
-
-      <Section>
-        <LockIcon />
       </Section>
 
       <Text style={headline}>
