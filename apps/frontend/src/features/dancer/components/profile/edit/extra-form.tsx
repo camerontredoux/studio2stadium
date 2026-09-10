@@ -8,6 +8,14 @@ import {
   NumberFieldIncrement,
   NumberFieldInput,
 } from "@/components/ui/number-field";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { TEAM_LEVELS } from "@/utils/constants/team-levels";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Controller, FormProvider, useForm } from "react-hook-form";
@@ -17,6 +25,11 @@ import { schemas } from "../../../api/schemas";
 import { SportsList } from "../sports-list";
 
 export type ExtraFormData = z.infer<typeof schemas.updateExtra>;
+
+const TEAM_LEVEL_OPTIONS = TEAM_LEVELS.map((level) => ({
+  value: level,
+  label: level,
+}));
 
 interface ExtraFormProps {
   username: string;
@@ -107,10 +120,25 @@ export function ExtraForm({ username, onSubmit }: ExtraFormProps) {
         <Controller
           control={form.control}
           name="teamLevel"
-          render={({ field: { value, ...field }, fieldState }) => (
-            <Field name={field.name} invalid={fieldState.invalid}>
+          render={({ field: { value, onChange }, fieldState }) => (
+            <Field name="teamLevel" invalid={fieldState.invalid}>
               <FieldLabel>Team Level</FieldLabel>
-              <Input type="text" value={value as string} {...field} />
+              <Select
+                value={value || undefined}
+                onValueChange={onChange}
+                items={TEAM_LEVEL_OPTIONS}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {TEAM_LEVEL_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FieldError error={fieldState.error} />
             </Field>
           )}
