@@ -103,6 +103,7 @@ export const validator = vine.create(
     name: vine.string().minLength(2).maxLength(100).trim().optional(),
     location: vine.string().optional(),
     city: vine.string().optional(),
+    commonRecruiting: vine.boolean().optional(),
   })
 );
 

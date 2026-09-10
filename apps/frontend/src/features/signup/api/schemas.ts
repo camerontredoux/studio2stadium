@@ -21,19 +21,29 @@ export const schemas = {
     schoolName: z.string().optional(),
   }),
 
-  signup: z.object({
-    email: z.email(),
-    type: accountTypeSchema,
-    firstName: z.string().min(2).max(MAX_NAME_LENGTH),
-    lastName: z.string().min(2).max(MAX_NAME_LENGTH),
-    username: z.string().min(4).max(MAX_USERNAME_LENGTH),
-    phone: z.string().optional(),
-    password: passwordSchema,
-    termsChecked: z.boolean(),
-    name: z.string().optional(),
-    location: z.string().optional(),
-    city: z.string().optional(),
-  }),
+  signup: z
+    .object({
+      email: z.email(),
+      type: accountTypeSchema,
+      firstName: z.string().min(2).max(MAX_NAME_LENGTH),
+      lastName: z.string().min(2).max(MAX_NAME_LENGTH),
+      username: z.string().min(4).max(MAX_USERNAME_LENGTH),
+      phone: z.string().optional(),
+      password: passwordSchema,
+      termsChecked: z.boolean(),
+      name: z.string().optional(),
+      location: z.string().optional(),
+      city: z.string().optional(),
+      commonRecruiting: z.boolean().optional(),
+    })
+    .refine(
+      (data) =>
+        data.type !== "school" || typeof data.commonRecruiting === "boolean",
+      {
+        path: ["commonRecruiting"],
+        error: "Please select an option",
+      },
+    ),
 
   available: z.object({
     username: z.string().regex(/^[a-zA-Z0-9_]+$/, {
