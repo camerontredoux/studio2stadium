@@ -66,6 +66,7 @@ export class Service {
           name: input.name,
           location: input.location,
           city: input.city,
+          commonRecruiting: input.commonRecruiting,
         });
 
         // Path C: opportunistically link pending coach roster rows for this email.

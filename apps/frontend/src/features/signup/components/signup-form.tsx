@@ -7,7 +7,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Frame, FramePanel } from "@/components/ui/frame";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
+import { Radio, RadioGroup } from "@/components/ui/radio-group";
 import { Spinner } from "@/components/ui/spinner";
 import { handleApiError } from "@/lib/api/errors";
 import { MAX_PASSWORD_LENGTH } from "@/lib/schemas";
@@ -48,11 +50,16 @@ export function SignupForm() {
       location: "",
       city: "",
       termsChecked: false,
+      commonRecruiting: undefined,
     },
   });
 
   const termsChecked = useWatch({ control, name: "termsChecked" });
+  const commonRecruiting = useWatch({ control, name: "commonRecruiting" });
   const name = useWatch({ control, name: "name" });
+
+  const missingCommonRecruiting =
+    type === "school" && typeof commonRecruiting !== "boolean";
 
   const onSubmit = async (data: SignupSchema) => {
     if (!submitRef.current || isPending) return;
@@ -171,6 +178,33 @@ export function SignupForm() {
                   </Field>
                 )}
               />
+              <Controller
+                control={control}
+                name="commonRecruiting"
+                render={({ field, fieldState }) => (
+                  <Field name={field.name} invalid={fieldState.invalid}>
+                    <FieldLabel>Common Recruiting</FieldLabel>
+                    <p className="text-muted-foreground text-xs font-light">
+                      Is your program part of Common Recruiting?
+                    </p>
+                    <RadioGroup
+                      className="flex-row gap-4"
+                      value={field.value ?? null}
+                      onValueChange={field.onChange}
+                    >
+                      <Label className="flex items-center gap-2 font-normal">
+                        <Radio value={true} />
+                        Yes
+                      </Label>
+                      <Label className="flex items-center gap-2 font-normal">
+                        <Radio value={false} />
+                        No
+                      </Label>
+                    </RadioGroup>
+                    <FieldError error={fieldState.error} />
+                  </Field>
+                )}
+              />
             </>
           )}
 
@@ -225,7 +259,9 @@ export function SignupForm() {
 
       <Button
         ref={submitRef}
-        disabled={isPending || !!retryAfter || !termsChecked}
+        disabled={
+          isPending || !!retryAfter || !termsChecked || missingCommonRecruiting
+        }
         className="w-full"
         type="submit"
       >

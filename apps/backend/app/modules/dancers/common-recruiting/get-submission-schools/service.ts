@@ -40,6 +40,7 @@ export class Service {
             ),
             not(eq(users.role, "admin")),
             eq(users.verified, true),
+            eq(schoolProfiles.commonRecruiting, true),
             notInArray(users.id, HIDDEN_SCHOOL_USER_IDS),
             or(
               isNull(schoolApplications.status),
