@@ -31,6 +31,94 @@ test.group("GET /orgs/:slug", (group) => {
     assert.equal(body.settings.max_school_selections, 3);
   });
 
+  test("carries what the active event's Event Tier includes", async ({
+    client,
+    assert,
+  }) => {
+    // The core org overrides nothing, so its Event Tier alone decides.
+    const [org] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "core"));
+    await db.insert(orgEvents).values({
+      orgId: org!.id,
+      name: "Entitlement Event",
+      startDate: "2026-09-01",
+      endDate: "2026-09-02",
+      isActive: true,
+      eventTier: "regional",
+    });
+
+    const response = await client.get("/orgs/core");
+    response.assertStatus(200);
+    assert.sameMembers(response.body().activeEventCapabilities, [
+      "check_in",
+      "school_selections",
+      "callbacks",
+    ]);
+  });
+
+  test("a Core active event with no overrides includes nothing", async ({
+    client,
+    assert,
+  }) => {
+    const [org] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "core"));
+    await db.insert(orgEvents).values({
+      orgId: org!.id,
+      name: "Core Event",
+      startDate: "2026-09-01",
+      endDate: "2026-09-02",
+      isActive: true,
+      eventTier: "core",
+    });
+
+    const response = await client.get("/orgs/core");
+    response.assertStatus(200);
+    assert.deepEqual(response.body().activeEventCapabilities, []);
+  });
+
+  test("an org's explicit flags override the active event's Event Tier", async ({
+    client,
+    assert,
+  }) => {
+    // The summit org switches callbacks, school_selections and video_library on
+    // and never mentions check_in, so a Core event keeps the first three and
+    // takes its answer on the fourth from the Event Tier.
+    const [org] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "summit"));
+    await db.insert(orgEvents).values({
+      orgId: org!.id,
+      name: "Overridden Event",
+      startDate: "2026-09-01",
+      endDate: "2026-09-02",
+      isActive: true,
+      eventTier: "core",
+    });
+
+    const response = await client.get("/orgs/summit");
+    response.assertStatus(200);
+    assert.sameMembers(response.body().activeEventCapabilities, [
+      "callbacks",
+      "school_selections",
+      "video_library",
+    ]);
+  });
+
+  test("an org with no active event resolves to its overrides alone", async ({
+    client,
+    assert,
+  }) => {
+    // The core org overrides nothing, so there is nothing to grant.
+    const response = await client.get("/orgs/core");
+    response.assertStatus(200);
+    assert.deepEqual(response.body().activeEventCapabilities, []);
+  });
+
   test("returns 404 for unknown slug", async ({ client }) => {
     const response = await client.get("/orgs/does-not-exist");
     response.assertStatus(404);
