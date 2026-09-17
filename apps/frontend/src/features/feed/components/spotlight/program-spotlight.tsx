@@ -8,6 +8,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { MapPin, SparklesIcon, StarIcon, Users2Icon } from "lucide-react";
 import { feedQueries } from "../../api/queries";
+import { useSpotlightIndex } from "../../hooks/use-spotlight-index";
 import type { RecommendedSchool } from "../../types";
 import { ProfileChecklist } from "./profile-checklist";
 
@@ -39,6 +40,7 @@ export function ProgramSpotlight() {
   const session = useSession();
   const { data: subscription } = useSubscribed();
   const { data } = useSuspenseQuery(feedQueries.recommended());
+  const spotlightIndex = useSpotlightIndex(data.length);
 
   const showChecklist = subscription.subscribed || !session.orgAccountTier;
 
@@ -46,7 +48,7 @@ export function ProgramSpotlight() {
     return showChecklist ? <ProfileChecklist /> : null;
   }
 
-  const recommended = data[0];
+  const recommended = data[spotlightIndex];
 
   return (
     <div className="overflow-clip rounded-2xl border">

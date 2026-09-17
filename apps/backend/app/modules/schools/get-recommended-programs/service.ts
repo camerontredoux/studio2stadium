@@ -78,7 +78,15 @@ export class Service {
 
     return scored
       .filter((s) => {
-        return s.matchScore > 0 && s.matchTier !== "unqualified";
+        // Require real skill overlap and a badgeable tier — the product is a
+        // skill-match tool, so a school with no matched skills or only a
+        // sub-partial score (tier null, driven by GPA/location alone) should
+        // not surface.
+        return (
+          s.matchedSkillsCount > 0 &&
+          s.matchTier !== null &&
+          s.matchTier !== "unqualified"
+        );
       })
       .slice(0, options.limit);
   }
