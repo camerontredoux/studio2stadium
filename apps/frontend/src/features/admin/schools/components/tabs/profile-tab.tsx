@@ -349,7 +349,7 @@ export const ProfileTab = forwardRef<TabHandle, ProfileTabProps>(
                   name="size"
                   render={({ field: { value, onChange }, fieldState }) => (
                     <Field name="size" invalid={fieldState.invalid}>
-                      <FieldLabel>Team Size</FieldLabel>
+                      <FieldLabel>School Size</FieldLabel>
                       <NumberField
                         value={value as number | undefined}
                         onValueChange={(val) => onChange(val)}
