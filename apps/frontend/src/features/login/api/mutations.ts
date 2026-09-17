@@ -1,5 +1,6 @@
 import { $api } from "@/lib/api/client";
 import { queries } from "@/lib/session";
+import { advanceSpotlightRotation } from "@/utils/spotlight-rotation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 
@@ -11,6 +12,7 @@ export const useLogin = () => {
   return $api.useMutation("post", "/auth/login", {
     onSuccess: async () => {
       queryClient.clear();
+      advanceSpotlightRotation();
 
       const session = await queryClient.fetchQuery(queries.session());
 
