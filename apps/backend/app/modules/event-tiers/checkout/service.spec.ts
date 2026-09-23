@@ -5,7 +5,7 @@ import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
 import { E_BAD_REQUEST } from "#exceptions/bad-request";
 import { E_NOT_FOUND } from "#exceptions/not-found";
-import { Service } from "./service.ts";
+import { checkoutSessionParams, Service } from "./service.ts";
 
 async function makeUser(suffix: string) {
   const [u] = await db
@@ -76,5 +76,32 @@ test.group("Service (create-checkout)", (group) => {
     }
 
     assert.instanceOf(caught, E_BAD_REQUEST);
+  });
+});
+
+test.group("checkoutSessionParams", () => {
+  const buyer = {
+    id: "8f14e45f-ceea-4c9e-b0f5-8a3f3a1e2a2b",
+    email: "organizer@example.com",
+  };
+
+  test("asks Stripe for a post-purchase invoice so the buyer gets a receipt", ({
+    assert,
+  }) => {
+    const params = checkoutSessionParams(validPayload(buyer.id), buyer);
+
+    assert.equal(params.mode, "payment");
+    assert.isTrue(params.invoice_creation?.enabled);
+    assert.equal(
+      params.invoice_creation?.invoice_data?.description,
+      "Regional Event Tier: Summit 2026 (The Summit), 2026-06-13 to 2026-06-14"
+    );
+  });
+
+  test("sends the receipt to the buyer's account email", ({ assert }) => {
+    const params = checkoutSessionParams(validPayload(buyer.id), buyer);
+
+    assert.equal(params.customer_email, "organizer@example.com");
+    assert.equal(params.client_reference_id, buyer.id);
   });
 });
