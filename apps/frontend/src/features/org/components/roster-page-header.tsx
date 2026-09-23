@@ -1,3 +1,4 @@
+import { ScrollableFilterBar } from "@/components/shared/scrollable-filter-bar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/utils/cn";
 import type { RosterStatus } from "@/features/org/api/roster-queries";
@@ -91,9 +92,9 @@ export function RosterPageHeader({
         </div>
       </header>
 
-      <div
+      <ScrollableFilterBar
         aria-label="Roster stats and status filter"
-        className="border-border flex items-stretch border-y"
+        className="border-border items-stretch border-y"
       >
         <FilterStatCell
           label="Total"
@@ -130,7 +131,7 @@ export function RosterPageHeader({
             isLoading={isLoading}
           />
         )}
-      </div>
+      </ScrollableFilterBar>
     </section>
   );
 }

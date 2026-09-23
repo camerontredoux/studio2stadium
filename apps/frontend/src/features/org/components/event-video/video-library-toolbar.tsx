@@ -1,3 +1,4 @@
+import { ScrollableFilterBar } from "@/components/shared/scrollable-filter-bar";
 import { Button } from "@/components/ui/button";
 import {
   InputGroup,
@@ -37,7 +38,7 @@ export function VideoLibraryToolbar({
   const categoryItems = categories.map((c) => ({ value: c.id, label: c.name }));
 
   return (
-    <div className="border-border flex flex-wrap items-center gap-2 border-b px-3 py-2">
+    <ScrollableFilterBar className="border-border gap-2 border-b px-3 py-2">
       <InputGroup className="w-40 shrink-0 sm:w-48">
         <InputGroupAddon>
           <SearchIcon />
@@ -114,6 +115,6 @@ export function VideoLibraryToolbar({
           )}
         </>
       )}
-    </div>
+    </ScrollableFilterBar>
   );
 }

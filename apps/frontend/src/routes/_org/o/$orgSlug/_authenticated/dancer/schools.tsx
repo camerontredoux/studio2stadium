@@ -27,6 +27,7 @@ import { useOrg } from "@/features/org/context/use-org";
 import { useViewedDancerEventId } from "@/features/org/hooks/use-viewed-dancer-event";
 import { StatCell } from "@/features/org/components/dashboard-shared";
 import { DancerTable } from "@/features/org/components/dancer-table/dancer-table";
+import { ScrollableFilterBar } from "@/components/shared/scrollable-filter-bar";
 import { Button } from "@/components/ui/button";
 import {
   InputGroup,
@@ -430,7 +431,7 @@ function SchoolsPage() {
       </section>
 
       {/* Filter toolbar */}
-      <div className="border-border flex items-center gap-2 border-b px-3 py-2">
+      <ScrollableFilterBar className="border-border gap-2 border-b px-3 py-2">
         <InputGroup className="w-48 shrink-0">
           <InputGroupAddon>
             <SearchIcon />
@@ -482,7 +483,7 @@ function SchoolsPage() {
             </Button>
           </>
         )}
-      </div>
+      </ScrollableFilterBar>
 
       <div className="flex min-h-0 flex-1 flex-col gap-3 p-4">
         <DancerTable<SchoolRow>
