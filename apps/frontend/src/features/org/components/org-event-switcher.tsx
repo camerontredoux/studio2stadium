@@ -24,13 +24,29 @@ import { toastManager } from "@/components/ui/toast-manager";
 import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
 import { EventFormSheet } from "@/features/org/components/event-form-sheet";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
-import { eventTierLabel } from "@/features/org/lib/event-tiers";
+import {
+  Tooltip,
+  TooltipPopup,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useOrg } from "@/features/org/context/use-org";
+import {
+  BUY_ANOTHER_EVENT_MESSAGE,
+  canCreateOrgEvent,
+  eventTierLabel,
+} from "@/lib/event-tiers";
+import { useSession } from "@/lib/session";
 import { client } from "@/lib/api/client";
 
 export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
   const queryClient = useQueryClient();
   const { activeEvent, events, selectedEvent, selectEvent } = useAdminEvent();
   const [createOpen, setCreateOpen] = useState(false);
+  const canCreate = canCreateOrgEvent({
+    session: useSession(),
+    orgSelfServe: useOrg().selfServe,
+  });
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const sortedEvents = useMemo(
@@ -165,22 +181,44 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
           </AlertDialog>
         )}
 
-        <Button
-          variant="ghost"
-          size="xs"
-          className="h-8 gap-1 px-2"
-          onClick={() => setCreateOpen(true)}
-        >
-          <PlusIcon aria-hidden className="size-3" />
-          New
-        </Button>
+        {canCreate ? (
+          <Button
+            variant="ghost"
+            size="xs"
+            className="h-8 gap-1 px-2"
+            onClick={() => setCreateOpen(true)}
+          >
+            <PlusIcon aria-hidden className="size-3" />
+            New
+          </Button>
+        ) : (
+          <TooltipProvider delay={0}>
+            <Tooltip>
+              <TooltipTrigger render={<span tabIndex={0} />}>
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  className="h-8 gap-1 px-2"
+                  disabled
+                  aria-label={`New event. ${BUY_ANOTHER_EVENT_MESSAGE}`}
+                >
+                  <PlusIcon aria-hidden className="size-3" />
+                  New
+                </Button>
+              </TooltipTrigger>
+              <TooltipPopup>{BUY_ANOTHER_EVENT_MESSAGE}</TooltipPopup>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </div>
 
-      <EventFormSheet
-        orgSlug={orgSlug}
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-      />
+      {canCreate && (
+        <EventFormSheet
+          orgSlug={orgSlug}
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+        />
+      )}
     </>
   );
 }

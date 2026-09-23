@@ -57,3 +57,38 @@ export function assertEventTierWrite(args: {
     throw new EventTierRequiredError();
   }
 }
+
+/**
+ * An Organizer of a self-serve Org tried to create an Org Event themselves.
+ * Their first event came from a purchase at the Event Tier they paid for;
+ * further events are bought again or arranged with S2S (PRD #84), never
+ * created free by the Organizer.
+ */
+export class EventTierPurchaseRequiredError extends Error {
+  constructor() {
+    super(
+      "New events for this Org are bought or arranged with Studio 2 Stadium."
+    );
+  }
+}
+
+/**
+ * Whether this actor may create an Org Event in this Org at all.
+ *
+ * An Org with at least one Event Tier purchase is self-serve: its Organizers
+ * bought their first event at a chosen Event Tier, and further events come
+ * only from another purchase or from staff. Letting them create events would
+ * hand a Core customer free Enterprise events through the column default
+ * (#112). Staff may create events anywhere, with an explicit Event Tier.
+ *
+ * Grandfathered, hand-built Orgs have no purchase and keep today's behaviour:
+ * their Organizers create events, which take the Enterprise default (ADR 0006).
+ */
+export function assertMayCreateOrgEvent(args: {
+  isStaff: boolean;
+  orgIsSelfServe: boolean;
+}): void {
+  if (args.orgIsSelfServe && !args.isStaff) {
+    throw new EventTierPurchaseRequiredError();
+  }
+}

@@ -18,8 +18,10 @@ import CreateEventController from "./controller.ts";
 import OrgAdminMiddleware from "#middleware/routes/org-admin";
 import {
   EventTierForbiddenError,
+  EventTierPurchaseRequiredError,
   EventTierRequiredError,
 } from "#shared/org/event-tier-authority";
+import { eventTierPurchases } from "#database/schema/event-tier-purchases";
 
 const svc = new CreateEventService(new DatabaseService());
 
@@ -287,15 +289,126 @@ test.group("CreateEventService Event Tier (#112)", (group) => {
     );
   });
 
-  test("an event created without an Event Tier still takes the Enterprise column default", async ({
-    assert,
-  }) => {
-    const actor = await makeActorUser();
-    const ev = await svc.execute(await summitId(), details, actor.id);
-    assert.equal(ev.eventTier, "enterprise");
+  test("the Enterprise column default is unchanged", async ({ assert }) => {
     assert.equal(orgEvents.eventTier.default, "enterprise");
   });
 });
+
+test.group(
+  "CreateEventService organizer-created Event Tier (#112)",
+  (group) => {
+    group.each.setup(async () => {
+      await db.delete(eventTierPurchases).execute();
+      await db.delete(eventAuditLog).execute();
+      await db.delete(csvUploads).execute();
+      await db.delete(eventRosters).execute();
+      await db.delete(orgEvents).execute();
+      await db.delete(orgMemberships).execute();
+      await db.delete(users).execute();
+      await db.delete(organizations).execute();
+      await seedOrganizations();
+    });
+
+    async function summitId() {
+      const [summit] = await db
+        .select()
+        .from(organizations)
+        .where(eq(organizations.slug, "summit"));
+      return summit!.id;
+    }
+
+    async function existingEvent(
+      orgId: string,
+      eventTier: "core" | "regional" | "national" | "enterprise"
+    ) {
+      const [ev] = await db
+        .insert(orgEvents)
+        .values({
+          orgId,
+          name: `Existing ${eventTier}`,
+          startDate: "2026-05-01",
+          endDate: "2026-05-02",
+          eventTier,
+        })
+        .returning();
+      return ev!;
+    }
+
+    const details = {
+      name: "Organizer Event",
+      startDate: "2026-09-01",
+      endDate: "2026-09-02",
+    };
+
+    test("an Organizer of a self-serve Org cannot create an event for free", async ({
+      assert,
+    }) => {
+      const organizer = await makeActorUser();
+      const orgId = await summitId();
+      const bought = await existingEvent(orgId, "core");
+      await db.insert(eventTierPurchases).values({
+        reference: `cs_test_${Date.now()}`,
+        buyerId: organizer.id,
+        eventId: bought.id,
+        eventTier: "core",
+      });
+
+      await assert.rejects(
+        () => svc.execute(orgId, details, organizer.id, { isStaff: false }),
+        EventTierPurchaseRequiredError
+      );
+      const events = await db
+        .select()
+        .from(orgEvents)
+        .where(eq(orgEvents.orgId, orgId));
+      assert.deepEqual(
+        events.map((e) => e.id),
+        [bought.id]
+      );
+    });
+
+    test("staff can still add an event to a self-serve Org", async ({
+      assert,
+    }) => {
+      const staff = await makeActorUser();
+      const orgId = await summitId();
+      const bought = await existingEvent(orgId, "core");
+      await db.insert(eventTierPurchases).values({
+        reference: `cs_test_${Date.now()}`,
+        buyerId: staff.id,
+        eventId: bought.id,
+        eventTier: "core",
+      });
+
+      const ev = await svc.execute(
+        orgId,
+        { ...details, eventTier: "national" },
+        staff.id,
+        { isStaff: true }
+      );
+      assert.equal(ev.eventTier, "national");
+    });
+
+    test("an Organizer of a grandfathered Org still creates events at Enterprise", async ({
+      assert,
+    }) => {
+      const organizer = await makeActorUser();
+      const orgId = await summitId();
+      await existingEvent(orgId, "enterprise");
+
+      const ev = await svc.execute(orgId, details, organizer.id);
+      assert.equal(ev.eventTier, "enterprise");
+    });
+
+    test("an Organizer's first event in a grandfathered Org is Enterprise, as today", async ({
+      assert,
+    }) => {
+      const organizer = await makeActorUser();
+      const ev = await svc.execute(await summitId(), details, organizer.id);
+      assert.equal(ev.eventTier, "enterprise");
+    });
+  }
+);
 
 test.group("POST /orgs/:slug/events middleware", (group) => {
   group.each.setup(async () => {
@@ -428,6 +541,21 @@ test.group("CreateEventController Event Tier mock", () => {
 
     assert.deepEqual(seen, [true, false]);
     assert.equal(staff.status, 422);
+    assert.equal(organizer.status, 403);
+  });
+
+  test("an Organizer of a self-serve Org gets a 403", async ({ assert }) => {
+    const service = {
+      execute: async () => {
+        throw new EventTierPurchaseRequiredError();
+      },
+    } as unknown as CreateEventService;
+
+    const organizer = { status: null as number | null };
+    await new CreateEventController().handle(
+      ctxFor("user", organizer),
+      service
+    );
     assert.equal(organizer.status, 403);
   });
 });

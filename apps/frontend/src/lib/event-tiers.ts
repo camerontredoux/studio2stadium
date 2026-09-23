@@ -23,6 +23,13 @@ export const EVENT_TIERS = [
   "enterprise",
 ] as const satisfies readonly EventTier[];
 
+// `satisfies` refuses an unknown tier; this refuses a missing one, so a tier
+// added on the backend cannot compile and be left out of the staff select.
+type MissingEventTier = Exclude<EventTier, (typeof EVENT_TIERS)[number]>;
+const everyEventTierListed: [MissingEventTier] extends [never] ? true : never =
+  true;
+void everyEventTierListed;
+
 export const EVENT_TIER_OPTIONS = EVENT_TIERS.map((value) => ({
   value,
   label: EVENT_TIER_LABELS[value],
@@ -39,3 +46,20 @@ export function eventTierLabel(tier: EventTier): string {
 export function canSetEventTier(session: { role: string }): boolean {
   return session.role === "admin";
 }
+
+/**
+ * Whether this user may create an Org Event in this Org. In a self-serve Org
+ * (one with a purchase) further events are bought or arranged with S2S, so only
+ * staff create them. Grandfathered Orgs are unchanged. Mirrors the backend's
+ * `assertMayCreateOrgEvent`, which stays authoritative.
+ */
+export function canCreateOrgEvent(args: {
+  session: { role: string };
+  orgSelfServe: boolean;
+}): boolean {
+  return !args.orgSelfServe || canSetEventTier(args.session);
+}
+
+/** Shown where an Organizer of a self-serve Org would create an event. */
+export const BUY_ANOTHER_EVENT_MESSAGE =
+  "To add another event, buy one or contact Studio 2 Stadium.";

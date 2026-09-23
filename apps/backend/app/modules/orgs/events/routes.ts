@@ -1,4 +1,5 @@
 import { middleware } from "#start/kernel";
+import { unprocessableEntity } from "#utils/responses";
 import router from "@adonisjs/core/services/router";
 
 const CreateEventController = () => import("./create/controller.ts");
@@ -73,7 +74,10 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
-      ]);
+      ])
+      // Declared by hand: the generator infers only some of the statuses the
+      // controller returns and drops 422 (validation, Event Tier rules).
+      .openapi({ responses: { ...unprocessableEntity } });
     router
       .patch(":slug/events/:id", [UpdateEventController])
       .use([
@@ -81,7 +85,10 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
-      ]);
+      ])
+      // Declared by hand: the generator infers only some of the statuses the
+      // controller returns and drops 422 (validation, Event Tier rules).
+      .openapi({ responses: { ...unprocessableEntity } });
     router
       .delete(":slug/events/:id", [DeleteEventController])
       .use([

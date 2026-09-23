@@ -39,6 +39,11 @@ export interface OrgContextValue {
   myRosters: MyRoster[];
   isAdmin: boolean;
   /**
+   * Whether any of the Org's events was bought. Only S2S staff create further
+   * events in a self-serve Org (#112).
+   */
+  selfServe: boolean;
+  /**
    * Whether the Org's active event includes a capability, or the Org includes a
    * piece of org-wide configuration. Convenience gating only — the backend's
    * `OrgFeatureMiddleware` is authoritative.

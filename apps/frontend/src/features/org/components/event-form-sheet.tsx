@@ -50,7 +50,7 @@ import {
   EVENT_TIERS,
   eventTierLabel,
   type EventTier,
-} from "@/features/org/lib/event-tiers";
+} from "@/lib/event-tiers";
 import { useSession } from "@/lib/session";
 
 const COMMON_TIMEZONES = [
@@ -505,7 +505,11 @@ export function EventFormSheet({
       const createRes = await rawClient.POST(`/orgs/${orgSlug}/events`, {
         body: { ...body, isActive: false },
       });
-      if (createRes.error) throw new Error("Create failed");
+      if (createRes.error) {
+        // Surfaces the backend's reason, e.g. a self-serve Org's Organizer
+        // being told new events are bought or arranged with S2S (#112).
+        throw new Error(createRes.error.message ?? "Create failed");
+      }
       const activateRes = await rawClient.PATCH(
         `/orgs/${orgSlug}/events/${createRes.data.id}`,
         { body: { isActive: true } },
@@ -519,8 +523,12 @@ export function EventFormSheet({
       bypassDirtyCheckRef.current = true;
       onOpenChange(false);
     },
-    onError: () => {
-      toastManager.add({ title: "Couldn't create event", type: "error" });
+    onError: (err) => {
+      toastManager.add({
+        title: "Couldn't create event",
+        description: err.message,
+        type: "error",
+      });
     },
   });
 
@@ -736,7 +744,11 @@ export function CreateEventForm({
       const createRes = await rawClient.POST(`/orgs/${orgSlug}/events`, {
         body: { ...body, isActive: false },
       });
-      if (createRes.error) throw new Error("Create failed");
+      if (createRes.error) {
+        // Surfaces the backend's reason, e.g. a self-serve Org's Organizer
+        // being told new events are bought or arranged with S2S (#112).
+        throw new Error(createRes.error.message ?? "Create failed");
+      }
       const activateRes = await rawClient.PATCH(
         `/orgs/${orgSlug}/events/${createRes.data.id}`,
         { body: { isActive: true } },
@@ -748,8 +760,12 @@ export function CreateEventForm({
       qc.invalidateQueries(adminQueries.events(orgSlug));
       onCreated?.(ev);
     },
-    onError: () => {
-      toastManager.add({ title: "Couldn't create event", type: "error" });
+    onError: (err) => {
+      toastManager.add({
+        title: "Couldn't create event",
+        description: err.message,
+        type: "error",
+      });
     },
   });
 

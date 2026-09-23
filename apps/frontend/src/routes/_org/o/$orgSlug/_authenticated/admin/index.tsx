@@ -55,6 +55,7 @@ import {
   type OrgEvent,
 } from "@/features/org/api/admin-queries";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
+import { useOrg } from "@/features/org/context/use-org";
 import {
   ACCENT_VALUE,
   AccentDot,
@@ -81,6 +82,8 @@ import {
   type EventPhaseInfo,
 } from "@/features/org/hooks/use-event-phase";
 import { client } from "@/lib/api/client";
+import { BUY_ANOTHER_EVENT_MESSAGE, canCreateOrgEvent } from "@/lib/event-tiers";
+import { useSession } from "@/lib/session";
 import { useRequestUpload } from "@/shared/images/api/mutations";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
 
@@ -1160,6 +1163,10 @@ function SidebarActivitySection({
 function AdminHome() {
   const { orgSlug } = Route.useParams();
   const { events, selectedEvent } = useAdminEvent();
+  const canCreate = canCreateOrgEvent({
+    session: useSession(),
+    orgSelfServe: useOrg().selfServe,
+  });
 
   if (!selectedEvent && events.length === 0) {
     return (
@@ -1170,7 +1177,13 @@ function AdminHome() {
             You'll be able to upload rosters once the event is created.
           </p>
         </div>
-        <CreateEventForm orgSlug={orgSlug} />
+        {canCreate ? (
+          <CreateEventForm orgSlug={orgSlug} />
+        ) : (
+          <p className="text-muted-foreground text-sm">
+            {BUY_ANOTHER_EVENT_MESSAGE}
+          </p>
+        )}
       </div>
     );
   }

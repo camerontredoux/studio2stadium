@@ -4,6 +4,7 @@ import { organizations, orgMemberships } from "#database/schema/organizations";
 import { seedOrganizations } from "#commands/backfill-organizations";
 import { users } from "#database/schema/users";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
+import { eventTierPurchases } from "#database/schema/event-tier-purchases";
 import { GetOrgService } from "./service.ts";
 import { DatabaseService } from "#database/service";
 import { eq } from "drizzle-orm";
@@ -117,6 +118,49 @@ test.group("GET /orgs/:slug", (group) => {
     const response = await client.get("/orgs/core");
     response.assertStatus(200);
     assert.deepEqual(response.body().activeEventCapabilities, []);
+  });
+
+  test("says whether the Org is self-serve", async ({ client, assert }) => {
+    const [org] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "core"));
+    const before = await client.get("/orgs/core");
+    assert.isFalse(before.body().selfServe);
+
+    const [ev] = await db
+      .insert(orgEvents)
+      .values({
+        orgId: org!.id,
+        name: "Bought Event",
+        startDate: "2026-09-01",
+        endDate: "2026-09-02",
+        eventTier: "core",
+      })
+      .returning();
+    const ts = `${Date.now()}_${Math.random()}`;
+    const [buyer] = await db
+      .insert(users)
+      .values({
+        username: `buyer_${ts}`,
+        email: `buyer_${ts}@example.com`,
+        displayEmail: `buyer_${ts}@example.com`,
+        firstName: "Buyer",
+        lastName: "User",
+        password: "h",
+        role: "user",
+        type: "dancer",
+      })
+      .returning();
+    await db.insert(eventTierPurchases).values({
+      reference: `cs_test_${ts}`,
+      buyerId: buyer!.id,
+      eventId: ev!.id,
+      eventTier: "core",
+    });
+
+    const after = await client.get("/orgs/core");
+    assert.isTrue(after.body().selfServe);
   });
 
   test("returns 404 for unknown slug", async ({ client }) => {

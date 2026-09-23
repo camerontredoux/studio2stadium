@@ -2215,6 +2215,16 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -2271,6 +2281,16 @@
           },
           "404": {
             "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
@@ -11403,6 +11423,22 @@
                   "type": "null"
                 }
               ]
+            },
+            "activeEventTier": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "core",
+                    "regional",
+                    "national",
+                    "enterprise"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "required": [
@@ -11418,7 +11454,8 @@
             "settings",
             "memberCount",
             "eventCount",
-            "activeEvent"
+            "activeEvent",
+            "activeEventTier"
           ]
         }
       },
@@ -13081,6 +13118,9 @@
                 "school_selections"
               ]
             }
+          },
+          "selfServe": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -13095,7 +13135,8 @@
           "membership",
           "myRoster",
           "myRosters",
-          "activeEventCapabilities"
+          "activeEventCapabilities",
+          "selfServe"
         ]
       },
       "OrgsIdEventsResponse": {

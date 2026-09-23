@@ -3,6 +3,7 @@ import { useDeleteOrg } from "@/features/admin/api/mutations";
 import { adminQueries } from "@/features/admin/api/queries";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
+import type { EventTier } from "@/lib/event-tiers";
 import { useState } from "react";
 
 import {
@@ -34,6 +35,7 @@ interface Org {
   memberCount: number;
   eventCount: number;
   activeEvent: string | null;
+  activeEventTier: EventTier | null;
 }
 
 export function OrgsPage() {

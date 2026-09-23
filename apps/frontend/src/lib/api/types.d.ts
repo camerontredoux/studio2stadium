@@ -2696,6 +2696,15 @@ export interface paths {
                         "application/json": components["schemas"]["Error"];
                     };
                 };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
             };
         };
         delete?: never;
@@ -2782,6 +2791,15 @@ export interface paths {
                 };
                 /** @description Not Found */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -10685,6 +10703,7 @@ export interface components {
             memberCount: number;
             eventCount: number;
             activeEvent: string | null;
+            activeEventTier: ("core" | "regional" | "national" | "enterprise") | null;
         }[];
         AdminOrgsRequest: {
             logoUrl?: string | null;
@@ -11010,6 +11029,7 @@ export interface components {
                 hasStarted: boolean;
             }[];
             activeEventCapabilities: ("video_library" | "callbacks" | "check_in" | "school_selections")[];
+            selfServe: boolean;
         };
         OrgsIdEventsResponse: {
             gpa: boolean;

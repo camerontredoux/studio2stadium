@@ -2,8 +2,10 @@ import { test } from "@japa/runner";
 import {
   assertEventTierWrite,
   EventTierForbiddenError,
+  EventTierPurchaseRequiredError,
   EventTierRequiredError,
   isEventTierStaff,
+  assertMayCreateOrgEvent,
 } from "./event-tier-authority.ts";
 
 test.group("Event Tier authority", () => {
@@ -53,5 +55,25 @@ test.group("Event Tier authority", () => {
         assertEventTierWrite({ isStaff: false, eventTier: undefined, mode })
       );
     }
+  });
+});
+
+test.group("Who may create an Org Event", () => {
+  test("a self-serve Org's Organizers cannot create events", ({ assert }) => {
+    assert.throws(
+      () => assertMayCreateOrgEvent({ isStaff: false, orgIsSelfServe: true }),
+      EventTierPurchaseRequiredError
+    );
+  });
+
+  test("a grandfathered Org's Organizers can, and staff can anywhere", ({
+    assert,
+  }) => {
+    assert.doesNotThrow(() =>
+      assertMayCreateOrgEvent({ isStaff: false, orgIsSelfServe: false })
+    );
+    assert.doesNotThrow(() =>
+      assertMayCreateOrgEvent({ isStaff: true, orgIsSelfServe: true })
+    );
   });
 });

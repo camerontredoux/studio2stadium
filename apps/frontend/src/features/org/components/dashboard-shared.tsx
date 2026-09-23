@@ -11,7 +11,7 @@ import {
 import { cn } from "@/components/utils/cn";
 import type { OrgEvent } from "@/features/org/api/admin-queries";
 import type { EventPhaseInfo } from "@/features/org/hooks/use-event-phase";
-import { eventTierLabel } from "@/features/org/lib/event-tiers";
+import { eventTierLabel } from "@/lib/event-tiers";
 
 export type PanelAccent =
   | "blue"

@@ -5,7 +5,11 @@ import { inject } from "@adonisjs/core";
 import type { Validator } from "./validator.ts";
 import { AuditCollector } from "#database/audit";
 import { eq } from "drizzle-orm";
-import { assertEventTierWrite } from "#shared/org/event-tier-authority";
+import {
+  assertEventTierWrite,
+  assertMayCreateOrgEvent,
+} from "#shared/org/event-tier-authority";
+import { isSelfServeOrg } from "#shared/org/self-serve";
 
 @inject()
 export class CreateEventService {
@@ -14,7 +18,9 @@ export class CreateEventService {
   /**
    * `by.isStaff` says whether S2S staff are creating the event: only they
    * may set its Event Tier, and they must (see `assertEventTierWrite`).
-   * Everyone else gets the column default.
+   * Everyone else may create events only in a grandfathered Org, where the
+   * event takes the Enterprise column default as it always has (see
+   * `assertMayCreateOrgEvent`).
    */
   async execute(
     orgId: string,
@@ -31,6 +37,11 @@ export class CreateEventService {
     // Create the event first in a transaction, then log the audit entry
     // using the new event's id as the eventId context
     return this.db.tx(async (tx) => {
+      assertMayCreateOrgEvent({
+        isStaff: by.isStaff,
+        orgIsSelfServe: await isSelfServeOrg(tx, orgId),
+      });
+
       const [ev] = await tx
         .insert(orgEvents)
         .values({

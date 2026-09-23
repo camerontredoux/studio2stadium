@@ -5,6 +5,7 @@ import { schema } from "./validator.ts";
 import { E_DATABASE_ERROR } from "#exceptions/database";
 import {
   EventTierForbiddenError,
+  EventTierPurchaseRequiredError,
   EventTierRequiredError,
   isEventTierStaff,
 } from "#shared/org/event-tier-authority";
@@ -20,7 +21,10 @@ export default class CreateEventController {
       });
       return ctx.response.created(ev);
     } catch (err: any) {
-      if (err instanceof EventTierForbiddenError) {
+      if (
+        err instanceof EventTierForbiddenError ||
+        err instanceof EventTierPurchaseRequiredError
+      ) {
         return ctx.response.forbidden({ message: err.message });
       }
       if (err instanceof EventTierRequiredError) {
