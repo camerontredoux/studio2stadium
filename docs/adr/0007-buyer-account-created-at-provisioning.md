@@ -131,4 +131,5 @@ click "Claim".
   refuse it. Nobody can sign up as one. Being an Organizer inside an Org is still the membership
   type (ADR 0003), and an existing dancer or school account that buys keeps its own type.
 - If the post-commit email fails, provisioning is not rolled back. The failure is logged and sent to
-  Sentry, and the buyer can still get in through "Forgot password".
+  Sentry, and the buyer can still get in through "Forgot password". Each send is logged too, with
+  its purpose, the Org's slug and the recipient masked.

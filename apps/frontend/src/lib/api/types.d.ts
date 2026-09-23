@@ -1294,7 +1294,7 @@ export interface paths {
         put?: never;
         /**
          * Resend an Event Tier purchase's claim email
-         * @description Emails the buyer of a purchase that is awaiting its claim a fresh claim link, to the account's own address. The fresh link replaces the earlier one. 409 when the purchase is not awaiting a claim, 404 when there is no such purchase
+         * @description Emails the buyer of a purchase that is awaiting its claim a fresh claim link, to the account's own address. The fresh link replaces the earlier one. 409 when the purchase is not awaiting a claim, 404 when there is no such purchase, 502 when the email could not be sent
          */
         post: {
             parameters: {
@@ -1330,6 +1330,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unknown Response */
+                502: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminEventtierpurchasesIdClaimemailResponse"];
                     };
                 };
             };
@@ -11063,6 +11072,9 @@ export interface components {
                 };
             } | null;
         }[];
+        AdminEventtierpurchasesIdClaimemailResponse: {
+            message: string;
+        };
         AdminOrgsResponse: {
             id: string;
             createdAt: string;

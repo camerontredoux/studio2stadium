@@ -12,6 +12,12 @@ import { type Validator } from "./validator.ts";
 export class NotAwaitingClaimError extends Error {}
 
 /**
+ * The claim email did not go. Already logged and reported to Sentry; raised so
+ * staff are told to try again rather than shown a success.
+ */
+export class ClaimEmailNotSentError extends Error {}
+
+/**
  * Send a purchase's buyer a fresh claim link (ADR 0007), for a buyer who lost
  * the first email or let it expire. The fresh link replaces the earlier one.
  * Only for a purchase still awaiting its claim: the link goes to the account's
@@ -51,7 +57,12 @@ export class Service {
       throw new NotAwaitingClaimError("This purchase is not awaiting a claim");
     }
 
-    await emailClaimLink(row);
+    if (!(await emailClaimLink(row))) {
+      throw new ClaimEmailNotSentError(
+        "The claim email could not be sent. Try again."
+      );
+    }
+
     return true;
   }
 }

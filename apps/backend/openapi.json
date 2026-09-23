@@ -1109,13 +1109,23 @@
                 }
               }
             }
+          },
+          "502": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEventtierpurchasesIdClaimemailResponse"
+                }
+              }
+            }
           }
         },
         "tags": [
           "Admin"
         ],
         "summary": "Resend an Event Tier purchase's claim email",
-        "description": "Emails the buyer of a purchase that is awaiting its claim a fresh claim link, to the account's own address. The fresh link replaces the earlier one. 409 when the purchase is not awaiting a claim, 404 when there is no such purchase"
+        "description": "Emails the buyer of a purchase that is awaiting its claim a fresh claim link, to the account's own address. The fresh link replaces the earlier one. 409 when the purchase is not awaiting a claim, 404 when there is no such purchase, 502 when the email could not be sent"
       }
     },
     "/admin/orgs": {
@@ -11876,6 +11886,17 @@
             "lastEventTierChange"
           ]
         }
+      },
+      "AdminEventtierpurchasesIdClaimemailResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
       },
       "AdminOrgsResponse": {
         "type": "array",

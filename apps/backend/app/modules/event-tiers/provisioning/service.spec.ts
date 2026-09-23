@@ -17,6 +17,7 @@ import { GetOrgService } from "#modules/orgs/get-org/service";
 import { ListEventsService } from "#modules/orgs/events/list/service";
 import { grantsOrgAdmin } from "#shared/org/membership";
 import hash from "@adonisjs/core/services/hash";
+import logger from "@adonisjs/core/services/logger";
 import mail from "@adonisjs/mail/services/main";
 import redis from "@adonisjs/redis/services/main";
 import { test } from "@japa/runner";
@@ -31,6 +32,25 @@ import {
 import { deriveOrgSlug, orgSlugCandidates } from "./slug.ts";
 
 const svc = new ProvisionPurchaseService(new DatabaseService());
+
+/**
+ * Record a logger level's calls while still logging them. `restore` puts the
+ * level back.
+ */
+function spyOn(target: typeof logger, level: "info" | "error") {
+  const original = target[level];
+  const calls: unknown[][] = [];
+  target[level] = ((...args: unknown[]) => {
+    calls.push(args);
+    return Reflect.apply(original, target, args);
+  }) as (typeof target)[typeof level];
+  return {
+    calls,
+    restore: () => {
+      target[level] = original;
+    },
+  };
+}
 
 async function makeBuyer(suffix: string) {
   const [buyer] = await db
@@ -609,12 +629,40 @@ test.group("ProvisionPurchaseService", (group) => {
     assert.equal(third.subject, "Your Org is ready — sign in");
   });
 
+  test("each Org-ready email sent is logged with its purpose, Org and masked recipient", async ({
+    assert,
+  }) => {
+    const logged = spyOn(logger, "info");
+
+    try {
+      const result = await svc.execute({
+        reference: "cs_logged",
+        buyer: { name: "Logged Buyer", email: "logged.buyer@example.com" },
+        purchase: purchase(),
+      });
+
+      const sent = logged.calls.filter(
+        ([, message]) => message === "Sent Org-ready email"
+      );
+      assert.lengthOf(sent, 1);
+      assert.deepEqual(sent[0]![0], {
+        purpose: "set_password",
+        orgSlug: result.org.slug,
+        recipient: "l***@example.com",
+      });
+    } finally {
+      logged.restore();
+    }
+  });
+
   test("a failed email does not undo the purchase", async ({ assert }) => {
     mail.restore();
     const send = mail.send;
     mail.send = (async () => {
       throw new Error("mail transport down");
     }) as typeof mail.send;
+    const errors = spyOn(logger, "error");
+    const infos = spyOn(logger, "info");
 
     try {
       const result = await svc.execute({
@@ -622,6 +670,21 @@ test.group("ProvisionPurchaseService", (group) => {
         buyer: { name: "Offline Buyer", email: "mail_down@example.com" },
         purchase: purchase(),
       });
+
+      // Logged at error level, with what to trace it by and never the address.
+      const failed = errors.calls.filter(
+        ([, message]) => message === "Failed to send Org-ready email"
+      );
+      assert.lengthOf(failed, 1);
+      assert.include(failed[0]![0], {
+        purpose: "set_password",
+        orgSlug: result.org.slug,
+        recipient: "m***@example.com",
+      });
+      assert.notInclude(JSON.stringify(failed[0]![0]), "mail_down@");
+      assert.isFalse(
+        infos.calls.some(([, message]) => message === "Sent Org-ready email")
+      );
 
       assert.isTrue(result.provisioned);
       assert.lengthOf(await db.select().from(eventTierPurchases), 1);
@@ -634,6 +697,8 @@ test.group("ProvisionPurchaseService", (group) => {
       );
     } finally {
       mail.send = send;
+      errors.restore();
+      infos.restore();
     }
   });
 

@@ -524,5 +524,42 @@ test.group(
         .header("Authorization", bearer);
       again.assertStatus(409);
     });
+
+    test("a resend whose email fails tells staff it did not go", async ({
+      client,
+      assert,
+    }) => {
+      const staff = await makeUser("staff_resend_fail", {
+        role: "admin",
+        emailVerified: true,
+      });
+      const buyer = await makeUser("resend_fail");
+      const result = await provision.execute(
+        input("cs_claim_resend_fail", buyer.email)
+      );
+      const bearer = `Bearer ${await tokenFor(client, staff.email)}`;
+
+      mail.restore();
+      const send = mail.send;
+      mail.send = (async () => {
+        throw new Error("mail transport down");
+      }) as typeof mail.send;
+
+      try {
+        const resend = await client
+          .post(`/admin/event-tier-purchases/${result.purchase.id}/claim-email`)
+          .header("Authorization", bearer);
+        resend.assertStatus(502);
+        assert.equal(
+          resend.body().message,
+          "The claim email could not be sent. Try again."
+        );
+      } finally {
+        mail.send = send;
+      }
+
+      // Still awaiting its claim, so staff can simply try again.
+      assert.isNull(await claimedAtOf("cs_claim_resend_fail"));
+    });
   }
 );
