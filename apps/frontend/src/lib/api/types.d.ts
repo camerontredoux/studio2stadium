@@ -2751,6 +2751,15 @@ export interface paths {
                         "application/json": components["schemas"]["Error"];
                     };
                 };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
             };
         };
         options?: never;
@@ -10734,6 +10743,7 @@ export interface components {
             accentColor: string | null;
             features: Record<string, never>;
             settings: Record<string, never>;
+            selfServe: boolean;
         };
         AdminOrgsIdMembersResponse: {
             id: string;
@@ -11002,6 +11012,7 @@ export interface components {
             accentColor: string | null;
             features: Record<string, never>;
             settings: Record<string, never>;
+            selfServe: boolean;
             membership: {
                 /** @enum {string} */
                 role: "admin" | "member";
@@ -11029,7 +11040,6 @@ export interface components {
                 hasStarted: boolean;
             }[];
             activeEventCapabilities: ("video_library" | "callbacks" | "check_in" | "school_selections")[];
-            selfServe: boolean;
         };
         OrgsIdEventsResponse: {
             gpa: boolean;

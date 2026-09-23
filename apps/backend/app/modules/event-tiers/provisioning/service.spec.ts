@@ -340,6 +340,49 @@ test.group("ProvisionPurchaseService", (group) => {
 
     assert.isNull(await svc.find("cs_never_happened"));
   });
+
+  test("the Org a purchase creates is self-serve", async ({ assert }) => {
+    const buyer = await makeBuyer("selfserve_new");
+
+    const result = await svc.execute({
+      reference: "cs_selfserve_new",
+      buyerUserId: buyer.id,
+      purchase: purchase(),
+    });
+
+    assert.isTrue(result.org.selfServe);
+    const [stored] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.id, result.org.id));
+    assert.isTrue(stored!.selfServe);
+  });
+
+  test("a purchase for an Org the buyer already administers makes it self-serve", async ({
+    assert,
+  }) => {
+    const buyer = await makeBuyer("selfserve_existing");
+    const [handBuilt] = await db
+      .insert(organizations)
+      .values({ name: "Hand Built", slug: "hand-built" })
+      .returning();
+    await db.insert(orgMemberships).values({
+      orgId: handBuilt!.id,
+      userId: buyer.id,
+      role: "admin",
+      type: "organizer",
+    });
+    assert.isFalse(handBuilt!.selfServe);
+
+    const result = await svc.execute({
+      reference: "cs_selfserve_existing",
+      buyerUserId: buyer.id,
+      purchase: purchase(),
+    });
+
+    assert.equal(result.org.id, handBuilt!.id);
+    assert.isTrue(result.org.selfServe);
+  });
 });
 
 test.group("deriveOrgSlug", () => {

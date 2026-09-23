@@ -105,7 +105,10 @@ export class ProvisionPurchaseService {
         throw new E_NOT_FOUND("No account exists for that user");
       }
 
-      const org = await this.resolveOrg(tx, buyer.id, input.purchase.orgName);
+      const org = await this.markSelfServe(
+        tx,
+        await this.resolveOrg(tx, buyer.id, input.purchase.orgName)
+      );
 
       const event = await this.createEvent(tx, org.id, input.purchase);
 
@@ -189,6 +192,27 @@ export class ProvisionPurchaseService {
       .returning();
 
     return org!;
+  }
+
+  /**
+   * Record that this Org now holds a purchase. From here on its Organizers buy
+   * further events rather than create them (#112), and the flag lives on the
+   * Org, not in the purchase row, so deleting the bought event cannot undo it.
+   * An Org already self-serve is returned as it is.
+   */
+  private async markSelfServe(
+    tx: Transaction,
+    org: typeof organizations.$inferSelect
+  ) {
+    if (org.selfServe) return org;
+
+    const [updated] = await tx
+      .update(organizations)
+      .set({ selfServe: true })
+      .where(eq(organizations.id, org.id))
+      .returning();
+
+    return updated!;
   }
 
   /** The best slug for this Org name that nothing else has taken. */

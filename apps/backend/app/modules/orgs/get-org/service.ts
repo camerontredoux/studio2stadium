@@ -5,7 +5,6 @@ import { organizations, orgMemberships } from "#database/schema/organizations";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { resolveCapabilities } from "#shared/org/entitlement";
 import type { EventTierCapability } from "#shared/org/event-tiers";
-import { isSelfServeOrg } from "#shared/org/self-serve";
 import { hasEventStarted } from "#utils/event-time";
 import { inject } from "@adonisjs/core";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
@@ -75,8 +74,6 @@ export class GetOrgService {
         org.features,
         activeEvent?.eventTier
       );
-
-      const selfServe = await isSelfServeOrg(db, org.id);
 
       let membership: GetOrgResult["membership"] = null;
       let myRoster: GetOrgResult["myRoster"] = null;
@@ -150,7 +147,7 @@ export class GetOrgService {
         myRoster,
         myRosters,
         activeEventCapabilities,
-        selfServe,
+        selfServe: org.selfServe,
       };
     });
   }

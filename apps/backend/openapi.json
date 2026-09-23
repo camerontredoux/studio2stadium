@@ -2333,6 +2333,16 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -11658,6 +11668,9 @@
           "settings": {
             "type": "object",
             "properties": {}
+          },
+          "selfServe": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -11670,7 +11683,8 @@
           "primaryColor",
           "accentColor",
           "features",
-          "settings"
+          "settings",
+          "selfServe"
         ]
       },
       "AdminOrgsIdMembersResponse": {
@@ -12988,6 +13002,9 @@
             "type": "object",
             "properties": {}
           },
+          "selfServe": {
+            "type": "boolean"
+          },
           "membership": {
             "oneOf": [
               {
@@ -13118,9 +13135,6 @@
                 "school_selections"
               ]
             }
-          },
-          "selfServe": {
-            "type": "boolean"
           }
         },
         "required": [
@@ -13132,11 +13146,11 @@
           "accentColor",
           "features",
           "settings",
+          "selfServe",
           "membership",
           "myRoster",
           "myRosters",
-          "activeEventCapabilities",
-          "selfServe"
+          "activeEventCapabilities"
         ]
       },
       "OrgsIdEventsResponse": {

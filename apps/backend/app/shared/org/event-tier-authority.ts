@@ -75,9 +75,10 @@ export class EventTierPurchaseRequiredError extends Error {
 /**
  * Whether this actor may create an Org Event in this Org at all.
  *
- * An Org with at least one Event Tier purchase is self-serve: its Organizers
- * bought their first event at a chosen Event Tier, and further events come
- * only from another purchase or from staff. Letting them create events would
+ * An Org an Event Tier purchase has landed on is self-serve, for good (see
+ * `isSelfServeOrg`): its Organizers bought their first event at a chosen Event
+ * Tier, and further events come only from another purchase or from staff.
+ * Letting them create events would
  * hand a Core customer free Enterprise events through the column default
  * (#112). Staff may create events anywhere, with an explicit Event Tier.
  *

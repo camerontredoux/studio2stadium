@@ -309,6 +309,12 @@ test.group(
       await seedOrganizations();
     });
 
+    // `event_tier_purchases.buyer_id` is ON DELETE RESTRICT, so rows left
+    // behind here would break the blanket `delete(users)` other suites run.
+    group.each.teardown(async () => {
+      await db.delete(eventTierPurchases).execute();
+    });
+
     async function summitId() {
       const [summit] = await db
         .select()
@@ -334,6 +340,22 @@ test.group(
       return ev!;
     }
 
+    /** What provisioning leaves behind: a bought event and a self-serve Org. */
+    async function purchasedEvent(orgId: string, buyerId: string) {
+      const bought = await existingEvent(orgId, "core");
+      await db.insert(eventTierPurchases).values({
+        reference: `cs_test_${Date.now()}_${Math.random()}`,
+        buyerId,
+        eventId: bought.id,
+        eventTier: "core",
+      });
+      await db
+        .update(organizations)
+        .set({ selfServe: true })
+        .where(eq(organizations.id, orgId));
+      return bought;
+    }
+
     const details = {
       name: "Organizer Event",
       startDate: "2026-09-01",
@@ -345,13 +367,7 @@ test.group(
     }) => {
       const organizer = await makeActorUser();
       const orgId = await summitId();
-      const bought = await existingEvent(orgId, "core");
-      await db.insert(eventTierPurchases).values({
-        reference: `cs_test_${Date.now()}`,
-        buyerId: organizer.id,
-        eventId: bought.id,
-        eventTier: "core",
-      });
+      const bought = await purchasedEvent(orgId, organizer.id);
 
       await assert.rejects(
         () => svc.execute(orgId, details, organizer.id, { isStaff: false }),
@@ -372,13 +388,7 @@ test.group(
     }) => {
       const staff = await makeActorUser();
       const orgId = await summitId();
-      const bought = await existingEvent(orgId, "core");
-      await db.insert(eventTierPurchases).values({
-        reference: `cs_test_${Date.now()}`,
-        buyerId: staff.id,
-        eventId: bought.id,
-        eventTier: "core",
-      });
+      await purchasedEvent(orgId, staff.id);
 
       const ev = await svc.execute(
         orgId,
@@ -387,6 +397,29 @@ test.group(
         { isStaff: true }
       );
       assert.equal(ev.eventTier, "national");
+    });
+
+    test("a self-serve Org stays self-serve after its bought event is gone", async ({
+      assert,
+    }) => {
+      const organizer = await makeActorUser();
+      const orgId = await summitId();
+      const bought = await purchasedEvent(orgId, organizer.id);
+
+      // However the event goes — a cascade from above, a hand edit in the
+      // database — its purchase row goes with it. The Org must not fall back
+      // to grandfathered and hand out free Enterprise events.
+      await db.delete(orgEvents).where(eq(orgEvents.id, bought.id));
+      assert.lengthOf(await db.select().from(eventTierPurchases), 0);
+
+      await assert.rejects(
+        () => svc.execute(orgId, details, organizer.id, { isStaff: false }),
+        EventTierPurchaseRequiredError
+      );
+      assert.lengthOf(
+        await db.select().from(orgEvents).where(eq(orgEvents.orgId, orgId)),
+        0
+      );
     });
 
     test("an Organizer of a grandfathered Org still creates events at Enterprise", async ({

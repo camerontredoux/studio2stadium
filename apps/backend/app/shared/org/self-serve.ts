@@ -1,25 +1,29 @@
 import type { db } from "#database/connection";
-import { eventTierPurchases } from "#database/schema/event-tier-purchases";
-import { orgEvents } from "#database/schema/org-events";
+import { organizations } from "#database/schema/organizations";
 import type { Transaction } from "#database/service";
 import { eq } from "drizzle-orm";
 
 /**
- * Whether an Org is self-serve: at least one of its Org Events was bought.
+ * Whether an Org is self-serve: an Event Tier purchase has landed on it.
  *
- * Hand-built Orgs that predate billing have no purchase and are grandfathered
- * (ADR 0006). The difference decides who may create further events — see
- * `assertMayCreateOrgEvent`.
+ * Read from `organizations.self_serve`, which provisioning sets and nothing
+ * clears, rather than from the purchase rows themselves: those hang off Org
+ * Events, and an Organizer who could delete the bought event would otherwise
+ * turn their Org back into a grandfathered one and create events for free
+ * (#112).
+ *
+ * Hand-built Orgs that predate billing never had a purchase and are
+ * grandfathered (ADR 0006). The difference decides who may create further
+ * events — see `assertMayCreateOrgEvent`.
  */
 export async function isSelfServeOrg(
   q: typeof db | Transaction,
   orgId: string
 ): Promise<boolean> {
-  const [purchase] = await q
-    .select({ id: eventTierPurchases.id })
-    .from(eventTierPurchases)
-    .innerJoin(orgEvents, eq(orgEvents.id, eventTierPurchases.eventId))
-    .where(eq(orgEvents.orgId, orgId))
+  const [org] = await q
+    .select({ selfServe: organizations.selfServe })
+    .from(organizations)
+    .where(eq(organizations.id, orgId))
     .limit(1);
-  return purchase !== undefined;
+  return org?.selfServe ?? false;
 }
