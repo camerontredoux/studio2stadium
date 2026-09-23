@@ -14,26 +14,24 @@ export const PURCHASABLE_EVENT_TIERS = EVENT_TIERS.filter(
 export type PurchasableEventTier = (typeof PURCHASABLE_EVENT_TIERS)[number];
 
 /**
- * What the buyer describes about their purchase before paying. A function so
- * the checkout payload and the metadata read back off a completed session
- * (`metadata.ts`) each get their own schema nodes while agreeing on one shape.
+ * What the buyer describes about their purchase before paying: who they are,
+ * and what they are buying.
+ *
+ * The buyer is a name and an email, not an account. Nobody signs in on the
+ * marketing site, and no account is created here — an abandoned checkout must
+ * leave nothing behind. Provisioning finds or creates the account for this
+ * email once the payment lands (ADR 0007).
  */
-const purchaseFields = () => ({
-  eventTier: vine.enum(PURCHASABLE_EVENT_TIERS),
-  orgName: vine.string().trim().minLength(1).maxLength(128),
-  eventName: vine.string().trim().minLength(1).maxLength(160),
-  startDate: vine.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  endDate: vine.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-});
-
 export const schema = vine.create(
   vine.object({
-    userId: vine.string().uuid(),
-    ...purchaseFields(),
+    name: vine.string().trim().minLength(1).maxLength(128),
+    email: vine.string().trim().email().maxLength(254),
+    eventTier: vine.enum(PURCHASABLE_EVENT_TIERS),
+    orgName: vine.string().trim().minLength(1).maxLength(128),
+    eventName: vine.string().trim().minLength(1).maxLength(160),
+    startDate: vine.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    endDate: vine.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   })
 );
-
-/** The purchase half of the payload, as it travels in session metadata. */
-export const purchaseSchema = vine.create(vine.object(purchaseFields()));
 
 export type Validator = Infer<typeof schema>;

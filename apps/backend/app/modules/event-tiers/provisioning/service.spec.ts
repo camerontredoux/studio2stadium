@@ -9,15 +9,25 @@ import {
 import { orgMemberships, organizations } from "#database/schema/organizations";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
+import env from "#start/env";
 import { getUserSession } from "#auth/queries";
+import { passwordTokenKey } from "#modules/auth/password-tokens";
+import { Service as ResetPasswordService } from "#modules/auth/reset-password/service";
 import { GetOrgService } from "#modules/orgs/get-org/service";
 import { ListEventsService } from "#modules/orgs/events/list/service";
 import { grantsOrgAdmin } from "#shared/org/membership";
+import hash from "@adonisjs/core/services/hash";
+import mail from "@adonisjs/mail/services/main";
+import redis from "@adonisjs/redis/services/main";
 import { test } from "@japa/runner";
 import { eq } from "drizzle-orm";
-import { type CheckoutMetadata } from "../checkout/metadata.ts";
-import { UnprovisionableCheckoutError } from "./checkout-session.ts";
-import { ProvisionPurchaseService } from "./service.ts";
+import { type PurchaseDetails } from "../checkout/metadata.ts";
+import OrgReadyEmail from "./email.ts";
+import {
+  organizerUsername,
+  ProvisionPurchaseService,
+  splitName,
+} from "./service.ts";
 import { deriveOrgSlug, orgSlugCandidates } from "./slug.ts";
 
 const svc = new ProvisionPurchaseService(new DatabaseService());
@@ -40,9 +50,23 @@ async function makeBuyer(suffix: string) {
   return buyer!;
 }
 
+/** The pre-checkout form's buyer fields for an existing account. */
+/** The Org-ready emails the fake mailer caught. */
+const orgReadyEmails = (fake: ReturnType<typeof mail.fake>) =>
+  fake.mails
+    .sent()
+    .filter(
+      (message): message is OrgReadyEmail => message instanceof OrgReadyEmail
+    );
+
+const as = (buyer: { email: string }) => ({
+  name: "Ada Organizer",
+  email: buyer.email,
+});
+
 const purchase = (
-  overrides: Partial<CheckoutMetadata> = {}
-): CheckoutMetadata => ({
+  overrides: Partial<PurchaseDetails> = {}
+): PurchaseDetails => ({
   eventTier: "regional",
   orgName: "The Summit",
   eventName: "Summit 2026",
@@ -65,11 +89,13 @@ async function wipe() {
 test.group("ProvisionPurchaseService", (group) => {
   group.each.setup(async () => {
     await wipe();
+    mail.fake();
   });
 
   // `event_tier_purchases.buyer_id` is ON DELETE RESTRICT, so rows left behind
   // here would break the blanket `delete(users)` other suites run.
   group.each.teardown(async () => {
+    mail.restore();
     await db.delete(eventTierPurchases).execute();
   });
 
@@ -80,7 +106,7 @@ test.group("ProvisionPurchaseService", (group) => {
 
     const result = await svc.execute({
       reference: "cs_first",
-      buyerUserId: buyer.id,
+      buyer: as(buyer),
       purchase: purchase({ eventTier: "national" }),
     });
 
@@ -111,7 +137,7 @@ test.group("ProvisionPurchaseService", (group) => {
 
     const result = await svc.execute({
       reference: "cs_payment",
-      buyerUserId: buyer.id,
+      buyer: as(buyer),
       purchase: purchase(),
       paymentIntentId: "pi_payment",
     });
@@ -127,7 +153,7 @@ test.group("ProvisionPurchaseService", (group) => {
 
     const result = await svc.execute({
       reference: "cs_amount",
-      buyerUserId: buyer.id,
+      buyer: as(buyer),
       purchase: purchase(),
       amountTotal: 49900,
       currency: "usd",
@@ -144,7 +170,7 @@ test.group("ProvisionPurchaseService", (group) => {
 
     const result = await svc.execute({
       reference: "cs_admin_area",
-      buyerUserId: buyer.id,
+      buyer: as(buyer),
       purchase: purchase(),
     });
 
@@ -180,7 +206,7 @@ test.group("ProvisionPurchaseService", (group) => {
 
     const first = await svc.execute({
       reference: "cs_active_1",
-      buyerUserId: buyer.id,
+      buyer: as(buyer),
       purchase: purchase(),
     });
 
@@ -193,7 +219,7 @@ test.group("ProvisionPurchaseService", (group) => {
 
     const second = await svc.execute({
       reference: "cs_active_2",
-      buyerUserId: buyer.id,
+      buyer: as(buyer),
       purchase: purchase({ eventName: "Summit 2027" }),
     });
     assert.isFalse(second.event.isActive);
@@ -213,13 +239,13 @@ test.group("ProvisionPurchaseService", (group) => {
 
     const first = await svc.execute({
       reference: "cs_second_1",
-      buyerUserId: buyer.id,
+      buyer: as(buyer),
       purchase: purchase(),
     });
 
     const second = await svc.execute({
       reference: "cs_second_2",
-      buyerUserId: buyer.id,
+      buyer: as(buyer),
       // A different Org name on the second purchase does not fork the tenant:
       // S2S Live is sold per event, not per Org (ADR 0001).
       purchase: purchase({ orgName: "Summit Dance", eventName: "Combine" }),
@@ -256,7 +282,7 @@ test.group("ProvisionPurchaseService", (group) => {
 
     const result = await svc.execute({
       reference: "cs_collision",
-      buyerUserId: buyer.id,
+      buyer: as(buyer),
       purchase: purchase(),
     });
 
@@ -271,7 +297,7 @@ test.group("ProvisionPurchaseService", (group) => {
     const buyer = await makeBuyer("redelivery");
     const input = {
       reference: "cs_redelivered",
-      buyerUserId: buyer.id,
+      buyer: as(buyer),
       purchase: purchase(),
     };
 
@@ -297,7 +323,7 @@ test.group("ProvisionPurchaseService", (group) => {
     try {
       await svc.execute({
         reference: "cs_atomic",
-        buyerUserId: buyer.id,
+        buyer: as(buyer),
         // Longer than `org_events.name`, so the Org is already inserted by the
         // time the event insert fails.
         purchase: purchase({ eventName: "E".repeat(200) }),
@@ -313,38 +339,227 @@ test.group("ProvisionPurchaseService", (group) => {
     assert.lengthOf(await db.select().from(eventTierPurchases), 0);
   });
 
-  test("a buyer id with no account provisions nothing", async ({ assert }) => {
-    let caught: unknown;
-    try {
-      await svc.execute({
-        reference: "cs_no_buyer",
-        buyerUserId: "8f14e45f-ceea-4c9e-b0f5-8a3f3a1e2a2b",
-        purchase: purchase(),
-      });
-    } catch (error) {
-      caught = error;
+  test("a buyer with no account gets one, with their Org, its Org Event and admin membership", async ({
+    assert,
+  }) => {
+    const fake = mail.fake();
+
+    const result = await svc.execute({
+      reference: "cs_new_buyer",
+      buyer: {
+        name: "Grace  Hopper Organizer",
+        email: "Grace.New@Example.com",
+      },
+      purchase: purchase(),
+    });
+
+    const created = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, result.buyer.id));
+    assert.lengthOf(created, 1);
+    const [user] = created;
+    // Stored the way signup stores it: normalized for lookup, as typed for mail.
+    assert.equal(user!.email, "grace.new@example.com");
+    assert.equal(user!.displayEmail, "Grace.New@Example.com");
+    assert.equal(user!.firstName, "Grace");
+    assert.equal(user!.lastName, "Hopper Organizer");
+    assert.equal(user!.role, "user");
+    assert.isTrue(result.buyer.accountCreated);
+    assert.isTrue(result.purchase.buyerAccountCreated);
+    assert.equal(result.purchase.buyerId, user!.id);
+
+    const memberships = await db
+      .select()
+      .from(orgMemberships)
+      .where(eq(orgMemberships.userId, user!.id));
+    assert.lengthOf(memberships, 1);
+    assert.equal(memberships[0]!.orgId, result.org.id);
+    assert.equal(memberships[0]!.type, "organizer");
+    assert.equal(memberships[0]!.role, "admin");
+
+    // Nobody knows its password, so nothing signs in until one is set.
+    for (const guess of ["", "password", user!.email, user!.username]) {
+      assert.isFalse(await hash.verify(user!.password, guess));
     }
 
-    assert.instanceOf(caught, UnprovisionableCheckoutError);
+    // One email, with a set-password link to the reset page.
+    fake.mails.assertSentCount(OrgReadyEmail, 1);
+    const [sent] = orgReadyEmails(fake);
+    assert.equal(sent!.data.to, "Grace.New@Example.com");
+    assert.equal(sent!.data.orgName, "The Summit");
     assert.equal(
-      (caught as UnprovisionableCheckoutError).sessionId,
-      "cs_no_buyer"
+      sent!.data.orgUrl,
+      `${env.get("SITE_URL")}/o/${result.org.slug}/admin`
     );
-    assert.lengthOf(await db.select().from(organizations), 0);
-    assert.lengthOf(await db.select().from(eventTierPurchases), 0);
+    assert.equal(sent!.subject, "Your Org is ready — set your password");
+
+    const link = new URL(sent!.data.setPasswordUrl!);
+    assert.equal(link.origin + link.pathname, `${env.get("SITE_URL")}/reset`);
+    assert.equal(link.searchParams.get("userId"), user!.id);
+
+    // The minted token lives for about a week, under its own key, and the
+    // existing reset-password endpoint accepts it once.
+    assert.isAbove(
+      await redis.ttl(passwordTokenKey("setup", user!.id)),
+      6 * 24 * 60 * 60
+    );
+    const token = link.searchParams.get("token")!;
+    await new ResetPasswordService(new DatabaseService()).execute({
+      userId: user!.id,
+      token,
+      password: "organizer-password",
+    });
+    const [after] = await db
+      .select({ password: users.password })
+      .from(users)
+      .where(eq(users.id, user!.id));
+    assert.isTrue(await hash.verify(after!.password, "organizer-password"));
   });
 
-  test("the buyer is matched on user id, never on the email they share with another account", async ({
+  test("a buyer whose email already has an account is attached to it and told to sign in", async ({
+    assert,
+  }) => {
+    const buyer = await makeBuyer("existing");
+    const fake = mail.fake();
+
+    const result = await svc.execute({
+      reference: "cs_existing",
+      // Typed differently from how signup stored it; the same mailbox.
+      buyer: { name: "Someone Else", email: "Organizer_Existing@Example.com" },
+      purchase: purchase(),
+    });
+
+    assert.equal(result.buyer.id, buyer.id);
+    assert.isFalse(result.buyer.accountCreated);
+    assert.isFalse(result.purchase.buyerAccountCreated);
+    assert.lengthOf(await db.select().from(users), 1);
+
+    const [kept] = await db.select().from(users).where(eq(users.id, buyer.id));
+    assert.equal(kept!.firstName, "Ada");
+    assert.equal(kept!.password, "h");
+
+    fake.mails.assertSentCount(OrgReadyEmail, 1);
+    fake.mails.assertSent(OrgReadyEmail, (message) => {
+      return (
+        message.data.to === buyer.displayEmail &&
+        message.data.setPasswordUrl === null &&
+        message.subject === "Your Org is ready — sign in"
+      );
+    });
+    assert.isNull(await redis.get(passwordTokenKey("setup", buyer.id)));
+  });
+
+  test("a redelivered webhook creates no second account and sends no second email", async ({
+    assert,
+  }) => {
+    const fake = mail.fake();
+    const input = {
+      reference: "cs_retry_new",
+      buyer: { name: "Retry Buyer", email: "retry_new@example.com" },
+      purchase: purchase(),
+    };
+
+    const first = await svc.execute(input);
+    const second = await svc.execute(input);
+
+    assert.isTrue(first.provisioned);
+    assert.isFalse(second.provisioned);
+    assert.equal(second.buyer.id, first.buyer.id);
+    assert.isTrue(second.buyer.accountCreated);
+    assert.lengthOf(
+      await db
+        .select()
+        .from(users)
+        .where(eq(users.email, "retry_new@example.com")),
+      1
+    );
+    assert.lengthOf(await db.select().from(eventTierPurchases), 1);
+    fake.mails.assertSentCount(OrgReadyEmail, 1);
+  });
+
+  test("two purchases racing for the same new email create one account", async ({
+    assert,
+  }) => {
+    const fake = mail.fake();
+    const buyer = { name: "Race Buyer", email: "race_new@example.com" };
+
+    const results = await Promise.all([
+      svc.execute({
+        reference: "cs_race_1",
+        buyer,
+        purchase: purchase({ eventName: "Race One" }),
+      }),
+      svc.execute({
+        reference: "cs_race_2",
+        buyer,
+        purchase: purchase({ eventName: "Race Two" }),
+      }),
+    ]);
+
+    const accounts = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, "race_new@example.com"));
+    assert.lengthOf(accounts, 1);
+    assert.deepEqual(
+      results.map((result) => result.purchase.buyerId),
+      [accounts[0]!.id, accounts[0]!.id]
+    );
+    // Exactly one of them created it, so exactly one set-password link went out.
+    assert.sameMembers(
+      results.map((result) => result.buyer.accountCreated),
+      [true, false]
+    );
+    assert.lengthOf(await db.select().from(eventTierPurchases), 2);
+    fake.mails.assertSentCount(OrgReadyEmail, 2);
+    assert.lengthOf(
+      orgReadyEmails(fake).filter(
+        (message) => message.data.setPasswordUrl !== null
+      ),
+      1
+    );
+  });
+
+  test("a failed email does not undo the purchase", async ({ assert }) => {
+    mail.restore();
+    const send = mail.send;
+    mail.send = (async () => {
+      throw new Error("mail transport down");
+    }) as typeof mail.send;
+
+    try {
+      const result = await svc.execute({
+        reference: "cs_mail_down",
+        buyer: { name: "Offline Buyer", email: "mail_down@example.com" },
+        purchase: purchase(),
+      });
+
+      assert.isTrue(result.provisioned);
+      assert.lengthOf(await db.select().from(eventTierPurchases), 1);
+      assert.lengthOf(
+        await db
+          .select()
+          .from(users)
+          .where(eq(users.email, "mail_down@example.com")),
+        1
+      );
+    } finally {
+      mail.send = send;
+    }
+  });
+
+  test("the buyer is the email typed at checkout; another account is never touched", async ({
     assert,
   }) => {
     const buyer = await makeBuyer("identity");
-    const [impostor] = await db
+    const [finance] = await db
       .insert(users)
       .values({
         username: "finance_dept",
-        // The address a corporate card would bill to (ADR 0004).
-        email: `organizer_identity@example.com.billing`,
-        displayEmail: "organizer_identity@example.com",
+        // The address a corporate card would bill to (PRD story 17).
+        email: "finance@corp.example",
+        displayEmail: "finance@corp.example",
         firstName: "Finance",
         lastName: "Department",
         password: "h",
@@ -355,7 +570,7 @@ test.group("ProvisionPurchaseService", (group) => {
 
     const result = await svc.execute({
       reference: "cs_identity",
-      buyerUserId: buyer.id,
+      buyer: as(buyer),
       purchase: purchase(),
     });
 
@@ -364,7 +579,7 @@ test.group("ProvisionPurchaseService", (group) => {
     const memberships = await db
       .select()
       .from(orgMemberships)
-      .where(eq(orgMemberships.userId, impostor!.id));
+      .where(eq(orgMemberships.userId, finance!.id));
     assert.lengthOf(memberships, 0);
   });
 
@@ -373,7 +588,7 @@ test.group("ProvisionPurchaseService", (group) => {
 
     const result = await svc.execute({
       reference: "cs_roster",
-      buyerUserId: buyer.id,
+      buyer: as(buyer),
       purchase: purchase(),
     });
 
@@ -403,7 +618,7 @@ test.group("ProvisionPurchaseService", (group) => {
 
     const result = await svc.execute({
       reference: "cs_record",
-      buyerUserId: buyer.id,
+      buyer: as(buyer),
       purchase: purchase({ eventTier: "core" }),
     });
 
@@ -423,7 +638,7 @@ test.group("ProvisionPurchaseService", (group) => {
 
     const result = await svc.execute({
       reference: "cs_selfserve_new",
-      buyerUserId: buyer.id,
+      buyer: as(buyer),
       purchase: purchase(),
     });
 
@@ -453,12 +668,34 @@ test.group("ProvisionPurchaseService", (group) => {
 
     const result = await svc.execute({
       reference: "cs_selfserve_existing",
-      buyerUserId: buyer.id,
+      buyer: as(buyer),
       purchase: purchase(),
     });
 
     assert.equal(result.org.id, handBuilt!.id);
     assert.isTrue(result.org.selfServe);
+  });
+});
+
+test.group("new buyer accounts", () => {
+  test("a name splits into first and last name", ({ assert }) => {
+    assert.deepEqual(splitName("  Ada   Lovelace King "), {
+      firstName: "Ada",
+      lastName: "Lovelace King",
+    });
+    assert.deepEqual(splitName("Cher"), { firstName: "Cher", lastName: "" });
+  });
+
+  test("a username is what signup would accept, and unique per call", ({
+    assert,
+  }) => {
+    const first = organizerUsername("Élan O'Brien-Smith");
+    const second = organizerUsername("Élan O'Brien-Smith");
+
+    assert.match(first, /^elanobriensmith[0-9a-f]{8}$/);
+    assert.notEqual(first, second);
+    assert.match(organizerUsername("東京"), /^organizer[0-9a-f]{8}$/);
+    assert.isAtMost(organizerUsername("a".repeat(100)).length, 32);
   });
 });
 

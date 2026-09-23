@@ -1,29 +1,31 @@
 import { test } from "@japa/runner";
-import { toCheckoutMetadata } from "../checkout/metadata.ts";
+import { type CheckoutMetadata } from "../checkout/metadata.ts";
 import {
   toProvisionInput,
   UnprovisionableCheckoutError,
   type CompletedCheckoutSession,
 } from "./checkout-session.ts";
 
-const BUYER_ID = "8f14e45f-ceea-4c9e-b0f5-8a3f3a1e2a2b";
-
 // Exactly what `checkout/service.ts` writes onto the session it creates.
-const metadata = () =>
-  toCheckoutMetadata({
-    userId: BUYER_ID,
-    eventTier: "regional",
-    orgName: "The Summit",
-    eventName: "Summit 2026",
-    startDate: "2026-06-13",
-    endDate: "2026-06-14",
-  });
+const metadata = (): CheckoutMetadata & Record<string, string> => ({
+  name: "Ada Organizer",
+  email: "ada@summit.example",
+  eventTier: "regional",
+  orgName: "The Summit",
+  eventName: "Summit 2026",
+  startDate: "2026-06-13",
+  endDate: "2026-06-14",
+});
+
+const purchase = () => {
+  const { name, email, ...rest } = metadata();
+  return rest;
+};
 
 const session = (
   overrides: Partial<CompletedCheckoutSession> = {}
 ): CompletedCheckoutSession => ({
   id: "cs_test_summit",
-  client_reference_id: BUYER_ID,
   payment_status: "paid",
   metadata: metadata(),
   payment_intent: "pi_test_summit",
@@ -40,8 +42,8 @@ test.group("toProvisionInput", () => {
 
     assert.deepEqual(input, {
       reference: "cs_test_summit",
-      buyerUserId: BUYER_ID,
-      purchase: metadata(),
+      buyer: { name: "Ada Organizer", email: "ada@summit.example" },
+      purchase: purchase(),
       paymentIntentId: "pi_test_summit",
       amountTotal: 49900,
       currency: "usd",
@@ -69,23 +71,27 @@ test.group("toProvisionInput", () => {
     assert.equal(first.reference, redelivered.reference);
   });
 
-  test("the buyer is the user id the session references, not an email", async ({
+  test("the buyer is the email typed at checkout, never the billing email Stripe reports", async ({
     assert,
   }) => {
-    const input = await toProvisionInput(
-      session({
-        metadata: { ...metadata(), email: "finance@corp.example" },
-      })
-    );
+    // What Stripe hands back on a corporate card (PRD story 17) rides along
+    // on the session object; only the metadata names the buyer.
+    const input = await toProvisionInput({
+      ...session(),
+      customer_details: { email: "finance@corp.example" },
+      customer_email: "finance@corp.example",
+    } as CompletedCheckoutSession);
 
-    assert.equal(input.buyerUserId, BUYER_ID);
+    assert.equal(input.buyer.email, "ada@summit.example");
   });
 
-  test("a session with no buyer is surfaced, not dropped", async ({
+  test("a session with no buyer email is surfaced, not dropped", async ({
     assert,
   }) => {
+    const { email, ...withoutEmail } = metadata();
+
     await assert.rejects(
-      () => toProvisionInput(session({ client_reference_id: null })),
+      () => toProvisionInput(session({ metadata: withoutEmail })),
       UnprovisionableCheckoutError
     );
   });

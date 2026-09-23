@@ -1,4 +1,4 @@
-import { purchaseSchema } from "../checkout/validator.ts";
+import { schema as checkoutSchema } from "../checkout/validator.ts";
 import { type ProvisionInput } from "./service.ts";
 
 /**
@@ -9,7 +9,6 @@ import { type ProvisionInput } from "./service.ts";
  */
 export interface CompletedCheckoutSession {
   id: string;
-  client_reference_id: string | null;
   payment_status: string;
   metadata: Record<string, string> | null;
   /** An id, or the expanded PaymentIntent when a caller asked for one. */
@@ -41,11 +40,13 @@ export class UnprovisionableCheckoutError extends Error {
 /**
  * Read a completed one-time Checkout Session as the purchase it paid for.
  *
- * The inverse of what `checkout/service.ts` writes onto the session: the buyer
- * from `client_reference_id` as a user id, never the billing email (ADR 0004),
- * and the Org and Org Event details from `metadata`, re-validated because it is
- * the only record of what the buyer asked for. The session id is the purchase
- * reference, which is what makes a redelivered webhook provision once.
+ * The inverse of what `checkout/service.ts` writes onto the session: the whole
+ * pre-checkout form from `metadata`, re-validated because it is the only record
+ * of what the buyer asked for. The buyer is the name and email they typed there
+ * — never the customer or billing email Stripe reports, which on a corporate
+ * card is often the finance department's (ADR 0007, PRD story 17). The session
+ * id is the purchase reference, which is what makes a redelivered webhook
+ * provision once.
  */
 export async function toProvisionInput(
   session: CompletedCheckoutSession
@@ -59,28 +60,23 @@ export async function toProvisionInput(
     );
   }
 
-  if (!session.client_reference_id) {
-    throw new UnprovisionableCheckoutError(
-      session.id,
-      "it carries no buyer user id"
-    );
-  }
-
-  const [error, purchase] = await purchaseSchema.tryValidate(
+  const [error, metadata] = await checkoutSchema.tryValidate(
     session.metadata ?? {}
   );
 
   if (error) {
     throw new UnprovisionableCheckoutError(
       session.id,
-      "its purchase metadata is missing or invalid",
+      "its buyer or purchase metadata is missing or invalid",
       { cause: error }
     );
   }
 
+  const { name, email, ...purchase } = metadata;
+
   return {
     reference: session.id,
-    buyerUserId: session.client_reference_id,
+    buyer: { name, email },
     purchase,
     paymentIntentId: paymentIntentIdOf(session.payment_intent),
     amountTotal: session.amount_total,

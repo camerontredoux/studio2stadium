@@ -110,6 +110,11 @@ export {
   type EventTierPurchaseDeactivatedEmailProps,
 } from "./templates/EventTierPurchaseDeactivatedEmail.js";
 
+export {
+  EventTierOrgReadyEmail,
+  type EventTierOrgReadyEmailProps,
+} from "./templates/EventTierOrgReadyEmail.js";
+
 // Render utilities
 export { renderEmail, renderEmailText } from "./render.js";
 

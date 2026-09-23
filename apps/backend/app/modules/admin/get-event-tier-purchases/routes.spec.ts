@@ -12,6 +12,7 @@ import { DatabaseService } from "#database/service";
 import { ProvisionPurchaseService } from "#modules/event-tiers/provisioning/service";
 import { resolveCapabilities } from "#shared/org/entitlement";
 import hash from "@adonisjs/core/services/hash";
+import mail from "@adonisjs/mail/services/main";
 import type { ApiClient } from "@japa/api-client";
 import { test } from "@japa/runner";
 import { eq } from "drizzle-orm";
@@ -63,7 +64,7 @@ async function purchase(buyerName: string) {
   const buyer = await makeUser(buyerName, "user");
   const result = await provision.execute({
     reference: `cs_${buyerName}`,
-    buyerUserId: buyer.id,
+    buyer: { name: "Ada Organizer", email: buyer.email },
     purchase: {
       eventTier: "regional",
       orgName: `${buyerName} Dance Co`,
@@ -75,7 +76,7 @@ async function purchase(buyerName: string) {
     amountTotal: 49900,
     currency: "usd",
   });
-  return { buyer, ...result };
+  return { ...result, buyer };
 }
 
 interface PurchaseRow {
@@ -97,11 +98,14 @@ interface PurchaseRow {
 test.group("Admin Event Tier purchases (#92)", (group) => {
   group.each.setup(async () => {
     await wipe();
+    // Provisioning emails the buyer their Org is ready.
+    mail.fake();
   });
 
   // `event_tier_purchases.buyer_id` is ON DELETE RESTRICT; don't leave rows
   // behind for other suites' blanket `delete(users)`.
   group.each.teardown(async () => {
+    mail.restore();
     await db.delete(eventTierPurchases).execute();
   });
 

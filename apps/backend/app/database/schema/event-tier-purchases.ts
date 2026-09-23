@@ -24,7 +24,8 @@ export const eventTierPurchases = pg.pgTable(
   {
     id: pg.uuid().primaryKey().defaultRandom(),
     reference: pg.text().notNull().unique(),
-    // Who bought, by user id and never by billing email (ADR 0004). `restrict`
+    // Who bought: the account provisioning found or created for the email the
+    // buyer typed at checkout, never the billing email (ADR 0007). `restrict`
     // rather than `cascade`: a sale outlives the account that made it, and
     // deleting the buyer should be refused rather than quietly erase the record.
     buyerId: pg
@@ -65,6 +66,10 @@ export const eventTierPurchases = pg.pgTable(
     // The provider's id for what caused it — the refunded charge or the
     // dispute — so staff can find it in Stripe.
     deactivationReference: pg.text(),
+    // Whether this purchase created the buyer's account. Such a buyer has no
+    // password yet and was emailed a set-password link, so the page Checkout
+    // returns them to says "check your email" rather than "sign in".
+    buyerAccountCreated: pg.boolean().notNull().default(false),
     ...timestamps,
   },
   (table) => [pg.index().on(table.buyerId)]

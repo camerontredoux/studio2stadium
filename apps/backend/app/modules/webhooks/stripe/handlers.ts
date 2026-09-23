@@ -101,8 +101,10 @@ export default class WebhookHandlers {
     }
   }
 
-  // A paid Event Tier purchase becomes an Org, its Org Event and the buyer's
-  // organizer admin membership. A translator only: reading the session and
+  // A paid Event Tier purchase becomes the buyer's account (found by, or
+  // created for, the email typed at checkout), an Org, its Org Event and the
+  // buyer's organizer admin membership, and the buyer is emailed how to get
+  // in. A translator only: reading the session and
   // provisioning are both tested on their own. Provisioning is idempotent on
   // the session id, so a redelivered event returns the customer it already
   // built; a session that cannot be provisioned throws, which fails the

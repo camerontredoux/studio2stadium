@@ -12,7 +12,7 @@ router
       .openapi({
         summary: "Create an Event Tier checkout session",
         description:
-          "Creates a one-time payment Checkout Session for the chosen Event Tier. Called by the marketing site before the buyer has a product session.",
+          "Creates a one-time payment Checkout Session for the chosen Event Tier. Called by the marketing site, where nobody signs in: the buyer is the name and email they type, and no account is created here. Once the payment lands, provisioning finds the account for that email or creates one and emails a set-password link.",
       })
       .use(throttle("event-tier-checkout", 10));
     router
@@ -20,7 +20,7 @@ router
       .openapi({
         summary: "Get an Event Tier checkout's provisioning status",
         description:
-          "Called by the marketing site when Checkout returns the buyer, with the session_id Stripe put in the return URL. Answers pending until the payment has been provisioned, then the Org's name and URL.",
+          "Called by the marketing site when Checkout returns the buyer, with the session_id Stripe put in the return URL. Answers pending until the payment has been provisioned, then the Org's name and URL, and nextStep: set_password when the purchase created the buyer's account (they were emailed a link), sign_in when they already had one. Never returns the buyer's email.",
       })
       .use(throttle("event-tier-checkout-status", 60));
   })

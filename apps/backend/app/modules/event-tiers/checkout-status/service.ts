@@ -22,6 +22,12 @@ export type CheckoutStatus =
       /** Where the Organizer signs in to run their Org (user story 15). */
       orgUrl: string;
       eventName: string;
+      /**
+       * How the buyer gets in. `set_password` when the purchase created their
+       * account — the page says to check their email for the set-password
+       * link; `sign_in` when they already had one.
+       */
+      nextStep: "set_password" | "sign_in";
     };
 
 /**
@@ -29,7 +35,10 @@ export type CheckoutStatus =
  *
  * Unauthenticated, like the checkout it follows: the marketing site calls it
  * with the `session_id` Stripe put in the return URL. The session id is only
- * known to whoever paid in it, and all it reveals is an Org's public URL.
+ * known to whoever paid in it. It reveals an Org's public URL and whether the
+ * purchase created the buyer's account, and never the buyer's email: the only
+ * account it says anything about is the one the caller paid with, after a paid
+ * checkout, so it cannot be used to probe whether some address has an account.
  */
 @inject()
 export class Service {
@@ -42,6 +51,7 @@ export class Service {
           orgName: organizations.name,
           orgSlug: organizations.slug,
           eventName: orgEvents.name,
+          buyerAccountCreated: eventTierPurchases.buyerAccountCreated,
         })
         .from(eventTierPurchases)
         .innerJoin(orgEvents, eq(orgEvents.id, eventTierPurchases.eventId))
@@ -52,10 +62,13 @@ export class Service {
 
     if (!row) return { status: "pending" };
 
+    const { buyerAccountCreated, ...org } = row;
+
     return {
       status: "provisioned",
-      ...row,
+      ...org,
       orgUrl: `${env.get("SITE_URL")}/o/${row.orgSlug}/admin`,
+      nextStep: buyerAccountCreated ? "set_password" : "sign_in",
     };
   }
 }

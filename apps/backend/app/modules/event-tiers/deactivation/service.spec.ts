@@ -63,7 +63,7 @@ async function makeLivePurchase(suffix = "live") {
   const buyer = await makeUser(`buyer_${suffix}`);
   const result = await provision.execute({
     reference: `cs_${suffix}`,
-    buyerUserId: buyer.id,
+    buyer: { name: "Ada Organizer", email: buyer.email },
     paymentIntentId: `pi_${suffix}`,
     purchase: {
       eventTier: "regional",
@@ -79,7 +79,7 @@ async function makeLivePurchase(suffix = "live") {
     .set({ isActive: true })
     .where(eq(orgEvents.id, result.event.id));
 
-  return { buyer, ...result };
+  return { ...result, buyer };
 }
 
 /**
@@ -391,7 +391,8 @@ test.group("DeactivatePurchaseService", (group) => {
 
     assert.equal(result.outcome, "not_an_event_tier_purchase");
     assert.isTrue(await isActive(event.id));
-    fake.mails.assertNoneSent();
+    // The purchase itself emailed its buyer; staff hear nothing.
+    fake.mails.assertNotSent(PurchaseDeactivatedEmail);
   });
 
   test("only the purchased event is stood down; the Org's other events are untouched and none is promoted", async ({

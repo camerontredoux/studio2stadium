@@ -1,13 +1,20 @@
 import { eventTierPurchases } from "#database/schema/event-tier-purchases";
 import { orgEvents } from "#database/schema/org-events";
 import { orgMemberships, organizations } from "#database/schema/organizations";
-import { users } from "#database/schema/users";
+import { platforms, users } from "#database/schema/users";
 import { DatabaseService, type Transaction } from "#database/service";
 import { E_DATABASE_ERROR } from "#exceptions/database";
+import { mintPasswordToken } from "#modules/auth/password-tokens";
+import env from "#start/env";
+import { normalizeEmail } from "#utils/normalize-email";
 import { inject } from "@adonisjs/core";
+import hash from "@adonisjs/core/services/hash";
+import logger from "@adonisjs/core/services/logger";
+import * as Sentry from "@sentry/node";
 import { and, asc, eq, inArray } from "drizzle-orm";
-import { type CheckoutMetadata } from "../checkout/metadata.ts";
-import { UnprovisionableCheckoutError } from "./checkout-session.ts";
+import { randomBytes } from "node:crypto";
+import { type PurchaseDetails } from "../checkout/metadata.ts";
+import { OrgReadyEvent } from "./event.ts";
 import { orgSlugCandidates } from "./slug.ts";
 
 /**
@@ -25,13 +32,14 @@ export interface ProvisionInput {
    */
   reference: string;
   /**
-   * The buyer, from `client_reference_id`. A user id and never an email: a
-   * corporate card carries the finance department's address, and matching on it
-   * provisions Orgs the buyer cannot log into (ADR 0004).
+   * The buyer, as they named themselves in the pre-checkout form. The email is
+   * the one they typed there and never Stripe's billing email: a corporate
+   * card carries the finance department's address, and matching on it
+   * provisions Orgs the buyer cannot log into (ADR 0007, PRD story 17).
    */
-  buyerUserId: string;
+  buyer: PurchaseBuyer;
   /** What was bought, as the buyer described it before paying. */
-  purchase: CheckoutMetadata;
+  purchase: PurchaseDetails;
   /**
    * The payment that settled the purchase — the session's PaymentIntent.
    * Recorded so a later refund or dispute, which names the payment rather than
@@ -48,10 +56,29 @@ export interface ProvisionInput {
   currency?: string | null;
 }
 
+export interface PurchaseBuyer {
+  name: string;
+  email: string;
+}
+
+/** The account a purchase landed on. */
+export interface ProvisionedBuyer {
+  id: string;
+  firstName: string;
+  /** The account's own address, which is where its emails go. */
+  email: string;
+  /**
+   * Whether this purchase created the account. Such an account has no
+   * password anyone knows, and its owner is emailed a link to set one.
+   */
+  accountCreated: boolean;
+}
+
 export interface ProvisionResult {
   purchase: typeof eventTierPurchases.$inferSelect;
   org: typeof organizations.$inferSelect;
   event: typeof orgEvents.$inferSelect;
+  buyer: ProvisionedBuyer;
   /**
    * False when this reference had already been provisioned, in which case
    * nothing was written and the rows returned are the ones the first delivery
@@ -68,27 +95,42 @@ export class ProvisionPurchaseService {
   constructor(private db: DatabaseService) {}
 
   /**
-   * Turn a completed purchase into a working customer: an Org, its Org Event at
-   * the Event Tier that was bought, the buyer's organizer admin membership, and
-   * the record of the sale.
+   * Turn a completed purchase into a working customer: the buyer's account
+   * (found by the email they typed, or created for it), an Org, its Org Event
+   * at the Event Tier that was bought, the buyer's organizer admin membership,
+   * and the record of the sale.
    *
    * All of it or none of it. A half-provisioned customer — an Org with no event,
    * or an event nobody can administer — is worse than a failed purchase, so this
-   * is one transaction and a failure part-way leaves nothing behind.
+   * is one transaction and a failure part-way leaves nothing behind, the new
+   * account included.
+   *
+   * The buyer is told their Org is ready only after that commits, and only by
+   * the delivery that provisioned it: a redelivered webhook finds the purchase
+   * recorded and sends nothing.
    */
   async execute(input: ProvisionInput): Promise<ProvisionResult> {
+    const email = await normalizeEmail(input.buyer.email);
+
+    let result: ProvisionResult;
     try {
-      return await this.provision(input);
+      result = await this.provision(input, email);
     } catch (error) {
       // Two provisions racing — a redelivered webhook arriving while the first
-      // is still open, or another Org claiming the slug we picked between our
-      // read and our insert. Both are lost races rather than bad input, and the
-      // whole attempt has already rolled back, so the retry starts clean: it
-      // finds the purchase already recorded, or draws another slug.
+      // is still open, two purchases creating an account for the same new
+      // email, or another Org claiming the slug we picked between our read and
+      // our insert. All are lost races rather than bad input, and the whole
+      // attempt has already rolled back, so the retry starts clean: it finds
+      // the purchase already recorded, finds the account the other purchase
+      // created, or draws another slug.
       if (!isUniqueViolation(error)) throw error;
 
-      return await this.provision(input);
+      result = await this.provision(input, email);
     }
+
+    if (result.provisioned) await this.welcomeBuyer(result);
+
+    return result;
   }
 
   /** The recorded sale for a purchase reference, if it has been provisioned. */
@@ -104,25 +146,15 @@ export class ProvisionPurchaseService {
     });
   }
 
-  private async provision(input: ProvisionInput): Promise<ProvisionResult> {
+  private async provision(
+    input: ProvisionInput,
+    email: string
+  ): Promise<ProvisionResult> {
     return await this.db.tx(async (tx) => {
       const already = await this.findProvisioned(tx, input.reference);
       if (already) return already;
 
-      const [buyer] = await tx
-        .select({ id: users.id })
-        .from(users)
-        .where(eq(users.id, input.buyerUserId))
-        .limit(1);
-
-      // Somebody paid, so this is one more purchase that cannot be
-      // provisioned, reported as such, not a lookup that missed.
-      if (!buyer) {
-        throw new UnprovisionableCheckoutError(
-          input.reference,
-          "no account exists for its buyer user id"
-        );
-      }
+      const buyer = await this.resolveBuyer(tx, input.buyer, email);
 
       const org = await this.markSelfServe(
         tx,
@@ -155,10 +187,11 @@ export class ProvisionPurchaseService {
           paymentIntentId: input.paymentIntentId ?? null,
           amountTotal: input.amountTotal ?? null,
           currency: input.currency ?? null,
+          buyerAccountCreated: buyer.accountCreated,
         })
         .returning();
 
-      return { purchase: purchase!, org, event, provisioned: true };
+      return { purchase: purchase!, org, event, buyer, provisioned: true };
     });
   }
 
@@ -171,14 +204,127 @@ export class ProvisionPurchaseService {
         purchase: eventTierPurchases,
         org: organizations,
         event: orgEvents,
+        buyer: {
+          id: users.id,
+          firstName: users.firstName,
+          email: users.displayEmail,
+        },
       })
       .from(eventTierPurchases)
       .innerJoin(orgEvents, eq(orgEvents.id, eventTierPurchases.eventId))
       .innerJoin(organizations, eq(organizations.id, orgEvents.orgId))
+      .innerJoin(users, eq(users.id, eventTierPurchases.buyerId))
       .where(eq(eventTierPurchases.reference, reference))
       .limit(1);
 
-    return row ? { ...row, provisioned: false } : null;
+    if (!row) return null;
+
+    return {
+      ...row,
+      buyer: {
+        ...row.buyer,
+        accountCreated: row.purchase.buyerAccountCreated,
+      },
+      provisioned: false,
+    };
+  }
+
+  /**
+   * The account this purchase belongs to: the one already registered to the
+   * buyer's email, or a new one created for it.
+   *
+   * A new account is an ordinary core-platform user — `users.type` has no
+   * Organizer, which is a membership type (ADR 0003) — named as the buyer
+   * named themselves, with no profile and no password anyone knows. Its hash
+   * is of a random secret that is thrown away, so nothing can sign in until
+   * the owner sets a password through the link `welcomeBuyer` emails.
+   *
+   * Looked up by the normalized email, the way signup stores it, so a buyer
+   * who already signed up under an alias of the same mailbox is found rather
+   * than given a second account. Two purchases creating the same account at
+   * once meet on the unique email: the loser rolls back and its retry finds
+   * the winner's account.
+   */
+  private async resolveBuyer(
+    tx: Transaction,
+    buyer: PurchaseBuyer,
+    email: string
+  ): Promise<ProvisionedBuyer> {
+    const [existing] = await tx
+      .select({
+        id: users.id,
+        firstName: users.firstName,
+        email: users.displayEmail,
+      })
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    if (existing) return { ...existing, accountCreated: false };
+
+    const { firstName, lastName } = splitName(buyer.name);
+
+    const [created] = await tx
+      .insert(users)
+      .values({
+        email,
+        displayEmail: buyer.email,
+        password: await hash.make(randomBytes(32).toString("hex")),
+        firstName,
+        lastName,
+        username: organizerUsername(buyer.name),
+        role: "user",
+        type: "dancer",
+      })
+      .returning({
+        id: users.id,
+        firstName: users.firstName,
+        email: users.displayEmail,
+      });
+
+    await tx.insert(platforms).values({
+      platformName: "core",
+      userId: created!.id,
+    });
+
+    return { ...created!, accountCreated: true };
+  }
+
+  /**
+   * Tell the buyer their Org is ready and how to get in: a single-use link to
+   * set their password when this purchase created their account, or a nudge
+   * to sign in when they already had one.
+   *
+   * After the commit, so nobody is emailed about an Org that rolled back, and
+   * never fatal: the purchase is provisioned, and failing the webhook now would
+   * only make Stripe redeliver an event that finds nothing left to do. A buyer
+   * whose email was lost can still get in through "Forgot password".
+   */
+  private async welcomeBuyer(result: ProvisionResult) {
+    const { buyer, org, event } = result;
+
+    try {
+      const setPasswordUrl = buyer.accountCreated
+        ? `${env.get("SITE_URL")}/reset?token=${await mintPasswordToken("setup", buyer.id)}&userId=${buyer.id}`
+        : null;
+
+      await OrgReadyEvent.dispatch({
+        to: buyer.email,
+        firstName: buyer.firstName,
+        orgName: org.name,
+        orgUrl: `${env.get("SITE_URL")}/o/${org.slug}/admin`,
+        eventName: event.name,
+        setPasswordUrl,
+      });
+    } catch (error) {
+      logger.error(
+        { err: error, purchaseId: result.purchase.id, buyerId: buyer.id },
+        "Failed to email the buyer of a provisioned Event Tier purchase"
+      );
+      Sentry.captureException(error, {
+        extra: { purchaseId: result.purchase.id, buyerId: buyer.id },
+      });
+    }
   }
 
   /**
@@ -284,7 +430,7 @@ export class ProvisionPurchaseService {
   private async createEvent(
     tx: Transaction,
     orgId: string,
-    purchase: CheckoutMetadata
+    purchase: PurchaseDetails
   ) {
     const [event] = await tx
       .insert(orgEvents)
@@ -299,4 +445,32 @@ export class ProvisionPurchaseService {
 
     return event!;
   }
+}
+
+/**
+ * A person's name as one field, split the way the rest of the product stores
+ * it. Everything after the first word is the last name, which may be empty for
+ * a buyer who gave one name.
+ */
+export function splitName(name: string) {
+  const [firstName = "", ...rest] = name.trim().split(/\s+/);
+
+  return { firstName, lastName: rest.join(" ") };
+}
+
+/**
+ * A username for an account a purchase creates. The buyer never chose one, so
+ * it is their name, reduced to what signup allows (letters and digits, at most
+ * 32), with a random suffix that keeps it unique and off signup's reserved
+ * list.
+ */
+export function organizerUsername(name: string) {
+  const base =
+    name
+      .normalize("NFKD")
+      .replace(/[^A-Za-z0-9]/g, "")
+      .toLowerCase()
+      .slice(0, 20) || "organizer";
+
+  return `${base}${randomBytes(4).toString("hex")}`;
 }
