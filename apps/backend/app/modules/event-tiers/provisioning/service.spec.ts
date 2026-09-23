@@ -44,6 +44,9 @@ async function makeBuyer(suffix: string) {
       password: "h",
       role: "user",
       type: "dancer",
+      // Proved they read the inbox, so a purchase attaches straight away. An
+      // account without this needs a claim (ADR 0007).
+      emailVerifiedAt: new Date(),
     })
     .returning();
 

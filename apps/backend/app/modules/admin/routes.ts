@@ -53,6 +53,8 @@ const DeleteSchoolVideoController = () =>
   import("#modules/admin/delete-school-video/controller");
 const GetEventTierPurchasesController = () =>
   import("#modules/admin/get-event-tier-purchases/controller");
+const ResendEventTierClaimController = () =>
+  import("#modules/admin/resend-event-tier-claim/controller");
 const GetAllOrgsController = () =>
   import("#modules/admin/get-all-orgs/controller");
 const CreateOrgController = () =>
@@ -246,7 +248,17 @@ router
       .openapi({
         summary: "Get all Event Tier purchases",
         description:
-          "Returns every Event Tier purchase, newest first: buyer, amount charged, Event Tier sold, the Org Event it bought with its current Event Tier, and who last changed that tier by hand",
+          "Returns every Event Tier purchase, newest first: buyer, amount charged, Event Tier sold, the Org Event it bought with its current Event Tier, and who last changed that tier by hand, and whether it is awaiting its buyer's claim",
+      });
+
+    router
+      .post("event-tier-purchases/:id/claim-email", [
+        ResendEventTierClaimController,
+      ])
+      .openapi({
+        summary: "Resend an Event Tier purchase's claim email",
+        description:
+          "Emails the buyer of a purchase that is awaiting its claim a fresh claim link, to the account's own address. The fresh link replaces the earlier one. 409 when the purchase is not awaiting a claim, 404 when there is no such purchase",
       });
 
     router.get("orgs", [GetAllOrgsController]).openapi({

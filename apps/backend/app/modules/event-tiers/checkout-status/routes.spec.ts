@@ -40,8 +40,9 @@ async function makeBuyer() {
       password: "h",
       role: "user",
       type: "dancer",
-      // Signed up and confirmed their email: the account is theirs (ADR 0007).
       verified: true,
+      // Proved they read the inbox: the Org attaches straight away (ADR 0007).
+      emailVerifiedAt: new Date(),
     })
     .returning();
 

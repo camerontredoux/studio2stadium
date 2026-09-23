@@ -1071,7 +1071,51 @@
           "Admin"
         ],
         "summary": "Get all Event Tier purchases",
-        "description": "Returns every Event Tier purchase, newest first: buyer, amount charged, Event Tier sold, the Org Event it bought with its current Event Tier, and who last changed that tier by hand"
+        "description": "Returns every Event Tier purchase, newest first: buyer, amount charged, Event Tier sold, the Org Event it bought with its current Event Tier, and who last changed that tier by hand, and whether it is awaiting its buyer's claim"
+      }
+    },
+    "/admin/event-tier-purchases/{id}/claim-email": {
+      "post": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Resend an Event Tier purchase's claim email",
+        "description": "Emails the buyer of a purchase that is awaiting its claim a fresh claim link, to the account's own address. The fresh link replaces the earlier one. 409 when the purchase is not awaiting a claim, 404 when there is no such purchase"
       }
     },
     "/admin/orgs": {
@@ -7923,7 +7967,47 @@
           "Event Tiers"
         ],
         "summary": "Get an Event Tier checkout's provisioning status",
-        "description": "Called by the marketing site when Checkout returns the buyer, with the session_id Stripe put in the return URL. Answers pending until the payment has been provisioned, then the Org's name and URL, and nextStep: set_password when the purchase created the buyer's account (they were emailed a link), sign_in when they already had one. Never returns the buyer's email."
+        "description": "Called by the marketing site when Checkout returns the buyer, with the session_id Stripe put in the return URL. Answers pending until the payment has been provisioned, then the Org's name and URL, and nextStep: set_password when the buyer was emailed a set-password link (the purchase created their account), claim when the purchase landed on an existing account whose owner has not proved they read its inbox (they were emailed a claim link, and the Org is theirs once they open it signed in), sign_in when they already had an account the Org was attached to. Never returns the buyer's email."
+      }
+    },
+    "/event-tiers/claim": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventtiersClaimRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventtiersClaimResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Event Tiers"
+        ],
+        "summary": "Claim an Org bought for your account",
+        "description": "Called by the product's claim page, signed in, with the token and userId from the claim link a purchase emailed. Refused with 403 when the signed-in user is not the account the link was sent for, and 400 when the token is wrong, expired or already used. Otherwise gives the user the organizer admin membership of every Org bought for their account that is awaiting a claim, records that they read the account's inbox, and returns every Org they have claimed. Idempotent."
       }
     },
     "/events": {
@@ -11678,6 +11762,9 @@
                 "slug"
               ]
             },
+            "awaitingClaim": {
+              "type": "boolean"
+            },
             "buyer": {
               "type": "object",
               "properties": {
@@ -11784,6 +11871,7 @@
             "deactivationReason",
             "deactivationReference",
             "org",
+            "awaitingClaim",
             "buyer",
             "lastEventTierChange"
           ]
@@ -20432,6 +20520,51 @@
         },
         "required": [
           "clientSecret"
+        ]
+      },
+      "EventtiersClaimRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId",
+          "token"
+        ]
+      },
+      "EventtiersClaimResponse": {
+        "type": "object",
+        "properties": {
+          "orgs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "slug",
+                "url"
+              ]
+            }
+          }
+        },
+        "required": [
+          "orgs"
         ]
       },
       "EventsResponse": {

@@ -78,6 +78,21 @@ return 0
 `;
 
 /**
+ * Delete the token hash stored at `key` if it is `hashed`, atomically.
+ * `spent` when it was, `mismatch` when another hash is stored there, and
+ * `missing` when nothing is. Shared with the other emailed single-use tokens
+ * (the Org claim link) so they are spent the same way.
+ */
+export async function spendHashedToken(
+  key: string,
+  hashed: string
+): Promise<"spent" | "mismatch" | "missing"> {
+  const result = await redis.eval(CONSUME_IF_MATCHES, 1, key, hashed);
+  if (result === 1) return "spent";
+  return result === 0 ? "mismatch" : "missing";
+}
+
+/**
  * Spend a token from either purpose. `missing` when the user has no pending
  * token at all (expired or never issued), `invalid` when one is pending but
  * this is not it. A consumed token is deleted atomically, so a link works
@@ -94,15 +109,13 @@ export async function consumePasswordToken(
   for (const purpose of Object.keys(
     PASSWORD_TOKEN_PURPOSES
   ) as PasswordTokenPurpose[]) {
-    const result = await redis.eval(
-      CONSUME_IF_MATCHES,
-      1,
+    const result = await spendHashedToken(
       passwordTokenKey(purpose, userId),
       hashed
     );
 
-    if (result === 1) return { outcome: "consumed", purpose };
-    if (result === 0) pending = true;
+    if (result === "spent") return { outcome: "consumed", purpose };
+    if (result === "mismatch") pending = true;
   }
 
   return { outcome: pending ? "invalid" : "missing" };

@@ -27,9 +27,13 @@ export type CheckoutStatus =
        * How the buyer gets in. `set_password` when the purchase created their
        * account, or their account still has an unspent set-password link from
        * an earlier purchase — the page says to check their email for the
-       * set-password link; `sign_in` when they already had a password.
+       * set-password link. `claim` when the purchase landed on an existing
+       * account whose owner has not proved they read its inbox and the Org is
+       * awaiting its claim — the page says to check their email to claim it
+       * (ADR 0007). `sign_in` when they already had a password and the Org is
+       * theirs.
        */
-      nextStep: "set_password" | "sign_in";
+      nextStep: "set_password" | "claim" | "sign_in";
     };
 
 /**
@@ -55,6 +59,8 @@ export class Service {
           eventName: orgEvents.name,
           buyerId: eventTierPurchases.buyerId,
           buyerAccountCreated: eventTierPurchases.buyerAccountCreated,
+          claimRequired: eventTierPurchases.claimRequired,
+          claimedAt: eventTierPurchases.claimedAt,
         })
         .from(eventTierPurchases)
         .innerJoin(orgEvents, eq(orgEvents.id, eventTierPurchases.eventId))
@@ -65,18 +71,25 @@ export class Service {
 
     if (!row) return { status: "pending" };
 
-    const { buyerId, buyerAccountCreated, ...org } = row;
-
-    // The same rule the Org-ready email follows, so the page and the email
-    // agree on whether a set-password link is on its way.
-    const setsPassword =
-      buyerAccountCreated || (await hasPendingPasswordToken("setup", buyerId));
+    const { buyerId, buyerAccountCreated, claimRequired, claimedAt, ...org } =
+      row;
 
     return {
       status: "provisioned",
       ...org,
       orgUrl: `${env.get("SITE_URL")}/o/${row.orgSlug}/admin`,
-      nextStep: setsPassword ? "set_password" : "sign_in",
+      nextStep: await nextStep(),
     };
+
+    // The same rules the Org-ready email follows, so the page and the email
+    // agree on which link is on its way. A claimed Org is the buyer's, and
+    // they sign in to reach it.
+    async function nextStep(): Promise<"set_password" | "claim" | "sign_in"> {
+      if (claimRequired) return claimedAt ? "sign_in" : "claim";
+      const setsPassword =
+        buyerAccountCreated ||
+        (await hasPendingPasswordToken("setup", buyerId));
+      return setsPassword ? "set_password" : "sign_in";
+    }
   }
 }

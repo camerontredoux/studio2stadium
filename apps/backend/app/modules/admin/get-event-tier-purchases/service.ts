@@ -40,7 +40,8 @@ const personColumns = {
  * Every Event Tier purchase, newest first, as staff answer billing questions
  * from it (#92): who bought, what they paid, at which Event Tier, for which Org
  * Event — and, beside the tier that was sold, the tier the event is at now and
- * who last changed it by hand, since the two can differ.
+ * who last changed it by hand, since the two can differ — and whether the Org
+ * is still awaiting its buyer's claim.
  */
 @inject()
 export class Service {
@@ -60,6 +61,10 @@ export class Service {
           deactivationReason: eventTierPurchases.deactivationReason,
           deactivationReference: eventTierPurchases.deactivationReference,
           createdAt: eventTierPurchases.createdAt,
+          // Provisioned for an account nobody had proved they own, and not
+          // yet claimed by the owner of its inbox, so nobody administers the
+          // Org yet (ADR 0007).
+          awaitingClaim: sql<boolean>`${eventTierPurchases.claimRequired} and ${eventTierPurchases.claimedAt} is null`,
           buyer: personColumns,
           event: {
             id: orgEvents.id,

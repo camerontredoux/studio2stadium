@@ -45,6 +45,8 @@ async function makeUser(name: string, role: "admin" | "user") {
       role,
       type: "dancer",
       verified: true,
+      // Proved they read the inbox: a purchase attaches straight away.
+      emailVerifiedAt: new Date(),
     })
     .returning();
   return user!;

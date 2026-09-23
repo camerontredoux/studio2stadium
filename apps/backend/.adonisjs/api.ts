@@ -111,6 +111,10 @@ type AdminEventtierpurchasesGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/admin/get-event-tier-purchases/controller.ts').default['handle'], false>
 }
+type AdminEventtierpurchasesIdClaimemailPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/resend-event-tier-claim/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/resend-event-tier-claim/controller.ts').default['handle'], true>
+}
 type AdminOrgsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/admin/get-all-orgs/controller.ts').default['handle'], false>
@@ -719,6 +723,10 @@ type EventtiersCheckoutIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/event-tiers/checkout-status/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/event-tiers/checkout-status/controller.ts').default['handle'], true>
 }
+type EventtiersClaimPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/event-tiers/claim/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/event-tiers/claim/controller.ts').default['handle'], true>
+}
 type EventsFiltersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/events/get-event-filters/controller.ts').default['handle'], false>
@@ -1087,6 +1095,13 @@ export interface ApiDefinition {
       };
       '$get': AdminEventtierpurchasesGetHead;
       '$head': AdminEventtierpurchasesGetHead;
+      ':id': {
+        'claim-email': {
+          '$url': {
+          };
+          '$post': AdminEventtierpurchasesIdClaimemailPost;
+        };
+      };
     };
     'orgs': {
       '$url': {
@@ -1869,6 +1884,11 @@ export interface ApiDefinition {
         '$get': EventtiersCheckoutIdGetHead;
         '$head': EventtiersCheckoutIdGetHead;
       };
+    };
+    'claim': {
+      '$url': {
+      };
+      '$post': EventtiersClaimPost;
     };
   };
   'events': {

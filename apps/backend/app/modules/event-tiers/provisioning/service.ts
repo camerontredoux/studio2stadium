@@ -10,6 +10,7 @@ import {
 } from "#modules/auth/password-tokens";
 import env from "#start/env";
 import { normalizeEmail } from "#utils/normalize-email";
+import { emailClaimLink } from "../claim/notify.ts";
 import { inject } from "@adonisjs/core";
 import hash from "@adonisjs/core/services/hash";
 import logger from "@adonisjs/core/services/logger";
@@ -75,6 +76,14 @@ export interface ProvisionedBuyer {
    * password anyone knows, and its owner is emailed a link to set one.
    */
   accountCreated: boolean;
+  /**
+   * Whether the purchase landed on an existing account nobody has proved they
+   * own the inbox of (ADR 0007). Signup does not check that, so the account
+   * may belong to someone other than the buyer. The Org is provisioned
+   * without the buyer's admin membership, and the owner of the address is
+   * emailed a link to claim it.
+   */
+  claimRequired: boolean;
 }
 
 export interface ProvisionResult {
@@ -159,9 +168,14 @@ export class ProvisionPurchaseService {
 
       const buyer = await this.resolveBuyer(tx, input.buyer, email);
 
+      // An account awaiting a claim may be run by whoever registered the
+      // address, and so may any Org it administers: the purchase gets an Org
+      // of its own rather than joining one of those.
       const org = await this.markSelfServe(
         tx,
-        await this.resolveOrg(tx, buyer.id, input.purchase.orgName)
+        buyer.claimRequired
+          ? await this.createOrg(tx, input.purchase.orgName)
+          : await this.resolveOrg(tx, buyer.id, input.purchase.orgName)
       );
 
       const event = await this.createEvent(tx, org.id, input.purchase);
@@ -169,16 +183,20 @@ export class ProvisionPurchaseService {
       // The buyer administers the Org they bought for. `organizer`, never
       // `coach`: an Organizer runs the event rather than recruiting at it (ADR
       // 0003). A buyer whose second purchase lands on an Org they already
-      // administer keeps the membership they have.
-      await tx
-        .insert(orgMemberships)
-        .values({
-          orgId: org.id,
-          userId: buyer.id,
-          role: "admin",
-          type: "organizer",
-        })
-        .onConflictDoNothing();
+      // administer keeps the membership they have. An account awaiting a claim
+      // gets the membership only when the owner of its inbox claims the Org
+      // (`claim/complete.ts`).
+      if (!buyer.claimRequired) {
+        await tx
+          .insert(orgMemberships)
+          .values({
+            orgId: org.id,
+            userId: buyer.id,
+            role: "admin",
+            type: "organizer",
+          })
+          .onConflictDoNothing();
+      }
 
       const [purchase] = await tx
         .insert(eventTierPurchases)
@@ -191,6 +209,7 @@ export class ProvisionPurchaseService {
           amountTotal: input.amountTotal ?? null,
           currency: input.currency ?? null,
           buyerAccountCreated: buyer.accountCreated,
+          claimRequired: buyer.claimRequired,
         })
         .returning();
 
@@ -227,6 +246,7 @@ export class ProvisionPurchaseService {
       buyer: {
         ...row.buyer,
         accountCreated: row.purchase.buyerAccountCreated,
+        claimRequired: row.purchase.claimRequired,
       },
       provisioned: false,
     };
@@ -235,6 +255,14 @@ export class ProvisionPurchaseService {
   /**
    * The account this purchase belongs to: the one already registered to the
    * buyer's email, or a new one created for it.
+   *
+   * An existing account gets the Org straight away only when someone has
+   * proved they read its inbox: `users.emailVerifiedAt` is set (they used a
+   * password or claim link), or an earlier purchase created the account, whose
+   * password can only have been set through a link sent to that inbox. Signup
+   * does not check that the person owns the address, and `users.verified` is
+   * no proof either — a dancer sets it by finishing onboarding. Any other
+   * account needs a claim (ADR 0007).
    *
    * A new account is an ordinary core-platform user — `users.type` has no
    * Organizer, which is a membership type (ADR 0003) — named as the buyer
@@ -258,12 +286,20 @@ export class ProvisionPurchaseService {
         id: users.id,
         firstName: users.firstName,
         email: users.displayEmail,
+        emailVerifiedAt: users.emailVerifiedAt,
       })
       .from(users)
       .where(eq(users.email, email))
       .limit(1);
 
-    if (existing) return { ...existing, accountCreated: false };
+    if (existing) {
+      const { emailVerifiedAt, ...account } = existing;
+      const ownsInbox =
+        emailVerifiedAt !== null ||
+        (await this.createdByPurchase(tx, account.id));
+
+      return { ...account, accountCreated: false, claimRequired: !ownsInbox };
+    }
 
     const { firstName, lastName } = splitName(buyer.name);
 
@@ -290,13 +326,30 @@ export class ProvisionPurchaseService {
       userId: created!.id,
     });
 
-    return { ...created!, accountCreated: true };
+    return { ...created!, accountCreated: true, claimRequired: false };
+  }
+
+  /** Whether an earlier purchase created this account. */
+  private async createdByPurchase(tx: Transaction, userId: string) {
+    const [row] = await tx
+      .select({ id: eventTierPurchases.id })
+      .from(eventTierPurchases)
+      .where(
+        and(
+          eq(eventTierPurchases.buyerId, userId),
+          eq(eventTierPurchases.buyerAccountCreated, true)
+        )
+      )
+      .limit(1);
+
+    return row !== undefined;
   }
 
   /**
    * Tell the buyer their Org is ready and how to get in: a single-use link to
-   * set their password when their account has none they know, or a nudge to
-   * sign in when they already had one.
+   * set their password when their account has none they know, a single-use
+   * link to claim the Org when the account needs a claim, or a nudge to sign
+   * in when they already had one.
    *
    * An account has no password its owner knows when this purchase created it,
    * or when an earlier purchase created it and its set-password link is still
@@ -314,6 +367,11 @@ export class ProvisionPurchaseService {
     const { buyer, org, event } = result;
 
     try {
+      if (buyer.claimRequired) {
+        await emailClaimLink({ buyer, org, event });
+        return;
+      }
+
       const needsPassword =
         buyer.accountCreated ||
         (await hasPendingPasswordToken("setup", buyer.id));
@@ -368,6 +426,11 @@ export class ProvisionPurchaseService {
 
     if (existing) return existing.org;
 
+    return await this.createOrg(tx, orgName);
+  }
+
+  /** A new Org with this name, at the best free slug for it. */
+  private async createOrg(tx: Transaction, orgName: string) {
     const [org] = await tx
       .insert(organizations)
       .values({ name: orgName, slug: await this.freeSlug(tx, orgName) })

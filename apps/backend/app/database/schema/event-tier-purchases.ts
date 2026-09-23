@@ -70,6 +70,14 @@ export const eventTierPurchases = pg.pgTable(
     // password yet and was emailed a set-password link, so the page Checkout
     // returns them to says "check your email" rather than "sign in".
     buyerAccountCreated: pg.boolean().notNull().default(false),
+    // Whether the purchase landed on an existing account nobody had proved
+    // they own the inbox of (ADR 0007). Provisioning then withholds the
+    // buyer's organizer admin membership and emails a claim link instead.
+    // `claimedAt` is set once the owner of the inbox claims the Org — through
+    // that link, or by setting a password from an emailed link. A purchase is
+    // awaiting its claim while `claimRequired` is true and `claimedAt` is null.
+    claimRequired: pg.boolean().notNull().default(false),
+    claimedAt: pg.timestamp({ withTimezone: true }),
     ...timestamps,
   },
   (table) => [pg.index().on(table.buyerId)]
