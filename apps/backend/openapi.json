@@ -7751,6 +7751,40 @@
         "description": "Creates a one-time payment Checkout Session for the chosen Event Tier. Called by the marketing site before the buyer has a product session."
       }
     },
+    "/event-tiers/checkout/{sessionId}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Event Tiers"
+        ],
+        "summary": "Get an Event Tier checkout's provisioning status",
+        "description": "Called by the marketing site when Checkout returns the buyer, with the session_id Stripe put in the return URL. Answers pending until the payment has been provisioned, then the Org's name and URL."
+      }
+    },
     "/events": {
       "get": {
         "parameters": [

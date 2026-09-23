@@ -1,14 +1,20 @@
 import { subscriptions } from "#database/schema/subscriptions";
 import { DatabaseService } from "#database/service";
+import { toProvisionInput } from "#modules/event-tiers/provisioning/checkout-session";
+import { ProvisionPurchaseService } from "#modules/event-tiers/provisioning/service";
 import stripe from "#payments/stripe/main";
 import { inject } from "@adonisjs/core";
+import logger from "@adonisjs/core/services/logger";
 import { eq } from "drizzle-orm";
 import { type Stripe } from "stripe";
 import { SubscriptionCreatedEvent, SubscriptionDeletedEvent } from "./event.ts";
 
 @inject()
 export default class WebhookHandlers {
-  constructor(private db: DatabaseService) {
+  constructor(
+    private db: DatabaseService,
+    private provisionPurchase: ProvisionPurchaseService
+  ) {
     stripe.onEvent(
       "checkout.session.completed",
       this.checkoutSessionCompleted.bind(this)
@@ -23,9 +29,16 @@ export default class WebhookHandlers {
     );
   }
 
-  // Initial checkout — create the subscription record and link the customer
+  // Initial checkout — create the subscription record and link the customer.
+  // One-time payment sessions are Event Tier purchases (ADR 0001), the only
+  // thing this app sells without a subscription, and go to provisioning.
   async checkoutSessionCompleted(event: Stripe.Event) {
     const session = event.data.object as Stripe.Checkout.Session;
+
+    if (session.mode === "payment") {
+      return await this.eventTierPurchased(session);
+    }
+
     const userId = session.client_reference_id;
 
     if (!userId || !session.subscription) return;
@@ -72,6 +85,30 @@ export default class WebhookHandlers {
     if (user) {
       SubscriptionCreatedEvent.dispatch({ userId: user.id });
     }
+  }
+
+  // A paid Event Tier purchase becomes an Org, its Org Event and the buyer's
+  // organizer admin membership. A translator only: reading the session and
+  // provisioning are both tested on their own. Provisioning is idempotent on
+  // the session id, so a redelivered event returns the customer it already
+  // built; a session that cannot be provisioned throws, which fails the
+  // delivery for Stripe to retry rather than dropping a paid purchase.
+  async eventTierPurchased(session: Stripe.Checkout.Session) {
+    const result = await this.provisionPurchase.execute(
+      await toProvisionInput(session)
+    );
+
+    logger.info(
+      {
+        sessionId: session.id,
+        orgSlug: result.org.slug,
+        eventId: result.event.id,
+        provisioned: result.provisioned,
+      },
+      result.provisioned
+        ? "Event Tier purchase provisioned"
+        : "Event Tier purchase already provisioned"
+    );
   }
 
   // Handles everything after initial creation — renewals, cancellations, plan changes, payment failures

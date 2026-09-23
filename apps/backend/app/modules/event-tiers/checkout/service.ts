@@ -60,7 +60,9 @@ export class Service {
         },
       ],
       metadata: toCheckoutMetadata(payload),
-      return_url: `${env.get("MARKETING_SITE_URL")}/s2s-live`,
+      // Stripe fills in the session id, which the landing page hands to
+      // `GET /event-tiers/checkout/:sessionId` to show the buyer their Org.
+      return_url: `${env.get("MARKETING_SITE_URL")}/s2s-live?session_id={CHECKOUT_SESSION_ID}`,
     });
   }
 }

@@ -703,6 +703,10 @@ type EventtiersCheckoutPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/event-tiers/checkout/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/event-tiers/checkout/controller.ts').default['handle'], true>
 }
+type EventtiersCheckoutIdGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/event-tiers/checkout-status/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/event-tiers/checkout-status/controller.ts').default['handle'], true>
+}
 type EventsFiltersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/events/get-event-filters/controller.ts').default['handle'], false>
@@ -1828,6 +1832,12 @@ export interface ApiDefinition {
       '$url': {
       };
       '$post': EventtiersCheckoutPost;
+      ':sessionId': {
+        '$url': {
+        };
+        '$get': EventtiersCheckoutIdGetHead;
+        '$head': EventtiersCheckoutIdGetHead;
+      };
     };
   };
   'events': {

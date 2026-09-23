@@ -10,6 +10,10 @@ import { orgMemberships, organizations } from "#database/schema/organizations";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
 import { E_NOT_FOUND } from "#exceptions/not-found";
+import { getUserSession } from "#auth/queries";
+import { GetOrgService } from "#modules/orgs/get-org/service";
+import { ListEventsService } from "#modules/orgs/events/list/service";
+import { grantsOrgAdmin } from "#shared/org/membership";
 import { test } from "@japa/runner";
 import { eq } from "drizzle-orm";
 import { type CheckoutMetadata } from "../checkout/metadata.ts";
@@ -98,6 +102,42 @@ test.group("ProvisionPurchaseService", (group) => {
     assert.equal(memberships[0]!.userId, buyer.id);
     assert.equal(memberships[0]!.type, "organizer");
     assert.equal(memberships[0]!.role, "admin");
+  });
+
+  test("the buyer can administer their Org and see its Org Event straight away", async ({
+    assert,
+  }) => {
+    const buyer = await makeBuyer("admin_area");
+
+    const result = await svc.execute({
+      reference: "cs_admin_area",
+      buyerUserId: buyer.id,
+      purchase: purchase(),
+    });
+
+    // What the sign-in session carries, which the org area routes on.
+    const session = await getUserSession(buyer.id);
+    assert.deepInclude(session!.orgMemberships, {
+      orgSlug: result.org.slug,
+      role: "admin",
+      type: "organizer",
+    });
+
+    // What `GET /orgs/:slug` answers, and what `orgAdmin` checks.
+    const access = await new GetOrgService(new DatabaseService()).execute(
+      result.org.slug,
+      buyer.id
+    );
+    assert.isTrue(grantsOrgAdmin(access!.membership!));
+
+    // What the admin area lists first.
+    const events = await new ListEventsService(new DatabaseService()).execute(
+      result.org.id
+    );
+    assert.deepEqual(
+      events.map((event) => event.id),
+      [result.event.id]
+    );
   });
 
   test("the Org Event is created inactive, for the Organizer to configure and activate", async ({
