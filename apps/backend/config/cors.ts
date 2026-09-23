@@ -1,5 +1,18 @@
+import { parseOrigins } from "#shared/http/cors-origins";
+import env from "#start/env";
 import app from "@adonisjs/core/services/app";
 import { defineConfig } from "@adonisjs/cors";
+
+/**
+ * The product's own origins, allowed on every route. The optional,
+ * comma-separated `CORS_ORIGINS` adds exact origins to this list (staging
+ * sets its own hostnames there). Unset leaves only the prod hostnames.
+ */
+const PRODUCT_ORIGINS = [
+  "https://api.studio2stadium.com",
+  "https://app.studio2stadium.com",
+  ...parseOrigins(env.get("CORS_ORIGINS")),
+];
 
 /**
  * Configuration options to tweak the CORS policy. The following
@@ -9,9 +22,7 @@ import { defineConfig } from "@adonisjs/cors";
  */
 const corsConfig = defineConfig({
   enabled: true,
-  origin: app.inProduction
-    ? ["https://api.studio2stadium.com", "https://app.studio2stadium.com"]
-    : true,
+  origin: app.inProduction ? PRODUCT_ORIGINS : true,
   methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   headers: app.inProduction
     ? [

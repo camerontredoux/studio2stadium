@@ -60,6 +60,9 @@ export default await Env.create(new URL("../", import.meta.url), {
   |----------------------------------------------------------
   */
   SENTRY_DSN: Env.schema.string.optional(),
+  // Sentry environment tag, e.g. "staging". Defaults to NODE_ENV (read
+  // directly by instrument.ts, which loads before this file).
+  SENTRY_ENVIRONMENT: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------
@@ -82,7 +85,43 @@ export default await Env.create(new URL("../", import.meta.url), {
     process.env.NODE_ENV !== "production"
   ),
 
+  /*
+  |----------------------------------------------------------
+  | Optional namespace for every Redis key and pub/sub
+  | channel (e.g. "staging:"). Staging shares prod's Redis
+  | and its DB is a copy of prod, so user ids collide; the
+  | prefix keeps sessions, limiter, cache and realtime
+  | channels apart. Unset means no prefix (prod).
+  |----------------------------------------------------------
+  */
+  REDIS_KEY_PREFIX: Env.schema.string.optional(),
+
   SESSION_DRIVER: Env.schema.enum(["cookie", "redis", "memory"] as const),
+
+  /*
+  |----------------------------------------------------------
+  | Optional auth cookie overrides. Staging shares the
+  | .studio2stadium.com cookie domain with prod, so it sets
+  | its own cookie names; otherwise prod reads staging's
+  | cookies and the other way round. Defaults:
+  | COOKIE_DOMAIN ".studio2stadium.com" (production only),
+  | SESSION_COOKIE_NAME "auth_session",
+  | CACHE_COOKIE_NAME "auth_cache".
+  |----------------------------------------------------------
+  */
+  COOKIE_DOMAIN: Env.schema.string.optional(),
+  SESSION_COOKIE_NAME: Env.schema.string.optional(),
+  CACHE_COOKIE_NAME: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Optional, comma-separated exact origins that CORS allows
+  | on every route in production, in addition to the prod
+  | api. and app. hostnames (config/cors.ts). Staging sets
+  | its own hostnames here. Unset allows only prod's.
+  |----------------------------------------------------------
+  */
+  CORS_ORIGINS: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------
@@ -102,6 +141,16 @@ export default await Env.create(new URL("../", import.meta.url), {
   MAIL_FROM_ADDRESS: Env.schema.string({ format: "email" }),
   MAIL_TO_ADDRESS: Env.schema.string({ format: "email" }),
   MAIL_FROM_NAME: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Optional outgoing-mail allowlist: comma-separated exact
+  | emails and/or "@domain.com" patterns. When set, mail to
+  | any other recipient is dropped and logged (staging runs
+  | on a copy of prod data). Unset sends to everyone.
+  |----------------------------------------------------------
+  */
+  MAIL_ALLOWLIST: Env.schema.string.optional(),
 
   SQS_ACCESS_KEY_ID: Env.schema.string(),
   SQS_SECRET_ACCESS_KEY: Env.schema.string(),
