@@ -48,13 +48,13 @@ export function EventTierPurchaseDeactivatedEmail({
 
   return (
     <Layout preview={`${orgName}: ${eventName} was ${label} and deactivated`}>
-      <Text style={headingStyle}>An Org Event purchase was {label}</Text>
+      <Text style={headingStyle}>An event purchase was {label}</Text>
       <Text style={paragraphStyle}>
         <strong>{eventName}</strong> ({eventTier}) for{" "}
         <strong>{orgName}</strong> has been deactivated.{" "}
         {wasActive
-          ? "It was the Org's active event, so the Org now has none."
-          : "It was not the Org's active event."}
+          ? "It was the organization's active event, so the organization now has none."
+          : "It was not the organization's active event."}
       </Text>
       <Text style={paragraphStyle}>
         Its roster, notes, ratings, callbacks and any Dancer Account Tiers were
@@ -76,7 +76,7 @@ export function EventTierPurchaseDeactivatedEmail({
         <strong>Checkout Session:</strong> {checkoutSessionId}
       </Text>
       <Text style={paragraphStyle}>
-        <Link href={orgAdminUrl}>Open the Org's admin area</Link>
+        <Link href={orgAdminUrl}>Open the organization's admin area</Link>
       </Text>
     </Layout>
   );

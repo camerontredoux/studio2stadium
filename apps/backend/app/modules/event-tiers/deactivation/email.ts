@@ -19,7 +19,7 @@ export default class PurchaseDeactivatedEmail extends BaseMail {
 
   constructor(private data: PurchaseDeactivatedEmailData) {
     super();
-    this.subject = `Org Event ${data.reason}: ${data.eventName} (${data.orgName}) was deactivated`;
+    this.subject = `Event ${data.reason}: ${data.eventName} (${data.orgName}) was deactivated`;
   }
 
   async prepare() {
