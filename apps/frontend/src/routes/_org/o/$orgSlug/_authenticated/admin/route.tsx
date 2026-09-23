@@ -67,7 +67,7 @@ function AdminShell({ orgSlug }: { orgSlug: string }) {
             <span className="text-muted-foreground text-sm font-medium 2xl:text-base">
               Admin
             </span>
-            <div className="ml-auto">
+            <div className="ml-auto flex min-w-0 justify-end">
               <OrgEventSwitcher orgSlug={orgSlug} />
             </div>
           </header>
