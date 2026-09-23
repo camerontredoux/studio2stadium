@@ -11169,6 +11169,7 @@ export interface components {
                 eventStartDate: string;
                 eventEndDate: string;
                 hasStarted: boolean;
+                capabilities: ("video_library" | "callbacks" | "check_in" | "school_selections")[];
             } | null;
             myRosters: {
                 id: string;
@@ -11179,6 +11180,7 @@ export interface components {
                 eventStartDate: string;
                 eventEndDate: string;
                 hasStarted: boolean;
+                capabilities: ("video_library" | "callbacks" | "check_in" | "school_selections")[];
             }[];
             activeEventCapabilities: ("video_library" | "callbacks" | "check_in" | "school_selections")[];
         };

@@ -18,6 +18,14 @@ export interface OrgRosterSummary {
   eventEndDate: string;
   isActive: boolean;
   hasStarted: boolean;
+  /**
+   * Every capability in force for *this roster's* Org Event, overrides applied
+   * — the same answer `OrgFeatureMiddleware` gives when a Dancer asks for this
+   * event by id (`orgEvent("dancerSelfRead")`). A Dancer's event switcher can
+   * show an event other than the Org's active one, so the org area gates on
+   * the event being viewed rather than on `activeEventCapabilities` (#110).
+   */
+  capabilities: EventTierCapability[];
 }
 
 export interface GetOrgResult {
@@ -105,6 +113,7 @@ export class GetOrgService {
             eventStartTime: orgEvents.startTime,
             eventTimezone: orgEvents.timezone,
             isActive: orgEvents.isActive,
+            eventTier: orgEvents.eventTier,
           })
           .from(eventRosters)
           .innerJoin(orgEvents, eq(orgEvents.id, eventRosters.eventId))
@@ -137,6 +146,7 @@ export class GetOrgService {
             roster.eventStartTime,
             roster.eventTimezone
           ),
+          capabilities: resolveCapabilities(org.features, roster.eventTier),
         }));
         myRoster = myRosters[0] ?? null;
       }

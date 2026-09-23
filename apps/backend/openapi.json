@@ -13384,6 +13384,18 @@
                   },
                   "hasStarted": {
                     "type": "boolean"
+                  },
+                  "capabilities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "video_library",
+                        "callbacks",
+                        "check_in",
+                        "school_selections"
+                      ]
+                    }
                   }
                 },
                 "required": [
@@ -13394,7 +13406,8 @@
                   "eventName",
                   "eventStartDate",
                   "eventEndDate",
-                  "hasStarted"
+                  "hasStarted",
+                  "capabilities"
                 ]
               },
               {
@@ -13430,6 +13443,18 @@
                 },
                 "hasStarted": {
                   "type": "boolean"
+                },
+                "capabilities": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "video_library",
+                      "callbacks",
+                      "check_in",
+                      "school_selections"
+                    ]
+                  }
                 }
               },
               "required": [
@@ -13440,7 +13465,8 @@
                 "eventName",
                 "eventStartDate",
                 "eventEndDate",
-                "hasStarted"
+                "hasStarted",
+                "capabilities"
               ]
             }
           },

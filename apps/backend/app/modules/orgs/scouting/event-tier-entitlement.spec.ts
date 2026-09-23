@@ -270,6 +270,87 @@ test.group("Event Tier entitlement", (group) => {
     atNational.assertStatus(200);
   });
 
+  test("the org payload and the Dancer's gated route agree for every active and requested event", async ({
+    client,
+    assert,
+  }) => {
+    // The frontend gates a Dancer's menu and route guards on the capabilities
+    // `GET /orgs/{slug}` reports for the event she is viewing (#110). That
+    // answer has to match what `orgFeature` enforces on the same request, for
+    // every pairing of the Org's active event with the one she asked for, and
+    // with or without a staff override on the Org.
+    const { org, events } = await orgWithEvents("agreement-org", [
+      "core",
+      "national",
+    ]);
+    const dancer = await createUser("agreement_dancer", "dancer");
+    await db.insert(orgMemberships).values({
+      orgId: org.id,
+      userId: dancer.id,
+      role: "member",
+      type: "dancer",
+    });
+    await db.insert(eventRosters).values(
+      events.map((event) => ({
+        eventId: event.id,
+        userId: dancer.id,
+        type: "dancer" as const,
+        email: dancer.email,
+        firstName: "Agreement",
+        lastName: "Dancer",
+      }))
+    );
+    const token = await loginUser(dancer.id);
+
+    const overrides: Array<{ callbacks?: boolean }> = [
+      {},
+      { callbacks: true },
+      { callbacks: false },
+    ];
+    for (const features of overrides) {
+      await db
+        .update(organizations)
+        .set({ features })
+        .where(eq(organizations.id, org.id))
+        .execute();
+
+      for (const active of events) {
+        await activate(org.id, active.id);
+
+        for (const requested of events) {
+          const label = `features=${JSON.stringify(features)} active=${active.eventTier} requested=${requested.eventTier}`;
+
+          const payload = await client
+            .get(`/orgs/${org.slug}`)
+            .header("Authorization", `Bearer ${token}`);
+          payload.assertStatus(200);
+          const roster = (
+            payload.body().myRosters as Array<{
+              eventId: string;
+              capabilities: string[];
+            }>
+          ).find((candidate) => candidate.eventId === requested.id);
+          const shown = roster?.capabilities.includes("callbacks") ?? false;
+
+          const gated = await client
+            .get(`/orgs/${org.slug}/dancer/callbacks`)
+            .qs({ eventId: requested.id })
+            .header("Authorization", `Bearer ${token}`);
+          const served = gated.status() === 200;
+          if (!served) assert.equal(gated.status(), 404, label);
+
+          // Agreement alone would pass if both were wrong the same way, so
+          // pin the answer too: the override if staff set one, else the
+          // requested event's Event Tier — never the active event's.
+          const expected =
+            features.callbacks ?? requested.eventTier === "national";
+          assert.equal(shown, expected, `payload: ${label}`);
+          assert.equal(served, expected, `middleware: ${label}`);
+        }
+      }
+    }
+  });
+
   test("a grandfathered Enterprise event keeps the access it had", async ({
     client,
   }) => {
