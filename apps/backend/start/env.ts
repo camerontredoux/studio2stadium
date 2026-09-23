@@ -60,6 +60,9 @@ export default await Env.create(new URL("../", import.meta.url), {
   |----------------------------------------------------------
   */
   SENTRY_DSN: Env.schema.string.optional(),
+  // Sentry environment tag, e.g. "staging". Defaults to NODE_ENV (read
+  // directly by instrument.ts, which loads before this file).
+  SENTRY_ENVIRONMENT: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------
