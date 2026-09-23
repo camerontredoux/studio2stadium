@@ -384,7 +384,10 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                         apply to that event only.
                       </p>
                     </div>
-                    <EventCapabilitiesPanel orgId={org.id} />
+                    <EventCapabilitiesPanel
+                      orgId={org.id}
+                      orgFeatures={org.features}
+                    />
                   </div>
                 )}
                 <div className="border-border space-y-4 border-t pt-4">

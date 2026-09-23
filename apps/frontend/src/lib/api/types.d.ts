@@ -1536,15 +1536,6 @@ export interface paths {
                         "application/json": components["schemas"]["AdminOrgsIdEventsIdCapabilitiesResponse"];
                     };
                 };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
                 /** @description Unprocessable Entity */
                 422: {
                     headers: {

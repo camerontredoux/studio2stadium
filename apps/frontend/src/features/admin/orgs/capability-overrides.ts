@@ -85,3 +85,20 @@ export function overridesWithChoice(
   if (choice !== "default") overrides[capability] = choice === "on";
   return overrides;
 }
+
+/**
+ * The capability flags still on an Org that had no event when overrides moved
+ * onto the Org Event (#109). The backend seeds a hand-built Org's first event
+ * from them, so staff see them before that event exists. Read defensively:
+ * only a boolean under a known capability counts, as on the backend.
+ */
+export function leftoverOrgOverrides(
+  features: Record<string, unknown>,
+): { capability: EventTierCapability; on: boolean }[] {
+  return (Object.keys(CAPABILITY_LABELS) as EventTierCapability[]).flatMap(
+    (capability) => {
+      const value = features[capability];
+      return typeof value === "boolean" ? [{ capability, on: value }] : [];
+    },
+  );
+}

@@ -17,6 +17,7 @@ import {
   capabilityLabel,
   defaultChoiceLabel,
   EXCEPTION_CHOICES,
+  leftoverOrgOverrides,
   overrideChoice,
   overridesWithChoice,
   type CapabilityResolution,
@@ -29,19 +30,21 @@ import {
  * default, or an exception staff set on that event (#109). Each change saves
  * straight away and touches that one event only.
  */
-export function EventCapabilitiesPanel({ orgId }: { orgId: string }) {
+export function EventCapabilitiesPanel({
+  orgId,
+  orgFeatures,
+}: {
+  orgId: string;
+  /** The Org's `features`, for flags left over from before #109. */
+  orgFeatures: Record<string, unknown>;
+}) {
   const { data: events, isLoading } = useQuery(
     adminQueries.orgEventCapabilities(orgId),
   );
 
   if (isLoading) return <Spinner label="Loading events…" />;
   if (!events || events.length === 0) {
-    return (
-      <p className="text-muted-foreground text-sm">
-        This organization has no events yet. Capabilities are set per event,
-        once one exists.
-      </p>
-    );
+    return <NoEventsYet leftovers={leftoverOrgOverrides(orgFeatures)} />;
   }
 
   return (
@@ -49,6 +52,40 @@ export function EventCapabilitiesPanel({ orgId }: { orgId: string }) {
       {events.map((event) => (
         <EventCapabilitiesCard key={event.id} orgId={orgId} event={event} />
       ))}
+    </div>
+  );
+}
+
+/**
+ * An Org with no event yet. A hand-built Org may still carry capability flags
+ * from before they moved onto the Org Event; its first event starts with them
+ * as exceptions, so they are shown read-only here.
+ */
+function NoEventsYet({
+  leftovers,
+}: {
+  leftovers: ReturnType<typeof leftoverOrgOverrides>;
+}) {
+  return (
+    <div className="space-y-2">
+      <p className="text-muted-foreground text-sm">
+        This organization has no events yet. Capabilities are set per event,
+        once one exists.
+      </p>
+      {leftovers.length > 0 && (
+        <div className="space-y-1">
+          <p className="text-muted-foreground text-xs">
+            Its first event will start with these exceptions:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {leftovers.map(({ capability, on }) => (
+              <Badge key={capability} variant="warning">
+                {capabilityLabel(capability).label}: {on ? "on" : "off"}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

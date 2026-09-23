@@ -4,6 +4,10 @@ import {
   type EventTier,
   type EventTierCapability,
 } from "./event-tiers.ts";
+import type {
+  CapabilityOverrides,
+  orgEvents,
+} from "#database/schema/org-events";
 
 /**
  * What an Org Event actually includes: what was sold, unless someone at Studio
@@ -28,11 +32,21 @@ import {
  */
 
 /**
- * The staff exceptions on one Org Event: a capability mapped to `true` is
- * included whatever the Event Tier says, `false` is excluded, and a missing key
- * defers to the Event Tier.
+ * The staff exceptions on one Org Event, as the `capability_overrides` column
+ * stores them. Declared with the schema so the schema needs nothing from
+ * `#shared`.
  */
-export type CapabilityOverrides = Partial<Record<EventTierCapability, boolean>>;
+export type { CapabilityOverrides };
+
+// The stored keys must be exactly the Event Tier capabilities, both ways.
+type StoredCapability = keyof CapabilityOverrides;
+const storedKeysMatchCapabilities: [
+  Exclude<StoredCapability, EventTierCapability>,
+  Exclude<EventTierCapability, StoredCapability>,
+] extends [never, never]
+  ? true
+  : never = true;
+void storedKeysMatchCapabilities;
 
 /** A staff override for one capability, or `undefined` when nobody set one. */
 export function readCapabilityOverride(
@@ -130,4 +144,38 @@ export function describeCapabilities(
       included: includesCapability(event, capability),
     };
   });
+}
+
+/**
+ * One Org Event as staff configure its capabilities: what its Event Tier
+ * includes, the exceptions set on it, and what is in force (#109).
+ */
+export interface EventCapabilitiesView {
+  id: string;
+  name: string;
+  isActive: boolean;
+  startDate: string;
+  eventTier: EventTier;
+  capabilities: CapabilityResolution[];
+}
+
+export function toEventCapabilitiesView(
+  event: Pick<
+    typeof orgEvents.$inferSelect,
+    | "id"
+    | "name"
+    | "isActive"
+    | "startDate"
+    | "eventTier"
+    | "capabilityOverrides"
+  >
+): EventCapabilitiesView {
+  return {
+    id: event.id,
+    name: event.name,
+    isActive: event.isActive,
+    startDate: event.startDate,
+    eventTier: event.eventTier,
+    capabilities: describeCapabilities(event),
+  };
 }

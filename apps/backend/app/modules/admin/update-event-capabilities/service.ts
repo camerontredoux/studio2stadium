@@ -3,14 +3,12 @@ import { orgEvents } from "#database/schema/org-events";
 import {
   readCapabilityOverride,
   readCapabilityOverrides,
+  toEventCapabilitiesView,
+  type EventCapabilitiesView,
 } from "#shared/org/entitlement";
 import { EVENT_TIER_CAPABILITIES } from "#shared/org/event-tiers";
 import { inject } from "@adonisjs/core";
 import { and, eq } from "drizzle-orm";
-import {
-  toEventCapabilitiesView,
-  type EventCapabilitiesView,
-} from "../get-org-event-capabilities/service.ts";
 import { Validator } from "./validator.ts";
 
 /** How an override reads in the Org Event's audit log. */

@@ -246,6 +246,33 @@ test.group("Admin Org Event capability overrides (#109)", (group) => {
       .header("Authorization", `Bearer ${await tokenFor(client, staff.email)}`)
       .json({ capabilityOverrides: { callbacks: true } });
     res.assertStatus(404);
+    res.assertBodyContains({ meta: { code: "E_ORG_EVENT_NOT_FOUND" } });
+  });
+
+  test("listing the events of an Org that does not exist is not found", async ({
+    client,
+  }) => {
+    const staff = await makeUser("caps_staff_missing", "admin");
+
+    const res = await client
+      .get(`/admin/orgs/00000000-0000-4000-8000-000000000000/events`)
+      .header("Authorization", `Bearer ${await tokenFor(client, staff.email)}`);
+    res.assertStatus(404);
+    res.assertBodyContains({ meta: { code: "E_ORG_NOT_FOUND" } });
+  });
+
+  test("an Org with no events lists none", async ({ client, assert }) => {
+    const staff = await makeUser("caps_staff_empty", "admin");
+    const [org] = await db
+      .insert(organizations)
+      .values({ name: "caps-empty", slug: "caps-empty", features: {} })
+      .returning();
+
+    const res = await client
+      .get(`/admin/orgs/${org!.id}/events`)
+      .header("Authorization", `Bearer ${await tokenFor(client, staff.email)}`);
+    res.assertStatus(200);
+    assert.deepEqual(res.body(), []);
   });
 
   test("a non-boolean override is refused", async ({ client }) => {

@@ -7,6 +7,7 @@ import { adminQueries } from "@/features/admin/api/queries";
 import { EventCapabilitiesPanel } from "./components/event-capabilities-panel";
 import {
   defaultChoiceLabel,
+  leftoverOrgOverrides,
   overrideChoice,
   overridesWithChoice,
   type CapabilityResolution,
@@ -41,6 +42,20 @@ const regionalWithExceptions: CapabilityResolution[] = [
 ];
 
 describe("capability overrides", () => {
+  it("reads only boolean flags under known capabilities as leftovers", () => {
+    expect(
+      leftoverOrgOverrides({
+        callbacks: true,
+        video_library: false,
+        check_in: "yes",
+        freeTierUsers: true,
+      }),
+    ).toEqual([
+      { capability: "callbacks", on: true },
+      { capability: "video_library", on: false },
+    ]);
+  });
+
   it("reads an exception as a choice, and no exception as the default", () => {
     expect(regionalWithExceptions.map(overrideChoice)).toEqual([
       "default",
@@ -73,7 +88,11 @@ describe("capability overrides", () => {
 });
 
 /** Server-renders the panel with the Org's events already fetched. */
-function renderPanel(orgId: string, events: EventCapabilities[]) {
+function renderPanel(
+  orgId: string,
+  events: EventCapabilities[],
+  orgFeatures: Record<string, unknown> = {},
+) {
   const queryClient = new QueryClient();
   queryClient.setQueryData(
     adminQueries.orgEventCapabilities(orgId).queryKey,
@@ -81,7 +100,7 @@ function renderPanel(orgId: string, events: EventCapabilities[]) {
   );
   return renderToString(
     <QueryClientProvider client={queryClient}>
-      <EventCapabilitiesPanel orgId={orgId} />
+      <EventCapabilitiesPanel orgId={orgId} orgFeatures={orgFeatures} />
     </QueryClientProvider>,
   );
 }
@@ -121,6 +140,20 @@ describe("event capabilities panel", () => {
   });
 
   it("says capabilities wait for an event when the Org has none", () => {
-    expect(renderPanel("o2", [])).toContain("no events yet");
+    const html = renderPanel("o2", []);
+    expect(html).toContain("no events yet");
+    expect(html).not.toContain("first event will start with");
+  });
+
+  it("shows the flags an event-less Org's first event will start with", () => {
+    const html = renderPanel("o3", [], {
+      callbacks: true,
+      check_in: false,
+      freeTierUsers: true,
+    });
+    expect(html).toContain("first event will start with");
+    expect(html).toContain("Callbacks<!-- -->: <!-- -->on");
+    expect(html).toContain("Check-In<!-- -->: <!-- -->off");
+    expect(html).not.toContain("Video Library");
   });
 });

@@ -114,6 +114,13 @@ export class CreateEventService {
  * still does: the overrides of the Org's most recently created event, or —
  * for an Org that had no event when they moved — the flags still on the Org.
  * Staff can change them per event afterwards.
+ *
+ * Known edge: events are hard-deleted, and the migration stripped the flags
+ * from every Org that had an event. So if all of a migrated Org's events are
+ * deleted, nothing is left to inherit and the next event starts with no
+ * overrides — its Event Tier alone decides. This is accepted: access at
+ * migration time is unchanged, and staff can set the exceptions on the new
+ * event.
  */
 async function grandfatheredOverrides(
   tx: Transaction,
