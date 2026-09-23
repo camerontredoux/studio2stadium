@@ -1,7 +1,10 @@
 import { createContext } from "react";
 
 import type { OrgMemberType, RosterType } from "@/lib/access";
-import type { OrgFeatureKey } from "@/features/org/lib/entitlement";
+import type {
+  EventTierCapability,
+  OrgFeatureKey,
+} from "@/features/org/lib/entitlement";
 
 export interface OrgMembership {
   role: "admin" | "member";
@@ -21,6 +24,8 @@ export interface MyRoster {
   eventEndDate: string;
   isActive: boolean;
   hasStarted: boolean;
+  /** What this roster's Org Event includes, overrides applied. */
+  capabilities: EventTierCapability[];
 }
 
 export interface OrgContextValue {
@@ -44,11 +49,13 @@ export interface OrgContextValue {
    */
   selfServe: boolean;
   /**
-   * Whether the Org's active event includes a capability, or the Org includes a
-   * piece of org-wide configuration. Convenience gating only — the backend's
-   * `OrgFeatureMiddleware` is authoritative.
+   * Whether an Org Event includes a capability, or the Org includes a piece of
+   * org-wide configuration. Pass `eventId` when the gated request names its
+   * event, as a Dancer's reads do; leave it out for the Org's active event.
+   * Convenience gating only — the backend's `OrgFeatureMiddleware` is
+   * authoritative.
    */
-  hasFeature: (key: OrgFeatureKey) => boolean;
+  hasFeature: (key: OrgFeatureKey, eventId?: string) => boolean;
 }
 
 export const OrgContext = createContext<OrgContextValue | null>(null);

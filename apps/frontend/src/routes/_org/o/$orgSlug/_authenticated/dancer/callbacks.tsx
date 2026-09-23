@@ -4,24 +4,30 @@ import { MegaphoneIcon } from "lucide-react";
 
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { orgQueries } from "@/features/org/api/queries";
-import { hasOrgFeature } from "@/features/org/lib/entitlement";
+import {
+  hasOrgFeature,
+  viewedDancerEventId,
+} from "@/features/org/lib/entitlement";
 import { AccentDot } from "@/features/org/components/dashboard-shared";
 import {
   SchoolAvatar,
   SchoolNameLink,
 } from "@/features/org/components/school-identity";
 import { dancerEventSearchSchema } from "@/features/org/api/scouting-schemas";
-import { useOrg } from "@/features/org/context/use-org";
+import { useViewedDancerEventId } from "@/features/org/hooks/use-viewed-dancer-event";
 
 export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/dancer/callbacks",
 )({
   validateSearch: dancerEventSearchSchema,
-  beforeLoad: async ({ context, params }) => {
+  beforeLoad: async ({ context, params, search }) => {
     const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     );
-    if (!hasOrgFeature(data, "callbacks")) {
+    // Gate on the event this page will request, not the Org's active one —
+    // the backend gates a Dancer's reads on the event she asks for (#110).
+    const eventId = viewedDancerEventId(data.myRosters, search.eventId);
+    if (!hasOrgFeature(data, "callbacks", eventId)) {
       throw redirect({ to: "/o/$orgSlug/dancer", params });
     }
   },
@@ -33,9 +39,7 @@ export const Route = createFileRoute(
     // Having no dancer roster is not a reason to bounce the dancer off her own
     // Callbacks page. Leave eventId undefined and let the backend resolve the
     // org's active event.
-    const eventId =
-      deps.eventId ??
-      org.myRosters.find((roster) => roster.type === "dancer")?.eventId;
+    const eventId = viewedDancerEventId(org.myRosters, deps.eventId);
     // prefetchQuery, not ensureQueryData: warming the cache must not be able to
     // fail the navigation. A dancer who is not on an event roster still reaches
     // her Callbacks page and sees the pre-release state.
@@ -50,13 +54,9 @@ function DancerCallbacksPage() {
   const { orgSlug } = useParams({
     from: "/_org/o/$orgSlug/_authenticated/dancer/callbacks",
   });
-  const { eventId: searchEventId } = Route.useSearch();
-  const { myRosters } = useOrg();
   // Undefined rather than "" — an empty string fails the API's uuid check,
   // while undefined lets the backend resolve the active event.
-  const eventId =
-    searchEventId ??
-    myRosters.find((roster) => roster.type === "dancer")?.eventId;
+  const eventId = useViewedDancerEventId();
   const { data } = useQuery(scoutingQueries.dancerCallbacks(orgSlug, eventId));
 
   const schools = data?.callbacks ?? [];
