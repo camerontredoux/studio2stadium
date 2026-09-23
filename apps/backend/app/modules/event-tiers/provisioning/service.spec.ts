@@ -501,7 +501,7 @@ test.group("ProvisionPurchaseService", (group) => {
       sent!.data.orgUrl,
       `${env.get("SITE_URL")}/o/${result.org.slug}/admin`
     );
-    assert.equal(sent!.subject, "S2S Live: Your Event Is Ready");
+    assert.equal(sent!.subject, "Your S2S Live event is ready");
 
     const link = new URL(sent!.data.setPasswordUrl!);
     assert.equal(link.origin + link.pathname, `${env.get("SITE_URL")}/reset`);
@@ -553,7 +553,7 @@ test.group("ProvisionPurchaseService", (group) => {
       return (
         message.data.to === buyer.displayEmail &&
         message.data.setPasswordUrl === null &&
-        message.subject === "S2S Live: Your Event Is Ready"
+        message.subject === "Your S2S Live event is ready"
       );
     });
     assert.isNull(await redis.get(passwordTokenKey("setup", buyer.id)));
@@ -673,7 +673,7 @@ test.group("ProvisionPurchaseService", (group) => {
     assert.isFalse(second.buyer.accountCreated);
 
     const [firstEmail, secondEmail] = orgReadyEmails(fake);
-    assert.equal(secondEmail!.subject, "S2S Live: Your Event Is Ready");
+    assert.equal(secondEmail!.subject, "Your S2S Live event is ready");
 
     const tokenOf = (message: OrgReadyEmail) =>
       new URL(message.data.setPasswordUrl!).searchParams.get("token")!;
@@ -701,7 +701,7 @@ test.group("ProvisionPurchaseService", (group) => {
     });
     const third = orgReadyEmails(fake)[2]!;
     assert.isNull(third.data.setPasswordUrl);
-    assert.equal(third.subject, "S2S Live: Your Event Is Ready");
+    assert.equal(third.subject, "Your S2S Live event is ready");
   });
 
   test("each Org-ready email sent is logged with its purpose, Org and masked recipient", async ({

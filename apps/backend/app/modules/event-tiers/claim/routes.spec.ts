@@ -174,7 +174,7 @@ test.group(
       fake.mails.assertSentCount(OrgReadyEmail, 1);
       const [sent] = orgReadyEmails(fake);
       assert.equal(sent!.data.to, buyer.displayEmail);
-      assert.equal(sent!.subject, "S2S Live: Your Event Is Ready");
+      assert.equal(sent!.subject, "Your S2S Live event is ready");
       assert.isNull(sent!.data.setPasswordUrl);
       const link = claimLink(fake);
       assert.equal(
@@ -273,7 +273,7 @@ test.group(
       assert.isFalse(second.buyer.claimRequired);
       assert.lengthOf(await membershipsOf(buyer.id), 1);
       const signIn = orgReadyEmails(fake).at(-1)!;
-      assert.equal(signIn.subject, "S2S Live: Your Event Is Ready");
+      assert.equal(signIn.subject, "Your S2S Live event is ready");
       assert.isNull(signIn.data.setPasswordUrl);
       assert.notExists(signIn.data.claimUrl);
     });
