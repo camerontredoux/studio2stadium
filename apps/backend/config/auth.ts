@@ -1,22 +1,24 @@
 import { redisSessionGuard } from "#auth/config";
+import { cookieDomain } from "#config/app";
 import type { SessionUser } from "#auth/provider";
 import { defineConfig } from "@adonisjs/auth";
 import type { Authenticators, InferAuthEvents } from "@adonisjs/auth/types";
 import { configProvider } from "@adonisjs/core";
 import app from "@adonisjs/core/services/app";
+import env from "#start/env";
 
 const authConfig = defineConfig({
   default: "redis",
   guards: {
     redis: redisSessionGuard<SessionUser>({
       options: {
-        cacheCookieName: "auth_cache",
+        cacheCookieName: env.get("CACHE_COOKIE_NAME") ?? "auth_cache",
         cacheCookieAge: 60 * 5,
-        sessionCookieName: "auth_session",
+        sessionCookieName: env.get("SESSION_COOKIE_NAME") ?? "auth_session",
         sessionAge: 60 * 60 * 24 * 7,
         cookieOptions: (maxAge) => ({
           maxAge,
-          domain: app.inProduction ? ".studio2stadium.com" : undefined,
+          domain: cookieDomain,
           httpOnly: true,
           secure: app.inProduction,
           sameSite: "lax",
