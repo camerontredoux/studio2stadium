@@ -264,9 +264,12 @@ export class ProvisionPurchaseService {
    * no proof either — a dancer sets it by finishing onboarding. Any other
    * account needs a claim (ADR 0007).
    *
-   * A new account is an ordinary core-platform user — `users.type` has no
-   * Organizer, which is a membership type (ADR 0003) — named as the buyer
-   * named themselves, with no profile and no password anyone knows. Its hash
+   * A new account is a core-platform user of the `organizer` account type:
+   * it exists to administer the Org it bought, has no dancer or school
+   * profile, and the product sends it to that Org rather than through dancer
+   * onboarding. Being an Organizer inside the Org is still the membership
+   * type (ADR 0003). It is named as the buyer named themselves, with no
+   * profile and no password anyone knows. Its hash
    * is of a random secret that is thrown away, so nothing can sign in until
    * the owner sets a password through the link `welcomeBuyer` emails.
    *
@@ -313,7 +316,7 @@ export class ProvisionPurchaseService {
         lastName,
         username: organizerUsername(buyer.name),
         role: "user",
-        type: "dancer",
+        type: "organizer",
       })
       .returning({
         id: users.id,

@@ -11226,7 +11226,7 @@ export interface components {
             firstName: string;
             lastName: string;
             /** @enum {string} */
-            type: "dancer" | "school";
+            type: "dancer" | "organizer" | "school";
         };
         AuthLoginRequest: {
             email: string;
@@ -11239,7 +11239,7 @@ export interface components {
                 /** @enum {string} */
                 role: "user" | "admin" | "prodigy_admin";
                 /** @enum {string} */
-                type: "dancer" | "school";
+                type: "dancer" | "organizer" | "school";
                 displayEmail: string;
                 firstName: string;
                 lastName: string;
@@ -11269,7 +11269,7 @@ export interface components {
             /** @enum {string} */
             role: "user" | "admin" | "prodigy_admin";
             /** @enum {string} */
-            type: "dancer" | "school";
+            type: "dancer" | "organizer" | "school";
             displayEmail: string;
             firstName: string;
             lastName: string;
@@ -12544,13 +12544,13 @@ export interface components {
             }[];
             events: {
                 id: string;
+                organizer: {
+                    name: string;
+                } | null;
                 /** @enum {string} */
                 type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 location: string;
                 title: string;
-                organizer: {
-                    name: string;
-                } | null;
                 startDatetime: string;
                 endDatetime: string;
             }[];
@@ -12627,14 +12627,14 @@ export interface components {
                 id: string;
                 date: string;
                 time: string;
-                /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-                location: string;
-                title: string;
                 organizer: {
                     name: string;
                     thumbnail: string | null;
                 };
+                /** @enum {string} */
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                location: string;
+                title: string;
                 attendees: {
                     id: string;
                 }[];
@@ -12669,14 +12669,14 @@ export interface components {
             id: string;
             date: string;
             time: string;
-            /** @enum {string} */
-            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-            location: string;
-            title: string;
             organizer: {
                 name: string;
                 thumbnail: string | null;
             };
+            /** @enum {string} */
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+            location: string;
+            title: string;
         }[];
         EventsGlobalResponse: {
             thumbnail: string | null;
@@ -12710,6 +12710,12 @@ export interface components {
             id: string;
             createdAt: string;
             updatedAt: string;
+            organizer: {
+                name: string;
+                username: string;
+                avatar: string | null;
+                events: number;
+            };
             /** @enum {string} */
             type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             location: string;
@@ -12717,12 +12723,6 @@ export interface components {
             schoolId: string;
             title: string;
             description: string;
-            organizer: {
-                name: string;
-                username: string;
-                avatar: string | null;
-                events: number;
-            };
             address: string | null;
             tags: string[] | null;
             cost: string | null;

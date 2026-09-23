@@ -19,7 +19,34 @@ export const platformName = pgEnum("platform_name", ["core", "prodigy"]);
 
 export const role = pgEnum("role", ["admin", "prodigy_admin", "user"]);
 
-export const accountType = pgEnum("account_type", ["dancer", "school"]);
+/**
+ * What an account is on the core platform. `dancer` and `school` accounts are
+ * built around a profile of that kind. `organizer` is an account an Event Tier
+ * purchase created for a buyer who had none: it exists to administer the Org
+ * it bought, has no profile, and never goes through dancer or school
+ * onboarding. Being an Organizer inside an Org is still an org membership
+ * type (ADR 0003); an existing dancer or school account that buys keeps its
+ * own type.
+ */
+export const accountType = pgEnum("account_type", [
+  "dancer",
+  "school",
+  "organizer",
+]);
+
+export type AccountType = (typeof accountType.enumValues)[number];
+
+/**
+ * The account types built around a profile, and the only ones a person can
+ * sign up as. A session with a `profileId` always has one of these.
+ */
+export const PROFILE_ACCOUNT_TYPES = ["dancer", "school"] as const;
+export type ProfileAccountType = (typeof PROFILE_ACCOUNT_TYPES)[number];
+
+export const isProfileAccountType = (
+  value: string
+): value is ProfileAccountType =>
+  (PROFILE_ACCOUNT_TYPES as readonly string[]).includes(value);
 
 export const feedItemType = pgEnum("feed_item_type", [
   "image",

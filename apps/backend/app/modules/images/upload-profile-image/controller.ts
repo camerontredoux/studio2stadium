@@ -14,7 +14,7 @@ export default class UploadProfileImageController {
     const result = await service.execute(
       {
         id: user.id,
-        type: user.type,
+        type: ctx.session.type,
         profileId: ctx.session.profileId,
       },
       payload

@@ -368,6 +368,17 @@ test.group("ProvisionPurchaseService", (group) => {
     assert.equal(user!.firstName, "Grace");
     assert.equal(user!.lastName, "Hopper Organizer");
     assert.equal(user!.role, "user");
+    // An Organizer account, not a dancer one: nothing sends it through dancer
+    // onboarding, and nothing that lists dancer accounts finds it.
+    assert.equal(user!.type, "organizer");
+    const session = await getUserSession(user!.id);
+    assert.equal(session!.type, "organizer");
+    assert.isUndefined(session!.profileId);
+    assert.deepInclude(session!.orgMemberships, {
+      orgSlug: result.org.slug,
+      role: "admin",
+      type: "organizer",
+    });
     assert.isTrue(result.buyer.accountCreated);
     assert.isTrue(result.purchase.buyerAccountCreated);
     assert.equal(result.purchase.buyerId, user!.id);

@@ -382,22 +382,33 @@ export function AdminSidebar() {
                 </MenuGroup>
                 <MenuSeparator />
                 <MenuGroup>
-                  <MenuItem
-                    closeOnClick
-                    render={
-                      <Link
-                        to={
-                          session.type === "school"
-                            ? "/explore/$username"
-                            : "/$username"
-                        }
-                        params={{ username: session.username }}
-                      />
-                    }
-                  >
-                    <UserIcon />
-                    Profile
-                  </MenuItem>
+                  {session.type === "organizer" ? (
+                    // An Organizer account has no public profile to open.
+                    <MenuItem
+                      closeOnClick
+                      render={<Link to="/settings/account" />}
+                    >
+                      <UserIcon />
+                      Account
+                    </MenuItem>
+                  ) : (
+                    <MenuItem
+                      closeOnClick
+                      render={
+                        <Link
+                          to={
+                            session.type === "school"
+                              ? "/explore/$username"
+                              : "/$username"
+                          }
+                          params={{ username: session.username }}
+                        />
+                      }
+                    >
+                      <UserIcon />
+                      Profile
+                    </MenuItem>
+                  )}
                 </MenuGroup>
                 {canSwitchView ? (
                   <>

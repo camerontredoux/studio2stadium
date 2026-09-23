@@ -124,9 +124,11 @@ click "Claim".
   That tells the page whether to say "check your email" or "sign in". The endpoint never returns the
   email, and it only says anything about the account behind a paid session, so nobody can use it to
   check whether an address has an account.
-- `users.type` has no Organizer value; Organizer is a membership type (ADR 0003). A created account
-  gets the default `dancer` type with no profile, and the org area already lets a profile-less Org
-  admin in without onboarding. Dancer-search surfaces that filter on `users.type` could list such an
-  account until an Organizer account type exists.
+- A created account gets the `organizer` account type (`users.type`), with no profile. It was first
+  created as a profile-less `dancer`, but then signing in went through dancer onboarding, and
+  dancer-account searches (attaching an account to a Roster Entry) listed it. The product sends an
+  `organizer` account to its Org's admin area instead of onboarding or the feed, and profile routes
+  refuse it. Nobody can sign up as one. Being an Organizer inside an Org is still the membership
+  type (ADR 0003), and an existing dancer or school account that buys keeps its own type.
 - If the post-commit email fails, provisioning is not rolled back. The failure is logged and sent to
   Sentry, and the buyer can still get in through "Forgot password".

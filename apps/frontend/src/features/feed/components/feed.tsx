@@ -5,7 +5,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { useSession } from "@/lib/session";
+import { useProfileSession } from "@/lib/session";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { GraduationCapIcon, XIcon } from "lucide-react";
@@ -15,7 +15,7 @@ import { FeedItem } from "./content/feed-item";
 import { FeedItemSkeleton, FeedSkeleton } from "./feed-skeleton";
 
 export function Feed() {
-  const session = useSession();
+  const session = useProfileSession();
 
   const { status, data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery(feedQueries.feed());
