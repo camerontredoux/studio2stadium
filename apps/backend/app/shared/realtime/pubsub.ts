@@ -1,3 +1,4 @@
+import { withRedisKeyPrefix } from "#shared/redis/key-prefix";
 import redis from "@adonisjs/redis/services/main";
 
 export type RealtimeEvent =
@@ -6,9 +7,13 @@ export type RealtimeEvent =
 
 /**
  * Returns the Redis channel name for a user's realtime events.
+ *
+ * ioredis keyPrefix does not apply to pub/sub channels, so REDIS_KEY_PREFIX is
+ * added here. Otherwise staging (same Redis, same user ids) would deliver
+ * events to prod's SSE streams.
  */
 export function getUserChannel(userId: string): string {
-  return `realtime:user:${userId}`;
+  return withRedisKeyPrefix(`realtime:user:${userId}`);
 }
 
 /**
