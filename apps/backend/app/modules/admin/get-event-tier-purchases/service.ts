@@ -27,6 +27,14 @@ export interface EventTierChange {
   changedBy: Person;
 }
 
+/** A user as `Person`, selected the same way for buyers and tier changers. */
+const personColumns = {
+  id: users.id,
+  email: users.displayEmail,
+  firstName: users.firstName,
+  lastName: users.lastName,
+};
+
 const isEventTier = (value: unknown): value is EventTier =>
   typeof value === "string" &&
   (EVENT_TIERS as readonly string[]).includes(value);
@@ -69,12 +77,7 @@ export class Service {
           deactivationReason: eventTierPurchases.deactivationReason,
           deactivationReference: eventTierPurchases.deactivationReference,
           createdAt: eventTierPurchases.createdAt,
-          buyer: {
-            id: users.id,
-            email: users.displayEmail,
-            firstName: users.firstName,
-            lastName: users.lastName,
-          },
+          buyer: personColumns,
           event: {
             id: orgEvents.id,
             name: orgEvents.name,
@@ -117,12 +120,7 @@ export class Service {
           eventId: eventAuditLog.eventId,
           metadata: eventAuditLog.metadata,
           createdAt: eventAuditLog.createdAt,
-          actor: {
-            id: users.id,
-            email: users.displayEmail,
-            firstName: users.firstName,
-            lastName: users.lastName,
-          },
+          actor: personColumns,
         })
         .from(eventAuditLog)
         .innerJoin(users, eq(users.id, eventAuditLog.actorId))
