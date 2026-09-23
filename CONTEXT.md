@@ -59,6 +59,8 @@ _Avoid_: Recruiter, scout, evaluator
 The person who runs an Org's events and buys S2S Live. Never appears on a Roster and never evaluates
 Dancers — the distinction from a Coach is that an Organizer runs the event rather than recruiting at
 it.
+Buys without signing in: the email typed before checkout identifies them, and the purchase creates
+their account if that email has none (ADR 0007).
 _Avoid_: Host, promoter, event manager
 
 **Roster Entry**:
