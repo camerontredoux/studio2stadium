@@ -43,6 +43,8 @@ export const adminQueries = {
     ),
   dancerStats: () => $api.queryOptions("get", "/admin/dancers/stats"),
   orgs: () => $api.queryOptions("get", "/admin/orgs"),
+  eventTierPurchases: () =>
+    $api.queryOptions("get", "/admin/event-tier-purchases"),
   orgMembers: (orgId: string) =>
     $api.queryOptions("get", "/admin/orgs/{id}/members", {
       params: { path: { id: orgId } },

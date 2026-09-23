@@ -117,6 +117,21 @@ export function useUpdateOrg() {
   });
 }
 
+/**
+ * Staff set an Org Event's Event Tier by hand (#92), through the same org
+ * events endpoint the event sheet uses; only site admins may send `eventTier`.
+ */
+export function useSetOrgEventTier() {
+  return $api.useMutation("patch", "/orgs/{slug}/events/{id}", {
+    meta: {
+      invalidateQueries: [
+        adminQueries.eventTierPurchases().queryKey,
+        adminQueries.orgs().queryKey,
+      ],
+    },
+  });
+}
+
 export function useDeleteOrg() {
   return $api.useMutation("delete", "/admin/orgs/{id}", {
     meta: {

@@ -57,6 +57,7 @@ import { Route as ApproutesExploreUsernameRouteImport } from './routes/_app/(rou
 import { Route as ApproutesEventsEventIdRouteImport } from './routes/_app/(routes)/events/$eventId'
 import { Route as AdminroutesAdminVideoLibraryRouteImport } from './routes/_admin/(routes)/admin/video-library'
 import { Route as AdminroutesAdminSchoolEventsRouteImport } from './routes/_admin/(routes)/admin/school-events'
+import { Route as AdminroutesAdminPurchasesRouteImport } from './routes/_admin/(routes)/admin/purchases'
 import { Route as AdminroutesAdminOutboxStatsRouteImport } from './routes/_admin/(routes)/admin/outbox-stats'
 import { Route as AdminroutesAdminOrgsRouteImport } from './routes/_admin/(routes)/admin/orgs'
 import { Route as AdminroutesAdminGlobalEventsRouteImport } from './routes/_admin/(routes)/admin/global-events'
@@ -339,6 +340,12 @@ const AdminroutesAdminSchoolEventsRoute =
     path: '/admin/school-events',
     getParentRoute: () => AdminRouteRoute,
   } as any)
+const AdminroutesAdminPurchasesRoute =
+  AdminroutesAdminPurchasesRouteImport.update({
+    id: '/(routes)/admin/purchases',
+    path: '/admin/purchases',
+    getParentRoute: () => AdminRouteRoute,
+  } as any)
 const AdminroutesAdminOutboxStatsRoute =
   AdminroutesAdminOutboxStatsRouteImport.update({
     id: '/(routes)/admin/outbox-stats',
@@ -541,6 +548,7 @@ export interface FileRoutesByFullPath {
   '/admin/global-events': typeof AdminroutesAdminGlobalEventsRoute
   '/admin/orgs': typeof AdminroutesAdminOrgsRoute
   '/admin/outbox-stats': typeof AdminroutesAdminOutboxStatsRoute
+  '/admin/purchases': typeof AdminroutesAdminPurchasesRoute
   '/admin/school-events': typeof AdminroutesAdminSchoolEventsRoute
   '/admin/video-library': typeof AdminroutesAdminVideoLibraryRoute
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
@@ -613,6 +621,7 @@ export interface FileRoutesByTo {
   '/admin/global-events': typeof AdminroutesAdminGlobalEventsRoute
   '/admin/orgs': typeof AdminroutesAdminOrgsRoute
   '/admin/outbox-stats': typeof AdminroutesAdminOutboxStatsRoute
+  '/admin/purchases': typeof AdminroutesAdminPurchasesRoute
   '/admin/school-events': typeof AdminroutesAdminSchoolEventsRoute
   '/admin/video-library': typeof AdminroutesAdminVideoLibraryRoute
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
@@ -691,6 +700,7 @@ export interface FileRoutesById {
   '/_admin/(routes)/admin/global-events': typeof AdminroutesAdminGlobalEventsRoute
   '/_admin/(routes)/admin/orgs': typeof AdminroutesAdminOrgsRoute
   '/_admin/(routes)/admin/outbox-stats': typeof AdminroutesAdminOutboxStatsRoute
+  '/_admin/(routes)/admin/purchases': typeof AdminroutesAdminPurchasesRoute
   '/_admin/(routes)/admin/school-events': typeof AdminroutesAdminSchoolEventsRoute
   '/_admin/(routes)/admin/video-library': typeof AdminroutesAdminVideoLibraryRoute
   '/_app/(routes)/events/$eventId': typeof ApproutesEventsEventIdRoute
@@ -768,6 +778,7 @@ export interface FileRouteTypes {
     | '/admin/global-events'
     | '/admin/orgs'
     | '/admin/outbox-stats'
+    | '/admin/purchases'
     | '/admin/school-events'
     | '/admin/video-library'
     | '/events/$eventId'
@@ -840,6 +851,7 @@ export interface FileRouteTypes {
     | '/admin/global-events'
     | '/admin/orgs'
     | '/admin/outbox-stats'
+    | '/admin/purchases'
     | '/admin/school-events'
     | '/admin/video-library'
     | '/events/$eventId'
@@ -917,6 +929,7 @@ export interface FileRouteTypes {
     | '/_admin/(routes)/admin/global-events'
     | '/_admin/(routes)/admin/orgs'
     | '/_admin/(routes)/admin/outbox-stats'
+    | '/_admin/(routes)/admin/purchases'
     | '/_admin/(routes)/admin/school-events'
     | '/_admin/(routes)/admin/video-library'
     | '/_app/(routes)/events/$eventId'
@@ -1315,6 +1328,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminroutesAdminSchoolEventsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/_admin/(routes)/admin/purchases': {
+      id: '/_admin/(routes)/admin/purchases'
+      path: '/admin/purchases'
+      fullPath: '/admin/purchases'
+      preLoaderRoute: typeof AdminroutesAdminPurchasesRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/_admin/(routes)/admin/outbox-stats': {
       id: '/_admin/(routes)/admin/outbox-stats'
       path: '/admin/outbox-stats'
@@ -1553,6 +1573,7 @@ interface AdminRouteRouteChildren {
   AdminroutesAdminGlobalEventsRoute: typeof AdminroutesAdminGlobalEventsRoute
   AdminroutesAdminOrgsRoute: typeof AdminroutesAdminOrgsRoute
   AdminroutesAdminOutboxStatsRoute: typeof AdminroutesAdminOutboxStatsRoute
+  AdminroutesAdminPurchasesRoute: typeof AdminroutesAdminPurchasesRoute
   AdminroutesAdminSchoolEventsRoute: typeof AdminroutesAdminSchoolEventsRoute
   AdminroutesAdminVideoLibraryRoute: typeof AdminroutesAdminVideoLibraryRoute
 }
@@ -1565,6 +1586,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminroutesAdminGlobalEventsRoute: AdminroutesAdminGlobalEventsRoute,
   AdminroutesAdminOrgsRoute: AdminroutesAdminOrgsRoute,
   AdminroutesAdminOutboxStatsRoute: AdminroutesAdminOutboxStatsRoute,
+  AdminroutesAdminPurchasesRoute: AdminroutesAdminPurchasesRoute,
   AdminroutesAdminSchoolEventsRoute: AdminroutesAdminSchoolEventsRoute,
   AdminroutesAdminVideoLibraryRoute: AdminroutesAdminVideoLibraryRoute,
 }
