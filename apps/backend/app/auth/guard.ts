@@ -6,10 +6,17 @@ import type { HttpContext } from "@adonisjs/core/http";
 import redis from "@adonisjs/redis/services/main";
 import type { Connection } from "@adonisjs/redis/types";
 import { randomUUID } from "node:crypto";
+import { revokedSessionsKey } from "./invalidate.ts";
 import type { RedisGuardOptions, RedisUserProviderContract } from "./types.ts";
 
 export type SessionData<SessionUser> = {
   version: number;
+  /**
+   * When the user signed in to start this session, kept across refreshes.
+   * Checked against `revokeUserSessions`. Sessions from before this field
+   * existed have none and count as started at 0, so any revocation ends them.
+   */
+  issuedAt?: number;
   user: SessionUser;
 };
 
@@ -164,6 +171,16 @@ export class RedisSessionGuard<
     );
   }
 
+  /**
+   * Whether this session was started at or before the user's sessions were
+   * last revoked (`revokeUserSessions`).
+   */
+  async #isRevoked(userId: string, session: SessionData<User>) {
+    const revokedAt = await this.#connection.get(revokedSessionsKey(userId));
+    if (!revokedAt) return false;
+    return (session.issuedAt ?? 0) <= Number.parseInt(revokedAt, 10);
+  }
+
   async #validateVersion(userId: string, cachedVersion: number) {
     const version = await this.#getVersion(userId);
     return { valid: version === cachedVersion, version };
@@ -284,6 +301,12 @@ export class RedisSessionGuard<
     );
 
     const userId = cachedUser.getId();
+
+    if (await this.#isRevoked(userId, session)) {
+      await this.#connection.del(this.#sessionId!);
+      throw this.#authenticationFailed();
+    }
+
     const { version, valid } = await this.#validateVersion(
       userId,
       session.version
@@ -294,13 +317,17 @@ export class RedisSessionGuard<
       await this.#refreshSession();
     }
 
-    return { valid, userId, version };
+    return { valid, userId, version, issuedAt: session.issuedAt };
   }
 
   /**
    * Authenticate via the Redis session.
    */
-  async #authenticateViaDatabase(userId: string, version: number) {
+  async #authenticateViaDatabase(
+    userId: string,
+    version: number,
+    issuedAt: number | undefined
+  ) {
     const user = await this.#userProvider.findById(userId);
     if (!user) {
       throw this.#authenticationFailed();
@@ -311,7 +338,7 @@ export class RedisSessionGuard<
       sessionId: this.#sessionId,
     });
 
-    await this.#commitSession({ version, user: user.getOriginal() });
+    await this.#commitSession({ version, issuedAt, user: user.getOriginal() });
     await this.#authenticationSucceeded(user.getOriginal());
   }
 
@@ -320,10 +347,11 @@ export class RedisSessionGuard<
    * First checks the session cache, then falls back to provider.
    */
   async #authenticateViaId(): Promise<User> {
-    const { valid, userId, version } = await this.#authenticateViaRedis();
+    const { valid, userId, version, issuedAt } =
+      await this.#authenticateViaRedis();
 
     if (!valid) {
-      await this.#authenticateViaDatabase(userId, version);
+      await this.#authenticateViaDatabase(userId, version, issuedAt);
     }
 
     return this.user!;
@@ -430,7 +458,11 @@ export class RedisSessionGuard<
     this.isRefreshed = false;
 
     const version = await this.#bumpVersion(providerUser.getId());
-    const session = { version, user: providerUser.getOriginal() };
+    const session = {
+      version,
+      issuedAt: Date.now(),
+      user: providerUser.getOriginal(),
+    };
     await this.#commitSession(session, true);
 
     this.setSessionCookie();

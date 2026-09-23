@@ -40,6 +40,8 @@ async function makeBuyer() {
       password: "h",
       role: "user",
       type: "dancer",
+      // Signed up and confirmed their email: the account is theirs (ADR 0007).
+      verified: true,
     })
     .returning();
 

@@ -11,7 +11,10 @@ import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
 import env from "#start/env";
 import { getUserSession } from "#auth/queries";
-import { passwordTokenKey } from "#modules/auth/password-tokens";
+import {
+  mintPasswordToken,
+  passwordTokenKey,
+} from "#modules/auth/password-tokens";
 import { Service as ResetPasswordService } from "#modules/auth/reset-password/service";
 import { GetOrgService } from "#modules/orgs/get-org/service";
 import { ListEventsService } from "#modules/orgs/events/list/service";
@@ -19,6 +22,7 @@ import { grantsOrgAdmin } from "#shared/org/membership";
 import hash from "@adonisjs/core/services/hash";
 import mail from "@adonisjs/mail/services/main";
 import redis from "@adonisjs/redis/services/main";
+import type { ApiClient } from "@japa/api-client";
 import { test } from "@japa/runner";
 import { eq } from "drizzle-orm";
 import { type PurchaseDetails } from "../checkout/metadata.ts";
@@ -44,13 +48,72 @@ async function makeBuyer(suffix: string) {
       password: "h",
       role: "user",
       type: "dancer",
+      // Signed up and confirmed their email: the account is theirs (ADR 0007).
+      verified: true,
     })
     .returning();
 
   return buyer!;
 }
 
-/** The pre-checkout form's buyer fields for an existing account. */
+/**
+ * An account with a password its holder knows. `verified: false` is what
+ * signup leaves: nothing checked that whoever signed up owns the address.
+ */
+async function makeAccount(suffix: string, verified: boolean) {
+  const email = `account_${suffix}@example.com`;
+  const [account] = await db
+    .insert(users)
+    .values({
+      username: `account_${suffix}`,
+      email,
+      displayEmail: email,
+      firstName: "Holder",
+      lastName: "Account",
+      password: await hash.make(HOLDER_PASSWORD),
+      role: "user",
+      type: "dancer",
+      verified,
+    })
+    .returning();
+
+  return account!;
+}
+
+const HOLDER_PASSWORD = "holder-password";
+
+/** Sign in the way the mobile app does, for a bearer session token. */
+async function signIn(client: ApiClient, email: string, password: string) {
+  return await client
+    .post("/auth/login")
+    .header("X-Client-Type", "mobile")
+    .json({ email, password });
+}
+
+async function sessionToken(
+  client: ApiClient,
+  email: string,
+  password: string
+) {
+  const res = await signIn(client, email, password);
+  res.assertStatus(200);
+  return (res.body() as { token: string }).token;
+}
+
+/** The status the session answers with: 200 while it is live. */
+async function sessionStatus(client: ApiClient, token: string) {
+  const res = await client.get("/auth/session").bearerToken(token);
+  return res.status();
+}
+
+async function passwordOf(userId: string) {
+  const [row] = await db
+    .select({ password: users.password, verified: users.verified })
+    .from(users)
+    .where(eq(users.id, userId));
+  return row!;
+}
+
 /** The Org-ready emails the fake mailer caught. */
 const orgReadyEmails = (fake: ReturnType<typeof mail.fake>) =>
   fake.mails
@@ -448,6 +511,133 @@ test.group("ProvisionPurchaseService", (group) => {
       );
     });
     assert.isNull(await redis.get(passwordTokenKey("setup", buyer.id)));
+  });
+
+  test("an unverified account is treated as unclaimed: new password, sessions ended, set-password link", async ({
+    assert,
+    client,
+  }) => {
+    const squatter = await makeAccount("unclaimed", false);
+    const token = await sessionToken(client, squatter.email, HOLDER_PASSWORD);
+    assert.equal(await sessionStatus(client, token), 200);
+    // A forgot-password link someone already requested.
+    await mintPasswordToken("reset", squatter.id);
+    const fake = mail.fake();
+
+    const result = await svc.execute({
+      reference: "cs_unclaimed",
+      buyer: { name: "Real Owner", email: squatter.email },
+      purchase: purchase(),
+    });
+
+    // Still the same account, and still the Org's admin — for the owner of
+    // the address, once they set a password.
+    assert.equal(result.buyer.id, squatter.id);
+    assert.isTrue(result.buyer.unclaimed);
+    assert.isFalse(result.buyer.accountCreated);
+    const memberships = await db
+      .select()
+      .from(orgMemberships)
+      .where(eq(orgMemberships.userId, squatter.id));
+    assert.lengthOf(memberships, 1);
+    assert.equal(memberships[0]!.role, "admin");
+    assert.equal(memberships[0]!.type, "organizer");
+
+    // The password whoever signed up chose no longer works.
+    const after = await passwordOf(squatter.id);
+    assert.isFalse(await hash.verify(after.password, HOLDER_PASSWORD));
+    assert.isFalse(after.verified);
+    const refused = await signIn(client, squatter.email, HOLDER_PASSWORD);
+    refused.assertStatus(400);
+
+    // Their session is over, and the earlier link is spent.
+    assert.equal(await sessionStatus(client, token), 401);
+    assert.isNull(await redis.get(passwordTokenKey("reset", squatter.id)));
+
+    // The owner of the address gets the set-password email.
+    fake.mails.assertSentCount(OrgReadyEmail, 1);
+    const [sent] = orgReadyEmails(fake);
+    assert.equal(sent!.data.to, squatter.displayEmail);
+    assert.equal(sent!.subject, "Your Org is ready — set your password");
+    const link = new URL(sent!.data.setPasswordUrl!);
+    assert.equal(link.searchParams.get("userId"), squatter.id);
+
+    // The page Checkout returns to says to check their email.
+    const status = await client.get("/event-tiers/checkout/cs_unclaimed");
+    status.assertStatus(200);
+    assert.equal(status.body().nextStep, "set_password");
+
+    // Using the link sets the password and verifies the account.
+    await new ResetPasswordService(new DatabaseService()).execute({
+      userId: squatter.id,
+      token: link.searchParams.get("token")!,
+      password: "owner-password",
+    });
+    const claimed = await passwordOf(squatter.id);
+    assert.isTrue(await hash.verify(claimed.password, "owner-password"));
+    assert.isTrue(claimed.verified);
+  });
+
+  test("a verified account keeps its password and sessions and is told to sign in", async ({
+    assert,
+    client,
+  }) => {
+    const owner = await makeAccount("verified", true);
+    const token = await sessionToken(client, owner.email, HOLDER_PASSWORD);
+    const before = await passwordOf(owner.id);
+    const fake = mail.fake();
+
+    const result = await svc.execute({
+      reference: "cs_verified",
+      buyer: { name: "Real Owner", email: owner.email },
+      purchase: purchase(),
+    });
+
+    assert.equal(result.buyer.id, owner.id);
+    assert.isFalse(result.buyer.unclaimed);
+    const after = await passwordOf(owner.id);
+    assert.equal(after.password, before.password);
+    assert.equal(await sessionStatus(client, token), 200);
+
+    fake.mails.assertSentCount(OrgReadyEmail, 1);
+    const [sent] = orgReadyEmails(fake);
+    assert.isNull(sent!.data.setPasswordUrl);
+    assert.equal(sent!.subject, "Your Org is ready — sign in");
+
+    const status = await client.get("/event-tiers/checkout/cs_verified");
+    assert.equal(status.body().nextStep, "sign_in");
+  });
+
+  test("a redelivered webhook after the owner set their password changes nothing", async ({
+    assert,
+    client,
+  }) => {
+    const account = await makeAccount("retry_unclaimed", false);
+    const fake = mail.fake();
+    const input = {
+      reference: "cs_retry_unclaimed",
+      buyer: { name: "Real Owner", email: account.email },
+      purchase: purchase(),
+    };
+
+    await svc.execute(input);
+    const [sent] = orgReadyEmails(fake);
+    await new ResetPasswordService(new DatabaseService()).execute({
+      userId: account.id,
+      token: new URL(sent!.data.setPasswordUrl!).searchParams.get("token")!,
+      password: "owner-password",
+    });
+    const token = await sessionToken(client, account.email, "owner-password");
+
+    const retry = await svc.execute(input);
+
+    assert.isFalse(retry.provisioned);
+    assert.isFalse(retry.buyer.unclaimed);
+    const after = await passwordOf(account.id);
+    assert.isTrue(await hash.verify(after.password, "owner-password"));
+    assert.isTrue(after.verified);
+    assert.equal(await sessionStatus(client, token), 200);
+    fake.mails.assertSentCount(OrgReadyEmail, 1);
   });
 
   test("a redelivered webhook creates no second account and sends no second email", async ({
