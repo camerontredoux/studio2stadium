@@ -64,7 +64,7 @@ SELECT
   '$argon2id$v=19$m=65536,t=3,p=1$Z92hS0l+k62OyBF3P2nAkQ$KR306+6/NGetQOhL1z7dXLfTVzTvivCYzjODdfDL/QU'::text AS password_hash,
   -- Patterns shared by the safety-net sweep and the sanity checks, so that
   -- the two always agree.
-  '[A-Za-z0-9._%+-]+@(?!staging\.invalid(?![A-Za-z0-9.-]))[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}'::text
+  '[A-Za-z0-9._%+-]+@(?!staging\.invalid(?![A-Za-z0-9]|[.-][A-Za-z0-9]))[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}'::text
     AS email_pat,
   '(?<![0-9A-Za-z])(\+?1[ .-]?)?(\([0-9]{3}\) ?|[0-9]{3}[ .-]?)[0-9]{3}[ .-][0-9]{4}(?![0-9A-Za-z])|(?<![0-9A-Za-z+])\+[0-9]{10,14}(?![0-9])'::text
     AS phone_pat,
