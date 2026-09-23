@@ -3,9 +3,9 @@ import type { components } from "@/lib/api/types";
 /**
  * What an Org Event includes is bought per event (ADR 0002), so the org area's
  * convenience gating asks an Org Event rather than the Org. The backend
- * resolves that answer — the event's Event Tier, with any staff override on the
- * Org applied — and sends the result, so the rule lives in one place and this
- * cannot drift from what `OrgFeatureMiddleware` enforces.
+ * resolves that answer — the event's Event Tier, with any staff override on
+ * that event applied — and sends the result, so the rule lives in one place
+ * and this cannot drift from what `OrgFeatureMiddleware` enforces.
  *
  * Which event depends on what the request will ask for. A Dancer's reads name
  * the event she is viewing and the backend gates on that one

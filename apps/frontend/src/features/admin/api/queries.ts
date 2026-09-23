@@ -45,6 +45,11 @@ export const adminQueries = {
   orgs: () => $api.queryOptions("get", "/admin/orgs"),
   eventTierPurchases: () =>
     $api.queryOptions("get", "/admin/event-tier-purchases"),
+  /** Each of an Org's events with its capability defaults and exceptions. */
+  orgEventCapabilities: (orgId: string) =>
+    $api.queryOptions("get", "/admin/orgs/{id}/events", {
+      params: { path: { id: orgId } },
+    }),
   orgMembers: (orgId: string) =>
     $api.queryOptions("get", "/admin/orgs/{id}/members", {
       params: { path: { id: orgId } },

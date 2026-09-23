@@ -21,6 +21,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTab } from "@/components/ui/tabs";
 import { toastManager } from "@/components/ui/toast-manager";
 import { useUpdateOrg } from "@/features/admin/api/mutations";
+import { EventCapabilitiesPanel } from "./event-capabilities-panel";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -40,27 +41,12 @@ const profileSchema = z.object({
 
 type ProfileForm = z.infer<typeof profileSchema>;
 
+/**
+ * Org-wide configuration. What an Org Event includes — callbacks, check-in,
+ * school selections, the video library — is set per event instead, in
+ * `EventCapabilitiesPanel` (#109).
+ */
 const KNOWN_FEATURES = [
-  {
-    key: "callbacks",
-    label: "Callbacks",
-    description: "Allow coaches to mark dancers for callbacks",
-  },
-  {
-    key: "check_in",
-    label: "Check-In",
-    description: "Enable dancer/coach check-in at events",
-  },
-  {
-    key: "school_selections",
-    label: "School Selections",
-    description: "Allow dancers to select interested schools",
-  },
-  {
-    key: "video_library",
-    label: "Video Library",
-    description: "Enable video library for events",
-  },
   {
     key: "freeTierUsers",
     label: "Free-tier Users",
@@ -73,7 +59,8 @@ const KNOWN_SETTINGS = [
   {
     key: "max_callbacks_per_coach",
     label: "Max Callbacks per Coach",
-    description: "Maximum number of callbacks each coach can publish per showcase. Set to -1 for unlimited.",
+    description:
+      "Maximum number of callbacks each coach can publish per showcase. Set to -1 for unlimited.",
     type: "number" as const,
     defaultValue: "5",
   },
@@ -210,9 +197,7 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
     const settingsUpdate = {
       ...org.settings,
       welcome_video_coach:
-        coachVideoEnabled && coachVideoUrl.trim()
-          ? coachVideoUrl.trim()
-          : null,
+        coachVideoEnabled && coachVideoUrl.trim() ? coachVideoUrl.trim() : null,
       welcome_video_dancer:
         dancerVideoEnabled && dancerVideoUrl.trim()
           ? dancerVideoUrl.trim()
@@ -221,13 +206,17 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
     updateOrg(
       {
         params: { path: { id: org.id } },
-        body: { features, settings: settingsUpdate } as never,
+        // Keys this tab does not show are kept, not wiped.
+        body: {
+          features: { ...org.features, ...features },
+          settings: settingsUpdate,
+        } as never,
       },
       {
         onSuccess: () => {
           toastManager.add({
             title: "Features updated",
-            description: "Feature flags and welcome videos saved",
+            description: "Org settings and welcome videos saved",
             type: "success",
           });
         },
@@ -285,7 +274,6 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
       },
     );
   };
-
 
   return (
     <Dialog open={!!org} onOpenChange={onOpenChange}>
@@ -386,28 +374,43 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
 
             <TabsContent value="features">
               <div className="space-y-4">
-                {KNOWN_FEATURES.map((feature) => (
-                  <div
-                    key={feature.key}
-                    className="flex items-center justify-between gap-4 py-1"
-                  >
+                {org && (
+                  <div className="space-y-2">
                     <div className="space-y-0.5">
-                      <p className="text-sm font-medium">{feature.label}</p>
+                      <p className="text-sm font-medium">Event capabilities</p>
                       <p className="text-muted-foreground text-xs">
-                        {feature.description}
+                        Each event includes what its Event Tier does, unless you
+                        set an exception on it. Changes save immediately and
+                        apply to that event only.
                       </p>
                     </div>
-                    <Switch
-                      checked={features[feature.key] ?? false}
-                      onCheckedChange={(checked) =>
-                        setFeatures((prev) => ({
-                          ...prev,
-                          [feature.key]: checked,
-                        }))
-                      }
-                    />
+                    <EventCapabilitiesPanel orgId={org.id} />
                   </div>
-                ))}
+                )}
+                <div className="border-border space-y-4 border-t pt-4">
+                  {KNOWN_FEATURES.map((feature) => (
+                    <div
+                      key={feature.key}
+                      className="flex items-center justify-between gap-4 py-1"
+                    >
+                      <div className="space-y-0.5">
+                        <p className="text-sm font-medium">{feature.label}</p>
+                        <p className="text-muted-foreground text-xs">
+                          {feature.description}
+                        </p>
+                      </div>
+                      <Switch
+                        checked={features[feature.key] ?? false}
+                        onCheckedChange={(checked) =>
+                          setFeatures((prev) => ({
+                            ...prev,
+                            [feature.key]: checked,
+                          }))
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
                 <div className="border-border space-y-4 border-t pt-4">
                   <div>
                     <div className="flex items-center justify-between gap-4 py-1">
@@ -477,13 +480,17 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
               <div className="space-y-4">
                 {KNOWN_SETTINGS.map((setting) => (
                   <div key={setting.key} className="space-y-1">
-                    <label className="text-sm font-medium">{setting.label}</label>
+                    <label className="text-sm font-medium">
+                      {setting.label}
+                    </label>
                     <p className="text-muted-foreground text-xs">
                       {setting.description}
                     </p>
                     {setting.type === "number" ? (
                       <NumberField
-                        value={Number(settings[setting.key] ?? setting.defaultValue)}
+                        value={Number(
+                          settings[setting.key] ?? setting.defaultValue,
+                        )}
                         onValueChange={(val) =>
                           setSettings((prev) => ({
                             ...prev,
@@ -520,8 +527,8 @@ export function EditOrgDialog({ org, onOpenChange }: EditOrgDialogProps) {
                       Free-Tier Upgrade URL
                     </label>
                     <p className="text-muted-foreground text-xs">
-                      External link for the &ldquo;Unlock My Full
-                      Profile&rdquo; button in free-tier invite emails
+                      External link for the &ldquo;Unlock My Full Profile&rdquo;
+                      button in free-tier invite emails
                     </p>
                     <Input
                       value={settings.free_tier_upgrade_url ?? ""}

@@ -1444,6 +1444,120 @@ export interface paths {
         };
         trace?: never;
     };
+    "/admin/orgs/{id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get an organization's event capabilities
+         * @description Returns each of an organization's Org Events with its Event Tier and, per capability, what the Event Tier includes, the staff override set on the event, and what is in force
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOrgsIdEventsResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/orgs/{id}/events/{eventId}/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Set an Org Event's capability overrides
+         * @description Replaces the staff exceptions to what one Org Event's Event Tier includes. A capability left out defers to the Event Tier
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    eventId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminOrgsIdEventsIdCapabilitiesRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOrgsIdEventsIdCapabilitiesResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/admin/orgs/{id}/members": {
         parameters: {
             query?: never;
@@ -10886,6 +11000,44 @@ export interface components {
             settings: Record<string, never>;
             selfServe: boolean;
         };
+        AdminOrgsIdEventsResponse: {
+            id: string;
+            name: string;
+            /** @enum {string} */
+            eventTier: "core" | "regional" | "national" | "enterprise";
+            startDate: string;
+            isActive: boolean;
+            capabilities: {
+                override: boolean | null;
+                /** @enum {string} */
+                capability: "video_library" | "callbacks" | "check_in" | "school_selections";
+                eventTierDefault: boolean;
+                included: boolean;
+            }[];
+        }[];
+        AdminOrgsIdEventsIdCapabilitiesRequest: {
+            capabilityOverrides: {
+                video_library?: (string | number | boolean) | null;
+                callbacks?: (string | number | boolean) | null;
+                check_in?: (string | number | boolean) | null;
+                school_selections?: (string | number | boolean) | null;
+            };
+        };
+        AdminOrgsIdEventsIdCapabilitiesResponse: {
+            id: string;
+            name: string;
+            /** @enum {string} */
+            eventTier: "core" | "regional" | "national" | "enterprise";
+            startDate: string;
+            isActive: boolean;
+            capabilities: {
+                override: boolean | null;
+                /** @enum {string} */
+                capability: "video_library" | "callbacks" | "check_in" | "school_selections";
+                eventTierDefault: boolean;
+                included: boolean;
+            }[];
+        };
         AdminOrgsIdMembersResponse: {
             id: string;
             user: {
@@ -11165,22 +11317,22 @@ export interface components {
                 type: components["schemas"]["UploadKind"];
                 eventId: string;
                 isActive: boolean;
+                capabilities: ("video_library" | "callbacks" | "check_in" | "school_selections")[];
                 eventName: string;
                 eventStartDate: string;
                 eventEndDate: string;
                 hasStarted: boolean;
-                capabilities: ("video_library" | "callbacks" | "check_in" | "school_selections")[];
             } | null;
             myRosters: {
                 id: string;
                 type: components["schemas"]["UploadKind"];
                 eventId: string;
                 isActive: boolean;
+                capabilities: ("video_library" | "callbacks" | "check_in" | "school_selections")[];
                 eventName: string;
                 eventStartDate: string;
                 eventEndDate: string;
                 hasStarted: boolean;
-                capabilities: ("video_library" | "callbacks" | "check_in" | "school_selections")[];
             }[];
             activeEventCapabilities: ("video_library" | "callbacks" | "check_in" | "school_selections")[];
         };
@@ -11230,6 +11382,12 @@ export interface components {
             venueAddress: string | null;
             contactEmail: string | null;
             isActive: boolean;
+            capabilityOverrides: {
+                video_library?: boolean;
+                callbacks?: boolean;
+                check_in?: boolean;
+                school_selections?: boolean;
+            };
             schedulePdfUrl: string | null;
             startTime: string | null;
             timezone: string | null;
@@ -11940,7 +12098,6 @@ export interface components {
             publishedAt: string | null;
         };
         OrgsIdDancerCallbacksResponse: {
-            publishedShowcaseCount: number;
             callbacks: {
                 username: string | null;
                 firstName: string;
@@ -11951,6 +12108,7 @@ export interface components {
                 showcaseNumbers: number[];
                 firstShowcaseNumber: number;
             }[];
+            publishedShowcaseCount: number;
         };
         OrgsIdSettingsRequest: {
             defaultTimezone?: string | null;
