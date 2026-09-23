@@ -100,6 +100,31 @@ export default await Env.create(new URL("../", import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Optional auth cookie overrides. Staging shares the
+  | .studio2stadium.com cookie domain with prod, so it sets
+  | its own cookie names; otherwise prod reads staging's
+  | cookies and the other way round. Defaults:
+  | COOKIE_DOMAIN ".studio2stadium.com" (production only),
+  | SESSION_COOKIE_NAME "auth_session",
+  | CACHE_COOKIE_NAME "auth_cache".
+  |----------------------------------------------------------
+  */
+  COOKIE_DOMAIN: Env.schema.string.optional(),
+  SESSION_COOKIE_NAME: Env.schema.string.optional(),
+  CACHE_COOKIE_NAME: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Optional, comma-separated exact origins that CORS allows
+  | on every route in production, in addition to the prod
+  | api. and app. hostnames (config/cors.ts). Staging sets
+  | its own hostnames here. Unset allows only prod's.
+  |----------------------------------------------------------
+  */
+  CORS_ORIGINS: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
   | Variables for configuring the limiter package
   |----------------------------------------------------------
   */
