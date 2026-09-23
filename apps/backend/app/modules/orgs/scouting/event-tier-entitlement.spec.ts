@@ -18,7 +18,8 @@ import { organizations, orgMemberships } from "#database/schema/organizations";
 import { dancerProfiles } from "#database/schema/dancers";
 import { schoolProfiles } from "#database/schema/schools";
 import { users } from "#database/schema/users";
-import type { EventTier } from "#shared/org/event-tiers";
+import { eventTierIncludes, type EventTier } from "#shared/org/event-tiers";
+import type { CapabilityOverrides } from "#shared/org/entitlement";
 import redis from "@adonisjs/redis/services/main";
 import { MessageBuilder } from "@adonisjs/core/helpers";
 import { randomUUID } from "node:crypto";
@@ -113,6 +114,18 @@ async function orgWithEvents(slug: string, eventTiers: EventTier[]) {
   return { org: org!, events, token: await loginUser(coach.id) };
 }
 
+/** Sets one Org Event's staff exceptions, as the admin endpoint would. */
+async function setOverrides(
+  eventId: string,
+  capabilityOverrides: CapabilityOverrides
+) {
+  await db
+    .update(orgEvents)
+    .set({ capabilityOverrides })
+    .where(eq(orgEvents.id, eventId))
+    .execute();
+}
+
 /** Only one Org Event may be active per Org, so activating is a swap. */
 async function activate(orgId: string, eventId: string) {
   await db
@@ -191,16 +204,12 @@ test.group("Event Tier entitlement", (group) => {
     atNational.assertStatus(200);
   });
 
-  test("an explicit org flag overrides what the Event Tier includes", async ({
+  test("an explicit override on the event wins over what its Event Tier includes", async ({
     client,
   }) => {
     // Turned on for an event that did not buy it.
     const core = await orgWithEvents("flagged-core-org", ["core"]);
-    await db
-      .update(organizations)
-      .set({ features: { callbacks: true } })
-      .where(eq(organizations.id, core.org.id))
-      .execute();
+    await setOverrides(core.events[0]!.id, { callbacks: true });
     const granted = await client
       .get(`/orgs/${core.org.slug}/callbacks`)
       .header("Authorization", `Bearer ${core.token}`);
@@ -211,15 +220,112 @@ test.group("Event Tier entitlement", (group) => {
     const enterprise = await orgWithEvents("flagged-enterprise-org", [
       "enterprise",
     ]);
-    await db
-      .update(organizations)
-      .set({ features: { callbacks: false } })
-      .where(eq(organizations.id, enterprise.org.id))
-      .execute();
+    await setOverrides(enterprise.events[0]!.id, { callbacks: false });
     const denied = await client
       .get(`/orgs/${enterprise.org.slug}/callbacks`)
       .header("Authorization", `Bearer ${enterprise.token}`);
     denied.assertStatus(404);
+  });
+
+  test("two events under one Org at the same Event Tier can carry different overrides", async ({
+    client,
+    assert,
+  }) => {
+    const { org, events, token } = await orgWithEvents("differing-org", [
+      "enterprise",
+      "enterprise",
+    ]);
+    const [spring, summer] = events;
+    await setOverrides(spring!.id, { callbacks: false });
+
+    await activate(org.id, spring!.id);
+    const atSpring = await client
+      .get(`/orgs/${org.slug}/callbacks`)
+      .header("Authorization", `Bearer ${token}`);
+    atSpring.assertStatus(404);
+    const springPayload = await client
+      .get(`/orgs/${org.slug}`)
+      .header("Authorization", `Bearer ${token}`);
+    assert.notInclude(
+      springPayload.body().activeEventCapabilities as string[],
+      "callbacks"
+    );
+
+    await activate(org.id, summer!.id);
+    const atSummer = await client
+      .get(`/orgs/${org.slug}/callbacks`)
+      .header("Authorization", `Bearer ${token}`);
+    atSummer.assertStatus(200);
+    const summerPayload = await client
+      .get(`/orgs/${org.slug}`)
+      .header("Authorization", `Bearer ${token}`);
+    assert.include(
+      summerPayload.body().activeEventCapabilities as string[],
+      "callbacks"
+    );
+  });
+
+  test("a capability flag left on the Org decides nothing", async ({
+    client,
+  }) => {
+    const { org, token } = await orgWithEvents("org-flag-org", ["core"]);
+    await db
+      .update(organizations)
+      .set({ features: { callbacks: true } })
+      .where(eq(organizations.id, org.id))
+      .execute();
+
+    const res = await client
+      .get(`/orgs/${org.slug}/callbacks`)
+      .header("Authorization", `Bearer ${token}`);
+    res.assertStatus(404);
+  });
+
+  test("the org payload and the active-event gate agree for every override", async ({
+    client,
+    assert,
+  }) => {
+    // A Coach is gated on the Org's active event, and the frontend reads that
+    // answer from `activeEventCapabilities`. Both must agree for every Event
+    // Tier crossed with every override.
+    const { org, events, token } = await orgWithEvents("coach-agreement-org", [
+      "core",
+      "regional",
+      "national",
+      "enterprise",
+    ]);
+    const overrides: CapabilityOverrides[] = [
+      {},
+      { callbacks: true },
+      { callbacks: false },
+    ];
+    for (const event of events) {
+      await activate(org.id, event.id);
+      for (const capabilityOverrides of overrides) {
+        await setOverrides(event.id, capabilityOverrides);
+        const label = `tier=${event.eventTier} overrides=${JSON.stringify(capabilityOverrides)}`;
+
+        const payload = await client
+          .get(`/orgs/${org.slug}`)
+          .header("Authorization", `Bearer ${token}`);
+        payload.assertStatus(200);
+        const shown = (
+          payload.body().activeEventCapabilities as string[]
+        ).includes("callbacks");
+
+        const gated = await client
+          .get(`/orgs/${org.slug}/callbacks`)
+          .header("Authorization", `Bearer ${token}`);
+        const served = gated.status() === 200;
+        if (!served) assert.equal(gated.status(), 404, label);
+
+        const expected =
+          capabilityOverrides.callbacks ??
+          eventTierIncludes(event.eventTier, "callbacks");
+        assert.equal(shown, expected, `payload: ${label}`);
+        assert.equal(served, expected, `middleware: ${label}`);
+      }
+    }
   });
 
   test("a Dancer reading her own event gates on the event she asked for", async ({
@@ -278,7 +384,7 @@ test.group("Event Tier entitlement", (group) => {
     // `GET /orgs/{slug}` reports for the event she is viewing (#110). That
     // answer has to match what `orgFeature` enforces on the same request, for
     // every pairing of the Org's active event with the one she asked for, and
-    // with or without a staff override on the Org.
+    // with or without a staff override on either event.
     const { org, events } = await orgWithEvents("agreement-org", [
       "core",
       "national",
@@ -302,23 +408,28 @@ test.group("Event Tier entitlement", (group) => {
     );
     const token = await loginUser(dancer.id);
 
-    const overrides: Array<{ callbacks?: boolean }> = [
+    const overrides: CapabilityOverrides[] = [
       {},
       { callbacks: true },
       { callbacks: false },
     ];
-    for (const features of overrides) {
-      await db
-        .update(organizations)
-        .set({ features })
-        .where(eq(organizations.id, org.id))
-        .execute();
+    // Each event takes each override independently, so the two events differ
+    // in most rounds.
+    const [coreEvent, nationalEvent] = events;
+    const rounds = overrides.flatMap((onCore) =>
+      overrides.map((onNational) => ({ onCore, onNational }))
+    );
+    for (const { onCore, onNational } of rounds) {
+      await setOverrides(coreEvent!.id, onCore);
+      await setOverrides(nationalEvent!.id, onNational);
+      const overridesOf = (eventId: string) =>
+        eventId === coreEvent!.id ? onCore : onNational;
 
       for (const active of events) {
         await activate(org.id, active.id);
 
         for (const requested of events) {
-          const label = `features=${JSON.stringify(features)} active=${active.eventTier} requested=${requested.eventTier}`;
+          const label = `core=${JSON.stringify(onCore)} national=${JSON.stringify(onNational)} active=${active.eventTier} requested=${requested.eventTier}`;
 
           const payload = await client
             .get(`/orgs/${org.slug}`)
@@ -340,10 +451,11 @@ test.group("Event Tier entitlement", (group) => {
           if (!served) assert.equal(gated.status(), 404, label);
 
           // Agreement alone would pass if both were wrong the same way, so
-          // pin the answer too: the override if staff set one, else the
-          // requested event's Event Tier — never the active event's.
+          // pin the answer too: the requested event's override if staff set
+          // one, else its Event Tier — never the active event's.
           const expected =
-            features.callbacks ?? requested.eventTier === "national";
+            overridesOf(requested.id).callbacks ??
+            requested.eventTier === "national";
           assert.equal(shown, expected, `payload: ${label}`);
           assert.equal(served, expected, `middleware: ${label}`);
         }

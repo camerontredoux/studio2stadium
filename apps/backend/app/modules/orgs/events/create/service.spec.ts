@@ -22,6 +22,7 @@ import {
   EventTierRequiredError,
 } from "#shared/org/event-tier-authority";
 import { eventTierPurchases } from "#database/schema/event-tier-purchases";
+import { resolveCapabilities } from "#shared/org/entitlement";
 
 const svc = new CreateEventService(new DatabaseService());
 
@@ -439,6 +440,64 @@ test.group(
       const organizer = await makeActorUser();
       const ev = await svc.execute(await summitId(), details, organizer.id);
       assert.equal(ev.eventTier, "enterprise");
+    });
+
+    test("a new event in a grandfathered Org keeps the overrides its Org's events carry", async ({
+      assert,
+    }) => {
+      // Overrides were org-wide before #109, so a new event took the Org's.
+      const organizer = await makeActorUser();
+      const orgId = await summitId();
+      const earlier = await existingEvent(orgId, "enterprise");
+      await db
+        .update(orgEvents)
+        .set({ capabilityOverrides: { check_in: false, callbacks: true } })
+        .where(eq(orgEvents.id, earlier.id));
+
+      const ev = await svc.execute(orgId, details, organizer.id);
+      assert.deepEqual(ev.capabilityOverrides, {
+        check_in: false,
+        callbacks: true,
+      });
+      assert.sameMembers(resolveCapabilities(ev), [
+        "callbacks",
+        "school_selections",
+        "video_library",
+      ]);
+    });
+
+    test("a grandfathered Org's first event starts from the flags still on the Org", async ({
+      assert,
+    }) => {
+      // An Org with no event when overrides moved kept its flags (#109): they
+      // would have applied to its first event, so they still do.
+      const organizer = await makeActorUser();
+      const ev = await svc.execute(await summitId(), details, organizer.id);
+      assert.deepEqual(ev.capabilityOverrides, {
+        callbacks: true,
+        school_selections: true,
+        video_library: true,
+      });
+    });
+
+    test("an event staff add to a self-serve Org starts with no overrides", async ({
+      assert,
+    }) => {
+      const staff = await makeActorUser();
+      const orgId = await summitId();
+      const bought = await purchasedEvent(orgId, staff.id);
+      await db
+        .update(orgEvents)
+        .set({ capabilityOverrides: { callbacks: true } })
+        .where(eq(orgEvents.id, bought.id));
+
+      const ev = await svc.execute(
+        orgId,
+        { ...details, eventTier: "regional" },
+        staff.id,
+        { isStaff: true }
+      );
+      assert.deepEqual(ev.capabilityOverrides, {});
     });
   }
 );

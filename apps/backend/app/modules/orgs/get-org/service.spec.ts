@@ -80,13 +80,13 @@ test.group("GET /orgs/:slug", (group) => {
     assert.deepEqual(response.body().activeEventCapabilities, []);
   });
 
-  test("an org's explicit flags override the active event's Event Tier", async ({
+  test("the active event's explicit overrides win over its Event Tier", async ({
     client,
     assert,
   }) => {
-    // The summit org switches callbacks, school_selections and video_library on
-    // and never mentions check_in, so a Core event keeps the first three and
-    // takes its answer on the fourth from the Event Tier.
+    // The event switches callbacks, school_selections and video_library on and
+    // never mentions check_in, so a Core event keeps the first three and takes
+    // its answer on the fourth from the Event Tier.
     const [org] = await db
       .select()
       .from(organizations)
@@ -98,6 +98,11 @@ test.group("GET /orgs/:slug", (group) => {
       endDate: "2026-09-02",
       isActive: true,
       eventTier: "core",
+      capabilityOverrides: {
+        callbacks: true,
+        school_selections: true,
+        video_library: true,
+      },
     });
 
     const response = await client.get("/orgs/summit");
@@ -109,11 +114,12 @@ test.group("GET /orgs/:slug", (group) => {
     ]);
   });
 
-  test("an org with no active event resolves to its overrides alone", async ({
+  test("an org with no active event includes nothing", async ({
     client,
     assert,
   }) => {
-    // The core org overrides nothing, so there is nothing to grant.
+    // Overrides live on events (#109), so with no event there is nothing to
+    // grant from.
     const response = await client.get("/orgs/core");
     response.assertStatus(200);
     assert.deepEqual(response.body().activeEventCapabilities, []);

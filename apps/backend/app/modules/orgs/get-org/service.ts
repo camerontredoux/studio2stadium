@@ -42,7 +42,7 @@ export interface GetOrgResult {
   myRosters: OrgRosterSummary[];
   /**
    * Every capability in force for the Org's active event: what its Event Tier
-   * includes, with any staff override on the Org applied (ADR 0002 and
+   * includes, with any staff override on that event applied (ADR 0002 and
    * `#shared/org/entitlement`).
    *
    * Resolved here rather than sent as a bare Event Tier so that the frontend's
@@ -74,14 +74,14 @@ export class GetOrgService {
       if (!org) return null;
 
       const [activeEvent] = await db
-        .select({ eventTier: orgEvents.eventTier })
+        .select({
+          eventTier: orgEvents.eventTier,
+          capabilityOverrides: orgEvents.capabilityOverrides,
+        })
         .from(orgEvents)
         .where(and(eq(orgEvents.orgId, org.id), eq(orgEvents.isActive, true)))
         .limit(1);
-      const activeEventCapabilities = resolveCapabilities(
-        org.features,
-        activeEvent?.eventTier
-      );
+      const activeEventCapabilities = resolveCapabilities(activeEvent);
 
       let membership: GetOrgResult["membership"] = null;
       let myRoster: GetOrgResult["myRoster"] = null;
@@ -114,6 +114,7 @@ export class GetOrgService {
             eventTimezone: orgEvents.timezone,
             isActive: orgEvents.isActive,
             eventTier: orgEvents.eventTier,
+            capabilityOverrides: orgEvents.capabilityOverrides,
           })
           .from(eventRosters)
           .innerJoin(orgEvents, eq(orgEvents.id, eventRosters.eventId))
@@ -146,7 +147,7 @@ export class GetOrgService {
             roster.eventStartTime,
             roster.eventTimezone
           ),
-          capabilities: resolveCapabilities(org.features, roster.eventTier),
+          capabilities: resolveCapabilities(roster),
         }));
         myRoster = myRosters[0] ?? null;
       }

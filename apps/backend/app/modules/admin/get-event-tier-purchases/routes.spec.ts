@@ -181,7 +181,7 @@ test.group("Admin Event Tier purchases (#92)", (group) => {
         eventTier: "core",
       })
       .returning();
-    const siblingCapsBefore = resolveCapabilities(org.features, "core");
+    const siblingCapsBefore = resolveCapabilities(sibling);
 
     const patch = await client
       .patch(`/orgs/${org.slug}/events/${event.id}`)
@@ -200,18 +200,15 @@ test.group("Admin Event Tier purchases (#92)", (group) => {
 
     assert.equal(changed!.eventTier, "enterprise");
     assert.deepEqual(
-      resolveCapabilities(org.features, changed!.eventTier),
-      resolveCapabilities(org.features, "enterprise")
+      resolveCapabilities(changed),
+      resolveCapabilities({ ...changed!, eventTier: "enterprise" })
     );
     assert.notDeepEqual(
-      resolveCapabilities(org.features, changed!.eventTier),
-      resolveCapabilities(org.features, "regional")
+      resolveCapabilities(changed),
+      resolveCapabilities({ ...changed!, eventTier: "regional" })
     );
     assert.equal(untouched!.eventTier, "core");
-    assert.deepEqual(
-      resolveCapabilities(org.features, untouched!.eventTier),
-      siblingCapsBefore
-    );
+    assert.deepEqual(resolveCapabilities(untouched), siblingCapsBefore);
   });
 
   test("a signed-out visitor cannot list purchases", async ({ client }) => {

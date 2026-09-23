@@ -14,6 +14,7 @@ import {
 import { citext, timestamps } from "./helpers/columns.ts";
 import { organizations } from "./organizations.ts";
 import { users } from "./users.ts";
+import type { CapabilityOverrides } from "#shared/org/entitlement";
 
 export const orgEvents = pg.pgTable(
   "org_events",
@@ -36,6 +37,16 @@ export const orgEvents = pg.pgTable(
     // 0006), and the default keeps hand-built events there until the purchase
     // flow starts setting it from what was actually paid for.
     eventTier: eventTier().notNull().default("enterprise"),
+    // Staff exceptions to what the Event Tier includes, per capability: `true`
+    // or `false` wins over the Event Tier, a missing key defers to it. Resolved
+    // only through `#shared/org/entitlement` (#109). These moved here from
+    // `organizations.features`, copied onto every event the Org had, so an
+    // Org's events can now differ.
+    capabilityOverrides: pg
+      .jsonb()
+      .$type<CapabilityOverrides>()
+      .notNull()
+      .default({}),
     schedulePdfUrl: pg.text(),
     startTime: pg.text(),
     timezone: pg.text(),

@@ -4,7 +4,13 @@ import { users } from "#database/schema/users";
 import { inject } from "@adonisjs/core";
 import type { Validator } from "./validator.ts";
 import { AuditCollector } from "#database/audit";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
+import { organizations } from "#database/schema/organizations";
+import type { Transaction } from "#database/service";
+import {
+  readCapabilityOverrides,
+  type CapabilityOverrides,
+} from "#shared/org/entitlement";
 import {
   assertEventTierWrite,
   assertMayCreateOrgEvent,
@@ -37,10 +43,8 @@ export class CreateEventService {
     // Create the event first in a transaction, then log the audit entry
     // using the new event's id as the eventId context
     return this.db.tx(async (tx) => {
-      assertMayCreateOrgEvent({
-        isStaff: by.isStaff,
-        orgIsSelfServe: await isSelfServeOrg(tx, orgId),
-      });
+      const orgIsSelfServe = await isSelfServeOrg(tx, orgId);
+      assertMayCreateOrgEvent({ isStaff: by.isStaff, orgIsSelfServe });
 
       const [ev] = await tx
         .insert(orgEvents)
@@ -54,6 +58,11 @@ export class CreateEventService {
           contactEmail: input.contactEmail,
           isActive: input.isActive ?? false,
           ...(input.eventTier !== undefined && { eventTier: input.eventTier }),
+          // A self-serve Org's events include what their Event Tier says until
+          // staff decide otherwise, so they start with no exceptions.
+          ...(!orgIsSelfServe && {
+            capabilityOverrides: await grandfatheredOverrides(tx, orgId),
+          }),
         })
         .returning();
 
@@ -95,4 +104,33 @@ export class CreateEventService {
       return ev!;
     });
   }
+}
+
+/**
+ * The capability overrides a new event in a grandfathered Org starts with.
+ *
+ * Before overrides moved onto the Org Event (#109) they were org-wide, so a
+ * new event in a hand-built Org took whatever the Org was configured with. It
+ * still does: the overrides of the Org's most recently created event, or —
+ * for an Org that had no event when they moved — the flags still on the Org.
+ * Staff can change them per event afterwards.
+ */
+async function grandfatheredOverrides(
+  tx: Transaction,
+  orgId: string
+): Promise<CapabilityOverrides> {
+  const [latest] = await tx
+    .select({ capabilityOverrides: orgEvents.capabilityOverrides })
+    .from(orgEvents)
+    .where(eq(orgEvents.orgId, orgId))
+    .orderBy(desc(orgEvents.createdAt))
+    .limit(1);
+  if (latest) return readCapabilityOverrides(latest.capabilityOverrides);
+
+  const [org] = await tx
+    .select({ features: organizations.features })
+    .from(organizations)
+    .where(eq(organizations.id, orgId))
+    .limit(1);
+  return readCapabilityOverrides(org?.features);
 }

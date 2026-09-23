@@ -1216,6 +1216,115 @@
         "description": "Permanently deletes an organization and all associated data"
       }
     },
+    "/admin/orgs/{id}/events": {
+      "get": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOrgsIdEventsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get an organization's event capabilities",
+        "description": "Returns each of an organization's Org Events with its Event Tier and, per capability, what the Event Tier includes, the staff override set on the event, and what is in force"
+      }
+    },
+    "/admin/orgs/{id}/events/{eventId}/capabilities": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminOrgsIdEventsIdCapabilitiesRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOrgsIdEventsIdCapabilitiesResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Set an Org Event's capability overrides",
+        "description": "Replaces the staff exceptions to what one Org Event's Event Tier includes. A capability left out defers to the Event Tier"
+      }
+    },
     "/admin/orgs/{id}/members": {
       "get": {
         "parameters": [
@@ -12007,6 +12116,224 @@
           "selfServe"
         ]
       },
+      "AdminOrgsIdEventsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "eventTier": {
+              "type": "string",
+              "enum": [
+                "core",
+                "regional",
+                "national",
+                "enterprise"
+              ]
+            },
+            "startDate": {
+              "type": "string"
+            },
+            "isActive": {
+              "type": "boolean"
+            },
+            "capabilities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "override": {
+                    "oneOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "capability": {
+                    "type": "string",
+                    "enum": [
+                      "video_library",
+                      "callbacks",
+                      "check_in",
+                      "school_selections"
+                    ]
+                  },
+                  "eventTierDefault": {
+                    "type": "boolean"
+                  },
+                  "included": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "override",
+                  "capability",
+                  "eventTierDefault",
+                  "included"
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "eventTier",
+            "startDate",
+            "isActive",
+            "capabilities"
+          ]
+        }
+      },
+      "AdminOrgsIdEventsIdCapabilitiesRequest": {
+        "type": "object",
+        "properties": {
+          "capabilityOverrides": {
+            "type": "object",
+            "properties": {
+              "video_library": {
+                "oneOf": [
+                  {
+                    "type": [
+                      "string",
+                      "number",
+                      "boolean"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "callbacks": {
+                "oneOf": [
+                  {
+                    "type": [
+                      "string",
+                      "number",
+                      "boolean"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "check_in": {
+                "oneOf": [
+                  {
+                    "type": [
+                      "string",
+                      "number",
+                      "boolean"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "school_selections": {
+                "oneOf": [
+                  {
+                    "type": [
+                      "string",
+                      "number",
+                      "boolean"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "required": [
+          "capabilityOverrides"
+        ]
+      },
+      "AdminOrgsIdEventsIdCapabilitiesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "eventTier": {
+            "type": "string",
+            "enum": [
+              "core",
+              "regional",
+              "national",
+              "enterprise"
+            ]
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "override": {
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "capability": {
+                  "type": "string",
+                  "enum": [
+                    "video_library",
+                    "callbacks",
+                    "check_in",
+                    "school_selections"
+                  ]
+                },
+                "eventTierDefault": {
+                  "type": "boolean"
+                },
+                "included": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "override",
+                "capability",
+                "eventTierDefault",
+                "included"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "eventTier",
+          "startDate",
+          "isActive",
+          "capabilities"
+        ]
+      },
       "AdminOrgsIdMembersResponse": {
         "type": "array",
         "items": {
@@ -13373,18 +13700,6 @@
                   "isActive": {
                     "type": "boolean"
                   },
-                  "eventName": {
-                    "type": "string"
-                  },
-                  "eventStartDate": {
-                    "type": "string"
-                  },
-                  "eventEndDate": {
-                    "type": "string"
-                  },
-                  "hasStarted": {
-                    "type": "boolean"
-                  },
                   "capabilities": {
                     "type": "array",
                     "items": {
@@ -13396,6 +13711,18 @@
                         "school_selections"
                       ]
                     }
+                  },
+                  "eventName": {
+                    "type": "string"
+                  },
+                  "eventStartDate": {
+                    "type": "string"
+                  },
+                  "eventEndDate": {
+                    "type": "string"
+                  },
+                  "hasStarted": {
+                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -13403,11 +13730,11 @@
                   "type",
                   "eventId",
                   "isActive",
+                  "capabilities",
                   "eventName",
                   "eventStartDate",
                   "eventEndDate",
-                  "hasStarted",
-                  "capabilities"
+                  "hasStarted"
                 ]
               },
               {
@@ -13432,18 +13759,6 @@
                 "isActive": {
                   "type": "boolean"
                 },
-                "eventName": {
-                  "type": "string"
-                },
-                "eventStartDate": {
-                  "type": "string"
-                },
-                "eventEndDate": {
-                  "type": "string"
-                },
-                "hasStarted": {
-                  "type": "boolean"
-                },
                 "capabilities": {
                   "type": "array",
                   "items": {
@@ -13455,6 +13770,18 @@
                       "school_selections"
                     ]
                   }
+                },
+                "eventName": {
+                  "type": "string"
+                },
+                "eventStartDate": {
+                  "type": "string"
+                },
+                "eventEndDate": {
+                  "type": "string"
+                },
+                "hasStarted": {
+                  "type": "boolean"
                 }
               },
               "required": [
@@ -13462,11 +13789,11 @@
                 "type",
                 "eventId",
                 "isActive",
+                "capabilities",
                 "eventName",
                 "eventStartDate",
                 "eventEndDate",
-                "hasStarted",
-                "capabilities"
+                "hasStarted"
               ]
             }
           },
@@ -13816,6 +14143,23 @@
           "isActive": {
             "type": "boolean"
           },
+          "capabilityOverrides": {
+            "type": "object",
+            "properties": {
+              "video_library": {
+                "type": "boolean"
+              },
+              "callbacks": {
+                "type": "boolean"
+              },
+              "check_in": {
+                "type": "boolean"
+              },
+              "school_selections": {
+                "type": "boolean"
+              }
+            }
+          },
           "schedulePdfUrl": {
             "oneOf": [
               {
@@ -13860,6 +14204,7 @@
           "venueAddress",
           "contactEmail",
           "isActive",
+          "capabilityOverrides",
           "schedulePdfUrl",
           "startTime",
           "timezone"
@@ -17887,9 +18232,6 @@
       "OrgsIdDancerCallbacksResponse": {
         "type": "object",
         "properties": {
-          "publishedShowcaseCount": {
-            "type": "number"
-          },
           "callbacks": {
             "type": "array",
             "items": {
@@ -17955,11 +18297,14 @@
                 "firstShowcaseNumber"
               ]
             }
+          },
+          "publishedShowcaseCount": {
+            "type": "number"
           }
         },
         "required": [
-          "publishedShowcaseCount",
-          "callbacks"
+          "callbacks",
+          "publishedShowcaseCount"
         ]
       },
       "OrgsIdSettingsRequest": {

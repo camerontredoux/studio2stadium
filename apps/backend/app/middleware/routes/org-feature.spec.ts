@@ -1,6 +1,7 @@
 import { test } from "@japa/runner";
 import OrgFeatureMiddleware from "./org-feature.ts";
 import type { EventTier } from "#shared/org/event-tiers";
+import type { CapabilityOverrides } from "#shared/org/entitlement";
 
 type State = {
   nextCalled: boolean;
@@ -10,6 +11,7 @@ type State = {
 function mockCtx(options: {
   features?: Record<string, boolean> | null;
   eventTier?: EventTier;
+  capabilityOverrides?: CapabilityOverrides;
 }) {
   const state: State = { nextCalled: false, notFoundBody: null };
   const ctx: any = {
@@ -17,7 +19,12 @@ function mockCtx(options: {
       options.features === null || options.features === undefined
         ? undefined
         : { features: options.features },
-    orgEvent: options.eventTier ? { eventTier: options.eventTier } : undefined,
+    orgEvent: options.eventTier
+      ? {
+          eventTier: options.eventTier,
+          capabilityOverrides: options.capabilityOverrides ?? {},
+        }
+      : undefined,
     response: {
       notFound: (body: { message: string }) => {
         state.notFoundBody = body;
@@ -64,28 +71,44 @@ test.group("OrgFeatureMiddleware — Event Tier capabilities", () => {
     }
   });
 
-  test("an explicit org flag overrides the Event Tier in both directions", async ({
+  test("an explicit override on the event wins over its Event Tier in both directions", async ({
     assert,
   }) => {
     // Staff configure events by hand; buying a bundle is not a reason to lose
     // the ability to turn one thing on or off.
-    const on = mockCtx({ features: { callbacks: true }, eventTier: "core" });
+    const on = mockCtx({
+      features: {},
+      eventTier: "core",
+      capabilityOverrides: { callbacks: true },
+    });
     await new OrgFeatureMiddleware().handle(on.ctx, on.next, "callbacks");
     assert.isTrue(on.state.nextCalled);
 
     const off = mockCtx({
-      features: { check_in: false },
+      features: {},
       eventTier: "enterprise",
+      capabilityOverrides: { check_in: false },
     });
     await new OrgFeatureMiddleware().handle(off.ctx, off.next, "check_in");
     assert.isFalse(off.state.nextCalled);
     assert.isNotNull(off.state.notFoundBody);
   });
 
-  test("404s when no event was resolved and nothing was overridden", async ({
+  test("a capability flag left on the Org no longer decides anything", async ({
     assert,
   }) => {
-    const { ctx, state, next } = mockCtx({ features: {} });
+    // Overrides live on the Org Event (#109); only the event's are read.
+    const { ctx, state, next } = mockCtx({
+      features: { callbacks: true },
+      eventTier: "core",
+    });
+    await new OrgFeatureMiddleware().handle(ctx, next, "callbacks");
+    assert.isFalse(state.nextCalled);
+    assert.isNotNull(state.notFoundBody);
+  });
+
+  test("404s when no event was resolved", async ({ assert }) => {
+    const { ctx, state, next } = mockCtx({ features: { callbacks: true } });
     await new OrgFeatureMiddleware().handle(ctx, next, "callbacks");
     assert.isFalse(state.nextCalled);
     assert.isNotNull(state.notFoundBody);

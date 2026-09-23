@@ -127,6 +127,14 @@ type AdminOrgsIdDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/delete-org/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/delete-org/controller.ts').default['handle'], true>
 }
+type AdminOrgsIdEventsGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/get-org-event-capabilities/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/get-org-event-capabilities/controller.ts').default['handle'], true>
+}
+type AdminOrgsIdEventsIdCapabilitiesPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/update-event-capabilities/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/update-event-capabilities/controller.ts').default['handle'], true>
+}
 type AdminOrgsIdMembersGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/get-org-members/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/get-org-members/controller.ts').default['handle'], true>
@@ -1091,6 +1099,19 @@ export interface ApiDefinition {
         };
         '$patch': AdminOrgsIdPatch;
         '$delete': AdminOrgsIdDelete;
+        'events': {
+          '$url': {
+          };
+          '$get': AdminOrgsIdEventsGetHead;
+          '$head': AdminOrgsIdEventsGetHead;
+          ':eventId': {
+            'capabilities': {
+              '$url': {
+              };
+              '$patch': AdminOrgsIdEventsIdCapabilitiesPatch;
+            };
+          };
+        };
         'members': {
           '$url': {
           };

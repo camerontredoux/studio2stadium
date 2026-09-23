@@ -59,6 +59,10 @@ const CreateOrgController = () =>
   import("#modules/admin/create-org/controller");
 const UpdateOrgController = () =>
   import("#modules/admin/update-org/controller");
+const GetOrgEventCapabilitiesController = () =>
+  import("#modules/admin/get-org-event-capabilities/controller");
+const UpdateEventCapabilitiesController = () =>
+  import("#modules/admin/update-event-capabilities/controller");
 const DeleteOrgController = () =>
   import("#modules/admin/delete-org/controller");
 const GetOrgMembersController = () =>
@@ -262,8 +266,25 @@ router
 
     router.delete("orgs/:id", [DeleteOrgController]).openapi({
       summary: "Delete organization",
-      description: "Permanently deletes an organization and all associated data",
+      description:
+        "Permanently deletes an organization and all associated data",
     });
+
+    router.get("orgs/:id/events", [GetOrgEventCapabilitiesController]).openapi({
+      summary: "Get an organization's event capabilities",
+      description:
+        "Returns each of an organization's Org Events with its Event Tier and, per capability, what the Event Tier includes, the staff override set on the event, and what is in force",
+    });
+
+    router
+      .patch("orgs/:id/events/:eventId/capabilities", [
+        UpdateEventCapabilitiesController,
+      ])
+      .openapi({
+        summary: "Set an Org Event's capability overrides",
+        description:
+          "Replaces the staff exceptions to what one Org Event's Event Tier includes. A capability left out defers to the Event Tier",
+      });
 
     router.get("orgs/:id/members", [GetOrgMembersController]).openapi({
       summary: "Get organization members",

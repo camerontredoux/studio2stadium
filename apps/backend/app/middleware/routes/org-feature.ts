@@ -22,11 +22,10 @@ export type OrgConfigurationFlag = "freeTierUsers";
  *     .post("callbacks", [CreateCallback])
  *     .use(middleware.orgFeature("callbacks"));
  *
- * A capability is what the Org Event's Event Tier includes, unless staff set a
- * flag on the Org saying otherwise — see `#shared/org/entitlement` for why an
- * explicit flag wins and an absent one defers. Resolving from the event means
- * two events under one Org can gate independently once nobody has overridden
- * them.
+ * A capability is what the Org Event's Event Tier includes, unless staff set an
+ * override on that event saying otherwise — see `#shared/org/entitlement` for
+ * why an explicit flag wins and an absent one defers. Both live on the event,
+ * so two events under one Org gate independently (#109).
  *
  * The event must already be on the request: `middleware.orgEvent()` belongs
  * *before* this one in the group.
@@ -52,11 +51,7 @@ export default class OrgFeatureMiddleware {
     key: EventTierCapability | OrgConfigurationFlag
   ): boolean {
     if (isEventTierCapability(key)) {
-      return includesCapability({
-        features: ctx.org?.features,
-        eventTier: ctx.orgEvent?.eventTier,
-        capability: key,
-      });
+      return includesCapability(ctx.orgEvent, key);
     }
 
     const features = (ctx.org?.features ?? {}) as Record<string, boolean>;
