@@ -114,6 +114,16 @@ export default await Env.create(new URL("../", import.meta.url), {
   MAIL_TO_ADDRESS: Env.schema.string({ format: "email" }),
   MAIL_FROM_NAME: Env.schema.string(),
 
+  /*
+  |----------------------------------------------------------
+  | Optional outgoing-mail allowlist: comma-separated exact
+  | emails and/or "@domain.com" patterns. When set, mail to
+  | any other recipient is dropped and logged (staging runs
+  | on a copy of prod data). Unset sends to everyone.
+  |----------------------------------------------------------
+  */
+  MAIL_ALLOWLIST: Env.schema.string.optional(),
+
   SQS_ACCESS_KEY_ID: Env.schema.string(),
   SQS_SECRET_ACCESS_KEY: Env.schema.string(),
   SQS_QUEUE_URL: Env.schema.string(),
