@@ -5,12 +5,29 @@ import { inject } from "@adonisjs/core";
 import type { Validator } from "./validator.ts";
 import { AuditCollector } from "#database/audit";
 import { eq } from "drizzle-orm";
+import { assertEventTierWrite } from "#shared/org/event-tier-authority";
 
 @inject()
 export class CreateEventService {
   constructor(private db: DatabaseService) {}
 
-  async execute(orgId: string, input: Validator, actorId: string) {
+  /**
+   * `by.isStaff` says whether S2S staff are creating the event: only they
+   * may set its Event Tier, and they must (see `assertEventTierWrite`).
+   * Everyone else gets the column default.
+   */
+  async execute(
+    orgId: string,
+    input: Validator,
+    actorId: string,
+    by: { isStaff: boolean } = { isStaff: false }
+  ) {
+    assertEventTierWrite({
+      isStaff: by.isStaff,
+      eventTier: input.eventTier,
+      mode: "create",
+    });
+
     // Create the event first in a transaction, then log the audit entry
     // using the new event's id as the eventId context
     return this.db.tx(async (tx) => {
@@ -25,6 +42,7 @@ export class CreateEventService {
           venueAddress: input.venueAddress,
           contactEmail: input.contactEmail,
           isActive: input.isActive ?? false,
+          ...(input.eventTier !== undefined && { eventTier: input.eventTier }),
         })
         .returning();
 

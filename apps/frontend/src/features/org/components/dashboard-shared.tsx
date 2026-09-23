@@ -5,11 +5,13 @@ import {
   HeartIcon,
   MailIcon,
   MapPinIcon,
+  TagIcon,
 } from "lucide-react";
 
 import { cn } from "@/components/utils/cn";
 import type { OrgEvent } from "@/features/org/api/admin-queries";
 import type { EventPhaseInfo } from "@/features/org/hooks/use-event-phase";
+import { eventTierLabel } from "@/features/org/lib/event-tiers";
 
 export type PanelAccent =
   | "blue"
@@ -296,6 +298,13 @@ export function SidebarDetailsSection({
           <CalendarIcon className="text-muted-foreground mt-0.5 size-3.5 shrink-0" />
           <span className="tabular-nums">
             {formatLongDateRange(event.startDate, event.endDate)}
+          </span>
+        </li>
+        <li className="flex items-center gap-2">
+          <TagIcon className="text-muted-foreground size-3.5 shrink-0" />
+          <span>
+            {eventTierLabel(event.eventTier)}
+            <span className="text-muted-foreground"> Event Tier</span>
           </span>
         </li>
         {event.startTime && (

@@ -24,6 +24,7 @@ import { toastManager } from "@/components/ui/toast-manager";
 import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
 import { EventFormSheet } from "@/features/org/components/event-form-sheet";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
+import { eventTierLabel } from "@/features/org/lib/event-tiers";
 import { client } from "@/lib/api/client";
 
 export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
@@ -99,11 +100,10 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
               <SelectItem key={event.id} value={event.id}>
                 <span className="flex min-w-0 items-center justify-between gap-3">
                   <span className="truncate">{event.name}</span>
-                  {event.isActive && (
-                    <span className="text-muted-foreground text-[10px] font-medium tracking-wide uppercase">
-                      Active
-                    </span>
-                  )}
+                  <span className="text-muted-foreground flex shrink-0 gap-2 text-[10px] font-medium tracking-wide uppercase">
+                    <span>{eventTierLabel(event.eventTier)}</span>
+                    {event.isActive && <span>Active</span>}
+                  </span>
                 </span>
               </SelectItem>
             ))}

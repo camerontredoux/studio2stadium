@@ -4,6 +4,7 @@ import { inject } from "@adonisjs/core";
 import { and, eq, ne } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 import type { AuditContext } from "#database/audit";
+import { assertEventTierWrite } from "#shared/org/event-tier-authority";
 
 export class StartTimePairError extends Error {
   constructor() {
@@ -19,8 +20,16 @@ export class UpdateEventService {
     orgId: string,
     eventId: string,
     patch: Validator,
-    auditCtx: AuditContext
+    auditCtx: AuditContext,
+    by: { isStaff: boolean } = { isStaff: false }
   ) {
+    // Only S2S staff may change an Event Tier (it is what was paid for).
+    assertEventTierWrite({
+      isStaff: by.isStaff,
+      eventTier: patch.eventTier,
+      mode: "update",
+    });
+
     return this.db.withAudit(auditCtx, async (tx, audit) => {
       // Read before state for diff
       const [before] = await tx
@@ -29,8 +38,14 @@ export class UpdateEventService {
         .where(and(eq(orgEvents.id, eventId), eq(orgEvents.orgId, orgId)));
 
       // Validate startTime + timezone are provided together or not at all
-      const newStartTime = patch.startTime !== undefined ? patch.startTime : before?.startTime ?? null;
-      const newTimezone = patch.timezone !== undefined ? patch.timezone : before?.timezone ?? null;
+      const newStartTime =
+        patch.startTime !== undefined
+          ? patch.startTime
+          : (before?.startTime ?? null);
+      const newTimezone =
+        patch.timezone !== undefined
+          ? patch.timezone
+          : (before?.timezone ?? null);
       if ((newStartTime && !newTimezone) || (!newStartTime && newTimezone)) {
         throw new StartTimePairError();
       }
@@ -67,6 +82,7 @@ export class UpdateEventService {
           ...(patch.startTime !== undefined && { startTime: patch.startTime }),
           ...(patch.timezone !== undefined && { timezone: patch.timezone }),
           ...(patch.isActive !== undefined && { isActive: patch.isActive }),
+          ...(patch.eventTier !== undefined && { eventTier: patch.eventTier }),
         })
         .where(and(eq(orgEvents.id, eventId), eq(orgEvents.orgId, orgId)))
         .returning();
@@ -74,6 +90,27 @@ export class UpdateEventService {
       if (ev) {
         const isActivateToggle =
           patch.isActive !== undefined && before?.isActive !== patch.isActive;
+        const isTierChange =
+          patch.eventTier !== undefined &&
+          before?.eventTier !== patch.eventTier;
+        const changesMoreThanTier = Object.entries(patch).some(
+          ([key, value]) => key !== "eventTier" && value !== undefined
+        );
+
+        // An Event Tier change is a commercial act, so it gets its own entry
+        // naming what it changed from; the audit row carries who and when.
+        if (isTierChange) {
+          audit.log({
+            action: "update",
+            resource: "event",
+            resourceId: ev.id,
+            metadata: {
+              diff: {
+                eventTier: { from: before?.eventTier, to: ev.eventTier },
+              },
+            },
+          });
+        }
 
         if (isActivateToggle) {
           audit.log({
@@ -85,7 +122,7 @@ export class UpdateEventService {
               after: { isActive: ev.isActive },
             },
           });
-        } else {
+        } else if (changesMoreThanTier) {
           audit.log({
             action: "update",
             resource: "event",

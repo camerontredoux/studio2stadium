@@ -2678,8 +2678,8 @@ export interface paths {
                         "application/json": components["schemas"]["OrgsIdEventsResponse"];
                     };
                 };
-                /** @description Unknown Response */
-                409: {
+                /** @description Forbidden */
+                403: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -2687,8 +2687,8 @@ export interface paths {
                         "application/json": components["schemas"]["Error"];
                     };
                 };
-                /** @description Unprocessable Entity */
-                422: {
+                /** @description Unknown Response */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -2769,6 +2769,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["OrgsIdEventsIdResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
                 /** @description Not Found */
@@ -11010,6 +11019,7 @@ export interface components {
             sports: boolean;
         };
         OrgsIdEventsRequest: {
+            eventTier?: ("core" | "regional" | "national" | "enterprise") | null;
             venueName?: string | null;
             venueAddress?: string | null;
             contactEmail?: string | null;
@@ -11022,6 +11032,7 @@ export interface components {
         };
         OrgsIdEventsIdRequest: {
             name?: string | null;
+            eventTier?: ("core" | "regional" | "national" | "enterprise") | null;
             startDate?: string | null;
             endDate?: string | null;
             venueName?: string | null;

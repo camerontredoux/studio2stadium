@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { client } from "@/lib/api/client";
+import type { EventTier } from "@/features/org/lib/event-tiers";
 
 async function fetchJson<T>(path: string): Promise<T> {
   const res = await (
@@ -21,6 +22,7 @@ export type OrgEvent = {
   contactEmail: string | null;
   schedulePdfUrl: string | null;
   isActive: boolean;
+  eventTier: EventTier;
   createdAt: string;
   updatedAt: string;
 };

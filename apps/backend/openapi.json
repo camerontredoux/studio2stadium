@@ -2196,8 +2196,8 @@
               }
             }
           },
-          "409": {
-            "description": "Unknown Response",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -2206,8 +2206,8 @@
               }
             }
           },
-          "422": {
-            "description": "Unprocessable Entity",
+          "409": {
+            "description": "Unknown Response",
             "content": {
               "application/json": {
                 "schema": {
@@ -2255,6 +2255,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgsIdEventsIdResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -13118,6 +13128,22 @@
       "OrgsIdEventsRequest": {
         "type": "object",
         "properties": {
+          "eventTier": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "core",
+                  "regional",
+                  "national",
+                  "enterprise"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "venueName": {
             "oneOf": [
               {
@@ -13205,6 +13231,22 @@
             "oneOf": [
               {
                 "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "eventTier": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "core",
+                  "regional",
+                  "national",
+                  "enterprise"
+                ]
               },
               {
                 "type": "null"
