@@ -1163,9 +1163,11 @@ function SidebarActivitySection({
 function AdminHome() {
   const { orgSlug } = Route.useParams();
   const { events, selectedEvent } = useAdminEvent();
+  const org = useOrg();
   const canCreate = canCreateOrgEvent({
     session: useSession(),
-    orgSelfServe: useOrg().selfServe,
+    orgSelfServe: org.selfServe,
+    orgTierManaged: org.tierManaged,
   });
 
   if (!selectedEvent && events.length === 0) {

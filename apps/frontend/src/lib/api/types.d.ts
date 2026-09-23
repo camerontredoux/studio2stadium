@@ -10999,6 +10999,7 @@ export interface components {
             features: Record<string, never>;
             settings: Record<string, never>;
             selfServe: boolean;
+            tierManaged: boolean;
         };
         AdminOrgsIdEventsResponse: {
             id: string;
@@ -11306,6 +11307,7 @@ export interface components {
             features: Record<string, never>;
             settings: Record<string, never>;
             selfServe: boolean;
+            tierManaged: boolean;
             membership: {
                 /** @enum {string} */
                 role: "admin" | "member";

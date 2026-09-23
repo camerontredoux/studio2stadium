@@ -138,6 +138,22 @@ test.group("GET /orgs/:slug", (group) => {
     assert.isTrue(after.body().selfServe);
   });
 
+  test("says whether staff have made the Org tier-managed", async ({
+    client,
+    assert,
+  }) => {
+    const before = await client.get("/orgs/core");
+    assert.isFalse(before.body().tierManaged);
+
+    await db
+      .update(organizations)
+      .set({ tierManaged: true })
+      .where(eq(organizations.slug, "core"));
+
+    const after = await client.get("/orgs/core");
+    assert.isTrue(after.body().tierManaged);
+  });
+
   test("returns 404 for unknown slug", async ({ client }) => {
     const response = await client.get("/orgs/does-not-exist");
     response.assertStatus(404);

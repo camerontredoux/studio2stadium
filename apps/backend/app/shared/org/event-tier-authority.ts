@@ -59,10 +59,10 @@ export function assertEventTierWrite(args: {
 }
 
 /**
- * An Organizer of a self-serve Org tried to create an Org Event themselves.
- * Their first event came from a purchase at the Event Tier they paid for;
- * further events are bought again or arranged with S2S (PRD #84), never
- * created free by the Organizer.
+ * An Organizer of a self-serve or tier-managed Org tried to create an Org
+ * Event themselves. Its Event Tiers are bought (PRD #84) or set by S2S staff,
+ * so further events are bought again or arranged with S2S, never created free
+ * by the Organizer.
  */
 export class EventTierPurchaseRequiredError extends Error {
   constructor() {
@@ -75,21 +75,30 @@ export class EventTierPurchaseRequiredError extends Error {
 /**
  * Whether this actor may create an Org Event in this Org at all.
  *
- * An Org an Event Tier purchase has landed on is self-serve, for good (see
- * `isSelfServeOrg`): its Organizers bought their first event at a chosen Event
- * Tier, and further events come only from another purchase or from staff.
- * Letting them create events would
- * hand a Core customer free Enterprise events through the column default
- * (#112). Staff may create events anywhere, with an explicit Event Tier.
+ * Two lasting facts about an Org close event creation to its Organizers (see
+ * `readOrgEventCreation`):
  *
- * Grandfathered, hand-built Orgs have no purchase and keep today's behaviour:
- * their Organizers create events, which take the Enterprise default (ADR 0006).
+ * - Self-serve: an Event Tier purchase has landed on it. Its Organizers bought
+ *   their first event at a chosen Event Tier, and further events come only
+ *   from another purchase or from staff. Letting them create events would hand
+ *   a Core customer free Enterprise events through the column default (#112).
+ * - Tier-managed: staff put one of its events below Enterprise. The same
+ *   column default would hand its Organizers free Enterprise events beside the
+ *   one staff set, so it closes the same way.
+ *
+ * Staff may create events anywhere, with an explicit Event Tier.
+ *
+ * Grandfathered, hand-built Orgs — no purchase, every event Enterprise — keep
+ * today's behaviour: their Organizers create events, which take the Enterprise
+ * default (ADR 0006).
  */
 export function assertMayCreateOrgEvent(args: {
   isStaff: boolean;
   orgIsSelfServe: boolean;
+  orgIsTierManaged: boolean;
 }): void {
-  if (args.orgIsSelfServe && !args.isStaff) {
+  if (args.isStaff) return;
+  if (args.orgIsSelfServe || args.orgIsTierManaged) {
     throw new EventTierPurchaseRequiredError();
   }
 }

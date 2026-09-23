@@ -10,6 +10,7 @@ import {
 import { users } from "#database/schema/users";
 import { seedOrganizations } from "#commands/backfill-organizations";
 import { CreateEventService } from "./service.ts";
+import { DeleteEventService } from "../delete/service.ts";
 import { DatabaseService } from "#database/service";
 import { eq } from "drizzle-orm";
 import { E_DATABASE_ERROR } from "#exceptions/database";
@@ -425,6 +426,100 @@ test.group(
         await db.select().from(orgEvents).where(eq(orgEvents.orgId, orgId)),
         0
       );
+    });
+
+    async function orgRow(orgId: string) {
+      const [org] = await db
+        .select()
+        .from(organizations)
+        .where(eq(organizations.id, orgId));
+      return org!;
+    }
+
+    test("staff creating an event below Enterprise closes event creation to the Org's Organizers", async ({
+      assert,
+    }) => {
+      const staff = await makeActorUser();
+      const organizer = await makeActorUser();
+      const orgId = await summitId();
+      await existingEvent(orgId, "enterprise");
+
+      await svc.execute(orgId, { ...details, eventTier: "core" }, staff.id, {
+        isStaff: true,
+      });
+
+      const org = await orgRow(orgId);
+      assert.isTrue(org.tierManaged);
+      await assert.rejects(
+        () => svc.execute(orgId, details, organizer.id, { isStaff: false }),
+        EventTierPurchaseRequiredError
+      );
+    });
+
+    test("staff creating an Enterprise event leaves a grandfathered Org open", async ({
+      assert,
+    }) => {
+      const staff = await makeActorUser();
+      const organizer = await makeActorUser();
+      const orgId = await summitId();
+
+      await svc.execute(
+        orgId,
+        { ...details, eventTier: "enterprise" },
+        staff.id,
+        { isStaff: true }
+      );
+
+      const org = await orgRow(orgId);
+      assert.isFalse(org.tierManaged);
+      const ev = await svc.execute(orgId, details, organizer.id);
+      assert.equal(ev.eventTier, "enterprise");
+    });
+
+    test("a tier-managed Org stays closed after its below-Enterprise event is deleted", async ({
+      assert,
+    }) => {
+      const staff = await makeActorUser();
+      const organizer = await makeActorUser();
+      const orgId = await summitId();
+      const managed = await svc.execute(
+        orgId,
+        { ...details, eventTier: "regional" },
+        staff.id,
+        { isStaff: true }
+      );
+
+      await new DeleteEventService(new DatabaseService()).execute(
+        orgId,
+        managed.id
+      );
+
+      assert.lengthOf(
+        await db.select().from(orgEvents).where(eq(orgEvents.orgId, orgId)),
+        0
+      );
+      await assert.rejects(
+        () => svc.execute(orgId, details, organizer.id, { isStaff: false }),
+        EventTierPurchaseRequiredError
+      );
+    });
+
+    test("staff can still add events to a tier-managed Org", async ({
+      assert,
+    }) => {
+      const staff = await makeActorUser();
+      const orgId = await summitId();
+      await svc.execute(orgId, { ...details, eventTier: "core" }, staff.id, {
+        isStaff: true,
+      });
+
+      const ev = await svc.execute(
+        orgId,
+        { ...details, eventTier: "national" },
+        staff.id,
+        { isStaff: true }
+      );
+      assert.equal(ev.eventTier, "national");
     });
 
     test("an Organizer of a grandfathered Org still creates events at Enterprise", async ({

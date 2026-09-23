@@ -49,6 +49,11 @@ export interface OrgContextValue {
    */
   selfServe: boolean;
   /**
+   * Whether S2S staff ever put one of the Org's events below Enterprise. Only
+   * staff create further events in a tier-managed Org either.
+   */
+  tierManaged: boolean;
+  /**
    * Whether an Org Event includes a capability, or the Org includes a piece of
    * org-wide configuration. Pass `eventId` when the gated request names its
    * event, as a Dancer's reads do; leave it out for the Org's active event.

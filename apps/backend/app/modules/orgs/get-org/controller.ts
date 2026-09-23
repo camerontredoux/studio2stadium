@@ -30,6 +30,7 @@ export default class GetOrgController {
       myRosters,
       activeEventCapabilities,
       selfServe,
+      tierManaged,
     } = result;
     return response.ok({
       id: org.id,
@@ -45,6 +46,7 @@ export default class GetOrgController {
       myRosters,
       activeEventCapabilities,
       selfServe,
+      tierManaged,
     });
   }
 }

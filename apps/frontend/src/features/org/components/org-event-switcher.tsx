@@ -43,9 +43,11 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
   const queryClient = useQueryClient();
   const { activeEvent, events, selectedEvent, selectEvent } = useAdminEvent();
   const [createOpen, setCreateOpen] = useState(false);
+  const org = useOrg();
   const canCreate = canCreateOrgEvent({
     session: useSession(),
-    orgSelfServe: useOrg().selfServe,
+    orgSelfServe: org.selfServe,
+    orgTierManaged: org.tierManaged,
   });
   const [confirmOpen, setConfirmOpen] = useState(false);
 

@@ -10,12 +10,16 @@ import {
 import { organizations, orgMemberships } from "#database/schema/organizations";
 import { users } from "#database/schema/users";
 import { seedOrganizations } from "#commands/backfill-organizations";
-import { EventTierForbiddenError } from "#shared/org/event-tier-authority";
+import {
+  EventTierForbiddenError,
+  EventTierPurchaseRequiredError,
+} from "#shared/org/event-tier-authority";
 import type { EventTier } from "#shared/org/event-tiers";
 import { eq } from "drizzle-orm";
 import { UpdateEventService } from "./service.ts";
 import UpdateEventController from "./controller.ts";
 import { ListEventsService } from "../list/service.ts";
+import { CreateEventService } from "../create/service.ts";
 
 const svc = new UpdateEventService(new DatabaseService());
 
@@ -94,6 +98,73 @@ test.group("UpdateEventService Event Tier (#112)", (group) => {
       .from(orgEvents)
       .where(eq(orgEvents.id, ev.id));
     assert.equal(stored!.eventTier, "national");
+  });
+
+  async function isTierManaged(orgId: string) {
+    const [org] = await db
+      .select({ tierManaged: organizations.tierManaged })
+      .from(organizations)
+      .where(eq(organizations.id, orgId));
+    return org!.tierManaged;
+  }
+
+  const newEvent = {
+    name: "Organizer Event",
+    startDate: "2026-09-01",
+    endDate: "2026-09-02",
+  };
+
+  test("staff moving an event below Enterprise closes event creation to Organizers for good", async ({
+    assert,
+  }) => {
+    const staff = await makeUser("admin");
+    const organizer = await makeUser("user");
+    const ev = await makeEvent();
+    const create = new CreateEventService(new DatabaseService());
+
+    await svc.execute(
+      ev.orgId,
+      ev.id,
+      { eventTier: "core" },
+      { eventId: ev.id, actorId: staff.id },
+      { isStaff: true }
+    );
+    assert.isTrue(await isTierManaged(ev.orgId));
+    await assert.rejects(
+      () => create.execute(ev.orgId, newEvent, organizer.id),
+      EventTierPurchaseRequiredError
+    );
+
+    // Moving it back to Enterprise does not reopen creation.
+    await svc.execute(
+      ev.orgId,
+      ev.id,
+      { eventTier: "enterprise" },
+      { eventId: ev.id, actorId: staff.id },
+      { isStaff: true }
+    );
+    assert.isTrue(await isTierManaged(ev.orgId));
+    await assert.rejects(
+      () => create.execute(ev.orgId, newEvent, organizer.id),
+      EventTierPurchaseRequiredError
+    );
+  });
+
+  test("editing a grandfathered Org's Enterprise event leaves it open", async ({
+    assert,
+  }) => {
+    const staff = await makeUser("admin");
+    const ev = await makeEvent();
+
+    await svc.execute(
+      ev.orgId,
+      ev.id,
+      { eventTier: "enterprise", name: "Renamed" },
+      { eventId: ev.id, actorId: staff.id },
+      { isStaff: true }
+    );
+
+    assert.isFalse(await isTierManaged(ev.orgId));
   });
 
   test("a change records who made it, when, and what it changed from", async ({

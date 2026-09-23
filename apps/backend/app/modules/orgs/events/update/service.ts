@@ -6,6 +6,7 @@ import { and, eq, isNotNull, ne } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 import type { AuditContext } from "#database/audit";
 import { assertEventTierWrite } from "#shared/org/event-tier-authority";
+import { markTierManagedIfBelowEnterprise } from "#shared/org/self-serve";
 import { tierChangeAuditMetadata } from "./tier-change-audit.ts";
 
 export class StartTimePairError extends Error {
@@ -138,7 +139,9 @@ export class UpdateEventService {
 
         // An Event Tier change is a commercial act, so it gets its own entry
         // naming what it changed from; the audit row carries who and when.
+        // Below Enterprise, it also makes the Org tier-managed for good.
         if (isTierChange) {
+          await markTierManagedIfBelowEnterprise(tx, orgId, ev.eventTier);
           audit.log({
             action: "update",
             resource: "event",

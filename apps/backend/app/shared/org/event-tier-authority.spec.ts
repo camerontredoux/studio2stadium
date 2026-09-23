@@ -61,7 +61,12 @@ test.group("Event Tier authority", () => {
 test.group("Who may create an Org Event", () => {
   test("a self-serve Org's Organizers cannot create events", ({ assert }) => {
     assert.throws(
-      () => assertMayCreateOrgEvent({ isStaff: false, orgIsSelfServe: true }),
+      () =>
+        assertMayCreateOrgEvent({
+          isStaff: false,
+          orgIsSelfServe: true,
+          orgIsTierManaged: false,
+        }),
       EventTierPurchaseRequiredError
     );
   });
@@ -70,10 +75,32 @@ test.group("Who may create an Org Event", () => {
     assert,
   }) => {
     assert.doesNotThrow(() =>
-      assertMayCreateOrgEvent({ isStaff: false, orgIsSelfServe: false })
+      assertMayCreateOrgEvent({
+        isStaff: false,
+        orgIsSelfServe: false,
+        orgIsTierManaged: false,
+      })
     );
     assert.doesNotThrow(() =>
-      assertMayCreateOrgEvent({ isStaff: true, orgIsSelfServe: true })
+      assertMayCreateOrgEvent({
+        isStaff: true,
+        orgIsSelfServe: true,
+        orgIsTierManaged: true,
+      })
+    );
+  });
+
+  test("a tier-managed Org's Organizers cannot create events either", ({
+    assert,
+  }) => {
+    assert.throws(
+      () =>
+        assertMayCreateOrgEvent({
+          isStaff: false,
+          orgIsSelfServe: false,
+          orgIsTierManaged: true,
+        }),
+      EventTierPurchaseRequiredError
     );
   });
 });

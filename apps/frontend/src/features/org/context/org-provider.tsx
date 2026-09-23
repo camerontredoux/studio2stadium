@@ -48,6 +48,7 @@ export function OrgProvider({
       myRosters,
       isAdmin: grantsOrgAdmin(membership) || session?.role === "admin",
       selfServe: data.selfServe,
+      tierManaged: data.tierManaged,
       // Capabilities come from an Org Event — the one named, when the backend
       // gates this viewer on it, else the active one — and org-wide
       // configuration from the Org; see `hasOrgFeature`.

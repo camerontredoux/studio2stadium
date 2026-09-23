@@ -55,6 +55,12 @@ export interface GetOrgResult {
    * staff create further events (#112), so the UI hides the affordance.
    */
   selfServe: boolean;
+  /**
+   * Whether S2S staff ever put one of the Org's events below Enterprise. A
+   * tier-managed Org is closed to Organizer-created events just like a
+   * self-serve one (#112), so the UI hides the affordance for either.
+   */
+  tierManaged: boolean;
 }
 
 @inject()
@@ -159,6 +165,7 @@ export class GetOrgService {
         myRosters,
         activeEventCapabilities,
         selfServe: org.selfServe,
+        tierManaged: org.tierManaged,
       };
     });
   }

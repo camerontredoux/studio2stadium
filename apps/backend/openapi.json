@@ -12100,6 +12100,9 @@
           },
           "selfServe": {
             "type": "boolean"
+          },
+          "tierManaged": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -12113,7 +12116,8 @@
           "accentColor",
           "features",
           "settings",
-          "selfServe"
+          "selfServe",
+          "tierManaged"
         ]
       },
       "AdminOrgsIdEventsResponse": {
@@ -13652,6 +13656,9 @@
           "selfServe": {
             "type": "boolean"
           },
+          "tierManaged": {
+            "type": "boolean"
+          },
           "membership": {
             "oneOf": [
               {
@@ -13820,6 +13827,7 @@
           "features",
           "settings",
           "selfServe",
+          "tierManaged",
           "membership",
           "myRoster",
           "myRosters",

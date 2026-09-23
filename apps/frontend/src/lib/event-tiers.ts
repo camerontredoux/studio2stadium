@@ -49,17 +49,23 @@ export function canSetEventTier(session: { role: string }): boolean {
 
 /**
  * Whether this user may create an Org Event in this Org. In a self-serve Org
- * (one with a purchase) further events are bought or arranged with S2S, so only
- * staff create them. Grandfathered Orgs are unchanged. Mirrors the backend's
+ * (one with a purchase) or a tier-managed one (where staff put an event below
+ * Enterprise) further events are bought or arranged with S2S, so only staff
+ * create them. Grandfathered Orgs are unchanged. Mirrors the backend's
  * `assertMayCreateOrgEvent`, which stays authoritative.
  */
 export function canCreateOrgEvent(args: {
   session: { role: string };
   orgSelfServe: boolean;
+  orgTierManaged: boolean;
 }): boolean {
-  return !args.orgSelfServe || canSetEventTier(args.session);
+  if (canSetEventTier(args.session)) return true;
+  return !args.orgSelfServe && !args.orgTierManaged;
 }
 
-/** Shown where an Organizer of a self-serve Org would create an event. */
+/**
+ * Shown where an Organizer of a self-serve or tier-managed Org would create an
+ * event.
+ */
 export const BUY_ANOTHER_EVENT_MESSAGE =
   "To add another event, buy one or contact Studio 2 Stadium.";

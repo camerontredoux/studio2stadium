@@ -24,14 +24,26 @@ describe("Event Tier options", () => {
     expect(canSetEventTier({ role: "prodigy_admin" })).toBe(false);
   });
 
+  const organizer = { role: "user" };
+  const staff = { role: "admin" };
+  const grandfathered = { orgSelfServe: false, orgTierManaged: false };
+
   it("lets only staff create events in a self-serve Org", () => {
-    const organizer = { role: "user" };
-    const staff = { role: "admin" };
-    expect(canCreateOrgEvent({ session: organizer, orgSelfServe: true })).toBe(
+    const selfServe = { ...grandfathered, orgSelfServe: true };
+    expect(canCreateOrgEvent({ session: organizer, ...selfServe })).toBe(false);
+    expect(canCreateOrgEvent({ session: staff, ...selfServe })).toBe(true);
+  });
+
+  it("lets only staff create events in a tier-managed Org", () => {
+    const tierManaged = { ...grandfathered, orgTierManaged: true };
+    expect(canCreateOrgEvent({ session: organizer, ...tierManaged })).toBe(
       false,
     );
-    expect(canCreateOrgEvent({ session: staff, orgSelfServe: true })).toBe(true);
-    expect(canCreateOrgEvent({ session: organizer, orgSelfServe: false })).toBe(
+    expect(canCreateOrgEvent({ session: staff, ...tierManaged })).toBe(true);
+  });
+
+  it("lets Organizers of a grandfathered Org create events", () => {
+    expect(canCreateOrgEvent({ session: organizer, ...grandfathered })).toBe(
       true,
     );
   });

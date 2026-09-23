@@ -15,7 +15,10 @@ import {
   assertEventTierWrite,
   assertMayCreateOrgEvent,
 } from "#shared/org/event-tier-authority";
-import { isSelfServeOrg } from "#shared/org/self-serve";
+import {
+  markTierManagedIfBelowEnterprise,
+  readOrgEventCreation,
+} from "#shared/org/self-serve";
 
 @inject()
 export class CreateEventService {
@@ -26,7 +29,8 @@ export class CreateEventService {
    * may set its Event Tier, and they must (see `assertEventTierWrite`).
    * Everyone else may create events only in a grandfathered Org, where the
    * event takes the Enterprise column default as it always has (see
-   * `assertMayCreateOrgEvent`).
+   * `assertMayCreateOrgEvent`). Staff creating one below Enterprise make the
+   * Org tier-managed, which closes that door for good.
    */
   async execute(
     orgId: string,
@@ -43,8 +47,13 @@ export class CreateEventService {
     // Create the event first in a transaction, then log the audit entry
     // using the new event's id as the eventId context
     return this.db.tx(async (tx) => {
-      const orgIsSelfServe = await isSelfServeOrg(tx, orgId);
-      assertMayCreateOrgEvent({ isStaff: by.isStaff, orgIsSelfServe });
+      const org = await readOrgEventCreation(tx, orgId);
+      const orgIsSelfServe = org.selfServe;
+      assertMayCreateOrgEvent({
+        isStaff: by.isStaff,
+        orgIsSelfServe,
+        orgIsTierManaged: org.tierManaged,
+      });
 
       const [ev] = await tx
         .insert(orgEvents)
@@ -65,6 +74,8 @@ export class CreateEventService {
           }),
         })
         .returning();
+
+      await markTierManagedIfBelowEnterprise(tx, orgId, ev!.eventTier);
 
       const [actor] = await tx
         .select({
