@@ -45,9 +45,10 @@ function RootComponent() {
   }, [isDarkMode]);
 
   useEffect(() => {
-    if (!import.meta.env.PROD) return;
+    const posthogToken = import.meta.env.VITE_POSTHOG_TOKEN;
+    if (!import.meta.env.PROD || !posthogToken) return;
     posthog.init(
-      import.meta.env.VITE_POSTHOG_TOKEN,
+      posthogToken,
       {
         api_host: "https://us.i.posthog.com",
         person_profiles: "identified_only",

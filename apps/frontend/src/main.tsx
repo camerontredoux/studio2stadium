@@ -29,7 +29,11 @@ if (sentryDsn) {
   });
 }
 
-ReactGA.initialize(import.meta.env.VITE_GOOGLE_ANALYTICS_ID)
+// Unset on staging and previews; react-ga4 throws without a measurement ID.
+const gaMeasurementId = import.meta.env.VITE_GOOGLE_ANALYTICS_ID;
+if (gaMeasurementId) {
+  ReactGA.initialize(gaMeasurementId);
+}
 
 const router = createRouter({
   routeTree,
