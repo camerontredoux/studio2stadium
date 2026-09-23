@@ -45,6 +45,32 @@ export function resolveOrgArea(access: OrgAccess | null | undefined): OrgArea {
   return "no-access";
 }
 
+/**
+ * Whether a signed-in user has to finish profile onboarding before entering
+ * this Org. Dancers and school coaches do, because the product around the Org
+ * is built on their profile. An Organizer administering the Org does not: they
+ * run its events rather than appear in them (ADR 0003), and one who signed up
+ * to buy an event has no profile to finish — onboarding would turn them into a
+ * dancer on their way to the admin area they paid for.
+ */
+export function needsProfileOnboarding(
+  session: {
+    profileId?: string | null;
+    orgMemberships: Array<{
+      orgSlug: string;
+      role: "admin" | "member";
+      type: OrgMemberType;
+    }>;
+  },
+  orgSlug: string,
+): boolean {
+  if (session.profileId) return false;
+
+  return !session.orgMemberships.some(
+    (membership) => membership.orgSlug === orgSlug && grantsOrgAdmin(membership),
+  );
+}
+
 export function orgAreaPath(orgSlug: string, area: OrgArea): string {
   return `/o/${orgSlug}/${area}`;
 }

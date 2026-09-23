@@ -24,12 +24,31 @@ import { toastManager } from "@/components/ui/toast-manager";
 import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
 import { EventFormSheet } from "@/features/org/components/event-form-sheet";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
+import {
+  Tooltip,
+  TooltipPopup,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useOrg } from "@/features/org/context/use-org";
+import {
+  BUY_ANOTHER_EVENT_MESSAGE,
+  canCreateOrgEvent,
+  eventTierLabel,
+} from "@/lib/event-tiers";
+import { useSession } from "@/lib/session";
 import { client } from "@/lib/api/client";
 
 export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
   const queryClient = useQueryClient();
   const { activeEvent, events, selectedEvent, selectEvent } = useAdminEvent();
   const [createOpen, setCreateOpen] = useState(false);
+  const org = useOrg();
+  const canCreate = canCreateOrgEvent({
+    session: useSession(),
+    orgSelfServe: org.selfServe,
+    orgTierManaged: org.tierManaged,
+  });
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const sortedEvents = useMemo(
@@ -53,12 +72,16 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
         PATCH: (
           path: string,
           options: { body: { isActive: boolean } },
-        ) => Promise<{ data: OrgEvent; error?: unknown }>;
+        ) => Promise<{ data: OrgEvent; error?: { message?: string } }>;
       };
       const response = await raw.PATCH(`/orgs/${orgSlug}/events/${eventId}`, {
         body: { isActive: true },
       });
-      if (response.error) throw new Error("Activation failed");
+      // Surfaces the backend's reason, e.g. an event stood down after its
+      // purchase was refunded or disputed (#91).
+      if (response.error) {
+        throw new Error(response.error.message ?? "Activation failed");
+      }
       return response.data;
     },
     onSuccess: () => {
@@ -66,9 +89,10 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
       void queryClient.invalidateQueries(adminQueries.events(orgSlug));
       toastManager.add({ title: "Active event updated", type: "success" });
     },
-    onError: () => {
+    onError: (err) => {
       toastManager.add({
         title: "Couldn't make event active",
+        description: err.message,
         type: "error",
       });
     },
@@ -99,11 +123,10 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
               <SelectItem key={event.id} value={event.id}>
                 <span className="flex min-w-0 items-center justify-between gap-3">
                   <span className="truncate">{event.name}</span>
-                  {event.isActive && (
-                    <span className="text-muted-foreground text-[10px] font-medium tracking-wide uppercase">
-                      Active
-                    </span>
-                  )}
+                  <span className="text-muted-foreground flex shrink-0 gap-2 text-[10px] font-medium tracking-wide uppercase">
+                    <span>{eventTierLabel(event.eventTier)}</span>
+                    {event.isActive && <span>Active</span>}
+                  </span>
                 </span>
               </SelectItem>
             ))}
@@ -165,22 +188,44 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
           </AlertDialog>
         )}
 
-        <Button
-          variant="ghost"
-          size="xs"
-          className="h-8 gap-1 px-2"
-          onClick={() => setCreateOpen(true)}
-        >
-          <PlusIcon aria-hidden className="size-3" />
-          New
-        </Button>
+        {canCreate ? (
+          <Button
+            variant="ghost"
+            size="xs"
+            className="h-8 gap-1 px-2"
+            onClick={() => setCreateOpen(true)}
+          >
+            <PlusIcon aria-hidden className="size-3" />
+            New
+          </Button>
+        ) : (
+          <TooltipProvider delay={0}>
+            <Tooltip>
+              <TooltipTrigger render={<span tabIndex={0} />}>
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  className="h-8 gap-1 px-2"
+                  disabled
+                  aria-label={`New event. ${BUY_ANOTHER_EVENT_MESSAGE}`}
+                >
+                  <PlusIcon aria-hidden className="size-3" />
+                  New
+                </Button>
+              </TooltipTrigger>
+              <TooltipPopup>{BUY_ANOTHER_EVENT_MESSAGE}</TooltipPopup>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </div>
 
-      <EventFormSheet
-        orgSlug={orgSlug}
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-      />
+      {canCreate && (
+        <EventFormSheet
+          orgSlug={orgSlug}
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+        />
+      )}
     </>
   );
 }

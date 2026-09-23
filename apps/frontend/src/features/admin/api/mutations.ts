@@ -32,7 +32,10 @@ export function useEditSchoolEvent(username: string) {
 export function useAdminUpdateSchoolProfile(username: string) {
   return $api.useMutation("patch", "/admin/schools/{username}/profile", {
     meta: {
-      invalidateQueries: [adminQueries.schools().queryKey, adminQueries.schoolEvents(username).queryKey],
+      invalidateQueries: [
+        adminQueries.schools().queryKey,
+        adminQueries.schoolEvents(username).queryKey,
+      ],
     },
   });
 }
@@ -40,7 +43,10 @@ export function useAdminUpdateSchoolProfile(username: string) {
 export function useAdminUpdateSchoolAccount(username: string) {
   return $api.useMutation("patch", "/admin/schools/{username}/account", {
     meta: {
-      invalidateQueries: [adminQueries.schools().queryKey, adminQueries.schoolEvents(username).queryKey],
+      invalidateQueries: [
+        adminQueries.schools().queryKey,
+        adminQueries.schoolEvents(username).queryKey,
+      ],
     },
   });
 }
@@ -48,7 +54,10 @@ export function useAdminUpdateSchoolAccount(username: string) {
 export function useAdminUpdateSchoolSkills(username: string) {
   return $api.useMutation("patch", "/admin/schools/{username}/skills", {
     meta: {
-      invalidateQueries: [adminQueries.schools().queryKey, adminQueries.schoolEvents(username).queryKey],
+      invalidateQueries: [
+        adminQueries.schools().queryKey,
+        adminQueries.schoolEvents(username).queryKey,
+      ],
     },
   });
 }
@@ -56,7 +65,10 @@ export function useAdminUpdateSchoolSkills(username: string) {
 export function useAdminUpdateSchoolStyles(username: string) {
   return $api.useMutation("patch", "/admin/schools/{username}/styles", {
     meta: {
-      invalidateQueries: [adminQueries.schools().queryKey, adminQueries.schoolEvents(username).queryKey],
+      invalidateQueries: [
+        adminQueries.schools().queryKey,
+        adminQueries.schoolEvents(username).queryKey,
+      ],
     },
   });
 }
@@ -64,7 +76,10 @@ export function useAdminUpdateSchoolStyles(username: string) {
 export function useAdminUpdateSchoolSports(username: string) {
   return $api.useMutation("patch", "/admin/schools/{username}/sports", {
     meta: {
-      invalidateQueries: [adminQueries.schools().queryKey, adminQueries.schoolEvents(username).queryKey],
+      invalidateQueries: [
+        adminQueries.schools().queryKey,
+        adminQueries.schoolEvents(username).queryKey,
+      ],
     },
   });
 }
@@ -72,7 +87,10 @@ export function useAdminUpdateSchoolSports(username: string) {
 export function useAdminUpdateSchoolAvatar(username: string) {
   return $api.useMutation("post", "/admin/schools/{username}/avatar", {
     meta: {
-      invalidateQueries: [adminQueries.schools().queryKey, adminQueries.schoolEvents(username).queryKey],
+      invalidateQueries: [
+        adminQueries.schools().queryKey,
+        adminQueries.schoolEvents(username).queryKey,
+      ],
     },
   });
 }
@@ -117,6 +135,39 @@ export function useUpdateOrg() {
   });
 }
 
+/**
+ * Staff set an Org Event's Event Tier by hand (#92), through the same org
+ * events endpoint the event sheet uses; only site admins may send `eventTier`.
+ */
+export function useSetOrgEventTier() {
+  return $api.useMutation("patch", "/orgs/{slug}/events/{id}", {
+    meta: {
+      invalidateQueries: [
+        adminQueries.eventTierPurchases().queryKey,
+        adminQueries.orgs().queryKey,
+        // Every Org's event capabilities: a new Event Tier moves the defaults.
+        ["get", "/admin/orgs/{id}/events"],
+      ],
+    },
+  });
+}
+
+/**
+ * Staff set one Org Event's capability overrides — its exceptions to what its
+ * Event Tier includes (#109).
+ */
+export function useSetEventCapabilityOverrides(orgId: string) {
+  return $api.useMutation(
+    "patch",
+    "/admin/orgs/{id}/events/{eventId}/capabilities",
+    {
+      meta: {
+        invalidateQueries: [adminQueries.orgEventCapabilities(orgId).queryKey],
+      },
+    },
+  );
+}
+
 export function useDeleteOrg() {
   return $api.useMutation("delete", "/admin/orgs/{id}", {
     meta: {
@@ -139,9 +190,7 @@ export function useAddOrgMember(orgId: string) {
 export function useUpdateOrgMember(orgId: string) {
   return $api.useMutation("patch", "/admin/orgs/{id}/members/{memberId}", {
     meta: {
-      invalidateQueries: [
-        adminQueries.orgMembers(orgId).queryKey,
-      ],
+      invalidateQueries: [adminQueries.orgMembers(orgId).queryKey],
     },
   });
 }
@@ -155,4 +204,20 @@ export function useRemoveOrgMember(orgId: string) {
       ],
     },
   });
+}
+
+/**
+ * Emails a purchase's buyer a fresh claim link, for a purchase still awaiting
+ * its claim. The link goes to the buyer's own address.
+ */
+export function useResendEventTierClaim() {
+  return $api.useMutation(
+    "post",
+    "/admin/event-tier-purchases/{id}/claim-email",
+    {
+      meta: {
+        invalidateQueries: [adminQueries.eventTierPurchases().queryKey],
+      },
+    },
+  );
 }

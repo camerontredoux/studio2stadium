@@ -1052,6 +1052,72 @@
         "description": "Permanently deletes a training video by ID"
       }
     },
+    "/admin/event-tier-purchases": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEventtierpurchasesResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get all Event Tier purchases",
+        "description": "Returns every Event Tier purchase, newest first: buyer, amount charged, Event Tier sold, the Org Event it bought with its current Event Tier, and who last changed that tier by hand, and whether it is awaiting its buyer's claim"
+      }
+    },
+    "/admin/event-tier-purchases/{id}/claim-email": {
+      "post": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Resend an Event Tier purchase's claim email",
+        "description": "Emails the buyer of a purchase that is awaiting its claim a fresh claim link, to the account's own address. The fresh link replaces the earlier one. 409 when the purchase is not awaiting a claim, 404 when there is no such purchase"
+      }
+    },
     "/admin/orgs": {
       "get": {
         "parameters": [],
@@ -1176,6 +1242,16 @@
           "204": {
             "description": "No Content"
           },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unprocessable Entity",
             "content": {
@@ -1191,7 +1267,106 @@
           "Admin"
         ],
         "summary": "Delete organization",
-        "description": "Permanently deletes an organization and all associated data"
+        "description": "Permanently deletes an organization and all associated data. Refused with 409 when any of its events was purchased, so sale records are never erased"
+      }
+    },
+    "/admin/orgs/{id}/events": {
+      "get": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOrgsIdEventsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get an organization's event capabilities",
+        "description": "Returns each of an organization's Org Events with its Event Tier and, per capability, what the Event Tier includes, the staff override set on the event, and what is in force"
+      }
+    },
+    "/admin/orgs/{id}/events/{eventId}/capabilities": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminOrgsIdEventsIdCapabilitiesRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOrgsIdEventsIdCapabilitiesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Set an Org Event's capability overrides",
+        "description": "Replaces the staff exceptions to what one Org Event's Event Tier includes. A capability left out defers to the Event Tier"
       }
     },
     "/admin/orgs/{id}/members": {
@@ -2196,6 +2371,16 @@
               }
             }
           },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "409": {
             "description": "Unknown Response",
             "content": {
@@ -2259,8 +2444,38 @@
               }
             }
           },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
@@ -2296,6 +2511,16 @@
           },
           "404": {
             "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
             "content": {
               "application/json": {
                 "schema": {
@@ -7708,7 +7933,81 @@
           "Event Tiers"
         ],
         "summary": "Create an Event Tier checkout session",
-        "description": "Creates a one-time payment Checkout Session for the chosen Event Tier. Called by the marketing site before the buyer has a product session."
+        "description": "Creates a one-time payment Checkout Session for the chosen Event Tier. Called by the marketing site, where nobody signs in: the buyer is the name and email they type, and no account is created here. Once the payment lands, provisioning finds the account for that email or creates one and emails a set-password link."
+      }
+    },
+    "/event-tiers/checkout/{sessionId}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Event Tiers"
+        ],
+        "summary": "Get an Event Tier checkout's provisioning status",
+        "description": "Called by the marketing site when Checkout returns the buyer, with the session_id Stripe put in the return URL. Answers pending until the payment has been provisioned, then the Org's name and URL, and nextStep: set_password when the buyer was emailed a set-password link (the purchase created their account), claim when the purchase landed on an existing account whose owner has not proved they read its inbox (they were emailed a claim link, and the Org is theirs once they open it signed in), sign_in when they already had an account the Org was attached to. Never returns the buyer's email."
+      }
+    },
+    "/event-tiers/claim": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventtiersClaimRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventtiersClaimResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Event Tiers"
+        ],
+        "summary": "Claim an Org bought for your account",
+        "description": "Called by the product's claim page, signed in, with the token and userId from the claim link a purchase emailed. Refused with 403 when the signed-in user is not the account the link was sent for, and 400 when the token is wrong, expired or already used. Otherwise gives the user the organizer admin membership of every Org bought for their account that is awaiting a claim, records that they read the account's inbox, and returns every Org they have claimed. Idempotent."
       }
     },
     "/events": {
@@ -11320,6 +11619,264 @@
           "success"
         ]
       },
+      "AdminEventtierpurchasesResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "reference": {
+              "type": "string"
+            },
+            "eventTier": {
+              "type": "string",
+              "enum": [
+                "core",
+                "regional",
+                "national",
+                "enterprise"
+              ]
+            },
+            "event": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "eventTier": {
+                  "type": "string",
+                  "enum": [
+                    "core",
+                    "regional",
+                    "national",
+                    "enterprise"
+                  ]
+                },
+                "isActive": {
+                  "type": "boolean"
+                },
+                "startDate": {
+                  "type": "string"
+                },
+                "endDate": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "eventTier",
+                "isActive",
+                "startDate",
+                "endDate"
+              ]
+            },
+            "paymentIntentId": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "amountTotal": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "currency": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "deactivatedAt": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "deactivationReason": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "refunded",
+                    "disputed"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "deactivationReference": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "org": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "slug"
+              ]
+            },
+            "awaitingClaim": {
+              "type": "boolean"
+            },
+            "buyer": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "email",
+                "firstName",
+                "lastName"
+              ]
+            },
+            "lastEventTierChange": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "oneOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "core",
+                            "regional",
+                            "national",
+                            "enterprise"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "to": {
+                      "type": "string",
+                      "enum": [
+                        "core",
+                        "regional",
+                        "national",
+                        "enterprise"
+                      ]
+                    },
+                    "changedAt": {
+                      "type": "string"
+                    },
+                    "changedBy": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "firstName": {
+                          "type": "string"
+                        },
+                        "lastName": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "email",
+                        "firstName",
+                        "lastName"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "from",
+                    "to",
+                    "changedAt",
+                    "changedBy"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "createdAt",
+            "reference",
+            "eventTier",
+            "event",
+            "paymentIntentId",
+            "amountTotal",
+            "currency",
+            "deactivatedAt",
+            "deactivationReason",
+            "deactivationReference",
+            "org",
+            "awaitingClaim",
+            "buyer",
+            "lastEventTierChange"
+          ]
+        }
+      },
       "AdminOrgsResponse": {
         "type": "array",
         "items": {
@@ -11393,6 +11950,22 @@
                   "type": "null"
                 }
               ]
+            },
+            "activeEventTier": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "core",
+                    "regional",
+                    "national",
+                    "enterprise"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "required": [
@@ -11408,7 +11981,8 @@
             "settings",
             "memberCount",
             "eventCount",
-            "activeEvent"
+            "activeEvent",
+            "activeEventTier"
           ]
         }
       },
@@ -11611,6 +12185,12 @@
           "settings": {
             "type": "object",
             "properties": {}
+          },
+          "selfServe": {
+            "type": "boolean"
+          },
+          "tierManaged": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -11623,7 +12203,227 @@
           "primaryColor",
           "accentColor",
           "features",
-          "settings"
+          "settings",
+          "selfServe",
+          "tierManaged"
+        ]
+      },
+      "AdminOrgsIdEventsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "eventTier": {
+              "type": "string",
+              "enum": [
+                "core",
+                "regional",
+                "national",
+                "enterprise"
+              ]
+            },
+            "startDate": {
+              "type": "string"
+            },
+            "isActive": {
+              "type": "boolean"
+            },
+            "capabilities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "override": {
+                    "oneOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "capability": {
+                    "type": "string",
+                    "enum": [
+                      "video_library",
+                      "callbacks",
+                      "check_in",
+                      "school_selections"
+                    ]
+                  },
+                  "eventTierDefault": {
+                    "type": "boolean"
+                  },
+                  "included": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "override",
+                  "capability",
+                  "eventTierDefault",
+                  "included"
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "eventTier",
+            "startDate",
+            "isActive",
+            "capabilities"
+          ]
+        }
+      },
+      "AdminOrgsIdEventsIdCapabilitiesRequest": {
+        "type": "object",
+        "properties": {
+          "capabilityOverrides": {
+            "type": "object",
+            "properties": {
+              "video_library": {
+                "oneOf": [
+                  {
+                    "type": [
+                      "string",
+                      "number",
+                      "boolean"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "callbacks": {
+                "oneOf": [
+                  {
+                    "type": [
+                      "string",
+                      "number",
+                      "boolean"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "check_in": {
+                "oneOf": [
+                  {
+                    "type": [
+                      "string",
+                      "number",
+                      "boolean"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "school_selections": {
+                "oneOf": [
+                  {
+                    "type": [
+                      "string",
+                      "number",
+                      "boolean"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "required": [
+          "capabilityOverrides"
+        ]
+      },
+      "AdminOrgsIdEventsIdCapabilitiesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "eventTier": {
+            "type": "string",
+            "enum": [
+              "core",
+              "regional",
+              "national",
+              "enterprise"
+            ]
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "override": {
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "capability": {
+                  "type": "string",
+                  "enum": [
+                    "video_library",
+                    "callbacks",
+                    "check_in",
+                    "school_selections"
+                  ]
+                },
+                "eventTierDefault": {
+                  "type": "boolean"
+                },
+                "included": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "override",
+                "capability",
+                "eventTierDefault",
+                "included"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "eventTier",
+          "startDate",
+          "isActive",
+          "capabilities"
         ]
       },
       "AdminOrgsIdMembersResponse": {
@@ -11931,6 +12731,20 @@
             "oneOf": [
               {
                 "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "commonRecruiting": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
               },
               {
                 "type": "null"
@@ -12927,6 +13741,12 @@
             "type": "object",
             "properties": {}
           },
+          "selfServe": {
+            "type": "boolean"
+          },
+          "tierManaged": {
+            "type": "boolean"
+          },
           "membership": {
             "oneOf": [
               {
@@ -12975,6 +13795,18 @@
                   "isActive": {
                     "type": "boolean"
                   },
+                  "capabilities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "video_library",
+                        "callbacks",
+                        "check_in",
+                        "school_selections"
+                      ]
+                    }
+                  },
                   "eventName": {
                     "type": "string"
                   },
@@ -12993,6 +13825,7 @@
                   "type",
                   "eventId",
                   "isActive",
+                  "capabilities",
                   "eventName",
                   "eventStartDate",
                   "eventEndDate",
@@ -13021,6 +13854,18 @@
                 "isActive": {
                   "type": "boolean"
                 },
+                "capabilities": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "video_library",
+                      "callbacks",
+                      "check_in",
+                      "school_selections"
+                    ]
+                  }
+                },
                 "eventName": {
                   "type": "string"
                 },
@@ -13039,10 +13884,23 @@
                 "type",
                 "eventId",
                 "isActive",
+                "capabilities",
                 "eventName",
                 "eventStartDate",
                 "eventEndDate",
                 "hasStarted"
+              ]
+            }
+          },
+          "activeEventCapabilities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "video_library",
+                "callbacks",
+                "check_in",
+                "school_selections"
               ]
             }
           }
@@ -13056,9 +13914,12 @@
           "accentColor",
           "features",
           "settings",
+          "selfServe",
+          "tierManaged",
           "membership",
           "myRoster",
-          "myRosters"
+          "myRosters",
+          "activeEventCapabilities"
         ]
       },
       "OrgsIdEventsResponse": {
@@ -13091,6 +13952,22 @@
       "OrgsIdEventsRequest": {
         "type": "object",
         "properties": {
+          "eventTier": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "core",
+                  "regional",
+                  "national",
+                  "enterprise"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "venueName": {
             "oneOf": [
               {
@@ -13178,6 +14055,22 @@
             "oneOf": [
               {
                 "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "eventTier": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "core",
+                  "regional",
+                  "national",
+                  "enterprise"
+                ]
               },
               {
                 "type": "null"
@@ -13346,6 +14239,23 @@
           "isActive": {
             "type": "boolean"
           },
+          "capabilityOverrides": {
+            "type": "object",
+            "properties": {
+              "video_library": {
+                "type": "boolean"
+              },
+              "callbacks": {
+                "type": "boolean"
+              },
+              "check_in": {
+                "type": "boolean"
+              },
+              "school_selections": {
+                "type": "boolean"
+              }
+            }
+          },
           "schedulePdfUrl": {
             "oneOf": [
               {
@@ -13390,6 +14300,7 @@
           "venueAddress",
           "contactEmail",
           "isActive",
+          "capabilityOverrides",
           "schedulePdfUrl",
           "startTime",
           "timezone"
@@ -17417,9 +18328,6 @@
       "OrgsIdDancerCallbacksResponse": {
         "type": "object",
         "properties": {
-          "publishedShowcaseCount": {
-            "type": "number"
-          },
           "callbacks": {
             "type": "array",
             "items": {
@@ -17485,11 +18393,14 @@
                 "firstShowcaseNumber"
               ]
             }
+          },
+          "publishedShowcaseCount": {
+            "type": "number"
           }
         },
         "required": [
-          "publishedShowcaseCount",
-          "callbacks"
+          "callbacks",
+          "publishedShowcaseCount"
         ]
       },
       "OrgsIdSettingsRequest": {
@@ -18679,6 +19590,9 @@
                 "in_review"
               ]
             },
+            "createdAt": {
+              "type": "string"
+            },
             "updatedAt": {
               "type": "string"
             },
@@ -18733,6 +19647,7 @@
           "required": [
             "id",
             "status",
+            "createdAt",
             "updatedAt",
             "school",
             "watched",
@@ -19559,7 +20474,10 @@
       "EventtiersCheckoutRequest": {
         "type": "object",
         "properties": {
-          "userId": {
+          "email": {
+            "type": "string"
+          },
+          "name": {
             "type": "string"
           },
           "eventTier": {
@@ -19584,7 +20502,8 @@
           }
         },
         "required": [
-          "userId",
+          "email",
+          "name",
           "eventTier",
           "startDate",
           "endDate",
@@ -19601,6 +20520,51 @@
         },
         "required": [
           "clientSecret"
+        ]
+      },
+      "EventtiersClaimRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId",
+          "token"
+        ]
+      },
+      "EventtiersClaimResponse": {
+        "type": "object",
+        "properties": {
+          "orgs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "slug",
+                "url"
+              ]
+            }
+          }
+        },
+        "required": [
+          "orgs"
         ]
       },
       "EventsResponse": {

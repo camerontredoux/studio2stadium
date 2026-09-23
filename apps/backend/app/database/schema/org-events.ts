@@ -15,6 +15,20 @@ import { citext, timestamps } from "./helpers/columns.ts";
 import { organizations } from "./organizations.ts";
 import { users } from "./users.ts";
 
+/**
+ * The staff exceptions stored on one Org Event: a capability mapped to `true`
+ * is included whatever the Event Tier says, `false` is excluded, and a missing
+ * key defers to the Event Tier. Declared here rather than imported so the
+ * schema does not depend on `#shared`; `#shared/org/entitlement` re-exports it
+ * and checks at compile time that the keys match `EVENT_TIER_CAPABILITIES`.
+ */
+export type CapabilityOverrides = Partial<
+  Record<
+    "callbacks" | "check_in" | "school_selections" | "video_library",
+    boolean
+  >
+>;
+
 export const orgEvents = pg.pgTable(
   "org_events",
   {
@@ -36,6 +50,16 @@ export const orgEvents = pg.pgTable(
     // 0006), and the default keeps hand-built events there until the purchase
     // flow starts setting it from what was actually paid for.
     eventTier: eventTier().notNull().default("enterprise"),
+    // Staff exceptions to what the Event Tier includes, per capability: `true`
+    // or `false` wins over the Event Tier, a missing key defers to it. Resolved
+    // only through `#shared/org/entitlement` (#109). These moved here from
+    // `organizations.features`, copied onto every event the Org had, so an
+    // Org's events can now differ.
+    capabilityOverrides: pg
+      .jsonb()
+      .$type<CapabilityOverrides>()
+      .notNull()
+      .default({}),
     schedulePdfUrl: pg.text(),
     startTime: pg.text(),
     timezone: pg.text(),

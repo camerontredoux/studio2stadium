@@ -33,33 +33,35 @@ import {
 } from "@/features/org/components/dashboard-shared";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { useOrg } from "@/features/org/context/use-org";
+import type { OrgFeatureKey } from "@/features/org/lib/entitlement";
 import { useEventPhase } from "@/features/org/hooks/use-event-phase";
 import { DancerEventSwitcher } from "@/features/org/components/dancer-event-switcher";
 import { EventAccessBanner } from "@/features/org/components/event-access-banner";
 import type { MyRoster } from "@/features/org/context/org-context";
+import { dancerEventSearchSchema } from "@/features/org/api/scouting-schemas";
+import { useViewedDancerEventId } from "@/features/org/hooks/use-viewed-dancer-event";
 
 export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/dancer/event-info",
 )({
+  // The switcher's choice lives in the URL so the sidebar menu, and the pages
+  // it links to, describe the same event this page shows (#110).
+  validateSearch: dancerEventSearchSchema,
   component: DancerEventInfo,
 });
 
 function DancerEventInfo() {
   const { orgSlug } = Route.useParams();
-  const { isAdmin, myRoster, myRosters } = useOrg();
+  const navigate = Route.useNavigate();
+  const { isAdmin, myRosters } = useOrg();
   const dancerRosters = myRosters.filter((roster) => roster.type === "dancer");
-  const defaultRoster =
-    dancerRosters.find((roster) => roster.id === myRoster?.id) ??
-    dancerRosters[0] ??
-    null;
   const { data: events } = useQuery(adminQueries.events(orgSlug));
   const activeEvent = events?.find((e) => e.isActive) ?? null;
-  const [selectedEventId, setSelectedEventId] = useState(
-    defaultRoster?.eventId ?? "",
-  );
+  const selectedEventId = useViewedDancerEventId();
   const selectedRoster =
     dancerRosters.find((roster) => roster.eventId === selectedEventId) ??
-    defaultRoster;
+    dancerRosters[0] ??
+    null;
   const rosterEvent =
     events?.find((event) => event.id === selectedRoster?.eventId) ?? null;
   const event = rosterEvent ?? (isAdmin ? activeEvent : null);
@@ -78,7 +80,7 @@ function DancerEventInfo() {
       event={event}
       roster={selectedRoster}
       rosters={dancerRosters}
-      onEventChange={setSelectedEventId}
+      onEventChange={(eventId) => void navigate({ search: { eventId } })}
     />
   );
 }
@@ -96,7 +98,10 @@ function DancerDashboard({
   rosters: MyRoster[];
   onEventChange: (eventId: string) => void;
 }) {
-  const { hasFeature } = useOrg();
+  const { hasFeature: hasOrgFeature } = useOrg();
+  // Gate on the event shown here, which is the one these reads request —
+  // not the Org's active one (#110).
+  const hasFeature = (key: OrgFeatureKey) => hasOrgFeature(key, event.id);
   const phase = useEventPhase(event.startDate, event.endDate);
   const dateRange = formatDateRange(event.startDate, event.endDate);
 
@@ -402,7 +407,7 @@ function QuickNavPanel({
   orgSlug: string;
   eventId: string;
   showCallbacks: boolean;
-  hasFeature: (key: string) => boolean;
+  hasFeature: (key: OrgFeatureKey) => boolean;
 }) {
   const navItems = [
     ...(hasFeature("video_library")

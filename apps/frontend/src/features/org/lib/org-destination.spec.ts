@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveOrgArea, resolveOrgDestination } from "./org-destination";
+import {
+  needsProfileOnboarding,
+  resolveOrgArea,
+  resolveOrgDestination,
+} from "./org-destination";
 
 const dancerRoster = { id: "r1", type: "dancer" } as const;
 const coachRoster = { id: "r2", type: "coach" } as const;
@@ -73,5 +77,44 @@ describe("resolveOrgDestination", () => {
       resolveOrgDestination("hoosier", { myRosters: [dancerRoster] }),
     ).toBe("/o/hoosier/dancer");
     expect(resolveOrgDestination("hoosier", null)).toBe("/o/hoosier/no-access");
+  });
+});
+
+describe("needsProfileOnboarding", () => {
+  const organizer = {
+    orgSlug: "summit",
+    role: "admin",
+    type: "organizer",
+  } as const;
+
+  it("lets a buyer with no profile into the Org they administer", () => {
+    expect(
+      needsProfileOnboarding({ orgMemberships: [organizer] }, "summit"),
+    ).toBe(false);
+  });
+
+  it("still onboards that buyer into an Org they do not administer", () => {
+    expect(
+      needsProfileOnboarding({ orgMemberships: [organizer] }, "hoosier"),
+    ).toBe(true);
+  });
+
+  it("still onboards a profile-less dancer member", () => {
+    expect(
+      needsProfileOnboarding(
+        {
+          orgMemberships: [
+            { orgSlug: "summit", role: "member", type: "dancer" },
+          ],
+        },
+        "summit",
+      ),
+    ).toBe(true);
+  });
+
+  it("never onboards someone who already has a profile", () => {
+    expect(
+      needsProfileOnboarding({ profileId: "p1", orgMemberships: [] }, "summit"),
+    ).toBe(false);
   });
 });

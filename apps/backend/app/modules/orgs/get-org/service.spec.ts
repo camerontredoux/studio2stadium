@@ -31,6 +31,129 @@ test.group("GET /orgs/:slug", (group) => {
     assert.equal(body.settings.max_school_selections, 3);
   });
 
+  test("carries what the active event's Event Tier includes", async ({
+    client,
+    assert,
+  }) => {
+    // The core org overrides nothing, so its Event Tier alone decides.
+    const [org] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "core"));
+    await db.insert(orgEvents).values({
+      orgId: org!.id,
+      name: "Entitlement Event",
+      startDate: "2026-09-01",
+      endDate: "2026-09-02",
+      isActive: true,
+      eventTier: "regional",
+    });
+
+    const response = await client.get("/orgs/core");
+    response.assertStatus(200);
+    assert.sameMembers(response.body().activeEventCapabilities, [
+      "check_in",
+      "school_selections",
+      "callbacks",
+    ]);
+  });
+
+  test("a Core active event with no overrides includes nothing", async ({
+    client,
+    assert,
+  }) => {
+    const [org] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "core"));
+    await db.insert(orgEvents).values({
+      orgId: org!.id,
+      name: "Core Event",
+      startDate: "2026-09-01",
+      endDate: "2026-09-02",
+      isActive: true,
+      eventTier: "core",
+    });
+
+    const response = await client.get("/orgs/core");
+    response.assertStatus(200);
+    assert.deepEqual(response.body().activeEventCapabilities, []);
+  });
+
+  test("the active event's explicit overrides win over its Event Tier", async ({
+    client,
+    assert,
+  }) => {
+    // The event switches callbacks, school_selections and video_library on and
+    // never mentions check_in, so a Core event keeps the first three and takes
+    // its answer on the fourth from the Event Tier.
+    const [org] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "summit"));
+    await db.insert(orgEvents).values({
+      orgId: org!.id,
+      name: "Overridden Event",
+      startDate: "2026-09-01",
+      endDate: "2026-09-02",
+      isActive: true,
+      eventTier: "core",
+      capabilityOverrides: {
+        callbacks: true,
+        school_selections: true,
+        video_library: true,
+      },
+    });
+
+    const response = await client.get("/orgs/summit");
+    response.assertStatus(200);
+    assert.sameMembers(response.body().activeEventCapabilities, [
+      "callbacks",
+      "school_selections",
+      "video_library",
+    ]);
+  });
+
+  test("an org with no active event includes nothing", async ({
+    client,
+    assert,
+  }) => {
+    // Overrides live on events (#109), so with no event there is nothing to
+    // grant from.
+    const response = await client.get("/orgs/core");
+    response.assertStatus(200);
+    assert.deepEqual(response.body().activeEventCapabilities, []);
+  });
+
+  test("says whether the Org is self-serve", async ({ client, assert }) => {
+    const before = await client.get("/orgs/core");
+    assert.isFalse(before.body().selfServe);
+
+    await db
+      .update(organizations)
+      .set({ selfServe: true })
+      .where(eq(organizations.slug, "core"));
+
+    const after = await client.get("/orgs/core");
+    assert.isTrue(after.body().selfServe);
+  });
+
+  test("says whether staff have made the Org tier-managed", async ({
+    client,
+    assert,
+  }) => {
+    const before = await client.get("/orgs/core");
+    assert.isFalse(before.body().tierManaged);
+
+    await db
+      .update(organizations)
+      .set({ tierManaged: true })
+      .where(eq(organizations.slug, "core"));
+
+    const after = await client.get("/orgs/core");
+    assert.isTrue(after.body().tierManaged);
+  });
+
   test("returns 404 for unknown slug", async ({ client }) => {
     const response = await client.get("/orgs/does-not-exist");
     response.assertStatus(404);
@@ -126,5 +249,84 @@ test.group("GET /orgs/:slug", (group) => {
       result?.myRosters.map((roster) => roster.eventId),
       [nearestFuture!.id, farFuture!.id, past!.id]
     );
+  });
+  test("each roster carries what its own event includes, not the active one's", async ({
+    assert,
+  }) => {
+    // A Dancer's event switcher can show an event other than the active one,
+    // so the org area's gating has to answer for the event she is viewing
+    // (#110). The core org overrides nothing, so each Event Tier decides.
+    const [org] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "core"));
+    const [dancer] = await db
+      .insert(users)
+      .values({
+        username: `two_tier_dancer_${Date.now()}`,
+        email: `two_tier_dancer_${Date.now()}@example.com`,
+        displayEmail: "two-tier@example.com",
+        firstName: "Two",
+        lastName: "Tier",
+        password: "hashed",
+        role: "user",
+        type: "dancer",
+        verified: true,
+      })
+      .returning();
+    await db.insert(orgMemberships).values({
+      orgId: org!.id,
+      userId: dancer!.id,
+      role: "member",
+      type: "dancer",
+    });
+    const [coreEvent, regionalEvent] = await db
+      .insert(orgEvents)
+      .values([
+        {
+          orgId: org!.id,
+          name: "Active Core",
+          startDate: "2026-09-01",
+          endDate: "2026-09-02",
+          isActive: true,
+          eventTier: "core",
+        },
+        {
+          orgId: org!.id,
+          name: "Inactive Regional",
+          startDate: "2026-10-01",
+          endDate: "2026-10-02",
+          isActive: false,
+          eventTier: "regional",
+        },
+      ])
+      .returning();
+    await db.insert(eventRosters).values(
+      [coreEvent, regionalEvent].map((event) => ({
+        eventId: event!.id,
+        userId: dancer!.id,
+        type: "dancer" as const,
+        email: dancer!.email,
+        firstName: "Two",
+        lastName: "Tier",
+      }))
+    );
+
+    const result = await new GetOrgService(new DatabaseService()).execute(
+      org!.slug,
+      dancer!.id
+    );
+
+    assert.deepEqual(result?.activeEventCapabilities, []);
+    const byEvent = new Map(
+      result?.myRosters.map((roster) => [roster.eventId, roster.capabilities])
+    );
+    assert.deepEqual(byEvent.get(coreEvent!.id), []);
+    assert.sameMembers(byEvent.get(regionalEvent!.id) ?? [], [
+      "check_in",
+      "school_selections",
+      "callbacks",
+    ]);
+    assert.deepEqual(result?.myRoster?.capabilities, []);
   });
 });

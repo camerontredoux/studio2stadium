@@ -22,6 +22,13 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Frame, FramePanel } from "@/components/ui/frame";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverPopup, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Select,
+  SelectItem,
+  SelectPopup,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { TimePicker } from "@/components/ui/time-picker";
@@ -37,6 +44,14 @@ import { z } from "zod";
 import { client } from "@/lib/api/client";
 import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
 import { useOrg } from "@/features/org/context/use-org";
+import {
+  canSetEventTier,
+  EVENT_TIER_OPTIONS,
+  EVENT_TIERS,
+  eventTierLabel,
+  type EventTier,
+} from "@/lib/event-tiers";
+import { useSession } from "@/lib/session";
 
 const COMMON_TIMEZONES = [
   { value: "America/New_York", label: "Eastern (America/New_York)" },
@@ -75,9 +90,23 @@ const schema = z.object({
     .or(z.literal(""))
     .optional(),
   timezone: z.string().optional(),
+  eventTier: z.enum(EVENT_TIERS).optional(),
 });
 
 type Schema = z.infer<typeof schema>;
+
+/**
+ * Staff creating an event must say which Event Tier was agreed: left blank, the
+ * backend default would make it Enterprise, which is a grandfathering default
+ * rather than a choice (ADR 0006).
+ */
+const staffCreateSchema = schema.refine((data) => data.eventTier !== undefined, {
+  path: ["eventTier"],
+  message: "Choose the Event Tier that was agreed",
+});
+
+/** How the Event Tier appears in the form, depending on who is looking. */
+type EventTierMode = "editable" | "readonly" | "hidden";
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -106,6 +135,7 @@ function defaultsFromEvent(event: OrgEvent): Schema {
     contactEmail: event.contactEmail ?? "",
     startTime: event.startTime ?? "",
     timezone: event.timezone ?? "",
+    eventTier: event.eventTier,
   };
 }
 
@@ -118,6 +148,7 @@ function emptyDefaults(defaultTimezone?: string): Schema {
     contactEmail: "",
     startTime: "",
     timezone: defaultTimezone ?? "",
+    eventTier: undefined,
   };
 }
 
@@ -238,12 +269,64 @@ function TimezoneField({
   );
 }
 
+function EventTierField({
+  control,
+  mode,
+}: {
+  control: Control<Schema>;
+  mode: EventTierMode;
+}) {
+  if (mode === "hidden") return null;
+  return (
+    <Controller
+      control={control}
+      name="eventTier"
+      render={({ field, fieldState }) => (
+        <Field name={field.name} invalid={fieldState.invalid}>
+          <FieldLabel>Event Tier</FieldLabel>
+          {mode === "editable" ? (
+            <Select
+              items={EVENT_TIER_OPTIONS}
+              value={field.value ?? null}
+              onValueChange={(value) =>
+                field.onChange((value as EventTier | null) ?? undefined)
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Choose the Event Tier" />
+              </SelectTrigger>
+              <SelectPopup>
+                {EVENT_TIER_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectPopup>
+            </Select>
+          ) : (
+            <p className="text-sm">
+              {field.value ? eventTierLabel(field.value) : "—"}
+              <span className="text-muted-foreground">
+                {" "}
+                · set by Studio 2 Stadium
+              </span>
+            </p>
+          )}
+          <FieldError error={fieldState.error} />
+        </Field>
+      )}
+    />
+  );
+}
+
 function EventFormFields({
   control,
   calendarDisabledBeforeToday,
+  eventTierMode,
 }: {
   control: Control<Schema>;
   calendarDisabledBeforeToday: boolean;
+  eventTierMode: EventTierMode;
 }) {
   return (
     <>
@@ -258,6 +341,7 @@ function EventFormFields({
           </Field>
         )}
       />
+      <EventTierField control={control} mode={eventTierMode} />
       <Controller
         control={control}
         name="dateRange"
@@ -393,8 +477,14 @@ export function EventFormSheet({
 }: EventFormSheetProps) {
   const qc = useQueryClient();
   const { settings } = useOrg();
+  const isStaff = canSetEventTier(useSession());
   const defaultTimezone = (settings.defaultTimezone as string) ?? undefined;
   const isCreate = event === undefined;
+  const eventTierMode: EventTierMode = isStaff
+    ? "editable"
+    : isCreate
+      ? "hidden"
+      : "readonly";
   const [discardConfirmOpen, setDiscardConfirmOpen] = useState(false);
   const bypassDirtyCheckRef = useRef(false);
 
@@ -410,11 +500,16 @@ export function EventFormSheet({
       contactEmail?: string;
       startTime?: string;
       timezone?: string;
+      eventTier?: EventTier;
     }) => {
       const createRes = await rawClient.POST(`/orgs/${orgSlug}/events`, {
         body: { ...body, isActive: false },
       });
-      if (createRes.error) throw new Error("Create failed");
+      if (createRes.error) {
+        // Surfaces the backend's reason, e.g. a self-serve Org's Organizer
+        // being told new events are bought or arranged with S2S (#112).
+        throw new Error(createRes.error.message ?? "Create failed");
+      }
       const activateRes = await rawClient.PATCH(
         `/orgs/${orgSlug}/events/${createRes.data.id}`,
         { body: { isActive: true } },
@@ -428,8 +523,12 @@ export function EventFormSheet({
       bypassDirtyCheckRef.current = true;
       onOpenChange(false);
     },
-    onError: () => {
-      toastManager.add({ title: "Couldn't create event", type: "error" });
+    onError: (err) => {
+      toastManager.add({
+        title: "Couldn't create event",
+        description: err.message,
+        type: "error",
+      });
     },
   });
 
@@ -471,7 +570,7 @@ export function EventFormSheet({
     reset,
     formState: { isDirty },
   } = useForm<Schema>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(isCreate && isStaff ? staffCreateSchema : schema),
     defaultValues: isCreate ? emptyDefaults(defaultTimezone) : defaultsFromEvent(event),
   });
 
@@ -524,6 +623,7 @@ export function EventFormSheet({
         contactEmail: data.contactEmail || undefined,
         startTime: hasTimePair ? data.startTime : undefined,
         timezone: hasTimePair ? data.timezone : undefined,
+        eventTier: isStaff ? data.eventTier : undefined,
       });
     } else {
       const hasTimePair = !!data.startTime && !!data.timezone;
@@ -536,6 +636,8 @@ export function EventFormSheet({
         contactEmail: data.contactEmail || null,
         startTime: hasTimePair ? data.startTime : null,
         timezone: hasTimePair ? data.timezone : null,
+        // Only staff may send it; the backend refuses anyone else (#112).
+        ...(isStaff && { eventTier: data.eventTier }),
       });
     }
   };
@@ -561,6 +663,7 @@ export function EventFormSheet({
               <EventFormFields
                 control={control}
                 calendarDisabledBeforeToday={isCreate}
+                eventTierMode={eventTierMode}
               />
             </form>
           </SheetContent>
@@ -621,6 +724,7 @@ export function CreateEventForm({
 }) {
   const qc = useQueryClient();
   const { settings } = useOrg();
+  const isStaff = canSetEventTier(useSession());
   const defaultTimezone = (settings.defaultTimezone as string) ?? undefined;
 
   const rawClient = client as any;
@@ -635,11 +739,16 @@ export function CreateEventForm({
       contactEmail?: string;
       startTime?: string;
       timezone?: string;
+      eventTier?: EventTier;
     }) => {
       const createRes = await rawClient.POST(`/orgs/${orgSlug}/events`, {
         body: { ...body, isActive: false },
       });
-      if (createRes.error) throw new Error("Create failed");
+      if (createRes.error) {
+        // Surfaces the backend's reason, e.g. a self-serve Org's Organizer
+        // being told new events are bought or arranged with S2S (#112).
+        throw new Error(createRes.error.message ?? "Create failed");
+      }
       const activateRes = await rawClient.PATCH(
         `/orgs/${orgSlug}/events/${createRes.data.id}`,
         { body: { isActive: true } },
@@ -651,13 +760,17 @@ export function CreateEventForm({
       qc.invalidateQueries(adminQueries.events(orgSlug));
       onCreated?.(ev);
     },
-    onError: () => {
-      toastManager.add({ title: "Couldn't create event", type: "error" });
+    onError: (err) => {
+      toastManager.add({
+        title: "Couldn't create event",
+        description: err.message,
+        type: "error",
+      });
     },
   });
 
   const { control, handleSubmit, reset } = useForm<Schema>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(isStaff ? staffCreateSchema : schema),
     defaultValues: emptyDefaults(defaultTimezone),
   });
 
@@ -674,6 +787,7 @@ export function CreateEventForm({
         contactEmail: data.contactEmail || undefined,
         startTime: data.startTime || undefined,
         timezone: data.timezone || undefined,
+        eventTier: isStaff ? data.eventTier : undefined,
       },
       { onSuccess: () => reset() },
     );
@@ -687,7 +801,11 @@ export function CreateEventForm({
     >
       <Frame>
         <FramePanel className="flex w-full flex-col gap-3 sm:gap-5">
-          <EventFormFields control={control} calendarDisabledBeforeToday />
+          <EventFormFields
+            control={control}
+            calendarDisabledBeforeToday
+            eventTierMode={isStaff ? "editable" : "hidden"}
+          />
         </FramePanel>
       </Frame>
       <Button

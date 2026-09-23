@@ -1,17 +1,37 @@
 import { subscriptions } from "#database/schema/subscriptions";
 import { DatabaseService } from "#database/service";
+import {
+  disputeToDeactivation,
+  refundToDeactivation,
+} from "#modules/event-tiers/deactivation/payment-events";
+import {
+  DeactivatePurchaseService,
+  type DeactivateInput,
+} from "#modules/event-tiers/deactivation/service";
+import { toProvisionInput } from "#modules/event-tiers/provisioning/checkout-session";
+import { ProvisionPurchaseService } from "#modules/event-tiers/provisioning/service";
 import stripe from "#payments/stripe/main";
 import { inject } from "@adonisjs/core";
+import logger from "@adonisjs/core/services/logger";
 import { eq } from "drizzle-orm";
 import { type Stripe } from "stripe";
 import { SubscriptionCreatedEvent, SubscriptionDeletedEvent } from "./event.ts";
 
 @inject()
 export default class WebhookHandlers {
-  constructor(private db: DatabaseService) {
+  constructor(
+    private db: DatabaseService,
+    private provisionPurchase: ProvisionPurchaseService,
+    private deactivatePurchase: DeactivatePurchaseService
+  ) {
     stripe.onEvent(
       "checkout.session.completed",
       this.checkoutSessionCompleted.bind(this)
+    );
+    stripe.onEvent("charge.refunded", this.chargeRefunded.bind(this));
+    stripe.onEvent(
+      "charge.dispute.created",
+      this.chargeDisputeCreated.bind(this)
     );
     stripe.onEvent(
       "customer.subscription.updated",
@@ -23,9 +43,16 @@ export default class WebhookHandlers {
     );
   }
 
-  // Initial checkout — create the subscription record and link the customer
+  // Initial checkout — create the subscription record and link the customer.
+  // One-time payment sessions are Event Tier purchases (ADR 0001), the only
+  // thing this app sells without a subscription, and go to provisioning.
   async checkoutSessionCompleted(event: Stripe.Event) {
     const session = event.data.object as Stripe.Checkout.Session;
+
+    if (session.mode === "payment") {
+      return await this.eventTierPurchased(session);
+    }
+
     const userId = session.client_reference_id;
 
     if (!userId || !session.subscription) return;
@@ -72,6 +99,68 @@ export default class WebhookHandlers {
     if (user) {
       SubscriptionCreatedEvent.dispatch({ userId: user.id });
     }
+  }
+
+  // A paid Event Tier purchase becomes the buyer's account (found by, or
+  // created for, the email typed at checkout), an Org, its Org Event and the
+  // buyer's organizer admin membership, and the buyer is emailed how to get
+  // in. A translator only: reading the session and
+  // provisioning are both tested on their own. Provisioning is idempotent on
+  // the session id, so a redelivered event returns the customer it already
+  // built; a session that cannot be provisioned throws, which fails the
+  // delivery for Stripe to retry rather than dropping a paid purchase.
+  async eventTierPurchased(session: Stripe.Checkout.Session) {
+    const result = await this.provisionPurchase.execute(
+      await toProvisionInput(session)
+    );
+
+    logger.info(
+      {
+        sessionId: session.id,
+        orgSlug: result.org.slug,
+        eventId: result.event.id,
+        provisioned: result.provisioned,
+      },
+      result.provisioned
+        ? "Event Tier purchase provisioned"
+        : "Event Tier purchase already provisioned"
+    );
+  }
+
+  // A refunded or disputed Event Tier purchase stands its Org Event down and
+  // tells staff (ADR 0005). Translators only: reading the charge or dispute and
+  // deactivating are both tested on their own. Deactivation is idempotent on
+  // the purchase, and payments that bought no Org Event — Dancer subscriptions
+  // — are left alone.
+  async chargeRefunded(event: Stripe.Event) {
+    const charge = event.data.object as Stripe.Charge;
+    await this.eventTierPaymentReversed(refundToDeactivation(charge));
+  }
+
+  async chargeDisputeCreated(event: Stripe.Event) {
+    const dispute = event.data.object as Stripe.Dispute;
+    await this.eventTierPaymentReversed(disputeToDeactivation(dispute));
+  }
+
+  async eventTierPaymentReversed(input: DeactivateInput | null) {
+    if (!input) return;
+
+    const result = await this.deactivatePurchase.execute(input);
+    if (result.outcome === "not_an_event_tier_purchase") return;
+
+    logger.warn(
+      {
+        paymentIntentId: input.paymentIntentId,
+        reason: input.reason,
+        providerReference: input.providerReference,
+        purchaseId: result.purchase.id,
+        eventId: result.purchase.eventId,
+        outcome: result.outcome,
+      },
+      result.outcome === "deactivated"
+        ? "Event Tier purchase reversed; Org Event deactivated"
+        : "Event Tier purchase reversal already handled"
+    );
   }
 
   // Handles everything after initial creation — renewals, cancellations, plan changes, payment failures

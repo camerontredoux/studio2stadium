@@ -51,12 +51,20 @@ const UploadSchoolVideoController = () =>
   import("#modules/admin/upload-school-video/controller");
 const DeleteSchoolVideoController = () =>
   import("#modules/admin/delete-school-video/controller");
+const GetEventTierPurchasesController = () =>
+  import("#modules/admin/get-event-tier-purchases/controller");
+const ResendEventTierClaimController = () =>
+  import("#modules/admin/resend-event-tier-claim/controller");
 const GetAllOrgsController = () =>
   import("#modules/admin/get-all-orgs/controller");
 const CreateOrgController = () =>
   import("#modules/admin/create-org/controller");
 const UpdateOrgController = () =>
   import("#modules/admin/update-org/controller");
+const GetOrgEventCapabilitiesController = () =>
+  import("#modules/admin/get-org-event-capabilities/controller");
+const UpdateEventCapabilitiesController = () =>
+  import("#modules/admin/update-event-capabilities/controller");
 const DeleteOrgController = () =>
   import("#modules/admin/delete-org/controller");
 const GetOrgMembersController = () =>
@@ -235,6 +243,24 @@ router
         description: "Permanently deletes a training video by ID",
       });
 
+    router
+      .get("event-tier-purchases", [GetEventTierPurchasesController])
+      .openapi({
+        summary: "Get all Event Tier purchases",
+        description:
+          "Returns every Event Tier purchase, newest first: buyer, amount charged, Event Tier sold, the Org Event it bought with its current Event Tier, and who last changed that tier by hand, and whether it is awaiting its buyer's claim",
+      });
+
+    router
+      .post("event-tier-purchases/:id/claim-email", [
+        ResendEventTierClaimController,
+      ])
+      .openapi({
+        summary: "Resend an Event Tier purchase's claim email",
+        description:
+          "Emails the buyer of a purchase that is awaiting its claim a fresh claim link, to the account's own address. The fresh link replaces the earlier one. 409 when the purchase is not awaiting a claim, 404 when there is no such purchase",
+      });
+
     router.get("orgs", [GetAllOrgsController]).openapi({
       summary: "Get all organizations",
       description: "Returns all organizations with member and event counts",
@@ -252,8 +278,25 @@ router
 
     router.delete("orgs/:id", [DeleteOrgController]).openapi({
       summary: "Delete organization",
-      description: "Permanently deletes an organization and all associated data",
+      description:
+        "Permanently deletes an organization and all associated data. Refused with 409 when any of its events was purchased, so sale records are never erased",
     });
+
+    router.get("orgs/:id/events", [GetOrgEventCapabilitiesController]).openapi({
+      summary: "Get an organization's event capabilities",
+      description:
+        "Returns each of an organization's Org Events with its Event Tier and, per capability, what the Event Tier includes, the staff override set on the event, and what is in force",
+    });
+
+    router
+      .patch("orgs/:id/events/:eventId/capabilities", [
+        UpdateEventCapabilitiesController,
+      ])
+      .openapi({
+        summary: "Set an Org Event's capability overrides",
+        description:
+          "Replaces the staff exceptions to what one Org Event's Event Tier includes. A capability left out defers to the Event Tier",
+      });
 
     router.get("orgs/:id/members", [GetOrgMembersController]).openapi({
       summary: "Get organization members",
