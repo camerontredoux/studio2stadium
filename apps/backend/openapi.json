@@ -11937,6 +11937,20 @@
               }
             ]
           },
+          "commonRecruiting": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "email": {
             "type": "string"
           },
@@ -18692,6 +18706,9 @@
                 "in_review"
               ]
             },
+            "createdAt": {
+              "type": "string"
+            },
             "updatedAt": {
               "type": "string"
             },
@@ -18746,6 +18763,7 @@
           "required": [
             "id",
             "status",
+            "createdAt",
             "updatedAt",
             "school",
             "watched",

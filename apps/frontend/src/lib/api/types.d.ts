@@ -10768,6 +10768,7 @@ export interface components {
             phone?: string | null;
             location?: string | null;
             city?: string | null;
+            commonRecruiting?: (string | number | boolean) | null;
             email: string;
             username: string;
             /** @enum {string} */
