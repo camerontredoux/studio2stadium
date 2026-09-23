@@ -1198,6 +1198,16 @@
           "204": {
             "description": "No Content"
           },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Unprocessable Entity",
             "content": {
@@ -1213,7 +1223,7 @@
           "Admin"
         ],
         "summary": "Delete organization",
-        "description": "Permanently deletes an organization and all associated data"
+        "description": "Permanently deletes an organization and all associated data. Refused with 409 when any of its events was purchased, so sale records are never erased"
       }
     },
     "/admin/orgs/{id}/events": {

@@ -1370,7 +1370,7 @@ export interface paths {
         post?: never;
         /**
          * Delete organization
-         * @description Permanently deletes an organization and all associated data
+         * @description Permanently deletes an organization and all associated data. Refused with 409 when any of its events was purchased, so sale records are never erased
          */
         delete: {
             parameters: {
@@ -1389,6 +1389,15 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
                 };
                 /** @description Unprocessable Entity */
                 422: {

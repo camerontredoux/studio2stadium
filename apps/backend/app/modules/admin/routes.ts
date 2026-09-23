@@ -267,7 +267,7 @@ router
     router.delete("orgs/:id", [DeleteOrgController]).openapi({
       summary: "Delete organization",
       description:
-        "Permanently deletes an organization and all associated data",
+        "Permanently deletes an organization and all associated data. Refused with 409 when any of its events was purchased, so sale records are never erased",
     });
 
     router.get("orgs/:id/events", [GetOrgEventCapabilitiesController]).openapi({

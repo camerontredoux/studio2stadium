@@ -1,6 +1,7 @@
 import { toastManager } from "@/components/ui/toast-manager";
 import { useDeleteOrg } from "@/features/admin/api/mutations";
 import { adminQueries } from "@/features/admin/api/queries";
+import { handleApiError } from "@/lib/api/errors";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import type { EventTier } from "@/lib/event-tiers";
@@ -60,13 +61,16 @@ export function OrgsPage() {
           });
           setDeletingOrg(null);
         },
-        onError: () => {
-          toastManager.add({
-            title: "Error",
-            description: "Failed to delete organization",
-            type: "error",
-          });
-        },
+        // A 409 carries why the Org was kept (it has purchased events).
+        onError: handleApiError({
+          onError: (error) => {
+            toastManager.add({
+              title: "Organization not deleted",
+              description: error.message || "Failed to delete organization",
+              type: "error",
+            });
+          },
+        }),
       },
     );
   };

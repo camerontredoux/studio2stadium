@@ -34,11 +34,14 @@ export const eventTierPurchases = pg.pgTable(
     // What was bought. One purchase buys exactly one Org Event, so the event is
     // both the subject of the sale and the place its entitlement lives (ADR
     // 0002) — the Org is reached through it rather than copied alongside it.
+    // `restrict` for the same reason as the buyer: deleting the event — or the
+    // Org, which cascades to its events — is refused rather than quietly
+    // erasing the sale. A bought event is deactivated instead (ADR 0005).
     eventId: pg
       .uuid()
       .notNull()
       .unique()
-      .references(() => orgEvents.id, { onDelete: "cascade" }),
+      .references(() => orgEvents.id, { onDelete: "restrict" }),
     // The Event Tier as sold. `org_events.eventTier` is the live entitlement and
     // may be changed by support; this stays what the buyer actually paid for.
     eventTier: eventTier().notNull(),

@@ -407,9 +407,13 @@ test.group(
       const orgId = await summitId();
       const bought = await purchasedEvent(orgId, organizer.id);
 
-      // However the event goes — a cascade from above, a hand edit in the
-      // database — its purchase row goes with it. The Org must not fall back
-      // to grandfathered and hand out free Enterprise events.
+      // The database refuses to delete a bought event while its sale stands,
+      // but should the purchase row and the event ever both go — a hand edit
+      // in the database — the Org must not fall back to grandfathered and
+      // hand out free Enterprise events.
+      await db
+        .delete(eventTierPurchases)
+        .where(eq(eventTierPurchases.eventId, bought.id));
       await db.delete(orgEvents).where(eq(orgEvents.id, bought.id));
       assert.lengthOf(await db.select().from(eventTierPurchases), 0);
 

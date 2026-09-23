@@ -7,7 +7,8 @@ import { and, asc, eq, gte } from "drizzle-orm";
 /**
  * Someone tried to delete an Org Event that was bought. The sale must outlive
  * it — what was bought does not stop having been bought (ADR 0005) — and the
- * purchase row cascades with the event, so the event is deactivated instead.
+ * database restricts deleting an event its purchase row points at, so the
+ * event is deactivated instead.
  */
 export class PurchasedEventDeleteError extends Error {
   constructor() {
