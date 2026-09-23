@@ -1,0 +1,57 @@
+# Staging copy of the backend. Prod is ./fly.toml (studio2stadium-dev).
+# Deployed by .github/workflows/deploy-staging.yml on push to `staging`.
+# See docs/staging.md for the setup and the secrets this app needs.
+
+app = 'studio2stadium-staging'
+primary_region = 'iad'
+
+[build]
+
+# Same as prod: apply pending Drizzle migrations (to the staging DB) before
+# the release goes live.
+[deploy]
+  release_command = "node bin/migrate.js"
+
+# Non-secret settings only. Secrets (fly secrets set) override these values,
+# so the staging safety values below are a floor. Do not set them as secrets
+# with prod values.
+[env]
+  APP_NAME = 'studio2stadium-staging'
+  HOST = '0.0.0.0'
+  PORT = '8080'
+  TZ = 'UTC'
+  LOG_LEVEL = 'info'
+  DRIVE_DISK = 'r2'
+  LIMITER_STORE = 'redis'
+  SESSION_DRIVER = 'redis'
+  SENTRY_ENVIRONMENT = 'staging'
+  # Shares prod's Upstash Redis: namespace every key and channel.
+  REDIS_KEY_PREFIX = 'staging:'
+  # DB is a copy of prod: never run the prospect email jobs, and only mail
+  # allowlisted recipients. Extend MAIL_ALLOWLIST with test inboxes as needed.
+  CRON_EMAILS_ENABLED = 'false'
+  MAIL_ALLOWLIST = '@studio2stadium.com'
+
+# Scales to zero when idle. Crons live in the web process (start/cron.ts,
+# no separate process group in prod), so they only tick while a machine is up.
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  size = 'shared-cpu-1x'
+  memory = '512mb'
+
+# Same /health check as prod (without the X-Health-Secret header it only
+# confirms the server answers). A longer grace period covers a cold start
+# from a stopped machine so it is not marked failing while it boots.
+[[http_service.checks]]
+  grace_period = "30s"
+  interval = "30s"
+  method = "GET"
+  timeout = "5s"
+  path = "/health"
