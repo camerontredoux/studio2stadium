@@ -146,6 +146,16 @@ test.group("UpdateEventService Event Tier (#112)", (group) => {
     assert.deepEqual(tierEntry!.metadata, {
       diff: { eventTier: { from: "core", to: "enterprise" } },
     });
+
+    // The general entry does not repeat the tier change already recorded.
+    const generalEntry = rows.find((r) => r !== tierEntry);
+    const general = generalEntry!.metadata as {
+      before: Record<string, unknown>;
+      after: Record<string, unknown>;
+    };
+    assert.equal(general.after.name, "Renamed");
+    assert.notProperty(general.before, "eventTier");
+    assert.notProperty(general.after, "eventTier");
   });
 
   test("re-saving the same Event Tier records no tier change", async ({

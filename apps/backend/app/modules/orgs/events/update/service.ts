@@ -12,6 +12,14 @@ export class StartTimePairError extends Error {
   }
 }
 
+function withoutTier<T extends { eventTier: unknown }>(
+  row: T | undefined
+): Omit<T, "eventTier"> | undefined {
+  if (!row) return row;
+  const { eventTier, ...rest } = row;
+  return rest;
+}
+
 @inject()
 export class UpdateEventService {
   constructor(private db: DatabaseService) {}
@@ -31,11 +39,13 @@ export class UpdateEventService {
     });
 
     return this.db.withAudit(auditCtx, async (tx, audit) => {
-      // Read before state for diff
+      // Read before state for diff. Lock the row so concurrent edits see a
+      // consistent "from" value in the tier-change audit entry.
       const [before] = await tx
         .select()
         .from(orgEvents)
-        .where(and(eq(orgEvents.id, eventId), eq(orgEvents.orgId, orgId)));
+        .where(and(eq(orgEvents.id, eventId), eq(orgEvents.orgId, orgId)))
+        .for("update");
 
       // Validate startTime + timezone are provided together or not at all
       const newStartTime =
@@ -123,11 +133,14 @@ export class UpdateEventService {
             },
           });
         } else if (changesMoreThanTier) {
+          // A tier change already has its own entry above; don't repeat it.
           audit.log({
             action: "update",
             resource: "event",
             resourceId: ev.id,
-            metadata: { before, after: ev },
+            metadata: isTierChange
+              ? { before: withoutTier(before), after: withoutTier(ev) }
+              : { before, after: ev },
           });
         }
       }
