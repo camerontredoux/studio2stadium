@@ -356,6 +356,8 @@ router
         middleware.org(),
         middleware.orgEvent("dancerSelfRead"),
         middleware.orgMember(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("check_in"),
       ]);
     router
       .post(":slug/events/:id/check-in", [CheckInController])
@@ -364,6 +366,8 @@ router
         middleware.org(),
         middleware.orgEvent(),
         middleware.orgMember(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("check_in"),
       ]);
     router
       .post(":slug/events/:id/rosters/check-in/reset", [ResetCheckInController])
@@ -372,6 +376,8 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("check_in"),
       ]);
     router
       .post(":slug/events/:id/rosters/:rosterId/check-in", [
@@ -382,6 +388,8 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("check_in"),
       ]);
     router
       .get(":slug/events/:id/schedule", [ScheduleController])
@@ -400,6 +408,8 @@ router
         middleware.org(),
         middleware.orgEvent("dancerSelfRead"),
         middleware.orgMember(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .post(":slug/events/:id/video-categories", [
@@ -410,6 +420,8 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .delete(":slug/events/:id/video-categories/:categoryId", [
@@ -420,6 +432,8 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
 
     // Videos
@@ -430,6 +444,8 @@ router
         middleware.org(),
         middleware.orgEvent("dancerSelfRead"),
         middleware.orgMember(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .post(":slug/events/:id/videos", [CreateVideoController])
@@ -438,6 +454,8 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .patch(":slug/events/:id/videos/:videoId", [UpdateVideoController])
@@ -446,6 +464,8 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .delete(":slug/events/:id/videos/:videoId", [DeleteVideoController])
@@ -454,6 +474,8 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .post(":slug/events/:id/videos/audio-upload-url", [
@@ -464,6 +486,8 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
   })
   .prefix("orgs");
