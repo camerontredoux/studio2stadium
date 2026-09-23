@@ -1,6 +1,10 @@
 import type { HttpContext } from "@adonisjs/core/http";
 import { inject } from "@adonisjs/core";
-import { UpdateEventService, StartTimePairError } from "./service.ts";
+import {
+  DeactivatedPurchaseActivateError,
+  UpdateEventService,
+  StartTimePairError,
+} from "./service.ts";
 import { schema } from "./validator.ts";
 import {
   EventTierForbiddenError,
@@ -24,6 +28,9 @@ export default class UpdateEventController {
     } catch (err) {
       if (err instanceof EventTierForbiddenError) {
         return ctx.response.forbidden({ message: err.message });
+      }
+      if (err instanceof DeactivatedPurchaseActivateError) {
+        return ctx.response.conflict({ message: err.message });
       }
       if (err instanceof StartTimePairError) {
         return ctx.response.unprocessableEntity({ message: err.message });

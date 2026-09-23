@@ -1,6 +1,6 @@
 // apps/backend/app/database/schema/event-tier-purchases.ts
 import * as pg from "drizzle-orm/pg-core";
-import { eventTier } from "./enums.ts";
+import { eventTier, purchaseDeactivationReason } from "./enums.ts";
 import { timestamps } from "./helpers/columns.ts";
 import { orgEvents } from "./org-events.ts";
 import { users } from "./users.ts";
@@ -9,10 +9,10 @@ import { users } from "./users.ts";
  * One completed purchase of one Org Event, at the Event Tier that was bought.
  *
  * Nothing here recurs (ADR 0001), so this is a sale, not a subscription: the row
- * is written once when a purchase is provisioned and is never advanced through a
- * lifecycle. A refund deactivates the Org Event it paid for (ADR 0005) and
- * leaves this record standing, because what was bought does not stop having been
- * bought.
+ * is written once when a purchase is provisioned. A refund or dispute
+ * deactivates the Org Event it paid for (ADR 0005) and is stamped onto this
+ * record — once, and never undone here — while the record itself stands,
+ * because what was bought does not stop having been bought.
  *
  * `reference` is the purchase's identity at the payment provider — the completed
  * Checkout Session. It is unique because that is what makes provisioning
@@ -42,6 +42,19 @@ export const eventTierPurchases = pg.pgTable(
     // The Event Tier as sold. `org_events.eventTier` is the live entitlement and
     // may be changed by support; this stays what the buyer actually paid for.
     eventTier: eventTier().notNull(),
+    // The payment the purchase was settled with — the Checkout Session's
+    // PaymentIntent. Refunds and disputes arrive naming the payment, not the
+    // session, so this is how one finds the purchase it undoes. Nullable only
+    // because Stripe may omit it on a session; a paid card session carries one.
+    paymentIntentId: pg.text().unique(),
+    // Set once, when a refund or dispute stood the Org Event down (ADR 0005).
+    // `deactivatedAt` is what makes that idempotent: a redelivered refund, or
+    // a dispute after a refund, finds it set and changes nothing.
+    deactivatedAt: pg.timestamp({ withTimezone: true }),
+    deactivationReason: purchaseDeactivationReason(),
+    // The provider's id for what caused it — the refunded charge or the
+    // dispute — so staff can find it in Stripe.
+    deactivationReference: pg.text(),
     ...timestamps,
   },
   (table) => [pg.index().on(table.buyerId)]

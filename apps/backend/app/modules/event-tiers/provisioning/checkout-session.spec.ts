@@ -26,6 +26,7 @@ const session = (
   client_reference_id: BUYER_ID,
   payment_status: "paid",
   metadata: metadata(),
+  payment_intent: "pi_test_summit",
   ...overrides,
 });
 
@@ -39,7 +40,20 @@ test.group("toProvisionInput", () => {
       reference: "cs_test_summit",
       buyerUserId: BUYER_ID,
       purchase: metadata(),
+      paymentIntentId: "pi_test_summit",
     });
+  });
+
+  test("the payment is recorded so a later refund or dispute can find the purchase", async ({
+    assert,
+  }) => {
+    const expanded = await toProvisionInput(
+      session({ payment_intent: { id: "pi_test_expanded" } })
+    );
+    const missing = await toProvisionInput(session({ payment_intent: null }));
+
+    assert.equal(expanded.paymentIntentId, "pi_test_expanded");
+    assert.isNull(missing.paymentIntentId);
   });
 
   test("the purchase reference is the session, so a redelivery is the same purchase", async ({

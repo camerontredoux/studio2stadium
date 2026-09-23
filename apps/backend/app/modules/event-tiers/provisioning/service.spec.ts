@@ -104,6 +104,22 @@ test.group("ProvisionPurchaseService", (group) => {
     assert.equal(memberships[0]!.role, "admin");
   });
 
+  test("the sale records the payment it was settled with, for a refund or dispute to find", async ({
+    assert,
+  }) => {
+    const buyer = await makeBuyer("payment");
+
+    const result = await svc.execute({
+      reference: "cs_payment",
+      buyerUserId: buyer.id,
+      purchase: purchase(),
+      paymentIntentId: "pi_payment",
+    });
+
+    assert.equal(result.purchase.paymentIntentId, "pi_payment");
+    assert.isNull(result.purchase.deactivatedAt);
+  });
+
   test("the buyer can administer their Org and see its Org Event straight away", async ({
     assert,
   }) => {

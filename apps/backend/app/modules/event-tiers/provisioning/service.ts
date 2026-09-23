@@ -32,6 +32,13 @@ export interface ProvisionInput {
   buyerUserId: string;
   /** What was bought, as the buyer described it before paying. */
   purchase: CheckoutMetadata;
+  /**
+   * The payment that settled the purchase — the session's PaymentIntent.
+   * Recorded so a later refund or dispute, which names the payment rather than
+   * the session, can find the purchase it undoes (ADR 0005). Absent in callers
+   * that provision without a payment, such as tests of provisioning itself.
+   */
+  paymentIntentId?: string | null;
 }
 
 export interface ProvisionResult {
@@ -133,6 +140,7 @@ export class ProvisionPurchaseService {
           buyerId: buyer.id,
           eventId: event.id,
           eventTier: input.purchase.eventTier,
+          paymentIntentId: input.paymentIntentId ?? null,
         })
         .returning();
 

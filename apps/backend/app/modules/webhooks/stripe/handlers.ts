@@ -1,5 +1,13 @@
 import { subscriptions } from "#database/schema/subscriptions";
 import { DatabaseService } from "#database/service";
+import {
+  disputeToDeactivation,
+  refundToDeactivation,
+} from "#modules/event-tiers/deactivation/payment-events";
+import {
+  DeactivatePurchaseService,
+  type DeactivateInput,
+} from "#modules/event-tiers/deactivation/service";
 import { toProvisionInput } from "#modules/event-tiers/provisioning/checkout-session";
 import { ProvisionPurchaseService } from "#modules/event-tiers/provisioning/service";
 import stripe from "#payments/stripe/main";
@@ -13,11 +21,17 @@ import { SubscriptionCreatedEvent, SubscriptionDeletedEvent } from "./event.ts";
 export default class WebhookHandlers {
   constructor(
     private db: DatabaseService,
-    private provisionPurchase: ProvisionPurchaseService
+    private provisionPurchase: ProvisionPurchaseService,
+    private deactivatePurchase: DeactivatePurchaseService
   ) {
     stripe.onEvent(
       "checkout.session.completed",
       this.checkoutSessionCompleted.bind(this)
+    );
+    stripe.onEvent("charge.refunded", this.chargeRefunded.bind(this));
+    stripe.onEvent(
+      "charge.dispute.created",
+      this.chargeDisputeCreated.bind(this)
     );
     stripe.onEvent(
       "customer.subscription.updated",
@@ -108,6 +122,42 @@ export default class WebhookHandlers {
       result.provisioned
         ? "Event Tier purchase provisioned"
         : "Event Tier purchase already provisioned"
+    );
+  }
+
+  // A refunded or disputed Event Tier purchase stands its Org Event down and
+  // tells staff (ADR 0005). Translators only: reading the charge or dispute and
+  // deactivating are both tested on their own. Deactivation is idempotent on
+  // the purchase, and payments that bought no Org Event — Dancer subscriptions
+  // — are left alone.
+  async chargeRefunded(event: Stripe.Event) {
+    const charge = event.data.object as Stripe.Charge;
+    await this.eventTierPaymentReversed(refundToDeactivation(charge));
+  }
+
+  async chargeDisputeCreated(event: Stripe.Event) {
+    const dispute = event.data.object as Stripe.Dispute;
+    await this.eventTierPaymentReversed(disputeToDeactivation(dispute));
+  }
+
+  async eventTierPaymentReversed(input: DeactivateInput | null) {
+    if (!input) return;
+
+    const result = await this.deactivatePurchase.execute(input);
+    if (result.outcome === "not_an_event_tier_purchase") return;
+
+    logger.warn(
+      {
+        paymentIntentId: input.paymentIntentId,
+        reason: input.reason,
+        providerReference: input.providerReference,
+        purchaseId: result.purchase.id,
+        eventId: result.purchase.eventId,
+        outcome: result.outcome,
+      },
+      result.outcome === "deactivated"
+        ? "Event Tier purchase reversed; Org Event deactivated"
+        : "Event Tier purchase reversal already handled"
     );
   }
 

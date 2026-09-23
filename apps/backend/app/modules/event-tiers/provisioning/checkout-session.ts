@@ -12,6 +12,8 @@ export interface CompletedCheckoutSession {
   client_reference_id: string | null;
   payment_status: string;
   metadata: Record<string, string> | null;
+  /** An id, or the expanded PaymentIntent when a caller asked for one. */
+  payment_intent: string | { id: string } | null;
 }
 
 /**
@@ -77,5 +79,14 @@ export async function toProvisionInput(
     reference: session.id,
     buyerUserId: session.client_reference_id,
     purchase,
+    paymentIntentId: paymentIntentIdOf(session.payment_intent),
   };
+}
+
+/** A Stripe expandable PaymentIntent field, reduced to its id. */
+export function paymentIntentIdOf(
+  paymentIntent: string | { id: string } | null
+): string | null {
+  if (paymentIntent === null) return null;
+  return typeof paymentIntent === "string" ? paymentIntent : paymentIntent.id;
 }

@@ -151,6 +151,15 @@ export const eventTier = pgEnum("event_tier", [
   "enterprise",
 ]);
 
+/**
+ * Why a paid Org Event was stood down by the payment provider: its purchase was
+ * refunded, or the buyer's bank opened a dispute (ADR 0005).
+ */
+export const purchaseDeactivationReason = pgEnum(
+  "purchase_deactivation_reason",
+  ["refunded", "disputed"]
+);
+
 export const auditAction = pgEnum("audit_action", [
   "upload",
   "create",

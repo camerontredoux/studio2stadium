@@ -42,4 +42,12 @@ describe("resolveAdminEventSelection", () => {
 
     expect(resolveAdminEventSelection(events, "deleted")?.id).toBe("active");
   });
+
+  it("still selects an event when the Org has no active one", () => {
+    // A refunded or disputed purchase stands its event down and leaves the
+    // Org with no active event (#91); the admin area keeps showing it.
+    const events = [event("refunded"), event("older")];
+
+    expect(resolveAdminEventSelection(events, null)?.id).toBe("refunded");
+  });
 });

@@ -105,6 +105,11 @@ export {
   type DigestDancer,
 } from "./templates/ProspectSubmissionsDigestEmail.js";
 
+export {
+  EventTierPurchaseDeactivatedEmail,
+  type EventTierPurchaseDeactivatedEmailProps,
+} from "./templates/EventTierPurchaseDeactivatedEmail.js";
+
 // Render utilities
 export { renderEmail, renderEmailText } from "./render.js";
 

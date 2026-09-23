@@ -78,6 +78,7 @@ test.group("GET /event-tiers/checkout/:sessionId", (group) => {
         id: "cs_test_landed",
         client_reference_id: buyer.id,
         payment_status: "paid",
+        payment_intent: "pi_test_landed",
         metadata: {
           eventTier: "core",
           orgName: "Landing Dance Co",

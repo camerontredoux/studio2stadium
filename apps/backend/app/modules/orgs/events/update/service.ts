@@ -1,7 +1,8 @@
 import { DatabaseService } from "#database/service";
+import { eventTierPurchases } from "#database/schema/event-tier-purchases";
 import { orgEvents } from "#database/schema/org-events";
 import { inject } from "@adonisjs/core";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, isNotNull, ne } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 import type { AuditContext } from "#database/audit";
 import { assertEventTierWrite } from "#shared/org/event-tier-authority";
@@ -9,6 +10,19 @@ import { assertEventTierWrite } from "#shared/org/event-tier-authority";
 export class StartTimePairError extends Error {
   constructor() {
     super("startTime and timezone must be provided together or not at all.");
+  }
+}
+
+/**
+ * An Organizer tried to reactivate an Org Event whose purchase was refunded or
+ * disputed. It was stood down for staff to resolve with the customer (ADR
+ * 0005), so only staff may bring it back.
+ */
+export class DeactivatedPurchaseActivateError extends Error {
+  constructor() {
+    super(
+      "This event's purchase was refunded or disputed. Contact Studio 2 Stadium to reactivate it."
+    );
   }
 }
 
@@ -58,6 +72,20 @@ export class UpdateEventService {
           : (before?.timezone ?? null);
       if ((newStartTime && !newTimezone) || (!newStartTime && newTimezone)) {
         throw new StartTimePairError();
+      }
+
+      if (patch.isActive === true && !by.isStaff) {
+        const [reversed] = await tx
+          .select({ id: eventTierPurchases.id })
+          .from(eventTierPurchases)
+          .where(
+            and(
+              eq(eventTierPurchases.eventId, eventId),
+              isNotNull(eventTierPurchases.deactivatedAt)
+            )
+          )
+          .limit(1);
+        if (reversed) throw new DeactivatedPurchaseActivateError();
       }
 
       // If activating this event, deactivate any other active event first

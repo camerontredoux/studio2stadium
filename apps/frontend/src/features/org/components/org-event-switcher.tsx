@@ -70,12 +70,16 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
         PATCH: (
           path: string,
           options: { body: { isActive: boolean } },
-        ) => Promise<{ data: OrgEvent; error?: unknown }>;
+        ) => Promise<{ data: OrgEvent; error?: { message?: string } }>;
       };
       const response = await raw.PATCH(`/orgs/${orgSlug}/events/${eventId}`, {
         body: { isActive: true },
       });
-      if (response.error) throw new Error("Activation failed");
+      // Surfaces the backend's reason, e.g. an event stood down after its
+      // purchase was refunded or disputed (#91).
+      if (response.error) {
+        throw new Error(response.error.message ?? "Activation failed");
+      }
       return response.data;
     },
     onSuccess: () => {
@@ -83,9 +87,10 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
       void queryClient.invalidateQueries(adminQueries.events(orgSlug));
       toastManager.add({ title: "Active event updated", type: "success" });
     },
-    onError: () => {
+    onError: (err) => {
       toastManager.add({
         title: "Couldn't make event active",
+        description: err.message,
         type: "error",
       });
     },
