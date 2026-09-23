@@ -107,6 +107,10 @@ type AdminLibraryVideosIdDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/delete-training-video/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/delete-training-video/controller.ts').default['handle'], true>
 }
+type AdminEventtierpurchasesGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/admin/get-event-tier-purchases/controller.ts').default['handle'], false>
+}
 type AdminOrgsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/admin/get-all-orgs/controller.ts').default['handle'], false>
@@ -1069,6 +1073,12 @@ export interface ApiDefinition {
           '$delete': AdminLibraryVideosIdDelete;
         };
       };
+    };
+    'event-tier-purchases': {
+      '$url': {
+      };
+      '$get': AdminEventtierpurchasesGetHead;
+      '$head': AdminEventtierpurchasesGetHead;
     };
     'orgs': {
       '$url': {

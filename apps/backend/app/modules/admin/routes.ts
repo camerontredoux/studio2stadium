@@ -51,6 +51,8 @@ const UploadSchoolVideoController = () =>
   import("#modules/admin/upload-school-video/controller");
 const DeleteSchoolVideoController = () =>
   import("#modules/admin/delete-school-video/controller");
+const GetEventTierPurchasesController = () =>
+  import("#modules/admin/get-event-tier-purchases/controller");
 const GetAllOrgsController = () =>
   import("#modules/admin/get-all-orgs/controller");
 const CreateOrgController = () =>
@@ -233,6 +235,14 @@ router
       .openapi({
         summary: "Delete training video",
         description: "Permanently deletes a training video by ID",
+      });
+
+    router
+      .get("event-tier-purchases", [GetEventTierPurchasesController])
+      .openapi({
+        summary: "Get all Event Tier purchases",
+        description:
+          "Returns every Event Tier purchase, newest first: buyer, amount charged, Event Tier sold, the Org Event it bought with its current Event Tier, and who last changed that tier by hand",
       });
 
     router.get("orgs", [GetAllOrgsController]).openapi({

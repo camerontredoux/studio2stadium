@@ -1052,6 +1052,28 @@
         "description": "Permanently deletes a training video by ID"
       }
     },
+    "/admin/event-tier-purchases": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEventtierpurchasesResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get all Event Tier purchases",
+        "description": "Returns every Event Tier purchase, newest first: buyer, amount charged, Event Tier sold, the Org Event it bought with its current Event Tier, and who last changed that tier by hand"
+      }
+    },
     "/admin/orgs": {
       "get": {
         "parameters": [],
@@ -11403,6 +11425,260 @@
         "required": [
           "success"
         ]
+      },
+      "AdminEventtierpurchasesResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "reference": {
+              "type": "string"
+            },
+            "eventTier": {
+              "type": "string",
+              "enum": [
+                "core",
+                "regional",
+                "national",
+                "enterprise"
+              ]
+            },
+            "event": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "eventTier": {
+                  "type": "string",
+                  "enum": [
+                    "core",
+                    "regional",
+                    "national",
+                    "enterprise"
+                  ]
+                },
+                "isActive": {
+                  "type": "boolean"
+                },
+                "startDate": {
+                  "type": "string"
+                },
+                "endDate": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "eventTier",
+                "isActive",
+                "startDate",
+                "endDate"
+              ]
+            },
+            "paymentIntentId": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "amountTotal": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "currency": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "deactivatedAt": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "deactivationReason": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "refunded",
+                    "disputed"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "deactivationReference": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "org": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "slug"
+              ]
+            },
+            "buyer": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "email",
+                "firstName",
+                "lastName"
+              ]
+            },
+            "lastEventTierChange": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "oneOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "core",
+                            "regional",
+                            "national",
+                            "enterprise"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "to": {
+                      "type": "string",
+                      "enum": [
+                        "core",
+                        "regional",
+                        "national",
+                        "enterprise"
+                      ]
+                    },
+                    "changedAt": {
+                      "type": "string"
+                    },
+                    "changedBy": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "firstName": {
+                          "type": "string"
+                        },
+                        "lastName": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "email",
+                        "firstName",
+                        "lastName"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "from",
+                    "to",
+                    "changedAt",
+                    "changedBy"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "createdAt",
+            "reference",
+            "eventTier",
+            "event",
+            "paymentIntentId",
+            "amountTotal",
+            "currency",
+            "deactivatedAt",
+            "deactivationReason",
+            "deactivationReference",
+            "org",
+            "buyer",
+            "lastEventTierChange"
+          ]
+        }
       },
       "AdminOrgsResponse": {
         "type": "array",

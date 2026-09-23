@@ -27,6 +27,8 @@ const session = (
   payment_status: "paid",
   metadata: metadata(),
   payment_intent: "pi_test_summit",
+  amount_total: 49900,
+  currency: "usd",
   ...overrides,
 });
 
@@ -41,6 +43,8 @@ test.group("toProvisionInput", () => {
       buyerUserId: BUYER_ID,
       purchase: metadata(),
       paymentIntentId: "pi_test_summit",
+      amountTotal: 49900,
+      currency: "usd",
     });
   });
 

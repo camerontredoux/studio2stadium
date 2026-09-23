@@ -47,6 +47,13 @@ export const eventTierPurchases = pg.pgTable(
     // session, so this is how one finds the purchase it undoes. Nullable only
     // because Stripe may omit it on a session; a paid card session carries one.
     paymentIntentId: pg.text().unique(),
+    // What the buyer paid, as the completed Checkout Session totalled it, in
+    // the currency's minor unit (cents). Recorded rather than looked up from
+    // today's price so a billing question gets the amount actually charged,
+    // after any discount, without a trip to Stripe (#92). Nullable only because
+    // Stripe types the session total as nullable.
+    amountTotal: pg.integer(),
+    currency: pg.text(),
     // Set once, when a refund or dispute stood the Org Event down (ADR 0005).
     // `deactivatedAt` is what makes that idempotent: a redelivered refund, or
     // a dispute after a refund, finds it set and changes nothing.

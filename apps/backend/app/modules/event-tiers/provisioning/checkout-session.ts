@@ -14,6 +14,9 @@ export interface CompletedCheckoutSession {
   metadata: Record<string, string> | null;
   /** An id, or the expanded PaymentIntent when a caller asked for one. */
   payment_intent: string | { id: string } | null;
+  /** The total charged, in the currency's minor unit (cents). */
+  amount_total: number | null;
+  currency: string | null;
 }
 
 /**
@@ -80,6 +83,8 @@ export async function toProvisionInput(
     buyerUserId: session.client_reference_id,
     purchase,
     paymentIntentId: paymentIntentIdOf(session.payment_intent),
+    amountTotal: session.amount_total,
+    currency: session.currency,
   };
 }
 

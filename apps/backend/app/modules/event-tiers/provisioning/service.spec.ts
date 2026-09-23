@@ -120,6 +120,23 @@ test.group("ProvisionPurchaseService", (group) => {
     assert.isNull(result.purchase.deactivatedAt);
   });
 
+  test("the sale records the amount charged, for staff to answer a billing question (#92)", async ({
+    assert,
+  }) => {
+    const buyer = await makeBuyer("amount");
+
+    const result = await svc.execute({
+      reference: "cs_amount",
+      buyerUserId: buyer.id,
+      purchase: purchase(),
+      amountTotal: 49900,
+      currency: "usd",
+    });
+
+    assert.equal(result.purchase.amountTotal, 49900);
+    assert.equal(result.purchase.currency, "usd");
+  });
+
   test("the buyer can administer their Org and see its Org Event straight away", async ({
     assert,
   }) => {

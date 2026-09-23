@@ -39,6 +39,13 @@ export interface ProvisionInput {
    * that provision without a payment, such as tests of provisioning itself.
    */
   paymentIntentId?: string | null;
+  /**
+   * What the buyer was charged, in the currency's minor unit, so staff can
+   * answer a billing question from the admin dashboard (#92). Absent in callers
+   * that provision without a payment.
+   */
+  amountTotal?: number | null;
+  currency?: string | null;
 }
 
 export interface ProvisionResult {
@@ -146,6 +153,8 @@ export class ProvisionPurchaseService {
           eventId: event.id,
           eventTier: input.purchase.eventTier,
           paymentIntentId: input.paymentIntentId ?? null,
+          amountTotal: input.amountTotal ?? null,
+          currency: input.currency ?? null,
         })
         .returning();
 

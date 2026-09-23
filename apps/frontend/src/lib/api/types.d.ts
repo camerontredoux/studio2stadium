@@ -1244,6 +1244,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/event-tier-purchases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all Event Tier purchases
+         * @description Returns every Event Tier purchase, newest first: buyer, amount charged, Event Tier sold, the Org Event it bought with its current Event Tier, and who last changed that tier by hand
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminEventtierpurchasesResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/orgs": {
         parameters: {
             query?: never;
@@ -10755,6 +10794,51 @@ export interface components {
         AdminLibraryVideosIdResponse: {
             success: boolean;
         };
+        AdminEventtierpurchasesResponse: {
+            id: string;
+            createdAt: string;
+            reference: string;
+            /** @enum {string} */
+            eventTier: "core" | "regional" | "national" | "enterprise";
+            event: {
+                id: string;
+                name: string;
+                /** @enum {string} */
+                eventTier: "core" | "regional" | "national" | "enterprise";
+                isActive: boolean;
+                startDate: string;
+                endDate: string;
+            };
+            paymentIntentId: string | null;
+            amountTotal: number | null;
+            currency: string | null;
+            deactivatedAt: string | null;
+            deactivationReason: ("refunded" | "disputed") | null;
+            deactivationReference: string | null;
+            org: {
+                id: string;
+                name: string;
+                slug: string;
+            };
+            buyer: {
+                id: string;
+                email: string;
+                firstName: string;
+                lastName: string;
+            };
+            lastEventTierChange: {
+                from: ("core" | "regional" | "national" | "enterprise") | null;
+                /** @enum {string} */
+                to: "core" | "regional" | "national" | "enterprise";
+                changedAt: string;
+                changedBy: {
+                    id: string;
+                    email: string;
+                    firstName: string;
+                    lastName: string;
+                };
+            } | null;
+        }[];
         AdminOrgsResponse: {
             id: string;
             createdAt: string;
