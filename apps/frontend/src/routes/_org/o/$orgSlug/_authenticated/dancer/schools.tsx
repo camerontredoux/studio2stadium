@@ -18,6 +18,7 @@ import type { ColumnDef, SortingState } from "@tanstack/react-table";
 import { $api } from "@/lib/api/client";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { orgQueries } from "@/features/org/api/queries";
+import { queries as sessionQueries } from "@/lib/session";
 import {
   hasOrgFeature,
   viewedDancerEventId,
@@ -52,8 +53,17 @@ export const Route = createFileRoute(
     );
     // Gate on the event this page will request, not the Org's active one —
     // the backend gates a Dancer's reads on the event she asks for (#110).
+    const session = await context.queryClient.ensureQueryData(
+      sessionQueries.session(),
+    );
     const eventId = viewedDancerEventId(data.myRosters, search.eventId);
-    if (!hasOrgFeature(data, "school_selections", eventId)) {
+    if (
+      !hasOrgFeature(
+        { ...data, platformRole: session?.role },
+        "school_selections",
+        eventId,
+      )
+    ) {
       throw redirect({ to: "/o/$orgSlug/dancer", params });
     }
   },

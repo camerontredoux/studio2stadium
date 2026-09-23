@@ -9,7 +9,8 @@ import { viewedDancerEventId } from "@/features/org/lib/entitlement";
  * and her menu gates on it, so both describe the same event (#110).
  */
 export function useViewedDancerEventId(): string | undefined {
-  const { eventId } = useSearch({ strict: false }) as { eventId?: string };
+  const search = useSearch({ strict: false });
+  const eventId = "eventId" in search ? search.eventId : undefined;
   const { myRosters } = useOrg();
   return viewedDancerEventId(myRosters, eventId);
 }

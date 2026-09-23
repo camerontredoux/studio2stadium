@@ -10,8 +10,9 @@ import type { components } from "@/lib/api/types";
  * Which event depends on what the request will ask for. A Dancer's reads name
  * the event she is viewing and the backend gates on that one
  * (`orgEvent("dancerSelfRead")`), so her gating reads the capabilities sent on
- * her roster for that event (#110). Everything else resolves the Org's active
- * event, so it reads `activeEventCapabilities`.
+ * her roster for that event (#110). Everything else — a platform admin's staff
+ * preview included — resolves the Org's active event, so it reads
+ * `activeEventCapabilities`.
  *
  * The middleware stays authoritative; this only decides what to show.
  */
@@ -52,6 +53,10 @@ export interface OrgEntitlementSource {
   features?: unknown;
   activeEventCapabilities?: readonly EventTierCapability[];
   myRosters?: readonly RosterEntitlement[];
+  /** The viewer's effective membership in the Org. */
+  membership?: { type: string } | null;
+  /** The viewer's platform role, from the session — not in the org payload. */
+  platformRole?: string;
 }
 
 function isOrgConfigurationFlag(key: string): key is OrgConfigurationFlag {
@@ -59,19 +64,32 @@ function isOrgConfigurationFlag(key: string): key is OrgConfigurationFlag {
 }
 
 /**
+ * Whether the backend gates this viewer's dancer reads on the event they name,
+ * mirroring `OrgEventMiddleware`'s `dancerSelfRead` branch: not a platform
+ * admin, and a Dancer by membership. The effective membership is enough here —
+ * anyone whose effective type is not `dancer` is routed out of the dancer area
+ * unless they are a platform admin. Everyone else is gated on the active event.
+ */
+function gatesOnRequestedEvent(org: OrgEntitlementSource): boolean {
+  return org.platformRole !== "admin" && org.membership?.type === "dancer";
+}
+
+/**
  * The capabilities in force for the event a request will be gated on.
  *
  * An event the user holds no roster on falls back to the active event: the
- * backend answers a staff preview from the active event, and turns a Dancer
- * away from an event she is not on before any capability is checked.
+ * backend turns a Dancer away from an event she is not on before any
+ * capability is checked. So does a viewer the backend gates on the active
+ * event whatever they request, such as a platform admin's staff preview.
  */
 function capabilitiesFor(
   org: OrgEntitlementSource,
   eventId: string | undefined,
 ): readonly EventTierCapability[] | undefined {
-  const roster = eventId
-    ? org.myRosters?.find((candidate) => candidate.eventId === eventId)
-    : undefined;
+  const roster =
+    eventId && gatesOnRequestedEvent(org)
+      ? org.myRosters?.find((candidate) => candidate.eventId === eventId)
+      : undefined;
   return roster ? roster.capabilities : org.activeEventCapabilities;
 }
 
@@ -97,15 +115,19 @@ export function hasOrgFeature(
 /**
  * The event a Dancer is viewing: the one the event switcher put in the URL, or
  * else her first dancer roster — which, active event first, is what the dancer
- * pages request when the URL names none. Undefined when she holds no dancer
- * roster, in which case the backend resolves the Org's active event.
+ * pages request when the URL names none. A URL event she holds no dancer
+ * roster on (stale or hand-edited) is ignored the same way, so the page, its
+ * guard and the menu all describe one event. Undefined when she holds no
+ * dancer roster, in which case the backend resolves the Org's active event.
  */
 export function viewedDancerEventId(
   myRosters: readonly Pick<RosterEntitlement, "eventId" | "type">[] | undefined,
   searchEventId: string | undefined,
 ): string | undefined {
-  return (
-    searchEventId ??
-    myRosters?.find((roster) => roster.type === "dancer")?.eventId
+  const dancerRosters =
+    myRosters?.filter((roster) => roster.type === "dancer") ?? [];
+  const selected = dancerRosters.find(
+    (roster) => roster.eventId === searchEventId,
   );
+  return (selected ?? dancerRosters[0])?.eventId;
 }

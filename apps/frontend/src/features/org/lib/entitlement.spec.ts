@@ -72,12 +72,14 @@ describe("hasOrgFeature for the event being viewed (#110)", () => {
     { eventId: coreEvent, type: "dancer", capabilities: core },
     { eventId: nationalEvent, type: "dancer", capabilities: national },
   ];
+  const dancer = { type: "dancer" };
 
   it("shows a capability the viewed event includes even when the active event does not", () => {
     const org = {
       features: {},
       activeEventCapabilities: core,
       myRosters: rosters,
+      membership: dancer,
     };
     expect(hasOrgFeature(org, "callbacks")).toBe(false);
     expect(hasOrgFeature(org, "callbacks", nationalEvent)).toBe(true);
@@ -89,6 +91,7 @@ describe("hasOrgFeature for the event being viewed (#110)", () => {
       features: {},
       activeEventCapabilities: national,
       myRosters: rosters,
+      membership: dancer,
     };
     expect(hasOrgFeature(org, "callbacks")).toBe(true);
     expect(hasOrgFeature(org, "callbacks", coreEvent)).toBe(false);
@@ -96,12 +99,13 @@ describe("hasOrgFeature for the event being viewed (#110)", () => {
   });
 
   it("answers from the active event for an event she holds no roster on", () => {
-    // The backend answers a staff preview from the active event, and turns a
-    // Dancer who is not on the requested event away before gating at all.
+    // The backend turns a Dancer who is not on the requested event away
+    // before gating at all.
     const org = {
       features: {},
       activeEventCapabilities: regional,
       myRosters: rosters,
+      membership: dancer,
     };
     expect(
       hasOrgFeature(org, "callbacks", "00000000-0000-4000-8000-0000000000ff"),
@@ -115,6 +119,33 @@ describe("hasOrgFeature for the event being viewed (#110)", () => {
       myRosters: rosters,
     };
     expect(hasOrgFeature(org, "freeTierUsers", coreEvent)).toBe(true);
+  });
+
+  it("answers a platform admin's staff preview from the active event", () => {
+    // The backend skips the dancerSelfRead branch for platform admins and
+    // gates them on the active event whatever event they request.
+    const org = {
+      features: {},
+      activeEventCapabilities: core,
+      myRosters: rosters,
+      membership: dancer,
+      platformRole: "admin",
+    };
+    expect(hasOrgFeature(org, "callbacks", nationalEvent)).toBe(false);
+  });
+
+  it("answers a viewer without a dancer membership from the active event", () => {
+    // A roster-only viewer, or staff holding a dancer roster, does not take
+    // the dancerSelfRead branch either.
+    for (const membership of [null, { type: "organizer" }]) {
+      const org = {
+        features: {},
+        activeEventCapabilities: core,
+        myRosters: rosters,
+        membership,
+      };
+      expect(hasOrgFeature(org, "callbacks", nationalEvent)).toBe(false);
+    }
   });
 });
 
@@ -131,6 +162,15 @@ describe("viewedDancerEventId", () => {
     );
   });
 
+  it("ignores a URL event she holds no dancer roster on", () => {
+    expect(viewedDancerEventId(rosters, "stale-event")).toBe(
+      "first-dancer-event",
+    );
+    expect(viewedDancerEventId(rosters, "coach-event")).toBe(
+      "first-dancer-event",
+    );
+  });
+
   it("defaults to her first dancer roster, which is what the pages request", () => {
     expect(viewedDancerEventId(rosters, undefined)).toBe("first-dancer-event");
   });
@@ -138,5 +178,6 @@ describe("viewedDancerEventId", () => {
   it("is undefined without a dancer roster, so the backend resolves the active event", () => {
     expect(viewedDancerEventId([rosters[0]!], undefined)).toBeUndefined();
     expect(viewedDancerEventId(undefined, undefined)).toBeUndefined();
+    expect(viewedDancerEventId([rosters[0]!], "coach-event")).toBeUndefined();
   });
 });

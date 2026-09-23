@@ -42,6 +42,7 @@ import {
   SchoolIcon,
   SunIcon,
   UserIcon,
+  type LucideIcon,
 } from "lucide-react";
 import { useOrgTheme } from "@/features/org/hooks/use-org-theme";
 import { type TernaryDarkMode } from "usehooks-ts";
@@ -55,12 +56,19 @@ type DancerNavPath =
   | "/o/$orgSlug/dancer/video-library"
   | "/o/$orgSlug/dancer/schools";
 
+interface DancerNavItem {
+  label: string;
+  icon: LucideIcon;
+  to: DancerNavPath;
+  exact?: boolean;
+}
+
 const dashboardItem = {
   label: "Event Info",
   icon: CalendarIcon,
-  to: "/o/$orgSlug/dancer/event-info" as const,
+  to: "/o/$orgSlug/dancer/event-info",
   exact: false,
-};
+} satisfies DancerNavItem;
 
 export function DancerSidebar() {
   const session = useSession();
@@ -92,45 +100,33 @@ export function DancerSidebar() {
     },
   );
 
-  const navSections: {
-    title: string;
-    items: { label: string; icon: any; to: string }[];
-  }[] = [
-    ...(hasFeature("callbacks")
-      ? [
-          {
-            title: "Event",
-            items: [
-              {
-                label: "Callbacks",
-                icon: Megaphone,
-                to: "/o/$orgSlug/dancer/callbacks" as const,
-              },
-            ],
-          },
-        ]
-      : []),
-    ...(() => {
-      const exploreItems: { label: string; icon: any; to: string }[] = [];
-      if (hasFeature("video_library")) {
-        exploreItems.push({
-          label: "Video Library",
-          icon: PlayCircleIcon,
-          to: "/o/$orgSlug/dancer/video-library" as const,
-        });
-      }
-      if (hasFeature("school_selections")) {
-        exploreItems.push({
-          label: "Schools",
-          icon: SchoolIcon,
-          to: "/o/$orgSlug/dancer/schools" as const,
-        });
-      }
-      return exploreItems.length > 0
-        ? [{ title: "Explore", items: exploreItems }]
-        : [];
-    })(),
-  ];
+  const eventItems: DancerNavItem[] = [];
+  if (hasFeature("callbacks")) {
+    eventItems.push({
+      label: "Callbacks",
+      icon: Megaphone,
+      to: "/o/$orgSlug/dancer/callbacks",
+    });
+  }
+  const exploreItems: DancerNavItem[] = [];
+  if (hasFeature("video_library")) {
+    exploreItems.push({
+      label: "Video Library",
+      icon: PlayCircleIcon,
+      to: "/o/$orgSlug/dancer/video-library",
+    });
+  }
+  if (hasFeature("school_selections")) {
+    exploreItems.push({
+      label: "Schools",
+      icon: SchoolIcon,
+      to: "/o/$orgSlug/dancer/schools",
+    });
+  }
+  const navSections = [
+    { title: "Event", items: eventItems },
+    { title: "Explore", items: exploreItems },
+  ].filter((section) => section.items.length > 0);
   const { ternaryDarkMode, setTernaryDarkMode } = useOrgTheme();
 
   const displayName =
@@ -165,17 +161,9 @@ export function DancerSidebar() {
     return location.pathname.startsWith(to.replace("$orgSlug", orgSlug));
   };
 
-  const allNavItems = [
+  const allNavItems: DancerNavItem[] = [
     dashboardItem,
-    ...navSections.flatMap(
-      (section) =>
-        section.items as {
-          label: string;
-          icon: any;
-          to: string;
-          exact?: boolean;
-        }[],
-    ),
+    ...navSections.flatMap((section) => section.items),
   ];
 
   const DashboardIcon = dashboardItem.icon;
@@ -264,7 +252,7 @@ export function DancerSidebar() {
                       return (
                         <Link
                           key={label}
-                          to={to as DancerNavPath}
+                          to={to}
                           params={{ orgSlug }}
                           search={viewedEventSearch}
                           className={`border-sidebar-border flex min-h-10 items-center gap-2 border-t-2 px-3 py-2 transition-colors ${section.items.length > 1 ? "border-r even:border-r-0" : ""} ${
@@ -297,7 +285,7 @@ export function DancerSidebar() {
                 return (
                   <Link
                     key={label}
-                    to={to as DancerNavPath}
+                    to={to}
                     params={{ orgSlug }}
                     search={viewedEventSearch}
                     title={label}
