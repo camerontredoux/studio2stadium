@@ -14,9 +14,15 @@ export function PurchasesPage() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold">Purchases</h2>
+      <div className="space-y-1">
+        <h2 className="text-2xl font-bold">Purchases</h2>
+        <p className="text-sm text-muted-foreground">
+          Events with no purchase keep their Event Tier on the event itself —
+          change it from Organizations, on the event.
+        </p>
+      </div>
 
-      <PurchasesTable purchases={purchases ?? []} onChangeTier={setChanging} />
+      <PurchasesTable purchases={purchases} onChangeTier={setChanging} />
 
       <ChangeEventTierDialog
         purchase={changing}

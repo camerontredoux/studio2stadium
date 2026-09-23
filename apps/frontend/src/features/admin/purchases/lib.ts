@@ -34,16 +34,27 @@ export function personName(person: {
   return `${person.firstName} ${person.lastName}`.trim();
 }
 
-/** Where the purchase stands: refunded/disputed wins over the event flag. */
-export function purchaseStatus(purchase: EventTierPurchase): {
+type PurchaseStatus = {
   label: string;
   variant: "success" | "secondary" | "error" | "warning";
-} {
-  if (purchase.deactivationReason === "refunded") {
-    return { label: "Refunded", variant: "error" };
-  }
-  if (purchase.deactivationReason === "disputed") {
-    return { label: "Disputed", variant: "warning" };
+};
+
+/**
+ * One status per deactivation reason. Keyed by the API's reason enum, so a new
+ * reason fails the type check here instead of showing as Active or Inactive.
+ */
+const DEACTIVATED_STATUS: Record<
+  NonNullable<EventTierPurchase["deactivationReason"]>,
+  PurchaseStatus
+> = {
+  refunded: { label: "Refunded", variant: "error" },
+  disputed: { label: "Disputed", variant: "warning" },
+};
+
+/** Where the purchase stands: refunded/disputed wins over the event flag. */
+export function purchaseStatus(purchase: EventTierPurchase): PurchaseStatus {
+  if (purchase.deactivationReason) {
+    return DEACTIVATED_STATUS[purchase.deactivationReason];
   }
   return purchase.event.isActive
     ? { label: "Active", variant: "success" }

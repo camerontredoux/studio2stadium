@@ -6,6 +6,7 @@ import { and, eq, isNotNull, ne } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 import type { AuditContext } from "#database/audit";
 import { assertEventTierWrite } from "#shared/org/event-tier-authority";
+import { tierChangeAuditMetadata } from "./tier-change-audit.ts";
 
 export class StartTimePairError extends Error {
   constructor() {
@@ -142,11 +143,10 @@ export class UpdateEventService {
             action: "update",
             resource: "event",
             resourceId: ev.id,
-            metadata: {
-              diff: {
-                eventTier: { from: before?.eventTier, to: ev.eventTier },
-              },
-            },
+            metadata: tierChangeAuditMetadata(
+              before?.eventTier ?? null,
+              ev.eventTier
+            ),
           });
         }
 

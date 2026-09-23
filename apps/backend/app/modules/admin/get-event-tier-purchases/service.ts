@@ -3,7 +3,8 @@ import { eventAuditLog, orgEvents } from "#database/schema/org-events";
 import { organizations } from "#database/schema/organizations";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
-import { EVENT_TIERS, type EventTier } from "#shared/org/event-tiers";
+import { readTierChangeAudit } from "#modules/orgs/events/update/tier-change-audit";
+import type { EventTier } from "#shared/org/event-tiers";
 import { inject } from "@adonisjs/core";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 
@@ -34,24 +35,6 @@ const personColumns = {
   firstName: users.firstName,
   lastName: users.lastName,
 };
-
-const isEventTier = (value: unknown): value is EventTier =>
-  typeof value === "string" &&
-  (EVENT_TIERS as readonly string[]).includes(value);
-
-/** The `diff.eventTier` a tier-change audit entry carries, if well formed. */
-function readTierDiff(
-  metadata: unknown
-): { from: EventTier | null; to: EventTier } | null {
-  if (typeof metadata !== "object" || metadata === null) return null;
-  const diff = (metadata as { diff?: unknown }).diff;
-  if (typeof diff !== "object" || diff === null) return null;
-  const tier = (diff as { eventTier?: unknown }).eventTier;
-  if (typeof tier !== "object" || tier === null) return null;
-  const { from, to } = tier as { from?: unknown; to?: unknown };
-  if (!isEventTier(to)) return null;
-  return { from: isEventTier(from) ? from : null, to };
-}
 
 /**
  * Every Event Tier purchase, newest first, as staff answer billing questions
@@ -136,7 +119,7 @@ export class Service {
 
     for (const row of rows) {
       if (latest.has(row.eventId)) continue;
-      const diff = readTierDiff(row.metadata);
+      const diff = readTierChangeAudit(row.metadata);
       if (!diff) continue;
       latest.set(row.eventId, {
         ...diff,
