@@ -5,9 +5,11 @@ import { eq } from "drizzle-orm";
 import type { EventTier } from "./event-tiers.ts";
 
 /**
- * Whether an Org is self-serve: an Event Tier purchase has landed on it.
+ * Reads the two flags that decide whether an Org's Organizers may create
+ * events: `selfServe` (an Event Tier purchase has landed on it) and
+ * `tierManaged` (staff have put one of its events below Enterprise).
  *
- * Read from `organizations.self_serve`, which provisioning sets and nothing
+ * `selfServe` is read from `organizations.self_serve`, which provisioning sets and nothing
  * clears, rather than from the purchase rows themselves: those hang off Org
  * Events, and an Organizer who could delete the bought event would otherwise
  * turn their Org back into a grandfathered one and create events for free

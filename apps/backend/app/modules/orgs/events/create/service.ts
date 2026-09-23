@@ -48,10 +48,9 @@ export class CreateEventService {
     // using the new event's id as the eventId context
     return this.db.tx(async (tx) => {
       const org = await readOrgEventCreation(tx, orgId);
-      const orgIsSelfServe = org.selfServe;
       assertMayCreateOrgEvent({
         isStaff: by.isStaff,
-        orgIsSelfServe,
+        orgIsSelfServe: org.selfServe,
         orgIsTierManaged: org.tierManaged,
       });
 
@@ -69,7 +68,7 @@ export class CreateEventService {
           ...(input.eventTier !== undefined && { eventTier: input.eventTier }),
           // A self-serve Org's events include what their Event Tier says until
           // staff decide otherwise, so they start with no exceptions.
-          ...(!orgIsSelfServe && {
+          ...(!org.selfServe && {
             capabilityOverrides: await grandfatheredOverrides(tx, orgId),
           }),
         })
