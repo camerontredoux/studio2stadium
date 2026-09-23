@@ -506,19 +506,93 @@ test.group("ProvisionPurchaseService", (group) => {
       results.map((result) => result.purchase.buyerId),
       [accounts[0]!.id, accounts[0]!.id]
     );
-    // Exactly one of them created it, so exactly one set-password link went out.
+    // Exactly one of them created it.
     assert.sameMembers(
       results.map((result) => result.buyer.accountCreated),
       [true, false]
     );
     assert.lengthOf(await db.select().from(eventTierPurchases), 2);
     fake.mails.assertSentCount(OrgReadyEmail, 2);
+
+    // The loser also sends a set-password link when the winner's is already
+    // pending, and a newer link replaces the older one. Either way exactly
+    // one working link reached the buyer.
+    const links = orgReadyEmails(fake)
+      .map((message) => message.data.setPasswordUrl)
+      .filter((url): url is string => url !== null);
+    assert.isAtLeast(links.length, 1);
+
+    const reset = new ResetPasswordService(new DatabaseService());
+    const worked = await Promise.all(
+      links.map((url) =>
+        reset
+          .execute({
+            userId: accounts[0]!.id,
+            token: new URL(url).searchParams.get("token")!,
+            password: "race-password",
+          })
+          .then(
+            () => true,
+            () => false
+          )
+      )
+    );
     assert.lengthOf(
-      orgReadyEmails(fake).filter(
-        (message) => message.data.setPasswordUrl !== null
-      ),
+      worked.filter((ok) => ok),
       1
     );
+  });
+
+  test("a second purchase before the buyer set their password sends a fresh set-password link", async ({
+    assert,
+  }) => {
+    const fake = mail.fake();
+    const buyer = { name: "Twice Buyer", email: "twice_new@example.com" };
+
+    const first = await svc.execute({
+      reference: "cs_twice_1",
+      buyer,
+      purchase: purchase({ eventName: "First" }),
+    });
+    const second = await svc.execute({
+      reference: "cs_twice_2",
+      buyer,
+      purchase: purchase({ eventName: "Second" }),
+    });
+
+    assert.isTrue(first.buyer.accountCreated);
+    assert.isFalse(second.buyer.accountCreated);
+
+    const [firstEmail, secondEmail] = orgReadyEmails(fake);
+    assert.equal(secondEmail!.subject, "Your Org is ready — set your password");
+
+    const tokenOf = (message: OrgReadyEmail) =>
+      new URL(message.data.setPasswordUrl!).searchParams.get("token")!;
+    const reset = new ResetPasswordService(new DatabaseService());
+
+    // The newer link replaced the older one.
+    await assert.rejects(() =>
+      reset.execute({
+        userId: first.buyer.id,
+        token: tokenOf(firstEmail!),
+        password: "stale-password",
+      })
+    );
+    await reset.execute({
+      userId: first.buyer.id,
+      token: tokenOf(secondEmail!),
+      password: "organizer-password",
+    });
+
+    // With a password set, a third purchase is told to sign in.
+    await svc.execute({
+      reference: "cs_twice_3",
+      buyer,
+      purchase: purchase({ eventName: "Third" }),
+    });
+    const third = orgReadyEmails(fake)[2]!;
+    assert.isNull(third.data.setPasswordUrl);
+    assert.equal(third.subject, "Your Org is ready — sign in");
   });
 
   test("a failed email does not undo the purchase", async ({ assert }) => {

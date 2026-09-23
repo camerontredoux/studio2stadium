@@ -56,7 +56,8 @@ export function EventTierOrgReadyEmail({
       ) : (
         <Text style={paragraphStyle}>
           Sign in with your existing Studio 2 Stadium account to configure your
-          event.
+          event. If you don&apos;t know its password, use "Forgot password" on
+          the sign-in page.
         </Text>
       )}
       <Button href={actionUrl}>
@@ -78,9 +79,9 @@ export function EventTierOrgReadyEmail({
             fontSize: "13px",
           }}
         >
-          This link works once and expires in {setPasswordExpiry}. After that,
-          use "Forgot password" on the sign-in page. Once you are signed in,
-          your Org is at{" "}
+          This link works once and expires in {setPasswordExpiry}. If we sent
+          you more than one, use the newest. After that, use "Forgot password"
+          on the sign-in page. Once you are signed in, your Org is at{" "}
           <Link href={orgUrl} style={{ color: colors.primary }}>
             {orgUrl}
           </Link>

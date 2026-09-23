@@ -30,8 +30,24 @@ sign in to. The form email is typed by the buyer, for the buyer (PRD #84, story 
   or sign in.
 - The set-password token uses the forgot-password mechanism: a SHA-256 hash in Redis, deleted when
   used. It has its own key prefix (`set-password:`) and TTL, so a forgot-password request neither
-  replaces nor shortens it. `POST /auth/password/reset` accepts either token. After the week, the
-  buyer uses "Forgot password".
+  replaces nor shortens it. `POST /auth/password/reset` accepts either token. It checks and deletes
+  the token in one Redis script, so the same link sent twice at once sets a password only once.
+  After the week, the buyer uses "Forgot password".
+- A created account starts with `verified: false`. Setting the password from the set-password link
+  sets `verified: true`, because only the owner of the inbox can have that link. This is the same
+  rule as the other emailed-token flows (school and dancer registration).
+- If the account still has an unspent set-password link when another purchase lands on it (the
+  buyer bought twice before opening the first email, or lost a race to create the account), that
+  purchase also sends a set-password email with a fresh link, and the status endpoint says
+  `set_password`. The fresh link replaces the earlier one, and the email says to use the newest. The
+  sign-in email also mentions "Forgot password", which covers a buyer who has no password in any
+  other case.
+- Attaching to an existing account by email carries a residual risk. Signup does not verify that
+  the person owns the email address. Someone who signs up with another person's address before
+  that person buys will be admin of the Org the real owner paid for. This lasts until the real owner
+  resets the password and takes the account back. PRD #84 asks for this attach behavior, and the
+  risk is accepted for now. When signup verifies email ownership, provisioning should attach only to
+  a verified account and treat an unverified one as unclaimed.
 - Idempotency is still on the Checkout Session id. A redelivered webhook finds the purchase already
   recorded and creates no account and sends no email. If two purchases create an account for the
   same new email at once, they meet on the unique `users.email` constraint. The losing transaction

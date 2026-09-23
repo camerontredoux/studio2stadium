@@ -4,7 +4,10 @@ import { orgMemberships, organizations } from "#database/schema/organizations";
 import { platforms, users } from "#database/schema/users";
 import { DatabaseService, type Transaction } from "#database/service";
 import { E_DATABASE_ERROR } from "#exceptions/database";
-import { mintPasswordToken } from "#modules/auth/password-tokens";
+import {
+  hasPendingPasswordToken,
+  mintPasswordToken,
+} from "#modules/auth/password-tokens";
 import env from "#start/env";
 import { normalizeEmail } from "#utils/normalize-email";
 import { inject } from "@adonisjs/core";
@@ -292,8 +295,15 @@ export class ProvisionPurchaseService {
 
   /**
    * Tell the buyer their Org is ready and how to get in: a single-use link to
-   * set their password when this purchase created their account, or a nudge
-   * to sign in when they already had one.
+   * set their password when their account has none they know, or a nudge to
+   * sign in when they already had one.
+   *
+   * An account has no password its owner knows when this purchase created it,
+   * or when an earlier purchase created it and its set-password link is still
+   * unspent — a second purchase before the buyer opened the first email, or
+   * the losing side of two purchases creating the same account at once. Such
+   * a buyer gets a fresh link too, which replaces the earlier one: telling
+   * them to sign in would leave them with no password to sign in with.
    *
    * After the commit, so nobody is emailed about an Org that rolled back, and
    * never fatal: the purchase is provisioned, and failing the webhook now would
@@ -304,7 +314,11 @@ export class ProvisionPurchaseService {
     const { buyer, org, event } = result;
 
     try {
-      const setPasswordUrl = buyer.accountCreated
+      const needsPassword =
+        buyer.accountCreated ||
+        (await hasPendingPasswordToken("setup", buyer.id));
+
+      const setPasswordUrl = needsPassword
         ? `${env.get("SITE_URL")}/reset?token=${await mintPasswordToken("setup", buyer.id)}&userId=${buyer.id}`
         : null;
 

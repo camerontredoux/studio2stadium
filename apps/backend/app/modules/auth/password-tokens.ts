@@ -47,12 +47,42 @@ export async function mintPasswordToken(
   return token;
 }
 
-export type ConsumeResult = "consumed" | "missing" | "invalid";
+/** Whether this user has an unspent, unexpired token for this purpose. */
+export async function hasPendingPasswordToken(
+  purpose: PasswordTokenPurpose,
+  userId: string
+): Promise<boolean> {
+  return (await redis.exists(passwordTokenKey(purpose, userId))) === 1;
+}
+
+export type ConsumeResult =
+  | { outcome: "consumed"; purpose: PasswordTokenPurpose }
+  | { outcome: "missing" | "invalid" };
+
+/**
+ * Deletes the key only when it holds this hash, in one step on the Redis
+ * server. A separate GET and DEL would let two requests with the same link
+ * both see the match and both set a password.
+ *
+ * Returns 1 when it deleted the key, 0 when the key holds another hash, and
+ * -1 when there is no key.
+ */
+const CONSUME_IF_MATCHES = `
+local stored = redis.call("GET", KEYS[1])
+if not stored then return -1 end
+if stored == ARGV[1] then
+  redis.call("DEL", KEYS[1])
+  return 1
+end
+return 0
+`;
 
 /**
  * Spend a token from either purpose. `missing` when the user has no pending
  * token at all (expired or never issued), `invalid` when one is pending but
- * this is not it. A consumed token is deleted, so a link works once.
+ * this is not it. A consumed token is deleted atomically, so a link works
+ * once even when it is submitted twice at the same time. A consumed result
+ * says which purpose the token was for.
  */
 export async function consumePasswordToken(
   userId: string,
@@ -64,16 +94,16 @@ export async function consumePasswordToken(
   for (const purpose of Object.keys(
     PASSWORD_TOKEN_PURPOSES
   ) as PasswordTokenPurpose[]) {
-    const key = passwordTokenKey(purpose, userId);
-    const stored = await redis.get(key);
-    if (!stored) continue;
+    const result = await redis.eval(
+      CONSUME_IF_MATCHES,
+      1,
+      passwordTokenKey(purpose, userId),
+      hashed
+    );
 
-    pending = true;
-    if (stored === hashed) {
-      await redis.del(key);
-      return "consumed";
-    }
+    if (result === 1) return { outcome: "consumed", purpose };
+    if (result === 0) pending = true;
   }
 
-  return pending ? "invalid" : "missing";
+  return { outcome: pending ? "invalid" : "missing" };
 }

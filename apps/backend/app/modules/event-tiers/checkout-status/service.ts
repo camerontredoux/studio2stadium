@@ -2,6 +2,7 @@ import { eventTierPurchases } from "#database/schema/event-tier-purchases";
 import { orgEvents } from "#database/schema/org-events";
 import { organizations } from "#database/schema/organizations";
 import { DatabaseService } from "#database/service";
+import { hasPendingPasswordToken } from "#modules/auth/password-tokens";
 import env from "#start/env";
 import { inject } from "@adonisjs/core";
 import { eq } from "drizzle-orm";
@@ -24,8 +25,9 @@ export type CheckoutStatus =
       eventName: string;
       /**
        * How the buyer gets in. `set_password` when the purchase created their
-       * account — the page says to check their email for the set-password
-       * link; `sign_in` when they already had one.
+       * account, or their account still has an unspent set-password link from
+       * an earlier purchase — the page says to check their email for the
+       * set-password link; `sign_in` when they already had a password.
        */
       nextStep: "set_password" | "sign_in";
     };
@@ -51,6 +53,7 @@ export class Service {
           orgName: organizations.name,
           orgSlug: organizations.slug,
           eventName: orgEvents.name,
+          buyerId: eventTierPurchases.buyerId,
           buyerAccountCreated: eventTierPurchases.buyerAccountCreated,
         })
         .from(eventTierPurchases)
@@ -62,13 +65,18 @@ export class Service {
 
     if (!row) return { status: "pending" };
 
-    const { buyerAccountCreated, ...org } = row;
+    const { buyerId, buyerAccountCreated, ...org } = row;
+
+    // The same rule the Org-ready email follows, so the page and the email
+    // agree on whether a set-password link is on its way.
+    const setsPassword =
+      buyerAccountCreated || (await hasPendingPasswordToken("setup", buyerId));
 
     return {
       status: "provisioned",
       ...org,
       orgUrl: `${env.get("SITE_URL")}/o/${row.orgSlug}/admin`,
-      nextStep: buyerAccountCreated ? "set_password" : "sign_in",
+      nextStep: setsPassword ? "set_password" : "sign_in",
     };
   }
 }

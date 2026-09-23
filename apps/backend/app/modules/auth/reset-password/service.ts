@@ -28,7 +28,8 @@ export class Service {
     // A forgot-password token, or the set-password token an Organizer's
     // purchase emailed when it created their account (ADR 0007). Either is
     // spent here, so a link sets a password once.
-    const outcome = await consumePasswordToken(payload.userId, payload.token);
+    const consumed = await consumePasswordToken(payload.userId, payload.token);
+    const { outcome } = consumed;
     if (outcome === "missing") {
       throw new E_BAD_REQUEST(
         "Could not find reset token. Please request a new one."
@@ -40,8 +41,18 @@ export class Service {
 
     const password = await hash.make(payload.password);
 
+    // A set-password link only reaches the inbox of the account it was
+    // created for, so using it proves the owner has that inbox. The same rule
+    // as the other emailed-token flows: token consumption counts as email
+    // verification. A forgot-password link verifies nothing new.
+    const verifiesEmail =
+      consumed.outcome === "consumed" && consumed.purpose === "setup";
+
     await this.db.use((db) =>
-      db.update(users).set({ password }).where(eq(users.id, payload.userId))
+      db
+        .update(users)
+        .set(verifiesEmail ? { password, verified: true } : { password })
+        .where(eq(users.id, payload.userId))
     );
   }
 }

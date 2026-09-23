@@ -130,6 +130,19 @@ test.group("GET /event-tiers/checkout/:sessionId", (group) => {
     assert.notInclude(JSON.stringify(res.body()), buyer.email);
   });
 
+  test("a second purchase before the buyer set their password is also told to check their email", async ({
+    client,
+    assert,
+  }) => {
+    await landed("cs_test_first", "twice_organizer@example.com");
+    await landed("cs_test_second", "twice_organizer@example.com");
+
+    const res = await client.get("/event-tiers/checkout/cs_test_second");
+
+    res.assertStatus(200);
+    assert.equal(res.body().nextStep, "set_password");
+  });
+
   test("422s for something that is not a Checkout Session id", async ({
     client,
   }) => {

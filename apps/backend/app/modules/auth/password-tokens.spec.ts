@@ -33,6 +33,14 @@ async function makeUser(suffix: string) {
   return user!;
 }
 
+async function verifiedOf(userId: string) {
+  const [row] = await db
+    .select({ verified: users.verified })
+    .from(users)
+    .where(eq(users.id, userId));
+  return row!.verified;
+}
+
 async function passwordOf(userId: string) {
   const [row] = await db
     .select({ password: users.password })
@@ -133,5 +141,64 @@ test.group("Password tokens", (group) => {
 
     assert.equal(await passwordOf(user.id), before);
     assert.isNotNull(await redis.get(passwordTokenKey("setup", user.id)));
+  });
+
+  test("setting a password from a set-password link verifies the email", async ({
+    assert,
+  }) => {
+    const user = await makeUser("verify");
+    assert.isFalse(await verifiedOf(user.id));
+    const token = await mintPasswordToken("setup", user.id);
+
+    await reset.execute({ userId: user.id, token, password: "new-password-1" });
+
+    assert.isTrue(await verifiedOf(user.id));
+  });
+
+  test("a forgot-password reset leaves verification as it was", async ({
+    assert,
+  }) => {
+    const user = await makeUser("noverify");
+    const token = await mintPasswordToken("reset", user.id);
+
+    await reset.execute({ userId: user.id, token, password: "new-password-1" });
+
+    assert.isFalse(await verifiedOf(user.id));
+  });
+
+  test("the same link submitted twice at once sets a password once", async ({
+    assert,
+  }) => {
+    const user = await makeUser("race");
+    const token = await mintPasswordToken("setup", user.id);
+
+    const outcomes = await Promise.allSettled([
+      reset.execute({ userId: user.id, token, password: "first-password" }),
+      reset.execute({ userId: user.id, token, password: "second-password" }),
+    ]);
+
+    assert.sameMembers(
+      outcomes.map((outcome) => outcome.status),
+      ["fulfilled", "rejected"]
+    );
+  });
+
+  test("a wrong token leaves a pending reset token in place too", async ({
+    assert,
+  }) => {
+    const user = await makeUser("wrongreset");
+    await mintPasswordToken("reset", user.id);
+
+    await assert.rejects(
+      () =>
+        reset.execute({
+          userId: user.id,
+          token: "e".repeat(64),
+          password: "new-password-1",
+        }),
+      E_BAD_REQUEST
+    );
+
+    assert.isNotNull(await redis.get(passwordTokenKey("reset", user.id)));
   });
 });
