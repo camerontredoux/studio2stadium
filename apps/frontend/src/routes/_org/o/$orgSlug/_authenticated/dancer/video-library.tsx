@@ -10,6 +10,7 @@ import {
 } from "@/features/org/api/video-queries";
 import { adminQueries } from "@/features/org/api/admin-queries";
 import { orgQueries } from "@/features/org/api/queries";
+import { hasOrgFeature } from "@/features/org/lib/entitlement";
 import { isAfter, subDays } from "date-fns";
 import { dancerEventSearchSchema } from "@/features/org/api/scouting-schemas";
 import { useOrg } from "@/features/org/context/use-org";
@@ -22,8 +23,7 @@ export const Route = createFileRoute(
     const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     );
-    const features = (data.features ?? {}) as Record<string, boolean>;
-    if (!features.video_library) {
+    if (!hasOrgFeature(data, "video_library")) {
       throw redirect({ to: "/o/$orgSlug/dancer", params });
     }
   },

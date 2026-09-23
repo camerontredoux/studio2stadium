@@ -23,6 +23,7 @@ import {
   type EventVideoGroup,
 } from "@/features/org/api/video-queries";
 import { orgQueries } from "@/features/org/api/queries";
+import { hasOrgFeature } from "@/features/org/lib/entitlement";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import { formatDistanceToNow } from "date-fns";
 
@@ -33,8 +34,7 @@ export const Route = createFileRoute(
     const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     );
-    const features = ((data as any)?.features ?? {}) as Record<string, boolean>;
-    if (!features.video_library) {
+    if (!hasOrgFeature(data, "video_library")) {
       throw redirect({ to: "/o/$orgSlug/admin", params });
     }
   },

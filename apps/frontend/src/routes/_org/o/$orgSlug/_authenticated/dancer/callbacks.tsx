@@ -4,6 +4,7 @@ import { MegaphoneIcon } from "lucide-react";
 
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { orgQueries } from "@/features/org/api/queries";
+import { hasOrgFeature } from "@/features/org/lib/entitlement";
 import { AccentDot } from "@/features/org/components/dashboard-shared";
 import {
   SchoolAvatar,
@@ -20,8 +21,7 @@ export const Route = createFileRoute(
     const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     );
-    const features = (data.features ?? {}) as Record<string, boolean>;
-    if (!features.callbacks) {
+    if (!hasOrgFeature(data, "callbacks")) {
       throw redirect({ to: "/o/$orgSlug/dancer", params });
     }
   },

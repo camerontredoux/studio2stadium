@@ -1,6 +1,7 @@
 import { createContext } from "react";
 
 import type { OrgMemberType, RosterType } from "@/lib/access";
+import type { OrgFeatureKey } from "@/features/org/lib/entitlement";
 
 export interface OrgMembership {
   role: "admin" | "member";
@@ -37,7 +38,12 @@ export interface OrgContextValue {
   myRoster: MyRoster | null;
   myRosters: MyRoster[];
   isAdmin: boolean;
-  hasFeature: (key: string) => boolean;
+  /**
+   * Whether the Org's active event includes a capability, or the Org includes a
+   * piece of org-wide configuration. Convenience gating only — the backend's
+   * `OrgFeatureMiddleware` is authoritative.
+   */
+  hasFeature: (key: OrgFeatureKey) => boolean;
 }
 
 export const OrgContext = createContext<OrgContextValue | null>(null);

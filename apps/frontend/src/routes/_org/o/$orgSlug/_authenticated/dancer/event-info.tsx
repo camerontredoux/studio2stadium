@@ -33,6 +33,7 @@ import {
 } from "@/features/org/components/dashboard-shared";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { useOrg } from "@/features/org/context/use-org";
+import type { OrgFeatureKey } from "@/features/org/lib/entitlement";
 import { useEventPhase } from "@/features/org/hooks/use-event-phase";
 import { DancerEventSwitcher } from "@/features/org/components/dancer-event-switcher";
 import { EventAccessBanner } from "@/features/org/components/event-access-banner";
@@ -402,7 +403,7 @@ function QuickNavPanel({
   orgSlug: string;
   eventId: string;
   showCallbacks: boolean;
-  hasFeature: (key: string) => boolean;
+  hasFeature: (key: OrgFeatureKey) => boolean;
 }) {
   const navItems = [
     ...(hasFeature("video_library")

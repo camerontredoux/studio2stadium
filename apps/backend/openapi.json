@@ -13045,6 +13045,18 @@
                 "hasStarted"
               ]
             }
+          },
+          "activeEventCapabilities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "video_library",
+                "callbacks",
+                "check_in",
+                "school_selections"
+              ]
+            }
           }
         },
         "required": [
@@ -13058,7 +13070,8 @@
           "settings",
           "membership",
           "myRoster",
-          "myRosters"
+          "myRosters",
+          "activeEventCapabilities"
         ]
       },
       "OrgsIdEventsResponse": {
