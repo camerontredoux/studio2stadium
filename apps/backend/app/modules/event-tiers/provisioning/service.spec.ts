@@ -255,7 +255,7 @@ test.group("ProvisionPurchaseService", (group) => {
     assert.lengthOf(active, 0);
   });
 
-  test("a second purchase by the same buyer adds an Org Event to their existing Org", async ({
+  test("a second purchase naming the buyer's Org, in any case or spacing, adds an Org Event to it", async ({
     assert,
   }) => {
     const buyer = await makeBuyer("second");
@@ -269,12 +269,11 @@ test.group("ProvisionPurchaseService", (group) => {
     const second = await svc.execute({
       reference: "cs_second_2",
       buyer: as(buyer),
-      // A different Org name on the second purchase does not fork the tenant:
-      // S2S Live is sold per event, not per Org (ADR 0001).
-      purchase: purchase({ orgName: "Summit Dance", eventName: "Combine" }),
+      purchase: purchase({ orgName: "  the   SUMMIT ", eventName: "Combine" }),
     });
 
     assert.equal(second.org.id, first.org.id);
+    assert.equal(second.org.name, "The Summit");
     assert.notEqual(second.event.id, first.event.id);
 
     const orgs = await db.select().from(organizations);
@@ -291,6 +290,82 @@ test.group("ProvisionPurchaseService", (group) => {
       .from(orgMemberships)
       .where(eq(orgMemberships.userId, buyer.id));
     assert.lengthOf(memberships, 1);
+  });
+
+  test("a second purchase naming a different Org creates it, with the buyer as its organizer admin", async ({
+    assert,
+  }) => {
+    const buyer = await makeBuyer("second_other");
+
+    const first = await svc.execute({
+      reference: "cs_second_other_1",
+      buyer: as(buyer),
+      purchase: purchase(),
+    });
+
+    const second = await svc.execute({
+      reference: "cs_second_other_2",
+      buyer: as(buyer),
+      purchase: purchase({ orgName: "Summit Dance", eventName: "Combine" }),
+    });
+
+    assert.notEqual(second.org.id, first.org.id);
+    assert.equal(second.org.name, "Summit Dance");
+    assert.equal(second.org.slug, "summit-dance");
+    assert.equal(second.event.orgId, second.org.id);
+    assert.isTrue(second.org.selfServe);
+
+    const orgs = await db.select().from(organizations);
+    assert.lengthOf(orgs, 2);
+
+    const [membership] = await db
+      .select()
+      .from(orgMemberships)
+      .where(eq(orgMemberships.orgId, second.org.id));
+    assert.equal(membership!.userId, buyer.id);
+    assert.equal(membership!.role, "admin");
+    assert.equal(membership!.type, "organizer");
+  });
+
+  test("a buyer administering several Orgs gets the event in the one whose name they typed", async ({
+    assert,
+  }) => {
+    const buyer = await makeBuyer("several");
+    const [older, matching] = await db
+      .insert(organizations)
+      .values([
+        { name: "Older Org", slug: "older-org" },
+        { name: "Summit Dance", slug: "summit-dance" },
+      ])
+      .returning();
+    await db.insert(orgMemberships).values([
+      {
+        orgId: older!.id,
+        userId: buyer.id,
+        role: "admin",
+        type: "organizer",
+        createdAt: new Date("2025-01-01"),
+      },
+      {
+        orgId: matching!.id,
+        userId: buyer.id,
+        role: "admin",
+        type: "organizer",
+        createdAt: new Date("2025-06-01"),
+      },
+    ]);
+
+    const result = await svc.execute({
+      reference: "cs_several",
+      buyer: as(buyer),
+      purchase: purchase({ orgName: "summit dance" }),
+    });
+
+    assert.equal(result.org.id, matching!.id);
+    assert.equal(result.event.orgId, matching!.id);
+
+    const orgs = await db.select().from(organizations);
+    assert.lengthOf(orgs, 2);
   });
 
   test("an Org name whose derived URL is already taken still produces a usable Org", async ({
@@ -426,7 +501,7 @@ test.group("ProvisionPurchaseService", (group) => {
       sent!.data.orgUrl,
       `${env.get("SITE_URL")}/o/${result.org.slug}/admin`
     );
-    assert.equal(sent!.subject, "Your Org is ready — set your password");
+    assert.equal(sent!.subject, "S2S Live: Your Event Is Ready");
 
     const link = new URL(sent!.data.setPasswordUrl!);
     assert.equal(link.origin + link.pathname, `${env.get("SITE_URL")}/reset`);
@@ -478,7 +553,7 @@ test.group("ProvisionPurchaseService", (group) => {
       return (
         message.data.to === buyer.displayEmail &&
         message.data.setPasswordUrl === null &&
-        message.subject === "Your Org is ready — sign in"
+        message.subject === "S2S Live: Your Event Is Ready"
       );
     });
     assert.isNull(await redis.get(passwordTokenKey("setup", buyer.id)));
@@ -598,7 +673,7 @@ test.group("ProvisionPurchaseService", (group) => {
     assert.isFalse(second.buyer.accountCreated);
 
     const [firstEmail, secondEmail] = orgReadyEmails(fake);
-    assert.equal(secondEmail!.subject, "Your Org is ready — set your password");
+    assert.equal(secondEmail!.subject, "S2S Live: Your Event Is Ready");
 
     const tokenOf = (message: OrgReadyEmail) =>
       new URL(message.data.setPasswordUrl!).searchParams.get("token")!;
@@ -626,7 +701,7 @@ test.group("ProvisionPurchaseService", (group) => {
     });
     const third = orgReadyEmails(fake)[2]!;
     assert.isNull(third.data.setPasswordUrl);
-    assert.equal(third.subject, "Your Org is ready — sign in");
+    assert.equal(third.subject, "S2S Live: Your Event Is Ready");
   });
 
   test("each Org-ready email sent is logged with its purpose, Org and masked recipient", async ({
@@ -822,7 +897,7 @@ test.group("ProvisionPurchaseService", (group) => {
     const result = await svc.execute({
       reference: "cs_selfserve_existing",
       buyer: as(buyer),
-      purchase: purchase(),
+      purchase: purchase({ orgName: "Hand Built" }),
     });
 
     assert.equal(result.org.id, handBuilt!.id);

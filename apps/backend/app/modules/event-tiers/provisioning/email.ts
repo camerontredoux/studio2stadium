@@ -22,11 +22,7 @@ export default class OrgReadyEmail extends BaseMail {
 
   constructor(readonly data: OrgReadyEmailData) {
     super();
-    this.subject = data.claimUrl
-      ? `Your Org is ready — claim it`
-      : data.setPasswordUrl
-        ? `Your Org is ready — set your password`
-        : `Your Org is ready — sign in`;
+    this.subject = "S2S Live: Your Event Is Ready";
   }
 
   async prepare() {

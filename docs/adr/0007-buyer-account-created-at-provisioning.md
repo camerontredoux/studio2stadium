@@ -12,19 +12,38 @@ is also `customer_email`, so Stripe prefills it and sends the receipt there. Whe
 provisioning identifies the buyer by that metadata email, normalized the way signup stores emails,
 inside the same transaction that builds the Org:
 
-- If an account has that email and someone has proved they read its inbox, the new Org, Org Event
-  and organizer admin membership attach to it, and the buyer is emailed "Your Org is ready — sign
-  in".
+- If an account has that email and someone has proved they read its inbox, the Org Event and the
+  organizer admin membership attach to it (see "Which Org a purchase lands in" below), and the buyer
+  is emailed the sign-in variant of the Org-ready email.
 - If an account has that email but nobody has proved they read its inbox, the Org is claimed through
   a link instead (see "Claiming an Org" below).
 - Otherwise provisioning creates the account. It has no profile and no password anyone knows (its
-  hash is of a random secret that is discarded). After the commit the buyer is emailed "Your Org is
-  ready — set your password" with a single-use set-password link. The link is valid for 7 days and
+  hash is of a random secret that is discarded). After the commit the buyer is emailed the set-password
+  variant of the Org-ready email, with a single-use set-password link. The link is valid for 7 days and
   opens the product's existing reset-password page.
 
 The billing email Stripe collects is never used. ADR 0004's reason still holds: a corporate card's
 billing address is often the finance department's, and matching on it would produce Orgs nobody can
 sign in to. The form email is typed by the buyer, for the buyer (PRD #84, story 17).
+
+Every variant of the Org-ready email has the subject "S2S Live: Your Event Is Ready". The body
+leads with the event and names the Org it is in.
+
+## Which Org a purchase lands in
+
+The pre-checkout form asks for an Org name on every purchase. For an account whose inbox is proven,
+provisioning looks among the Orgs the account administers as an organizer admin for one with that
+name. Names match ignoring case, surrounding whitespace, and repeated internal whitespace
+(`sameOrgName`). If one matches, the new Org Event is added to it. If several match, the one whose
+membership is oldest wins. If none matches, provisioning creates a new Org with the typed name and
+makes the buyer its organizer admin, exactly as for a first purchase.
+
+The name decides, not the fact that the buyer already has an Org. An Organizer who runs two
+separate Orgs, or who buys for a new one, gets the event where they said it goes. An earlier rule
+added every later purchase to the first Org the buyer administered and ignored the typed name. That
+put events in an Org the buyer did not name.
+
+A purchase that needs a claim (below) always creates a new Org and never matches by name.
 
 ## Claiming an Org
 
@@ -50,8 +69,8 @@ purchase, in one transaction, but:
   `claimed_at = null`: the Org is awaiting its claim.
 - It always creates a new Org. It never adds the event to an Org the account already administers,
   because whoever registered the address may run that Org.
-- After the commit it mints a single-use claim token and emails the "Your Org is ready — claim it"
-  variant of the Org-ready email. The token follows the password-token pattern: only its SHA-256 is
+- After the commit it mints a single-use claim token and emails the claim variant of the Org-ready
+  email. The token follows the password-token pattern: only its SHA-256 is
   kept, in Redis, under its own `claim-org:<userId>` key, for 7 days. There is one token per user,
   and it covers every claim the user has pending. A new one replaces the old one, and the email says
   to use the newest.

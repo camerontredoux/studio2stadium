@@ -409,17 +409,19 @@ export class ProvisionPurchaseService {
   }
 
   /**
-   * The Org this purchase belongs to.
+   * The Org this purchase belongs to: the Org the buyer already administers
+   * under the name they typed, or a new one with that name.
    *
-   * S2S Live is sold per event, not per Org (ADR 0001), so a buyer who already
-   * administers an Org is buying another event for it — the Org name they typed
-   * is the name of an Org they already have, and creating a second one would
-   * split their events across two tenants. The Org they administer wins over the
-   * name they typed, and the first one they were given wins if they administer
-   * several.
+   * S2S Live is sold per event, not per Org (ADR 0001), so a buyer who types
+   * the name of an Org they already administer is buying another event for it,
+   * and creating a second one would split their events across two tenants. A
+   * buyer who types a different name is setting up a different Org, and gets
+   * one, administered by them exactly as a first purchase's is. Names match
+   * without regard to case or spacing (`sameOrgName`), and when several of the
+   * buyer's Orgs match, the one they were given first wins (ADR 0007).
    */
   private async resolveOrg(tx: Transaction, buyerId: string, orgName: string) {
-    const [existing] = await tx
+    const administered = await tx
       .select({ org: organizations })
       .from(orgMemberships)
       .innerJoin(organizations, eq(organizations.id, orgMemberships.orgId))
@@ -430,9 +432,11 @@ export class ProvisionPurchaseService {
           eq(orgMemberships.role, "admin")
         )
       )
-      .orderBy(asc(orgMemberships.createdAt))
-      .limit(1);
+      .orderBy(asc(orgMemberships.createdAt));
 
+    const existing = administered.find(({ org }) =>
+      sameOrgName(org.name, orgName)
+    );
     if (existing) return existing.org;
 
     return await this.createOrg(tx, orgName);
@@ -531,6 +535,17 @@ export class ProvisionPurchaseService {
 
     return event!;
   }
+}
+
+/**
+ * Whether two Org names name the same Org as a buyer would type it: equal
+ * once trimmed, with runs of whitespace collapsed, ignoring case.
+ */
+export function sameOrgName(a: string, b: string) {
+  const normalize = (name: string) =>
+    name.trim().replace(/\s+/g, " ").toLowerCase();
+
+  return normalize(a) === normalize(b);
 }
 
 /**

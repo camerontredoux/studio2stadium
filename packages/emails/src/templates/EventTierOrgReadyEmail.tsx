@@ -47,54 +47,60 @@ export function EventTierOrgReadyEmail({
   claimUrl = null,
   setPasswordExpiry = "7 days",
 }: EventTierOrgReadyEmailProps) {
-  const variant = claimUrl ? "claim" : setPasswordUrl ? "setPassword" : "signIn";
+  const variant = claimUrl
+    ? "claim"
+    : setPasswordUrl
+      ? "setPassword"
+      : "signIn";
   const actionUrl = claimUrl ?? setPasswordUrl ?? orgUrl;
 
   const preview = {
-    claim: `${orgName} is ready. Claim it to get started.`,
-    setPassword: `${orgName} is ready. Set your password to get started.`,
-    signIn: `${orgName} is ready. Sign in to get started.`,
+    claim: `${eventName} is ready in ${orgName}. Claim your organization to get started.`,
+    setPassword: `${eventName} is ready in ${orgName}. Set your password to get started.`,
+    signIn: `${eventName} is ready in ${orgName}. Sign in to get started.`,
   }[variant];
 
   const buttonLabel = {
-    claim: "Claim your Org",
+    claim: "Claim your organization",
     setPassword: "Set your password",
-    signIn: "Sign in",
+    signIn: "Go to your organization",
   }[variant];
 
   return (
     <Layout preview={preview}>
-      <Text style={headingStyle}>{orgName} is ready</Text>
+      <Text style={headingStyle}>
+        {eventName} is ready in {orgName}
+      </Text>
       <Text style={paragraphStyle}>Hi {firstName},</Text>
       {variant === "claim" ? (
         <Text style={paragraphStyle}>
-          Thanks for your purchase. <strong>{eventName}</strong> has been set up
-          for <strong>{orgName}</strong>. To become its admin, claim it with
-          the Studio 2 Stadium account for this email address.
+          Thanks for your purchase. We set up <strong>{eventName}</strong> in
+          the organization <strong>{orgName}</strong>. To manage it, claim the
+          organization with the Studio 2 Stadium account for this email address.
         </Text>
       ) : (
         <Text style={paragraphStyle}>
-          Thanks for your purchase. <strong>{eventName}</strong> has been set up
-          for <strong>{orgName}</strong>, and you are its admin.
+          Thanks for your purchase. We set up <strong>{eventName}</strong> in
+          the organization <strong>{orgName}</strong>. You are its admin.
         </Text>
       )}
       {variant === "claim" ? (
         <Text style={paragraphStyle}>
           Open the link below and sign in with that account when asked. If you
           don&apos;t know its password, use "Forgot password" on the sign-in
-          page: setting a new password from the email we send also claims your
-          Org.
+          page. Setting a new password from the email we send also claims your
+          organization.
         </Text>
       ) : variant === "setPassword" ? (
         <Text style={paragraphStyle}>
           We created a Studio 2 Stadium account for you with this email address.
-          Set your password to sign in and configure your event.
+          Set your password to sign in and set up your event.
         </Text>
       ) : (
         <Text style={paragraphStyle}>
-          Sign in with your existing Studio 2 Stadium account to configure your
-          event. If you don&apos;t know its password, use "Forgot password" on
-          the sign-in page.
+          Sign in with your Studio 2 Stadium account to set up your event. If
+          you don&apos;t know its password, use "Forgot password" on the sign-in
+          page.
         </Text>
       )}
       <Button href={actionUrl}>{buttonLabel}</Button>
@@ -108,7 +114,7 @@ export function EventTierOrgReadyEmail({
         <Text style={mutedStyle}>
           This link works once and expires in {setPasswordExpiry}. If we sent
           you more than one, use the newest. After that, use "Forgot password"
-          on the sign-in page. Once you are signed in, your Org is at{" "}
+          on the sign-in page. Once you are signed in, your organization is at{" "}
           <Link href={orgUrl} style={{ color: colors.primary }}>
             {orgUrl}
           </Link>
