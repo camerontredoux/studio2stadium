@@ -4,10 +4,10 @@ import { orgMemberships, organizations } from "#database/schema/organizations";
 import { users } from "#database/schema/users";
 import { DatabaseService, type Transaction } from "#database/service";
 import { E_DATABASE_ERROR } from "#exceptions/database";
-import { E_NOT_FOUND } from "#exceptions/not-found";
 import { inject } from "@adonisjs/core";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { type CheckoutMetadata } from "../checkout/metadata.ts";
+import { UnprovisionableCheckoutError } from "./checkout-session.ts";
 import { orgSlugCandidates } from "./slug.ts";
 
 /**
@@ -108,8 +108,13 @@ export class ProvisionPurchaseService {
         .where(eq(users.id, input.buyerUserId))
         .limit(1);
 
+      // Somebody paid, so this is one more purchase that cannot be
+      // provisioned, reported as such, not a lookup that missed.
       if (!buyer) {
-        throw new E_NOT_FOUND("No account exists for that user");
+        throw new UnprovisionableCheckoutError(
+          input.reference,
+          "no account exists for its buyer user id"
+        );
       }
 
       const org = await this.markSelfServe(

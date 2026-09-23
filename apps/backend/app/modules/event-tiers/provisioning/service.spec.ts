@@ -9,7 +9,6 @@ import {
 import { orgMemberships, organizations } from "#database/schema/organizations";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
-import { E_NOT_FOUND } from "#exceptions/not-found";
 import { getUserSession } from "#auth/queries";
 import { GetOrgService } from "#modules/orgs/get-org/service";
 import { ListEventsService } from "#modules/orgs/events/list/service";
@@ -17,6 +16,7 @@ import { grantsOrgAdmin } from "#shared/org/membership";
 import { test } from "@japa/runner";
 import { eq } from "drizzle-orm";
 import { type CheckoutMetadata } from "../checkout/metadata.ts";
+import { UnprovisionableCheckoutError } from "./checkout-session.ts";
 import { ProvisionPurchaseService } from "./service.ts";
 import { deriveOrgSlug, orgSlugCandidates } from "./slug.ts";
 
@@ -308,7 +308,11 @@ test.group("ProvisionPurchaseService", (group) => {
       caught = error;
     }
 
-    assert.instanceOf(caught, E_NOT_FOUND);
+    assert.instanceOf(caught, UnprovisionableCheckoutError);
+    assert.equal(
+      (caught as UnprovisionableCheckoutError).sessionId,
+      "cs_no_buyer"
+    );
     assert.lengthOf(await db.select().from(organizations), 0);
     assert.lengthOf(await db.select().from(eventTierPurchases), 0);
   });
