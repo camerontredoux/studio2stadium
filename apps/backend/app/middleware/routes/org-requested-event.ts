@@ -1,10 +1,6 @@
-import { db } from "#database/connection";
-import { orgEvents } from "#database/schema/org-events";
+import { findOrgEvent } from "#shared/org/find-org-event";
 import type { HttpContext } from "@adonisjs/core/http";
 import type { NextFn } from "@adonisjs/core/types/http";
-import { and, eq } from "drizzle-orm";
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
  * Puts the Org Event a route names in its `:id` param on `ctx.orgEvent`, so
@@ -34,18 +30,9 @@ export default class OrgRequestedEventMiddleware {
     }
 
     const eventId = ctx.params.id as string | undefined;
-    if (!eventId || !UUID.test(eventId)) {
-      return ctx.response.notFound({ message: "No event found." });
-    }
+    if (eventId && ctx.orgEvent?.id === eventId) return next();
 
-    if (ctx.orgEvent?.id === eventId) return next();
-
-    const [event] = await db
-      .select()
-      .from(orgEvents)
-      .where(and(eq(orgEvents.id, eventId), eq(orgEvents.orgId, ctx.org.id)))
-      .limit(1);
-
+    const event = await findOrgEvent(ctx.org.id, eventId);
     if (!event) {
       return ctx.response.notFound({ message: "No event found." });
     }
