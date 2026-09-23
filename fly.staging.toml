@@ -30,7 +30,7 @@ primary_region = 'iad'
   # DB is a copy of prod: never run the prospect email jobs, and only mail
   # allowlisted recipients. Extend MAIL_ALLOWLIST with test inboxes as needed.
   CRON_EMAILS_ENABLED = 'false'
-  MAIL_ALLOWLIST = '@studio2stadium.com,camtredoux@gmail.com'
+  MAIL_ALLOWLIST = '@studio2stadium.com,@bytebot.io,camtredoux@gmail.com'
   # Staging hostnames (single-level subdomains, so Cloudflare Universal SSL
   # covers them). CORS_ORIGINS is added to prod's allowlist in config/cors.ts.
   SITE_URL = 'https://app-staging.studio2stadium.com'
