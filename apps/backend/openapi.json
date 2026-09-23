@@ -1109,13 +1109,23 @@
                 }
               }
             }
+          },
+          "502": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEventtierpurchasesIdClaimemailResponse"
+                }
+              }
+            }
           }
         },
         "tags": [
           "Admin"
         ],
         "summary": "Resend an Event Tier purchase's claim email",
-        "description": "Emails the buyer of a purchase that is awaiting its claim a fresh claim link, to the account's own address. The fresh link replaces the earlier one. 409 when the purchase is not awaiting a claim, 404 when there is no such purchase"
+        "description": "Emails the buyer of a purchase that is awaiting its claim a fresh claim link, to the account's own address. The fresh link replaces the earlier one. 409 when the purchase is not awaiting a claim, 404 when there is no such purchase, 502 when the email could not be sent"
       }
     },
     "/admin/orgs": {
@@ -11877,6 +11887,17 @@
           ]
         }
       },
+      "AdminEventtierpurchasesIdClaimemailResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
       "AdminOrgsResponse": {
         "type": "array",
         "items": {
@@ -12806,6 +12827,7 @@
             "type": "string",
             "enum": [
               "dancer",
+              "organizer",
               "school"
             ]
           }
@@ -12857,6 +12879,7 @@
                 "type": "string",
                 "enum": [
                   "dancer",
+                  "organizer",
                   "school"
                 ]
               },
@@ -13006,6 +13029,7 @@
             "type": "string",
             "enum": [
               "dancer",
+              "organizer",
               "school"
             ]
           },
@@ -20158,6 +20182,24 @@
                 "id": {
                   "type": "string"
                 },
+                "organizer": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "type": {
                   "type": "string",
                   "enum": [
@@ -20186,24 +20228,6 @@
                 "title": {
                   "type": "string"
                 },
-                "organizer": {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "name"
-                      ]
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
                 "startDatetime": {
                   "type": "string"
                 },
@@ -20213,10 +20237,10 @@
               },
               "required": [
                 "id",
+                "organizer",
                 "type",
                 "location",
                 "title",
-                "organizer",
                 "startDatetime",
                 "endDatetime"
               ]
@@ -20586,6 +20610,28 @@
                   "time": {
                     "type": "string"
                   },
+                  "organizer": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "thumbnail": {
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "thumbnail"
+                    ]
+                  },
                   "type": {
                     "type": "string",
                     "enum": [
@@ -20614,28 +20660,6 @@
                   "title": {
                     "type": "string"
                   },
-                  "organizer": {
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "type": "string"
-                      },
-                      "thumbnail": {
-                        "oneOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      }
-                    },
-                    "required": [
-                      "name",
-                      "thumbnail"
-                    ]
-                  },
                   "attendees": {
                     "type": "array",
                     "items": {
@@ -20658,10 +20682,10 @@
                   "id",
                   "date",
                   "time",
+                  "organizer",
                   "type",
                   "location",
                   "title",
-                  "organizer",
                   "attendees",
                   "saved"
                 ]
@@ -20826,6 +20850,28 @@
             "time": {
               "type": "string"
             },
+            "organizer": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "thumbnail": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "name",
+                "thumbnail"
+              ]
+            },
             "type": {
               "type": "string",
               "enum": [
@@ -20853,38 +20899,16 @@
             },
             "title": {
               "type": "string"
-            },
-            "organizer": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "thumbnail": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                }
-              },
-              "required": [
-                "name",
-                "thumbnail"
-              ]
             }
           },
           "required": [
             "id",
             "date",
             "time",
+            "organizer",
             "type",
             "location",
-            "title",
-            "organizer"
+            "title"
           ]
         }
       },
@@ -21060,6 +21084,36 @@
           "updatedAt": {
             "type": "string"
           },
+          "organizer": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              },
+              "avatar": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "events": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "name",
+              "username",
+              "avatar",
+              "events"
+            ]
+          },
           "type": {
             "type": "string",
             "enum": [
@@ -21103,36 +21157,6 @@
           },
           "description": {
             "type": "string"
-          },
-          "organizer": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "username": {
-                "type": "string"
-              },
-              "avatar": {
-                "oneOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "events": {
-                "type": "number"
-              }
-            },
-            "required": [
-              "name",
-              "username",
-              "avatar",
-              "events"
-            ]
           },
           "address": {
             "oneOf": [
@@ -21214,13 +21238,13 @@
           "id",
           "createdAt",
           "updatedAt",
+          "organizer",
           "type",
           "location",
           "website",
           "schoolId",
           "title",
           "description",
-          "organizer",
           "address",
           "tags",
           "cost",

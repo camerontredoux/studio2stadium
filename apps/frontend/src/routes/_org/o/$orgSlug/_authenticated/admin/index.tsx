@@ -72,6 +72,7 @@ import {
   CreateEventForm,
   EventFormSheet,
 } from "@/features/org/components/event-form-sheet";
+import { InactiveEventPrompt } from "@/features/org/components/inactive-event-prompt";
 import { RosterUploadRow } from "@/features/org/components/roster-upload-row";
 import {
   useAdminCommandListener,
@@ -81,6 +82,7 @@ import {
   useEventPhase,
   type EventPhaseInfo,
 } from "@/features/org/hooks/use-event-phase";
+import { needsActivationPrompt } from "@/features/org/lib/event-activation";
 import { client } from "@/lib/api/client";
 import { BUY_ANOTHER_EVENT_MESSAGE, canCreateOrgEvent } from "@/lib/event-tiers";
 import { useSession } from "@/lib/session";
@@ -99,6 +101,7 @@ function AdminDashboard({
   activeEvent: OrgEvent;
 }) {
   const qc = useQueryClient();
+  const { activeEvent: orgActiveEvent } = useAdminEvent();
   const { data: stats } = useSuspenseQuery(
     adminQueries.stats(orgSlug, activeEvent.id),
   );
@@ -150,6 +153,7 @@ function AdminDashboard({
           name={activeEvent.name}
           phase={phase}
           dateRange={dateRange}
+          isActive={activeEvent.isActive}
           actions={
             <div className="flex items-center gap-3">
               <div className="text-sm 2xl:text-base">
@@ -179,6 +183,14 @@ function AdminDashboard({
             </div>
           }
         />
+
+        {needsActivationPrompt(activeEvent, orgActiveEvent) && (
+          <InactiveEventPrompt
+            orgSlug={orgSlug}
+            event={activeEvent}
+            onReview={() => setEditOpen(true)}
+          />
+        )}
 
         <section
           aria-label="Event stats"

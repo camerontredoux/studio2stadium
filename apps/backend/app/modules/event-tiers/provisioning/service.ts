@@ -18,7 +18,7 @@ import * as Sentry from "@sentry/node";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { randomBytes } from "node:crypto";
 import { type PurchaseDetails } from "../checkout/metadata.ts";
-import { OrgReadyEvent } from "./event.ts";
+import { sendOrgReadyEmail } from "./event.ts";
 import { orgSlugCandidates } from "./slug.ts";
 
 /**
@@ -264,9 +264,12 @@ export class ProvisionPurchaseService {
    * no proof either — a dancer sets it by finishing onboarding. Any other
    * account needs a claim (ADR 0007).
    *
-   * A new account is an ordinary core-platform user — `users.type` has no
-   * Organizer, which is a membership type (ADR 0003) — named as the buyer
-   * named themselves, with no profile and no password anyone knows. Its hash
+   * A new account is a core-platform user of the `organizer` account type:
+   * it exists to administer the Org it bought, has no dancer or school
+   * profile, and the product sends it to that Org rather than through dancer
+   * onboarding. Being an Organizer inside the Org is still the membership
+   * type (ADR 0003). It is named as the buyer named themselves, with no
+   * profile and no password anyone knows. Its hash
    * is of a random secret that is thrown away, so nothing can sign in until
    * the owner sets a password through the link `welcomeBuyer` emails.
    *
@@ -313,7 +316,7 @@ export class ProvisionPurchaseService {
         lastName,
         username: organizerUsername(buyer.name),
         role: "user",
-        type: "dancer",
+        type: "organizer",
       })
       .returning({
         id: users.id,
@@ -360,8 +363,9 @@ export class ProvisionPurchaseService {
    *
    * After the commit, so nobody is emailed about an Org that rolled back, and
    * never fatal: the purchase is provisioned, and failing the webhook now would
-   * only make Stripe redeliver an event that finds nothing left to do. A buyer
-   * whose email was lost can still get in through "Forgot password".
+   * only make Stripe redeliver an event that finds nothing left to do. Each
+   * send and each failure is logged by `sendOrgReadyEmail`. A buyer whose
+   * email was lost can still get in through "Forgot password".
    */
   private async welcomeBuyer(result: ProvisionResult) {
     const { buyer, org, event } = result;
@@ -380,18 +384,23 @@ export class ProvisionPurchaseService {
         ? `${env.get("SITE_URL")}/reset?token=${await mintPasswordToken("setup", buyer.id)}&userId=${buyer.id}`
         : null;
 
-      await OrgReadyEvent.dispatch({
-        to: buyer.email,
-        firstName: buyer.firstName,
-        orgName: org.name,
-        orgUrl: `${env.get("SITE_URL")}/o/${org.slug}/admin`,
-        eventName: event.name,
-        setPasswordUrl,
-      });
+      await sendOrgReadyEmail(
+        {
+          to: buyer.email,
+          firstName: buyer.firstName,
+          orgName: org.name,
+          orgUrl: `${env.get("SITE_URL")}/o/${org.slug}/admin`,
+          eventName: event.name,
+          setPasswordUrl,
+        },
+        { orgSlug: org.slug }
+      );
     } catch (error) {
+      // The send itself never throws — `sendOrgReadyEmail` logs and reports a
+      // failed email. This is minting the link failing before anything went.
       logger.error(
         { err: error, purchaseId: result.purchase.id, buyerId: buyer.id },
-        "Failed to email the buyer of a provisioned Event Tier purchase"
+        "Failed to prepare the email to the buyer of a provisioned Event Tier purchase"
       );
       Sentry.captureException(error, {
         extra: { purchaseId: result.purchase.id, buyerId: buyer.id },

@@ -1,7 +1,11 @@
 import { E_NOT_FOUND } from "#exceptions/not-found";
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
-import { NotAwaitingClaimError, Service } from "./service.ts";
+import {
+  ClaimEmailNotSentError,
+  NotAwaitingClaimError,
+  Service,
+} from "./service.ts";
 import { schema } from "./validator.ts";
 
 export default class ResendEventTierClaimController {
@@ -15,6 +19,9 @@ export default class ResendEventTierClaimController {
     } catch (err) {
       if (err instanceof NotAwaitingClaimError) {
         return ctx.response.conflict({ message: err.message });
+      }
+      if (err instanceof ClaimEmailNotSentError) {
+        return ctx.response.badGateway({ message: err.message });
       }
       throw err;
     }

@@ -169,11 +169,14 @@ export function DashboardHeader({
   phase,
   dateRange,
   actions,
+  isActive = true,
 }: {
   name: string;
   phase: EventPhaseInfo;
   dateRange: string;
   actions?: React.ReactNode;
+  /** Whether the event is the Org's active one; an inactive event's phase is muted. */
+  isActive?: boolean;
 }) {
   return (
     <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4">
@@ -181,7 +184,7 @@ export function DashboardHeader({
         <h1 className="text-lg font-semibold tracking-tight 2xl:text-xl">
           {name}
         </h1>
-        <PhaseBadge phase={phase} isActive />
+        <PhaseBadge phase={phase} isActive={isActive} />
         <span className="text-muted-foreground text-xs tabular-nums 2xl:text-sm">
           {dateRange}
         </span>

@@ -1,5 +1,5 @@
 import env from "#start/env";
-import { OrgReadyEvent } from "../provisioning/event.ts";
+import { sendOrgReadyEmail } from "../provisioning/event.ts";
 import { mintClaimToken } from "./tokens.ts";
 
 export interface ClaimEmailInput {
@@ -20,17 +20,27 @@ export function claimUrl(userId: string, token: string) {
  * Mint a fresh claim token for the buyer and send them the "claim your Org"
  * variant of the Org-ready email (ADR 0007). The fresh token replaces any
  * earlier one, so the newest email is the one that works.
+ *
+ * Returns whether the email went. A failed send is logged and reported by
+ * `sendOrgReadyEmail` and does not throw; failing to mint the token does.
  */
-export async function emailClaimLink({ buyer, org, event }: ClaimEmailInput) {
+export async function emailClaimLink({
+  buyer,
+  org,
+  event,
+}: ClaimEmailInput): Promise<boolean> {
   const token = await mintClaimToken(buyer.id);
 
-  await OrgReadyEvent.dispatch({
-    to: buyer.email,
-    firstName: buyer.firstName,
-    orgName: org.name,
-    orgUrl: `${env.get("SITE_URL")}/o/${org.slug}/admin`,
-    eventName: event.name,
-    setPasswordUrl: null,
-    claimUrl: claimUrl(buyer.id, token),
-  });
+  return await sendOrgReadyEmail(
+    {
+      to: buyer.email,
+      firstName: buyer.firstName,
+      orgName: org.name,
+      orgUrl: `${env.get("SITE_URL")}/o/${org.slug}/admin`,
+      eventName: event.name,
+      setPasswordUrl: null,
+      claimUrl: claimUrl(buyer.id, token),
+    },
+    { orgSlug: org.slug }
+  );
 }
