@@ -31,6 +31,16 @@ primary_region = 'iad'
   # allowlisted recipients. Extend MAIL_ALLOWLIST with test inboxes as needed.
   CRON_EMAILS_ENABLED = 'false'
   MAIL_ALLOWLIST = '@studio2stadium.com'
+  # Staging hostnames (single-level subdomains, so Cloudflare Universal SSL
+  # covers them). CORS_ORIGINS is added to prod's allowlist in config/cors.ts.
+  SITE_URL = 'https://app-staging.studio2stadium.com'
+  API_URL = 'https://api-staging.studio2stadium.com'
+  MARKETING_SITE_URL = 'https://staging.studio2stadium.com'
+  CORS_ORIGINS = 'https://app-staging.studio2stadium.com,https://staging.studio2stadium.com'
+  # Cookies keep prod's .studio2stadium.com domain, so staging needs its own
+  # names (prod: auth_session, auth_cache) or each env reads the other's.
+  SESSION_COOKIE_NAME = 'staging_auth_session'
+  CACHE_COOKIE_NAME = 'staging_auth_cache'
 
 # Scales to zero when idle. Crons live in the web process (start/cron.ts,
 # no separate process group in prod), so they only tick while a machine is up.
