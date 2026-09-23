@@ -82,6 +82,17 @@ export default await Env.create(new URL("../", import.meta.url), {
     process.env.NODE_ENV !== "production"
   ),
 
+  /*
+  |----------------------------------------------------------
+  | Optional namespace for every Redis key and pub/sub
+  | channel (e.g. "staging:"). Staging shares prod's Redis
+  | and its DB is a copy of prod, so user ids collide; the
+  | prefix keeps sessions, limiter, cache and realtime
+  | channels apart. Unset means no prefix (prod).
+  |----------------------------------------------------------
+  */
+  REDIS_KEY_PREFIX: Env.schema.string.optional(),
+
   SESSION_DRIVER: Env.schema.enum(["cookie", "redis", "memory"] as const),
 
   /*
