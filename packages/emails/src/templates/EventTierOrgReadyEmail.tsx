@@ -1,7 +1,7 @@
 import { Link, Text } from "@react-email/components";
 import { Button } from "../components/Button.js";
 import { Layout } from "../components/Layout.js";
-import { colors, headingStyle, paragraphStyle } from "../components/styles.js";
+import { colors, paragraphStyle } from "../components/styles.js";
 
 export interface EventTierOrgReadyEmailProps {
   firstName: string;
@@ -50,77 +50,60 @@ export function EventTierOrgReadyEmail({
   const variant = claimUrl
     ? "claim"
     : setPasswordUrl
-      ? "setPassword"
-      : "signIn";
+    ? "setPassword"
+    : "signIn";
   const actionUrl = claimUrl ?? setPasswordUrl ?? orgUrl;
 
-  const preview = {
-    claim: `${eventName} is ready in ${orgName}. Claim your organization to get started.`,
-    setPassword: `${eventName} is ready in ${orgName}. Set your password to get started.`,
-    signIn: `${eventName} is ready in ${orgName}. Sign in to get started.`,
-  }[variant];
-
-  const buttonLabel = {
-    claim: "Claim your organization",
-    setPassword: "Set your password",
-    signIn: "Go to your organization",
-  }[variant];
+  const preview = `Your S2S Live event, ${eventName}, is set up and ready for you.`;
 
   return (
     <Layout preview={preview}>
-      <Text style={headingStyle}>
-        {eventName} is ready in {orgName}
-      </Text>
       <Text style={paragraphStyle}>Hi {firstName},</Text>
+      <Text style={paragraphStyle}>
+        Your S2S Live event, <strong>{eventName}</strong>, is set up and ready
+        for you.
+      </Text>
       {variant === "claim" ? (
         <Text style={paragraphStyle}>
-          Thanks for your purchase. We set up <strong>{eventName}</strong> in
-          the organization <strong>{orgName}</strong>. To manage it, claim the
-          organization with the Studio 2 Stadium account for this email address.
-        </Text>
-      ) : (
-        <Text style={paragraphStyle}>
-          Thanks for your purchase. We set up <strong>{eventName}</strong> in
-          the organization <strong>{orgName}</strong>. You are its admin.
-        </Text>
-      )}
-      {variant === "claim" ? (
-        <Text style={paragraphStyle}>
-          Open the link below and sign in with that account when asked. If you
-          don&apos;t know its password, use "Forgot password" on the sign-in
-          page. Setting a new password from the email we send also claims your
-          organization.
+          To get started, select <strong>Access your event</strong> and sign in
+          to Studio 2 Stadium with this email address. If you haven&rsquo;t set
+          a password yet, choose <strong>Forgot password</strong> on the sign-in
+          page. Setting your password will also give you access to your
+          organization&rsquo;s account.
         </Text>
       ) : variant === "setPassword" ? (
         <Text style={paragraphStyle}>
-          We created a Studio 2 Stadium account for you with this email address.
-          Set your password to sign in and set up your event.
+          To get started, select <strong>Access your event</strong> and set a
+          password for your new Studio 2 Stadium account. After that, you can
+          sign in with this email address to manage {orgName}.
         </Text>
       ) : (
         <Text style={paragraphStyle}>
-          Sign in with your Studio 2 Stadium account to set up your event. If
-          you don&apos;t know its password, use "Forgot password" on the sign-in
-          page.
+          To get started, select <strong>Access your event</strong> and sign in
+          to Studio 2 Stadium with this email address. If you don&rsquo;t
+          remember your password, choose <strong>Forgot password</strong> on the
+          sign-in page.
         </Text>
       )}
-      <Button href={actionUrl}>{buttonLabel}</Button>
+      <Button href={actionUrl}>Access your event</Button>
       <Text style={mutedStyle}>
-        Or copy and paste this link into your browser:{" "}
+        Or copy and paste your access link into your browser:
+        <br />
         <Link href={actionUrl} style={{ color: colors.primary }}>
           {actionUrl}
         </Link>
       </Text>
       {variant !== "signIn" ? (
         <Text style={mutedStyle}>
-          This link works once and expires in {setPasswordExpiry}. If we sent
-          you more than one, use the newest. After that, use "Forgot password"
-          on the sign-in page. Once you are signed in, your organization is at{" "}
-          <Link href={orgUrl} style={{ color: colors.primary }}>
-            {orgUrl}
-          </Link>
-          .
+          For security, this link can be used once and expires in{" "}
+          {setPasswordExpiry}. If you received more than one access email, use
+          the most recent link.
         </Text>
       ) : null}
+      <Text style={paragraphStyle}>
+        We&rsquo;re excited to help you bring your event together in S2S Live.
+      </Text>
+      <Text style={paragraphStyle}>The Studio 2 Stadium Team</Text>
     </Layout>
   );
 }
