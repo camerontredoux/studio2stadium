@@ -20,7 +20,7 @@ router
       .openapi({
         summary: "Get an Event Tier checkout's provisioning status",
         description:
-          "Called by the marketing site when Checkout returns the buyer, with the session_id Stripe put in the return URL. Answers pending until the payment has been provisioned, then the Org's name and URL, and nextStep: set_password when the buyer was emailed a set-password link (the purchase created their account, or took over an unverified one), sign_in when they already had one. Never returns the buyer's email.",
+          "Called by the marketing site when Checkout returns the buyer, with the session_id Stripe put in the return URL. Answers pending until the payment has been provisioned, then the Org's name and URL, and nextStep: set_password when the purchase created the buyer's account (they were emailed a link), sign_in when they already had one. Never returns the buyer's email.",
       })
       .use(throttle("event-tier-checkout-status", 60));
   })

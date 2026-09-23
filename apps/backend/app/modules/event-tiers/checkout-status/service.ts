@@ -25,9 +25,8 @@ export type CheckoutStatus =
       eventName: string;
       /**
        * How the buyer gets in. `set_password` when the purchase created their
-       * account, or their account still has an unspent set-password link — from
-       * an earlier purchase, or because this one took over an unverified
-       * account (ADR 0007) — the page says to check their email for the
+       * account, or their account still has an unspent set-password link from
+       * an earlier purchase — the page says to check their email for the
        * set-password link; `sign_in` when they already had a password.
        */
       nextStep: "set_password" | "sign_in";

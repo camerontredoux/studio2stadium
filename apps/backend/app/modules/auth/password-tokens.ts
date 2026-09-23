@@ -55,18 +55,6 @@ export async function hasPendingPasswordToken(
   return (await redis.exists(passwordTokenKey(purpose, userId))) === 1;
 }
 
-/**
- * Delete every pending token this user has, of every purpose, so no link
- * already sent can set their password.
- */
-export async function revokePasswordTokens(userId: string): Promise<void> {
-  await redis.del(
-    ...(Object.keys(PASSWORD_TOKEN_PURPOSES) as PasswordTokenPurpose[]).map(
-      (purpose) => passwordTokenKey(purpose, userId)
-    )
-  );
-}
-
 export type ConsumeResult =
   | { outcome: "consumed"; purpose: PasswordTokenPurpose }
   | { outcome: "missing" | "invalid" };

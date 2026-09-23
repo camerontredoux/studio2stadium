@@ -1,4 +1,3 @@
-import { revokeUserSessions } from "#auth/invalidate";
 import { eventTierPurchases } from "#database/schema/event-tier-purchases";
 import { orgEvents } from "#database/schema/org-events";
 import { orgMemberships, organizations } from "#database/schema/organizations";
@@ -8,7 +7,6 @@ import { E_DATABASE_ERROR } from "#exceptions/database";
 import {
   hasPendingPasswordToken,
   mintPasswordToken,
-  revokePasswordTokens,
 } from "#modules/auth/password-tokens";
 import env from "#start/env";
 import { normalizeEmail } from "#utils/normalize-email";
@@ -77,15 +75,6 @@ export interface ProvisionedBuyer {
    * password anyone knows, and its owner is emailed a link to set one.
    */
   accountCreated: boolean;
-  /**
-   * Whether this purchase took over an existing account whose email was never
-   * verified. Signup does not check that the person owns the address, so such
-   * an account may belong to someone else. Provisioning replaces its password
-   * with one nobody knows, and after the commit ends its sessions and emails
-   * the owner of the address a set-password link (ADR 0007). Only ever true
-   * on the delivery that provisioned the purchase.
-   */
-  unclaimed: boolean;
 }
 
 export interface ProvisionResult {
@@ -238,7 +227,6 @@ export class ProvisionPurchaseService {
       buyer: {
         ...row.buyer,
         accountCreated: row.purchase.buyerAccountCreated,
-        unclaimed: false,
       },
       provisioned: false,
     };
@@ -247,15 +235,6 @@ export class ProvisionPurchaseService {
   /**
    * The account this purchase belongs to: the one already registered to the
    * buyer's email, or a new one created for it.
-   *
-   * An existing account is only trusted as the buyer's when its email is
-   * verified. Signup does not check that the person who signed up owns the
-   * address, so an unverified account is treated as unclaimed: its password
-   * is replaced with a hash of a discarded random secret, like a new account's,
-   * so whoever registered the address cannot sign in again. The purchase still
-   * attaches to it, and `welcomeBuyer` ends its sessions and sends the owner of
-   * the address a set-password link. Setting the password through that link
-   * verifies the account, so a later purchase leaves it alone.
    *
    * A new account is an ordinary core-platform user — `users.type` has no
    * Organizer, which is a membership type (ADR 0003) — named as the buyer
@@ -279,24 +258,12 @@ export class ProvisionPurchaseService {
         id: users.id,
         firstName: users.firstName,
         email: users.displayEmail,
-        verified: users.verified,
       })
       .from(users)
       .where(eq(users.email, email))
       .limit(1);
 
-    if (existing) {
-      const { verified, ...account } = existing;
-
-      if (!verified) {
-        await tx
-          .update(users)
-          .set({ password: await unusablePassword() })
-          .where(eq(users.id, account.id));
-      }
-
-      return { ...account, accountCreated: false, unclaimed: !verified };
-    }
+    if (existing) return { ...existing, accountCreated: false };
 
     const { firstName, lastName } = splitName(buyer.name);
 
@@ -305,7 +272,7 @@ export class ProvisionPurchaseService {
       .values({
         email,
         displayEmail: buyer.email,
-        password: await unusablePassword(),
+        password: await hash.make(randomBytes(32).toString("hex")),
         firstName,
         lastName,
         username: organizerUsername(buyer.name),
@@ -323,7 +290,7 @@ export class ProvisionPurchaseService {
       userId: created!.id,
     });
 
-    return { ...created!, accountCreated: true, unclaimed: false };
+    return { ...created!, accountCreated: true };
   }
 
   /**
@@ -331,9 +298,8 @@ export class ProvisionPurchaseService {
    * set their password when their account has none they know, or a nudge to
    * sign in when they already had one.
    *
-   * An account has no password its owner knows when this purchase created it
-   * or took it over as unclaimed, or when an earlier purchase did and its
-   * set-password link is still
+   * An account has no password its owner knows when this purchase created it,
+   * or when an earlier purchase created it and its set-password link is still
    * unspent — a second purchase before the buyer opened the first email, or
    * the losing side of two purchases creating the same account at once. Such
    * a buyer gets a fresh link too, which replaces the earlier one: telling
@@ -347,12 +313,9 @@ export class ProvisionPurchaseService {
   private async welcomeBuyer(result: ProvisionResult) {
     const { buyer, org, event } = result;
 
-    if (buyer.unclaimed) await this.revokeAccess(result);
-
     try {
       const needsPassword =
         buyer.accountCreated ||
-        buyer.unclaimed ||
         (await hasPendingPasswordToken("setup", buyer.id));
 
       const setPasswordUrl = needsPassword
@@ -371,31 +334,6 @@ export class ProvisionPurchaseService {
       logger.error(
         { err: error, purchaseId: result.purchase.id, buyerId: buyer.id },
         "Failed to email the buyer of a provisioned Event Tier purchase"
-      );
-      Sentry.captureException(error, {
-        extra: { purchaseId: result.purchase.id, buyerId: buyer.id },
-      });
-    }
-  }
-
-  /**
-   * Shut out whoever was using an unclaimed account before this purchase took
-   * it over: end all its sessions, bearer tokens included, and spend any
-   * password link already sent. Its password was replaced in the transaction.
-   *
-   * Reported but not fatal, like the email: the purchase is provisioned, and a
-   * redelivered webhook would find nothing left to do.
-   */
-  private async revokeAccess(result: ProvisionResult) {
-    const { buyer } = result;
-
-    try {
-      await revokeUserSessions(buyer.id);
-      await revokePasswordTokens(buyer.id);
-    } catch (error) {
-      logger.error(
-        { err: error, purchaseId: result.purchase.id, buyerId: buyer.id },
-        "Failed to revoke the sessions of an unclaimed account a purchase took over"
       );
       Sentry.captureException(error, {
         extra: { purchaseId: result.purchase.id, buyerId: buyer.id },
@@ -521,14 +459,6 @@ export class ProvisionPurchaseService {
 
     return event!;
   }
-}
-
-/**
- * A password hash nobody can sign in with: the hash of a random secret that is
- * thrown away. The owner sets a real one through a set-password link.
- */
-async function unusablePassword() {
-  return await hash.make(randomBytes(32).toString("hex"));
 }
 
 /**
