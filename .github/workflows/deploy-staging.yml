@@ -1,0 +1,29 @@
+name: Deploy staging
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'apps/backend/**'
+      - 'packages/openapi/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'Dockerfile'
+      - 'fly.staging.toml'
+      - '.github/workflows/deploy-staging.yml'
+    branches: [staging]
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Deploy to Fly.io (staging)
+        run: flyctl deploy --remote-only --config fly.staging.toml
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_STAGING_API_TOKEN }}
