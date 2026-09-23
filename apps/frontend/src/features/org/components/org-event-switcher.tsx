@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CheckIcon, PlusIcon } from "lucide-react";
+import { CheckIcon, PlusIcon, ZapIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import {
@@ -13,6 +13,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/components/utils/cn";
 import {
   Select,
   SelectContent,
@@ -21,10 +22,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toastManager } from "@/components/ui/toast-manager";
+import {
+  Tooltip,
+  TooltipPopup,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
 import { EventFormSheet } from "@/features/org/components/event-form-sheet";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import { client } from "@/lib/api/client";
+
+/**
+ * Icon-only square on phones; the label (an `sr-only` span that becomes
+ * visible at `sm`) keeps the accessible name either way.
+ */
+const COMPACT_BUTTON = "size-8 shrink-0 p-0 sm:w-auto";
 
 export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
   const queryClient = useQueryClient();
@@ -78,8 +91,8 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
     selectedEvent !== null && selectedEvent.id === activeEvent?.id;
 
   return (
-    <>
-      <div className="flex items-center gap-2">
+    <TooltipProvider delay={0}>
+      <div className="flex min-w-0 items-center gap-2">
         <Select
           items={items}
           value={selectedEvent?.id ?? null}
@@ -90,7 +103,7 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
         >
           <SelectTrigger
             aria-label="Event to view"
-            className="bg-background h-8 w-[220px] text-xs 2xl:text-sm"
+            className="bg-background h-8 min-w-0 flex-1 text-xs sm:w-[220px] sm:flex-none 2xl:text-sm"
           >
             <SelectValue placeholder="Select event" />
           </SelectTrigger>
@@ -114,25 +127,33 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
           <Button
             variant="outline"
             size="xs"
-            className="h-8 gap-1.5 px-2.5"
+            className={cn(COMPACT_BUTTON, "gap-1.5 sm:px-2.5")}
             disabled
           >
-            <CheckIcon aria-hidden className="size-3" />
-            Active event
+            <CheckIcon aria-hidden className="size-4 sm:size-3" />
+            <span className="sr-only sm:not-sr-only">Active event</span>
           </Button>
         ) : (
           <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-            <AlertDialogTrigger
-              render={
-                <Button
-                  size="xs"
-                  className="h-8 px-2.5"
-                  disabled={!selectedEvent}
-                />
-              }
-            >
-              Make active
-            </AlertDialogTrigger>
+            <Tooltip>
+              <AlertDialogTrigger
+                render={
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        size="xs"
+                        className={cn(COMPACT_BUTTON, "sm:px-2.5")}
+                        disabled={!selectedEvent}
+                      />
+                    }
+                  />
+                }
+              >
+                <ZapIcon aria-hidden className="size-4 sm:hidden" />
+                <span className="sr-only sm:not-sr-only">Make active</span>
+              </AlertDialogTrigger>
+              <TooltipPopup className="sm:hidden">Make active</TooltipPopup>
+            </Tooltip>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>
@@ -165,15 +186,22 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
           </AlertDialog>
         )}
 
-        <Button
-          variant="ghost"
-          size="xs"
-          className="h-8 gap-1 px-2"
-          onClick={() => setCreateOpen(true)}
-        >
-          <PlusIcon aria-hidden className="size-3" />
-          New
-        </Button>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="xs"
+                className={cn(COMPACT_BUTTON, "gap-1 sm:px-2")}
+                onClick={() => setCreateOpen(true)}
+              />
+            }
+          >
+            <PlusIcon aria-hidden className="size-4 sm:size-3" />
+            <span className="sr-only sm:not-sr-only">New</span>
+          </TooltipTrigger>
+          <TooltipPopup className="sm:hidden">New event</TooltipPopup>
+        </Tooltip>
       </div>
 
       <EventFormSheet
@@ -181,6 +209,6 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
         open={createOpen}
         onOpenChange={setCreateOpen}
       />
-    </>
+    </TooltipProvider>
   );
 }
