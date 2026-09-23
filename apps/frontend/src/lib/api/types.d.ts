@@ -1244,6 +1244,111 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/event-tier-purchases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all Event Tier purchases
+         * @description Returns every Event Tier purchase, newest first: buyer, amount charged, Event Tier sold, the Org Event it bought with its current Event Tier, and who last changed that tier by hand, and whether it is awaiting its buyer's claim
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminEventtierpurchasesResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/event-tier-purchases/{id}/claim-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resend an Event Tier purchase's claim email
+         * @description Emails the buyer of a purchase that is awaiting its claim a fresh claim link, to the account's own address. The fresh link replaces the earlier one. 409 when the purchase is not awaiting a claim, 404 when there is no such purchase, 502 when the email could not be sent
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unknown Response */
+                502: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminEventtierpurchasesIdClaimemailResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/orgs": {
         parameters: {
             query?: never;
@@ -1331,7 +1436,7 @@ export interface paths {
         post?: never;
         /**
          * Delete organization
-         * @description Permanently deletes an organization and all associated data
+         * @description Permanently deletes an organization and all associated data. Refused with 409 when any of its events was purchased, so sale records are never erased
          */
         delete: {
             parameters: {
@@ -1350,6 +1455,15 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
                 };
                 /** @description Unprocessable Entity */
                 422: {
@@ -1390,6 +1504,111 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["AdminOrgsIdResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/admin/orgs/{id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get an organization's event capabilities
+         * @description Returns each of an organization's Org Events with its Event Tier and, per capability, what the Event Tier includes, the staff override set on the event, and what is in force
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOrgsIdEventsResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/orgs/{id}/events/{eventId}/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Set an Org Event's capability overrides
+         * @description Replaces the staff exceptions to what one Org Event's Event Tier includes. A capability left out defers to the Event Tier
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    eventId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminOrgsIdEventsIdCapabilitiesRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOrgsIdEventsIdCapabilitiesResponse"];
                     };
                 };
                 /** @description Unprocessable Entity */
@@ -2678,6 +2897,15 @@ export interface paths {
                         "application/json": components["schemas"]["OrgsIdEventsResponse"];
                     };
                 };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
                 /** @description Unknown Response */
                 409: {
                     headers: {
@@ -2742,6 +2970,15 @@ export interface paths {
                         "application/json": components["schemas"]["Error"];
                     };
                 };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
             };
         };
         options?: never;
@@ -2771,8 +3008,35 @@ export interface paths {
                         "application/json": components["schemas"]["OrgsIdEventsIdResponse"];
                     };
                 };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
                 /** @description Not Found */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -7950,7 +8214,7 @@ export interface paths {
         put?: never;
         /**
          * Create an Event Tier checkout session
-         * @description Creates a one-time payment Checkout Session for the chosen Event Tier. Called by the marketing site before the buyer has a product session.
+         * @description Creates a one-time payment Checkout Session for the chosen Event Tier. Called by the marketing site, where nobody signs in: the buyer is the name and email they type, and no account is created here. Once the payment lands, provisioning finds the account for that email or creates one and emails a set-password link.
          */
         post: {
             parameters: {
@@ -7972,6 +8236,106 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["EventtiersCheckoutResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/event-tiers/checkout/{sessionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get an Event Tier checkout's provisioning status
+         * @description Called by the marketing site when Checkout returns the buyer, with the session_id Stripe put in the return URL. Answers pending until the payment has been provisioned, then the Org's name and URL, and nextStep: set_password when the buyer was emailed a set-password link (the purchase created their account), claim when the purchase landed on an existing account whose owner has not proved they read its inbox (they were emailed a claim link, and the Org is theirs once they open it signed in), sign_in when they already had an account the Org was attached to. Never returns the buyer's email.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    sessionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/event-tiers/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Claim an Org bought for your account
+         * @description Called by the product's claim page, signed in, with the token and userId from the claim link a purchase emailed. Refused with 403 when the signed-in user is not the account the link was sent for, and 400 when the token is wrong, expired or already used. Otherwise gives the user the organizer admin membership of every Org bought for their account that is awaiting a claim, records that they read the account's inbox, and returns every Org they have claimed. Idempotent.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["EventtiersClaimRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventtiersClaimResponse"];
                     };
                 };
                 /** @description Unprocessable Entity */
@@ -10662,6 +11026,55 @@ export interface components {
         AdminLibraryVideosIdResponse: {
             success: boolean;
         };
+        AdminEventtierpurchasesResponse: {
+            id: string;
+            createdAt: string;
+            reference: string;
+            /** @enum {string} */
+            eventTier: "core" | "regional" | "national" | "enterprise";
+            event: {
+                id: string;
+                name: string;
+                /** @enum {string} */
+                eventTier: "core" | "regional" | "national" | "enterprise";
+                isActive: boolean;
+                startDate: string;
+                endDate: string;
+            };
+            paymentIntentId: string | null;
+            amountTotal: number | null;
+            currency: string | null;
+            deactivatedAt: string | null;
+            deactivationReason: ("refunded" | "disputed") | null;
+            deactivationReference: string | null;
+            org: {
+                id: string;
+                name: string;
+                slug: string;
+            };
+            awaitingClaim: boolean;
+            buyer: {
+                id: string;
+                email: string;
+                firstName: string;
+                lastName: string;
+            };
+            lastEventTierChange: {
+                from: ("core" | "regional" | "national" | "enterprise") | null;
+                /** @enum {string} */
+                to: "core" | "regional" | "national" | "enterprise";
+                changedAt: string;
+                changedBy: {
+                    id: string;
+                    email: string;
+                    firstName: string;
+                    lastName: string;
+                };
+            } | null;
+        }[];
+        AdminEventtierpurchasesIdClaimemailResponse: {
+            message: string;
+        };
         AdminOrgsResponse: {
             id: string;
             createdAt: string;
@@ -10676,6 +11089,7 @@ export interface components {
             memberCount: number;
             eventCount: number;
             activeEvent: string | null;
+            activeEventTier: ("core" | "regional" | "national" | "enterprise") | null;
         }[];
         AdminOrgsRequest: {
             logoUrl?: string | null;
@@ -10706,6 +11120,46 @@ export interface components {
             accentColor: string | null;
             features: Record<string, never>;
             settings: Record<string, never>;
+            selfServe: boolean;
+            tierManaged: boolean;
+        };
+        AdminOrgsIdEventsResponse: {
+            id: string;
+            name: string;
+            /** @enum {string} */
+            eventTier: "core" | "regional" | "national" | "enterprise";
+            startDate: string;
+            isActive: boolean;
+            capabilities: {
+                override: boolean | null;
+                /** @enum {string} */
+                capability: "video_library" | "callbacks" | "check_in" | "school_selections";
+                eventTierDefault: boolean;
+                included: boolean;
+            }[];
+        }[];
+        AdminOrgsIdEventsIdCapabilitiesRequest: {
+            capabilityOverrides: {
+                video_library?: (string | number | boolean) | null;
+                callbacks?: (string | number | boolean) | null;
+                check_in?: (string | number | boolean) | null;
+                school_selections?: (string | number | boolean) | null;
+            };
+        };
+        AdminOrgsIdEventsIdCapabilitiesResponse: {
+            id: string;
+            name: string;
+            /** @enum {string} */
+            eventTier: "core" | "regional" | "national" | "enterprise";
+            startDate: string;
+            isActive: boolean;
+            capabilities: {
+                override: boolean | null;
+                /** @enum {string} */
+                capability: "video_library" | "callbacks" | "check_in" | "school_selections";
+                eventTierDefault: boolean;
+                included: boolean;
+            }[];
         };
         AdminOrgsIdMembersResponse: {
             id: string;
@@ -10768,6 +11222,7 @@ export interface components {
             phone?: string | null;
             location?: string | null;
             city?: string | null;
+            commonRecruiting?: (string | number | boolean) | null;
             email: string;
             username: string;
             /** @enum {string} */
@@ -10783,7 +11238,7 @@ export interface components {
             firstName: string;
             lastName: string;
             /** @enum {string} */
-            type: "dancer" | "school";
+            type: "dancer" | "organizer" | "school";
         };
         AuthLoginRequest: {
             email: string;
@@ -10796,7 +11251,7 @@ export interface components {
                 /** @enum {string} */
                 role: "user" | "admin" | "prodigy_admin";
                 /** @enum {string} */
-                type: "dancer" | "school";
+                type: "dancer" | "organizer" | "school";
                 displayEmail: string;
                 firstName: string;
                 lastName: string;
@@ -10826,7 +11281,7 @@ export interface components {
             /** @enum {string} */
             role: "user" | "admin" | "prodigy_admin";
             /** @enum {string} */
-            type: "dancer" | "school";
+            type: "dancer" | "organizer" | "school";
             displayEmail: string;
             firstName: string;
             lastName: string;
@@ -10973,6 +11428,8 @@ export interface components {
             accentColor: string | null;
             features: Record<string, never>;
             settings: Record<string, never>;
+            selfServe: boolean;
+            tierManaged: boolean;
             membership: {
                 /** @enum {string} */
                 role: "admin" | "member";
@@ -10984,6 +11441,7 @@ export interface components {
                 type: components["schemas"]["UploadKind"];
                 eventId: string;
                 isActive: boolean;
+                capabilities: ("video_library" | "callbacks" | "check_in" | "school_selections")[];
                 eventName: string;
                 eventStartDate: string;
                 eventEndDate: string;
@@ -10994,11 +11452,13 @@ export interface components {
                 type: components["schemas"]["UploadKind"];
                 eventId: string;
                 isActive: boolean;
+                capabilities: ("video_library" | "callbacks" | "check_in" | "school_selections")[];
                 eventName: string;
                 eventStartDate: string;
                 eventEndDate: string;
                 hasStarted: boolean;
             }[];
+            activeEventCapabilities: ("video_library" | "callbacks" | "check_in" | "school_selections")[];
         };
         OrgsIdEventsResponse: {
             gpa: boolean;
@@ -11008,6 +11468,7 @@ export interface components {
             sports: boolean;
         };
         OrgsIdEventsRequest: {
+            eventTier?: ("core" | "regional" | "national" | "enterprise") | null;
             venueName?: string | null;
             venueAddress?: string | null;
             contactEmail?: string | null;
@@ -11020,6 +11481,7 @@ export interface components {
         };
         OrgsIdEventsIdRequest: {
             name?: string | null;
+            eventTier?: ("core" | "regional" | "national" | "enterprise") | null;
             startDate?: string | null;
             endDate?: string | null;
             venueName?: string | null;
@@ -11044,6 +11506,12 @@ export interface components {
             venueAddress: string | null;
             contactEmail: string | null;
             isActive: boolean;
+            capabilityOverrides: {
+                video_library?: boolean;
+                callbacks?: boolean;
+                check_in?: boolean;
+                school_selections?: boolean;
+            };
             schedulePdfUrl: string | null;
             startTime: string | null;
             timezone: string | null;
@@ -11754,7 +12222,6 @@ export interface components {
             publishedAt: string | null;
         };
         OrgsIdDancerCallbacksResponse: {
-            publishedShowcaseCount: number;
             callbacks: {
                 username: string | null;
                 firstName: string;
@@ -11765,6 +12232,7 @@ export interface components {
                 showcaseNumbers: number[];
                 firstShowcaseNumber: number;
             }[];
+            publishedShowcaseCount: number;
         };
         OrgsIdSettingsRequest: {
             defaultTimezone?: string | null;
@@ -12088,13 +12556,13 @@ export interface components {
             }[];
             events: {
                 id: string;
+                organizer: {
+                    name: string;
+                } | null;
                 /** @enum {string} */
                 type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
                 location: string;
                 title: string;
-                organizer: {
-                    name: string;
-                } | null;
                 startDatetime: string;
                 endDatetime: string;
             }[];
@@ -12143,7 +12611,8 @@ export interface components {
             description?: string | null;
         };
         EventtiersCheckoutRequest: {
-            userId: string;
+            email: string;
+            name: string;
             /** @enum {string} */
             eventTier: "core" | "regional" | "national";
             startDate: string;
@@ -12154,19 +12623,30 @@ export interface components {
         EventtiersCheckoutResponse: {
             clientSecret: string;
         };
+        EventtiersClaimRequest: {
+            userId: string;
+            token: string;
+        };
+        EventtiersClaimResponse: {
+            orgs: {
+                name: string;
+                slug: string;
+                url: string;
+            }[];
+        };
         EventsResponse: {
             events: {
                 id: string;
                 date: string;
                 time: string;
-                /** @enum {string} */
-                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-                location: string;
-                title: string;
                 organizer: {
                     name: string;
                     thumbnail: string | null;
                 };
+                /** @enum {string} */
+                type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+                location: string;
+                title: string;
                 attendees: {
                     id: string;
                 }[];
@@ -12201,14 +12681,14 @@ export interface components {
             id: string;
             date: string;
             time: string;
-            /** @enum {string} */
-            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
-            location: string;
-            title: string;
             organizer: {
                 name: string;
                 thumbnail: string | null;
             };
+            /** @enum {string} */
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+            location: string;
+            title: string;
         }[];
         EventsGlobalResponse: {
             thumbnail: string | null;
@@ -12242,6 +12722,12 @@ export interface components {
             id: string;
             createdAt: string;
             updatedAt: string;
+            organizer: {
+                name: string;
+                username: string;
+                avatar: string | null;
+                events: number;
+            };
             /** @enum {string} */
             type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
             location: string;
@@ -12249,12 +12735,6 @@ export interface components {
             schoolId: string;
             title: string;
             description: string;
-            organizer: {
-                name: string;
-                username: string;
-                avatar: string | null;
-                events: number;
-            };
             address: string | null;
             tags: string[] | null;
             cost: string | null;

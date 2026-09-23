@@ -27,6 +27,17 @@ Enterprise. What is sold and what is enforced are the same thing.
 _Avoid_: Plan, package, subscription — nothing here recurs. Never bare "tier", which is ambiguous
 with Account Tier.
 
+**Grandfathered Org**:
+An Org built by hand before billing, whose events are all Enterprise (ADR 0006). Its Organizers
+create their own events, which take Enterprise.
+
+**Self-serve Org**:
+An Org an Event Tier purchase has landed on. Only S2S staff or another purchase add events to it.
+
+**Tier-managed Org**:
+A hand-built Org where staff have put any event below Enterprise. From then on, like a self-serve
+Org, only staff add events to it. Neither state is ever undone.
+
 **Account Tier**:
 The level of platform access a Dancer's account holds — standard or limited. An Org Event grants one
 for a window the Org configures, after which it lapses unless the Dancer subscribes.
@@ -48,6 +59,8 @@ _Avoid_: Recruiter, scout, evaluator
 The person who runs an Org's events and buys S2S Live. Never appears on a Roster and never evaluates
 Dancers — the distinction from a Coach is that an Organizer runs the event rather than recruiting at
 it.
+Buys without signing in: the email typed before checkout identifies them, and the purchase creates
+their account if that email has none (ADR 0007).
 _Avoid_: Host, promoter, event manager
 
 **Roster Entry**:

@@ -286,9 +286,13 @@ export function AdminSidebar() {
                               isActive
                                 ? "border-t-primary text-primary bg-sidebar-accent/40"
                                 : `text-sidebar-foreground hover:bg-sidebar-accent/20 ${
+                                    // The 2px top border is reserved for the
+                                    // active indicator; draw the 1px row
+                                    // divider inside it so it matches the
+                                    // other dividers.
                                     inFirstRow
                                       ? "border-t-transparent"
-                                      : "border-t-sidebar-border"
+                                      : "border-t-transparent shadow-[inset_0_1px_0_var(--color-sidebar-border)]"
                                   }`
                             }`}
                           >
@@ -382,22 +386,33 @@ export function AdminSidebar() {
                 </MenuGroup>
                 <MenuSeparator />
                 <MenuGroup>
-                  <MenuItem
-                    closeOnClick
-                    render={
-                      <Link
-                        to={
-                          session.type === "school"
-                            ? "/explore/$username"
-                            : "/$username"
-                        }
-                        params={{ username: session.username }}
-                      />
-                    }
-                  >
-                    <UserIcon />
-                    Profile
-                  </MenuItem>
+                  {session.type === "organizer" ? (
+                    // An Organizer account has no public profile to open.
+                    <MenuItem
+                      closeOnClick
+                      render={<Link to="/settings/account" />}
+                    >
+                      <UserIcon />
+                      Account
+                    </MenuItem>
+                  ) : (
+                    <MenuItem
+                      closeOnClick
+                      render={
+                        <Link
+                          to={
+                            session.type === "school"
+                              ? "/explore/$username"
+                              : "/$username"
+                          }
+                          params={{ username: session.username }}
+                        />
+                      }
+                    >
+                      <UserIcon />
+                      Profile
+                    </MenuItem>
+                  )}
                 </MenuGroup>
                 {canSwitchView ? (
                   <>

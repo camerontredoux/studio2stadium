@@ -107,6 +107,14 @@ type AdminLibraryVideosIdDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/delete-training-video/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/delete-training-video/controller.ts').default['handle'], true>
 }
+type AdminEventtierpurchasesGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/admin/get-event-tier-purchases/controller.ts').default['handle'], false>
+}
+type AdminEventtierpurchasesIdClaimemailPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/resend-event-tier-claim/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/resend-event-tier-claim/controller.ts').default['handle'], true>
+}
 type AdminOrgsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/admin/get-all-orgs/controller.ts').default['handle'], false>
@@ -122,6 +130,14 @@ type AdminOrgsIdPatch = {
 type AdminOrgsIdDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/delete-org/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/delete-org/controller.ts').default['handle'], true>
+}
+type AdminOrgsIdEventsGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/get-org-event-capabilities/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/get-org-event-capabilities/controller.ts').default['handle'], true>
+}
+type AdminOrgsIdEventsIdCapabilitiesPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/update-event-capabilities/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/update-event-capabilities/controller.ts').default['handle'], true>
 }
 type AdminOrgsIdMembersGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/get-org-members/validator.ts')['schema']>>
@@ -703,6 +719,14 @@ type EventtiersCheckoutPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/event-tiers/checkout/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/event-tiers/checkout/controller.ts').default['handle'], true>
 }
+type EventtiersCheckoutIdGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/event-tiers/checkout-status/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/event-tiers/checkout-status/controller.ts').default['handle'], true>
+}
+type EventtiersClaimPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/event-tiers/claim/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/event-tiers/claim/controller.ts').default['handle'], true>
+}
 type EventsFiltersGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/events/get-event-filters/controller.ts').default['handle'], false>
@@ -1066,6 +1090,19 @@ export interface ApiDefinition {
         };
       };
     };
+    'event-tier-purchases': {
+      '$url': {
+      };
+      '$get': AdminEventtierpurchasesGetHead;
+      '$head': AdminEventtierpurchasesGetHead;
+      ':id': {
+        'claim-email': {
+          '$url': {
+          };
+          '$post': AdminEventtierpurchasesIdClaimemailPost;
+        };
+      };
+    };
     'orgs': {
       '$url': {
       };
@@ -1077,6 +1114,19 @@ export interface ApiDefinition {
         };
         '$patch': AdminOrgsIdPatch;
         '$delete': AdminOrgsIdDelete;
+        'events': {
+          '$url': {
+          };
+          '$get': AdminOrgsIdEventsGetHead;
+          '$head': AdminOrgsIdEventsGetHead;
+          ':eventId': {
+            'capabilities': {
+              '$url': {
+              };
+              '$patch': AdminOrgsIdEventsIdCapabilitiesPatch;
+            };
+          };
+        };
         'members': {
           '$url': {
           };
@@ -1828,6 +1878,17 @@ export interface ApiDefinition {
       '$url': {
       };
       '$post': EventtiersCheckoutPost;
+      ':sessionId': {
+        '$url': {
+        };
+        '$get': EventtiersCheckoutIdGetHead;
+        '$head': EventtiersCheckoutIdGetHead;
+      };
+    };
+    'claim': {
+      '$url': {
+      };
+      '$post': EventtiersClaimPost;
     };
   };
   'events': {

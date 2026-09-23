@@ -18,9 +18,16 @@ import type { ColumnDef, SortingState } from "@tanstack/react-table";
 import { $api } from "@/lib/api/client";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { orgQueries } from "@/features/org/api/queries";
+import { queries as sessionQueries } from "@/lib/session";
+import {
+  hasOrgFeature,
+  viewedDancerEventId,
+} from "@/features/org/lib/entitlement";
 import { useOrg } from "@/features/org/context/use-org";
+import { useViewedDancerEventId } from "@/features/org/hooks/use-viewed-dancer-event";
 import { StatCell } from "@/features/org/components/dashboard-shared";
 import { DancerTable } from "@/features/org/components/dancer-table/dancer-table";
+import { ScrollableFilterBar } from "@/components/shared/scrollable-filter-bar";
 import { Button } from "@/components/ui/button";
 import {
   InputGroup,
@@ -41,12 +48,23 @@ export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/dancer/schools",
 )({
   validateSearch: dancerEventSearchSchema,
-  beforeLoad: async ({ context, params }) => {
+  beforeLoad: async ({ context, params, search }) => {
     const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     );
-    const features = (data.features ?? {}) as Record<string, boolean>;
-    if (!features.school_selections) {
+    // Gate on the event this page will request, not the Org's active one —
+    // the backend gates a Dancer's reads on the event she asks for (#110).
+    const session = await context.queryClient.ensureQueryData(
+      sessionQueries.session(),
+    );
+    const eventId = viewedDancerEventId(data.myRosters, search.eventId);
+    if (
+      !hasOrgFeature(
+        { ...data, platformRole: session?.role },
+        "school_selections",
+        eventId,
+      )
+    ) {
       throw redirect({ to: "/o/$orgSlug/dancer", params });
     }
   },
@@ -165,11 +183,8 @@ function SchoolsPage() {
   const { orgSlug } = useParams({
     from: "/_org/o/$orgSlug/_authenticated/dancer/schools",
   });
-  const { eventId: searchEventId } = Route.useSearch();
-  const { settings, myRosters } = useOrg();
-  const eventId =
-    searchEventId ??
-    myRosters.find((roster) => roster.type === "dancer")?.eventId;
+  const { settings } = useOrg();
+  const eventId = useViewedDancerEventId();
   const maxSelections = Number(settings?.max_school_selections) || 3;
 
   /* --- Filter state --- */
@@ -416,7 +431,7 @@ function SchoolsPage() {
       </section>
 
       {/* Filter toolbar */}
-      <div className="border-border flex items-center gap-2 border-b px-3 py-2">
+      <ScrollableFilterBar className="border-border gap-2 border-b px-3 py-2">
         <InputGroup className="w-48 shrink-0">
           <InputGroupAddon>
             <SearchIcon />
@@ -468,7 +483,7 @@ function SchoolsPage() {
             </Button>
           </>
         )}
-      </div>
+      </ScrollableFilterBar>
 
       <div className="flex min-h-0 flex-1 flex-col gap-3 p-4">
         <DancerTable<SchoolRow>

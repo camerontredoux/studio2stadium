@@ -2,7 +2,7 @@ import { SidebarLayout } from "@/components/layouts/sidebar-layout";
 import { OrgStoriesRail } from "@/components/shared/org-stories-rail";
 import { FeedSidebar } from "@/features/feed/components/sidebar/sidebar";
 
-import { useSession } from "@/lib/session";
+import { useProfileSession } from "@/lib/session";
 import { Suspense } from "react";
 import { Feed } from "./components/feed";
 import { FeedSkeleton } from "./components/feed-skeleton";
@@ -10,7 +10,7 @@ import { FreeTierAlert } from "./components/free-tier-alert";
 import { ProgramSpotlight } from "./components/spotlight/program-spotlight";
 
 export function FeedPage() {
-  const session = useSession();
+  const session = useProfileSession();
 
   return (
     <SidebarLayout
