@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ClaimRouteImport } from './routes/claim'
 import { Route as OrgRouteRouteImport } from './routes/_org/route'
 import { Route as OnboardingRouteRouteImport } from './routes/_onboarding/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
@@ -89,6 +90,11 @@ import { Route as OrgOOrgSlugAuthenticatedAdminCoachesRouteImport } from './rout
 import { Route as OrgOOrgSlugAuthenticatedAdminCallbacksRouteImport } from './routes/_org/o/$orgSlug/_authenticated/admin/callbacks'
 import { Route as OrgOOrgSlugAuthenticatedCoachDancersIndexRouteImport } from './routes/_org/o/$orgSlug/_authenticated/coach/dancers/index'
 
+const ClaimRoute = ClaimRouteImport.update({
+  id: '/claim',
+  path: '/claim',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrgRouteRoute = OrgRouteRouteImport.update({
   id: '/_org',
   getParentRoute: () => rootRouteImport,
@@ -526,6 +532,7 @@ const OrgOOrgSlugAuthenticatedCoachDancersIndexRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof ApproutesIndexRoute
+  '/claim': typeof ClaimRoute
   '/recruiting': typeof ApproutesRecruitingRouteRouteWithChildren
   '/resources': typeof ApproutesResourcesRouteRouteWithChildren
   '/settings': typeof ApproutesSettingsRouteRouteWithChildren
@@ -602,6 +609,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof ApproutesIndexRoute
+  '/claim': typeof ClaimRoute
   '/$username': typeof ApproutesUsernameRoute
   '/checkout': typeof ApproutesCheckoutRoute
   '/dancers': typeof ApproutesDancersRoute
@@ -677,6 +685,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_onboarding': typeof OnboardingRouteRouteWithChildren
   '/_org': typeof OrgRouteRouteWithChildren
+  '/claim': typeof ClaimRoute
   '/_app/(routes)/recruiting': typeof ApproutesRecruitingRouteRouteWithChildren
   '/_app/(routes)/resources': typeof ApproutesResourcesRouteRouteWithChildren
   '/_app/(routes)/settings': typeof ApproutesSettingsRouteRouteWithChildren
@@ -756,6 +765,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/claim'
     | '/recruiting'
     | '/resources'
     | '/settings'
@@ -832,6 +842,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/claim'
     | '/$username'
     | '/checkout'
     | '/dancers'
@@ -906,6 +917,7 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/_onboarding'
     | '/_org'
+    | '/claim'
     | '/_app/(routes)/recruiting'
     | '/_app/(routes)/resources'
     | '/_app/(routes)/settings'
@@ -988,10 +1000,18 @@ export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   OnboardingRouteRoute: typeof OnboardingRouteRouteWithChildren
   OrgRouteRoute: typeof OrgRouteRouteWithChildren
+  ClaimRoute: typeof ClaimRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/claim': {
+      id: '/claim'
+      path: '/claim'
+      fullPath: '/claim'
+      preLoaderRoute: typeof ClaimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_org': {
       id: '/_org'
       path: ''
@@ -1870,6 +1890,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   OnboardingRouteRoute: OnboardingRouteRouteWithChildren,
   OrgRouteRoute: OrgRouteRouteWithChildren,
+  ClaimRoute: ClaimRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

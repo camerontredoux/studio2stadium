@@ -205,3 +205,19 @@ export function useRemoveOrgMember(orgId: string) {
     },
   });
 }
+
+/**
+ * Emails a purchase's buyer a fresh claim link, for a purchase still awaiting
+ * its claim. The link goes to the buyer's own address.
+ */
+export function useResendEventTierClaim() {
+  return $api.useMutation(
+    "post",
+    "/admin/event-tier-purchases/{id}/claim-email",
+    {
+      meta: {
+        invalidateQueries: [adminQueries.eventTierPurchases().queryKey],
+      },
+    },
+  );
+}

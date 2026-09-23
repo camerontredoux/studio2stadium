@@ -51,10 +51,17 @@ const DEACTIVATED_STATUS: Record<
   disputed: { label: "Disputed", variant: "warning" },
 };
 
-/** Where the purchase stands: refunded/disputed wins over the event flag. */
+/**
+ * Where the purchase stands: refunded/disputed wins, then a purchase whose
+ * buyer has not yet claimed the Org (nobody administers it until they do),
+ * then the event flag.
+ */
 export function purchaseStatus(purchase: EventTierPurchase): PurchaseStatus {
   if (purchase.deactivationReason) {
     return DEACTIVATED_STATUS[purchase.deactivationReason];
+  }
+  if (purchase.awaitingClaim) {
+    return { label: "Awaiting claim", variant: "warning" };
   }
   return purchase.event.isActive
     ? { label: "Active", variant: "success" }

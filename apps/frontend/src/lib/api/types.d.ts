@@ -1253,7 +1253,7 @@ export interface paths {
         };
         /**
          * Get all Event Tier purchases
-         * @description Returns every Event Tier purchase, newest first: buyer, amount charged, Event Tier sold, the Org Event it bought with its current Event Tier, and who last changed that tier by hand
+         * @description Returns every Event Tier purchase, newest first: buyer, amount charged, Event Tier sold, the Org Event it bought with its current Event Tier, and who last changed that tier by hand, and whether it is awaiting its buyer's claim
          */
         get: {
             parameters: {
@@ -1277,6 +1277,63 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/event-tier-purchases/{id}/claim-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resend an Event Tier purchase's claim email
+         * @description Emails the buyer of a purchase that is awaiting its claim a fresh claim link, to the account's own address. The fresh link replaces the earlier one. 409 when the purchase is not awaiting a claim, 404 when there is no such purchase
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -8198,7 +8255,7 @@ export interface paths {
         };
         /**
          * Get an Event Tier checkout's provisioning status
-         * @description Called by the marketing site when Checkout returns the buyer, with the session_id Stripe put in the return URL. Answers pending until the payment has been provisioned, then the Org's name and URL, and nextStep: set_password when the purchase created the buyer's account (they were emailed a link), sign_in when they already had one. Never returns the buyer's email.
+         * @description Called by the marketing site when Checkout returns the buyer, with the session_id Stripe put in the return URL. Answers pending until the payment has been provisioned, then the Org's name and URL, and nextStep: set_password when the buyer was emailed a set-password link (the purchase created their account), claim when the purchase landed on an existing account whose owner has not proved they read its inbox (they were emailed a claim link, and the Org is theirs once they open it signed in), sign_in when they already had an account the Org was attached to. Never returns the buyer's email.
          */
         get: {
             parameters: {
@@ -8231,6 +8288,58 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/event-tiers/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Claim an Org bought for your account
+         * @description Called by the product's claim page, signed in, with the token and userId from the claim link a purchase emailed. Refused with 403 when the signed-in user is not the account the link was sent for, and 400 when the token is wrong, expired or already used. Otherwise gives the user the organizer admin membership of every Org bought for their account that is awaiting a claim, records that they read the account's inbox, and returns every Org they have claimed. Idempotent.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["EventtiersClaimRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventtiersClaimResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -10934,6 +11043,7 @@ export interface components {
                 name: string;
                 slug: string;
             };
+            awaitingClaim: boolean;
             buyer: {
                 id: string;
                 email: string;
@@ -12500,6 +12610,17 @@ export interface components {
         };
         EventtiersCheckoutResponse: {
             clientSecret: string;
+        };
+        EventtiersClaimRequest: {
+            userId: string;
+            token: string;
+        };
+        EventtiersClaimResponse: {
+            orgs: {
+                name: string;
+                slug: string;
+                url: string;
+            }[];
         };
         EventsResponse: {
             events: {

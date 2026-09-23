@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   createMemoryHistory,
   createRootRoute,
@@ -30,6 +31,7 @@ function makePurchase(
     deactivationReason: null,
     deactivationReference: null,
     createdAt: "2026-09-01T12:00:00.000Z",
+    awaitingClaim: false,
     buyer: {
       id: "u1",
       email: "ada@example.com",
@@ -62,7 +64,11 @@ async function renderTable(purchases: EventTierPurchase[]) {
     history: createMemoryHistory({ initialEntries: ["/"] }),
   });
   await router.load();
-  return renderToString(<RouterProvider router={router} />);
+  return renderToString(
+    <QueryClientProvider client={new QueryClient()}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>,
+  );
 }
 
 describe("admin purchases list", () => {
@@ -100,6 +106,16 @@ describe("admin purchases list", () => {
     expect(html).toContain("Regional → National by Sam Staff on Sep 20, 2026");
   });
 
+  it("offers to resend the claim email only for a purchase awaiting its claim", async () => {
+    expect(await renderTable([makePurchase()])).not.toContain(
+      "Resend claim email",
+    );
+
+    const html = await renderTable([makePurchase({ awaitingClaim: true })]);
+    expect(html).toContain("Awaiting claim");
+    expect(html).toContain("Resend claim email");
+  });
+
   it("says so when there are no purchases", async () => {
     expect(await renderTable([])).toContain("No purchases yet");
   });
@@ -124,6 +140,18 @@ describe("purchase helpers", () => {
     expect(
       purchaseStatus(makePurchase({ deactivationReason: "disputed" })).label,
     ).toBe("Disputed");
+  });
+
+  it("shows a purchase awaiting its claim as such, behind a refund", () => {
+    expect(purchaseStatus(makePurchase({ awaitingClaim: true }))).toEqual({
+      label: "Awaiting claim",
+      variant: "warning",
+    });
+    expect(
+      purchaseStatus(
+        makePurchase({ awaitingClaim: true, deactivationReason: "refunded" }),
+      ).label,
+    ).toBe("Refunded");
   });
 
   it("describes no tier change as nothing", () => {

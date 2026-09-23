@@ -1,6 +1,9 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Frame } from "@/components/ui/frame";
+import { Spinner } from "@/components/ui/spinner";
+import { toastManager } from "@/components/ui/toast-manager";
+import { useResendEventTierClaim } from "@/features/admin/api/mutations";
 import {
   InputGroup,
   InputGroupAddon,
@@ -151,14 +154,47 @@ function PurchaseRow({
         <Badge variant={status.variant}>{status.label}</Badge>
       </TableCell>
       <TableCell>
-        <Button
-          size="xs"
-          variant="outline"
-          onClick={() => onChangeTier(purchase)}
-        >
-          Change tier
-        </Button>
+        <div className="flex flex-wrap gap-1.5">
+          <Button
+            size="xs"
+            variant="outline"
+            onClick={() => onChangeTier(purchase)}
+          >
+            Change tier
+          </Button>
+          {purchase.awaitingClaim && <ResendClaimButton purchase={purchase} />}
+        </div>
       </TableCell>
     </TableRow>
+  );
+}
+
+/** Sends the buyer a fresh claim link, to their account's own address. */
+function ResendClaimButton({ purchase }: { purchase: EventTierPurchase }) {
+  const { mutate, isPending } = useResendEventTierClaim();
+
+  const resend = () =>
+    mutate(
+      { params: { path: { id: purchase.id } } },
+      {
+        onSuccess: () =>
+          toastManager.add({
+            title: "Claim email sent",
+            description: `A new claim link went to ${purchase.buyer.email}.`,
+            type: "success",
+          }),
+        onError: (error) =>
+          toastManager.add({
+            title: "Could not send the claim email",
+            description: error.message,
+            type: "error",
+          }),
+      },
+    );
+
+  return (
+    <Button size="xs" variant="outline" disabled={isPending} onClick={resend}>
+      {isPending ? <Spinner label="Sending..." /> : "Resend claim email"}
+    </Button>
   );
 }
