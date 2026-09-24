@@ -6863,56 +6863,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/dancers/recommended": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get recommended dancers
-         * @description Returns dancers recommended to the authenticated school based on how well they match the school's skill, style, sport, GPA, and location preferences
-         */
-        get: {
-            parameters: {
-                query?: {
-                    limit?: (string | number) | null;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DancersRecommendedResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/dancers/me": {
         parameters: {
             query?: never;
@@ -10473,11 +10423,11 @@ export interface components {
         SubscriptionSource: "stripe" | "org_event" | "none";
         /** @enum {string} */
         DancerFilterParam: "name" | "location" | "sports" | "styles" | "following" | "premium" | "gpaRange";
-        MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
         /** @enum {string} */
         EventFilterParam: "location" | "date" | "schoolName";
         /** @enum {string} */
         SchoolFilterParam: "name" | "location" | "sports" | "styles" | "following" | "gpaRange" | "commonRecruiting" | "teamSelection" | "competitiveCircuit" | "division" | "upcomingEvents";
+        MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
         AdminApplicationsResponse: {
             id: string;
             /** @enum {string} */
@@ -10818,7 +10768,6 @@ export interface components {
             phone?: string | null;
             location?: string | null;
             city?: string | null;
-            commonRecruiting?: (string | number | boolean) | null;
             email: string;
             username: string;
             /** @enum {string} */
@@ -11980,27 +11929,6 @@ export interface components {
             label: string;
             paramKey: components["schemas"]["DancerFilterParam"];
         }[];
-        DancersRecommendedResponse: {
-            id: string;
-            name: string;
-            username: string;
-            avatar: string | null;
-            location: string;
-            gpa: number | null;
-            gradYear: number | null;
-            about: string | null;
-            matchScore: number;
-            matchTier: components["schemas"]["MatchTier"];
-            top3Matches: string[];
-            matchedSkillsCount: number;
-            totalSchoolSkills: number;
-            matchedStylesCount: number;
-            totalSchoolStyles: number;
-            matchedSportsCount: number;
-            totalSchoolSports: number;
-            sameState: boolean;
-            meetsGpaRequirement: boolean;
-        }[];
         DancersMeRequest: {
             birthday?: string | null;
             location?: string | null;
@@ -12422,9 +12350,10 @@ export interface components {
             gpa: number | null;
             about: string | null;
             size: number | null;
+            locationScore: number;
             matchScore: number;
-            matchTier: components["schemas"]["MatchTier"];
             top3Matches: string[];
+            matchTier: components["schemas"]["MatchTier"];
             matchedSkillsCount: number;
             totalSchoolSkills: number;
             matchedStylesCount: number;
@@ -12433,7 +12362,6 @@ export interface components {
             totalSchoolSports: number;
             sameState: boolean;
             meetsGpaRequirement: boolean;
-            locationScore: number;
         }[];
         SchoolsMeRequest: {
             location?: string | null;

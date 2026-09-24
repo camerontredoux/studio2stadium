@@ -6879,57 +6879,6 @@
         "description": "Returns the filters to use when searching for dancers"
       }
     },
-    "/dancers/recommended": {
-      "get": {
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": [
-                    "string",
-                    "number"
-                  ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DancersRecommendedResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Dancers"
-        ],
-        "summary": "Get recommended dancers",
-        "description": "Returns dancers recommended to the authenticated school based on how well they match the school's skill, style, sport, GPA, and location preferences"
-      }
-    },
     "/dancers/me": {
       "patch": {
         "requestBody": {
@@ -9903,22 +9852,6 @@
           "gpaRange"
         ]
       },
-      "MatchTier": {
-        "oneOf": [
-          {
-            "type": "string",
-            "enum": [
-              "partial",
-              "excellent",
-              "good",
-              "unqualified"
-            ]
-          },
-          {
-            "type": "null"
-          }
-        ]
-      },
       "EventFilterParam": {
         "type": "string",
         "enum": [
@@ -9941,6 +9874,22 @@
           "competitiveCircuit",
           "division",
           "upcomingEvents"
+        ]
+      },
+      "MatchTier": {
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": [
+              "partial",
+              "excellent",
+              "good",
+              "unqualified"
+            ]
+          },
+          {
+            "type": "null"
+          }
         ]
       },
       "AdminApplicationsResponse": {
@@ -11982,20 +11931,6 @@
             "oneOf": [
               {
                 "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "commonRecruiting": {
-            "oneOf": [
-              {
-                "type": [
-                  "string",
-                  "number",
-                  "boolean"
-                ]
               },
               {
                 "type": "null"
@@ -18410,123 +18345,6 @@
           ]
         }
       },
-      "DancersRecommendedResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "name": {
-              "type": "string"
-            },
-            "username": {
-              "type": "string"
-            },
-            "avatar": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "location": {
-              "type": "string"
-            },
-            "gpa": {
-              "oneOf": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "gradYear": {
-              "oneOf": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "about": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "matchScore": {
-              "type": "number"
-            },
-            "matchTier": {
-              "$ref": "#/components/schemas/MatchTier"
-            },
-            "top3Matches": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "matchedSkillsCount": {
-              "type": "number"
-            },
-            "totalSchoolSkills": {
-              "type": "number"
-            },
-            "matchedStylesCount": {
-              "type": "number"
-            },
-            "totalSchoolStyles": {
-              "type": "number"
-            },
-            "matchedSportsCount": {
-              "type": "number"
-            },
-            "totalSchoolSports": {
-              "type": "number"
-            },
-            "sameState": {
-              "type": "boolean"
-            },
-            "meetsGpaRequirement": {
-              "type": "boolean"
-            }
-          },
-          "required": [
-            "id",
-            "name",
-            "username",
-            "avatar",
-            "location",
-            "gpa",
-            "gradYear",
-            "about",
-            "matchScore",
-            "matchTier",
-            "top3Matches",
-            "matchedSkillsCount",
-            "totalSchoolSkills",
-            "matchedStylesCount",
-            "totalSchoolStyles",
-            "matchedSportsCount",
-            "totalSchoolSports",
-            "sameState",
-            "meetsGpaRequirement"
-          ]
-        }
-      },
       "DancersMeRequest": {
         "type": "object",
         "properties": {
@@ -18861,9 +18679,6 @@
                 "in_review"
               ]
             },
-            "createdAt": {
-              "type": "string"
-            },
             "updatedAt": {
               "type": "string"
             },
@@ -18918,7 +18733,6 @@
           "required": [
             "id",
             "status",
-            "createdAt",
             "updatedAt",
             "school",
             "watched",
@@ -20927,17 +20741,20 @@
                 }
               ]
             },
-            "matchScore": {
+            "locationScore": {
               "type": "number"
             },
-            "matchTier": {
-              "$ref": "#/components/schemas/MatchTier"
+            "matchScore": {
+              "type": "number"
             },
             "top3Matches": {
               "type": "array",
               "items": {
                 "type": "string"
               }
+            },
+            "matchTier": {
+              "$ref": "#/components/schemas/MatchTier"
             },
             "matchedSkillsCount": {
               "type": "number"
@@ -20962,9 +20779,6 @@
             },
             "meetsGpaRequirement": {
               "type": "boolean"
-            },
-            "locationScore": {
-              "type": "number"
             }
           },
           "required": [
@@ -20976,9 +20790,10 @@
             "gpa",
             "about",
             "size",
+            "locationScore",
             "matchScore",
-            "matchTier",
             "top3Matches",
+            "matchTier",
             "matchedSkillsCount",
             "totalSchoolSkills",
             "matchedStylesCount",
@@ -20986,8 +20801,7 @@
             "matchedSportsCount",
             "totalSchoolSports",
             "sameState",
-            "meetsGpaRequirement",
-            "locationScore"
+            "meetsGpaRequirement"
           ]
         }
       },

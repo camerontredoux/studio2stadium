@@ -7,8 +7,6 @@ const UpdateReferenceController = () =>
   import("./profile/update-reference/controller.ts");
 const GetDancersController = () =>
   import("./explore/get-dancers/controller.ts");
-const GetRecommendedDancersController = () =>
-  import("./get-recommended-dancers/controller.ts");
 const GetSportsController = () => import("./profile/get-sports/controller.ts");
 const UpdateSportsController = () =>
   import("./profile/update-sports/controller.ts");
@@ -75,15 +73,6 @@ router
       summary: "Get dancers",
       description: "Returns a list of dancers",
     });
-
-    router
-      .get("recommended", [GetRecommendedDancersController])
-      .openapi({
-        summary: "Get recommended dancers",
-        description:
-          "Returns dancers recommended to the authenticated school based on how well they match the school's skill, style, sport, GPA, and location preferences",
-      })
-      .use([middleware.school()]);
 
     router
       .group(() => {
