@@ -33,9 +33,7 @@ export default await Env.create(new URL("../", import.meta.url), {
   | (unsubscribe) use this instead.
   |----------------------------------------------------------
   */
-  API_URL: Env.schema.string.optionalWhen(
-    process.env.NODE_ENV !== "production"
-  ),
+  API_URL: Env.schema.string(),
 
   /*
   |----------------------------------------------------------
@@ -44,9 +42,7 @@ export default await Env.create(new URL("../", import.meta.url), {
   | separate from SITE_URL (the product frontend).
   |----------------------------------------------------------
   */
-  MARKETING_SITE_URL: Env.schema.string.optionalWhen(
-    process.env.NODE_ENV !== "production"
-  ),
+  MARKETING_SITE_URL: Env.schema.string(),
 
   HEALTH_SECRET: Env.schema.string(),
 
@@ -140,15 +136,9 @@ export default await Env.create(new URL("../", import.meta.url), {
   | stays a sales conversation, so it has none here.
   |----------------------------------------------------------
   */
-  STRIPE_PRICE_ID_EVENT_TIER_CORE: Env.schema.string.optionalWhen(
-    process.env.NODE_ENV !== "production"
-  ),
-  STRIPE_PRICE_ID_EVENT_TIER_REGIONAL: Env.schema.string.optionalWhen(
-    process.env.NODE_ENV !== "production"
-  ),
-  STRIPE_PRICE_ID_EVENT_TIER_NATIONAL: Env.schema.string.optionalWhen(
-    process.env.NODE_ENV !== "production"
-  ),
+  STRIPE_PRICE_ID_EVENT_TIER_CORE: Env.schema.string(),
+  STRIPE_PRICE_ID_EVENT_TIER_REGIONAL: Env.schema.string(),
+  STRIPE_PRICE_ID_EVENT_TIER_NATIONAL: Env.schema.string(),
 
   /*
   |----------------------------------------------------------
