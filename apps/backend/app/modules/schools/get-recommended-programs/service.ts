@@ -4,6 +4,10 @@ import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
 import { stateAdjacencies, stateRegions } from "./constants.ts";
 
+// Cap the dancer-facing recommendations to a focused top-N list. Applied when
+// the caller doesn't request an explicit limit.
+const DEFAULT_LIMIT = 20;
+
 type MatchTier = "excellent" | "good" | "partial" | "unqualified" | null;
 
 type SkillDebugInfo = { skillId: string; weight: number; rarityBonus: number };
@@ -88,7 +92,7 @@ export class Service {
           s.matchTier !== "unqualified"
         );
       })
-      .slice(0, options.limit);
+      .slice(0, options.limit ?? DEFAULT_LIMIT);
   }
 
   /**

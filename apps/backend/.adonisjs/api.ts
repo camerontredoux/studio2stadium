@@ -595,6 +595,10 @@ type DancersGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/explore/get-dancers/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/explore/get-dancers/controller.ts').default['handle'], true>
 }
+type DancersRecommendedGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/get-recommended-dancers/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-recommended-dancers/controller.ts').default['handle'], true>
+}
 type DancersMePatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/update-portfolio/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/profile/update-portfolio/controller.ts').default['handle'], true>
@@ -1708,6 +1712,12 @@ export interface ApiDefinition {
     };
     '$get': DancersGetHead;
     '$head': DancersGetHead;
+    'recommended': {
+      '$url': {
+      };
+      '$get': DancersRecommendedGetHead;
+      '$head': DancersRecommendedGetHead;
+    };
     'me': {
       '$url': {
       };
