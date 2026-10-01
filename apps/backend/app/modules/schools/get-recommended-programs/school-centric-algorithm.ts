@@ -20,18 +20,27 @@
 // const percentageScore = maxPoints > 0 ? earnedPoints / maxPoints : 0;
 
 // Raw score: total matches normalized to expected max
-// Expected max: ~20 skills (40pts) + 3 styles (3pts) + 5 sports (2.5pts) = ~45 points
-// const expectedMaxPoints = 45;
+// Skills now contribute their own 1-5 importance weight (avg ~3.27 across all
+// programs) instead of a flat 2, so a matched skill is worth ~1.6x its old
+// value. Expected max is rescaled to keep rawScore on the same 0-1 footing:
+//   ~20 skills (20 * 3.27 = 65pts) + 3 styles (3pts) + 5 sports (2.5pts) = ~71
+// Because percentageScore is self-normalizing (earned/max both scale with the
+// weights) and expectedMaxPoints absorbs the skill-scale change, the tier
+// thresholds below stay valid — the average dancer lands in the same tier,
+// while dancers who match a program's high-weight skills rank higher.
+// const expectedMaxPoints = 71;
 // const rawScore = Math.min(1, earnedPoints / expectedMaxPoints);
 
 // Combine 50/50
 // let baseScore = rawScore * 0.5 + percentageScore * 0.5;
 
 export const SCHOOL_CENTRIC_SCORING = {
+  // Skills are scored by their per-program 1-5 weight, not this flat value; it
+  // remains only as the styles/sports reference scale.
   skillWeight: 2,
   styleWeight: 1,
   sportWeight: 0.5,
-  expectedMaxPoints: 45,
+  expectedMaxPoints: 71,
   rawScoreWeight: 0.5,
   percentageScoreWeight: 0.5,
   locationMultiplier: 1.05,

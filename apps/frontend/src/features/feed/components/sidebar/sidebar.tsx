@@ -1,8 +1,10 @@
+import { SuggestedDancersSkeleton } from "@/components/shared/suggested-dancers-skeleton";
 import { SuggestedProgramsSkeleton } from "@/components/shared/suggested-programs-skeleton";
 import { UpcomingEventsSkeleton } from "@/components/shared/upcoming-events-skeleton";
 import { Suspense } from "react";
 import { Fragment } from "react/jsx-runtime";
 import { ConsultationsSection } from "./sections/consultations-section";
+import { DancersSection } from "./sections/dancers-section";
 import { EventsSection } from "./sections/events/upcoming-events-section";
 import { UpcomingGlobalEventsSection } from "./sections/events/upcoming-global-events-section";
 import { ProgramsSection } from "./sections/programs-section";
@@ -25,6 +27,12 @@ export function FeedSidebar({ type }: { type: "dancer" | "school" }) {
           </Suspense>
           <ConsultationsSection />
         </Fragment>
+      )}
+
+      {type === "school" && (
+        <Suspense fallback={<SuggestedDancersSkeleton />}>
+          <DancersSection />
+        </Suspense>
       )}
     </Fragment>
   );
