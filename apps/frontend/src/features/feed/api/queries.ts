@@ -16,6 +16,10 @@ export const feedQueries = {
     }),
   recommended: () =>
     $api.queryOptions("get", "/schools/recommended", {
-      params: { query: { limit: 4 } },
+      params: { query: { limit: 20 } },
+    }),
+  recommendedDancers: () =>
+    $api.queryOptions("get", "/dancers/recommended", {
+      params: { query: { limit: 20 } },
     }),
 };
