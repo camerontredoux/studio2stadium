@@ -8,6 +8,7 @@ import {
   StarIcon,
   XIcon,
 } from "lucide-react";
+import { ScrollableFilterBar } from "@/components/shared/scrollable-filter-bar";
 import { Button } from "@/components/ui/button";
 import {
   InputGroup,
@@ -148,7 +149,7 @@ export function DancerFilterToolbar({
   };
 
   return (
-    <div className="border-border flex items-center gap-2 border-b px-3 py-2">
+    <ScrollableFilterBar className="border-border gap-2 border-b px-3 py-2">
       {/* Search */}
       <InputGroup className="w-48 shrink-0">
         <InputGroupAddon>
@@ -298,6 +299,6 @@ export function DancerFilterToolbar({
           </Button>
         </>
       )}
-    </div>
+    </ScrollableFilterBar>
   );
 }

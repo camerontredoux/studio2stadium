@@ -1,3 +1,4 @@
+import { ScrollableFilterBar } from "@/components/shared/scrollable-filter-bar";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverPopup, PopoverTrigger } from "@/components/ui/popover";
@@ -758,9 +759,9 @@ function AuditLogPage() {
         </header>
 
         {/* Toolbar */}
-        <div className="border-border bg-muted/40 flex shrink-0 items-center gap-1.5 border-b px-3 py-1.5">
+        <ScrollableFilterBar className="border-border bg-muted/40 shrink-0 gap-1.5 border-b px-3 py-1.5">
           {/* Search */}
-          <div className="relative min-w-0 flex-1 sm:max-w-56">
+          <div className="relative min-w-40 flex-1 sm:max-w-56">
             <SearchIcon className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
             <input
               type="text"
@@ -1009,11 +1010,11 @@ function AuditLogPage() {
               </div>
             </PopoverPopup>
           </Popover>
-        </div>
+        </ScrollableFilterBar>
 
         {/* Active filter chips */}
         {hasActiveFilters && (
-          <div className="border-border bg-background flex shrink-0 flex-wrap items-center gap-1.5 border-b px-3 py-1.5">
+          <ScrollableFilterBar className="border-border bg-background shrink-0 gap-1.5 border-b px-3 py-1.5">
             <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase 2xl:text-xs">
               Filters
             </span>
@@ -1047,7 +1048,7 @@ function AuditLogPage() {
                 }}
               />
             )}
-          </div>
+          </ScrollableFilterBar>
         )}
 
         {/* Table */}

@@ -7,6 +7,7 @@ import {
   AlertDialogPopup,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ScrollableFilterBar } from "@/components/shared/scrollable-filter-bar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -323,9 +324,9 @@ export function DataGrid<T extends { id: string }>({
   return (
     <div className="bg-background flex min-h-0 flex-1 flex-col overflow-hidden">
       {/* ── Toolbar (fixed) ── */}
-      <div className="border-border bg-muted/40 flex shrink-0 items-center gap-1.5 border-b px-3 py-1.5">
+      <ScrollableFilterBar className="border-border bg-muted/40 shrink-0 gap-1.5 border-b px-3 py-1.5">
         {onSearchChange && (
-          <div className="relative min-w-0 flex-1 sm:max-w-56">
+          <div className="relative min-w-40 flex-1 sm:max-w-56">
             <SearchIcon className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
             <input
               type="text"
@@ -480,10 +481,10 @@ export function DataGrid<T extends { id: string }>({
             </Button>
           )}
         </div>
-      </div>
+      </ScrollableFilterBar>
       {/* ── Active filter chips ── */}
       {hasActiveFilters && (
-        <div className="border-border bg-background flex shrink-0 flex-wrap items-center gap-1.5 border-b px-3 py-1.5">
+        <ScrollableFilterBar className="border-border bg-background shrink-0 gap-1.5 border-b px-3 py-1.5">
           <span className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase 2xl:text-xs">
             Filters
           </span>
@@ -511,7 +512,7 @@ export function DataGrid<T extends { id: string }>({
               </span>
             );
           })}
-        </div>
+        </ScrollableFilterBar>
       )}
 
       {/* ── Floating bulk actions toolbar ── */}
@@ -554,7 +555,10 @@ export function DataGrid<T extends { id: string }>({
       )}
 
       {/* ── Scrollable Table ── */}
-      <div data-density={density} className="flex-1 overflow-auto pb-10">
+      <div
+        data-density={density}
+        className="flex-1 overflow-auto pb-14 sm:pb-10"
+      >
         <table
           className={cn(
             "w-full border-collapse whitespace-nowrap",
@@ -678,23 +682,23 @@ export function DataGrid<T extends { id: string }>({
 
       {/* ── Footer (fixed to viewport bottom) ── */}
       <div
-        className="border-border bg-background fixed right-0 bottom-0 z-30 flex items-center justify-between border-t px-3 py-1.5 transition-[left] duration-200 ease-linear"
+        className="border-border bg-background fixed right-0 bottom-0 z-30 flex items-center justify-between gap-2 border-t px-3 py-1.5 transition-[left] duration-200 ease-linear"
         style={{
           left: isMobile
             ? 0
             : `var(--sidebar-width${sidebarState === "collapsed" ? "-icon" : ""})`,
         }}
       >
-        <div className="flex items-center gap-2">
-          <span className="text-muted-foreground text-xs 2xl:text-sm">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="text-muted-foreground truncate text-xs 2xl:text-sm">
             {total === 0
               ? `No ${itemLabel}`
               : `${start}\u2013${end} of ${total.toLocaleString()} ${itemLabel}`}
           </span>
           {onLimitChange && (
             <>
-              <div className="bg-border mx-0.5 h-4 w-px" />
-              <span className="text-muted-foreground text-xs 2xl:text-sm">
+              <div className="bg-border mx-0.5 hidden h-4 w-px sm:block" />
+              <span className="text-muted-foreground hidden text-xs whitespace-nowrap sm:inline 2xl:text-sm">
                 Rows per page
               </span>
               <Select
@@ -709,7 +713,8 @@ export function DataGrid<T extends { id: string }>({
               >
                 <SelectTrigger
                   size="sm"
-                  className="w-auto min-w-0 gap-1 rounded-md"
+                  aria-label="Rows per page"
+                  className="w-auto min-w-0 shrink-0 gap-1 rounded-md"
                 >
                   <SelectValue />
                 </SelectTrigger>
@@ -724,8 +729,8 @@ export function DataGrid<T extends { id: string }>({
             </>
           )}
         </div>
-        <div className="flex items-center gap-1">
-          <span className="text-muted-foreground mr-1 text-xs 2xl:text-sm">
+        <div className="flex shrink-0 items-center gap-1">
+          <span className="text-muted-foreground mr-1 text-xs whitespace-nowrap 2xl:text-sm">
             Page {page + 1} of {Math.max(1, totalPages)}
           </span>
           <Button
@@ -733,18 +738,20 @@ export function DataGrid<T extends { id: string }>({
             variant="ghost"
             disabled={page === 0}
             onClick={() => onPageChange(page - 1)}
-            className="size-6 p-0"
+            aria-label="Previous page"
+            className="size-10 p-0 sm:size-6"
           >
-            <ChevronLeftIcon className="size-3.5" />
+            <ChevronLeftIcon className="size-4 sm:size-3.5" />
           </Button>
           <Button
             size="xs"
             variant="ghost"
             disabled={page >= totalPages - 1}
             onClick={() => onPageChange(page + 1)}
-            className="size-6 p-0"
+            aria-label="Next page"
+            className="size-10 p-0 sm:size-6"
           >
-            <ChevronRightIcon className="size-3.5" />
+            <ChevronRightIcon className="size-4 sm:size-3.5" />
           </Button>
         </div>
       </div>
