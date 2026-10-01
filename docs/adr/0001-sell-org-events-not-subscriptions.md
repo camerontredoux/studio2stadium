@@ -2,8 +2,10 @@
 
 S2S Live is priced per event (Core $2,000, Regional $3,000, National $4,200, Enterprise custom), but
 the entity a purchase must create is an Org, which owns many events. We sell one Org Event per
-checkout: the first purchase also creates the Org and makes the buyer its admin, and later purchases
-add further Org Events to the Org that already exists.
+checkout: the first purchase also creates the Org and makes the buyer its admin, and a later purchase
+that names an Org the buyer already administers adds a further Org Event to it. A later purchase
+that names a different Org creates that Org, as a first purchase does (see ADR 0007, "Which Org a
+purchase lands in").
 
 We rejected an Org-level subscription. It would have reused the dancer subscription machinery almost
 unchanged, but it contradicts every price on the marketing page and does not match how an event

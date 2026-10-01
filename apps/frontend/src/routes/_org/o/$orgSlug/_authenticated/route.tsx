@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { needsProfileOnboarding } from "@/features/org/lib/org-destination";
 import { isReservedOrgSlug } from "@/features/org/lib/reserved-slugs";
 import { queries } from "@/lib/session";
 
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated")({
         search: { redirect: location.href },
       });
     }
-    if (!session.profileId) {
+    if (needsProfileOnboarding(session, params.orgSlug)) {
       throw redirect({
         to: "/onboarding",
         search: { redirect: `/o/${params.orgSlug}/dancer` },

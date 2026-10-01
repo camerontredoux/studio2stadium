@@ -28,6 +28,7 @@ import { Tabs, TabsContent, TabsList, TabsTab } from "@/components/ui/tabs";
 import { cn } from "@/components/utils/cn";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { orgQueries } from "@/features/org/api/queries";
+import { hasOrgFeature } from "@/features/org/lib/entitlement";
 import { resolveMaxCallbacks } from "@/features/org/lib/max-callbacks";
 import {
   LivePulse,
@@ -49,8 +50,7 @@ export const Route = createFileRoute(
     const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     );
-    const features = ((data as any)?.features ?? {}) as Record<string, boolean>;
-    if (!features.callbacks) {
+    if (!hasOrgFeature(data, "callbacks")) {
       throw redirect({ to: "/o/$orgSlug/admin", params });
     }
   },

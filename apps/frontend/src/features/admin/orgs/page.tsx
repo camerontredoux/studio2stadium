@@ -3,6 +3,7 @@ import { useDeleteOrg } from "@/features/admin/api/mutations";
 import { adminQueries } from "@/features/admin/api/queries";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
+import type { EventTier } from "@/lib/event-tiers";
 import { useState } from "react";
 
 import {
@@ -34,6 +35,7 @@ interface Org {
   memberCount: number;
   eventCount: number;
   activeEvent: string | null;
+  activeEventTier: EventTier | null;
 }
 
 export function OrgsPage() {
@@ -58,10 +60,14 @@ export function OrgsPage() {
           });
           setDeletingOrg(null);
         },
-        onError: () => {
+        // A 409 carries why the Org was kept (it has purchased events). A
+        // network failure (TypeError) has no API message to show.
+        onError: (error) => {
           toastManager.add({
-            title: "Error",
-            description: "Failed to delete organization",
+            title: "Organization not deleted",
+            description:
+              (!(error instanceof TypeError) && error.message) ||
+              "Failed to delete organization",
             type: "error",
           });
         },

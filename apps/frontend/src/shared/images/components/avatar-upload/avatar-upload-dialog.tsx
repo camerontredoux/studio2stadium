@@ -14,7 +14,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
-import { useSession } from "@/lib/session";
+import { useProfileSession } from "@/lib/session";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
 import { CameraIcon } from "lucide-react";
 import { useState } from "react";
@@ -27,7 +27,7 @@ interface AvatarUploadProps {
 }
 
 export function AvatarUploadDialog({ avatar, fallback }: AvatarUploadProps) {
-  const session = useSession();
+  const session = useProfileSession();
   const { mutate, isPending } = useRequestUpload();
   const { mutate: updateAvatar, isPending: isUpdatingAvatar } = useUpdateAvatar(
     session.type,

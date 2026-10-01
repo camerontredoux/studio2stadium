@@ -1,5 +1,6 @@
 import "#auth/session";
 import type { ProfileSession } from "#auth/session";
+import { isProfileAccountType } from "#database/schema/enums";
 import type { HttpContext } from "@adonisjs/core/http";
 import type { NextFn } from "@adonisjs/core/types/http";
 
@@ -11,7 +12,7 @@ import type { NextFn } from "@adonisjs/core/types/http";
 export default class ProfileMiddleware {
   async handle(ctx: HttpContext, next: NextFn) {
     const user = ctx.auth.getUserOrFail();
-    if (!user.profileId) {
+    if (!user.profileId || !isProfileAccountType(user.type)) {
       return ctx.response.forbidden({
         message: "This resource requires a profile.",
       });

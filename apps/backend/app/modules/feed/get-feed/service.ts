@@ -1,3 +1,4 @@
+import { isProfileAccountType, type AccountType } from "#database/schema/enums";
 import { DatabaseService } from "#database/service";
 import { imageUrl } from "#utils/image-url";
 import { videoThumbnailUrl, videoUrl } from "#utils/video-url";
@@ -36,7 +37,12 @@ type FeedItemResponse = {
 export class Service {
   constructor(private db: DatabaseService) {}
 
-  async execute(type: "dancer" | "school", userId: string, cursor?: string) {
+  async execute(type: AccountType, userId: string, cursor?: string) {
+    // An Organizer account has no profile, so it follows nobody.
+    if (!isProfileAccountType(type)) {
+      return { feed: [], nextCursor: undefined };
+    }
+
     const following = await this.getFollowing(type, userId);
 
     if (following.length === 0) {

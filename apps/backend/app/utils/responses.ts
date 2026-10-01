@@ -10,3 +10,16 @@ export const tooManyRequests = {
     },
   },
 };
+
+export const unprocessableEntity = {
+  "422": {
+    description: "Unprocessable Entity",
+    content: {
+      "application/json": {
+        schema: {
+          $ref: "#/components/schemas/Error",
+        },
+      },
+    },
+  },
+};

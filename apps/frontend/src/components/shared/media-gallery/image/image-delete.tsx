@@ -12,11 +12,11 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
-import { useSession } from "@/lib/session";
+import { useProfileSession } from "@/lib/session";
 import { useDeleteImage } from "@/shared/images/api/mutations";
 
 export function ImageDelete({ id }: { id: string }) {
-  const session = useSession();
+  const session = useProfileSession();
   const { mutate, isPending } = useDeleteImage(session.type, session.username);
 
   const handleDelete = () => {

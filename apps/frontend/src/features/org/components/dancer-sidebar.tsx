@@ -23,6 +23,7 @@ import {
   MenuTrigger,
 } from "@/components/ui/menu";
 import { useOrg } from "@/features/org/context/use-org";
+import { useViewedDancerEventId } from "@/features/org/hooks/use-viewed-dancer-event";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { useTransmitSubscription } from "@/features/org/hooks/use-transmit";
 import { useSession } from "@/lib/session";
@@ -41,28 +42,51 @@ import {
   SchoolIcon,
   SunIcon,
   UserIcon,
+  type LucideIcon,
 } from "lucide-react";
 import { useOrgTheme } from "@/features/org/hooks/use-org-theme";
 import { type TernaryDarkMode } from "usehooks-ts";
 import { grantsOrgAdmin } from "@/lib/access";
+import type { OrgFeatureKey } from "@/features/org/lib/entitlement";
+
+/** Every dancer page the menu links to; each reads the viewed event from `eventId`. */
+type DancerNavPath =
+  | "/o/$orgSlug/dancer/event-info"
+  | "/o/$orgSlug/dancer/callbacks"
+  | "/o/$orgSlug/dancer/video-library"
+  | "/o/$orgSlug/dancer/schools";
+
+interface DancerNavItem {
+  label: string;
+  icon: LucideIcon;
+  to: DancerNavPath;
+  exact?: boolean;
+}
 
 const dashboardItem = {
   label: "Event Info",
   icon: CalendarIcon,
-  to: "/o/$orgSlug/dancer/event-info" as const,
+  to: "/o/$orgSlug/dancer/event-info",
   exact: false,
-};
+} satisfies DancerNavItem;
 
 export function DancerSidebar() {
   const session = useSession();
-  const { org, membership, hasFeature } = useOrg();
+  const { org, membership, hasFeature: hasOrgFeature } = useOrg();
   const { orgSlug } = useParams({ strict: false }) as { orgSlug: string };
   const location = useLocation();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  // The menu describes the event the Dancer is viewing, which is the one her
+  // pages request and the backend gates on — not the Org's active one (#110).
+  // Links carry it so switching events survives moving between pages.
+  const viewedEventId = useViewedDancerEventId();
+  const hasFeature = (key: OrgFeatureKey) =>
+    hasOrgFeature(key, viewedEventId);
+  const viewedEventSearch = viewedEventId ? { eventId: viewedEventId } : {};
 
   useQuery({
-    ...scoutingQueries.dancerCallbacks(orgSlug),
+    ...scoutingQueries.dancerCallbacks(orgSlug, viewedEventId),
     enabled: hasFeature("callbacks"),
   });
 
@@ -70,50 +94,39 @@ export function DancerSidebar() {
     hasFeature("callbacks") ? `orgs/${orgSlug}/showcases` : null,
     () => {
       qc.invalidateQueries({
-        queryKey: scoutingQueries.dancerCallbacks(orgSlug).queryKey,
+        queryKey: scoutingQueries.dancerCallbacks(orgSlug, viewedEventId)
+          .queryKey,
       });
     },
   );
 
-  const navSections: {
-    title: string;
-    items: { label: string; icon: any; to: string }[];
-  }[] = [
-    ...(hasFeature("callbacks")
-      ? [
-          {
-            title: "Event",
-            items: [
-              {
-                label: "Callbacks",
-                icon: Megaphone,
-                to: "/o/$orgSlug/dancer/callbacks" as const,
-              },
-            ],
-          },
-        ]
-      : []),
-    ...(() => {
-      const exploreItems: { label: string; icon: any; to: string }[] = [];
-      if (hasFeature("video_library")) {
-        exploreItems.push({
-          label: "Video Library",
-          icon: PlayCircleIcon,
-          to: "/o/$orgSlug/dancer/video-library" as const,
-        });
-      }
-      if (hasFeature("school_selections")) {
-        exploreItems.push({
-          label: "Schools",
-          icon: SchoolIcon,
-          to: "/o/$orgSlug/dancer/schools" as const,
-        });
-      }
-      return exploreItems.length > 0
-        ? [{ title: "Explore", items: exploreItems }]
-        : [];
-    })(),
-  ];
+  const eventItems: DancerNavItem[] = [];
+  if (hasFeature("callbacks")) {
+    eventItems.push({
+      label: "Callbacks",
+      icon: Megaphone,
+      to: "/o/$orgSlug/dancer/callbacks",
+    });
+  }
+  const exploreItems: DancerNavItem[] = [];
+  if (hasFeature("video_library")) {
+    exploreItems.push({
+      label: "Video Library",
+      icon: PlayCircleIcon,
+      to: "/o/$orgSlug/dancer/video-library",
+    });
+  }
+  if (hasFeature("school_selections")) {
+    exploreItems.push({
+      label: "Schools",
+      icon: SchoolIcon,
+      to: "/o/$orgSlug/dancer/schools",
+    });
+  }
+  const navSections = [
+    { title: "Event", items: eventItems },
+    { title: "Explore", items: exploreItems },
+  ].filter((section) => section.items.length > 0);
   const { ternaryDarkMode, setTernaryDarkMode } = useOrgTheme();
 
   const displayName =
@@ -148,17 +161,9 @@ export function DancerSidebar() {
     return location.pathname.startsWith(to.replace("$orgSlug", orgSlug));
   };
 
-  const allNavItems = [
+  const allNavItems: DancerNavItem[] = [
     dashboardItem,
-    ...navSections.flatMap(
-      (section) =>
-        section.items as {
-          label: string;
-          icon: any;
-          to: string;
-          exact?: boolean;
-        }[],
-    ),
+    ...navSections.flatMap((section) => section.items),
   ];
 
   const DashboardIcon = dashboardItem.icon;
@@ -210,8 +215,9 @@ export function DancerSidebar() {
                 </SidebarGroupLabel>
                 <div className="border-sidebar-border border-t">
                   <Link
-                    to={dashboardItem.to as any}
-                    params={{ orgSlug } as any}
+                    to={dashboardItem.to}
+                    params={{ orgSlug }}
+                    search={viewedEventSearch}
                     className={`flex min-h-10 items-center gap-2 border-t-2 px-3 py-2 transition-colors ${
                       isItemActive(dashboardItem.to, dashboardItem.exact)
                         ? "border-primary text-primary bg-sidebar-accent/40"
@@ -246,8 +252,9 @@ export function DancerSidebar() {
                       return (
                         <Link
                           key={label}
-                          to={to as any}
-                          params={{ orgSlug } as any}
+                          to={to}
+                          params={{ orgSlug }}
+                          search={viewedEventSearch}
                           className={`border-sidebar-border flex min-h-10 items-center gap-2 border-t-2 px-3 py-2 transition-colors ${section.items.length > 1 ? "border-r even:border-r-0" : ""} ${
                             isActive
                               ? "border-t-primary text-primary bg-sidebar-accent/40"
@@ -278,8 +285,9 @@ export function DancerSidebar() {
                 return (
                   <Link
                     key={label}
-                    to={to as any}
-                    params={{ orgSlug } as any}
+                    to={to}
+                    params={{ orgSlug }}
+                    search={viewedEventSearch}
                     title={label}
                     aria-label={label}
                     className={`border-sidebar-border flex h-12 items-center justify-center border-t-2 border-b transition-colors ${

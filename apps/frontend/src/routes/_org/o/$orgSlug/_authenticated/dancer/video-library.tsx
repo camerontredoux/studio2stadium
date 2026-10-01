@@ -10,20 +10,36 @@ import {
 } from "@/features/org/api/video-queries";
 import { adminQueries } from "@/features/org/api/admin-queries";
 import { orgQueries } from "@/features/org/api/queries";
+import { queries as sessionQueries } from "@/lib/session";
+import {
+  hasOrgFeature,
+  viewedDancerEventId,
+} from "@/features/org/lib/entitlement";
 import { isAfter, subDays } from "date-fns";
 import { dancerEventSearchSchema } from "@/features/org/api/scouting-schemas";
-import { useOrg } from "@/features/org/context/use-org";
+import { useViewedDancerEventId } from "@/features/org/hooks/use-viewed-dancer-event";
 
 export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/dancer/video-library",
 )({
   validateSearch: dancerEventSearchSchema,
-  beforeLoad: async ({ context, params }) => {
+  beforeLoad: async ({ context, params, search }) => {
     const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     );
-    const features = (data.features ?? {}) as Record<string, boolean>;
-    if (!features.video_library) {
+    // Gate on the event this page will request, not the Org's active one —
+    // the backend gates a Dancer's reads on the event she asks for (#110).
+    const session = await context.queryClient.ensureQueryData(
+      sessionQueries.session(),
+    );
+    const eventId = viewedDancerEventId(data.myRosters, search.eventId);
+    if (
+      !hasOrgFeature(
+        { ...data, platformRole: session?.role },
+        "video_library",
+        eventId,
+      )
+    ) {
       throw redirect({ to: "/o/$orgSlug/dancer", params });
     }
   },
@@ -32,13 +48,8 @@ export const Route = createFileRoute(
 
 function DancerVideoLibrary() {
   const { orgSlug } = Route.useParams();
-  const { eventId: searchEventId } = Route.useSearch();
-  const { myRosters } = useOrg();
   const { data: events } = useSuspenseQuery(adminQueries.events(orgSlug));
-  const eventId =
-    searchEventId ??
-    myRosters.find((roster) => roster.type === "dancer")?.eventId ??
-    "";
+  const eventId = useViewedDancerEventId() ?? "";
   const event = events.find((candidate) => candidate.id === eventId);
 
   const { data: categories = [] } = useQuery(

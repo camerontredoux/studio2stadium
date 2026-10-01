@@ -3,7 +3,8 @@ import { ValidationError } from "@vinejs/vine";
 import { schema } from "./validator.ts";
 
 const validPayload = () => ({
-  userId: "8f14e45f-ceea-4c9e-b0f5-8a3f3a1e2a2b",
+  name: "Ada Organizer",
+  email: "ada@summit.example",
   eventTier: "regional",
   orgName: "The Summit",
   eventName: "Summit 2026",
@@ -35,12 +36,36 @@ test.group("Validator (create-checkout)", () => {
     assert.instanceOf(error, ValidationError);
   });
 
-  test("rejects a userId that is not a uuid", async ({ assert }) => {
+  test("rejects a missing buyer email — the account is created for it", async ({
+    assert,
+  }) => {
+    const payload = validPayload();
+    delete (payload as Partial<typeof payload>).email;
+    const [error] = await schema.tryValidate(payload);
+    assert.instanceOf(error, ValidationError);
+  });
+
+  test("rejects a buyer email that is not an email", async ({ assert }) => {
     const [error] = await schema.tryValidate({
       ...validPayload(),
-      userId: "not-a-uuid",
+      email: "not-an-email",
     });
     assert.instanceOf(error, ValidationError);
+  });
+
+  test("rejects a missing buyer name", async ({ assert }) => {
+    const [error] = await schema.tryValidate({ ...validPayload(), name: " " });
+    assert.instanceOf(error, ValidationError);
+  });
+
+  test("no longer takes a user id: the buyer is who they say, not an account", async ({
+    assert,
+  }) => {
+    const result = await schema.validate({
+      ...validPayload(),
+      userId: "8f14e45f-ceea-4c9e-b0f5-8a3f3a1e2a2b",
+    });
+    assert.notProperty(result, "userId");
   });
 
   test("rejects a malformed start date", async ({ assert }) => {

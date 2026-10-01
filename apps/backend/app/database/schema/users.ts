@@ -16,7 +16,14 @@ export const users = pg.pgTable(
     password: pg.text().notNull(),
     avatar: pg.text(),
     phone: pg.text(),
+    // Despite the name, `verified` is not about the email address: it is set
+    // when a dancer finishes onboarding and when staff accept a school's
+    // application. `emailVerifiedAt` is when the account's owner last proved
+    // they read its inbox — by using a password link or an Org claim link
+    // emailed to it. Provisioning trusts an existing account with a paid Org
+    // only once this is set (ADR 0007).
     verified: pg.boolean().notNull().default(false),
+    emailVerifiedAt: pg.timestamp({ withTimezone: true }),
     notifications: pg.boolean().notNull().default(true),
     orgAccountTier: orgAccountTier(),
     orgAccountTierExpiresAt: pg.timestamp({ withTimezone: true }),

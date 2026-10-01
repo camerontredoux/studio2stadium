@@ -1,17 +1,6 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckIcon, PlusIcon, ZapIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import {
-  AlertDialog,
-  AlertDialogClose,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/utils/cn";
 import {
@@ -21,17 +10,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toastManager } from "@/components/ui/toast-manager";
+import { ActivateEventDialog } from "@/features/org/components/activate-event-dialog";
+import { EventFormSheet } from "@/features/org/components/event-form-sheet";
+import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import {
   Tooltip,
   TooltipPopup,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
-import { EventFormSheet } from "@/features/org/components/event-form-sheet";
-import { useAdminEvent } from "@/features/org/context/use-admin-event";
-import { client } from "@/lib/api/client";
+import { useOrg } from "@/features/org/context/use-org";
+import {
+  BUY_ANOTHER_EVENT_MESSAGE,
+  canCreateOrgEvent,
+  eventTierLabel,
+} from "@/lib/event-tiers";
+import { useSession } from "@/lib/session";
 
 /**
  * Icon-only square on phones; the label (an `sr-only` span that becomes
@@ -40,10 +34,14 @@ import { client } from "@/lib/api/client";
 const COMPACT_BUTTON = "size-8 shrink-0 p-0 sm:w-auto";
 
 export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
-  const queryClient = useQueryClient();
   const { activeEvent, events, selectedEvent, selectEvent } = useAdminEvent();
   const [createOpen, setCreateOpen] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const org = useOrg();
+  const canCreate = canCreateOrgEvent({
+    session: useSession(),
+    orgSelfServe: org.selfServe,
+    orgTierManaged: org.tierManaged,
+  });
 
   const sortedEvents = useMemo(
     () =>
@@ -59,33 +57,6 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
     value: event.id,
     label: event.name,
   }));
-
-  const activate = useMutation({
-    mutationFn: async (eventId: string) => {
-      const raw = client as unknown as {
-        PATCH: (
-          path: string,
-          options: { body: { isActive: boolean } },
-        ) => Promise<{ data: OrgEvent; error?: unknown }>;
-      };
-      const response = await raw.PATCH(`/orgs/${orgSlug}/events/${eventId}`, {
-        body: { isActive: true },
-      });
-      if (response.error) throw new Error("Activation failed");
-      return response.data;
-    },
-    onSuccess: () => {
-      setConfirmOpen(false);
-      void queryClient.invalidateQueries(adminQueries.events(orgSlug));
-      toastManager.add({ title: "Active event updated", type: "success" });
-    },
-    onError: () => {
-      toastManager.add({
-        title: "Couldn't make event active",
-        type: "error",
-      });
-    },
-  });
 
   const isSelectedActive =
     selectedEvent !== null && selectedEvent.id === activeEvent?.id;
@@ -112,11 +83,10 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
               <SelectItem key={event.id} value={event.id}>
                 <span className="flex min-w-0 items-center justify-between gap-3">
                   <span className="truncate">{event.name}</span>
-                  {event.isActive && (
-                    <span className="text-muted-foreground text-[10px] font-medium tracking-wide uppercase">
-                      Active
-                    </span>
-                  )}
+                  <span className="text-muted-foreground flex shrink-0 gap-2 text-[10px] font-medium tracking-wide uppercase">
+                    <span>{eventTierLabel(event.eventTier)}</span>
+                    {event.isActive && <span>Active</span>}
+                  </span>
                 </span>
               </SelectItem>
             ))}
@@ -134,81 +104,72 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
             <span className="sr-only sm:not-sr-only">Active event</span>
           </Button>
         ) : (
-          <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-            <Tooltip>
-              <AlertDialogTrigger
-                render={
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        size="xs"
-                        className={cn(COMPACT_BUTTON, "sm:px-2.5")}
-                        disabled={!selectedEvent}
-                      />
-                    }
-                  />
-                }
-              >
-                <ZapIcon aria-hidden className="size-4 sm:hidden" />
-                <span className="sr-only sm:not-sr-only">Make active</span>
-              </AlertDialogTrigger>
-              <TooltipPopup className="sm:hidden">Make active</TooltipPopup>
-            </Tooltip>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  Make {selectedEvent?.name} the active event?
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  Dancers and coaches will see this as the active event. If
-                  another event is active, it will no longer be shown to them.
-                  Admins can still view any event from the event switcher.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogClose
+          <Tooltip>
+            <ActivateEventDialog
+              orgSlug={orgSlug}
+              event={selectedEvent}
+              trigger={
+                <TooltipTrigger
                   render={
-                    <Button variant="ghost" disabled={activate.isPending} />
+                    <Button
+                      size="xs"
+                      className={cn(COMPACT_BUTTON, "sm:px-2.5")}
+                      disabled={!selectedEvent}
+                    />
                   }
-                >
-                  Cancel
-                </AlertDialogClose>
-                <Button
-                  onClick={() => {
-                    if (selectedEvent) activate.mutate(selectedEvent.id);
-                  }}
-                  disabled={!selectedEvent || activate.isPending}
-                >
-                  {activate.isPending ? "Making active…" : "Make active"}
-                </Button>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                />
+              }
+            >
+              <ZapIcon aria-hidden className="size-4 sm:hidden" />
+              <span className="sr-only sm:not-sr-only">Make active</span>
+            </ActivateEventDialog>
+            <TooltipPopup className="sm:hidden">Make active</TooltipPopup>
+          </Tooltip>
         )}
 
-        <Tooltip>
-          <TooltipTrigger
-            render={
+        {canCreate ? (
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  className={cn(COMPACT_BUTTON, "gap-1 sm:px-2")}
+                  onClick={() => setCreateOpen(true)}
+                />
+              }
+            >
+              <PlusIcon aria-hidden className="size-4 sm:size-3" />
+              <span className="sr-only sm:not-sr-only">New</span>
+            </TooltipTrigger>
+            <TooltipPopup className="sm:hidden">New event</TooltipPopup>
+          </Tooltip>
+        ) : (
+          <Tooltip>
+            <TooltipTrigger render={<span tabIndex={0} className="shrink-0" />}>
               <Button
                 variant="ghost"
                 size="xs"
                 className={cn(COMPACT_BUTTON, "gap-1 sm:px-2")}
-                onClick={() => setCreateOpen(true)}
-              />
-            }
-          >
-            <PlusIcon aria-hidden className="size-4 sm:size-3" />
-            <span className="sr-only sm:not-sr-only">New</span>
-          </TooltipTrigger>
-          <TooltipPopup className="sm:hidden">New event</TooltipPopup>
-        </Tooltip>
+                disabled
+                aria-label={`New event. ${BUY_ANOTHER_EVENT_MESSAGE}`}
+              >
+                <PlusIcon aria-hidden className="size-4 sm:size-3" />
+                <span className="sr-only sm:not-sr-only">New</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipPopup>{BUY_ANOTHER_EVENT_MESSAGE}</TooltipPopup>
+          </Tooltip>
+        )}
       </div>
 
-      <EventFormSheet
-        orgSlug={orgSlug}
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-      />
+      {canCreate && (
+        <EventFormSheet
+          orgSlug={orgSlug}
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+        />
+      )}
     </TooltipProvider>
   );
 }

@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ClaimRouteImport } from './routes/claim'
 import { Route as OrgRouteRouteImport } from './routes/_org/route'
 import { Route as OnboardingRouteRouteImport } from './routes/_onboarding/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
@@ -57,6 +58,7 @@ import { Route as ApproutesExploreUsernameRouteImport } from './routes/_app/(rou
 import { Route as ApproutesEventsEventIdRouteImport } from './routes/_app/(routes)/events/$eventId'
 import { Route as AdminroutesAdminVideoLibraryRouteImport } from './routes/_admin/(routes)/admin/video-library'
 import { Route as AdminroutesAdminSchoolEventsRouteImport } from './routes/_admin/(routes)/admin/school-events'
+import { Route as AdminroutesAdminPurchasesRouteImport } from './routes/_admin/(routes)/admin/purchases'
 import { Route as AdminroutesAdminOutboxStatsRouteImport } from './routes/_admin/(routes)/admin/outbox-stats'
 import { Route as AdminroutesAdminOrgsRouteImport } from './routes/_admin/(routes)/admin/orgs'
 import { Route as AdminroutesAdminGlobalEventsRouteImport } from './routes/_admin/(routes)/admin/global-events'
@@ -88,6 +90,11 @@ import { Route as OrgOOrgSlugAuthenticatedAdminCoachesRouteImport } from './rout
 import { Route as OrgOOrgSlugAuthenticatedAdminCallbacksRouteImport } from './routes/_org/o/$orgSlug/_authenticated/admin/callbacks'
 import { Route as OrgOOrgSlugAuthenticatedCoachDancersIndexRouteImport } from './routes/_org/o/$orgSlug/_authenticated/coach/dancers/index'
 
+const ClaimRoute = ClaimRouteImport.update({
+  id: '/claim',
+  path: '/claim',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrgRouteRoute = OrgRouteRouteImport.update({
   id: '/_org',
   getParentRoute: () => rootRouteImport,
@@ -339,6 +346,12 @@ const AdminroutesAdminSchoolEventsRoute =
     path: '/admin/school-events',
     getParentRoute: () => AdminRouteRoute,
   } as any)
+const AdminroutesAdminPurchasesRoute =
+  AdminroutesAdminPurchasesRouteImport.update({
+    id: '/(routes)/admin/purchases',
+    path: '/admin/purchases',
+    getParentRoute: () => AdminRouteRoute,
+  } as any)
 const AdminroutesAdminOutboxStatsRoute =
   AdminroutesAdminOutboxStatsRouteImport.update({
     id: '/(routes)/admin/outbox-stats',
@@ -519,6 +532,7 @@ const OrgOOrgSlugAuthenticatedCoachDancersIndexRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof ApproutesIndexRoute
+  '/claim': typeof ClaimRoute
   '/recruiting': typeof ApproutesRecruitingRouteRouteWithChildren
   '/resources': typeof ApproutesResourcesRouteRouteWithChildren
   '/settings': typeof ApproutesSettingsRouteRouteWithChildren
@@ -541,6 +555,7 @@ export interface FileRoutesByFullPath {
   '/admin/global-events': typeof AdminroutesAdminGlobalEventsRoute
   '/admin/orgs': typeof AdminroutesAdminOrgsRoute
   '/admin/outbox-stats': typeof AdminroutesAdminOutboxStatsRoute
+  '/admin/purchases': typeof AdminroutesAdminPurchasesRoute
   '/admin/school-events': typeof AdminroutesAdminSchoolEventsRoute
   '/admin/video-library': typeof AdminroutesAdminVideoLibraryRoute
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
@@ -594,6 +609,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof ApproutesIndexRoute
+  '/claim': typeof ClaimRoute
   '/$username': typeof ApproutesUsernameRoute
   '/checkout': typeof ApproutesCheckoutRoute
   '/dancers': typeof ApproutesDancersRoute
@@ -613,6 +629,7 @@ export interface FileRoutesByTo {
   '/admin/global-events': typeof AdminroutesAdminGlobalEventsRoute
   '/admin/orgs': typeof AdminroutesAdminOrgsRoute
   '/admin/outbox-stats': typeof AdminroutesAdminOutboxStatsRoute
+  '/admin/purchases': typeof AdminroutesAdminPurchasesRoute
   '/admin/school-events': typeof AdminroutesAdminSchoolEventsRoute
   '/admin/video-library': typeof AdminroutesAdminVideoLibraryRoute
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
@@ -668,6 +685,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_onboarding': typeof OnboardingRouteRouteWithChildren
   '/_org': typeof OrgRouteRouteWithChildren
+  '/claim': typeof ClaimRoute
   '/_app/(routes)/recruiting': typeof ApproutesRecruitingRouteRouteWithChildren
   '/_app/(routes)/resources': typeof ApproutesResourcesRouteRouteWithChildren
   '/_app/(routes)/settings': typeof ApproutesSettingsRouteRouteWithChildren
@@ -691,6 +709,7 @@ export interface FileRoutesById {
   '/_admin/(routes)/admin/global-events': typeof AdminroutesAdminGlobalEventsRoute
   '/_admin/(routes)/admin/orgs': typeof AdminroutesAdminOrgsRoute
   '/_admin/(routes)/admin/outbox-stats': typeof AdminroutesAdminOutboxStatsRoute
+  '/_admin/(routes)/admin/purchases': typeof AdminroutesAdminPurchasesRoute
   '/_admin/(routes)/admin/school-events': typeof AdminroutesAdminSchoolEventsRoute
   '/_admin/(routes)/admin/video-library': typeof AdminroutesAdminVideoLibraryRoute
   '/_app/(routes)/events/$eventId': typeof ApproutesEventsEventIdRoute
@@ -746,6 +765,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/claim'
     | '/recruiting'
     | '/resources'
     | '/settings'
@@ -768,6 +788,7 @@ export interface FileRouteTypes {
     | '/admin/global-events'
     | '/admin/orgs'
     | '/admin/outbox-stats'
+    | '/admin/purchases'
     | '/admin/school-events'
     | '/admin/video-library'
     | '/events/$eventId'
@@ -821,6 +842,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/claim'
     | '/$username'
     | '/checkout'
     | '/dancers'
@@ -840,6 +862,7 @@ export interface FileRouteTypes {
     | '/admin/global-events'
     | '/admin/orgs'
     | '/admin/outbox-stats'
+    | '/admin/purchases'
     | '/admin/school-events'
     | '/admin/video-library'
     | '/events/$eventId'
@@ -894,6 +917,7 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/_onboarding'
     | '/_org'
+    | '/claim'
     | '/_app/(routes)/recruiting'
     | '/_app/(routes)/resources'
     | '/_app/(routes)/settings'
@@ -917,6 +941,7 @@ export interface FileRouteTypes {
     | '/_admin/(routes)/admin/global-events'
     | '/_admin/(routes)/admin/orgs'
     | '/_admin/(routes)/admin/outbox-stats'
+    | '/_admin/(routes)/admin/purchases'
     | '/_admin/(routes)/admin/school-events'
     | '/_admin/(routes)/admin/video-library'
     | '/_app/(routes)/events/$eventId'
@@ -975,10 +1000,18 @@ export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   OnboardingRouteRoute: typeof OnboardingRouteRouteWithChildren
   OrgRouteRoute: typeof OrgRouteRouteWithChildren
+  ClaimRoute: typeof ClaimRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/claim': {
+      id: '/claim'
+      path: '/claim'
+      fullPath: '/claim'
+      preLoaderRoute: typeof ClaimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_org': {
       id: '/_org'
       path: ''
@@ -1315,6 +1348,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminroutesAdminSchoolEventsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/_admin/(routes)/admin/purchases': {
+      id: '/_admin/(routes)/admin/purchases'
+      path: '/admin/purchases'
+      fullPath: '/admin/purchases'
+      preLoaderRoute: typeof AdminroutesAdminPurchasesRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/_admin/(routes)/admin/outbox-stats': {
       id: '/_admin/(routes)/admin/outbox-stats'
       path: '/admin/outbox-stats'
@@ -1553,6 +1593,7 @@ interface AdminRouteRouteChildren {
   AdminroutesAdminGlobalEventsRoute: typeof AdminroutesAdminGlobalEventsRoute
   AdminroutesAdminOrgsRoute: typeof AdminroutesAdminOrgsRoute
   AdminroutesAdminOutboxStatsRoute: typeof AdminroutesAdminOutboxStatsRoute
+  AdminroutesAdminPurchasesRoute: typeof AdminroutesAdminPurchasesRoute
   AdminroutesAdminSchoolEventsRoute: typeof AdminroutesAdminSchoolEventsRoute
   AdminroutesAdminVideoLibraryRoute: typeof AdminroutesAdminVideoLibraryRoute
 }
@@ -1565,6 +1606,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminroutesAdminGlobalEventsRoute: AdminroutesAdminGlobalEventsRoute,
   AdminroutesAdminOrgsRoute: AdminroutesAdminOrgsRoute,
   AdminroutesAdminOutboxStatsRoute: AdminroutesAdminOutboxStatsRoute,
+  AdminroutesAdminPurchasesRoute: AdminroutesAdminPurchasesRoute,
   AdminroutesAdminSchoolEventsRoute: AdminroutesAdminSchoolEventsRoute,
   AdminroutesAdminVideoLibraryRoute: AdminroutesAdminVideoLibraryRoute,
 }
@@ -1848,6 +1890,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   OnboardingRouteRoute: OnboardingRouteRouteWithChildren,
   OrgRouteRoute: OrgRouteRouteWithChildren,
+  ClaimRoute: ClaimRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

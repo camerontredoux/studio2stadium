@@ -1,5 +1,41 @@
+import env from "#start/env";
 import app from "@adonisjs/core/services/app";
 import { defineConfig } from "@adonisjs/cors";
+
+/** The product's own origins, allowed on every route. */
+const PRODUCT_ORIGINS = [
+  "https://api.studio2stadium.com",
+  "https://app.studio2stadium.com",
+];
+
+/**
+ * The S2S Live marketing site calls the Event Tier checkout endpoints from the
+ * buyer's browser (`POST /event-tiers/checkout` and
+ * `GET /event-tiers/checkout/:sessionId`) and nothing else, so its origin is
+ * allowed on those paths only. Nobody signs in there, so it has no business
+ * with any route a product session could reach.
+ *
+ * Its origin is the one in `MARKETING_SITE_URL` (where Checkout returns the
+ * buyer), plus any listed in the optional, comma-separated
+ * `MARKETING_SITE_ORIGINS` — for a site served from both the apex and `www`,
+ * or a preview deployment.
+ */
+const MARKETING_ORIGINS = [
+  new URL(env.get("MARKETING_SITE_URL")).origin,
+  ...(env.get("MARKETING_SITE_ORIGINS") ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+    .map((origin) => new URL(origin).origin),
+];
+
+const MARKETING_PATH = /^\/event-tiers\/checkout(\/[^/?]+)?(\?.*)?$/;
+
+export function allowsOrigin(origin: string, path: string) {
+  if (PRODUCT_ORIGINS.includes(origin)) return true;
+
+  return MARKETING_ORIGINS.includes(origin) && MARKETING_PATH.test(path);
+}
 
 /**
  * Configuration options to tweak the CORS policy. The following
@@ -10,7 +46,7 @@ import { defineConfig } from "@adonisjs/cors";
 const corsConfig = defineConfig({
   enabled: true,
   origin: app.inProduction
-    ? ["https://api.studio2stadium.com", "https://app.studio2stadium.com"]
+    ? (origin, ctx) => allowsOrigin(origin, ctx.request.url())
     : true,
   methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   headers: app.inProduction

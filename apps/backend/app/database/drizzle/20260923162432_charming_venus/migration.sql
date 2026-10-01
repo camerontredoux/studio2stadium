@@ -1,0 +1,1 @@
+ALTER TABLE "event_tier_purchases" ADD COLUMN "buyer_account_created" boolean DEFAULT false NOT NULL;

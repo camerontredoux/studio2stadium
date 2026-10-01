@@ -17,6 +17,7 @@ import {
 import { Link } from "@tanstack/react-router";
 import { Pencil, SearchIcon, Trash2, Users } from "lucide-react";
 import * as React from "react";
+import { eventTierLabel, type EventTier } from "@/lib/event-tiers";
 
 interface Org {
   id: string;
@@ -31,6 +32,7 @@ interface Org {
   memberCount: number;
   eventCount: number;
   activeEvent: string | null;
+  activeEventTier: EventTier | null;
 }
 
 interface OrgsTableProps {
@@ -150,9 +152,16 @@ export function OrgsTable({
                   </TableCell>
                   <TableCell className="hidden lg:table-cell">
                     {org.activeEvent ? (
-                      <Badge variant="secondary" className="text-xs">
-                        {org.activeEvent}
-                      </Badge>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <Badge variant="secondary" className="text-xs">
+                          {org.activeEvent}
+                        </Badge>
+                        {org.activeEventTier && (
+                          <Badge variant="outline" className="text-xs">
+                            {eventTierLabel(org.activeEventTier)}
+                          </Badge>
+                        )}
+                      </div>
                     ) : (
                       <span className="text-muted-foreground text-xs">None</span>
                     )}

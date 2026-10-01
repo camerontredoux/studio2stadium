@@ -3,6 +3,7 @@ import { ErrorComponent } from "@/components/layouts/app-layout/error-layout";
 import { PendingComponent } from "@/components/layouts/app-layout/pending-layout";
 import { ToastProvider } from "@/components/ui/toast";
 import { notificationQueries } from "@/features/notifications/api/queries";
+import { organizerRedirect } from "@/features/org/lib/org-destination";
 import { createAccess } from "@/lib/access/access";
 import { queries, SessionNetworkError } from "@/lib/session";
 import { useRealtime } from "@/lib/session/hooks/use-realtime";
@@ -24,7 +25,12 @@ export const Route = createFileRoute("/_app")({
         });
       }
 
-      if (!session.verified) {
+      // An Organizer account has no profile for this product to be built on:
+      // it belongs in its Org's admin area, never in dancer onboarding.
+      const organizer = organizerRedirect(session, location.pathname);
+      if (organizer) throw redirect({ ...organizer, replace: true });
+
+      if (!session.verified && session.type !== "organizer") {
         if (session.type === "school") {
           const application = await context.queryClient.ensureQueryData(
             queries.application(true),

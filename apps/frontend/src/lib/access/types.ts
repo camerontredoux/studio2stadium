@@ -4,7 +4,12 @@ export type Role = ApiSchemas["AuthSessionResponse"]["role"];
 export type Platform = ApiSchemas["AuthSessionResponse"]["platforms"][number];
 export type AccountType = ApiSchemas["AuthSessionResponse"]["type"];
 
-export type Domain = `${Platform}:${AccountType}`;
+/**
+ * A permission domain is a platform and a profile type. An `organizer` account
+ * has no profile and no domain of its own: it administers its Org through its
+ * org membership, never through these permissions.
+ */
+export type Domain = `${Platform}:${Exclude<AccountType, "organizer">}`;
 
 /**
  * What a person is inside an Org. `organizer` runs the Org's events and buys

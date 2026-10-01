@@ -5,11 +5,13 @@ import {
   HeartIcon,
   MailIcon,
   MapPinIcon,
+  TagIcon,
 } from "lucide-react";
 
 import { cn } from "@/components/utils/cn";
 import type { OrgEvent } from "@/features/org/api/admin-queries";
 import type { EventPhaseInfo } from "@/features/org/hooks/use-event-phase";
+import { eventTierLabel } from "@/lib/event-tiers";
 
 export type PanelAccent =
   | "blue"
@@ -167,11 +169,14 @@ export function DashboardHeader({
   phase,
   dateRange,
   actions,
+  isActive = true,
 }: {
   name: string;
   phase: EventPhaseInfo;
   dateRange: string;
   actions?: React.ReactNode;
+  /** Whether the event is the Org's active one; an inactive event's phase is muted. */
+  isActive?: boolean;
 }) {
   return (
     <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4">
@@ -179,7 +184,7 @@ export function DashboardHeader({
         <h1 className="text-lg font-semibold tracking-tight 2xl:text-xl">
           {name}
         </h1>
-        <PhaseBadge phase={phase} isActive />
+        <PhaseBadge phase={phase} isActive={isActive} />
         <span className="text-muted-foreground text-xs tabular-nums 2xl:text-sm">
           {dateRange}
         </span>
@@ -296,6 +301,13 @@ export function SidebarDetailsSection({
           <CalendarIcon className="text-muted-foreground mt-0.5 size-3.5 shrink-0" />
           <span className="tabular-nums">
             {formatLongDateRange(event.startDate, event.endDate)}
+          </span>
+        </li>
+        <li className="flex items-center gap-2">
+          <TagIcon className="text-muted-foreground size-3.5 shrink-0" />
+          <span>
+            {eventTierLabel(event.eventTier)}
+            <span className="text-muted-foreground"> Event Tier</span>
           </span>
         </li>
         {event.startTime && (

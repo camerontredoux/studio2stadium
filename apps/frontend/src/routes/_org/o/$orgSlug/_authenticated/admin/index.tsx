@@ -55,6 +55,7 @@ import {
   type OrgEvent,
 } from "@/features/org/api/admin-queries";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
+import { useOrg } from "@/features/org/context/use-org";
 import {
   ACCENT_VALUE,
   AccentDot,
@@ -71,6 +72,7 @@ import {
   CreateEventForm,
   EventFormSheet,
 } from "@/features/org/components/event-form-sheet";
+import { InactiveEventPrompt } from "@/features/org/components/inactive-event-prompt";
 import { RosterUploadRow } from "@/features/org/components/roster-upload-row";
 import {
   useAdminCommandListener,
@@ -80,7 +82,10 @@ import {
   useEventPhase,
   type EventPhaseInfo,
 } from "@/features/org/hooks/use-event-phase";
+import { needsActivationPrompt } from "@/features/org/lib/event-activation";
 import { client } from "@/lib/api/client";
+import { BUY_ANOTHER_EVENT_MESSAGE, canCreateOrgEvent } from "@/lib/event-tiers";
+import { useSession } from "@/lib/session";
 import { useRequestUpload } from "@/shared/images/api/mutations";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
 
@@ -96,6 +101,7 @@ function AdminDashboard({
   activeEvent: OrgEvent;
 }) {
   const qc = useQueryClient();
+  const { activeEvent: orgActiveEvent } = useAdminEvent();
   const { data: stats } = useSuspenseQuery(
     adminQueries.stats(orgSlug, activeEvent.id),
   );
@@ -147,6 +153,7 @@ function AdminDashboard({
           name={activeEvent.name}
           phase={phase}
           dateRange={dateRange}
+          isActive={activeEvent.isActive}
           actions={
             <div className="flex items-center gap-3">
               <div className="text-sm 2xl:text-base">
@@ -176,6 +183,14 @@ function AdminDashboard({
             </div>
           }
         />
+
+        {needsActivationPrompt(activeEvent, orgActiveEvent) && (
+          <InactiveEventPrompt
+            orgSlug={orgSlug}
+            event={activeEvent}
+            onReview={() => setEditOpen(true)}
+          />
+        )}
 
         <section
           aria-label="Event stats"
@@ -1160,6 +1175,12 @@ function SidebarActivitySection({
 function AdminHome() {
   const { orgSlug } = Route.useParams();
   const { events, selectedEvent } = useAdminEvent();
+  const org = useOrg();
+  const canCreate = canCreateOrgEvent({
+    session: useSession(),
+    orgSelfServe: org.selfServe,
+    orgTierManaged: org.tierManaged,
+  });
 
   if (!selectedEvent && events.length === 0) {
     return (
@@ -1170,7 +1191,13 @@ function AdminHome() {
             You'll be able to upload rosters once the event is created.
           </p>
         </div>
-        <CreateEventForm orgSlug={orgSlug} />
+        {canCreate ? (
+          <CreateEventForm orgSlug={orgSlug} />
+        ) : (
+          <p className="text-muted-foreground text-sm">
+            {BUY_ANOTHER_EVENT_MESSAGE}
+          </p>
+        )}
       </div>
     );
   }

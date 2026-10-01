@@ -9,6 +9,7 @@ import {
   type MyRoster,
 } from "./org-context";
 import { grantsOrgAdmin } from "@/lib/access";
+import { hasOrgFeature } from "@/features/org/lib/entitlement";
 
 const EMPTY_ROSTERS: MyRoster[] = [];
 
@@ -23,6 +24,7 @@ export function OrgProvider({
   const { data } = useSuspenseQuery(orgQueries.org(slug));
 
   const features = (data.features ?? {}) as Record<string, boolean>;
+  const activeEventCapabilities = data.activeEventCapabilities;
   const membership =
     (data as { membership?: OrgMembership | null }).membership ?? null;
   const myRoster = (data as { myRoster?: MyRoster | null }).myRoster ?? null;
@@ -45,9 +47,33 @@ export function OrgProvider({
       myRoster,
       myRosters,
       isAdmin: grantsOrgAdmin(membership) || session?.role === "admin",
-      hasFeature: (key) => Boolean(features[key]),
+      selfServe: data.selfServe,
+      tierManaged: data.tierManaged,
+      // Capabilities come from an Org Event — the one named, when the backend
+      // gates this viewer on it, else the active one — and org-wide
+      // configuration from the Org; see `hasOrgFeature`.
+      hasFeature: (key, eventId) =>
+        hasOrgFeature(
+          {
+            features,
+            activeEventCapabilities,
+            myRosters,
+            membership,
+            platformRole: session?.role,
+          },
+          key,
+          eventId,
+        ),
     }),
-    [data, features, membership, myRoster, myRosters, session?.role],
+    [
+      data,
+      features,
+      activeEventCapabilities,
+      membership,
+      myRoster,
+      myRosters,
+      session?.role,
+    ],
   );
 
   useEffect(() => {

@@ -44,6 +44,16 @@ export default await Env.create(new URL("../", import.meta.url), {
   */
   MARKETING_SITE_URL: Env.schema.string(),
 
+  /*
+  |----------------------------------------------------------
+  | Further origins the marketing site is served from, comma
+  | separated (e.g. the apex and www, or a preview deploy).
+  | CORS allows these, and MARKETING_SITE_URL's origin, on the
+  | Event Tier checkout endpoints only (config/cors.ts).
+  |----------------------------------------------------------
+  */
+  MARKETING_SITE_ORIGINS: Env.schema.string.optional(),
+
   HEALTH_SECRET: Env.schema.string(),
 
   /*

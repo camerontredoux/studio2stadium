@@ -1,5 +1,6 @@
 import { db } from "#database/connection";
 import { dancerProfiles } from "#database/schema/dancers";
+import { isProfileAccountType } from "#database/schema/enums";
 import { feed } from "#database/schema/feed";
 import { videoUploads, videos } from "#database/schema/media";
 import { schoolProfiles } from "#database/schema/schools";
@@ -95,7 +96,7 @@ export async function handleStreamWebhook(payload: StreamWebhookPayload) {
           profileId = school?.id ?? null;
         }
 
-        if (profileId) {
+        if (profileId && isProfileAccountType(user.type)) {
           VideoUploadEvent.dispatch({
             profileId,
             userType: user.type,
