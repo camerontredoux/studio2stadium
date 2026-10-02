@@ -11,6 +11,10 @@ const EditSchoolEventController = () =>
   import("#modules/admin/edit-school-event/controller");
 const EditGlobalEventController = () =>
   import("#modules/admin/edit-global-event/controller");
+const DeleteSchoolEventController = () =>
+  import("#modules/admin/delete-school-event/controller");
+const DeleteGlobalEventController = () =>
+  import("#modules/admin/delete-global-event/controller");
 const GetApplicationsController = () =>
   import("#modules/admin/get-applications/controller");
 const GetSchoolsController = () =>
@@ -178,6 +182,16 @@ router
       description: "Updates a global event by ID",
     });
 
+    router.delete("events/school/:id", [DeleteSchoolEventController]).openapi({
+      summary: "Delete school event",
+      description: "Permanently deletes a school event by ID",
+    });
+
+    router.delete("events/global/:id", [DeleteGlobalEventController]).openapi({
+      summary: "Delete global event",
+      description: "Permanently deletes a global event by ID",
+    });
+
     router.get("applications", [GetApplicationsController]).openapi({
       summary: "Get all applications",
       description: "Returns all school applications for admin review",
@@ -252,7 +266,8 @@ router
 
     router.delete("orgs/:id", [DeleteOrgController]).openapi({
       summary: "Delete organization",
-      description: "Permanently deletes an organization and all associated data",
+      description:
+        "Permanently deletes an organization and all associated data",
     });
 
     router.get("orgs/:id/members", [GetOrgMembersController]).openapi({
