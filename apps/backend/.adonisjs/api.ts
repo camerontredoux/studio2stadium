@@ -67,6 +67,14 @@ type AdminEventsGlobalIdPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/edit-global-event/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/edit-global-event/controller.ts').default['handle'], true>
 }
+type AdminEventsSchoolIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/delete-school-event/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/delete-school-event/controller.ts').default['handle'], true>
+}
+type AdminEventsGlobalIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/delete-global-event/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/delete-global-event/controller.ts').default['handle'], true>
+}
 type AdminApplicationsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/admin/get-applications/controller.ts').default['handle'], false>
@@ -1012,6 +1020,7 @@ export interface ApiDefinition {
           '$url': {
           };
           '$patch': AdminEventsGlobalIdPatch;
+          '$delete': AdminEventsGlobalIdDelete;
         };
       };
       'school': {
@@ -1019,6 +1028,7 @@ export interface ApiDefinition {
           '$url': {
           };
           '$patch': AdminEventsSchoolIdPatch;
+          '$delete': AdminEventsSchoolIdDelete;
         };
       };
     };

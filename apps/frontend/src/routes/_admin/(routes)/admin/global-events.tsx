@@ -1,4 +1,13 @@
 import { useIsMobile } from "@/components/hooks/use-mobile";
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -24,6 +33,7 @@ import {
 import { toastManager } from "@/components/ui/toast-manager";
 import {
   useAddGlobalEvent,
+  useDeleteGlobalEvent,
   useEditGlobalEvent,
 } from "@/features/admin/api/mutations";
 import type { GlobalEventFormData } from "@/features/admin/api/schemas";
@@ -150,19 +160,33 @@ type GlobalEvent = ApiSchemas["EventsGlobalResponse"][number];
 function EventsView() {
   const { data: events } = useSuspenseQuery(eventQueries.globalEvents());
   const [editingEvent, setEditingEvent] = useState<GlobalEvent | null>(null);
+  const [deletingEvent, setDeletingEvent] = useState<GlobalEvent | null>(null);
   const isMobile = useIsMobile();
 
   return (
     <>
       {isMobile ? (
-        <EventsCardList events={events} onEdit={setEditingEvent} />
+        <EventsCardList
+          events={events}
+          onEdit={setEditingEvent}
+          onDelete={setDeletingEvent}
+        />
       ) : (
-        <EventsTable events={events} onEdit={setEditingEvent} />
+        <EventsTable
+          events={events}
+          onEdit={setEditingEvent}
+          onDelete={setDeletingEvent}
+        />
       )}
 
       <EditEventDialog
         event={editingEvent}
         onOpenChange={(open) => !open && setEditingEvent(null)}
+      />
+
+      <DeleteEventDialog
+        event={deletingEvent}
+        onOpenChange={(open) => !open && setDeletingEvent(null)}
       />
     </>
   );
@@ -171,9 +195,10 @@ function EventsView() {
 interface EventsListProps {
   events: GlobalEvent[];
   onEdit: (event: GlobalEvent) => void;
+  onDelete: (event: GlobalEvent) => void;
 }
 
-function EventsTable({ events, onEdit }: EventsListProps) {
+function EventsTable({ events, onEdit, onDelete }: EventsListProps) {
   if (events.length === 0) {
     return <p className="text-muted-foreground">No global events found</p>;
   }
@@ -213,13 +238,23 @@ function EventsTable({ events, onEdit }: EventsListProps) {
                 {event.attendees}
               </TableCell>
               <TableCell className="whitespace-nowrap">
-                <Button
-                  variant="outline"
-                  size="xs"
-                  onClick={() => onEdit(event)}
-                >
-                  Edit
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="xs"
+                    onClick={() => onEdit(event)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="xs"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => onDelete(event)}
+                  >
+                    Delete
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -229,7 +264,7 @@ function EventsTable({ events, onEdit }: EventsListProps) {
   );
 }
 
-function EventsCardList({ events, onEdit }: EventsListProps) {
+function EventsCardList({ events, onEdit, onDelete }: EventsListProps) {
   if (events.length === 0) {
     return <p className="text-muted-foreground">No global events found</p>;
   }
@@ -246,9 +281,23 @@ function EventsCardList({ events, onEdit }: EventsListProps) {
                   {event.type}
                 </span>
               </div>
-              <Button variant="outline" size="xs" onClick={() => onEdit(event)}>
-                Edit
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="xs"
+                  onClick={() => onEdit(event)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="outline"
+                  size="xs"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => onDelete(event)}
+                >
+                  Delete
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="pb-3">
@@ -416,5 +465,77 @@ function EditEventDialog({ event, onOpenChange }: EditEventDialogProps) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+interface DeleteEventDialogProps {
+  event: GlobalEvent | null;
+  onOpenChange: (open: boolean) => void;
+}
+
+function DeleteEventDialog({ event, onOpenChange }: DeleteEventDialogProps) {
+  const queryClient = useQueryClient();
+  const { mutate: deleteEvent, isPending } = useDeleteGlobalEvent();
+
+  // Keep reference to last event for exit animation
+  const lastEventRef = useRef<GlobalEvent | null>(null);
+  if (event) {
+    lastEventRef.current = event;
+  }
+  const displayEvent = event ?? lastEventRef.current;
+
+  const handleDelete = () => {
+    if (!event) return;
+
+    deleteEvent(
+      { params: { path: { id: event.id } } },
+      {
+        onSuccess: () => {
+          toastManager.add({
+            title: "Event deleted",
+            description: `${event.title} has been permanently deleted`,
+            type: "success",
+          });
+          queryClient.invalidateQueries({
+            queryKey: eventQueries.globalEvents().queryKey,
+          });
+          onOpenChange(false);
+        },
+        onError: () => {
+          toastManager.add({
+            title: "Error",
+            description: "Failed to delete global event",
+            type: "error",
+          });
+        },
+      },
+    );
+  };
+
+  return (
+    <AlertDialog open={!!event} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Event</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently delete{" "}
+            <strong>{displayEvent?.title}</strong>. This action cannot be
+            undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogClose render={<Button variant="outline" />}>
+            Cancel
+          </AlertDialogClose>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isPending}
+          >
+            {isPending ? "Deleting..." : "Delete Event"}
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
