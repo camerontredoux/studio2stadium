@@ -15,6 +15,7 @@ import "#modules/orgs/routes";
 import "#modules/schools/routes";
 import "#modules/skills/routes";
 import "#modules/sports/routes";
+import "#modules/stats/routes";
 import "#modules/styles/routes";
 import "#modules/subscriptions/routes";
 import "#modules/users/routes";
