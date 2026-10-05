@@ -1,3 +1,12 @@
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,7 +19,10 @@ import {
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
-import { useEditSchoolEvent } from "@/features/admin/api/mutations";
+import {
+  useDeleteSchoolEvent,
+  useEditSchoolEvent,
+} from "@/features/admin/api/mutations";
 import type { SchoolEventFormData } from "@/features/admin/api/schemas";
 import { SchoolEventForm } from "@/features/admin/components/school-event-form";
 import { type ApiSchemas } from "@/lib/api/client";
@@ -31,6 +43,7 @@ export function ViewEventsDialog({
   onOpenChange,
 }: ViewEventsDialogProps) {
   const [editingEvent, setEditingEvent] = useState<SchoolEvent | null>(null);
+  const [deletingEvent, setDeletingEvent] = useState<SchoolEvent | null>(null);
 
   // Keep reference to last school for exit animation
   const lastSchoolRef = useRef<{ username: string; name: string } | null>(null);
@@ -41,7 +54,10 @@ export function ViewEventsDialog({
 
   return (
     <>
-      <Dialog open={!!school && !editingEvent} onOpenChange={onOpenChange}>
+      <Dialog
+        open={!!school && !editingEvent && !deletingEvent}
+        onOpenChange={onOpenChange}
+      >
         <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Events - {displaySchool?.name}</DialogTitle>
@@ -58,6 +74,7 @@ export function ViewEventsDialog({
                 <EventsList
                   username={displaySchool.username}
                   onEdit={setEditingEvent}
+                  onDelete={setDeletingEvent}
                 />
               </Suspense>
             )}
@@ -75,6 +92,12 @@ export function ViewEventsDialog({
         schoolUsername={displaySchool?.username ?? ""}
         onOpenChange={(open) => !open && setEditingEvent(null)}
       />
+
+      <DeleteEventDialog
+        event={deletingEvent}
+        schoolUsername={displaySchool?.username ?? ""}
+        onOpenChange={(open) => !open && setDeletingEvent(null)}
+      />
     </>
   );
 }
@@ -82,9 +105,10 @@ export function ViewEventsDialog({
 interface EventsListProps {
   username: string;
   onEdit: (event: SchoolEvent) => void;
+  onDelete: (event: SchoolEvent) => void;
 }
 
-function EventsList({ username, onEdit }: EventsListProps) {
+function EventsList({ username, onEdit, onDelete }: EventsListProps) {
   const { data: school } = useSuspenseQuery(
     adminQueries.schoolEvents(username),
   );
@@ -102,7 +126,12 @@ function EventsList({ username, onEdit }: EventsListProps) {
   return (
     <div className="flex flex-col gap-3">
       {events.map((event) => (
-        <EventCard key={event.id} event={event} onEdit={() => onEdit(event)} />
+        <EventCard
+          key={event.id}
+          event={event}
+          onEdit={() => onEdit(event)}
+          onDelete={() => onDelete(event)}
+        />
       ))}
     </div>
   );
@@ -111,6 +140,7 @@ function EventsList({ username, onEdit }: EventsListProps) {
 interface EventCardProps {
   event: SchoolEvent;
   onEdit: () => void;
+  onDelete: () => void;
 }
 
 function formatDatetimeWithoutTimezone(datetime: string): {
@@ -147,7 +177,7 @@ function formatDatetimeWithoutTimezone(datetime: string): {
   return { date: formattedDate, time: formattedTime };
 }
 
-function EventCard({ event, onEdit }: EventCardProps) {
+function EventCard({ event, onEdit, onDelete }: EventCardProps) {
   const { date: formattedDate, time: formattedTime } =
     formatDatetimeWithoutTimezone(event.startDatetime);
 
@@ -171,9 +201,19 @@ function EventCard({ event, onEdit }: EventCardProps) {
           </div>
         </div>
       </div>
-      <Button variant="outline" size="xs" onClick={onEdit}>
-        Edit
-      </Button>
+      <div className="flex shrink-0 gap-2">
+        <Button variant="outline" size="xs" onClick={onEdit}>
+          Edit
+        </Button>
+        <Button
+          variant="outline"
+          size="xs"
+          className="text-destructive hover:text-destructive"
+          onClick={onDelete}
+        >
+          Delete
+        </Button>
+      </div>
     </div>
   );
 }
@@ -321,5 +361,79 @@ function EditEventDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+interface DeleteEventDialogProps {
+  event: SchoolEvent | null;
+  schoolUsername: string;
+  onOpenChange: (open: boolean) => void;
+}
+
+function DeleteEventDialog({
+  event,
+  schoolUsername,
+  onOpenChange,
+}: DeleteEventDialogProps) {
+  const { mutate: deleteEvent, isPending } =
+    useDeleteSchoolEvent(schoolUsername);
+
+  // Keep reference to last event for exit animation
+  const lastEventRef = useRef<SchoolEvent | null>(null);
+  if (event) {
+    lastEventRef.current = event;
+  }
+  const displayEvent = event ?? lastEventRef.current;
+
+  const handleDelete = () => {
+    if (!event) return;
+
+    deleteEvent(
+      { params: { path: { id: event.id } } },
+      {
+        onSuccess: () => {
+          toastManager.add({
+            title: "Event deleted",
+            description: `${event.title} has been permanently deleted`,
+            type: "success",
+          });
+          onOpenChange(false);
+        },
+        onError: () => {
+          toastManager.add({
+            title: "Error",
+            description: "Failed to delete event",
+            type: "error",
+          });
+        },
+      },
+    );
+  };
+
+  return (
+    <AlertDialog open={!!event} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Event</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently delete{" "}
+            <strong>{displayEvent?.title}</strong>. This action cannot be
+            undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogClose render={<Button variant="outline" />}>
+            Cancel
+          </AlertDialogClose>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isPending}
+          >
+            {isPending ? "Deleting..." : "Delete Event"}
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
