@@ -5,6 +5,7 @@ import { schoolProfiles } from "#database/schema/schools";
 import { dancerSkills, schoolSkills, skills } from "#database/schema/skills";
 import { dancerSports, schoolSports, sports } from "#database/schema/sports";
 import { dancerStyles, schoolStyles, styles } from "#database/schema/styles";
+import { subscriptions } from "#database/schema/subscriptions";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
 import { normalizeEmail } from "#utils/normalize-email";
@@ -110,6 +111,9 @@ async function createDancer(options: {
   skillSlugs: string[];
   gpa: number | null;
   location?: string;
+  // Dancers are only surfaced to schools when they have premium entitlement.
+  // Defaults to true so existing match/gpa/favorite assertions stay focused.
+  premium?: boolean;
 }) {
   const displayEmail = faker.internet.email().toLowerCase();
   const email = await normalizeEmail(displayEmail);
@@ -127,6 +131,17 @@ async function createDancer(options: {
       verified: true,
     })
     .returning();
+
+  if (options.premium ?? true) {
+    await db.insert(subscriptions).values({
+      userId: user.id,
+      source: "stripe",
+      status: "active",
+      subscriptionId: `sub_${faker.string.alphanumeric(16)}`,
+      customerId: `cus_${faker.string.alphanumeric(16)}`,
+      currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    });
+  }
 
   const [profile] = await db
     .insert(dancerProfiles)
@@ -198,6 +213,28 @@ test.group("Recommended dancers for schools", (group) => {
     assert.notInclude(ids, noOverlap.id);
     assert.notInclude(ids, belowGpa.id);
     assert.notInclude(ids, favorited.id);
+  });
+
+  test("only surfaces premium dancers", async ({ assert }) => {
+    const school = await createSchool(3.0);
+
+    const premium = await createDancer({
+      skillSlugs: SCHOOL_SKILLS,
+      gpa: 3.5,
+      premium: true,
+    });
+    const nonPremium = await createDancer({
+      skillSlugs: SCHOOL_SKILLS,
+      gpa: 3.5,
+      premium: false,
+    });
+
+    const service = new Service(new DatabaseService());
+    const results = await service.execute(school.id, { limit: 10 });
+    const ids = results.map((r) => r.id);
+
+    assert.include(ids, premium.id);
+    assert.notInclude(ids, nonPremium.id);
   });
 
   test("returns nothing when the school has no skill preferences set", async ({
