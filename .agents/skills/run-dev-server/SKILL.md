@@ -131,7 +131,7 @@ To stop without starting again:
 .agents/skills/run-dev-server/scripts/stop.sh
 ```
 
-`stop.sh` ends each server's whole process group and waits for its port to clear. It refuses a process that does not run from your worktree. It leaves the Redis container running.
+`stop.sh` ends each server's whole process group and waits until every process in it has exited. `ace serve --hmr` ignores SIGTERM and keeps its server alive with the port closed, so a plain `kill` is not enough: the scripts send SIGINT, then SIGKILL after 15 seconds. It refuses a process that does not run from your worktree. It leaves the Redis container running.
 
 ## Report
 

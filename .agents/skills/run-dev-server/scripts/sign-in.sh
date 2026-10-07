@@ -54,7 +54,7 @@ jar="$out_dir/run-dev-server-cookies-$slug"
 (umask 077 && : >"$jar")
 code=$(curl -s -m 30 -o /dev/null -w '%{http_code}' -c "$jar" -H 'Content-Type: application/json' \
   -d "{\"email\":\"$email\",\"password\":\"$password\"}" "http://localhost:$api/auth/login")
-[ "$code" = 200 ] || die "POST /auth/login answered $code, not 200: read $out_dir/run-dev-server-api-$slug.log"
+[ "$code" = 200 ] || [ "$code" = 204 ] || die "POST /auth/login answered $code, not 200 or 204: read $out_dir/run-dev-server-api-$slug.log"
 code=$(curl -s -m 30 -o /dev/null -w '%{http_code}' -b "$jar" "http://localhost:$api/auth/session")
 [ "$code" = 200 ] || die "/auth/session answered $code with the new session, not 200"
 

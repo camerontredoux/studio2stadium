@@ -69,6 +69,25 @@ owned_here() {
   case "$cwd/" in "$root"/*) return 0 ;; *) return 1 ;; esac
 }
 
+group_alive() {
+  ps -eo pgid= | rg -qx "\s*$1"
+}
+
+# End a whole process group and wait until every process in it has exited.
+# `ace serve --hmr` and the server it watches catch SIGTERM and keep running,
+# with the port closed, so send SIGINT (Ctrl-C), then SIGKILL after 15 seconds.
+stop_group() {
+  local pgid=$1
+  kill -INT -- "-$pgid" 2>/dev/null || return 0
+  for _ in $(seq 1 15); do
+    group_alive "$pgid" || return 0
+    sleep 1
+  done
+  kill -KILL -- "-$pgid" 2>/dev/null || true
+  sleep 1
+  ! group_alive "$pgid"
+}
+
 # True when this worktree's own Redis container publishes the port.
 redis_owns() {
   [ "$(docker port "$redis_name" 6379/tcp 2>/dev/null | head -n 1)" = "127.0.0.1:$1" ]

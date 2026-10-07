@@ -47,7 +47,7 @@ echo "launched web on port $web, log=$web_log"
 # not keep its port after stop.sh found nothing to stop.
 if ! "$(dirname "$0")/ready.sh" "$api_launcher" "$web_launcher"; then
   for launcher in $api_launcher $web_launcher; do
-    kill -- "-$launcher" 2>/dev/null || true
+    stop_group "$launcher" || true
   done
   exit 1
 fi

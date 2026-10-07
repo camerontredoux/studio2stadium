@@ -19,12 +19,9 @@ stop_port() {
   fi
   owned_here "$pid" || die "port $port is held by a process outside this worktree; not stopping it"
   pgid=$(ps -o pgid= -p "$pid" | tr -d ' ')
-  kill -- "-$pgid"
-  for _ in $(seq 1 15); do
-    port_taken "$port" || { echo "port $port"; return; }
-    sleep 1
-  done
-  die "port $port still has a listener 15 seconds after stopping group $pgid"
+  stop_group "$pgid" || die "group $pgid still runs after SIGKILL"
+  port_taken "$port" && die "port $port still has a listener after group $pgid exited"
+  echo "port $port"
 }
 
 web_state=$(stop_port "$web")
