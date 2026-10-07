@@ -1,6 +1,6 @@
-# CLAUDE.md
+# Backend
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for `apps/backend`. Monorepo structure, infrastructure, and cross-app flow are in the root `AGENTS.md`.
 
 ## Commands
 
@@ -12,7 +12,7 @@ pnpm start            # Run production server
 
 # Testing
 pnpm test                           # Run all tests
-node ace test --files "app/modules/users/signup/test.ts"  # Run single test file
+node ace test --files "app/modules/event-tiers/checkout/service.spec.ts"  # Run single test file
 
 # Database
 pnpm db:generate      # Generate migration from schema changes
@@ -101,13 +101,15 @@ The cookie cache is intentionally stateless. During its TTL, it never hits Redis
 **Version-Based Invalidation:**
 Redis stores `version:{userId}` as an invalidation key. The Redis session stores this version; on mismatch, the session is refreshed from the database. Calling `guard.bump()` invalidates Redis sessions across all devices.
 
-**Named Middleware** (`start/kernel.ts`):
+**Named Middleware** (`start/kernel.ts`, which has the full list):
 
 - `auth` - Requires authenticated user
+- `admin` - Requires a platform admin
 - `dancer` - Requires dancer profile access
 - `school` - Requires school profile access
-- `premium` - Requires premium subscription
+- `subscribed` - Requires premium entitlement: an active subscription or a Premium Grant
 - `profile` - Requires any profile type
+- `org*` (`orgMember`, `orgAdmin`, `orgCoach`, `orgEvent`, and others) - Org and Org Event access
 
 ### Path Aliases
 
@@ -117,15 +119,19 @@ Use import aliases defined in `package.json`:
 - `#database/*` - `app/database/*.ts`
 - `#utils/*` - `app/utils/*.ts`
 - `#middleware/*` - `app/middleware/*.ts`
+- `#exceptions/*` - `app/exceptions/*.ts`
 - `#auth/*` - `app/auth/*.ts`
 - `#shared/*` - `app/shared/*.ts`
 - `#payments/*` - `app/payments/*.ts`
+- `#commands/*` - `commands/*.ts`
 - `#start/*` - `start/*.ts`
 - `#config/*` - `config/*.ts`
 
+The other aliases in `package.json` (`#controllers`, `#models`, `#services`, `#events`, `#listeners`, and similar) are AdonisJS defaults that point at directories that do not exist. The top-level `services/` (cron job classes) is not aliased; import it by relative path.
+
 ### Testing
 
-Tests use Japa with functional tests co-located at `app/modules/**/*.test.ts`. Use `@faker-js/faker` for test data.
+Tests use Japa. Most are co-located in the feature slice as `service.spec.ts`, `validator.spec.ts`, and `routes.spec.ts`; the `functional` suite in `adonisrc.ts` lists every glob it runs. Use `@faker-js/faker` for test data.
 
 ```typescript
 test.group("Feature tests", (group) => {

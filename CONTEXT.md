@@ -1,7 +1,8 @@
 # Studio 2 Stadium
 
-The collegiate dance recruiting platform. This repo is the public marketing site and schools
-directory; the product itself lives in the `app` repo. The glossary below is shared by both.
+The collegiate dance recruiting platform. This repo is the product: the web app, its API, and the
+notifications worker. The public marketing site and schools directory live in a separate repo. The
+glossary below is shared by both.
 
 ## Language
 

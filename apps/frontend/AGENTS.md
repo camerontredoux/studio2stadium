@@ -1,6 +1,6 @@
-# CLAUDE.md
+# Frontend
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for `apps/frontend`. Monorepo structure, infrastructure, and cross-app flow are in the root `AGENTS.md`.
 
 ## Commands
 
@@ -9,7 +9,7 @@ pnpm dev          # Start development server (Vite)
 pnpm build        # Type-check and build for production
 pnpm lint         # Run ESLint
 pnpm check        # Format with Prettier and fix ESLint issues
-pnpm test         # Run Vitest tests
+pnpm test         # Run Vitest in watch mode (`pnpm exec vitest run` for one pass)
 pnpm types        # Regenerate API types from OpenAPI spec (requires backend running)
 ```
 
@@ -28,12 +28,12 @@ React 19 SPA using TanStack Router (file-based) and TanStack Query for data fetc
 
 **Authentication Flow**:
 
-- Session fetched via `queries.session()` in `src/features/login/api/queries.ts`
+- Session fetched via `sessionQueries.session()` in `src/lib/session/queries.ts`
 - `_app/route.tsx` guards authenticated routes with `beforeLoad`
 - Unauthenticated users redirect to `/login`, incomplete onboarding to `/onboarding`
-- `useSession()` hook provides session in authenticated routes
+- `useSession()` (`src/lib/session/hooks/`) provides session in authenticated routes
 
-**Access Control** (`src/lib/access.ts`):
+**Access Control** (`src/lib/access/`):
 
 - `createAccess(session)` returns policy helpers: `can()`, `is()`, `any()`, `all()`, `guard()`, `self()`
 - Use `access.guard()` in route `beforeLoad` to enforce permissions
@@ -41,9 +41,9 @@ React 19 SPA using TanStack Router (file-based) and TanStack Query for data fetc
 
 **Feature Modules** (`src/features/`):
 
-- Each feature has `api/`, `components/`, `schemas.ts`
+- A feature usually has `page.tsx`, `api/` (`queries.ts`, `mutations.ts`, `schemas.ts`), and `components/`
 - Features cannot import from other features (enforced by eslint-plugin-boundaries)
-- Import shared code from `components/`, `lib/`, `hooks/`, `utils/`
+- Import shared code from `components/`, `lib/`, `shared/`, `utils/`; generic hooks live in `components/hooks/`
 
 ### Routing
 
