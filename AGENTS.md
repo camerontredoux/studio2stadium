@@ -1,6 +1,6 @@
 # Studio 2 Stadium
 
-pnpm monorepo for the collegiate dance recruiting platform. Domain terms (Org, Org Event, Platform Event, Dancer, Coach, Roster Entry) are defined in `CONTEXT.md`; use them in code and prose. That file's opening lines describe the separate marketing-site repo, but its glossary applies here.
+pnpm monorepo for the collegiate dance recruiting platform. Domain terms (Org, Org Event, Platform Event, Dancer, Coach, Roster Entry) are defined in `CONTEXT.md`; use them in code and prose.
 
 ## Layout
 
@@ -11,7 +11,7 @@ pnpm monorepo for the collegiate dance recruiting platform. Domain terms (Org, O
 - `packages/openapi` (`@stos/openapi`): vendored fork of `@tuyau/openapi` that provides the `.openapi()` route macro and generates the spec.
 - `docs/adr/`: accepted decisions for Org Events and Event Tiers. Read before changing tier or purchase behavior.
 - `docs/superpowers/`: dated plans and specs. Historical; the code wins when they disagree.
-- `apps/backend/CLAUDE.md` and `apps/frontend/CLAUDE.md` load when you work in those apps. Parts are stale; the corrections below take precedence.
+- Read `apps/backend/AGENTS.md` or `apps/frontend/AGENTS.md` before working in that app: auth and session caching, middleware, path aliases, routing, and access control.
 
 ## Vertical slices
 
@@ -74,8 +74,6 @@ Root scripts forward to apps: `pnpm backend <script>`, `pnpm frontend <script>`,
 
 ## Pitfalls
 
-- `apps/backend/CLAUDE.md` names test files `test.ts`; real tests are `*.spec.ts`. Several `package.json` import aliases (`#controllers`, `#models`, `#events`, `#listeners`, `#services`) point at directories that do not exist; the real `services/` is top-level and imported by relative path.
-- `apps/frontend/CLAUDE.md` cites `src/lib/access.ts` and `src/hooks/`; the code has `src/lib/access/`, `components/hooks/`, and `lib/session/`.
 - Org Events and Platform Events use different tables and modules (`orgs`/`organizations` versus `events`). Keep them apart, as `CONTEXT.md` requires.
 - Cron schedules fire on every Fly machine, and two or more run. A job that must run once per tick wraps its work in `withCronClaim` from `app/shared/cron/claim-run.ts`.
 - `apps/backend/scratch/` and `apps/frontend/examples/` are throwaway material; never import from them.
