@@ -19,6 +19,7 @@ import "#modules/sports/routes";
 import "#modules/stats/routes";
 import "#modules/styles/routes";
 import "#modules/subscriptions/routes";
+import "#modules/tracker/routes";
 import "#modules/users/routes";
 import "#modules/videos/routes";
 import "#modules/webhooks/routes";
