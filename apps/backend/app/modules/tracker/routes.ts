@@ -2,6 +2,7 @@ import { middleware } from "#start/kernel";
 import router from "@adonisjs/core/services/router";
 
 const ListItemsController = () => import("./list-items/controller.ts");
+const ListEventsController = () => import("./list-events/controller.ts");
 const CreateItemController = () => import("./create-item/controller.ts");
 const UpdateItemController = () => import("./update-item/controller.ts");
 const DeleteItemController = () => import("./delete-item/controller.ts");
@@ -14,17 +15,22 @@ router
     router.get("", [ListItemsController]).openapi({
       summary: "Get my recruiting tracker",
       description:
-        "Returns the dancer's tracker items (newest first), each with its school summary or null, and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section.",
+        "Returns the dancer's tracker items (newest first), each with its school and event summaries or null, and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section.",
+    });
+    router.get("events", [ListEventsController]).openapi({
+      summary: "List events a clinic item can link",
+      description:
+        "Returns upcoming school-hosted events from verified schools, soonest first, each with its school. Pass schoolId to list only that school's events.",
     });
     router.post("items", [CreateItemController]).openapi({
       summary: "Add a tracker item",
       description:
-        "Adds a school, clinic, audition, application milestone, or deadline. schoolId references the schools directory and is required for a school item, whose title is the school's name. An unknown schoolId is a 422. A dancer commits to one school at most: a second Committed school is a 409 E_ALREADY_COMMITTED.",
+        "Adds a school, clinic, audition, application milestone, or deadline. schoolId references the schools directory and is required for a school item, whose title is the school's name. An unknown schoolId is a 422. A clinic item may link an event with eventId; an event of another item type, an unknown or unlisted event, or one the schoolId doesn't host is a 422. A dancer commits to one school at most: a second Committed school is a 409 E_ALREADY_COMMITTED.",
     });
     router.patch("items/:id", [UpdateItemController]).openapi({
       summary: "Update a tracker item",
       description:
-        "Updates the title, schoolId, date, notes, or stage of one of the dancer's tracker items. A school item's title always comes from its school. Committing to a second school is a 409 E_ALREADY_COMMITTED.",
+        "Updates the title, schoolId, eventId, date, notes, or stage of one of the dancer's tracker items. The eventId follows the same rules as on create. A school item's title always comes from its school. Committing to a second school is a 409 E_ALREADY_COMMITTED.",
     });
     router.delete("items/:id", [DeleteItemController]).openapi({
       summary: "Delete a tracker item",

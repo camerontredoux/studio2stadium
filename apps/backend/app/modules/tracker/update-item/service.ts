@@ -4,6 +4,7 @@ import { inject } from "@adonisjs/core";
 import { errors } from "@vinejs/vine";
 import { and, eq } from "drizzle-orm";
 import {
+  assertEventFits,
   assertNotCommitted,
   assertSchoolExists,
   assertStage,
@@ -28,7 +29,11 @@ export class UpdateTrackerItemService {
     try {
       return await this.db.use(async (db) => {
         const [existing] = await db
-          .select({ type: trackerItems.type })
+          .select({
+            type: trackerItems.type,
+            schoolId: trackerItems.schoolId,
+            eventId: trackerItems.eventId,
+          })
           .from(trackerItems)
           .where(owned);
         if (!existing) return null;
@@ -48,6 +53,19 @@ export class UpdateTrackerItemService {
           ]);
         }
         if (changes.schoolId) await assertSchoolExists(db, changes.schoolId);
+
+        // Recheck the event only when it or the school changes, so an item
+        // keeps an event that has since become unlisted.
+        const schoolId =
+          changes.schoolId === undefined ? existing.schoolId : changes.schoolId;
+        const eventId =
+          changes.eventId === undefined ? existing.eventId : changes.eventId;
+        if (
+          eventId &&
+          (eventId !== existing.eventId || schoolId !== existing.schoolId)
+        ) {
+          await assertEventFits(db, existing.type, eventId, schoolId);
+        }
         if (isSchool && changes.stage === COMMITTED) {
           await assertNotCommitted(db, dancerId, params.id);
         }
@@ -58,6 +76,7 @@ export class UpdateTrackerItemService {
             // A school item's title always comes from the school.
             title: isSchool ? undefined : changes.title,
             schoolId: changes.schoolId,
+            eventId: changes.eventId,
             date:
               changes.date === undefined
                 ? undefined

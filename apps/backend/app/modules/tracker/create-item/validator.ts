@@ -19,6 +19,8 @@ export const schema = vine.create(
       .uuid()
       .optional()
       .requiredWhen("type", "=", "school"),
+    // Optional, and for a clinic item only: the event it is for.
+    eventId: vine.string().uuid().optional(),
     date: vine.date({ formats: ["YYYY-MM-DD"] }).optional(),
     notes: vine.string().trim().maxLength(2000).optional(),
     stage: vine.number().withoutDecimals().min(0).optional(),

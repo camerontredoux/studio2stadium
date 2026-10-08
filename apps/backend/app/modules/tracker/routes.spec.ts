@@ -1,4 +1,5 @@
 import { db } from "#database/connection";
+import { danceEvents } from "#database/schema/events";
 import { schoolProfiles } from "#database/schema/schools";
 import { users } from "#database/schema/users";
 import { test } from "@japa/runner";
@@ -20,6 +21,7 @@ interface Item {
     username: string;
     avatar: string | null;
   } | null;
+  event: { id: string; title: string; startDatetime: string } | null;
   date: string | null;
   notes: string | null;
   stage: number;
@@ -34,6 +36,33 @@ test.group("Tracker routes", (group) => {
     const dancer = await createDancer();
     await subscribe(dancer.id);
     return { dancer, token: await login(client, dancer.email) };
+  }
+
+  /** A school-hosted event starting `days` from now. */
+  async function createEvent(schoolId: string, days: number) {
+    const start = new Date(Date.now() + days * 86_400_000);
+    const [event] = await db
+      .insert(danceEvents)
+      .values({
+        schoolId,
+        title: `Event in ${days} days`,
+        description: "Clinic",
+        location: "CA",
+        type: "workshop",
+        startDatetime: start,
+        endDatetime: new Date(start.getTime() + 3_600_000),
+      })
+      .returning();
+    return event!;
+  }
+
+  async function unverifiedSchool() {
+    const school = await createSchool();
+    await db
+      .update(users)
+      .set({ verified: false })
+      .where(eq(users.id, school.userId));
+    return school;
   }
 
   test("requires Premium", async ({ client }) => {
@@ -322,5 +351,149 @@ test.group("Tracker routes", (group) => {
       { type: "audition", title: "Audition", school: null },
     ]);
     assert.lengthOf((list.body() as { items: Item[] }).items, 1);
+  });
+
+  test("lists upcoming events from verified schools, or one school's", async ({
+    client,
+    assert,
+  }) => {
+    const { token } = await premiumDancer(client);
+    const host = await createSchool();
+    const other = await createSchool();
+    const hidden = await unverifiedSchool();
+    const soon = await createEvent(host.id, 2);
+    const later = await createEvent(host.id, 30);
+    const otherEvent = await createEvent(other.id, 10);
+    await createEvent(host.id, -2);
+    await createEvent(hidden.id, 5);
+
+    const all = await client.get("/tracker/events").bearerToken(token);
+    all.assertStatus(200);
+    const events = all.body() as {
+      id: string;
+      school: { id: string; name: string };
+    }[];
+    assert.deepEqual(
+      events.map((event) => event.id),
+      [soon.id, otherEvent.id, later.id]
+    );
+    assert.deepEqual(events[1].school, { id: other.id, name: other.name });
+
+    const hosted = await client
+      .get("/tracker/events")
+      .qs({ schoolId: host.id })
+      .bearerToken(token);
+    assert.deepEqual(
+      (hosted.body() as { id: string }[]).map((event) => event.id),
+      [soon.id, later.id]
+    );
+
+    const none = await client
+      .get("/tracker/events")
+      .qs({ schoolId: hidden.id })
+      .bearerToken(token);
+    assert.deepEqual(none.body(), []);
+  });
+
+  test("a clinic item links an event, and works without one", async ({
+    client,
+    assert,
+  }) => {
+    const { token } = await premiumDancer(client);
+    const host = await createSchool();
+    const event = await createEvent(host.id, 7);
+
+    const plain = await client
+      .post("/tracker/items")
+      .bearerToken(token)
+      .json({ type: "clinic", title: "Open clinic" });
+    plain.assertStatus(201);
+    assert.isNull((plain.body() as Item).event);
+
+    const linked = await client.post("/tracker/items").bearerToken(token).json({
+      type: "clinic",
+      title: "Fall clinic",
+      schoolId: host.id,
+      eventId: event.id,
+    });
+    linked.assertStatus(201);
+    const id = (linked.body() as Item).id;
+    assert.containSubset(linked.body(), {
+      event: { id: event.id, title: event.title },
+    });
+
+    const list = await client.get("/tracker").bearerToken(token);
+    assert.containSubset((list.body() as { items: Item[] }).items, [
+      { id, event: { id: event.id } },
+    ]);
+
+    const cleared = await client
+      .patch(`/tracker/items/${id}`)
+      .bearerToken(token)
+      .json({ eventId: null });
+    cleared.assertStatus(200);
+    assert.isNull((cleared.body() as Item).event);
+
+    const relinked = await client
+      .patch(`/tracker/items/${id}`)
+      .bearerToken(token)
+      .json({ eventId: event.id });
+    relinked.assertStatus(200);
+    assert.equal((relinked.body() as Item).event?.id, event.id);
+
+    // Deleting the event keeps the item.
+    await db.delete(danceEvents).where(eq(danceEvents.id, event.id));
+    const after = await client.get("/tracker").bearerToken(token);
+    assert.containSubset((after.body() as { items: Item[] }).items, [
+      { id, title: "Fall clinic", event: null },
+    ]);
+  });
+
+  test("rejects an event the item can't link", async ({ client }) => {
+    const { token } = await premiumDancer(client);
+    const host = await createSchool();
+    const other = await createSchool();
+    const hidden = await unverifiedSchool();
+    const event = await createEvent(host.id, 7);
+    const hiddenEvent = await createEvent(hidden.id, 7);
+
+    for (const payload of [
+      { type: "audition", title: "Audition", eventId: event.id },
+      { type: "clinic", title: "Clinic", eventId: hiddenEvent.id },
+      {
+        type: "clinic",
+        title: "Clinic",
+        eventId: "00000000-0000-4000-8000-000000000000",
+      },
+      {
+        type: "clinic",
+        title: "Clinic",
+        schoolId: other.id,
+        eventId: event.id,
+      },
+    ]) {
+      const response = await client
+        .post("/tracker/items")
+        .bearerToken(token)
+        .json(payload);
+      response.assertStatus(422);
+    }
+
+    const created = await client
+      .post("/tracker/items")
+      .bearerToken(token)
+      .json({
+        type: "clinic",
+        title: "Clinic",
+        schoolId: host.id,
+        eventId: event.id,
+      });
+    created.assertStatus(201);
+
+    const moved = await client
+      .patch(`/tracker/items/${(created.body() as Item).id}`)
+      .bearerToken(token)
+      .json({ schoolId: other.id });
+    moved.assertStatus(422);
   });
 });

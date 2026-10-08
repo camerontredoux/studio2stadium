@@ -6713,7 +6713,7 @@ export interface paths {
         };
         /**
          * Get my recruiting tracker
-         * @description Returns the dancer's tracker items (newest first), each with its school summary or null, and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section.
+         * @description Returns the dancer's tracker items (newest first), each with its school and event summaries or null, and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section.
          */
         get: {
             parameters: {
@@ -6743,6 +6743,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tracker/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List events a clinic item can link
+         * @description Returns upcoming school-hosted events from verified schools, soonest first, each with its school. Pass schoolId to list only that school's events.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    schoolId?: string | null;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TrackerEventsResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/tracker/items": {
         parameters: {
             query?: never;
@@ -6754,7 +6804,7 @@ export interface paths {
         put?: never;
         /**
          * Add a tracker item
-         * @description Adds a school, clinic, audition, application milestone, or deadline. schoolId references the schools directory and is required for a school item, whose title is the school's name. An unknown schoolId is a 422. A dancer commits to one school at most: a second Committed school is a 409 E_ALREADY_COMMITTED.
+         * @description Adds a school, clinic, audition, application milestone, or deadline. schoolId references the schools directory and is required for a school item, whose title is the school's name. An unknown schoolId is a 422. A clinic item may link an event with eventId; an event of another item type, an unknown or unlisted event, or one the schoolId doesn't host is a 422. A dancer commits to one school at most: a second Committed school is a 409 E_ALREADY_COMMITTED.
          */
         post: {
             parameters: {
@@ -6860,7 +6910,7 @@ export interface paths {
         head?: never;
         /**
          * Update a tracker item
-         * @description Updates the title, schoolId, date, notes, or stage of one of the dancer's tracker items. A school item's title always comes from its school. Committing to a second school is a 409 E_ALREADY_COMMITTED.
+         * @description Updates the title, schoolId, eventId, date, notes, or stage of one of the dancer's tracker items. The eventId follows the same rules as on create. A school item's title always comes from its school. Committing to a second school is a 409 E_ALREADY_COMMITTED.
          */
         patch: {
             parameters: {
@@ -12470,15 +12520,32 @@ export interface components {
                 /** @enum {string} */
                 type: "audition" | "clinic" | "deadline" | "school" | "application";
                 title: string;
+                event: {
+                    id: string;
+                    title: string;
+                    startDatetime: string;
+                } | null;
                 stage: number;
             }[];
             sectionOrder: (string | null)[];
         };
+        TrackerEventsResponse: {
+            id: string;
+            school: {
+                id: string;
+                name: string;
+            };
+            /** @enum {string} */
+            type: "recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp";
+            title: string;
+            startDatetime: string;
+        }[];
         TrackerItemsRequest: {
             notes?: string | null;
             date?: (string | number) | null;
             schoolId?: string | null;
             title?: string | null;
+            eventId?: string | null;
             stage?: (string | number) | null;
             /** @enum {string} */
             type: "audition" | "clinic" | "deadline" | "school" | "application";
@@ -12498,6 +12565,11 @@ export interface components {
             /** @enum {string} */
             type: "audition" | "clinic" | "deadline" | "school" | "application";
             title: string;
+            event: {
+                id: string;
+                title: string;
+                startDatetime: string;
+            } | null;
             stage: number;
         };
         TrackerItemsIdRequest: {
@@ -12505,6 +12577,7 @@ export interface components {
             date?: (string | number) | null;
             schoolId?: string | null;
             title?: string | null;
+            eventId?: string | null;
             stage?: (string | number) | null;
         };
         TrackerItemsIdResponse: {
@@ -12522,6 +12595,11 @@ export interface components {
             /** @enum {string} */
             type: "audition" | "clinic" | "deadline" | "school" | "application";
             title: string;
+            event: {
+                id: string;
+                title: string;
+                startDatetime: string;
+            } | null;
             stage: number;
         };
         TrackerSectionsRequest: {
