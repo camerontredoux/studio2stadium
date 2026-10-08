@@ -152,4 +152,5 @@ else
 fi
 
 check_sql "$sql"
-run "$sql" "${psql_args[@]}"
+# bash 3.2 (macOS) treats an empty array as unset under `set -u`.
+run "$sql" ${psql_args[@]+"${psql_args[@]}"}
