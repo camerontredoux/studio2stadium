@@ -75,8 +75,8 @@ function SchoolJourney({
           const Icon = SCHOOL_STAGE_ICONS[i] ?? StarIcon;
           return (
             <StepperItem key={label} value={label}>
-              <StepperTrigger className="flex-col gap-1.5 p-0.5 not-has-data-[slot=description]:rounded-md">
-                <StepperIndicator className="data-[state=active]:border-brand data-[state=active]:bg-brand data-[state=active]:ring-brand/20 data-[state=completed]:border-brand/40 data-[state=completed]:bg-brand/15 data-[state=completed]:text-brand data-[state=active]:text-white data-[state=active]:ring-4">
+              <StepperTrigger className="group/stage cursor-pointer flex-col gap-1.5 p-0.5 not-has-data-[slot=description]:rounded-md">
+                <StepperIndicator className="group-hover/stage:border-brand group-hover/stage:bg-brand group-hover/stage:animate-stage-pulse data-[state=active]:border-brand data-[state=active]:bg-brand data-[state=active]:ring-brand/20 data-[state=completed]:border-brand/40 data-[state=completed]:bg-brand/15 data-[state=completed]:text-brand transition-[transform,background-color,border-color,color] duration-200 ease-out group-hover/stage:scale-115 group-hover/stage:-rotate-12 group-hover/stage:text-white data-[state=active]:text-white data-[state=active]:ring-4 motion-reduce:transition-none motion-reduce:group-hover/stage:transform-none motion-reduce:group-hover/stage:animate-none">
                   {(state) =>
                     state === "completed" ? (
                       <CheckIcon className="size-4" />
