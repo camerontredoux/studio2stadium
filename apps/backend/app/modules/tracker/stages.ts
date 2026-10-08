@@ -1,6 +1,13 @@
+import { type db } from "#database/connection";
 import { type trackerItemType } from "#database/schema/enums";
+import { schoolProfiles } from "#database/schema/schools";
 import { trackerItems } from "#database/schema/tracker";
+import { users } from "#database/schema/users";
+import { imageUrl } from "#utils/image-url";
 import { errors } from "@vinejs/vine";
+import { and, desc, eq, isNotNull, ne, or, sql } from "drizzle-orm";
+
+type Client = typeof db;
 
 export type TrackerItemType = (typeof trackerItemType.enumValues)[number];
 
@@ -49,15 +56,64 @@ export function toCalendarDate(date: Date) {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
-// What clients see of an item (everything but the owner).
-export const itemFields = {
-  id: trackerItems.id,
-  type: trackerItems.type,
-  title: trackerItems.title,
-  school: trackerItems.school,
-  date: trackerItems.date,
-  notes: trackerItems.notes,
-  stage: trackerItems.stage,
-  createdAt: trackerItems.createdAt,
-  updatedAt: trackerItems.updatedAt,
-};
+/** Rejects a schoolId that isn't in the schools directory with a 422. */
+export async function assertSchoolExists(db: Client, schoolId: string) {
+  const [school] = await db
+    .select({ id: schoolProfiles.id })
+    .from(schoolProfiles)
+    .where(eq(schoolProfiles.id, schoolId));
+  if (!school) {
+    throw new errors.E_VALIDATION_ERROR([
+      {
+        field: "schoolId",
+        rule: "exists",
+        message: "The selected school does not exist",
+      },
+    ]);
+  }
+}
+
+/**
+ * The dancer's items as clients see them, with the school summary. A school
+ * item's title is its school's name. A school item whose school was deleted
+ * is hidden.
+ */
+export async function findItems(db: Client, dancerId: string, itemId?: string) {
+  const rows = await db
+    .select({
+      id: trackerItems.id,
+      type: trackerItems.type,
+      title: sql<string>`coalesce(${trackerItems.title}, ${schoolProfiles.name})`,
+      school: {
+        id: schoolProfiles.id,
+        name: schoolProfiles.name,
+        username: users.username,
+        avatar: users.avatar,
+      },
+      date: trackerItems.date,
+      notes: trackerItems.notes,
+      stage: trackerItems.stage,
+      createdAt: trackerItems.createdAt,
+      updatedAt: trackerItems.updatedAt,
+    })
+    .from(trackerItems)
+    .leftJoin(schoolProfiles, eq(schoolProfiles.id, trackerItems.schoolId))
+    .leftJoin(users, eq(users.id, schoolProfiles.userId))
+    .where(
+      and(
+        eq(trackerItems.dancerId, dancerId),
+        itemId ? eq(trackerItems.id, itemId) : undefined,
+        or(ne(trackerItems.type, "school"), isNotNull(trackerItems.schoolId))
+      )
+    )
+    .orderBy(desc(trackerItems.createdAt), desc(trackerItems.id));
+
+  // Drizzle returns an unmatched left-joined school as all-null fields.
+  return rows.map(({ school: { id, name, username, avatar }, ...item }) => ({
+    ...item,
+    school:
+      id && name && username
+        ? { id, name, username, avatar: imageUrl(avatar, "avatar") }
+        : null,
+  }));
+}

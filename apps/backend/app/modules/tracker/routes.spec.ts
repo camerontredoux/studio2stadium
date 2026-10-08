@@ -1,14 +1,25 @@
 import { db } from "#database/connection";
+import { schoolProfiles } from "#database/schema/schools";
 import { users } from "#database/schema/users";
 import { test } from "@japa/runner";
-import { sql } from "drizzle-orm";
-import { createDancer, login, subscribe } from "#tests/helpers/premium";
+import { eq, sql } from "drizzle-orm";
+import {
+  createDancer,
+  createSchool,
+  login,
+  subscribe,
+} from "#tests/helpers/premium";
 
 interface Item {
   id: string;
   type: string;
   title: string;
-  school: string | null;
+  school: {
+    id: string;
+    name: string;
+    username: string;
+    avatar: string | null;
+  } | null;
   date: string | null;
   notes: string | null;
   stage: number;
@@ -38,13 +49,17 @@ test.group("Tracker routes", (group) => {
     assert,
   }) => {
     const { token } = await premiumDancer(client);
+    const juilliard = await createSchool();
 
     const school = await client
       .post("/tracker/items")
       .bearerToken(token)
-      .json({ type: "school", school: "Juilliard", stage: 1 });
+      .json({ type: "school", schoolId: juilliard.id, stage: 1 });
     school.assertStatus(201);
-    assert.equal((school.body() as Item).title, "Juilliard");
+    assert.containSubset(school.body(), {
+      title: juilliard.name,
+      school: { id: juilliard.id, name: juilliard.name },
+    });
 
     const audition = await client
       .post("/tracker/items")
@@ -52,7 +67,7 @@ test.group("Tracker routes", (group) => {
       .json({
         type: "audition",
         title: "Spring audition",
-        school: "Juilliard",
+        schoolId: juilliard.id,
         date: "2027-02-14",
         notes: "Bring headshot",
       });
@@ -94,6 +109,7 @@ test.group("Tracker routes", (group) => {
 
   test("rejects a stage outside the item type's stages", async ({ client }) => {
     const { token } = await premiumDancer(client);
+    const { id: schoolId } = await createSchool();
 
     const tooHigh = await client
       .post("/tracker/items")
@@ -104,13 +120,13 @@ test.group("Tracker routes", (group) => {
     const negative = await client
       .post("/tracker/items")
       .bearerToken(token)
-      .json({ type: "school", school: "Juilliard", stage: -1 });
+      .json({ type: "school", schoolId, stage: -1 });
     negative.assertStatus(422);
 
     const created = await client
       .post("/tracker/items")
       .bearerToken(token)
-      .json({ type: "school", school: "Juilliard", stage: 5 });
+      .json({ type: "school", schoolId, stage: 5 });
     created.assertStatus(201);
 
     const update = await client
@@ -122,11 +138,12 @@ test.group("Tracker routes", (group) => {
 
   test("a school can only be tracked once", async ({ client }) => {
     const { token } = await premiumDancer(client);
+    const { id: schoolId } = await createSchool();
     const add = () =>
       client
         .post("/tracker/items")
         .bearerToken(token)
-        .json({ type: "school", school: "Juilliard" });
+        .json({ type: "school", schoolId });
 
     const first = await add();
     first.assertStatus(201);
@@ -173,9 +190,10 @@ test.group("Tracker routes", (group) => {
     assert,
   }) => {
     const { token } = await premiumDancer(client);
+    const { id: schoolId } = await createSchool();
     for (const payload of [
-      { type: "school", school: "Juilliard" },
-      { type: "audition", title: "Audition", school: "Juilliard" },
+      { type: "school", schoolId },
+      { type: "audition", title: "Audition", schoolId },
       { type: "deadline", title: "FAFSA" },
     ]) {
       const response = await client
@@ -188,13 +206,13 @@ test.group("Tracker routes", (group) => {
     const order = await client
       .put("/tracker/sections/order")
       .bearerToken(token)
-      .json({ sections: [null, "Juilliard"] });
+      .json({ sections: [null, schoolId] });
     order.assertStatus(204);
 
     const removed = await client
       .delete("/tracker/sections")
       .bearerToken(token)
-      .json({ school: "Juilliard" });
+      .json({ schoolId });
     removed.assertStatus(204);
 
     const list = await client.get("/tracker").bearerToken(token);
@@ -202,10 +220,59 @@ test.group("Tracker routes", (group) => {
       items: Item[];
       sectionOrder: (string | null)[];
     };
-    assert.deepEqual(body.sectionOrder, [null, "Juilliard"]);
+    assert.deepEqual(body.sectionOrder, [null, schoolId]);
     assert.deepEqual(
       body.items.map((item) => item.title),
       ["FAFSA"]
     );
+  });
+
+  test("rejects a schoolId that isn't in the schools directory", async ({
+    client,
+  }) => {
+    const { token } = await premiumDancer(client);
+    const unknown = "00000000-0000-4000-8000-000000000000";
+
+    const create = await client
+      .post("/tracker/items")
+      .bearerToken(token)
+      .json({ type: "audition", title: "Audition", schoolId: unknown });
+    create.assertStatus(422);
+
+    const created = await client
+      .post("/tracker/items")
+      .bearerToken(token)
+      .json({ type: "clinic", title: "Clinic" });
+    const update = await client
+      .patch(`/tracker/items/${(created.body() as Item).id}`)
+      .bearerToken(token)
+      .json({ schoolId: unknown });
+    update.assertStatus(422);
+  });
+
+  test("deleting a school keeps the dancer's other items under it", async ({
+    client,
+    assert,
+  }) => {
+    const { token } = await premiumDancer(client);
+    const school = await createSchool();
+    for (const payload of [
+      { type: "school", schoolId: school.id },
+      { type: "audition", title: "Audition", schoolId: school.id },
+    ]) {
+      const response = await client
+        .post("/tracker/items")
+        .bearerToken(token)
+        .json(payload);
+      response.assertStatus(201);
+    }
+
+    await db.delete(schoolProfiles).where(eq(schoolProfiles.id, school.id));
+
+    const list = await client.get("/tracker").bearerToken(token);
+    assert.containSubset((list.body() as { items: Item[] }).items, [
+      { type: "audition", title: "Audition", school: null },
+    ]);
+    assert.lengthOf((list.body() as { items: Item[] }).items, 1);
   });
 });

@@ -5,7 +5,12 @@ import { inject } from "@adonisjs/core";
 import { errors } from "@vinejs/vine";
 import { and, eq } from "drizzle-orm";
 import { AlreadyTrackingSchoolError } from "../create-item/service.ts";
-import { assertStage, itemFields, toCalendarDate } from "../stages.ts";
+import {
+  assertSchoolExists,
+  assertStage,
+  findItems,
+  toCalendarDate,
+} from "../stages.ts";
 import { Validator } from "./validator.ts";
 
 @inject()
@@ -19,32 +24,36 @@ export class UpdateTrackerItemService {
       eq(trackerItems.dancerId, dancerId)
     );
 
-    const [existing] = await this.db.use((db) =>
-      db.select({ type: trackerItems.type }).from(trackerItems).where(owned)
-    );
-    if (!existing) return null;
-
-    if (changes.stage !== undefined) assertStage(existing.type, changes.stage);
-
-    const isSchool = existing.type === "school";
-    if (isSchool && changes.school === null) {
-      throw new errors.E_VALIDATION_ERROR([
-        {
-          field: "school",
-          rule: "required",
-          message: "The school field is required for a school item",
-        },
-      ]);
-    }
-
     try {
-      const [item] = await this.db.use((db) =>
-        db
+      return await this.db.use(async (db) => {
+        const [existing] = await db
+          .select({ type: trackerItems.type })
+          .from(trackerItems)
+          .where(owned);
+        if (!existing) return null;
+
+        if (changes.stage !== undefined) {
+          assertStage(existing.type, changes.stage);
+        }
+
+        const isSchool = existing.type === "school";
+        if (isSchool && changes.schoolId === null) {
+          throw new errors.E_VALIDATION_ERROR([
+            {
+              field: "schoolId",
+              rule: "required",
+              message: "The schoolId field is required for a school item",
+            },
+          ]);
+        }
+        if (changes.schoolId) await assertSchoolExists(db, changes.schoolId);
+
+        await db
           .update(trackerItems)
           .set({
-            // A school item's title is always its school name.
-            title: isSchool ? (changes.school ?? undefined) : changes.title,
-            school: changes.school,
+            // A school item's title always comes from the school.
+            title: isSchool ? undefined : changes.title,
+            schoolId: changes.schoolId,
             date:
               changes.date === undefined
                 ? undefined
@@ -54,10 +63,11 @@ export class UpdateTrackerItemService {
             stage: changes.stage,
             updatedAt: new Date(),
           })
-          .where(owned)
-          .returning(itemFields)
-      );
-      return item ?? null;
+          .where(owned);
+
+        const [item] = await findItems(db, dancerId, params.id);
+        return item ?? null;
+      });
     } catch (error) {
       if (
         error instanceof E_DATABASE_ERROR &&

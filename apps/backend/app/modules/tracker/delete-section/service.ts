@@ -9,14 +9,14 @@ export class DeleteTrackerSectionService {
   constructor(private db: DatabaseService) {}
 
   // Removes the school and everything the dancer tracks under it.
-  async execute(dancerId: string, { school }: Validator) {
+  async execute(dancerId: string, { schoolId }: Validator) {
     await this.db.use((db) =>
       db
         .delete(trackerItems)
         .where(
           and(
             eq(trackerItems.dancerId, dancerId),
-            eq(trackerItems.school, school)
+            eq(trackerItems.schoolId, schoolId)
           )
         )
     );

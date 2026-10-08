@@ -25,14 +25,15 @@ CREATE TABLE "tracker_items" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 	"dancer_id" uuid NOT NULL,
 	"type" "tracker_item_type" NOT NULL,
-	"title" text NOT NULL,
-	"school" text,
+	"title" text,
+	"school_id" uuid,
 	"date" date,
 	"notes" text,
 	"stage" smallint DEFAULT 0 NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "tracker_items_stage_nonnegative" CHECK ("stage" >= 0)
+	CONSTRAINT "tracker_items_stage_nonnegative" CHECK ("stage" >= 0),
+	CONSTRAINT "tracker_items_title_required" CHECK ("type" = 'school' or "title" is not null)
 );
 --> statement-breakpoint
 CREATE TABLE "tracker_section_orders" (
@@ -44,9 +45,11 @@ CREATE TABLE "tracker_section_orders" (
 ALTER TABLE "user_subscriptions" ADD COLUMN "started_at" timestamp with time zone;--> statement-breakpoint
 CREATE INDEX "dancer_program_views_school_id_index" ON "dancer_program_views" ("school_id");--> statement-breakpoint
 CREATE INDEX "tracker_items_dancer_id_created_at_index" ON "tracker_items" ("dancer_id","created_at");--> statement-breakpoint
-CREATE UNIQUE INDEX "tracker_items_dancer_school_journey" ON "tracker_items" ("dancer_id","school") WHERE "type" = 'school';--> statement-breakpoint
+CREATE INDEX "tracker_items_school_id_index" ON "tracker_items" ("school_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "tracker_items_dancer_school_journey" ON "tracker_items" ("dancer_id","school_id") WHERE "type" = 'school';--> statement-breakpoint
 ALTER TABLE "dancer_program_views" ADD CONSTRAINT "dancer_program_views_dancer_id_dancer_profiles_id_fkey" FOREIGN KEY ("dancer_id") REFERENCES "dancer_profiles"("id") ON DELETE CASCADE;--> statement-breakpoint
 ALTER TABLE "dancer_program_views" ADD CONSTRAINT "dancer_program_views_school_id_school_profiles_id_fkey" FOREIGN KEY ("school_id") REFERENCES "school_profiles"("id") ON DELETE CASCADE;--> statement-breakpoint
 ALTER TABLE "premium_roadmaps" ADD CONSTRAINT "premium_roadmaps_user_id_users_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE;--> statement-breakpoint
 ALTER TABLE "tracker_items" ADD CONSTRAINT "tracker_items_dancer_id_dancer_profiles_id_fkey" FOREIGN KEY ("dancer_id") REFERENCES "dancer_profiles"("id") ON DELETE CASCADE;--> statement-breakpoint
+ALTER TABLE "tracker_items" ADD CONSTRAINT "tracker_items_school_id_school_profiles_id_fkey" FOREIGN KEY ("school_id") REFERENCES "school_profiles"("id") ON DELETE SET NULL;--> statement-breakpoint
 ALTER TABLE "tracker_section_orders" ADD CONSTRAINT "tracker_section_orders_dancer_id_dancer_profiles_id_fkey" FOREIGN KEY ("dancer_id") REFERENCES "dancer_profiles"("id") ON DELETE CASCADE;

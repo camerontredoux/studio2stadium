@@ -7207,7 +7207,7 @@
     {
       "type": "text",
       "typeSchema": null,
-      "notNull": true,
+      "notNull": false,
       "dimensions": 0,
       "default": null,
       "generated": null,
@@ -7218,14 +7218,14 @@
       "table": "tracker_items"
     },
     {
-      "type": "text",
+      "type": "uuid",
       "typeSchema": null,
       "notNull": false,
       "dimensions": 0,
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "school",
+      "name": "school_id",
       "entityType": "columns",
       "schema": "public",
       "table": "tracker_items"
@@ -10037,6 +10037,27 @@
       "table": "tracker_items"
     },
     {
+      "nameExplicit": false,
+      "columns": [
+        {
+          "value": "school_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "tracker_items_school_id_index",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "tracker_items"
+    },
+    {
       "nameExplicit": true,
       "columns": [
         {
@@ -10047,7 +10068,7 @@
           "opclass": null
         },
         {
-          "value": "school",
+          "value": "school_id",
           "isExpression": false,
           "asc": true,
           "nullsFirst": false,
@@ -11699,6 +11720,23 @@
     {
       "nameExplicit": false,
       "columns": [
+        "school_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "school_profiles",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "SET NULL",
+      "name": "tracker_items_school_id_school_profiles_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "tracker_items"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
         "dancer_id"
       ],
       "schemaTo": "public",
@@ -12659,6 +12697,13 @@
     {
       "value": "\"stage\" >= 0",
       "name": "tracker_items_stage_nonnegative",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "tracker_items"
+    },
+    {
+      "value": "\"type\" = 'school' or \"title\" is not null",
+      "name": "tracker_items_title_required",
       "entityType": "checks",
       "schema": "public",
       "table": "tracker_items"

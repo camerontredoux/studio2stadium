@@ -348,17 +348,16 @@ test.group("GetRoadmapService", (group) => {
     await subscribe(dancer.id);
     await addVideo(dancer);
     await viewSchools(dancer, 5);
+    const school = await createSchool();
     await db.insert(trackerItems).values({
       dancerId: dancer.profileId,
       type: "school",
-      title: "Juilliard",
-      school: "Juilliard",
+      schoolId: school.id,
     });
     const before = eligible(await service().execute(dancer));
     assert.equal(before.completedCount, 4);
     assert.isNull(before.completedAt);
 
-    const school = await createSchool();
     await db
       .insert(follows)
       .values({ dancerId: dancer.profileId, schoolId: school.id });

@@ -7,13 +7,7 @@ export const schema = vine.create(
       id: vine.string().uuid(),
     }),
     title: vine.string().trim().minLength(1).maxLength(200).optional(),
-    school: vine
-      .string()
-      .trim()
-      .minLength(1)
-      .maxLength(200)
-      .nullable()
-      .optional(),
+    schoolId: vine.string().uuid().nullable().optional(),
     date: vine
       .date({ formats: ["YYYY-MM-DD"] })
       .nullable()

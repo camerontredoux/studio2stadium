@@ -5,7 +5,7 @@ import { type Infer } from "@vinejs/vine/types";
 export const schema = vine.create(
   vine.object({
     type: vine.enum(trackerItemType.enumValues),
-    // Required for every type but school, whose title is the school name.
+    // Required for every type but school, whose title is the school's name.
     title: vine
       .string()
       .trim()
@@ -14,11 +14,9 @@ export const schema = vine.create(
       .optional()
       .requiredWhen("type", "!=", "school"),
     // Required for a school item; optional grouping for the rest.
-    school: vine
+    schoolId: vine
       .string()
-      .trim()
-      .minLength(1)
-      .maxLength(200)
+      .uuid()
       .optional()
       .requiredWhen("type", "=", "school"),
     date: vine.date({ formats: ["YYYY-MM-DD"] }).optional(),

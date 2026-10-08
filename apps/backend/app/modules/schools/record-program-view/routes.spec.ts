@@ -46,4 +46,15 @@ test.group("POST /schools/:id/view", (group) => {
       .bearerToken(token);
     response.assertStatus(403);
   });
+
+  test("an unknown school is a 404", async ({ client }) => {
+    const dancer = await createDancer();
+    await subscribe(dancer.id);
+    const token = await login(client, dancer.email);
+
+    const response = await client
+      .post("/schools/00000000-0000-4000-8000-000000000000/view")
+      .bearerToken(token);
+    response.assertStatus(404);
+  });
 });

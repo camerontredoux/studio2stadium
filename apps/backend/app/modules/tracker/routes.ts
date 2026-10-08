@@ -14,17 +14,17 @@ router
     router.get("", [ListItemsController]).openapi({
       summary: "Get my recruiting tracker",
       description:
-        "Returns the dancer's tracker items (newest first) and the order of their sections. In sectionOrder, null is the 'Everything else' section.",
+        "Returns the dancer's tracker items (newest first), each with its school summary or null, and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section.",
     });
     router.post("items", [CreateItemController]).openapi({
       summary: "Add a tracker item",
       description:
-        "Adds a school, clinic, audition, application milestone, or deadline. A school item's title is its school name.",
+        "Adds a school, clinic, audition, application milestone, or deadline. schoolId references the schools directory and is required for a school item, whose title is the school's name. An unknown schoolId is a 422.",
     });
     router.patch("items/:id", [UpdateItemController]).openapi({
       summary: "Update a tracker item",
       description:
-        "Updates the title, school, date, notes, or stage of one of the dancer's tracker items.",
+        "Updates the title, schoolId, date, notes, or stage of one of the dancer's tracker items. A school item's title always comes from its school.",
     });
     router.delete("items/:id", [DeleteItemController]).openapi({
       summary: "Delete a tracker item",
@@ -38,7 +38,7 @@ router
     router.put("sections/order", [UpdateSectionOrderController]).openapi({
       summary: "Reorder tracker sections",
       description:
-        "Saves the order of the dancer's tracker sections. Each entry is a school name, or null for 'Everything else'.",
+        "Saves the order of the dancer's tracker sections. Each entry is a school id, or null for 'Everything else'.",
     });
   })
   .use([middleware.auth(), middleware.dancer(), middleware.subscribed()])

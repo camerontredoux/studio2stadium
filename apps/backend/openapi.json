@@ -6627,7 +6627,7 @@
           "Tracker"
         ],
         "summary": "Get my recruiting tracker",
-        "description": "Returns the dancer's tracker items (newest first) and the order of their sections. In sectionOrder, null is the 'Everything else' section."
+        "description": "Returns the dancer's tracker items (newest first), each with its school summary or null, and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section."
       }
     },
     "/tracker/items": {
@@ -6677,7 +6677,7 @@
           "Tracker"
         ],
         "summary": "Add a tracker item",
-        "description": "Adds a school, clinic, audition, application milestone, or deadline. A school item's title is its school name."
+        "description": "Adds a school, clinic, audition, application milestone, or deadline. schoolId references the schools directory and is required for a school item, whose title is the school's name. An unknown schoolId is a 422."
       }
     },
     "/tracker/items/{id}": {
@@ -6747,7 +6747,7 @@
           "Tracker"
         ],
         "summary": "Update a tracker item",
-        "description": "Updates the title, school, date, notes, or stage of one of the dancer's tracker items."
+        "description": "Updates the title, schoolId, date, notes, or stage of one of the dancer's tracker items. A school item's title always comes from its school."
       },
       "delete": {
         "parameters": [
@@ -6855,7 +6855,7 @@
           "Tracker"
         ],
         "summary": "Reorder tracker sections",
-        "description": "Saves the order of the dancer's tracker sections. Each entry is a school name, or null for 'Everything else'."
+        "description": "Saves the order of the dancer's tracker sections. Each entry is a school id, or null for 'Everything else'."
       }
     },
     "/stripe/webhook": {
@@ -18710,7 +18710,34 @@
                 "school": {
                   "oneOf": [
                     {
-                      "type": "string"
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "username": {
+                          "type": "string"
+                        },
+                        "avatar": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "username",
+                        "avatar"
+                      ]
                     },
                     {
                       "type": "null"
@@ -18792,7 +18819,7 @@
               }
             ]
           },
-          "school": {
+          "schoolId": {
             "oneOf": [
               {
                 "type": "string"
@@ -18875,7 +18902,34 @@
           "school": {
             "oneOf": [
               {
-                "type": "string"
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "avatar": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "username",
+                  "avatar"
+                ]
               },
               {
                 "type": "null"
@@ -18937,7 +18991,7 @@
               }
             ]
           },
-          "school": {
+          "schoolId": {
             "oneOf": [
               {
                 "type": "string"
@@ -19007,7 +19061,34 @@
           "school": {
             "oneOf": [
               {
-                "type": "string"
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "avatar": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "username",
+                  "avatar"
+                ]
               },
               {
                 "type": "null"
@@ -19046,12 +19127,12 @@
       "TrackerSectionsRequest": {
         "type": "object",
         "properties": {
-          "school": {
+          "schoolId": {
             "type": "string"
           }
         },
         "required": [
-          "school"
+          "schoolId"
         ]
       },
       "TrackerSectionsOrderRequest": {
