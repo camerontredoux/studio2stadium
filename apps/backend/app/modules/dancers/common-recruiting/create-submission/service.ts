@@ -5,8 +5,9 @@ import { inject } from "@adonisjs/core";
 import { CrvSubmissionEvent } from "./event.ts";
 import { Validator } from "./validator.ts";
 
-// Only graduating seniors may submit a common recruiting video.
-const GRADUATING_SENIOR_GRAD_YEAR = 2027;
+// Common recruiting video submission is open to graduating seniors and older
+// — dancers graduating in this year or earlier (lower grad year == older).
+const LATEST_ELIGIBLE_GRAD_YEAR = 2027;
 
 @inject()
 export class Service {
@@ -20,9 +21,9 @@ export class Service {
       })
     );
 
-    if (dancer?.gradYear !== GRADUATING_SENIOR_GRAD_YEAR) {
+    if (dancer?.gradYear == null || dancer.gradYear > LATEST_ELIGIBLE_GRAD_YEAR) {
       throw new E_FORBIDDEN(
-        "Only graduating seniors can submit a common recruiting video"
+        "Only graduating seniors and older can submit a common recruiting video"
       );
     }
 
