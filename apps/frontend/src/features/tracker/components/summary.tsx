@@ -94,10 +94,11 @@ export function Momentum({ items }: { items: Item[] }) {
         {complete && (
           <div className="flex items-center gap-4">
             <div ref={medalRef} className="relative size-14 shrink-0">
-              {/* A slowly turning gold ring behind the medal. */}
+              {/* A thin gold ring with a slot in it, turning slowly behind the
+                  medal. The medal's white ring covers all but its outer 2px. */}
               <div
                 aria-hidden
-                className="absolute -inset-2 animate-[spin_6s_linear_infinite] rounded-full bg-[conic-gradient(var(--brand),transparent_40%,var(--brand)_60%,transparent_90%,var(--brand))] motion-reduce:animate-none"
+                className="absolute -inset-1.5 animate-[spin_6s_linear_infinite] rounded-full bg-[conic-gradient(var(--brand)_0_88%,transparent_88%_100%)] motion-reduce:animate-none"
               />
               <div className="bg-brand ring-background relative grid size-full place-items-center rounded-full text-white shadow-lg ring-4">
                 <TrophyIcon aria-hidden className="size-6" />
