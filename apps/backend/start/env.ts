@@ -56,6 +56,14 @@ export default await Env.create(new URL("../", import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Premium Recruiting Roadmap on the dancer dashboard
+  | (default off)
+  |----------------------------------------------------------
+  */
+  PREMIUM_ROADMAP_ENABLED: Env.schema.boolean.optional(),
+
+  /*
+  |----------------------------------------------------------
   | Sentry error monitoring (optional; disabled when unset)
   |----------------------------------------------------------
   */
