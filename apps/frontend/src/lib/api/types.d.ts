@@ -6713,7 +6713,7 @@ export interface paths {
         };
         /**
          * Get my recruiting tracker
-         * @description Returns the dancer's tracker items (newest first), each with its school and event summaries or null, and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section.
+         * @description Returns the dancer's tracker items (newest first), each with its school and event summaries or null, their school milestones (oldest first, with completedAt null until reached), and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section.
          */
         get: {
             parameters: {
@@ -6979,7 +6979,7 @@ export interface paths {
         post?: never;
         /**
          * Remove a school from the tracker
-         * @description Deletes the school item and every item the dancer tracks under that school.
+         * @description Deletes the school item, the school's milestones, and every item the dancer tracks under that school.
          */
         delete: {
             parameters: {
@@ -7065,6 +7065,162 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/tracker/milestones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add a school milestone
+         * @description Adds a milestone the dancer wants to reach with a school, not yet completed. An unknown schoolId is a 422.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["TrackerMilestonesRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TrackerMilestonesResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tracker/milestones/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a school milestone
+         * @description Deletes one of the dancer's milestones.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update a school milestone
+         * @description Renames one of the dancer's milestones or marks it complete. completed=true records when it was reached and keeps the original time if it was already complete; completed=false clears it.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["TrackerMilestonesIdRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TrackerMilestonesIdResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/stripe/webhook": {
@@ -12450,17 +12606,17 @@ export interface components {
                 interval: ("monthly" | "annual") | null;
                 firstViewedAt: string;
                 premiumStartedAt: string;
+                completedAt: string | null;
                 version: number;
                 daysSinceStart: number;
                 completedCount: number;
                 totalCount: number;
-                completedAt: string | null;
                 steps: {
                     status: components["schemas"]["StepStatus"];
                     count?: number;
+                    completedAt: string | null;
                     key: components["schemas"]["StepKey"];
                     target?: number;
-                    completedAt: string | null;
                 }[];
                 newlyCompleted: components["schemas"]["StepKey"][];
                 roadmapNewlyCompleted: boolean;
@@ -12526,6 +12682,13 @@ export interface components {
                     startDatetime: string;
                 } | null;
                 stage: number;
+            }[];
+            milestones: {
+                id: string;
+                createdAt: string;
+                schoolId: string;
+                title: string;
+                completedAt: string | null;
             }[];
             sectionOrder: (string | null)[];
         };
@@ -12607,6 +12770,28 @@ export interface components {
         };
         TrackerSectionsOrderRequest: {
             sections: (string | null)[];
+        };
+        TrackerMilestonesRequest: {
+            schoolId: string;
+            title: string;
+        };
+        TrackerMilestonesResponse: {
+            id: string;
+            createdAt: string;
+            schoolId: string;
+            title: string;
+            completedAt: string | null;
+        };
+        TrackerMilestonesIdRequest: {
+            title?: string | null;
+            completed?: (string | number | boolean) | null;
+        };
+        TrackerMilestonesIdResponse: {
+            id: string;
+            createdAt: string;
+            schoolId: string;
+            title: string;
+            completedAt: string | null;
         };
         StripeWebhookResponse: {
             received: boolean;
