@@ -35,6 +35,8 @@ const GetSubmissionsController = () =>
 const UpdateSubmissionController = () =>
   import("./update-submission/controller.ts");
 const ViewDancerController = () => import("./view-dancer/controller.ts");
+const RecordProgramViewController = () =>
+  import("./record-program-view/controller.ts");
 const ListPendingClaimsController = () =>
   import("./pending-claims/controller.ts");
 const ClaimRosterController = () =>
@@ -193,6 +195,15 @@ router
         description: "Unfollows the school's profile using the school ID",
       })
       .use([middleware.dancer(), throttle("unfollow", 30)]);
+
+    router
+      .post("/:id/view", [RecordProgramViewController])
+      .openapi({
+        summary: "Record a program view",
+        description:
+          "Records that a Premium dancer opened this school's program detail page. Repeat views of the same school are ignored.",
+      })
+      .use([middleware.dancer(), middleware.subscribed()]);
 
     router
       .get("/:id/metadata", [GetMetadataController])

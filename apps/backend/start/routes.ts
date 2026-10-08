@@ -12,6 +12,7 @@ import "#modules/images/routes";
 import "#modules/library/routes";
 import "#modules/notifications/routes";
 import "#modules/orgs/routes";
+import "#modules/premium-roadmap/routes";
 import "#modules/schools/routes";
 import "#modules/skills/routes";
 import "#modules/sports/routes";
