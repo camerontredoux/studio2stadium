@@ -38,6 +38,9 @@ export default class WebhookHandlers {
 
     const priceId = item.price.id;
     const currentPeriodEnd = item.current_period_end;
+    // Every checkout creates a new Stripe subscription, so this is a fresh
+    // start of Premium (first time, or a return after a lapse).
+    const startedAt = new Date(subscription.start_date * 1000);
 
     const [user] = await this.db.use((db) =>
       db
@@ -51,6 +54,7 @@ export default class WebhookHandlers {
           priceId,
           cancelAtPeriodEnd: subscription.cancel_at_period_end,
           currentPeriodEnd: new Date(currentPeriodEnd * 1000),
+          startedAt,
         })
         .returning({
           id: subscriptions.userId,
@@ -65,6 +69,7 @@ export default class WebhookHandlers {
             cancelAtPeriodEnd: subscription.cancel_at_period_end,
             currentPeriodEnd: new Date(currentPeriodEnd * 1000),
             canceledAt: null,
+            startedAt,
           },
         })
     );

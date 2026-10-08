@@ -214,6 +214,8 @@
   --shadow-2xl: var(--shadow-2xl);
   --animate-skeleton: skeleton 2s -1s infinite linear;
   --animate-loading-bar: loading-bar 1.4s ease-in-out infinite alternate;
+  --animate-stage-pulse: stage-pulse 1.2s ease-out infinite;
+  --animate-gold-shimmer: gold-shimmer 2.5s linear infinite;
   --color-warning-foreground: var(--warning-foreground);
   --color-warning: var(--warning);
   --color-success-foreground: var(--success-foreground);
@@ -223,6 +225,22 @@
   @keyframes skeleton {
     to {
       background-position: -200% 0;
+    }
+  }
+  @keyframes gold-shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+  @keyframes stage-pulse {
+    from {
+      box-shadow: 0 0 0 0 var(--brand-hover);
+    }
+    to {
+      box-shadow: 0 0 0 8px transparent;
     }
   }
   @keyframes loading-bar {

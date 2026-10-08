@@ -6335,6 +6335,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/premium-roadmap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get my Premium Recruiting Roadmap
+         * @description Returns the dancer's roadmap steps and records any step completed for the first time. Returns eligible=false for members without paid Premium or when the roadmap is turned off.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PremiumRoadmapResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/skills": {
         parameters: {
             query?: never;
@@ -6401,6 +6440,45 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["SportsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stats/public": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get public platform stats
+         * @description Returns the number of dancers and schools on the platform. Cached for 5 minutes.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["StatsPublicResponse"];
                     };
                 };
             };
@@ -6620,6 +6698,319 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tracker": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get my recruiting tracker
+         * @description Returns the dancer's tracker items (newest first), each with its school summary or null, and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TrackerResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tracker/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add a tracker item
+         * @description Adds a school, clinic, audition, application milestone, or deadline. schoolId references the schools directory and is required for a school item, whose title is the school's name. An unknown schoolId is a 422. A dancer commits to one school at most: a second Committed school is a 409 E_ALREADY_COMMITTED.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["TrackerItemsRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TrackerItemsResponse"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tracker/items/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a tracker item
+         * @description Deletes one of the dancer's tracker items.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update a tracker item
+         * @description Updates the title, schoolId, date, notes, or stage of one of the dancer's tracker items. A school item's title always comes from its school. Committing to a second school is a 409 E_ALREADY_COMMITTED.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["TrackerItemsIdRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TrackerItemsIdResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/tracker/sections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove a school from the tracker
+         * @description Deletes the school item and every item the dancer tracks under that school.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["TrackerSectionsRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tracker/sections/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Reorder tracker sections
+         * @description Saves the order of the dancer's tracker sections. Each entry is a school id, or null for 'Everything else'.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["TrackerSectionsOrderRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -9859,6 +10250,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/schools/{id}/view": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record a program view
+         * @description Records that a Premium dancer opened this school's program detail page. Repeat views of the same school are ignored.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/schools/{id}/metadata": {
         parameters: {
             query?: never;
@@ -10534,6 +10973,10 @@ export interface components {
         /** @enum {string} */
         UploadKind: "dancer" | "coach";
         /** @enum {string} */
+        StepStatus: "processing" | "complete" | "incomplete" | "not_ready";
+        /** @enum {string} */
+        StepKey: "video" | "profile" | "program_views" | "tracker" | "favorite";
+        /** @enum {string} */
         SubscriptionSource: "stripe" | "org_event" | "none";
         /** @enum {string} */
         DancerFilterParam: "name" | "location" | "sports" | "styles" | "following" | "premium" | "gpaRange";
@@ -10993,7 +11436,7 @@ export interface components {
             feed: {
                 id: string;
                 /** @enum {string} */
-                contentType: "image" | "video" | "profile" | "reference" | "achievement";
+                contentType: "video" | "profile" | "image" | "reference" | "achievement";
                 createdAt: string;
                 username: string;
                 avatar: string | null;
@@ -11951,6 +12394,28 @@ export interface components {
             brandColor: string | null;
             expiresAt: string | null;
         };
+        PremiumRoadmapResponse: {
+            eligible: boolean;
+            roadmap: {
+                interval: ("monthly" | "annual") | null;
+                firstViewedAt: string;
+                premiumStartedAt: string;
+                version: number;
+                daysSinceStart: number;
+                completedCount: number;
+                totalCount: number;
+                completedAt: string | null;
+                steps: {
+                    status: components["schemas"]["StepStatus"];
+                    count?: number;
+                    key: components["schemas"]["StepKey"];
+                    target?: number;
+                    completedAt: string | null;
+                }[];
+                newlyCompleted: components["schemas"]["StepKey"][];
+                roadmapNewlyCompleted: boolean;
+            } | null;
+        };
         SkillsResponse: {
             name: string;
             slug: string;
@@ -11960,6 +12425,10 @@ export interface components {
             name: string;
             slug: string;
         }[];
+        StatsPublicResponse: {
+            dancers: number;
+            schools: number;
+        };
         StylesResponse: {
             name: string;
             slug: string;
@@ -11984,6 +12453,82 @@ export interface components {
         SubscriptionsDevgrantResponse: {
             expiresAt: string;
             granted: boolean;
+        };
+        TrackerResponse: {
+            items: {
+                id: string;
+                notes: string | null;
+                date: string | null;
+                createdAt: string;
+                updatedAt: string;
+                school: {
+                    id: string;
+                    name: string;
+                    username: string;
+                    avatar: string | null;
+                } | null;
+                /** @enum {string} */
+                type: "audition" | "clinic" | "deadline" | "school" | "application";
+                title: string;
+                stage: number;
+            }[];
+            sectionOrder: (string | null)[];
+        };
+        TrackerItemsRequest: {
+            notes?: string | null;
+            date?: (string | number) | null;
+            schoolId?: string | null;
+            title?: string | null;
+            stage?: (string | number) | null;
+            /** @enum {string} */
+            type: "audition" | "clinic" | "deadline" | "school" | "application";
+        };
+        TrackerItemsResponse: {
+            id: string;
+            notes: string | null;
+            date: string | null;
+            createdAt: string;
+            updatedAt: string;
+            school: {
+                id: string;
+                name: string;
+                username: string;
+                avatar: string | null;
+            } | null;
+            /** @enum {string} */
+            type: "audition" | "clinic" | "deadline" | "school" | "application";
+            title: string;
+            stage: number;
+        };
+        TrackerItemsIdRequest: {
+            notes?: string | null;
+            date?: (string | number) | null;
+            schoolId?: string | null;
+            title?: string | null;
+            stage?: (string | number) | null;
+        };
+        TrackerItemsIdResponse: {
+            id: string;
+            notes: string | null;
+            date: string | null;
+            createdAt: string;
+            updatedAt: string;
+            school: {
+                id: string;
+                name: string;
+                username: string;
+                avatar: string | null;
+            } | null;
+            /** @enum {string} */
+            type: "audition" | "clinic" | "deadline" | "school" | "application";
+            title: string;
+            stage: number;
+        };
+        TrackerSectionsRequest: {
+            schoolId: string;
+        };
+        TrackerSectionsOrderRequest: {
+            sections: (string | null)[];
         };
         StripeWebhookResponse: {
             received: boolean;

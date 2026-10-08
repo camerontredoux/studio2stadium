@@ -15,6 +15,8 @@ interface MediaGalleryProps {
   videos: Video[];
   showOwnerControls: boolean;
   orgAccountTier?: string | null;
+  /** Open the owner's upload dialog on mount. */
+  openUpload?: boolean;
 }
 
 export function MediaGallery({
@@ -22,6 +24,7 @@ export function MediaGallery({
   videos,
   showOwnerControls,
   orgAccountTier,
+  openUpload,
 }: MediaGalleryProps) {
   const items = useMemo(() => {
     const all: MediaItem[] = [
@@ -46,6 +49,7 @@ export function MediaGallery({
               videoCount={videos.filter((v) => v.type === "cloudflare").length}
               youtubeCount={videos.filter((v) => v.type === "youtube").length}
               orgAccountTier={orgAccountTier}
+              defaultOpen={openUpload}
             />
           ) : (
             <div className="h-7 w-fit sm:h-6" />

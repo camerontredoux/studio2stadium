@@ -11,9 +11,12 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { useSession } from "@/lib/session";
+import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useSearch } from "@tanstack/react-router";
 import { School2Icon } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { useRecordProgramView } from "./api/mutations";
 import { schoolQueries } from "./api/queries";
 import { ProfileProvider } from "./components/profile/context/profile-provider";
 import { SchoolHero } from "./components/profile/hero";
@@ -38,6 +41,27 @@ export function SchoolPage({ username }: SchoolPageProps) {
   const { data } = useSuspenseQuery(schoolQueries.profile(username));
 
   const isOwner = session.username === username;
+
+  const {
+    data: { subscribed },
+  } = useSubscribed();
+  const { mutate: recordProgramView } = useRecordProgramView();
+  const recordedId = useRef<string | null>(null);
+  const schoolId = data?.id;
+
+  // Record one program view per school opened. Fire-and-forget: a failure
+  // must not affect the page.
+  useEffect(() => {
+    if (
+      session.type === "dancer" &&
+      subscribed &&
+      schoolId &&
+      recordedId.current !== schoolId
+    ) {
+      recordedId.current = schoolId;
+      recordProgramView({ params: { path: { id: schoolId } } });
+    }
+  }, [session.type, subscribed, schoolId, recordProgramView]);
 
   if (!data) {
     return (

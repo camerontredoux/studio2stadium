@@ -182,3 +182,11 @@ export const auditResource = pgEnum("audit_resource", [
   "video_category",
   "video",
 ]);
+
+export const trackerItemType = pgEnum("tracker_item_type", [
+  "school",
+  "clinic",
+  "audition",
+  "application",
+  "deadline",
+]);

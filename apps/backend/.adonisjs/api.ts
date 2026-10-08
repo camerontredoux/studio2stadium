@@ -547,6 +547,10 @@ type OrgsIdInvitesDancerIdGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/invite-lookup-dancer/controller.ts').default['handle'], false>
 }
+type PremiumRoadmapGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/premium-roadmap/get-roadmap/controller.ts').default['handle'], false>
+}
 type SkillsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/skills/get-skills/controller.ts').default['handle'], false>
@@ -554,6 +558,10 @@ type SkillsGetHead = {
 type SportsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/sports/get-sports/controller.ts').default['handle'], false>
+}
+type StatsPublicGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/stats/get-public-stats/controller.ts').default['handle'], false>
 }
 type StylesGetHead = {
   request: unknown
@@ -574,6 +582,30 @@ type SubscriptionsManagePost = {
 type SubscriptionsDevgrantPost = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/subscriptions/dev-grant/controller.ts').default['handle'], false>
+}
+type TrackerGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/tracker/list-items/controller.ts').default['handle'], false>
+}
+type TrackerItemsPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/create-item/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/create-item/controller.ts').default['handle'], true>
+}
+type TrackerItemsIdPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/update-item/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/update-item/controller.ts').default['handle'], true>
+}
+type TrackerItemsIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/delete-item/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/delete-item/controller.ts').default['handle'], true>
+}
+type TrackerSectionsDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/delete-section/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/delete-section/controller.ts').default['handle'], true>
+}
+type TrackerSectionsOrderPut = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/update-section-order/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/update-section-order/controller.ts').default['handle'], true>
 }
 type StripeWebhookPost = {
   request: unknown
@@ -874,6 +906,10 @@ type SchoolsIdFollowPost = {
 type SchoolsIdFollowDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/unfollow/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/schools/unfollow/controller.ts').default['handle'], true>
+}
+type SchoolsIdViewPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/record-program-view/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/record-program-view/controller.ts').default['handle'], true>
 }
 type SchoolsIdMetadataGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school-metadata/validator.ts')['schema']>>
@@ -1645,6 +1681,12 @@ export interface ApiDefinition {
       };
     };
   };
+  'premium-roadmap': {
+    '$url': {
+    };
+    '$get': PremiumRoadmapGetHead;
+    '$head': PremiumRoadmapGetHead;
+  };
   'skills': {
     '$url': {
     };
@@ -1656,6 +1698,14 @@ export interface ApiDefinition {
     };
     '$get': SportsGetHead;
     '$head': SportsGetHead;
+  };
+  'stats': {
+    'public': {
+      '$url': {
+      };
+      '$get': StatsPublicGetHead;
+      '$head': StatsPublicGetHead;
+    };
   };
   'styles': {
     '$url': {
@@ -1682,6 +1732,33 @@ export interface ApiDefinition {
       '$url': {
       };
       '$post': SubscriptionsDevgrantPost;
+    };
+  };
+  'tracker': {
+    '$url': {
+    };
+    '$get': TrackerGetHead;
+    '$head': TrackerGetHead;
+    'items': {
+      '$url': {
+      };
+      '$post': TrackerItemsPost;
+      ':id': {
+        '$url': {
+        };
+        '$patch': TrackerItemsIdPatch;
+        '$delete': TrackerItemsIdDelete;
+      };
+    };
+    'sections': {
+      '$url': {
+      };
+      '$delete': TrackerSectionsDelete;
+      'order': {
+        '$url': {
+        };
+        '$put': TrackerSectionsOrderPut;
+      };
     };
   };
   'stripe': {
@@ -2046,6 +2123,11 @@ export interface ApiDefinition {
         };
         '$post': SchoolsIdFollowPost;
         '$delete': SchoolsIdFollowDelete;
+      };
+      'view': {
+        '$url': {
+        };
+        '$post': SchoolsIdViewPost;
       };
       'metadata': {
         '$url': {

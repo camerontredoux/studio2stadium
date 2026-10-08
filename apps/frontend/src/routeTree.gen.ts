@@ -20,6 +20,7 @@ import { Route as AuthroutesOrgsRouteImport } from './routes/_auth/(routes)/orgs
 import { Route as AuthroutesLoginRouteImport } from './routes/_auth/(routes)/login'
 import { Route as AuthroutesForgotRouteImport } from './routes/_auth/(routes)/forgot'
 import { Route as ApproutesUnauthorizedRouteImport } from './routes/_app/(routes)/unauthorized'
+import { Route as ApproutesTrackerRouteImport } from './routes/_app/(routes)/tracker'
 import { Route as ApproutesRecommendedRouteImport } from './routes/_app/(routes)/recommended'
 import { Route as ApproutesLogoutRouteImport } from './routes/_app/(routes)/logout'
 import { Route as ApproutesFeedRouteImport } from './routes/_app/(routes)/feed'
@@ -136,6 +137,11 @@ const AuthroutesForgotRoute = AuthroutesForgotRouteImport.update({
 const ApproutesUnauthorizedRoute = ApproutesUnauthorizedRouteImport.update({
   id: '/(routes)/unauthorized',
   path: '/unauthorized',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const ApproutesTrackerRoute = ApproutesTrackerRouteImport.update({
+  id: '/(routes)/tracker',
+  path: '/tracker',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const ApproutesRecommendedRoute = ApproutesRecommendedRouteImport.update({
@@ -528,6 +534,7 @@ export interface FileRoutesByFullPath {
   '/feed': typeof ApproutesFeedRoute
   '/logout': typeof ApproutesLogoutRoute
   '/recommended': typeof ApproutesRecommendedRoute
+  '/tracker': typeof ApproutesTrackerRoute
   '/unauthorized': typeof ApproutesUnauthorizedRoute
   '/forgot': typeof AuthroutesForgotRoute
   '/login': typeof AuthroutesLoginRoute
@@ -600,6 +607,7 @@ export interface FileRoutesByTo {
   '/feed': typeof ApproutesFeedRoute
   '/logout': typeof ApproutesLogoutRoute
   '/recommended': typeof ApproutesRecommendedRoute
+  '/tracker': typeof ApproutesTrackerRoute
   '/unauthorized': typeof ApproutesUnauthorizedRoute
   '/forgot': typeof AuthroutesForgotRoute
   '/login': typeof AuthroutesLoginRoute
@@ -677,6 +685,7 @@ export interface FileRoutesById {
   '/_app/(routes)/feed': typeof ApproutesFeedRoute
   '/_app/(routes)/logout': typeof ApproutesLogoutRoute
   '/_app/(routes)/recommended': typeof ApproutesRecommendedRoute
+  '/_app/(routes)/tracker': typeof ApproutesTrackerRoute
   '/_app/(routes)/unauthorized': typeof ApproutesUnauthorizedRoute
   '/_auth/(routes)/forgot': typeof AuthroutesForgotRoute
   '/_auth/(routes)/login': typeof AuthroutesLoginRoute
@@ -755,6 +764,7 @@ export interface FileRouteTypes {
     | '/feed'
     | '/logout'
     | '/recommended'
+    | '/tracker'
     | '/unauthorized'
     | '/forgot'
     | '/login'
@@ -827,6 +837,7 @@ export interface FileRouteTypes {
     | '/feed'
     | '/logout'
     | '/recommended'
+    | '/tracker'
     | '/unauthorized'
     | '/forgot'
     | '/login'
@@ -903,6 +914,7 @@ export interface FileRouteTypes {
     | '/_app/(routes)/feed'
     | '/_app/(routes)/logout'
     | '/_app/(routes)/recommended'
+    | '/_app/(routes)/tracker'
     | '/_app/(routes)/unauthorized'
     | '/_auth/(routes)/forgot'
     | '/_auth/(routes)/login'
@@ -1054,6 +1066,13 @@ declare module '@tanstack/react-router' {
       path: '/unauthorized'
       fullPath: '/unauthorized'
       preLoaderRoute: typeof ApproutesUnauthorizedRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/(routes)/tracker': {
+      id: '/_app/(routes)/tracker'
+      path: '/tracker'
+      fullPath: '/tracker'
+      preLoaderRoute: typeof ApproutesTrackerRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/(routes)/recommended': {
@@ -1647,6 +1666,7 @@ interface AppRouteRouteChildren {
   ApproutesFeedRoute: typeof ApproutesFeedRoute
   ApproutesLogoutRoute: typeof ApproutesLogoutRoute
   ApproutesRecommendedRoute: typeof ApproutesRecommendedRoute
+  ApproutesTrackerRoute: typeof ApproutesTrackerRoute
   ApproutesUnauthorizedRoute: typeof ApproutesUnauthorizedRoute
   ApproutesIndexRoute: typeof ApproutesIndexRoute
   ApproutesEventsEventIdRoute: typeof ApproutesEventsEventIdRoute
@@ -1666,6 +1686,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   ApproutesFeedRoute: ApproutesFeedRoute,
   ApproutesLogoutRoute: ApproutesLogoutRoute,
   ApproutesRecommendedRoute: ApproutesRecommendedRoute,
+  ApproutesTrackerRoute: ApproutesTrackerRoute,
   ApproutesUnauthorizedRoute: ApproutesUnauthorizedRoute,
   ApproutesIndexRoute: ApproutesIndexRoute,
   ApproutesEventsEventIdRoute: ApproutesEventsEventIdRoute,
