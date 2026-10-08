@@ -70,10 +70,12 @@ export function Momentum({ items }: { items: Item[] }) {
   const medalRef = useRef<HTMLDivElement>(null);
   const wasComplete = useRef(complete);
 
-  // Celebrate reaching 100%, but not a page that loads at 100%.
+  // Celebrate reaching 100%, but not a page that loads at 100%. Small
+  // screens hide the medal, so the confetti comes from the headline instead.
   useEffect(() => {
-    if (complete && !wasComplete.current && medalRef.current) {
-      burstFrom(medalRef.current);
+    const medal = medalRef.current;
+    if (complete && !wasComplete.current && medal?.parentElement) {
+      burstFrom(medal.offsetWidth ? medal : medal.parentElement);
     }
     wasComplete.current = complete;
   }, [complete]);
@@ -93,7 +95,10 @@ export function Momentum({ items }: { items: Item[] }) {
       >
         {complete && (
           <div className="flex items-center gap-4">
-            <div ref={medalRef} className="relative size-11 shrink-0">
+            <div
+              ref={medalRef}
+              className="relative size-11 shrink-0 max-sm:hidden"
+            >
               {/* Two thin gold rings, each with a slot, turning at different
                   speeds. The outer one sits behind the medal, and the medal's
                   white ring covers all but its outer 2px. The inner one is
