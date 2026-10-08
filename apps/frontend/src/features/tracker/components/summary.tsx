@@ -94,15 +94,21 @@ export function Momentum({ items }: { items: Item[] }) {
         {complete && (
           <div className="flex items-center gap-4">
             <div ref={medalRef} className="relative size-14 shrink-0">
-              {/* A thin gold ring with a slot in it, turning slowly behind the
-                  medal. The medal's white ring covers all but its outer 2px. */}
+              {/* Two thin gold rings, each with a slot, turning at different
+                  speeds. The outer one sits behind the medal, and the medal's
+                  white ring covers all but its outer 2px. The inner one is
+                  drawn over that white ring and masked down to 1.5px. */}
               <div
                 aria-hidden
-                className="absolute -inset-1.5 animate-[spin_6s_linear_infinite] rounded-full bg-[conic-gradient(var(--brand)_0_88%,transparent_88%_100%)] motion-reduce:animate-none"
+                className="absolute -inset-2 animate-[spin_6s_linear_infinite] rounded-full bg-[conic-gradient(var(--brand)_0_88%,transparent_88%_100%)] motion-reduce:animate-none"
               />
-              <div className="bg-brand ring-background relative grid size-full place-items-center rounded-full text-white shadow-lg ring-4">
+              <div className="bg-brand ring-background relative grid size-full place-items-center rounded-full text-white shadow-lg ring-6">
                 <TrophyIcon aria-hidden className="size-6" />
               </div>
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -inset-[3px] animate-[spin_3.5s_linear_infinite] rounded-full bg-[conic-gradient(from_180deg,var(--brand)_0_88%,transparent_88%_100%)] [mask:radial-gradient(farthest-side,transparent_calc(100%-1.5px),#000_calc(100%-1.5px))] motion-reduce:animate-none"
+              />
             </div>
             <div className="flex min-w-0 flex-col">
               <p className="text-lg leading-tight font-semibold">
