@@ -38,7 +38,7 @@ import {
 
 const TITLE = "Your Recruiting Roadmap";
 const INTRO =
-  "Complete these steps to prepare your profile and start using S2S strategically.";
+  "Take it one step at a time, and get ready to share your story and explore your college dance future.";
 const DONE_HEADING = "Your recruiting foundation is ready";
 const DONE_BODY =
   "Keep your profile current and use your tracker to plan what comes next.";

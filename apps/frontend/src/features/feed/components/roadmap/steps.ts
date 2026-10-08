@@ -13,39 +13,39 @@ export const STEP_COPY: Record<
   profile: {
     title: "Complete your profile",
     action: "Complete My Profile",
-    why: "The coach should receive useful and current information.",
+    why: "Help coaches get to know your dance experience, interests, and what makes you unique.",
   },
   video: {
-    title: "Upload a recruiting video",
+    title: "Upload a video",
     action: "Upload a Video",
-    why: "A coach needs visual evidence of your skills.",
+    why: "Showcase your talent and help coaches see what you can bring to their team.",
   },
   program_views: {
-    title: "Explore five college programs",
+    title: "Explore at least five college programs",
     action: "Explore Programs",
-    why: "Research programs before you send your profile.",
+    why: "See what's out there. You might discover a team you hadn't considered before!",
   },
   tracker: {
     title: "Add a recruiting item to your tracker",
     action: "Open My Tracker",
-    why: "Start organizing a real deadline, clinic, audition, or school.",
+    why: "Find a clinic, audition, or deadline and save it to your tracker to keep your next steps organized.",
   },
   favorite: {
     title: "Connect with your first program",
     action: "Favorite a Program",
-    why: "Favoriting follows the program and sends your profile to the coach.",
+    why: "Favorite a program to get on its coach's radar. You'll be notified when they view your profile!",
   },
 };
 
 export function stepDetail(step: RoadmapStep) {
   if (step.key === "program_views" && step.status !== "complete") {
-    return `${step.count ?? 0} of ${step.target ?? 5} programs viewed`;
+    return `${STEP_COPY.program_views.why} ${step.count ?? 0} of ${step.target ?? 5} viewed so far.`;
   }
   if (step.status === "processing") {
     return "Your video is processing. This step completes when it's viewable.";
   }
   if (step.status === "not_ready") {
-    return "Finish your profile and video first. Favoriting sends your profile to the coach.";
+    return `Complete your profile and upload a video to unlock this step. Then ${STEP_COPY.favorite.why[0].toLowerCase()}${STEP_COPY.favorite.why.slice(1)}`;
   }
   return STEP_COPY[step.key].why;
 }
