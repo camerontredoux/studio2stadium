@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import { Feed } from "./components/feed";
 import { FeedSkeleton } from "./components/feed-skeleton";
 import { FreeTierAlert } from "./components/free-tier-alert";
+import { PremiumRoadmap } from "./components/roadmap/premium-roadmap";
 import { DancerSpotlight } from "./components/spotlight/dancer-spotlight";
 import { DancerSpotlightSkeleton } from "./components/spotlight/dancer-spotlight-skeleton";
 import { ProgramSpotlight } from "./components/spotlight/program-spotlight";
@@ -34,6 +35,7 @@ export function FeedPage() {
         {session.type === "dancer" && (
           <>
             <FreeTierAlert />
+            <PremiumRoadmap />
             <ProgramSpotlight />
           </>
         )}
