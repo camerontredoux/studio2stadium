@@ -7,7 +7,6 @@ import { trackerItems } from "#database/schema/tracker";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
 import { type Service as ProfileChecklistService } from "#modules/dancers/profile/get-profile-checklist/service";
-import env from "#start/env";
 import emitter from "@adonisjs/core/services/emitter";
 import { faker } from "@faker-js/faker";
 import { test } from "@japa/runner";
@@ -76,19 +75,6 @@ test.group("GetRoadmapService", (group) => {
   group.each.setup(async () => {
     await db.execute(sql`truncate table ${users} cascade`);
     profileComplete = true;
-    env.set("PREMIUM_ROADMAP_ENABLED", true);
-    return () => env.set("PREMIUM_ROADMAP_ENABLED", false);
-  });
-
-  test("is off when PREMIUM_ROADMAP_ENABLED is off", async ({ assert }) => {
-    env.set("PREMIUM_ROADMAP_ENABLED", false);
-    const dancer = await createDancer();
-    await subscribe(dancer.id);
-
-    assert.deepEqual(await service().execute(dancer), {
-      eligible: false,
-      roadmap: null,
-    });
   });
 
   test("free dancers get no roadmap", async ({ assert }) => {

@@ -92,8 +92,6 @@ export class GetRoadmapService {
   ) {}
 
   async execute(user: { id: string; profileId: string }): Promise<Roadmap> {
-    if (!env.get("PREMIUM_ROADMAP_ENABLED")) return INELIGIBLE;
-
     const now = new Date();
 
     const [membership] = await this.db.use((db) =>

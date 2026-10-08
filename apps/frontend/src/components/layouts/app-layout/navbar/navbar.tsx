@@ -20,11 +20,13 @@ import {
 import { HiOutlineSparkles, HiSparkles } from "react-icons/hi2";
 
 import { useSession } from "@/lib/session";
+import { useRecruitingTrackerEnabled } from "@/shared/premium-roadmap/flag";
 import { Activity } from "./activity";
 import { NavLink } from "./nav-link";
 
 export function Navbar() {
   const session = useSession();
+  const trackerEnabled = useRecruitingTrackerEnabled();
 
   return (
     <aside className="mobile:z-50 mobile:fixed mobile:bg-background mobile:left-0 mobile:right-0 mobile:bottom-0 mobile:w-full mobile:border-t w-fit shrink-0 xl:w-72">
@@ -54,7 +56,7 @@ export function Navbar() {
             activeIcon={HiSparkles}
             inactiveIcon={HiOutlineSparkles}
           />
-          {session.type === "dancer" && (
+          {session.type === "dancer" && trackerEnabled && (
             <NavLink
               to="/tracker"
               label="Tracker"
