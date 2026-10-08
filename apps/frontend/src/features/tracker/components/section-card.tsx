@@ -45,6 +45,7 @@ import {
   TicketIcon,
   Trash2Icon,
 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import type { TrackerItem as Item } from "../api/mutations";
 import {
@@ -161,7 +162,13 @@ function ItemRow({
           {item.event && (
             <span className="flex items-center gap-1">
               <TicketIcon aria-hidden className="size-3" />
-              {item.event.title}
+              <Link
+                to="/events/$eventId"
+                params={{ eventId: item.event.id }}
+                className="hover:text-foreground underline underline-offset-2"
+              >
+                {item.event.title}
+              </Link>
             </span>
           )}
         </div>

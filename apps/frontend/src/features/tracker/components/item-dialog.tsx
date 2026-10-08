@@ -36,6 +36,7 @@ import { SearchIcon, TicketIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import type { TrackerItem } from "../api/mutations";
 import { trackerQueries } from "../api/queries";
+import { eventDay } from "../event-day";
 import { COMMITTED, STAGES, TYPES, type ItemType } from "../stages";
 
 export type NewItem = ApiSchemas["TrackerItemsRequest"];
@@ -147,11 +148,13 @@ export function ItemDialog({
     if (next && host !== next) setEventId(null);
   };
 
-  // Picking an event fills in its school, and the title when it's empty.
+  // Picking an event fills in its date and school, and the title when it's
+  // empty. The dancer can still change the date afterwards.
   const changeEvent = (next: string | null) => {
     setEventId(next);
     const event = next ? eventsById.get(next) : undefined;
     if (!event) return;
+    setDate(eventDay(event));
     if (!schoolId && event.school) setSchoolId(event.school.id);
     if (!title.trim()) setTitle(event.title);
   };
