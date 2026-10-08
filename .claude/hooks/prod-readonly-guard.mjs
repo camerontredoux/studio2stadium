@@ -16,6 +16,11 @@
 // Test it with sample hook input on stdin:
 //   echo '{"tool_name":"Bash","tool_input":{"command":"scripts/ro-psql.sh --describe lead"}}' \
 //     | node .claude/hooks/prod-readonly-guard.mjs
+//
+// With `--only-agent <name>` it checks only calls made by that subagent (hook input
+// `agent_type`) and passes every other call. `.claude/settings.json` runs it this way so the
+// fence holds even when Claude Code skips the agent's own frontmatter hook, which it does
+// whenever the folder is not trusted.
 
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -322,6 +327,8 @@ function main() {
   } catch {
     deny("the hook input was not JSON.");
   }
+  const only = process.argv.indexOf("--only-agent");
+  if (only !== -1 && event.agent_type !== process.argv[only + 1]) process.exit(0);
   const cwd = event.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
   if (event.tool_name === "Bash") {
     const command = event.tool_input?.command;

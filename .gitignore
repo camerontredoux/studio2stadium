@@ -60,6 +60,7 @@ dist-ssr
 .claude/*
 !.claude/agents/
 !.claude/hooks/
+!.claude/settings.json
 .superpowers/
 .playwright-mcp/
 .impeccable.md
