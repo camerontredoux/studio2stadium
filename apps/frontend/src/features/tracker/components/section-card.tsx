@@ -38,7 +38,6 @@ import {
   CheckIcon,
   GripVerticalIcon,
   PlusIcon,
-  SchoolIcon,
   StarIcon,
   PencilIcon,
   SparklesIcon,
@@ -244,9 +243,8 @@ export function SchoolCard({
       <FrameHeader>
         <div className="flex items-center gap-2">
           <ReorderHandle label={school.name} />
-          <FrameTitle className="flex min-w-0 items-center gap-2 text-base">
-            <SchoolIcon aria-hidden className="text-brand size-4 shrink-0" />
-            <span className="truncate">{school.name}</span>
+          <FrameTitle className="min-w-0 truncate text-base">
+            {school.name}
           </FrameTitle>
           {schoolItem && (
             <Button
