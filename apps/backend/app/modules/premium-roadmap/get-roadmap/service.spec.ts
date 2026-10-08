@@ -365,4 +365,41 @@ test.group("GetRoadmapService", (group) => {
     assert.equal(after.completedCount, 5);
     assert.instanceOf(after.completedAt, Date);
   });
+
+  test("reports completions only on the request that first records them", async ({
+    assert,
+  }) => {
+    const dancer = await createDancer();
+    await subscribe(dancer.id);
+    await addVideo(dancer);
+
+    const first = eligible(await service().execute(dancer));
+    assert.sameMembers(first.newlyCompleted, ["profile", "video"]);
+    assert.isFalse(first.roadmapNewlyCompleted);
+
+    const second = eligible(await service().execute(dancer));
+    assert.deepEqual(second.newlyCompleted, []);
+
+    await viewSchools(dancer, 5);
+    const school = await createSchool();
+    await db.insert(trackerItems).values({
+      dancerId: dancer.profileId,
+      type: "school",
+      schoolId: school.id,
+    });
+    await db
+      .insert(follows)
+      .values({ dancerId: dancer.profileId, schoolId: school.id });
+    const done = eligible(await service().execute(dancer));
+    assert.sameMembers(done.newlyCompleted, [
+      "program_views",
+      "tracker",
+      "favorite",
+    ]);
+    assert.isTrue(done.roadmapNewlyCompleted);
+
+    const again = eligible(await service().execute(dancer));
+    assert.deepEqual(again.newlyCompleted, []);
+    assert.isFalse(again.roadmapNewlyCompleted);
+  });
 });

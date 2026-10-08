@@ -18479,6 +18479,15 @@
                         "completedAt"
                       ]
                     }
+                  },
+                  "newlyCompleted": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/StepKey"
+                    }
+                  },
+                  "roadmapNewlyCompleted": {
+                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -18490,7 +18499,9 @@
                   "completedCount",
                   "totalCount",
                   "completedAt",
-                  "steps"
+                  "steps",
+                  "newlyCompleted",
+                  "roadmapNewlyCompleted"
                 ]
               },
               {

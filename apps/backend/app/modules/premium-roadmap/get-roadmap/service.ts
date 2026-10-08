@@ -46,6 +46,11 @@ export interface RoadmapDetails {
   completedAt: Date | null;
   firstViewedAt: Date;
   steps: RoadmapStep[];
+  // Steps whose completion was first recorded by this request, so the client
+  // can send each completion analytics event once.
+  newlyCompleted: StepKey[];
+  // True when this request recorded the roadmap's completion.
+  roadmapNewlyCompleted: boolean;
 }
 
 // `roadmap` is null exactly when `eligible` is false.
@@ -201,6 +206,10 @@ export class GetRoadmapService {
       },
     ];
 
+    // A timestamp equal to `now` was written by this request; one kept from
+    // an earlier request is older.
+    const recordedNow = (at: Date | null) => at?.getTime() === now.getTime();
+
     return {
       eligible: true,
       roadmap: {
@@ -216,6 +225,10 @@ export class GetRoadmapService {
         completedAt: roadmap.roadmapCompletedAt,
         firstViewedAt: roadmap.firstViewedAt!,
         steps,
+        newlyCompleted: steps
+          .filter((step) => recordedNow(step.completedAt))
+          .map((step) => step.key),
+        roadmapNewlyCompleted: recordedNow(roadmap.roadmapCompletedAt),
       },
     };
   }
