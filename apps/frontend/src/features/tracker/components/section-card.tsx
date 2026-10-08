@@ -44,7 +44,7 @@ import {
   SparklesIcon,
   Trash2Icon,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { TrackerItem as Item } from "../api/mutations";
 import {
   formatDate,
@@ -54,6 +54,7 @@ import {
   TYPES,
 } from "../stages";
 import { DueBadge } from "./summary";
+import { celebrateCommitted } from "../celebrate";
 
 function SchoolJourney({
   school,
@@ -227,6 +228,16 @@ export function SchoolCard({
   const [confirming, setConfirming] = useState(false);
   const stage = schoolItem?.stage ?? 0;
   const committed = stage === STAGES.school.length - 1;
+  const panelRef = useRef<HTMLDivElement>(null);
+  const wasCommitted = useRef(committed);
+
+  // Celebrate the move to Committed, but not a card that loads committed.
+  useEffect(() => {
+    if (committed && !wasCommitted.current && panelRef.current) {
+      celebrateCommitted(panelRef.current);
+    }
+    wasCommitted.current = committed;
+  }, [committed]);
 
   return (
     <Frame>
@@ -263,6 +274,7 @@ export function SchoolCard({
         )}
       </FrameHeader>
       <FramePanel
+        ref={panelRef}
         className={cn(
           // A committed school gets the same gold tint as the feed's roadmap card.
           committed &&
@@ -283,6 +295,13 @@ export function SchoolCard({
           stage={stage}
           onStageChange={onSchoolStageChange}
         />
+        {committed && (
+          <div
+            data-shine
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-linear-to-r from-transparent via-white/70 to-transparent opacity-0"
+          />
+        )}
       </FramePanel>
       {items.length > 0 && (
         <FramePanel className="p-0!">
