@@ -10,7 +10,8 @@ import { schoolProfiles } from "./schools.ts";
  * groups items into one section per school (`school_id`); items without a
  * school fall under "Everything else". A dancer has at most one `school` item
  * per school; it holds the school journey's stage and takes its title from
- * the school, so only the other types store a title.
+ * the school, so only the other types store a title. A dancer commits to at
+ * most one school: stage 5 is "Committed" in #modules/tracker/stages.
  *
  * Deleting a school sets `school_id` to null: the dancer's other items move
  * to "Everything else", and the orphaned `school` item is hidden from lists.
@@ -41,6 +42,10 @@ export const trackerItems = pg.pgTable(
       .uniqueIndex("tracker_items_dancer_school_journey")
       .on(table.dancerId, table.schoolId)
       .where(sql`${table.type} = 'school'`),
+    pg
+      .uniqueIndex("tracker_items_dancer_commitment")
+      .on(table.dancerId)
+      .where(sql`${table.type} = 'school' and ${table.stage} = 5`),
     pg.check("tracker_items_stage_nonnegative", sql`${table.stage} >= 0`),
     pg.check(
       "tracker_items_title_required",

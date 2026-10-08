@@ -1,6 +1,9 @@
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
-import { AlreadyTrackingSchoolError } from "../create-item/service.ts";
+import {
+  AlreadyCommittedError,
+  AlreadyTrackingSchoolError,
+} from "../stages.ts";
 import { UpdateTrackerItemService } from "./service.ts";
 import { schema } from "./validator.ts";
 
@@ -16,7 +19,10 @@ export default class UpdateTrackerItemController {
       }
       return ctx.response.ok(item);
     } catch (error) {
-      if (error instanceof AlreadyTrackingSchoolError) {
+      if (
+        error instanceof AlreadyTrackingSchoolError ||
+        error instanceof AlreadyCommittedError
+      ) {
         return ctx.response.conflict({
           code: error.code,
           message: error.message,

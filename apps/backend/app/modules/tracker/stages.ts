@@ -5,6 +5,7 @@ import { trackerItems } from "#database/schema/tracker";
 import { users } from "#database/schema/users";
 import { imageUrl } from "#utils/image-url";
 import { errors } from "@vinejs/vine";
+import { E_DATABASE_ERROR } from "#exceptions/database";
 import { and, desc, eq, isNotNull, ne, or, sql } from "drizzle-orm";
 
 type Client = typeof db;
@@ -46,6 +47,64 @@ export function assertStage(type: TrackerItemType, stage: number) {
       },
     ]);
   }
+}
+
+/** The school journey's last stage. A dancer commits to one school at most. */
+export const COMMITTED = STAGES.school.length - 1;
+
+export class AlreadyTrackingSchoolError extends Error {
+  code = "E_ALREADY_TRACKING_SCHOOL";
+  constructor() {
+    super("This school is already in your tracker.");
+  }
+}
+
+export class AlreadyCommittedError extends Error {
+  code = "E_ALREADY_COMMITTED";
+  constructor() {
+    super("You've already committed to a school.");
+  }
+}
+
+/**
+ * Rejects committing to a school when the dancer already committed to
+ * another. `itemId` is the item being changed, which may already be the
+ * committed one.
+ */
+export async function assertNotCommitted(
+  db: Client,
+  dancerId: string,
+  itemId?: string
+) {
+  const [committed] = await db
+    .select({ id: trackerItems.id })
+    .from(trackerItems)
+    .where(
+      and(
+        eq(trackerItems.dancerId, dancerId),
+        eq(trackerItems.type, "school"),
+        eq(trackerItems.stage, COMMITTED),
+        itemId ? ne(trackerItems.id, itemId) : undefined
+      )
+    );
+  if (committed) throw new AlreadyCommittedError();
+}
+
+/**
+ * Maps a unique violation to the tracker's 409 errors. Two requests can race
+ * past the checks, so the unique indexes have the final say: the commitment
+ * index is on `dancer_id` alone, and the school index on both columns.
+ */
+export function conflictError(error: unknown) {
+  if (
+    error instanceof E_DATABASE_ERROR &&
+    error.code === "E_UNIQUE_VIOLATION"
+  ) {
+    return error.cause === "dancer_id"
+      ? new AlreadyCommittedError()
+      : new AlreadyTrackingSchoolError();
+  }
+  return error;
 }
 
 // Dates are calendar days ("YYYY-MM-DD"). VineJS parses them as local

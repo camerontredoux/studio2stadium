@@ -1,21 +1,16 @@
 import { trackerItems } from "#database/schema/tracker";
 import { DatabaseService } from "#database/service";
-import { E_DATABASE_ERROR } from "#exceptions/database";
 import { inject } from "@adonisjs/core";
 import {
+  assertNotCommitted,
   assertSchoolExists,
   assertStage,
+  COMMITTED,
+  conflictError,
   findItems,
   toCalendarDate,
 } from "../stages.ts";
 import { Validator } from "./validator.ts";
-
-export class AlreadyTrackingSchoolError extends Error {
-  code = "E_ALREADY_TRACKING_SCHOOL";
-  constructor() {
-    super("This school is already in your tracker.");
-  }
-}
 
 @inject()
 export class CreateTrackerItemService {
@@ -28,6 +23,9 @@ export class CreateTrackerItemService {
     try {
       return await this.db.use(async (db) => {
         if (input.schoolId) await assertSchoolExists(db, input.schoolId);
+        if (input.type === "school" && stage === COMMITTED) {
+          await assertNotCommitted(db, dancerId);
+        }
         const [{ id }] = await db
           .insert(trackerItems)
           .values({
@@ -45,13 +43,7 @@ export class CreateTrackerItemService {
         return item;
       });
     } catch (error) {
-      if (
-        error instanceof E_DATABASE_ERROR &&
-        error.code === "E_UNIQUE_VIOLATION"
-      ) {
-        throw new AlreadyTrackingSchoolError();
-      }
-      throw error;
+      throw conflictError(error);
     }
   }
 }

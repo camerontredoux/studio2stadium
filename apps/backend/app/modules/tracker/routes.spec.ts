@@ -151,6 +151,54 @@ test.group("Tracker routes", (group) => {
     second.assertStatus(409);
   });
 
+  test("a dancer commits to one school at most", async ({ client }) => {
+    const { token } = await premiumDancer(client);
+    const { id: first } = await createSchool();
+    const { id: second } = await createSchool();
+    const { id: third } = await createSchool();
+    const add = (schoolId: string, stage: number) =>
+      client
+        .post("/tracker/items")
+        .bearerToken(token)
+        .json({ type: "school", schoolId, stage });
+
+    const committed = await add(first, 5);
+    committed.assertStatus(201);
+    const offer = await add(second, 4);
+    offer.assertStatus(201);
+
+    const created = await add(third, 5);
+    created.assertStatus(409);
+    created.assertBodyContains({ code: "E_ALREADY_COMMITTED" });
+
+    const offerId = (offer.body() as Item).id;
+    const updated = await client
+      .patch(`/tracker/items/${offerId}`)
+      .bearerToken(token)
+      .json({ stage: 5 });
+    updated.assertStatus(409);
+    updated.assertBodyContains({ code: "E_ALREADY_COMMITTED" });
+
+    // The committed school can still be saved, and stepping it back frees
+    // the dancer to commit elsewhere.
+    const committedId = (committed.body() as Item).id;
+    const resaved = await client
+      .patch(`/tracker/items/${committedId}`)
+      .bearerToken(token)
+      .json({ stage: 5, notes: "Signed" });
+    resaved.assertStatus(200);
+    await client
+      .patch(`/tracker/items/${committedId}`)
+      .bearerToken(token)
+      .json({ stage: 4 })
+      .then((response) => response.assertStatus(200));
+    const switched = await client
+      .patch(`/tracker/items/${offerId}`)
+      .bearerToken(token)
+      .json({ stage: 5 });
+    switched.assertStatus(200);
+  });
+
   test("another dancer's items can't be read, changed, or deleted", async ({
     client,
     assert,

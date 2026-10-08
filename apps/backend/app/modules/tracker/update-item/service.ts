@@ -1,13 +1,14 @@
 import { trackerItems } from "#database/schema/tracker";
 import { DatabaseService } from "#database/service";
-import { E_DATABASE_ERROR } from "#exceptions/database";
 import { inject } from "@adonisjs/core";
 import { errors } from "@vinejs/vine";
 import { and, eq } from "drizzle-orm";
-import { AlreadyTrackingSchoolError } from "../create-item/service.ts";
 import {
+  assertNotCommitted,
   assertSchoolExists,
   assertStage,
+  COMMITTED,
+  conflictError,
   findItems,
   toCalendarDate,
 } from "../stages.ts";
@@ -47,6 +48,9 @@ export class UpdateTrackerItemService {
           ]);
         }
         if (changes.schoolId) await assertSchoolExists(db, changes.schoolId);
+        if (isSchool && changes.stage === COMMITTED) {
+          await assertNotCommitted(db, dancerId, params.id);
+        }
 
         await db
           .update(trackerItems)
@@ -69,13 +73,7 @@ export class UpdateTrackerItemService {
         return item ?? null;
       });
     } catch (error) {
-      if (
-        error instanceof E_DATABASE_ERROR &&
-        error.code === "E_UNIQUE_VIOLATION"
-      ) {
-        throw new AlreadyTrackingSchoolError();
-      }
-      throw error;
+      throw conflictError(error);
     }
   }
 }

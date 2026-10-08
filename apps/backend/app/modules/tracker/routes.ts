@@ -19,12 +19,12 @@ router
     router.post("items", [CreateItemController]).openapi({
       summary: "Add a tracker item",
       description:
-        "Adds a school, clinic, audition, application milestone, or deadline. schoolId references the schools directory and is required for a school item, whose title is the school's name. An unknown schoolId is a 422.",
+        "Adds a school, clinic, audition, application milestone, or deadline. schoolId references the schools directory and is required for a school item, whose title is the school's name. An unknown schoolId is a 422. A dancer commits to one school at most: a second Committed school is a 409 E_ALREADY_COMMITTED.",
     });
     router.patch("items/:id", [UpdateItemController]).openapi({
       summary: "Update a tracker item",
       description:
-        "Updates the title, schoolId, date, notes, or stage of one of the dancer's tracker items. A school item's title always comes from its school.",
+        "Updates the title, schoolId, date, notes, or stage of one of the dancer's tracker items. A school item's title always comes from its school. Committing to a second school is a 409 E_ALREADY_COMMITTED.",
     });
     router.delete("items/:id", [DeleteItemController]).openapi({
       summary: "Delete a tracker item",

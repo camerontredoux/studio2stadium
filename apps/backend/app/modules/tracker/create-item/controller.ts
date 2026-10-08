@@ -1,9 +1,10 @@
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
 import {
+  AlreadyCommittedError,
   AlreadyTrackingSchoolError,
-  CreateTrackerItemService,
-} from "./service.ts";
+} from "../stages.ts";
+import { CreateTrackerItemService } from "./service.ts";
 import { schema } from "./validator.ts";
 
 export default class CreateTrackerItemController {
@@ -15,7 +16,10 @@ export default class CreateTrackerItemController {
       const item = await service.execute(ctx.session.profileId, payload);
       return ctx.response.created(item);
     } catch (error) {
-      if (error instanceof AlreadyTrackingSchoolError) {
+      if (
+        error instanceof AlreadyTrackingSchoolError ||
+        error instanceof AlreadyCommittedError
+      ) {
         return ctx.response.conflict({
           code: error.code,
           message: error.message,
