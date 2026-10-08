@@ -8,7 +8,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Frame,
@@ -246,22 +245,15 @@ export function SchoolCard({
             {school.name}
           </FrameTitle>
           {schoolItem && (
-            <>
-              <Badge
-                variant={committed ? "brand" : "outline"}
-                className="ml-auto"
-              >
-                {STAGES.school[stage]}
-              </Badge>
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                aria-label={`Edit ${school.name}`}
-                onClick={() => onEdit(schoolItem)}
-              >
-                <PencilIcon />
-              </Button>
-            </>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              className="ml-auto"
+              aria-label={`Edit ${school.name}`}
+              onClick={() => onEdit(schoolItem)}
+            >
+              <PencilIcon />
+            </Button>
           )}
           <Button
             variant="ghost"

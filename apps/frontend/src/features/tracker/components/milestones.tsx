@@ -191,7 +191,7 @@ function AddMilestone({
       className="group/milestone text-muted-foreground border-border h-9 rounded-full border-dashed ps-1 pe-3 before:rounded-full sm:h-9"
       onClick={() => setAdding(true)}
     >
-      <span aria-hidden className={INDICATOR}>
+      <span aria-hidden className={cn(INDICATOR, "border-transparent")}>
         <PlusIcon className="size-3.5" />
       </span>
       Add milestone
