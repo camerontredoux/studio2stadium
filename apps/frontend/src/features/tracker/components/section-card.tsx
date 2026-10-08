@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/stepper";
 import { cn } from "@/components/utils/cn";
 import {
+  CalendarIcon,
   CheckCircle2Icon,
   CheckIcon,
   GripVerticalIcon,
@@ -130,17 +131,25 @@ function ItemRow({
         )}
       />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <p
-          className={cn("text-sm font-medium", done && "text-muted-foreground")}
-        >
-          {item.title}
-        </p>
-        <div className="text-muted-foreground flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs">
-          <span>
-            {label}
-            {item.date && ` · ${formatDate(item.date)}`}
-          </span>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <p
+            className={cn(
+              "text-sm font-medium",
+              done && "text-muted-foreground",
+            )}
+          >
+            {item.title}
+          </p>
           {item.date && !done && <DueBadge date={item.date} />}
+        </div>
+        <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+          <span>{label}</span>
+          {item.date && (
+            <span className="flex items-center gap-1">
+              <CalendarIcon aria-hidden className="size-3" />
+              {formatDate(item.date)}
+            </span>
+          )}
         </div>
         {item.notes && <p className="text-xs">{item.notes}</p>}
       </div>

@@ -13,7 +13,7 @@ import {
   ProgressValue,
 } from "@/components/ui/progress";
 import { cn } from "@/components/utils/cn";
-import { TrophyIcon } from "lucide-react";
+import { CalendarIcon, TrophyIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 import type { TrackerItem as Item } from "../api/mutations";
 import { burstFrom } from "../celebrate";
@@ -223,9 +223,15 @@ export function NextUp({ items }: { items: Item[] }) {
                   />
                   <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                     <p className="truncate text-sm font-medium">{item.title}</p>
-                    <p className="text-muted-foreground truncate text-xs">
-                      {item.school?.name ?? label} · {formatDate(item.date)}
-                    </p>
+                    <div className="text-muted-foreground flex min-w-0 items-center gap-3 text-xs">
+                      <span className="truncate">
+                        {item.school?.name ?? label}
+                      </span>
+                      <span className="flex shrink-0 items-center gap-1">
+                        <CalendarIcon aria-hidden className="size-3" />
+                        {formatDate(item.date)}
+                      </span>
+                    </div>
                   </div>
                   {item.date && <DueBadge date={item.date} />}
                 </li>
