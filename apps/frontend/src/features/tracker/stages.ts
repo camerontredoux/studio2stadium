@@ -87,16 +87,10 @@ export function byUrgency(a: TrackerItem, b: TrackerItem) {
   );
 }
 
-// Whether checking milestone `id` leaves every one of `milestones` complete.
-// False for a milestone that is already complete, since that check unchecks it.
-export function completesAll(
-  milestones: Pick<TrackerMilestone, "id" | "completedAt">[],
-  id: string,
+// Whether a school's milestones are all reached. A school with none hasn't
+// reached anything yet.
+export function reachedAll(
+  milestones: Pick<TrackerMilestone, "completedAt">[],
 ) {
-  const target = milestones.find((m) => m.id === id);
-  return (
-    !!target &&
-    !target.completedAt &&
-    milestones.every((m) => m.id === id || m.completedAt)
-  );
+  return milestones.length > 0 && milestones.every((m) => m.completedAt);
 }

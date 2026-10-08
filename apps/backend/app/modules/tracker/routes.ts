@@ -1,4 +1,5 @@
 import { middleware } from "#start/kernel";
+import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
 
 const ListItemsController = () => import("./list-items/controller.ts");
@@ -15,6 +16,9 @@ const UpdateMilestoneController = () =>
   import("./update-milestone/controller.ts");
 const DeleteMilestoneController = () =>
   import("./delete-milestone/controller.ts");
+
+const MILESTONE_LIMIT_KEY = "tracker-milestones";
+const MILESTONE_LIMIT = 60;
 
 router
   .group(() => {
@@ -47,20 +51,32 @@ router
       description:
         "Deletes the school item, the school's milestones, and every item the dancer tracks under that school.",
     });
-    router.post("milestones", [CreateMilestoneController]).openapi({
-      summary: "Add a school milestone",
-      description:
-        "Adds a milestone the dancer wants to reach with a school, not yet completed. An unknown schoolId is a 422.",
-    });
-    router.patch("milestones/:id", [UpdateMilestoneController]).openapi({
-      summary: "Update a school milestone",
-      description:
-        "Renames one of the dancer's milestones or marks it complete. completed=true records when it was reached and keeps the original time if it was already complete; completed=false clears it.",
-    });
-    router.delete("milestones/:id", [DeleteMilestoneController]).openapi({
-      summary: "Delete a school milestone",
-      description: "Deletes one of the dancer's milestones.",
-    });
+    // The milestone routes share one limit, so spam-clicking a chip can't flood
+    // the API.
+    router
+      .post("milestones", [CreateMilestoneController])
+      .openapi({
+        summary: "Add a school milestone",
+        description:
+          "Adds a milestone the dancer wants to reach with a school, not yet completed. An unknown schoolId is a 422. Shares a limit of 60 requests a minute with the other milestone routes.",
+      })
+      .use(throttle(MILESTONE_LIMIT_KEY, MILESTONE_LIMIT));
+    router
+      .patch("milestones/:id", [UpdateMilestoneController])
+      .openapi({
+        summary: "Update a school milestone",
+        description:
+          "Renames one of the dancer's milestones or marks it complete. completed=true records when it was reached and keeps the original time if it was already complete; completed=false clears it. Shares a limit of 60 requests a minute with the other milestone routes.",
+      })
+      .use(throttle(MILESTONE_LIMIT_KEY, MILESTONE_LIMIT));
+    router
+      .delete("milestones/:id", [DeleteMilestoneController])
+      .openapi({
+        summary: "Delete a school milestone",
+        description:
+          "Deletes one of the dancer's milestones. Shares a limit of 60 requests a minute with the other milestone routes.",
+      })
+      .use(throttle(MILESTONE_LIMIT_KEY, MILESTONE_LIMIT));
     router.put("sections/order", [UpdateSectionOrderController]).openapi({
       summary: "Reorder tracker sections",
       description:

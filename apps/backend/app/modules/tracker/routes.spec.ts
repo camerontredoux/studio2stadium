@@ -610,6 +610,40 @@ test.group("Tracker routes", (group) => {
     );
   });
 
+  test("limits a dancer to 60 milestone changes a minute", async ({
+    client,
+  }) => {
+    const { token } = await premiumDancer(client);
+    const { id: schoolId } = await createSchool();
+
+    const created = await client
+      .post("/tracker/milestones")
+      .bearerToken(token)
+      .json({ schoolId, title: "Send reel" });
+    created.assertStatus(201);
+    const id = (created.body() as Milestone).id;
+
+    // The create above is the first of the 60.
+    for (let i = 1; i < 60; i++) {
+      const toggle = await client
+        .patch(`/tracker/milestones/${id}`)
+        .bearerToken(token)
+        .json({ completed: i % 2 === 1 });
+      toggle.assertStatus(200);
+    }
+
+    const blocked = await client
+      .patch(`/tracker/milestones/${id}`)
+      .bearerToken(token)
+      .json({ completed: true });
+    blocked.assertStatus(429);
+
+    const remove = await client
+      .delete(`/tracker/milestones/${id}`)
+      .bearerToken(token);
+    remove.assertStatus(429);
+  });
+
   test("rejects an unknown school or a bad milestone title", async ({
     client,
   }) => {

@@ -21,6 +21,8 @@ const INDICATOR =
 
 const MAX_TITLE = 80;
 
+const TOGGLE_COOLDOWN_MS = 1000;
+
 // Shared by adding and renaming. Input styles its wrapper with className, so
 // reach the field inside to fill it and keep the text clear of its rounded ends.
 const FIELD =
@@ -51,7 +53,7 @@ function MilestoneChip({
   onDelete,
 }: {
   milestone: Milestone;
-  onToggle: (chip: HTMLElement) => void;
+  onToggle: () => void;
   onRename: (title: string) => void;
   onDelete: () => void;
 }) {
@@ -62,6 +64,7 @@ function MilestoneChip({
   const [quiet, setQuiet] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const refocus = useRef(false);
+  const lastToggle = useRef(0);
 
   // Enter and Escape hand focus back to the chip; a blur leaves it where the
   // dancer moved it.
@@ -105,9 +108,13 @@ function MilestoneChip({
       <Toggle
         ref={toggleRef}
         pressed={done}
-        onClick={(e) => {
+        onClick={() => {
           setQuiet(true);
-          onToggle(e.currentTarget);
+          // Rapid clicks would otherwise each send a request.
+          const now = Date.now();
+          if (now - lastToggle.current < TOGGLE_COOLDOWN_MS) return;
+          lastToggle.current = now;
+          onToggle();
         }}
         onPointerLeave={() => setQuiet(false)}
         className={cn(
@@ -221,7 +228,7 @@ export function Milestones({
   milestones: Milestone[];
   onAdd: (title: string) => void;
   /** `chip` is the toggled chip, for confetti. */
-  onToggle: (milestone: Milestone, chip: HTMLElement) => void;
+  onToggle: (milestone: Milestone) => void;
   onRename: (milestone: Milestone, title: string) => void;
   onDelete: (milestone: Milestone) => void;
 }) {
@@ -236,7 +243,7 @@ export function Milestones({
           <li key={milestone.id}>
             <MilestoneChip
               milestone={milestone}
-              onToggle={(chip) => onToggle(milestone, chip)}
+              onToggle={() => onToggle(milestone)}
               onRename={(title) => onRename(milestone, title)}
               onDelete={() => onDelete(milestone)}
             />

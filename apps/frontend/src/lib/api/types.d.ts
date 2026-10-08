@@ -7078,7 +7078,7 @@ export interface paths {
         put?: never;
         /**
          * Add a school milestone
-         * @description Adds a milestone the dancer wants to reach with a school, not yet completed. An unknown schoolId is a 422.
+         * @description Adds a milestone the dancer wants to reach with a school, not yet completed. An unknown schoolId is a 422. Shares a limit of 60 requests a minute with the other milestone routes.
          */
         post: {
             parameters: {
@@ -7131,7 +7131,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a school milestone
-         * @description Deletes one of the dancer's milestones.
+         * @description Deletes one of the dancer's milestones. Shares a limit of 60 requests a minute with the other milestone routes.
          */
         delete: {
             parameters: {
@@ -7175,7 +7175,7 @@ export interface paths {
         head?: never;
         /**
          * Update a school milestone
-         * @description Renames one of the dancer's milestones or marks it complete. completed=true records when it was reached and keeps the original time if it was already complete; completed=false clears it.
+         * @description Renames one of the dancer's milestones or marks it complete. completed=true records when it was reached and keeps the original time if it was already complete; completed=false clears it. Shares a limit of 60 requests a minute with the other milestone routes.
          */
         patch: {
             parameters: {

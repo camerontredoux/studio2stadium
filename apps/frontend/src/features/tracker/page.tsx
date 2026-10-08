@@ -40,9 +40,7 @@ import {
   type Handlers,
 } from "./components/section-card";
 import { Momentum, NextUp } from "./components/summary";
-import { burstFrom } from "./celebrate";
 import {
-  completesAll,
   findCommitted,
   isDone,
   OFFER_STAGE,
@@ -163,27 +161,12 @@ export function TrackerPage() {
     if (stage > item.stage) celebrate(item, stage);
   };
 
-  const toggleMilestone = (
-    school: { name: string },
-    milestone: Milestone,
-    chip: HTMLElement,
-  ) => {
-    const schoolMilestones = milestones.filter(
-      (m) => m.schoolId === milestone.schoolId,
-    );
+  // The school's panel celebrates itself once every milestone is reached.
+  const toggleMilestone = (milestone: Milestone) =>
     updateMilestone.mutate({
       params: { path: { id: milestone.id } },
       body: { completed: !milestone.completedAt },
     });
-    if (completesAll(schoolMilestones, milestone.id)) {
-      burstFrom(chip);
-      toastManager.add({
-        type: "success",
-        title: "Every milestone reached",
-        description: school.name,
-      });
-    }
-  };
 
   const addItem = (item: NewItem) => {
     const section = item.schoolId ?? OTHER;
@@ -285,9 +268,7 @@ export function TrackerPage() {
                             body: { schoolId: school.id, title },
                           })
                         }
-                        onToggleMilestone={(milestone, chip) =>
-                          toggleMilestone(school, milestone, chip)
-                        }
+                        onToggleMilestone={toggleMilestone}
                         onRenameMilestone={(milestone, title) =>
                           updateMilestone.mutate({
                             params: { path: { id: milestone.id } },

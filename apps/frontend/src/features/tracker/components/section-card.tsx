@@ -40,7 +40,14 @@ import type {
   TrackerItem as Item,
   TrackerMilestone as Milestone,
 } from "../api/mutations";
-import { COMMITTED, formatDate, isDone, STAGES, TYPES } from "../stages";
+import {
+  COMMITTED,
+  formatDate,
+  isDone,
+  reachedAll,
+  STAGES,
+  TYPES,
+} from "../stages";
 import { Milestones } from "./milestones";
 import { DueBadge } from "./summary";
 import { celebrateCommitted } from "../celebrate";
@@ -212,23 +219,24 @@ export function SchoolCard({
   milestones: Milestone[];
   onRemoveSchool: () => void;
   onAddMilestone: (title: string) => void;
-  onToggleMilestone: (milestone: Milestone, chip: HTMLElement) => void;
+  onToggleMilestone: (milestone: Milestone) => void;
   onRenameMilestone: (milestone: Milestone, title: string) => void;
   onDeleteMilestone: (milestone: Milestone) => void;
 }) {
   const [confirming, setConfirming] = useState(false);
   const stage = schoolItem?.stage ?? 0;
-  const committed = stage === COMMITTED;
+  // Reaching every milestone earns the same gold panel as committing.
+  const golden = stage === COMMITTED || reachedAll(milestones);
   const panelRef = useRef<HTMLDivElement>(null);
-  const wasCommitted = useRef(committed);
+  const wasGolden = useRef(golden);
 
-  // Celebrate the move to Committed, but not a card that loads committed.
+  // Celebrate the panel turning gold, but not a card that loads that way.
   useEffect(() => {
-    if (committed && !wasCommitted.current && panelRef.current) {
+    if (golden && !wasGolden.current && panelRef.current) {
       celebrateCommitted(panelRef.current);
     }
-    wasCommitted.current = committed;
-  }, [committed]);
+    wasGolden.current = golden;
+  }, [golden]);
 
   return (
     <Frame>
@@ -272,12 +280,12 @@ export function SchoolCard({
       <FramePanel
         ref={panelRef}
         className={cn(
-          // A committed school gets the same gold tint as the feed's roadmap card.
-          committed &&
+          // The same gold tint as the feed's roadmap card.
+          golden &&
             "from-brand/15 via-brand/5 to-background isolate bg-linear-to-br",
         )}
       >
-        {committed && (
+        {golden && (
           <div
             aria-hidden
             className="text-brand pointer-events-none absolute -top-1 -left-2 -z-10 flex items-center gap-2 opacity-10"
@@ -294,7 +302,7 @@ export function SchoolCard({
           onRename={onRenameMilestone}
           onDelete={onDeleteMilestone}
         />
-        {committed && (
+        {golden && (
           <div
             data-shine
             aria-hidden
