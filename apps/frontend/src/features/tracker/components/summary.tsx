@@ -12,7 +12,11 @@ import {
   ProgressTrack,
   ProgressValue,
 } from "@/components/ui/progress";
+import { cn } from "@/components/utils/cn";
+import { TrophyIcon } from "lucide-react";
+import { useEffect, useRef } from "react";
 import type { TrackerItem as Item } from "../api/mutations";
+import { burstFrom } from "../celebrate";
 import {
   byUrgency,
   daysUntil,
@@ -51,6 +55,7 @@ export function Momentum({ items }: { items: Item[] }) {
   const reached = items.reduce((n, i) => n + i.stage, 0);
   const total = items.reduce((n, i) => n + STAGES[i.type].length - 1, 0);
   const percent = total ? Math.round((reached / total) * 100) : 0;
+  const complete = total > 0 && reached === total;
   const schools = new Set(
     items.flatMap((i) => (i.school ? [i.school.id] : [])),
   );
@@ -62,31 +67,96 @@ export function Momentum({ items }: { items: Item[] }) {
     { value: items.length - open.length, label: "Completed" },
   ];
 
+  const medalRef = useRef<HTMLDivElement>(null);
+  const wasComplete = useRef(complete);
+
+  // Celebrate reaching 100%, but not a page that loads at 100%.
+  useEffect(() => {
+    if (complete && !wasComplete.current && medalRef.current) {
+      burstFrom(medalRef.current);
+    }
+    wasComplete.current = complete;
+  }, [complete]);
+
   return (
     <Frame>
       <FrameHeader>
         <FrameTitle>Your momentum</FrameTitle>
       </FrameHeader>
       {/* Sized by the card, not the screen: from md to lg it is half width. */}
-      <FramePanel className="@container flex w-full flex-col gap-4">
+      <FramePanel
+        className={cn(
+          "@container flex w-full flex-col gap-4",
+          complete &&
+            "from-brand/25 via-brand/10 to-background isolate bg-linear-to-br",
+        )}
+      >
+        {complete && (
+          <div className="flex items-center gap-4">
+            <div ref={medalRef} className="relative size-14 shrink-0">
+              {/* A slowly turning gold ring behind the medal. */}
+              <div
+                aria-hidden
+                className="absolute -inset-2 animate-[spin_6s_linear_infinite] rounded-full bg-[conic-gradient(var(--brand),transparent_40%,var(--brand)_60%,transparent_90%,var(--brand))] motion-reduce:animate-none"
+              />
+              <div className="bg-brand ring-background relative grid size-full place-items-center rounded-full text-white shadow-lg ring-4">
+                <TrophyIcon aria-hidden className="size-6" />
+              </div>
+            </div>
+            <div className="flex min-w-0 flex-col">
+              <p className="text-lg leading-tight font-semibold">
+                Every step taken
+              </p>
+              <p className="text-muted-foreground text-xs">
+                {total} of {total} steps
+                {schools.size > 0 &&
+                  ` across ${schools.size} ${schools.size === 1 ? "school" : "schools"}`}
+                .
+                <span className="@max-sm:hidden">
+                  {" "}
+                  That's the whole journey.
+                </span>
+              </p>
+            </div>
+          </div>
+        )}
         <Progress value={percent}>
           <div className="flex items-center justify-between gap-2">
             <ProgressLabel>Recruiting progress</ProgressLabel>
-            <ProgressValue className="font-medium" />
+            <ProgressValue
+              className={cn(
+                "font-medium",
+                complete && "text-brand font-semibold",
+              )}
+            />
           </div>
           <ProgressTrack className="h-2">
-            <ProgressIndicator className="bg-brand rounded-full" />
+            <ProgressIndicator
+              className={cn(
+                "bg-brand rounded-full",
+                complete &&
+                  "animate-gold-shimmer bg-[linear-gradient(90deg,var(--brand),#f3e6d3,var(--brand))] bg-size-[200%_100%] motion-reduce:animate-none",
+              )}
+            />
           </ProgressTrack>
-          <p className="text-muted-foreground text-xs">
-            {reached} of {total} steps taken.
-            <span className="@max-sm:hidden">
-              {" "}
-              Every stage you move forward counts.
-            </span>
-          </p>
+          {!complete && (
+            <p className="text-muted-foreground text-xs">
+              {reached} of {total} steps taken.
+              <span className="@max-sm:hidden">
+                {" "}
+                Every stage you move forward counts.
+              </span>
+            </p>
+          )}
         </Progress>
-        {/* Narrow cards stack the counts; three boxes need about 288px. */}
-        <div className="grid grid-cols-1 gap-2 @2xs:grid-cols-3">
+        {/* Narrow cards stack the counts; three boxes need about 288px.
+            At 100% the headline says it all, so the counts are hidden. */}
+        <div
+          className={cn(
+            "grid grid-cols-1 gap-2 @2xs:grid-cols-3",
+            complete && "hidden",
+          )}
+        >
           {stats.map((stat) => (
             <div
               key={stat.label}

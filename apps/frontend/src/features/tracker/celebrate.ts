@@ -3,6 +3,24 @@ import confetti from "canvas-confetti";
 // Shades of the brand gold, dark enough to show on a white page.
 const COLORS = ["#c4a582", "#dcc3a1", "#a8875f", "#8a6a43", "#e9d8bd"];
 
+// Fires confetti from the center of `el`, aimed at `angle` degrees.
+export function burstFrom(el: HTMLElement, angle = 90) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const box = el.getBoundingClientRect();
+  const origin = {
+    x: (box.left + box.width / 2) / window.innerWidth,
+    y: (box.top + box.height / 2) / window.innerHeight,
+  };
+  const fire = (options: confetti.Options) =>
+    confetti({ origin, colors: COLORS, ...options });
+  fire({ particleCount: 90, spread: 70, startVelocity: 40, angle });
+  setTimeout(
+    () =>
+      fire({ particleCount: 50, spread: 140, startVelocity: 25, scalar: 0.8 }),
+    180,
+  );
+}
+
 // Celebrates a school reaching Committed: confetti from the trophy, a pop on
 // the stage panel, a bounce on the trophy, and a shine across the panel.
 export function celebrateCommitted(panel: HTMLElement) {
@@ -11,22 +29,9 @@ export function celebrateCommitted(panel: HTMLElement) {
   const trophy = panel.querySelector<HTMLElement>(
     "[data-slot=stepper-indicator][data-state=active]",
   );
-  const box = (trophy ?? panel).getBoundingClientRect();
-  const origin = {
-    x: (box.left + box.width / 2) / window.innerWidth,
-    y: (box.top + box.height / 2) / window.innerHeight,
-  };
-  const fire = (options: confetti.Options) =>
-    confetti({ origin, colors: COLORS, ...options });
-
-  // Committed is the last stage, on the right, so aim the first burst up and
-  // to the left, across the card.
-  fire({ particleCount: 90, spread: 70, startVelocity: 40, angle: 115 });
-  setTimeout(
-    () =>
-      fire({ particleCount: 50, spread: 140, startVelocity: 25, scalar: 0.8 }),
-    180,
-  );
+  // Committed is the last stage, on the right, so aim up and to the left,
+  // across the card.
+  burstFrom(trophy ?? panel, 115);
 
   panel.animate(
     [

@@ -215,6 +215,7 @@
   --animate-skeleton: skeleton 2s -1s infinite linear;
   --animate-loading-bar: loading-bar 1.4s ease-in-out infinite alternate;
   --animate-stage-pulse: stage-pulse 1.2s ease-out infinite;
+  --animate-gold-shimmer: gold-shimmer 2.5s linear infinite;
   --color-warning-foreground: var(--warning-foreground);
   --color-warning: var(--warning);
   --color-success-foreground: var(--success-foreground);
@@ -222,6 +223,14 @@
   --color-info-foreground: var(--info-foreground);
   --color-info: var(--info);
   @keyframes skeleton {
+    to {
+      background-position: -200% 0;
+    }
+  }
+  @keyframes gold-shimmer {
+    from {
+      background-position: 200% 0;
+    }
     to {
       background-position: -200% 0;
     }
