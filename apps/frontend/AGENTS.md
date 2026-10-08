@@ -57,3 +57,16 @@ React 19 SPA using TanStack Router (file-based) and TanStack Query for data fetc
 - Use `import { z } from 'zod'` (not default import)
 - `@/*` alias maps to `./src/*`
 - shadcn/ui components in `components/ui/` (new-york style, DiceUI registry available)
+
+### Use Existing Components
+
+- Build UI from `components/ui/` and `components/shared/`. Check them before you write markup.
+- Don't recreate a component with Tailwind. For example, use `Card` or `Frame` instead of a bordered `div`, `Empty` for empty states, `Progress` or `Meter` for progress bars, `Select` instead of a native `<select>`, and `Table` for tables.
+- Use Tailwind for layout and spacing between components.
+
+### Dialogs and Cards
+
+- Give every block of content padding on all sides, including the bottom. A wrapper with only `px-6` puts the content flush against the footer or the next section.
+- In a `Dialog`, put body content in `DialogPanel`. It sets the padding between the header and the footer.
+- `AlertDialog` has no body slot. Wrap content between `AlertDialogHeader` and `AlertDialogFooter` in `px-6 pb-4`, as `features/settings/components/danger-settings.tsx` does.
+- Before you report a new or changed dialog as done, look at a screenshot of it. Check the space between the last content block and the footer.
