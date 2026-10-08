@@ -118,6 +118,7 @@ function ItemRow({
     label: stage,
   }));
   const RowIcon = done ? CheckCircle2Icon : Icon;
+  const [confirming, setConfirming] = useState(false);
 
   return (
     <li className="flex flex-wrap items-start gap-x-3 gap-y-2 px-4 py-3">
@@ -176,11 +177,35 @@ function ItemRow({
           variant="ghost"
           size="icon-sm"
           aria-label={`Delete ${item.title}`}
-          onClick={onDelete}
+          onClick={() => setConfirming(true)}
         >
           <Trash2Icon />
         </Button>
       </div>
+      <AlertDialog open={confirming} onOpenChange={setConfirming}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {item.title}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This removes the {label.toLowerCase()} from your tracker.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose render={<Button variant="outline" />}>
+              Cancel
+            </AlertDialogClose>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                setConfirming(false);
+                onDelete();
+              }}
+            >
+              Delete Item
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </li>
   );
 }
