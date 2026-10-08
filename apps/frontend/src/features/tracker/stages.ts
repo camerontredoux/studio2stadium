@@ -2,17 +2,11 @@ import { differenceInCalendarDays } from "date-fns";
 import {
   ClipboardListIcon,
   GraduationCapIcon,
-  HeartIcon,
-  MailIcon,
-  MapPinIcon,
   MegaphoneIcon,
-  MusicIcon,
   SchoolIcon,
-  StarIcon,
   TimerIcon,
-  TrophyIcon,
 } from "lucide-react";
-import type { TrackerItem } from "./api/mutations";
+import type { TrackerItem, TrackerMilestone } from "./api/mutations";
 
 export type ItemType = TrackerItem["type"];
 
@@ -49,15 +43,6 @@ export const STAGES: Record<ItemType, string[]> = {
   application: ["Not started", "In progress", "Submitted"],
   deadline: ["Upcoming", "Done"],
 };
-
-export const SCHOOL_STAGE_ICONS = [
-  HeartIcon,
-  MailIcon,
-  MapPinIcon,
-  MusicIcon,
-  StarIcon,
-  TrophyIcon,
-];
 
 export const OFFER_STAGE = STAGES.school.indexOf("Offer");
 
@@ -100,4 +85,12 @@ export function byUrgency(a: TrackerItem, b: TrackerItem) {
     (a.date ?? "").localeCompare(b.date ?? "") ||
     a.id.localeCompare(b.id)
   );
+}
+
+// Whether a school's milestones are all reached. A school with none hasn't
+// reached anything yet.
+export function reachedAll(
+  milestones: Pick<TrackerMilestone, "completedAt">[],
+) {
+  return milestones.length > 0 && milestones.every((m) => m.completedAt);
 }

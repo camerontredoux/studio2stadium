@@ -6627,7 +6627,7 @@
           "Tracker"
         ],
         "summary": "Get my recruiting tracker",
-        "description": "Returns the dancer's tracker items (newest first), each with its school and event summaries or null, and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section."
+        "description": "Returns the dancer's tracker items (newest first), each with its school and event summaries or null, their school milestones (oldest first, with completedAt null until reached), and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section."
       }
     },
     "/tracker/events": {
@@ -6870,7 +6870,7 @@
           "Tracker"
         ],
         "summary": "Remove a school from the tracker",
-        "description": "Deletes the school item and every item the dancer tracks under that school."
+        "description": "Deletes the school item, the school's milestones, and every item the dancer tracks under that school."
       }
     },
     "/tracker/sections/order": {
@@ -6904,6 +6904,148 @@
         ],
         "summary": "Reorder tracker sections",
         "description": "Saves the order of the dancer's tracker sections. Each entry is a school id, or null for 'Everything else'."
+      }
+    },
+    "/tracker/milestones": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackerMilestonesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackerMilestonesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "Add a school milestone",
+        "description": "Adds a milestone the dancer wants to reach with a school, not yet completed. An unknown schoolId is a 422. Shares a limit of 60 requests a minute with the other milestone routes."
+      }
+    },
+    "/tracker/milestones/{id}": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackerMilestonesIdRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackerMilestonesIdResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "Update a school milestone",
+        "description": "Renames one of the dancer's milestones or marks it complete. completed=true records when it was reached and keeps the original time if it was already complete; completed=false clears it. Shares a limit of 60 requests a minute with the other milestone routes."
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "Delete a school milestone",
+        "description": "Deletes one of the dancer's milestones. Shares a limit of 60 requests a minute with the other milestone routes."
       }
     },
     "/stripe/webhook": {
@@ -18471,6 +18613,16 @@
                   "premiumStartedAt": {
                     "type": "string"
                   },
+                  "completedAt": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "version": {
                     "type": "number"
                   },
@@ -18483,16 +18635,6 @@
                   "totalCount": {
                     "type": "number"
                   },
-                  "completedAt": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
                   "steps": {
                     "type": "array",
                     "items": {
@@ -18504,12 +18646,6 @@
                         "count": {
                           "type": "number"
                         },
-                        "key": {
-                          "$ref": "#/components/schemas/StepKey"
-                        },
-                        "target": {
-                          "type": "number"
-                        },
                         "completedAt": {
                           "oneOf": [
                             {
@@ -18519,12 +18655,18 @@
                               "type": "null"
                             }
                           ]
+                        },
+                        "key": {
+                          "$ref": "#/components/schemas/StepKey"
+                        },
+                        "target": {
+                          "type": "number"
                         }
                       },
                       "required": [
                         "status",
-                        "key",
-                        "completedAt"
+                        "completedAt",
+                        "key"
                       ]
                     }
                   },
@@ -18542,11 +18684,11 @@
                   "interval",
                   "firstViewedAt",
                   "premiumStartedAt",
+                  "completedAt",
                   "version",
                   "daysSinceStart",
                   "completedCount",
                   "totalCount",
-                  "completedAt",
                   "steps",
                   "newlyCompleted",
                   "roadmapNewlyCompleted"
@@ -18860,6 +19002,43 @@
               ]
             }
           },
+          "milestones": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "schoolId": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "completedAt": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "createdAt",
+                "schoolId",
+                "title",
+                "completedAt"
+              ]
+            }
+          },
           "sectionOrder": {
             "type": "array",
             "items": {
@@ -18876,6 +19055,7 @@
         },
         "required": [
           "items",
+          "milestones",
           "sectionOrder"
         ]
       },
@@ -19375,6 +19555,118 @@
         },
         "required": [
           "sections"
+        ]
+      },
+      "TrackerMilestonesRequest": {
+        "type": "object",
+        "properties": {
+          "schoolId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "schoolId",
+          "title"
+        ]
+      },
+      "TrackerMilestonesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "schoolId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "completedAt": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "schoolId",
+          "title",
+          "completedAt"
+        ]
+      },
+      "TrackerMilestonesIdRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "completed": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "TrackerMilestonesIdResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "schoolId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "completedAt": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "schoolId",
+          "title",
+          "completedAt"
         ]
       },
       "StripeWebhookResponse": {

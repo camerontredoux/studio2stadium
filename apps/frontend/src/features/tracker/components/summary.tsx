@@ -5,26 +5,20 @@ import {
   FramePanel,
   FrameTitle,
 } from "@/components/ui/frame";
-import {
-  Progress,
-  ProgressIndicator,
-  ProgressLabel,
-  ProgressTrack,
-  ProgressValue,
-} from "@/components/ui/progress";
 import { cn } from "@/components/utils/cn";
 import { CalendarIcon, TrophyIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
-import type { TrackerItem as Item } from "../api/mutations";
+import type {
+  TrackerItem as Item,
+  TrackerMilestone as Milestone,
+} from "../api/mutations";
 import { burstFrom } from "../celebrate";
 import {
   byUrgency,
   daysUntil,
   formatDate,
   isDone,
-  COMMITTED,
   findCommitted,
-  STAGES,
   TYPES,
 } from "../stages";
 
@@ -53,21 +47,18 @@ export function DueBadge({ date }: { date: string }) {
   );
 }
 
-export function Momentum({ items }: { items: Item[] }) {
-  // Every non-school item counts, plus one school journey: the furthest
-  // school. A dancer commits to one school, so 100% means everything else
-  // is done and they've committed.
+export function Momentum({
+  items,
+  milestones,
+}: {
+  items: Item[];
+  milestones: Milestone[];
+}) {
+  // A dancer commits to one school, so the journey is complete once they've
+  // committed and everything else is done.
   const others = items.filter((i) => i.type !== "school");
-  const furthest = Math.max(
-    0,
-    ...items.filter((i) => i.type === "school").map((i) => i.stage),
-  );
-  const reached = others.reduce((n, i) => n + i.stage, 0) + furthest;
-  const total =
-    others.reduce((n, i) => n + STAGES[i.type].length - 1, 0) + COMMITTED;
-  const percent = items.length ? Math.round((reached / total) * 100) : 0;
   const committedTo = findCommitted(items)?.school?.name;
-  const complete = reached === total && !!committedTo;
+  const complete = !!committedTo && others.every(isDone);
   const schools = new Set(
     items.flatMap((i) => (i.school ? [i.school.id] : [])),
   );
@@ -76,13 +67,18 @@ export function Momentum({ items }: { items: Item[] }) {
   const stats = [
     { value: schools.size, label: schools.size === 1 ? "School" : "Schools" },
     { value: dueSoon.length, label: "Due in 30 days", short: "Due soon" },
-    { value: items.length - open.length, label: "Completed" },
+    {
+      value:
+        others.filter(isDone).length +
+        milestones.filter((m) => m.completedAt).length,
+      label: "Completed",
+    },
   ];
 
   const medalRef = useRef<HTMLDivElement>(null);
   const wasComplete = useRef(complete);
 
-  // Celebrate reaching 100%, but not a page that loads at 100%. Small
+  // Celebrate completing the journey, but not a page that loads complete. Small
   // screens hide the medal, so the confetti comes from the headline instead.
   useEffect(() => {
     const medal = medalRef.current;
@@ -141,37 +137,8 @@ export function Momentum({ items }: { items: Item[] }) {
             </div>
           </div>
         )}
-        <Progress value={percent}>
-          <div className="flex items-center justify-between gap-2">
-            <ProgressLabel>Recruiting progress</ProgressLabel>
-            <ProgressValue
-              className={cn(
-                "font-medium",
-                complete && "text-brand font-semibold",
-              )}
-            />
-          </div>
-          <ProgressTrack className="h-2">
-            <ProgressIndicator
-              className={cn(
-                "bg-brand rounded-full",
-                complete &&
-                  "animate-gold-shimmer bg-[linear-gradient(90deg,var(--brand),#f3e6d3,var(--brand))] bg-size-[200%_100%] motion-reduce:animate-none",
-              )}
-            />
-          </ProgressTrack>
-          {!complete && (
-            <p className="text-muted-foreground text-xs">
-              {reached} of {total} steps taken.
-              <span className="@max-sm:hidden">
-                {" "}
-                Every stage you move forward counts.
-              </span>
-            </p>
-          )}
-        </Progress>
         {/* Narrow cards stack the counts; three boxes need about 288px.
-            At 100% the headline says it all, so the counts are hidden. */}
+            Once complete the headline says it all, so the counts are hidden. */}
         <div
           className={cn(
             "grid grid-cols-1 gap-2 @2xs:grid-cols-3",

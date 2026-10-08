@@ -7,6 +7,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Frame,
@@ -23,23 +24,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SortableItemHandle } from "@/components/ui/sortable";
-import {
-  Stepper,
-  StepperIndicator,
-  StepperItem,
-  StepperList,
-  StepperSeparator,
-  StepperTitle,
-  StepperTrigger,
-} from "@/components/ui/stepper";
 import { cn } from "@/components/utils/cn";
 import {
   CalendarIcon,
   CheckCircle2Icon,
-  CheckIcon,
   GripVerticalIcon,
   PlusIcon,
-  StarIcon,
   PencilIcon,
   SparklesIcon,
   TicketIcon,
@@ -47,68 +37,21 @@ import {
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import type { TrackerItem as Item } from "../api/mutations";
+import type {
+  TrackerItem as Item,
+  TrackerMilestone as Milestone,
+} from "../api/mutations";
 import {
   COMMITTED,
   formatDate,
   isDone,
-  SCHOOL_STAGE_ICONS,
+  reachedAll,
   STAGES,
   TYPES,
 } from "../stages";
+import { Milestones } from "./milestones";
 import { DueBadge } from "./summary";
 import { celebrateCommitted } from "../celebrate";
-
-function SchoolJourney({
-  school,
-  stage,
-  commitLocked,
-  onStageChange,
-}: {
-  school: string;
-  stage: number;
-  commitLocked: boolean;
-  onStageChange: (stage: number) => void;
-}) {
-  return (
-    <Stepper
-      value={STAGES.school[stage]}
-      onValueChange={(value) => onStageChange(STAGES.school.indexOf(value))}
-      activationMode="manual"
-      // Sized by the card: labels only fit when the card is wide.
-      className="@container w-full"
-    >
-      <StepperList aria-label={`Your stage with ${school}`}>
-        {STAGES.school.map((label, i) => {
-          const Icon = SCHOOL_STAGE_ICONS[i] ?? StarIcon;
-          return (
-            <StepperItem
-              key={label}
-              value={label}
-              disabled={commitLocked && i === COMMITTED}
-            >
-              <StepperTrigger className="group/stage cursor-pointer flex-col gap-1.5 p-0.5 not-has-data-[slot=description]:rounded-md">
-                <StepperIndicator className="group-hover/stage:border-brand group-hover/stage:bg-brand group-hover/stage:animate-stage-pulse data-[state=active]:border-brand data-[state=active]:bg-brand data-[state=active]:ring-brand/20 data-[state=completed]:text-brand transition-[transform,background-color,border-color,color] duration-200 ease-out group-hover/stage:scale-115 group-hover/stage:-rotate-12 group-hover/stage:text-white data-[state=active]:text-white data-[state=active]:ring-4 data-[state=completed]:border-[color-mix(in_oklab,var(--brand)_40%,var(--background))] data-[state=completed]:bg-[color-mix(in_oklab,var(--brand)_15%,var(--background))] motion-reduce:transition-none motion-reduce:group-hover/stage:transform-none motion-reduce:group-hover/stage:animate-none">
-                  {(state) =>
-                    state === "completed" ? (
-                      <CheckIcon className="size-4" />
-                    ) : (
-                      <Icon className="size-3.5" />
-                    )
-                  }
-                </StepperIndicator>
-                <StepperTitle className="text-muted-foreground in-data-[state=active]:text-foreground text-xs whitespace-nowrap @max-2xl:sr-only">
-                  {label}
-                </StepperTitle>
-              </StepperTrigger>
-              <StepperSeparator className="data-[state=completed]:bg-brand mx-1 mt-[calc(--spacing(0.5)+0.875rem)] mb-auto sm:mx-2" />
-            </StepperItem>
-          );
-        })}
-      </StepperList>
-    </Stepper>
-  );
-}
 
 function ItemRow({
   item,
@@ -266,41 +209,53 @@ export function SchoolCard({
   school,
   schoolItem,
   items,
-  commitLocked,
-  onSchoolStageChange,
+  milestones,
   onRemoveSchool,
+  onAddMilestone,
+  onToggleMilestone,
+  onRenameMilestone,
+  onDeleteMilestone,
   onStageChange,
   onEdit,
   onDelete,
   onAdd,
 }: Handlers & {
-  school: { id: string; name: string };
+  school: { id: string; name: string; avatar: string | null };
   schoolItem?: Item;
   items: Item[];
-  /** Another school is Committed, so this one can't be. */
-  commitLocked: boolean;
-  onSchoolStageChange: (stage: number) => void;
+  milestones: Milestone[];
   onRemoveSchool: () => void;
+  onAddMilestone: (title: string) => void;
+  onToggleMilestone: (milestone: Milestone) => void;
+  onRenameMilestone: (milestone: Milestone, title: string) => void;
+  onDeleteMilestone: (milestone: Milestone) => void;
 }) {
   const [confirming, setConfirming] = useState(false);
   const stage = schoolItem?.stage ?? 0;
-  const committed = stage === COMMITTED;
+  // Reaching every milestone earns the same gold panel as committing.
+  const golden = stage === COMMITTED || reachedAll(milestones);
   const panelRef = useRef<HTMLDivElement>(null);
-  const wasCommitted = useRef(committed);
+  const wasGolden = useRef(golden);
 
-  // Celebrate the move to Committed, but not a card that loads committed.
+  // Celebrate the panel turning gold, but not a card that loads that way.
   useEffect(() => {
-    if (committed && !wasCommitted.current && panelRef.current) {
+    if (golden && !wasGolden.current && panelRef.current) {
       celebrateCommitted(panelRef.current);
     }
-    wasCommitted.current = committed;
-  }, [committed]);
+    wasGolden.current = golden;
+  }, [golden]);
 
   return (
     <Frame>
       <FrameHeader>
         <div className="flex items-center gap-2">
           <ReorderHandle label={school.name} />
+          <Avatar className="size-7 rounded-md border">
+            {school.avatar && <AvatarImage src={school.avatar} alt="" />}
+            <AvatarFallback className="text-[0.625rem] font-semibold">
+              {school.name.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
           <FrameTitle className="min-w-0 truncate text-base">
             {school.name}
           </FrameTitle>
@@ -332,12 +287,12 @@ export function SchoolCard({
       <FramePanel
         ref={panelRef}
         className={cn(
-          // A committed school gets the same gold tint as the feed's roadmap card.
-          committed &&
+          // The same gold tint as the feed's roadmap card.
+          golden &&
             "from-brand/15 via-brand/5 to-background isolate bg-linear-to-br",
         )}
       >
-        {committed && (
+        {golden && (
           <div
             aria-hidden
             className="text-brand pointer-events-none absolute -top-1 -left-2 -z-10 flex items-center gap-2 opacity-10"
@@ -346,13 +301,15 @@ export function SchoolCard({
             <SparklesIcon className="size-16 rotate-186" />
           </div>
         )}
-        <SchoolJourney
+        <Milestones
           school={school.name}
-          stage={stage}
-          commitLocked={commitLocked}
-          onStageChange={onSchoolStageChange}
+          milestones={milestones}
+          onAdd={onAddMilestone}
+          onToggle={onToggleMilestone}
+          onRename={onRenameMilestone}
+          onDelete={onDeleteMilestone}
         />
-        {committed && (
+        {golden && (
           <div
             data-shine
             aria-hidden

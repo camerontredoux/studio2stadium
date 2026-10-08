@@ -1,4 +1,5 @@
 import { middleware } from "#start/kernel";
+import { throttle } from "#start/limiter";
 import router from "@adonisjs/core/services/router";
 
 const ListItemsController = () => import("./list-items/controller.ts");
@@ -9,13 +10,22 @@ const DeleteItemController = () => import("./delete-item/controller.ts");
 const DeleteSectionController = () => import("./delete-section/controller.ts");
 const UpdateSectionOrderController = () =>
   import("./update-section-order/controller.ts");
+const CreateMilestoneController = () =>
+  import("./create-milestone/controller.ts");
+const UpdateMilestoneController = () =>
+  import("./update-milestone/controller.ts");
+const DeleteMilestoneController = () =>
+  import("./delete-milestone/controller.ts");
+
+const MILESTONE_LIMIT_KEY = "tracker-milestones";
+const MILESTONE_LIMIT = 60;
 
 router
   .group(() => {
     router.get("", [ListItemsController]).openapi({
       summary: "Get my recruiting tracker",
       description:
-        "Returns the dancer's tracker items (newest first), each with its school and event summaries or null, and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section.",
+        "Returns the dancer's tracker items (newest first), each with its school and event summaries or null, their school milestones (oldest first, with completedAt null until reached), and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section.",
     });
     router.get("events", [ListEventsController]).openapi({
       summary: "List events a clinic item can link",
@@ -39,8 +49,34 @@ router
     router.delete("sections", [DeleteSectionController]).openapi({
       summary: "Remove a school from the tracker",
       description:
-        "Deletes the school item and every item the dancer tracks under that school.",
+        "Deletes the school item, the school's milestones, and every item the dancer tracks under that school.",
     });
+    // The milestone routes share one limit, so spam-clicking a chip can't flood
+    // the API.
+    router
+      .post("milestones", [CreateMilestoneController])
+      .openapi({
+        summary: "Add a school milestone",
+        description:
+          "Adds a milestone the dancer wants to reach with a school, not yet completed. An unknown schoolId is a 422. Shares a limit of 60 requests a minute with the other milestone routes.",
+      })
+      .use(throttle(MILESTONE_LIMIT_KEY, MILESTONE_LIMIT));
+    router
+      .patch("milestones/:id", [UpdateMilestoneController])
+      .openapi({
+        summary: "Update a school milestone",
+        description:
+          "Renames one of the dancer's milestones or marks it complete. completed=true records when it was reached and keeps the original time if it was already complete; completed=false clears it. Shares a limit of 60 requests a minute with the other milestone routes.",
+      })
+      .use(throttle(MILESTONE_LIMIT_KEY, MILESTONE_LIMIT));
+    router
+      .delete("milestones/:id", [DeleteMilestoneController])
+      .openapi({
+        summary: "Delete a school milestone",
+        description:
+          "Deletes one of the dancer's milestones. Shares a limit of 60 requests a minute with the other milestone routes.",
+      })
+      .use(throttle(MILESTONE_LIMIT_KEY, MILESTONE_LIMIT));
     router.put("sections/order", [UpdateSectionOrderController]).openapi({
       summary: "Reorder tracker sections",
       description:

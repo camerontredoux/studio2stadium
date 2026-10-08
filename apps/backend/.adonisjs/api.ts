@@ -607,6 +607,18 @@ type TrackerSectionsDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/delete-section/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/tracker/delete-section/controller.ts').default['handle'], true>
 }
+type TrackerMilestonesPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/create-milestone/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/create-milestone/controller.ts').default['handle'], true>
+}
+type TrackerMilestonesIdPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/update-milestone/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/update-milestone/controller.ts').default['handle'], true>
+}
+type TrackerMilestonesIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/delete-milestone/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/delete-milestone/controller.ts').default['handle'], true>
+}
 type TrackerSectionsOrderPut = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/update-section-order/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/tracker/update-section-order/controller.ts').default['handle'], true>
@@ -1768,6 +1780,17 @@ export interface ApiDefinition {
         '$url': {
         };
         '$put': TrackerSectionsOrderPut;
+      };
+    };
+    'milestones': {
+      '$url': {
+      };
+      '$post': TrackerMilestonesPost;
+      ':id': {
+        '$url': {
+        };
+        '$patch': TrackerMilestonesIdPatch;
+        '$delete': TrackerMilestonesIdDelete;
       };
     };
   };

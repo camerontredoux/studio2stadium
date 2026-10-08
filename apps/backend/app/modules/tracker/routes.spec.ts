@@ -27,6 +27,14 @@ interface Item {
   stage: number;
 }
 
+interface Milestone {
+  id: string;
+  schoolId: string;
+  title: string;
+  completedAt: string | null;
+  createdAt: string;
+}
+
 test.group("Tracker routes", (group) => {
   group.each.setup(async () => {
     await db.execute(sql`truncate table ${users} cascade`);
@@ -495,5 +503,193 @@ test.group("Tracker routes", (group) => {
       .bearerToken(token)
       .json({ schoolId: other.id });
     moved.assertStatus(422);
+  });
+
+  test("creates, lists, completes, renames, and deletes milestones", async ({
+    client,
+    assert,
+  }) => {
+    const { token } = await premiumDancer(client);
+    const { id: schoolId } = await createSchool();
+
+    const created = await client
+      .post("/tracker/milestones")
+      .bearerToken(token)
+      .json({ schoolId, title: "  Send reel  " });
+    created.assertStatus(201);
+    const milestone = created.body() as Milestone;
+    assert.containSubset(milestone, {
+      schoolId,
+      title: "Send reel",
+      completedAt: null,
+    });
+    const second = await client
+      .post("/tracker/milestones")
+      .bearerToken(token)
+      .json({ schoolId, title: "Campus visit" });
+    second.assertStatus(201);
+
+    const list = await client.get("/tracker").bearerToken(token);
+    assert.deepEqual(
+      (list.body() as { milestones: Milestone[] }).milestones.map(
+        (m) => m.title
+      ),
+      ["Send reel", "Campus visit"]
+    );
+
+    const completed = await client
+      .patch(`/tracker/milestones/${milestone.id}`)
+      .bearerToken(token)
+      .json({ completed: true });
+    completed.assertStatus(200);
+    const completedAt = (completed.body() as Milestone).completedAt;
+    assert.isString(completedAt);
+
+    const again = await client
+      .patch(`/tracker/milestones/${milestone.id}`)
+      .bearerToken(token)
+      .json({ completed: true, title: "Send dance reel" });
+    again.assertStatus(200);
+    assert.containSubset(again.body(), {
+      title: "Send dance reel",
+      completedAt,
+    });
+
+    const reopened = await client
+      .patch(`/tracker/milestones/${milestone.id}`)
+      .bearerToken(token)
+      .json({ completed: false });
+    reopened.assertStatus(200);
+    assert.isNull((reopened.body() as Milestone).completedAt);
+
+    const deleted = await client
+      .delete(`/tracker/milestones/${milestone.id}`)
+      .bearerToken(token);
+    deleted.assertStatus(204);
+    const after = await client.get("/tracker").bearerToken(token);
+    assert.deepEqual(
+      (after.body() as { milestones: Milestone[] }).milestones.map(
+        (m) => m.title
+      ),
+      ["Campus visit"]
+    );
+  });
+
+  test("another dancer's milestones can't be read, changed, or deleted", async ({
+    client,
+    assert,
+  }) => {
+    const owner = await premiumDancer(client);
+    const other = await premiumDancer(client);
+    const { id: schoolId } = await createSchool();
+
+    const created = await client
+      .post("/tracker/milestones")
+      .bearerToken(owner.token)
+      .json({ schoolId, title: "Send reel" });
+    const id = (created.body() as Milestone).id;
+
+    const list = await client.get("/tracker").bearerToken(other.token);
+    assert.lengthOf((list.body() as { milestones: Milestone[] }).milestones, 0);
+
+    const update = await client
+      .patch(`/tracker/milestones/${id}`)
+      .bearerToken(other.token)
+      .json({ completed: true });
+    update.assertStatus(404);
+
+    const remove = await client
+      .delete(`/tracker/milestones/${id}`)
+      .bearerToken(other.token);
+    remove.assertStatus(404);
+
+    const ownerList = await client.get("/tracker").bearerToken(owner.token);
+    assert.containSubset(
+      (ownerList.body() as { milestones: Milestone[] }).milestones,
+      [{ id, completedAt: null }]
+    );
+  });
+
+  test("limits a dancer to 60 milestone changes a minute", async ({
+    client,
+  }) => {
+    const { token } = await premiumDancer(client);
+    const { id: schoolId } = await createSchool();
+
+    const created = await client
+      .post("/tracker/milestones")
+      .bearerToken(token)
+      .json({ schoolId, title: "Send reel" });
+    created.assertStatus(201);
+    const id = (created.body() as Milestone).id;
+
+    // The create above is the first of the 60.
+    for (let i = 1; i < 60; i++) {
+      const toggle = await client
+        .patch(`/tracker/milestones/${id}`)
+        .bearerToken(token)
+        .json({ completed: i % 2 === 1 });
+      toggle.assertStatus(200);
+    }
+
+    const blocked = await client
+      .patch(`/tracker/milestones/${id}`)
+      .bearerToken(token)
+      .json({ completed: true });
+    blocked.assertStatus(429);
+
+    const remove = await client
+      .delete(`/tracker/milestones/${id}`)
+      .bearerToken(token);
+    remove.assertStatus(429);
+  });
+
+  test("rejects an unknown school or a bad milestone title", async ({
+    client,
+  }) => {
+    const { token } = await premiumDancer(client);
+    const { id: schoolId } = await createSchool();
+
+    for (const payload of [
+      { schoolId: "00000000-0000-4000-8000-000000000000", title: "Visit" },
+      { schoolId, title: "   " },
+      { schoolId, title: "x".repeat(81) },
+    ]) {
+      const response = await client
+        .post("/tracker/milestones")
+        .bearerToken(token)
+        .json(payload);
+      response.assertStatus(422);
+    }
+  });
+
+  test("removing a school's section removes its milestones", async ({
+    client,
+    assert,
+  }) => {
+    const { token } = await premiumDancer(client);
+    const removed = await createSchool();
+    const kept = await createSchool();
+    for (const school of [removed, kept]) {
+      const response = await client
+        .post("/tracker/milestones")
+        .bearerToken(token)
+        .json({ schoolId: school.id, title: "Send reel" });
+      response.assertStatus(201);
+    }
+
+    const response = await client
+      .delete("/tracker/sections")
+      .bearerToken(token)
+      .json({ schoolId: removed.id });
+    response.assertStatus(204);
+
+    const list = await client.get("/tracker").bearerToken(token);
+    assert.deepEqual(
+      (list.body() as { milestones: Milestone[] }).milestones.map(
+        (m) => m.schoolId
+      ),
+      [kept.id]
+    );
   });
 });

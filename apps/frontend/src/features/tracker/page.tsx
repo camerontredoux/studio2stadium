@@ -18,11 +18,15 @@ import { PlusIcon, RouteIcon } from "lucide-react";
 import { useState } from "react";
 import {
   useCreateTrackerItem,
+  useCreateTrackerMilestone,
   useDeleteTrackerItem,
+  useDeleteTrackerMilestone,
   useDeleteTrackerSection,
   useReorderTrackerSections,
   useUpdateTrackerItem,
+  useUpdateTrackerMilestone,
   type TrackerItem as Item,
+  type TrackerMilestone as Milestone,
 } from "./api/mutations";
 import { trackerQueries } from "./api/queries";
 import {
@@ -111,13 +115,16 @@ const toSectionId = (section: string) => (section === OTHER ? null : section);
 
 export function TrackerPage() {
   const { data } = useSuspenseQuery(trackerQueries.tracker());
-  const { items } = data;
+  const { items, milestones } = data;
   const createItem = useCreateTrackerItem();
   const updateItem = useUpdateTrackerItem();
   const deleteItem = useDeleteTrackerItem();
   const committed = findCommitted(items);
   const deleteSection = useDeleteTrackerSection();
   const reorder = useReorderTrackerSections();
+  const createMilestone = useCreateTrackerMilestone();
+  const updateMilestone = useUpdateTrackerMilestone();
+  const deleteMilestone = useDeleteTrackerMilestone();
   const [dialog, setDialog] = useState<{
     key: number;
     open: boolean;
@@ -154,18 +161,12 @@ export function TrackerPage() {
     if (stage > item.stage) celebrate(item, stage);
   };
 
-  const setSchoolStage = (
-    school: { id: string; name: string },
-    stage: number,
-  ) => {
-    const existing = items.find(
-      (i) => i.type === "school" && i.school?.id === school.id,
-    );
-    if (existing) return setStage(existing, stage);
-    // The school's section only holds other items so far; start its journey.
-    createItem.mutate({ body: { type: "school", schoolId: school.id, stage } });
-    celebrate({ type: "school", title: school.name }, stage);
-  };
+  // The school's panel celebrates itself once every milestone is reached.
+  const toggleMilestone = (milestone: Milestone) =>
+    updateMilestone.mutate({
+      params: { path: { id: milestone.id } },
+      body: { completed: !milestone.completedAt },
+    });
 
   const addItem = (item: NewItem) => {
     const section = item.schoolId ?? OTHER;
@@ -219,7 +220,7 @@ export function TrackerPage() {
       ) : (
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-1 items-start gap-2 *:min-w-0 md:grid-cols-2 md:gap-4">
-            <Momentum items={items} />
+            <Momentum items={items} milestones={milestones} />
             <NextUp items={items} />
           </div>
           <div className="flex flex-col gap-0.5 max-sm:pl-1">
@@ -227,7 +228,7 @@ export function TrackerPage() {
               Your schools
             </h2>
             <p className="text-muted-foreground text-sm">
-              Tap a stage to update where you stand with each school.
+              Check off milestones as you reach them with each school.
             </p>
           </div>
           <Sortable
@@ -253,16 +254,30 @@ export function TrackerPage() {
                           (i) => i.type === "school",
                         )}
                         items={rows}
+                        milestones={milestones.filter(
+                          (m) => m.schoolId === school.id,
+                        )}
                         {...handlers}
-                        commitLocked={
-                          !!committed && committed.school?.id !== school.id
-                        }
-                        onSchoolStageChange={(stage) =>
-                          setSchoolStage(school, stage)
-                        }
                         onRemoveSchool={() =>
                           deleteSection.mutate({
                             body: { schoolId: school.id },
+                          })
+                        }
+                        onAddMilestone={(title) =>
+                          createMilestone.mutate({
+                            body: { schoolId: school.id, title },
+                          })
+                        }
+                        onToggleMilestone={toggleMilestone}
+                        onRenameMilestone={(milestone, title) =>
+                          updateMilestone.mutate({
+                            params: { path: { id: milestone.id } },
+                            body: { title },
+                          })
+                        }
+                        onDeleteMilestone={(milestone) =>
+                          deleteMilestone.mutate({
+                            params: { path: { id: milestone.id } },
                           })
                         }
                       />

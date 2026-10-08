@@ -74,3 +74,28 @@ export const trackerSectionOrders = pg.pgTable("tracker_section_orders", {
   sections: pg.jsonb().$type<(string | null)[]>().notNull().default([]),
   updatedAt: timestamps.updatedAt,
 });
+
+/**
+ * The milestones a dancer sets for one school in the Recruiting Tracker, in
+ * the order they were added. `completed_at` is when the dancer reached the
+ * milestone, or null while it's still ahead. The school item's `stage` stays
+ * the school's status; milestones don't change it.
+ */
+export const trackerMilestones = pg.pgTable(
+  "tracker_milestones",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    dancerId: pg
+      .uuid()
+      .notNull()
+      .references(() => dancerProfiles.id, { onDelete: "cascade" }),
+    schoolId: pg
+      .uuid()
+      .notNull()
+      .references(() => schoolProfiles.id, { onDelete: "cascade" }),
+    title: pg.text().notNull(),
+    completedAt: pg.timestamp({ withTimezone: true }),
+    ...timestamps,
+  },
+  (table) => [pg.index().on(table.dancerId, table.schoolId)]
+);
