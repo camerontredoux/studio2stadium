@@ -21,9 +21,10 @@ const INDICATOR =
 
 const MAX_TITLE = 80;
 
-// Input styles its wrapper with className, so reach the field inside to fill
-// it and keep the text clear of its rounded ends.
-const FIELD_INPUT = "*:data-[slot=input]:h-full *:data-[slot=input]:px-4";
+// Shared by adding and renaming. Input styles its wrapper with className, so
+// reach the field inside to fill it and keep the text clear of its rounded ends.
+const FIELD =
+  "h-9 w-48 rounded-2xl before:rounded-[calc(var(--radius-2xl)-1px)] sm:h-9 *:data-[slot=input]:h-full *:data-[slot=input]:px-4";
 
 function Indicator({ done }: { done: boolean }) {
   return (
@@ -56,7 +57,9 @@ function MilestoneChip({
 }) {
   const done = !!milestone.completedAt;
   const [renaming, setRenaming] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  // The hover preview fills the icon gold, so after a click it holds off until
+  // the pointer leaves; otherwise an unchecked chip still looks checked.
+  const [quiet, setQuiet] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const refocus = useRef(false);
 
@@ -74,45 +77,47 @@ function MilestoneChip({
     setRenaming(false);
   };
 
+  if (renaming) {
+    return (
+      <Input
+        autoFocus
+        size="sm"
+        className={FIELD}
+        aria-label={`Rename ${milestone.title}`}
+        defaultValue={milestone.title}
+        maxLength={MAX_TITLE}
+        onBlur={(e) => finish(e.currentTarget.value, false)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            // Focus moves to the chip before the keypress lands, which
+            // would otherwise click it and undo the check.
+            e.preventDefault();
+            finish(e.currentTarget.value, true);
+          }
+          if (e.key === "Escape") finish(null, true);
+        }}
+      />
+    );
+  }
+
   return (
-    <div className="bg-background flex h-9 items-center gap-0.5 rounded-full border pe-1">
-      {renaming ? (
-        <div className="flex items-center gap-1.5 ps-1">
-          <Indicator done={done} />
-          <Input
-            ref={inputRef}
-            autoFocus
-            size="sm"
-            className={cn(
-              FIELD_INPUT,
-              "h-7 w-44 rounded-full before:rounded-full sm:h-7",
-            )}
-            aria-label={`Rename ${milestone.title}`}
-            defaultValue={milestone.title}
-            maxLength={MAX_TITLE}
-            onBlur={(e) => finish(e.currentTarget.value, false)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                // Focus moves to the chip before the keypress lands, which
-                // would otherwise click it and undo the check.
-                e.preventDefault();
-                finish(e.currentTarget.value, true);
-              }
-              if (e.key === "Escape") finish(null, true);
-            }}
-          />
-        </div>
-      ) : (
-        <Toggle
-          ref={toggleRef}
-          pressed={done}
-          onClick={(e) => onToggle(e.currentTarget)}
-          className="group/milestone h-full rounded-full ps-1 pe-2 before:rounded-full data-pressed:bg-transparent sm:h-full"
-        >
-          <Indicator done={done} />
-          {milestone.title}
-        </Toggle>
-      )}
+    <div className="bg-background flex h-9 items-center gap-0.5 rounded-2xl border pe-1">
+      <Toggle
+        ref={toggleRef}
+        pressed={done}
+        onClick={(e) => {
+          setQuiet(true);
+          onToggle(e.currentTarget);
+        }}
+        onPointerLeave={() => setQuiet(false)}
+        className={cn(
+          !quiet && "group/milestone",
+          "h-full rounded-2xl ps-1 pe-2 before:rounded-2xl data-pressed:bg-transparent sm:h-full",
+        )}
+      >
+        <Indicator done={done} />
+        {milestone.title}
+      </Toggle>
       <Menu>
         <MenuTrigger
           render={
@@ -126,8 +131,7 @@ function MilestoneChip({
         >
           <EllipsisIcon />
         </MenuTrigger>
-        {/* Rename moves focus into the input rather than back to this menu. */}
-        <MenuPopup align="end" finalFocus={renaming ? inputRef : true}>
+        <MenuPopup align="end">
           <MenuItem onClick={() => setRenaming(true)}>
             <PencilIcon /> Rename
           </MenuItem>
@@ -168,10 +172,7 @@ function AddMilestone({
       <Input
         autoFocus
         size="sm"
-        className={cn(
-          FIELD_INPUT,
-          "h-9 w-48 rounded-2xl before:rounded-[calc(var(--radius-2xl)-1px)] sm:h-9",
-        )}
+        className={FIELD}
         aria-label={`New milestone for ${school}`}
         maxLength={MAX_TITLE}
         value={title}
@@ -197,7 +198,7 @@ function AddMilestone({
     <Button
       ref={buttonRef}
       variant="ghost"
-      className="group/milestone text-muted-foreground border-border h-9 rounded-full border-dashed ps-1 pe-3 before:rounded-full sm:h-9"
+      className="group/milestone text-muted-foreground border-border h-9 rounded-2xl border-dashed ps-1 pe-3 before:rounded-[calc(var(--radius-2xl)-1px)] sm:h-9"
       onClick={() => setAdding(true)}
     >
       <span aria-hidden className={cn(INDICATOR, "border-transparent")}>
