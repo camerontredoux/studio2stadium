@@ -34,34 +34,43 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { SearchIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
+import type { TrackerItem } from "../api/mutations";
 import { trackerQueries } from "../api/queries";
 import { STAGES, TYPES, type ItemType } from "../stages";
 
 export type NewItem = ApiSchemas["TrackerItemsRequest"];
+export type ItemChanges = ApiSchemas["TrackerItemsIdRequest"];
 
-export function AddItemDialog({
+// Adds an item, or edits `item` when one is passed. An item's type can't
+// change, and a school item stays tied to its school.
+export function ItemDialog({
   open,
   onOpenChange,
   onAdd,
+  onSave,
   pending,
+  item,
   defaultSchool,
   defaultType = "school",
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAdd: (item: NewItem) => void;
+  onSave: (item: TrackerItem, changes: ItemChanges) => void;
   pending: boolean;
+  item?: TrackerItem;
   defaultSchool?: { id: string; name: string };
   defaultType?: ItemType;
 }) {
-  const [type, setType] = useState<ItemType>(defaultType);
-  const [title, setTitle] = useState("");
+  const editing = !!item;
+  const [type, setType] = useState<ItemType>(item?.type ?? defaultType);
+  const [title, setTitle] = useState(item?.title ?? "");
   const [schoolId, setSchoolId] = useState<string | null>(
-    defaultSchool?.id ?? null,
+    item?.school?.id ?? defaultSchool?.id ?? null,
   );
-  const [date, setDate] = useState("");
-  const [notes, setNotes] = useState("");
-  const [stage, setStage] = useState("0");
+  const [date, setDate] = useState(item?.date ?? "");
+  const [notes, setNotes] = useState(item?.notes ?? "");
+  const [stage, setStage] = useState(String(item?.stage ?? 0));
 
   const { data: schools } = useQuery({
     ...trackerQueries.schools(),
@@ -70,11 +79,13 @@ export function AddItemDialog({
 
   // Base UI's Combobox reruns layout effects when `items` or
   // `itemToStringLabel` change identity, so both are memoized.
+  const itemSchool = item?.school;
   const schoolNames = useMemo(() => {
     const names = new Map((schools ?? []).map((s) => [s.id, s.name]));
     if (defaultSchool) names.set(defaultSchool.id, defaultSchool.name);
+    if (itemSchool) names.set(itemSchool.id, itemSchool.name);
     return names;
-  }, [schools, defaultSchool]);
+  }, [schools, defaultSchool, itemSchool]);
   const schoolIds = useMemo(() => [...schoolNames.keys()], [schoolNames]);
   const schoolName = useCallback(
     (id: string) => schoolNames.get(id) ?? "",
@@ -96,9 +107,13 @@ export function AddItemDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogPopup>
         <DialogHeader>
-          <DialogTitle>Add a recruiting item</DialogTitle>
+          <DialogTitle>
+            {editing ? `Edit ${item.title}` : "Add a recruiting item"}
+          </DialogTitle>
           <DialogDescription>
-            Track a school, clinic, audition, application step, or deadline.
+            {editing
+              ? "Update the details you're tracking."
+              : "Track a school, clinic, audition, application step, or deadline."}
           </DialogDescription>
         </DialogHeader>
         <DialogPanel className="flex flex-col gap-4">
@@ -107,6 +122,7 @@ export function AddItemDialog({
             <Select
               items={typeOptions}
               value={type}
+              disabled={editing}
               onValueChange={(next) => {
                 if (!next) return;
                 setType(next as ItemType);
@@ -142,6 +158,7 @@ export function AddItemDialog({
               value={schoolId}
               onValueChange={setSchoolId}
               itemToStringLabel={schoolName}
+              disabled={editing && isSchool}
               autoHighlight
             >
               <ComboboxInput
@@ -215,17 +232,31 @@ export function AddItemDialog({
           <Button
             disabled={!canSubmit}
             onClick={() =>
-              onAdd({
-                type,
-                title: isSchool ? undefined : title.trim(),
-                schoolId: schoolId ?? undefined,
-                date: isSchool ? undefined : date || undefined,
-                notes: notes.trim() || undefined,
-                stage: Number(stage),
-              })
+              editing
+                ? onSave(item, {
+                    title: isSchool ? undefined : title.trim(),
+                    schoolId: isSchool ? undefined : schoolId,
+                    date: isSchool ? undefined : date || null,
+                    notes: notes.trim() || null,
+                    stage: Number(stage),
+                  })
+                : onAdd({
+                    type,
+                    title: isSchool ? undefined : title.trim(),
+                    schoolId: schoolId ?? undefined,
+                    date: isSchool ? undefined : date || undefined,
+                    notes: notes.trim() || undefined,
+                    stage: Number(stage),
+                  })
             }
           >
-            {pending ? <Spinner label="Adding…" /> : "Add to Tracker"}
+            {pending ? (
+              <Spinner label={editing ? "Saving…" : "Adding…"} />
+            ) : editing ? (
+              "Save Changes"
+            ) : (
+              "Add to Tracker"
+            )}
           </Button>
         </DialogFooter>
       </DialogPopup>

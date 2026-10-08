@@ -25,7 +25,11 @@ import {
   type TrackerItem as Item,
 } from "./api/mutations";
 import { trackerQueries } from "./api/queries";
-import { AddItemDialog, type NewItem } from "./components/add-item-dialog";
+import {
+  ItemDialog,
+  type ItemChanges,
+  type NewItem,
+} from "./components/item-dialog";
 import {
   OtherItemsCard,
   SchoolCard,
@@ -110,6 +114,7 @@ export function TrackerPage() {
     key: number;
     open: boolean;
     school?: { id: string; name: string };
+    item?: Item;
   }>({ key: 0, open: false });
 
   // Sections on the page, in the dancer's order. Any section missing from the
@@ -132,6 +137,9 @@ export function TrackerPage() {
       school: school ?? undefined,
     }));
   };
+
+  const openEdit = (item: Item) =>
+    setDialog((prev) => ({ key: prev.key + 1, open: true, item }));
 
   const setStage = (item: Item, stage: number) => {
     updateItem.mutate({ params: { path: { id: item.id } }, body: { stage } });
@@ -168,8 +176,29 @@ export function TrackerPage() {
     );
   };
 
+  const saveItem = (item: Item, changes: ItemChanges) => {
+    const section =
+      changes.schoolId === undefined
+        ? sectionOf(item)
+        : (changes.schoolId ?? OTHER);
+    updateItem.mutate(
+      { params: { path: { id: item.id } }, body: changes },
+      {
+        onSuccess: () => {
+          setDialog((prev) => ({ ...prev, open: false }));
+          // Moving an item to a school that wasn't on the page puts that
+          // school at the top, the same as adding one.
+          if (!present.has(section)) saveOrder([section, ...sections]);
+        },
+      },
+    );
+    const stage = Number(changes.stage);
+    if (stage > item.stage) celebrate(item, stage);
+  };
+
   const handlers: Handlers = {
     onStageChange: setStage,
+    onEdit: openEdit,
     onDelete: (id) => deleteItem.mutate({ params: { path: { id } } }),
     onAdd: openAdd,
   };
@@ -234,14 +263,16 @@ export function TrackerPage() {
           </Sortable>
         </div>
       )}
-      <AddItemDialog
+      <ItemDialog
         key={dialog.key}
         open={dialog.open}
         onOpenChange={(open) => setDialog((prev) => ({ ...prev, open }))}
+        item={dialog.item}
         defaultSchool={dialog.school}
         defaultType={dialog.school ? "clinic" : "school"}
         onAdd={addItem}
-        pending={createItem.isPending}
+        onSave={saveItem}
+        pending={dialog.item ? updateItem.isPending : createItem.isPending}
       />
     </div>
   );

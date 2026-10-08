@@ -40,6 +40,8 @@ import {
   PlusIcon,
   SchoolIcon,
   StarIcon,
+  PencilIcon,
+  SparklesIcon,
   Trash2Icon,
 } from "lucide-react";
 import { useState } from "react";
@@ -76,7 +78,7 @@ function SchoolJourney({
           return (
             <StepperItem key={label} value={label}>
               <StepperTrigger className="group/stage cursor-pointer flex-col gap-1.5 p-0.5 not-has-data-[slot=description]:rounded-md">
-                <StepperIndicator className="group-hover/stage:border-brand group-hover/stage:bg-brand group-hover/stage:animate-stage-pulse data-[state=active]:border-brand data-[state=active]:bg-brand data-[state=active]:ring-brand/20 data-[state=completed]:border-brand/40 data-[state=completed]:bg-brand/15 data-[state=completed]:text-brand transition-[transform,background-color,border-color,color] duration-200 ease-out group-hover/stage:scale-115 group-hover/stage:-rotate-12 group-hover/stage:text-white data-[state=active]:text-white data-[state=active]:ring-4 motion-reduce:transition-none motion-reduce:group-hover/stage:transform-none motion-reduce:group-hover/stage:animate-none">
+                <StepperIndicator className="group-hover/stage:border-brand group-hover/stage:bg-brand group-hover/stage:animate-stage-pulse data-[state=active]:border-brand data-[state=active]:bg-brand data-[state=active]:ring-brand/20 data-[state=completed]:text-brand transition-[transform,background-color,border-color,color] duration-200 ease-out group-hover/stage:scale-115 group-hover/stage:-rotate-12 group-hover/stage:text-white data-[state=active]:text-white data-[state=active]:ring-4 data-[state=completed]:border-[color-mix(in_oklab,var(--brand)_40%,var(--background))] data-[state=completed]:bg-[color-mix(in_oklab,var(--brand)_15%,var(--background))] motion-reduce:transition-none motion-reduce:group-hover/stage:transform-none motion-reduce:group-hover/stage:animate-none">
                   {(state) =>
                     state === "completed" ? (
                       <CheckIcon className="size-4" />
@@ -101,10 +103,12 @@ function SchoolJourney({
 function ItemRow({
   item,
   onStageChange,
+  onEdit,
   onDelete,
 }: {
   item: Item;
   onStageChange: (stage: number) => void;
+  onEdit: () => void;
   onDelete: () => void;
 }) {
   const done = isDone(item);
@@ -163,6 +167,14 @@ function ItemRow({
         <Button
           variant="ghost"
           size="icon-sm"
+          aria-label={`Edit ${item.title}`}
+          onClick={onEdit}
+        >
+          <PencilIcon />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           aria-label={`Delete ${item.title}`}
           onClick={onDelete}
         >
@@ -175,6 +187,7 @@ function ItemRow({
 
 export type Handlers = {
   onStageChange: (item: Item, stage: number) => void;
+  onEdit: (item: Item) => void;
   onDelete: (id: string) => void;
   onAdd: (schoolId?: string) => void;
 };
@@ -201,6 +214,7 @@ export function SchoolCard({
   onSchoolStageChange,
   onRemoveSchool,
   onStageChange,
+  onEdit,
   onDelete,
   onAdd,
 }: Handlers & {
@@ -212,6 +226,7 @@ export function SchoolCard({
 }) {
   const [confirming, setConfirming] = useState(false);
   const stage = schoolItem?.stage ?? 0;
+  const committed = stage === STAGES.school.length - 1;
 
   return (
     <Frame>
@@ -222,10 +237,21 @@ export function SchoolCard({
             <SchoolIcon aria-hidden className="text-brand size-4 shrink-0" />
             <span className="truncate">{school.name}</span>
           </FrameTitle>
+          {schoolItem && (
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              className="ml-auto"
+              aria-label={`Edit ${school.name}`}
+              onClick={() => onEdit(schoolItem)}
+            >
+              <PencilIcon />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon-xs"
-            className="ml-auto"
+            className={cn(!schoolItem && "ml-auto")}
             aria-label={`Remove ${school.name} from your tracker`}
             onClick={() => setConfirming(true)}
           >
@@ -236,7 +262,22 @@ export function SchoolCard({
           <p className="text-muted-foreground text-sm">{schoolItem.notes}</p>
         )}
       </FrameHeader>
-      <FramePanel>
+      <FramePanel
+        className={cn(
+          // A committed school gets the same gold tint as the feed's roadmap card.
+          committed &&
+            "from-brand/15 via-brand/5 to-background isolate bg-linear-to-br",
+        )}
+      >
+        {committed && (
+          <div
+            aria-hidden
+            className="text-brand pointer-events-none absolute -top-1 -left-2 -z-10 flex items-center gap-2 opacity-10"
+          >
+            <SparklesIcon className="size-24 rotate-6" />
+            <SparklesIcon className="size-16 rotate-186" />
+          </div>
+        )}
         <SchoolJourney
           school={school.name}
           stage={stage}
@@ -251,6 +292,7 @@ export function SchoolCard({
                 key={item.id}
                 item={item}
                 onStageChange={(next) => onStageChange(item, next)}
+                onEdit={() => onEdit(item)}
                 onDelete={() => onDelete(item.id)}
               />
             ))}
@@ -300,6 +342,7 @@ export function SchoolCard({
 export function OtherItemsCard({
   items,
   onStageChange,
+  onEdit,
   onDelete,
   onAdd,
 }: Handlers & { items: Item[] }) {
@@ -318,6 +361,7 @@ export function OtherItemsCard({
               key={item.id}
               item={item}
               onStageChange={(next) => onStageChange(item, next)}
+              onEdit={() => onEdit(item)}
               onDelete={() => onDelete(item.id)}
             />
           ))}

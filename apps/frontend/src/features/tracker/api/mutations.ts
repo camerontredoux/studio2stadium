@@ -64,8 +64,18 @@ export function useUpdateTrackerItem() {
       tracker.update((old) => ({
         ...old,
         items: old.items.map((item) =>
-          item.id === params.path.id && body?.stage != null
-            ? { ...item, stage: Number(body.stage) }
+          item.id === params.path.id
+            ? {
+                ...item,
+                title: body?.title ?? item.title,
+                stage: body?.stage != null ? Number(body.stage) : item.stage,
+                // undefined leaves a field as is; null clears it.
+                date:
+                  body?.date === undefined
+                    ? item.date
+                    : String(body.date ?? "") || null,
+                notes: body?.notes === undefined ? item.notes : body.notes,
+              }
             : item,
         ),
       })),
