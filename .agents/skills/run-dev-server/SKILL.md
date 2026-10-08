@@ -45,6 +45,7 @@ The private `apps/backend/.env` keeps the root clone's values except these:
 
 - `DATABASE_URL`, `PORT`, `HOST`, `SITE_URL`, `API_URL`, `REDIS_HOST` and `REDIS_PORT` point at this worktree's own database, ports and Redis.
 - `NODE_ENV=development` and `CRON_EMAILS_ENABLED=false`.
+- `DEV_SIGN_IN_LINK_ENABLED=true`, which registers the backend's dev-only `GET /auth/dev-sign-in` that `sign-in.sh` links to. The backend registers it only for the HTTP server with `NODE_ENV=development`, so production never has it.
 - `SQS_QUEUE_URL` and `SQS_DEAD_LETTER_QUEUE_URL` point at a closed local port. The `publish-outbox` cron then logs `[Outbox]: Error publishing events` and leaves rows unpublished. It does not send this database's events to the shared dev queue.
 
 The private `apps/frontend/.env.local` sets `VITE_API_URL=http://localhost:<api-port>`. The Vite proxy in `apps/frontend/vite.config.ts` is fixed to `localhost:3333`, so the frontend calls this backend directly instead. Dev CORS allows any origin, and `localhost` cookies are not tied to a port.
@@ -82,7 +83,7 @@ Leave the last line of each file, the `# run-dev-server private copy` marker, in
 
 ## Give Cameron the app
 
-When asked to run the dev server so Cameron can test or click around, run `up.sh`, then `sign-in.sh`, and report the `sign-in` line it prints: the login URL, email and password. The app has only email and password sign-in, so there is no one-click link. Opening the URL in a browser profile that is already signed in to another `localhost` server replaces that sign-in (see [Cookies](#what-each-server-talks-to)).
+When asked to run the dev server so Cameron can test or click around, run `up.sh`, then `sign-in.sh`, and report the `sign-in-link` URL it prints. Opening it signs the browser in and lands on the frontend. It works once, within 5 minutes; run `sign-in.sh` again for a fresh one. Opening it in a browser profile that is already signed in to another `localhost` server replaces that sign-in (see [Cookies](#what-each-server-talks-to)).
 
 The servers listen on `localhost` only, so the URL works on this machine. From another machine on the tailnet it needs `tailscale serve` entries for both ports, which is shared host config: ask Cameron, do not add one.
 
@@ -99,14 +100,16 @@ There is no seed. The first run creates the user it signs in as:
 
 Any other email must already be a user in your database, for example one you signed up in the browser. To test a school account, sign it up in the browser; the signup form creates the School profile.
 
-Each run sets the user's password in your database to a new random one, logs in through `POST /auth/login`, checks `/auth/session`, and prints two lines:
+Each run stores one-time codes for the user in your Redis (only each code's SHA-256, for 5 minutes), follows one with curl to save a session, checks `/auth/session`, and prints two lines:
 
 ```
 signed-in <email> (<type> <role>) cookies=<path>
-sign-in http://localhost:<port>/login email=<email> password=<password>
+sign-in-link http://localhost:<api-port>/auth/dev-sign-in?code=<code>
 ```
 
-The cookie file is a `0600` curl cookie jar for the backend: `curl -b <path> http://localhost:<api-port>/auth/session`. In a browser, sign in through the login page in a `chrome-devtools-axi` session of your own (`CHROME_DEVTOOLS_AXI_SESSION=s2s-<slug>`).
+The link points at the backend port. `GET /auth/dev-sign-in` deletes the code as it reads it, logs in exactly as `POST /auth/login` does, and redirects to the frontend; `localhost` cookies are not tied to a port. A used or expired code answers `410`. A `404` means the backend started before `env-copy.sh` set `DEV_SIGN_IN_LINK_ENABLED`: run `env-copy.sh`, then `restart.sh`. Do not paste the link anywhere but the report to Cameron; until it is used, it signs in whoever opens it.
+
+The cookie file is a `0600` curl cookie jar for the backend: `curl -b <path> http://localhost:<api-port>/auth/session`. In a browser of your own, open the link in a `chrome-devtools-axi` session (`CHROME_DEVTOOLS_AXI_SESSION=s2s-<slug>`). `sign-in.sh` leaves passwords alone; the users it creates have none that works, so the login form does not sign them in.
 
 ## Restart or stop
 
