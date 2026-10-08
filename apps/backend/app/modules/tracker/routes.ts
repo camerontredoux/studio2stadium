@@ -9,13 +9,19 @@ const DeleteItemController = () => import("./delete-item/controller.ts");
 const DeleteSectionController = () => import("./delete-section/controller.ts");
 const UpdateSectionOrderController = () =>
   import("./update-section-order/controller.ts");
+const CreateMilestoneController = () =>
+  import("./create-milestone/controller.ts");
+const UpdateMilestoneController = () =>
+  import("./update-milestone/controller.ts");
+const DeleteMilestoneController = () =>
+  import("./delete-milestone/controller.ts");
 
 router
   .group(() => {
     router.get("", [ListItemsController]).openapi({
       summary: "Get my recruiting tracker",
       description:
-        "Returns the dancer's tracker items (newest first), each with its school and event summaries or null, and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section.",
+        "Returns the dancer's tracker items (newest first), each with its school and event summaries or null, their school milestones (oldest first, with completedAt null until reached), and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section.",
     });
     router.get("events", [ListEventsController]).openapi({
       summary: "List events a clinic item can link",
@@ -39,7 +45,21 @@ router
     router.delete("sections", [DeleteSectionController]).openapi({
       summary: "Remove a school from the tracker",
       description:
-        "Deletes the school item and every item the dancer tracks under that school.",
+        "Deletes the school item, the school's milestones, and every item the dancer tracks under that school.",
+    });
+    router.post("milestones", [CreateMilestoneController]).openapi({
+      summary: "Add a school milestone",
+      description:
+        "Adds a milestone the dancer wants to reach with a school, not yet completed. An unknown schoolId is a 422.",
+    });
+    router.patch("milestones/:id", [UpdateMilestoneController]).openapi({
+      summary: "Update a school milestone",
+      description:
+        "Renames one of the dancer's milestones or marks it complete. completed=true records when it was reached and keeps the original time if it was already complete; completed=false clears it.",
+    });
+    router.delete("milestones/:id", [DeleteMilestoneController]).openapi({
+      summary: "Delete a school milestone",
+      description: "Deletes one of the dancer's milestones.",
     });
     router.put("sections/order", [UpdateSectionOrderController]).openapi({
       summary: "Reorder tracker sections",

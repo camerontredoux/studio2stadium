@@ -2,17 +2,11 @@ import { differenceInCalendarDays } from "date-fns";
 import {
   ClipboardListIcon,
   GraduationCapIcon,
-  HeartIcon,
-  MailIcon,
-  MapPinIcon,
   MegaphoneIcon,
-  MusicIcon,
   SchoolIcon,
-  StarIcon,
   TimerIcon,
-  TrophyIcon,
 } from "lucide-react";
-import type { TrackerItem } from "./api/mutations";
+import type { TrackerItem, TrackerMilestone } from "./api/mutations";
 
 export type ItemType = TrackerItem["type"];
 
@@ -49,15 +43,6 @@ export const STAGES: Record<ItemType, string[]> = {
   application: ["Not started", "In progress", "Submitted"],
   deadline: ["Upcoming", "Done"],
 };
-
-export const SCHOOL_STAGE_ICONS = [
-  HeartIcon,
-  MailIcon,
-  MapPinIcon,
-  MusicIcon,
-  StarIcon,
-  TrophyIcon,
-];
 
 export const OFFER_STAGE = STAGES.school.indexOf("Offer");
 
@@ -99,5 +84,19 @@ export function byUrgency(a: TrackerItem, b: TrackerItem) {
     rank(a) - rank(b) ||
     (a.date ?? "").localeCompare(b.date ?? "") ||
     a.id.localeCompare(b.id)
+  );
+}
+
+// Whether checking milestone `id` leaves every one of `milestones` complete.
+// False for a milestone that is already complete, since that check unchecks it.
+export function completesAll(
+  milestones: Pick<TrackerMilestone, "id" | "completedAt">[],
+  id: string,
+) {
+  const target = milestones.find((m) => m.id === id);
+  return (
+    !!target &&
+    !target.completedAt &&
+    milestones.every((m) => m.id === id || m.completedAt)
   );
 }

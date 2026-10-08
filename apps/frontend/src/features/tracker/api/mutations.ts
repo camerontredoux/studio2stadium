@@ -6,6 +6,7 @@ import { trackerQueries } from "./queries";
 
 export type Tracker = ApiSchemas["TrackerResponse"];
 export type TrackerItem = Tracker["items"][number];
+export type TrackerMilestone = Tracker["milestones"][number];
 
 function showError(error: ApiError | undefined) {
   toastManager.add({
@@ -106,6 +107,9 @@ export function useDeleteTrackerSection() {
         items: old.items.filter(
           (item) => item.school?.id !== variables?.body?.schoolId,
         ),
+        milestones: old.milestones.filter(
+          (milestone) => milestone.schoolId !== variables?.body?.schoolId,
+        ),
       })),
     onError: tracker.rollback,
     onSettled: tracker.refetch,
@@ -119,6 +123,64 @@ export function useReorderTrackerSections() {
       tracker.update((old) => ({
         ...old,
         sectionOrder: variables?.body?.sections ?? old.sectionOrder,
+      })),
+    onError: tracker.rollback,
+    onSettled: tracker.refetch,
+  });
+}
+
+export function useCreateTrackerMilestone() {
+  const queryClient = useQueryClient();
+  const { queryKey } = trackerQueries.tracker();
+
+  return $api.useMutation("post", "/tracker/milestones", {
+    onSuccess: (milestone) => {
+      // Milestones are listed oldest first, so a new one goes last.
+      queryClient.setQueryData<Tracker>(queryKey, (old) =>
+        old ? { ...old, milestones: [...old.milestones, milestone] } : old,
+      );
+      queryClient.invalidateQueries({ queryKey });
+    },
+    onError: showError,
+  });
+}
+
+export function useUpdateTrackerMilestone() {
+  const tracker = useOptimisticTracker();
+  return $api.useMutation("patch", "/tracker/milestones/{id}", {
+    onMutate: ({ params, body }) =>
+      tracker.update((old) => ({
+        ...old,
+        milestones: old.milestones.map((milestone) =>
+          milestone.id === params.path.id
+            ? {
+                ...milestone,
+                title: body?.title ?? milestone.title,
+                // undefined leaves it as is; the refetch brings the real time.
+                completedAt:
+                  body?.completed == null
+                    ? milestone.completedAt
+                    : body.completed
+                      ? (milestone.completedAt ?? new Date().toISOString())
+                      : null,
+              }
+            : milestone,
+        ),
+      })),
+    onError: tracker.rollback,
+    onSettled: tracker.refetch,
+  });
+}
+
+export function useDeleteTrackerMilestone() {
+  const tracker = useOptimisticTracker();
+  return $api.useMutation("delete", "/tracker/milestones/{id}", {
+    onMutate: ({ params }) =>
+      tracker.update((old) => ({
+        ...old,
+        milestones: old.milestones.filter(
+          (milestone) => milestone.id !== params.path.id,
+        ),
       })),
     onError: tracker.rollback,
     onSettled: tracker.refetch,
