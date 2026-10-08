@@ -3,10 +3,12 @@ import { Separator } from "@/components/ui/separator";
 import {
   HiBookOpen,
   HiCalendar,
+  HiClipboardList,
   HiCog,
   HiHome,
   HiOutlineBookOpen,
   HiOutlineCalendar,
+  HiOutlineClipboardList,
   HiOutlineCog,
   HiOutlineHome,
   HiOutlineSearchCircle,
@@ -52,6 +54,14 @@ export function Navbar() {
             activeIcon={HiSparkles}
             inactiveIcon={HiOutlineSparkles}
           />
+          {session.type === "dancer" && (
+            <NavLink
+              to="/tracker"
+              label="Tracker"
+              activeIcon={HiClipboardList}
+              inactiveIcon={HiOutlineClipboardList}
+            />
+          )}
           <NavLink
             to="/resources"
             label="Resources"
