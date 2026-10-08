@@ -47,6 +47,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import type { TrackerItem as Item } from "../api/mutations";
 import {
+  COMMITTED,
   formatDate,
   isDone,
   SCHOOL_STAGE_ICONS,
@@ -59,10 +60,12 @@ import { celebrateCommitted } from "../celebrate";
 function SchoolJourney({
   school,
   stage,
+  commitLocked,
   onStageChange,
 }: {
   school: string;
   stage: number;
+  commitLocked: boolean;
   onStageChange: (stage: number) => void;
 }) {
   return (
@@ -77,7 +80,11 @@ function SchoolJourney({
         {STAGES.school.map((label, i) => {
           const Icon = SCHOOL_STAGE_ICONS[i] ?? StarIcon;
           return (
-            <StepperItem key={label} value={label}>
+            <StepperItem
+              key={label}
+              value={label}
+              disabled={commitLocked && i === COMMITTED}
+            >
               <StepperTrigger className="group/stage cursor-pointer flex-col gap-1.5 p-0.5 not-has-data-[slot=description]:rounded-md">
                 <StepperIndicator className="group-hover/stage:border-brand group-hover/stage:bg-brand group-hover/stage:animate-stage-pulse data-[state=active]:border-brand data-[state=active]:bg-brand data-[state=active]:ring-brand/20 data-[state=completed]:text-brand transition-[transform,background-color,border-color,color] duration-200 ease-out group-hover/stage:scale-115 group-hover/stage:-rotate-12 group-hover/stage:text-white data-[state=active]:text-white data-[state=active]:ring-4 data-[state=completed]:border-[color-mix(in_oklab,var(--brand)_40%,var(--background))] data-[state=completed]:bg-[color-mix(in_oklab,var(--brand)_15%,var(--background))] motion-reduce:transition-none motion-reduce:group-hover/stage:transform-none motion-reduce:group-hover/stage:animate-none">
                   {(state) =>
@@ -245,6 +252,7 @@ export function SchoolCard({
   school,
   schoolItem,
   items,
+  commitLocked,
   onSchoolStageChange,
   onRemoveSchool,
   onStageChange,
@@ -255,12 +263,14 @@ export function SchoolCard({
   school: { id: string; name: string };
   schoolItem?: Item;
   items: Item[];
+  /** Another school is Committed, so this one can't be. */
+  commitLocked: boolean;
   onSchoolStageChange: (stage: number) => void;
   onRemoveSchool: () => void;
 }) {
   const [confirming, setConfirming] = useState(false);
   const stage = schoolItem?.stage ?? 0;
-  const committed = stage === STAGES.school.length - 1;
+  const committed = stage === COMMITTED;
   const panelRef = useRef<HTMLDivElement>(null);
   const wasCommitted = useRef(committed);
 
@@ -325,6 +335,7 @@ export function SchoolCard({
         <SchoolJourney
           school={school.name}
           stage={stage}
+          commitLocked={commitLocked}
           onStageChange={onSchoolStageChange}
         />
         {committed && (

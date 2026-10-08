@@ -36,7 +36,14 @@ import {
   type Handlers,
 } from "./components/section-card";
 import { Momentum, NextUp } from "./components/summary";
-import { isDone, OFFER_STAGE, OTHER, sectionOf, STAGES } from "./stages";
+import {
+  findCommitted,
+  isDone,
+  OFFER_STAGE,
+  OTHER,
+  sectionOf,
+  STAGES,
+} from "./stages";
 
 function PageHeader({ onAdd }: { onAdd: () => void }) {
   return (
@@ -108,6 +115,7 @@ export function TrackerPage() {
   const createItem = useCreateTrackerItem();
   const updateItem = useUpdateTrackerItem();
   const deleteItem = useDeleteTrackerItem();
+  const committed = findCommitted(items);
   const deleteSection = useDeleteTrackerSection();
   const reorder = useReorderTrackerSections();
   const [dialog, setDialog] = useState<{
@@ -246,6 +254,9 @@ export function TrackerPage() {
                         )}
                         items={rows}
                         {...handlers}
+                        commitLocked={
+                          !!committed && committed.school?.id !== school.id
+                        }
                         onSchoolStageChange={(stage) =>
                           setSchoolStage(school, stage)
                         }
@@ -270,6 +281,7 @@ export function TrackerPage() {
         item={dialog.item}
         defaultSchool={dialog.school}
         defaultType={dialog.school ? "clinic" : "school"}
+        committedId={committed?.id}
         onAdd={addItem}
         onSave={saveItem}
         pending={dialog.item ? updateItem.isPending : createItem.isPending}

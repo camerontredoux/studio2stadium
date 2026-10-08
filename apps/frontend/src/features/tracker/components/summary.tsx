@@ -22,6 +22,8 @@ import {
   daysUntil,
   formatDate,
   isDone,
+  COMMITTED,
+  findCommitted,
   STAGES,
   TYPES,
 } from "../stages";
@@ -52,10 +54,20 @@ export function DueBadge({ date }: { date: string }) {
 }
 
 export function Momentum({ items }: { items: Item[] }) {
-  const reached = items.reduce((n, i) => n + i.stage, 0);
-  const total = items.reduce((n, i) => n + STAGES[i.type].length - 1, 0);
-  const percent = total ? Math.round((reached / total) * 100) : 0;
-  const complete = total > 0 && reached === total;
+  // Every non-school item counts, plus one school journey: the furthest
+  // school. A dancer commits to one school, so 100% means everything else
+  // is done and they've committed.
+  const others = items.filter((i) => i.type !== "school");
+  const furthest = Math.max(
+    0,
+    ...items.filter((i) => i.type === "school").map((i) => i.stage),
+  );
+  const reached = others.reduce((n, i) => n + i.stage, 0) + furthest;
+  const total =
+    others.reduce((n, i) => n + STAGES[i.type].length - 1, 0) + COMMITTED;
+  const percent = items.length ? Math.round((reached / total) * 100) : 0;
+  const committedTo = findCommitted(items)?.school?.name;
+  const complete = reached === total && !!committedTo;
   const schools = new Set(
     items.flatMap((i) => (i.school ? [i.school.id] : [])),
   );
@@ -120,10 +132,7 @@ export function Momentum({ items }: { items: Item[] }) {
                 Every step taken
               </p>
               <p className="text-muted-foreground text-xs">
-                {total} of {total} steps
-                {schools.size > 0 &&
-                  ` across ${schools.size} ${schools.size === 1 ? "school" : "schools"}`}
-                .
+                Committed to {committedTo}.
                 <span className="@max-sm:hidden">
                   {" "}
                   That's the whole journey.

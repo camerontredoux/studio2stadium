@@ -17,7 +17,7 @@ import {
   DialogPopup,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -36,7 +36,7 @@ import { SearchIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import type { TrackerItem } from "../api/mutations";
 import { trackerQueries } from "../api/queries";
-import { STAGES, TYPES, type ItemType } from "../stages";
+import { COMMITTED, STAGES, TYPES, type ItemType } from "../stages";
 
 export type NewItem = ApiSchemas["TrackerItemsRequest"];
 export type ItemChanges = ApiSchemas["TrackerItemsIdRequest"];
@@ -52,6 +52,7 @@ export function ItemDialog({
   item,
   defaultSchool,
   defaultType = "school",
+  committedId,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -61,6 +62,8 @@ export function ItemDialog({
   item?: TrackerItem;
   defaultSchool?: { id: string; name: string };
   defaultType?: ItemType;
+  /** The dancer's Committed school item. No other school can be Committed. */
+  committedId?: string;
 }) {
   const editing = !!item;
   const [type, setType] = useState<ItemType>(item?.type ?? defaultType);
@@ -97,9 +100,11 @@ export function ItemDialog({
     value: t,
     label: TYPES[t].label,
   }));
+  const commitLocked = !!committedId && committedId !== item?.id;
   const stageOptions = STAGES[type].map((label, i) => ({
     value: String(i),
     label,
+    disabled: isSchool && commitLocked && i === COMMITTED,
   }));
   const canSubmit = (isSchool ? !!schoolId : !!title.trim()) && !pending;
 
@@ -195,12 +200,21 @@ export function ItemDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {stageOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                      disabled={option.disabled}
+                    >
                       {option.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {isSchool && commitLocked && (
+                <FieldDescription>
+                  You've already committed to a school.
+                </FieldDescription>
+              )}
             </Field>
             {!isSchool && (
               <Field>

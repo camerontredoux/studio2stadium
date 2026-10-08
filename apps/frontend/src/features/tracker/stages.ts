@@ -61,6 +61,13 @@ export const SCHOOL_STAGE_ICONS = [
 
 export const OFFER_STAGE = STAGES.school.indexOf("Offer");
 
+// A dancer commits to one school at most; the API rejects a second.
+export const COMMITTED = STAGES.school.length - 1;
+
+export const findCommitted = <T extends Pick<TrackerItem, "type" | "stage">>(
+  items: T[],
+) => items.find((i) => i.type === "school" && i.stage === COMMITTED);
+
 // Section key for items with no school. The API calls this section `null`.
 export const OTHER = "other";
 
