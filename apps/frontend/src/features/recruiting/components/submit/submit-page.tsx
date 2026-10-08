@@ -14,8 +14,9 @@ import { SuccessView } from "./success";
 import type { School, Step } from "./types";
 import { VideoStep } from "./video";
 
-// Only graduating seniors may submit a common recruiting video.
-const GRADUATING_SENIOR_GRAD_YEAR = 2027;
+// Common recruiting video submission is open to graduating seniors and older
+// — dancers graduating in this year or earlier (lower grad year == older).
+const LATEST_ELIGIBLE_GRAD_YEAR = 2027;
 
 export function SubmitPage() {
   const navigate = useNavigate();
@@ -23,7 +24,8 @@ export function SubmitPage() {
 
   const { username } = useSession();
   const { data: dancer } = useSuspenseQuery(dancerQueries.profile(username));
-  const canSubmit = dancer.gradYear === GRADUATING_SENIOR_GRAD_YEAR;
+  const canSubmit =
+    dancer.gradYear != null && dancer.gradYear <= LATEST_ELIGIBLE_GRAD_YEAR;
 
   const [step, setStep] = useState<Step>("video");
   const [videoUrl, setVideoUrl] = useState("");
@@ -70,11 +72,12 @@ export function SubmitPage() {
 
         <Alert variant="warning">
           <GraduationCapIcon />
-          <AlertTitle>Only graduating seniors can submit</AlertTitle>
+          <AlertTitle>Only graduating seniors and older can submit</AlertTitle>
           <AlertDescription>
             Common recruiting video submissions are open to graduating seniors
-            (class of {GRADUATING_SENIOR_GRAD_YEAR}) only. Because you're not a
-            graduating senior, you can't submit a video right now.
+            (class of {LATEST_ELIGIBLE_GRAD_YEAR}) and older. Because you
+            graduate after {LATEST_ELIGIBLE_GRAD_YEAR}, you can't submit a video
+            right now.
           </AlertDescription>
         </Alert>
       </div>

@@ -80,29 +80,58 @@ test.group("Create submission senior gating", (group) => {
     await db.execute(sql`truncate table ${users} cascade`);
   });
 
-  test("lets a graduating senior (grad year 2027) submit", async ({
+  // Graduating seniors (2027) and older (already graduated: 2026, 2025) may
+  // submit; younger dancers may not.
+  for (const gradYear of [2027, 2026, 2025]) {
+    test(`lets a graduating senior or older (grad year ${gradYear}) submit`, async ({
+      assert,
+    }) => {
+      const dancer = await createDancer(gradYear);
+      const school = await createSchool();
+
+      const service = new Service(new DatabaseService());
+      await service.execute(dancer.id, {
+        schoolId: [school.id],
+        videoId: "dQw4w9WgXcQ",
+      });
+
+      const submissions = await db
+        .select()
+        .from(crvSubmissions)
+        .where(eq(crvSubmissions.dancerId, dancer.id));
+
+      assert.lengthOf(submissions, 1);
+      assert.equal(submissions[0].schoolId, school.id);
+    });
+  }
+
+  test("rejects a younger dancer (grad year 2028) and creates no submission", async ({
     assert,
   }) => {
-    const dancer = await createDancer(2027);
+    const dancer = await createDancer(2028);
     const school = await createSchool();
 
     const service = new Service(new DatabaseService());
-    await service.execute(dancer.id, {
-      schoolId: [school.id],
-      videoId: "dQw4w9WgXcQ",
-    });
+
+    await assert.rejects(() =>
+      service.execute(dancer.id, {
+        schoolId: [school.id],
+        videoId: "dQw4w9WgXcQ",
+      })
+    );
 
     const submissions = await db
       .select()
       .from(crvSubmissions)
       .where(eq(crvSubmissions.dancerId, dancer.id));
 
-    assert.lengthOf(submissions, 1);
-    assert.equal(submissions[0].schoolId, school.id);
+    assert.lengthOf(submissions, 0);
   });
 
-  test("rejects a non-senior and creates no submission", async ({ assert }) => {
-    const dancer = await createDancer(2028);
+  test("rejects a dancer with no grad year and creates no submission", async ({
+    assert,
+  }) => {
+    const dancer = await createDancer(null);
     const school = await createSchool();
 
     const service = new Service(new DatabaseService());
