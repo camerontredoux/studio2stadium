@@ -1,4 +1,5 @@
 import { $api, type ApiSchemas } from "@/lib/api/client";
+import { premiumRoadmapQueries } from "@/shared/premium-roadmap/api/queries";
 import { type FollowedSchool } from "@/shared/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { queries } from "./queries";
@@ -17,6 +18,9 @@ const dancerFollowingKey = $api.queryOptions(
   "/dancers/me/following",
 ).queryKey;
 
+// Following a school completes the roadmap's favorite step.
+const premiumRoadmapKey = premiumRoadmapQueries.get().queryKey;
+
 export function useFollowSchool(school: FollowedSchool) {
   const queryClient = useQueryClient();
 
@@ -26,6 +30,9 @@ export function useFollowSchool(school: FollowedSchool) {
   const metadataQueryKey = schoolMetadataKey(school.id);
 
   return $api.useMutation("post", "/schools/{id}/follow", {
+    meta: {
+      invalidateQueries: [premiumRoadmapKey],
+    },
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: metadataQueryKey });
       await queryClient.cancelQueries({ queryKey: followingIdsQueryKey });
@@ -113,6 +120,9 @@ export function useUnfollowSchool(school: FollowedSchool) {
   const metadataQueryKey = schoolMetadataKey(school.id);
 
   return $api.useMutation("delete", "/schools/{id}/follow", {
+    meta: {
+      invalidateQueries: [premiumRoadmapKey],
+    },
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: metadataQueryKey });
       await queryClient.cancelQueries({ queryKey: followingIdsQueryKey });
