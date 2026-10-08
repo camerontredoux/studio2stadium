@@ -20,6 +20,7 @@ interface MediaDialogProps {
   videoCount: number;
   youtubeCount: number;
   orgAccountTier?: string | null;
+  defaultOpen?: boolean;
 }
 
 export function MediaDialog({
@@ -27,8 +28,9 @@ export function MediaDialog({
   videoCount,
   youtubeCount,
   orgAccountTier,
+  defaultOpen = false,
 }: MediaDialogProps) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
