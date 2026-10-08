@@ -22,9 +22,8 @@ const INDICATOR =
 const MAX_TITLE = 80;
 
 // Input styles its wrapper with className, so reach the field inside to fill
-// the pill and keep the text clear of its rounded ends.
-const PILL_INPUT =
-  "rounded-full before:rounded-full *:data-[slot=input]:h-full *:data-[slot=input]:px-4";
+// it and keep the text clear of its rounded ends.
+const FIELD_INPUT = "*:data-[slot=input]:h-full *:data-[slot=input]:px-4";
 
 function Indicator({ done }: { done: boolean }) {
   return (
@@ -84,7 +83,10 @@ function MilestoneChip({
             ref={inputRef}
             autoFocus
             size="sm"
-            className={cn(PILL_INPUT, "h-7 w-44 sm:h-7")}
+            className={cn(
+              FIELD_INPUT,
+              "h-7 w-44 rounded-full before:rounded-full sm:h-7",
+            )}
             aria-label={`Rename ${milestone.title}`}
             defaultValue={milestone.title}
             maxLength={MAX_TITLE}
@@ -166,9 +168,11 @@ function AddMilestone({
       <Input
         autoFocus
         size="sm"
-        className={cn(PILL_INPUT, "h-9 w-48 sm:h-9")}
+        className={cn(
+          FIELD_INPUT,
+          "h-9 w-48 rounded-2xl before:rounded-[calc(var(--radius-2xl)-1px)] sm:h-9",
+        )}
         aria-label={`New milestone for ${school}`}
-        placeholder="e.g. Clinic attended"
         maxLength={MAX_TITLE}
         value={title}
         onChange={(e) => setTitle(e.currentTarget.value)}
