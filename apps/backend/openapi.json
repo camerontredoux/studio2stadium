@@ -6627,7 +6627,55 @@
           "Tracker"
         ],
         "summary": "Get my recruiting tracker",
-        "description": "Returns the dancer's tracker items (newest first), each with its school summary or null, and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section."
+        "description": "Returns the dancer's tracker items (newest first), each with its school and event summaries or null, and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section."
+      }
+    },
+    "/tracker/events": {
+      "get": {
+        "parameters": [
+          {
+            "name": "schoolId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackerEventsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "List events a clinic item can link",
+        "description": "Returns upcoming school-hosted events from verified schools, soonest first, each with its school. Pass schoolId to list only that school's events."
       }
     },
     "/tracker/items": {
@@ -6677,7 +6725,7 @@
           "Tracker"
         ],
         "summary": "Add a tracker item",
-        "description": "Adds a school, clinic, audition, application milestone, or deadline. schoolId references the schools directory and is required for a school item, whose title is the school's name. An unknown schoolId is a 422. A dancer commits to one school at most: a second Committed school is a 409 E_ALREADY_COMMITTED."
+        "description": "Adds a school, clinic, audition, application milestone, or deadline. schoolId references the schools directory and is required for a school item, whose title is the school's name. An unknown schoolId is a 422. A clinic item may link an event with eventId; an event of another item type, an unknown or unlisted event, or one the schoolId doesn't host is a 422. A dancer commits to one school at most: a second Committed school is a 409 E_ALREADY_COMMITTED."
       }
     },
     "/tracker/items/{id}": {
@@ -6747,7 +6795,7 @@
           "Tracker"
         ],
         "summary": "Update a tracker item",
-        "description": "Updates the title, schoolId, date, notes, or stage of one of the dancer's tracker items. A school item's title always comes from its school. Committing to a second school is a 409 E_ALREADY_COMMITTED."
+        "description": "Updates the title, schoolId, eventId, date, notes, or stage of one of the dancer's tracker items. The eventId follows the same rules as on create. A school item's title always comes from its school. Committing to a second school is a 409 E_ALREADY_COMMITTED."
       },
       "delete": {
         "parameters": [
@@ -18768,6 +18816,32 @@
                 "title": {
                   "type": "string"
                 },
+                "event": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "startDatetime": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "startDatetime"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "stage": {
                   "type": "number"
                 }
@@ -18781,6 +18855,7 @@
                 "school",
                 "type",
                 "title",
+                "event",
                 "stage"
               ]
             }
@@ -18803,6 +18878,67 @@
           "items",
           "sectionOrder"
         ]
+      },
+      "TrackerEventsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "school": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "recruitment",
+                "audition",
+                "other",
+                "rehearsal",
+                "recital",
+                "showcase",
+                "competition",
+                "class",
+                "intensive",
+                "workshop",
+                "fundraiser",
+                "combine",
+                "convention",
+                "clinic",
+                "deadline",
+                "performance",
+                "camp"
+              ]
+            },
+            "title": {
+              "type": "string"
+            },
+            "startDatetime": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "school",
+            "type",
+            "title",
+            "startDatetime"
+          ]
+        }
       },
       "TrackerItemsRequest": {
         "type": "object",
@@ -18841,6 +18977,16 @@
             ]
           },
           "title": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "eventId": {
             "oneOf": [
               {
                 "type": "string"
@@ -18960,6 +19106,32 @@
           "title": {
             "type": "string"
           },
+          "event": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "startDatetime": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "startDatetime"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "stage": {
             "type": "number"
           }
@@ -18973,6 +19145,7 @@
           "school",
           "type",
           "title",
+          "event",
           "stage"
         ]
       },
@@ -19013,6 +19186,16 @@
             ]
           },
           "title": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "eventId": {
             "oneOf": [
               {
                 "type": "string"
@@ -19119,6 +19302,32 @@
           "title": {
             "type": "string"
           },
+          "event": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "startDatetime": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "startDatetime"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "stage": {
             "type": "number"
           }
@@ -19132,6 +19341,7 @@
           "school",
           "type",
           "title",
+          "event",
           "stage"
         ]
       },

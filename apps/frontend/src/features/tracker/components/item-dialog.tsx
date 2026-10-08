@@ -30,9 +30,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/components/utils/cn";
 import type { ApiSchemas } from "@/lib/api/client";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { SearchIcon } from "lucide-react";
+import { SearchIcon, TicketIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import type { TrackerItem } from "../api/mutations";
 import { trackerQueries } from "../api/queries";
@@ -40,9 +40,19 @@ import { COMMITTED, STAGES, TYPES, type ItemType } from "../stages";
 
 export type NewItem = ApiSchemas["TrackerItemsRequest"];
 export type ItemChanges = ApiSchemas["TrackerItemsIdRequest"];
+type ListedEvent = ApiSchemas["TrackerEventsResponse"][number];
+// An item's own event carries no school.
+type EventOption = Pick<ListedEvent, "title" | "startDatetime"> & {
+  school?: ListedEvent["school"];
+};
+
+function eventDate(event: { startDatetime: string }) {
+  return format(new Date(event.startDatetime), "MMM d, yyyy");
+}
 
 // Adds an item, or edits `item` when one is passed. An item's type can't
-// change, and a school item stays tied to its school.
+// change, and a school item stays tied to its school. A clinic item can link
+// an upcoming event, listed from its school when one is picked.
 export function ItemDialog({
   open,
   onOpenChange,
@@ -71,6 +81,9 @@ export function ItemDialog({
   const [schoolId, setSchoolId] = useState<string | null>(
     item?.school?.id ?? defaultSchool?.id ?? null,
   );
+  const [eventId, setEventId] = useState<string | null>(
+    item?.event?.id ?? null,
+  );
   const [date, setDate] = useState(item?.date ?? "");
   const [notes, setNotes] = useState(item?.notes ?? "");
   const [stage, setStage] = useState(String(item?.stage ?? 0));
@@ -96,6 +109,52 @@ export function ItemDialog({
   );
 
   const isSchool = type === "school";
+  const isClinic = type === "clinic";
+
+  // Picking an event can fill in its school, which refetches the list; the
+  // previous list stays meanwhile so the picked event keeps its option.
+  const { data: events } = useQuery({
+    ...trackerQueries.events(schoolId),
+    enabled: open && isClinic,
+    placeholderData: keepPreviousData,
+  });
+
+  // Keyed by id. While picked, the item's own event stays an option even
+  // after it has passed and dropped off the list.
+  const itemEvent = item?.event;
+  const keepItemEvent = !!itemEvent && eventId === itemEvent.id;
+  const eventsById = useMemo(() => {
+    const byId = new Map<string, EventOption>(
+      (events ?? []).map((e) => [e.id, e]),
+    );
+    if (itemEvent && keepItemEvent && !byId.has(itemEvent.id)) {
+      byId.set(itemEvent.id, itemEvent);
+    }
+    return byId;
+  }, [events, itemEvent, keepItemEvent]);
+  const eventIds = useMemo(() => [...eventsById.keys()], [eventsById]);
+  const eventTitle = useCallback(
+    (id: string) => eventsById.get(id)?.title ?? "",
+    [eventsById],
+  );
+
+  // A new school keeps the event only when the school hosts it.
+  const changeSchool = (next: string | null) => {
+    setSchoolId(next);
+    const host = eventId
+      ? (eventsById.get(eventId)?.school?.id ?? item?.school?.id)
+      : undefined;
+    if (next && host !== next) setEventId(null);
+  };
+
+  // Picking an event fills in its school, and the title when it's empty.
+  const changeEvent = (next: string | null) => {
+    setEventId(next);
+    const event = next ? eventsById.get(next) : undefined;
+    if (!event) return;
+    if (!schoolId && event.school) setSchoolId(event.school.id);
+    if (!title.trim()) setTitle(event.title);
+  };
   const typeOptions = (Object.keys(TYPES) as ItemType[]).map((t) => ({
     value: t,
     label: TYPES[t].label,
@@ -161,7 +220,7 @@ export function ItemDialog({
             <Combobox
               items={schoolIds}
               value={schoolId}
-              onValueChange={setSchoolId}
+              onValueChange={changeSchool}
               itemToStringLabel={schoolName}
               disabled={editing && isSchool}
               autoHighlight
@@ -185,6 +244,55 @@ export function ItemDialog({
               </ComboboxPopup>
             </Combobox>
           </Field>
+          {isClinic && (
+            <Field>
+              <FieldLabel>Event (optional)</FieldLabel>
+              <Combobox
+                items={eventIds}
+                value={eventId}
+                onValueChange={changeEvent}
+                itemToStringLabel={eventTitle}
+                autoHighlight
+              >
+                <ComboboxInput
+                  placeholder={
+                    schoolId ? "Search this school's events" : "Search events"
+                  }
+                  startAddon={<TicketIcon />}
+                  showClear={!!eventId}
+                />
+                <ComboboxPopup aria-label="Events">
+                  <ComboboxEmpty>
+                    {!events
+                      ? "Loading events…"
+                      : schoolId
+                        ? "This school has no upcoming events."
+                        : "No upcoming events."}
+                  </ComboboxEmpty>
+                  <ComboboxList>
+                    {(id: string) => {
+                      const event = eventsById.get(id);
+                      return (
+                        <ComboboxItem key={id} value={id}>
+                          <span className="flex min-w-0 flex-col">
+                            <span className="truncate">{event?.title}</span>
+                            {event && (
+                              <span className="text-muted-foreground truncate text-xs">
+                                {eventDate(event)}
+                                {!schoolId &&
+                                  event.school &&
+                                  ` · ${event.school.name}`}
+                              </span>
+                            )}
+                          </span>
+                        </ComboboxItem>
+                      );
+                    }}
+                  </ComboboxList>
+                </ComboboxPopup>
+              </Combobox>
+            </Field>
+          )}
           <div className={cn("grid gap-4", !isSchool && "sm:grid-cols-2")}>
             <Field>
               <FieldLabel>{isSchool ? "Where you are" : "Status"}</FieldLabel>
@@ -250,6 +358,7 @@ export function ItemDialog({
                 ? onSave(item, {
                     title: isSchool ? undefined : title.trim(),
                     schoolId: isSchool ? undefined : schoolId,
+                    eventId: isClinic ? eventId : undefined,
                     date: isSchool ? undefined : date || null,
                     notes: notes.trim() || null,
                     stage: Number(stage),
@@ -258,6 +367,7 @@ export function ItemDialog({
                     type,
                     title: isSchool ? undefined : title.trim(),
                     schoolId: schoolId ?? undefined,
+                    eventId: isClinic ? (eventId ?? undefined) : undefined,
                     date: isSchool ? undefined : date || undefined,
                     notes: notes.trim() || undefined,
                     stage: Number(stage),

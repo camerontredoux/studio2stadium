@@ -587,6 +587,10 @@ type TrackerGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/tracker/list-items/controller.ts').default['handle'], false>
 }
+type TrackerEventsGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/list-events/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/list-events/controller.ts').default['handle'], true>
+}
 type TrackerItemsPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/create-item/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/tracker/create-item/controller.ts').default['handle'], true>
@@ -1739,6 +1743,12 @@ export interface ApiDefinition {
     };
     '$get': TrackerGetHead;
     '$head': TrackerGetHead;
+    'events': {
+      '$url': {
+      };
+      '$get': TrackerEventsGetHead;
+      '$head': TrackerEventsGetHead;
+    };
     'items': {
       '$url': {
       };

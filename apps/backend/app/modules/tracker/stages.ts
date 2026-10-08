@@ -1,5 +1,6 @@
 import { type db } from "#database/connection";
 import { type trackerItemType } from "#database/schema/enums";
+import { danceEvents } from "#database/schema/events";
 import { schoolProfiles } from "#database/schema/schools";
 import { trackerItems } from "#database/schema/tracker";
 import { users } from "#database/schema/users";
@@ -132,9 +133,44 @@ export async function assertSchoolExists(db: Client, schoolId: string) {
   }
 }
 
+/** Only a clinic item links an event. */
+export const EVENT_TYPE: TrackerItemType = "clinic";
+
 /**
- * The dancer's items as clients see them, with the school summary. A school
- * item's title is its school's name. A school item whose school was deleted
+ * Rejects an event a clinic item can't link with a 422: an event of another
+ * item type, one the dancer can't see (its school isn't verified), or one the
+ * item's school doesn't host. The event may have passed, so an item keeps
+ * its event after the day.
+ */
+export async function assertEventFits(
+  db: Client,
+  type: TrackerItemType,
+  eventId: string,
+  schoolId: string | null
+) {
+  const fail = (rule: string, message: string) =>
+    new errors.E_VALIDATION_ERROR([{ field: "eventId", rule, message }]);
+
+  if (type !== EVENT_TYPE) {
+    throw fail("type", `Only a ${EVENT_TYPE} item can link an event`);
+  }
+  const [event] = await db
+    .select({ schoolId: danceEvents.schoolId })
+    .from(danceEvents)
+    .innerJoin(schoolProfiles, eq(schoolProfiles.id, danceEvents.schoolId))
+    .innerJoin(users, eq(users.id, schoolProfiles.userId))
+    .where(and(eq(danceEvents.id, eventId), eq(users.verified, true)));
+  if (!event) {
+    throw fail("exists", "The selected event does not exist");
+  }
+  if (schoolId && event.schoolId !== schoolId) {
+    throw fail("school", "The selected school doesn't host this event");
+  }
+}
+
+/**
+ * The dancer's items as clients see them, with the school and event
+ * summaries. A school item's title is its school's name. A school item whose school was deleted
  * is hidden.
  */
 export async function findItems(db: Client, dancerId: string, itemId?: string) {
@@ -149,6 +185,11 @@ export async function findItems(db: Client, dancerId: string, itemId?: string) {
         username: users.username,
         avatar: users.avatar,
       },
+      event: {
+        id: danceEvents.id,
+        title: danceEvents.title,
+        startDatetime: danceEvents.startDatetime,
+      },
       date: trackerItems.date,
       notes: trackerItems.notes,
       stage: trackerItems.stage,
@@ -158,6 +199,7 @@ export async function findItems(db: Client, dancerId: string, itemId?: string) {
     .from(trackerItems)
     .leftJoin(schoolProfiles, eq(schoolProfiles.id, trackerItems.schoolId))
     .leftJoin(users, eq(users.id, schoolProfiles.userId))
+    .leftJoin(danceEvents, eq(danceEvents.id, trackerItems.eventId))
     .where(
       and(
         eq(trackerItems.dancerId, dancerId),
@@ -167,7 +209,8 @@ export async function findItems(db: Client, dancerId: string, itemId?: string) {
     )
     .orderBy(desc(trackerItems.createdAt), desc(trackerItems.id));
 
-  // Drizzle returns an unmatched left-joined school as all-null fields.
+  // Drizzle returns an unmatched left-joined school as all-null fields. The
+  // event comes from one table, so Drizzle already returns it as null.
   return rows.map(({ school: { id, name, username, avatar }, ...item }) => ({
     ...item,
     school:

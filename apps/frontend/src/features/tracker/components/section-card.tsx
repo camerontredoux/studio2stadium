@@ -42,6 +42,7 @@ import {
   StarIcon,
   PencilIcon,
   SparklesIcon,
+  TicketIcon,
   Trash2Icon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -155,6 +156,12 @@ function ItemRow({
             <span className="flex items-center gap-1">
               <CalendarIcon aria-hidden className="size-3" />
               {formatDate(item.date)}
+            </span>
+          )}
+          {item.event && (
+            <span className="flex items-center gap-1">
+              <TicketIcon aria-hidden className="size-3" />
+              {item.event.title}
             </span>
           )}
         </div>

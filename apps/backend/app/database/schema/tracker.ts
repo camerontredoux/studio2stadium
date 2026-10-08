@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { dancerProfiles } from "./dancers.ts";
 import { trackerItemType } from "./enums.ts";
+import { danceEvents } from "./events.ts";
 import { timestamps } from "./helpers/columns.ts";
 import { schoolProfiles } from "./schools.ts";
 
@@ -15,6 +16,9 @@ import { schoolProfiles } from "./schools.ts";
  *
  * Deleting a school sets `school_id` to null: the dancer's other items move
  * to "Everything else", and the orphaned `school` item is hidden from lists.
+ *
+ * A clinic item may link the school-hosted event it is for (`event_id`).
+ * Deleting the event sets it to null and keeps the item.
  */
 export const trackerItems = pg.pgTable(
   "tracker_items",
@@ -29,6 +33,9 @@ export const trackerItems = pg.pgTable(
     schoolId: pg
       .uuid()
       .references(() => schoolProfiles.id, { onDelete: "set null" }),
+    eventId: pg
+      .uuid()
+      .references(() => danceEvents.id, { onDelete: "set null" }),
     date: pg.date({ mode: "string" }),
     notes: pg.text(),
     // Index into the per-type stage list (see #modules/tracker/stages).
@@ -38,6 +45,7 @@ export const trackerItems = pg.pgTable(
   (table) => [
     pg.index().on(table.dancerId, table.createdAt),
     pg.index().on(table.schoolId),
+    pg.index().on(table.eventId),
     pg
       .uniqueIndex("tracker_items_dancer_school_journey")
       .on(table.dancerId, table.schoolId)
