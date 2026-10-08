@@ -41,7 +41,7 @@ function RouteComponent() {
   }
 
   return (
-    <PremiumGuard description="School profiles are a premium feature. Subscribe to unlock and view detailed school information.">
+    <PremiumGuard description="Explore is a premium feature. Subscribe to unlock this page and discover schools.">
       <SchoolProfile username={username} />
     </PremiumGuard>
   );
