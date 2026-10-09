@@ -30,6 +30,7 @@ import {
   CheckIcon,
   ChevronDownIcon,
   EyeIcon,
+  HelpCircleIcon,
   LogOutIcon,
   MonitorIcon,
   MoonIcon,
@@ -56,6 +57,16 @@ const navSections = [
         label: "Dancers",
         icon: SearchIcon,
         to: "/o/$orgSlug/coach/dancers" as const,
+      },
+    ],
+  },
+  {
+    title: "Help",
+    items: [
+      {
+        label: "FAQ",
+        icon: HelpCircleIcon,
+        to: "/o/$orgSlug/coach/faq" as const,
       },
     ],
   },

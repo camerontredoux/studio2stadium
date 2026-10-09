@@ -33,6 +33,7 @@ import {
   CheckIcon,
   ChevronDownIcon,
   EyeIcon,
+  HelpCircleIcon,
   LogOutIcon,
   Megaphone,
   MonitorIcon,
@@ -113,6 +114,16 @@ export function DancerSidebar() {
         ? [{ title: "Explore", items: exploreItems }]
         : [];
     })(),
+    {
+      title: "Help",
+      items: [
+        {
+          label: "FAQ",
+          icon: HelpCircleIcon,
+          to: "/o/$orgSlug/dancer/faq" as const,
+        },
+      ],
+    },
   ];
   const { ternaryDarkMode, setTernaryDarkMode } = useOrgTheme();
 
