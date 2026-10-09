@@ -30,16 +30,18 @@ redis_owns "$(redis_port_for "$web")" || die "$redis_name does not publish this 
 
 if [ -n "$role" ]; then
   # The rows the signup service writes for a Dancer: the user and its core
-  # platform. Login does not require a verified email.
+  # platform. Marked verified so _app pages open instead of /onboarding; the
+  # update covers default users created unverified before that.
   psql "$db_url" -Atq -v ON_ERROR_STOP=1 -c "
     with new_user as (
-      insert into users (username, email, display_email, first_name, last_name, password, role, type)
+      insert into users (username, email, display_email, first_name, last_name, password, role, type, verified)
       values (split_part('$email', '@', 1) || '-run-dev-server', '$email', '$email',
-              initcap(split_part('$email', '@', 1)), 'Worker', 'unset', '$role', 'dancer')
+              initcap(split_part('$email', '@', 1)), 'Worker', 'unset', '$role', 'dancer', true)
       on conflict (email) do nothing
       returning id
     )
-    insert into user_platforms (platform_name, user_id) select 'core', id from new_user" \
+    insert into user_platforms (platform_name, user_id) select 'core', id from new_user;
+    update users set verified = true where email = '$email' and not verified" \
     || die "could not create $email in $db"
 fi
 

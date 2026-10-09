@@ -136,6 +136,18 @@ To stop without starting again:
 
 `stop.sh` ends each server's whole process group and waits until every process in it has exited. `ace serve --hmr` ignores SIGTERM and keeps its server alive with the port closed, so a plain `kill` is not enough: the scripts send SIGINT, then SIGKILL after 15 seconds. It refuses a process that does not run from your worktree. It leaves the Redis container running.
 
+## Before and after screenshots
+
+With the global dev-loop skill installed (`~/.agents/skills/dev-loop`), one call takes every before/after pair of a UI change. Start this worktree's servers first, then:
+
+```bash
+~/.agents/skills/dev-loop/scripts/before-after.sh --out "$TMPDIR/shots" --path /some/page
+```
+
+It shoots the before state on a shared server at `origin/main` (`~/work/studio2stadium-worktrees/main-before`, frontend on 5198) when your base matches it, and otherwise checks out the base here, restarts, shoots, and restores. `.agents/dev-loop.sh` tells it this repo's scripts, ports and sign-in; `--help` lists the flags. Shared-server mode only gives a fair before for pages whose data both databases hold, such as the signed-in user's own pages: there is no seed.
+
+A browser that signed in before the change keeps its old session: pass `--fresh-browser` once.
+
 ## Report
 
 The verified URLs, the database name, both process groups and log paths, and the stop command. The private env files, databases and Redis container stay for reuse while the task runs.
