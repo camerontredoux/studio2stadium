@@ -16,9 +16,16 @@ cd "$root"
   || die "$root is not a studio2stadium checkout"
 
 branch=$(git branch --show-current)
-[ -n "$branch" ] || die "detached HEAD: create your branch first; your database name comes from it"
-# Postgres caps identifiers at 63 bytes; "s2s_" and "_test" take 9.
-slug=$(printf %s "$branch" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9' '_' | cut -c1-54)
+if [ -n "$branch" ]; then
+  # Postgres caps identifiers at 63 bytes; "s2s_" and "_test" take 9.
+  slug=$(printf %s "$branch" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9' '_' | cut -c1-54)
+else
+  # A detached HEAD is a before/after capture checking out an older commit.
+  # Keep the names this worktree already has, read back from the marker line of
+  # its private copy, so the restart reuses the same databases, ports and Redis.
+  slug=$(rg -o '^# run-dev-server private copy: ([a-z0-9_]+)$' -r '$1' apps/backend/.env 2>/dev/null || true)
+  [ -n "$slug" ] || die "detached HEAD with no private copy yet: create your branch first; your database name comes from it"
+fi
 db="s2s_$slug"
 test_db="${db}_test"
 pg_base=postgresql://postgres:postgres@localhost:5432
