@@ -1,6 +1,9 @@
+import env from "#start/env";
 import { middleware } from "#start/kernel";
 import { tooManyRequests } from "#utils/responses";
+import app from "@adonisjs/core/services/app";
 import router from "@adonisjs/core/services/router";
+import { isDevSignInEnabled } from "./dev-sign-in/enabled.ts";
 const ResetPasswordController = () => import("./reset-password/controller.ts");
 const ForgotPasswordController = () =>
   import("./forgot-password/controller.ts");
@@ -10,6 +13,7 @@ const GetSessionController = () => import("./get-session/controller.ts");
 const LogoutController = () => import("./logout/controller.ts");
 const LoginController = () => import("./login/controller.ts");
 const SignupController = () => import("./signup/controller.ts");
+const DevSignInController = () => import("./dev-sign-in/controller.ts");
 
 router
   .group(() => {
@@ -36,6 +40,22 @@ router
         description: "Retrieves the current session's user information.",
       })
       .use(middleware.auth());
+
+    // Dev only: absent unless the local HTTP server runs with
+    // NODE_ENV=development and DEV_SIGN_IN_LINK_ENABLED=true.
+    if (
+      isDevSignInEnabled({
+        nodeEnvironment: app.nodeEnvironment,
+        appEnvironment: app.getEnvironment(),
+        flag: env.get("DEV_SIGN_IN_LINK_ENABLED"),
+      })
+    ) {
+      router.get("dev-sign-in", [DevSignInController]).openapi({
+        summary: "Dev sign-in link",
+        description:
+          "Development only. Consumes a one-time code minted by run-dev-server's sign-in.sh, starts a session for its user and redirects to SITE_URL.",
+      });
+    }
 
     router
       .group(() => {

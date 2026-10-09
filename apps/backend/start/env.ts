@@ -56,6 +56,15 @@ export default await Env.create(new URL("../", import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Dev-only one-click sign-in link (GET /auth/dev-sign-in).
+  | Set only by run-dev-server's private .env copy; ignored
+  | unless NODE_ENV=development.
+  |----------------------------------------------------------
+  */
+  DEV_SIGN_IN_LINK_ENABLED: Env.schema.boolean.optional(),
+
+  /*
+  |----------------------------------------------------------
   | Sentry error monitoring (optional; disabled when unset)
   |----------------------------------------------------------
   */

@@ -16,8 +16,12 @@ main=$(git worktree list --porcelain | awk 'NR == 1 { print substr($0, 10); exit
 # Values that keep this server off what other servers share. SQS points
 # nowhere, so the publish-outbox cron logs an error instead of sending this
 # database's outbox rows to the shared dev queue. Scheduled emails stay off.
+# DEV_SIGN_IN_LINK_ENABLED turns on the backend's dev-only /auth/dev-sign-in
+# route that sign-in.sh's link opens; the backend ignores it outside
+# NODE_ENV=development.
 set_safe_vars() {
   set_env_var NODE_ENV development
+  set_env_var DEV_SIGN_IN_LINK_ENABLED true
   set_env_var HOST localhost
   set_env_var CRON_EMAILS_ENABLED false
   set_env_var SQS_QUEUE_URL http://127.0.0.1:9/run-dev-server-disabled
