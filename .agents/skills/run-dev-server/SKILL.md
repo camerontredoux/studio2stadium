@@ -144,11 +144,7 @@ With the global dev-loop skill installed (`~/.agents/skills/dev-loop`), one call
 ~/.agents/skills/dev-loop/scripts/before-after.sh --out "$TMPDIR/shots" --path /some/page
 ```
 
-It shoots the before state on a shared server at `origin/main` (`~/work/studio2stadium-worktrees/main-before`, frontend on 5198) when your base matches it, and otherwise checks out the base here, restarts, shoots, and restores. `.agents/dev-loop.sh` tells it this repo's scripts, ports and sign-in; `--help` lists the flags. Shared-server mode only gives a fair before for pages whose data both databases hold, such as the signed-in user's own pages: there is no seed. `sign-in.sh` creates the dancer unverified, so `_app` pages send it to `/onboarding`; to shoot them, mark it onboarded in both databases (`s2s_<slug>` and `s2s_before_server_main`):
-
-```bash
-psql postgresql://postgres:postgres@localhost:5432/<db> -c "update users set verified = true where email = 'dancer@run-dev-server.test'"
-```
+It shoots the before state on a shared server at `origin/main` (`~/work/studio2stadium-worktrees/main-before`, frontend on 5198) when your base matches it, and otherwise checks out the base here, restarts, shoots, and restores. `.agents/dev-loop.sh` tells it this repo's scripts, ports and sign-in; `--help` lists the flags. Shared-server mode only gives a fair before for pages whose data both databases hold, such as the signed-in user's own pages: there is no seed.
 
 A browser that signed in before the change keeps its old session: pass `--fresh-browser` once.
 
