@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_app/(routes)/resources/library")({
     }
   },
   loader: ({ context: { queryClient } }) => {
-    queryClient.ensureQueryData(queries.videos());
+    queryClient.prefetchQuery(queries.videos());
   },
   component: RouteComponent,
 });

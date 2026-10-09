@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_app/(routes)/$username")({
       dancerQueries.profile(params.username),
     );
     if (session.type === "school") {
-      queryClient.ensureQueryData(dancerQueries.metadata(dancer.id));
+      queryClient.prefetchQuery(dancerQueries.metadata(dancer.id));
     }
   },
   component: RouteComponent,
