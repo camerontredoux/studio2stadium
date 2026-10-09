@@ -1,4 +1,4 @@
-import { FeedbackButton } from "@/components/shared/feedback-button";
+import { HelpButton } from "@/components/shared/help-button";
 import { MainLogo } from "@/components/shared/main-logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -44,7 +44,7 @@ export function Topbar() {
           >
             <HiCog className="size-6" />
           </Button>
-          <FeedbackButton />
+          <HelpButton />
         </div>
         <div className="absolute left-1/2 shrink-0 -translate-x-1/2 sm:static sm:translate-x-0">
           <MainLogo className="h-5 max-sm:h-4 dark:invert" />
@@ -52,7 +52,7 @@ export function Topbar() {
         <div className="flex w-full items-center justify-end gap-2">
           <VideoProcessingIndicator />
           <div className="hidden sm:block">
-            <FeedbackButton />
+            <HelpButton />
           </div>
           <Button
             variant="secondary"
