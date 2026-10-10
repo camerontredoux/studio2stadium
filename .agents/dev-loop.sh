@@ -55,6 +55,10 @@ DEV_LOOP_SETUP=(check-deps.sh env-copy.sh)
 DEV_LOOP_LOCKFILE=pnpm-lock.yaml
 DEV_LOOP_INSTALL="pnpm install --frozen-lockfile"
 DEV_LOOP_DB=(db.sh)
+# Drops this worktree's databases and Redis container: at firstmate's
+# teardown, and on the before server once a day, which then copies a fresh
+# template. There is no seed to lose; sign-in.sh recreates its users.
+DEV_LOOP_DROP_DB=drop-db.sh
 DEV_LOOP_START=(pick-port.sh redis.sh start.sh)
 # A base that differs from the server's commit only here still renders the same.
 DEV_LOOP_IGNORE=(docs .agents .claude .github scripts apps/backend/tests apps/backend/scratch
