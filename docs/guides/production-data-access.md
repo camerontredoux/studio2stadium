@@ -67,16 +67,26 @@ The script puts your SQL inside one transaction instead:
 The transaction pooler keeps one transaction on one server connection, so the guard holds on port
 6543. A write fails with `cannot execute UPDATE in a read-only transaction`.
 
-Before it connects, the script refuses SQL that could leave the transaction:
+Before it connects, the script refuses SQL that could leave the transaction or get around it:
 
 - a statement that starts with `COMMIT`, `ROLLBACK`, `BEGIN`, `END`, `ABORT`,
   `START TRANSACTION`, `SAVEPOINT`, `RELEASE`, `PREPARE TRANSACTION`, `SET SESSION`,
   `SET TRANSACTION`, `RESET` or `DISCARD`
-- any mention of `transaction_read_only`
-- the psql commands `\c`, `\connect`, `\i`, `\ir`, `\include`, `\!`, `\gexec`, `\o`, `\w` and
-  `\copy`
+- any mention of `transaction_read_only` outside a string
+- every psql backslash command except the display ones: `\x`, `\a`, `\t`, `\pset`, `\echo`,
+  `\qecho`, `\warn`, `\C`, `\f`, `\H`, `\T`, `\timing`, `\gdesc`, `\q`, the `\d` family, `\l`,
+  `\sf`, `\sv`, and `\g` or `\gx` with nothing after them. psql runs a backslash command wherever
+  it sits on a line, and `\!`, `\g |cmd`, `\o`, `\w`, `\setenv` and backticks run a shell or
+  write files, so this is an allowlist. A backtick in a display command's arguments is refused too.
+- `DO` blocks, `COPY`, `set_config(...)`, functions that run SQL from a string such as
+  `query_to_xml`, `pg_terminate_backend`, and `SET` of `client_encoding`,
+  `standard_conforming_strings` or a read-only setting
 
-It also refuses `-c`, `-1` and connection flags. Pass SQL with `-f` or on stdin.
+The check skips string literals, comments and dollar quotes the way psql reads them, so
+`WHERE note = 'commit'` passes. `set_config(` is the exception: it is refused even inside a string.
+
+The script passes only psql output flags (`-A`, `-t`, `-x`, `-q`, `--csv`, `-F`, `-R`, `-P` and
+the like). It refuses `-c`, `-v`, `-o`, `-1` and connection flags. Pass SQL with `-f` or on stdin.
 
 ## Read production
 
