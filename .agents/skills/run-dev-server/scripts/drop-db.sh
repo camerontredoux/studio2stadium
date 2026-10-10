@@ -11,7 +11,7 @@ source "$(dirname "$0")/lib.sh"
   || die "could not derive this worktree's database names"
 for name in "$db" "$test_db"; do
   case "$name" in
-    s2s_dev | s2s_test | postgres | template0 | template1)
+    s2s_dev | s2s_test | postgres | template0 | template1 | s2s_tpl_*)
       die "refusing to drop $name: it is shared, not this worktree's"
       ;;
   esac

@@ -53,7 +53,7 @@ router
       router.get("dev-sign-in", [DevSignInController]).openapi({
         summary: "Dev sign-in link",
         description:
-          "Development only. Consumes a one-time code minted by run-dev-server's sign-in.sh, starts a session for its user and redirects to SITE_URL.",
+          "Development only. Consumes a one-time code minted by run-dev-server's sign-in.sh, starts a session for its user and redirects to SITE_URL, or to the optional redirect path on it.",
       });
     }
 

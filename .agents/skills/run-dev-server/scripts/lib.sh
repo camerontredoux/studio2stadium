@@ -111,3 +111,33 @@ set_env_var() {
 $marker" "$file"
   fi
 }
+
+# Read start.sh's options into $warm: --warm /path,/path (or --warm=...), the
+# frontend paths warm.mjs compiles once the servers are ready.
+parse_start_args() {
+  local path
+  local -a paths
+  warm=""
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --warm)
+        [ -n "${2:-}" ] || die "--warm needs paths, such as --warm /feed,/resources/favorites"
+        warm=$2
+        shift 2
+        ;;
+      --warm=*)
+        warm=${1#--warm=}
+        shift
+        ;;
+      *) die "unknown option $1 (only --warm /path,/path)" ;;
+    esac
+  done
+  IFS=, read -ra paths <<<"$warm"
+  for path in "${paths[@]}"; do
+    case "$path" in
+      //* | *[[:space:][:cntrl:]\\]*) die "--warm takes paths on this server, such as /feed,/resources/favorites" ;;
+      /*) ;;
+      *) die "--warm takes paths on this server, such as /feed,/resources/favorites" ;;
+    esac
+  done
+}
