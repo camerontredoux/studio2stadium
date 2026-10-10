@@ -10,28 +10,30 @@ Your worktree gets these things of its own:
 - Private `0600` copies of `apps/backend/.env` and `apps/frontend/.env.local`.
 - The databases `s2s_<slug>` for the server and `s2s_<slug>_test` for backend tests. The slug is the branch name, lowercased, with other characters as `_`.
 - A Redis container, `studio2stadium-redis-<slug>` (with `-` in place of `_`). `config/redis.ts` has no database index or key prefix setting, so one shared Redis would mix sessions and cached data across servers. The container keeps nothing on disk; recreating it signs everyone out.
-- One port slot: the frontend on 5180 to 5199, the backend on the matching 3340 to 3359, and Redis on 6390 to 6409.
+- One port slot: the frontend on 5180 to 5199, the backend on the matching 3340 to 3359, and Redis on 6390 to 6409. `pick-port.sh` chooses it under the machine-wide port lock the global dev-loop skill uses, so worktrees of every repo that start at once never take the same port.
 
-The Postgres server on `localhost:5432`, the `s2s_dev` and `s2s_test` databases, the root clone's env files, and Cameron's ports 5173, 3333 and 6379 are shared with Cameron and every other worker. The scripts never write to them.
+The Postgres server on `localhost:5432` (it listens on `127.0.0.1` only; `docker-compose.yml` binds its `db` and `redis` there too), the `s2s_tpl_*` template databases, the `s2s_dev` and `s2s_test` databases, the root clone's env files, and Cameron's ports 5173, 3333 and 6379 are shared with Cameron and every other worker. The scripts never write to them.
 
 The scripts live in `.agents/skills/run-dev-server/scripts/`. Run them from the worktree root. Each acts on the worktree it runs in (`git rev-parse --show-toplevel`), so a copy stored anywhere works. Each one ends on one success line, or exits non-zero with a `run-dev-server:` message that names the fix. Each is safe to repeat. Create your branch first; a detached HEAD has no slug.
 
 ## Start
 
 ```bash
-.agents/skills/run-dev-server/scripts/up.sh
+.agents/skills/run-dev-server/scripts/up.sh [--warm /path,/path]
 ```
 
-Done when the last line reads `ready http://localhost:<port> pgid=<pgid> api=http://localhost:<api-port> api-pgid=<pgid> db=s2s_<slug>`. Record both URLs, both process groups, and the `log=` paths printed above it. `up.sh` runs, in order:
+`--warm` goes to `start.sh`: once both servers answer, it compiles those frontend routes in the background (`warm.mjs`), so a browser opened a few seconds later does not wait for Vite. It never delays or fails the start, and its log path is printed above the `ready` line. Done when the last line reads `ready http://localhost:<port> pgid=<pgid> api=http://localhost:<api-port> api-pgid=<pgid> db=s2s_<slug>`. Record both URLs, both process groups, and the `log=` paths printed above it. `up.sh` runs, in order:
 
 | Script          | Does                                                                                                     | Success line                       |
 | --------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------- |
 | `check-deps.sh` | Node 24, `pnpm install` if missing, builds `@stos/emails` and `@stos/openapi`, Docker, shared Postgres up | `deps-ok`                          |
 | `env-copy.sh`   | Swaps the symlinked env files for private `0600` copies and checks the backend's required variables       | `private-copy-ok ...`              |
-| `db.sh`         | Creates and migrates `s2s_<slug>` and `s2s_<slug>_test`, and sets `DATABASE_URL`                          | `db-ok s2s_<slug> (new\|reused)`   |
+| `db.sh`         | Copies `s2s_<slug>` and `s2s_<slug>_test` from the schema template, or reuses them; migrates each unless it already holds every migration; sets `DATABASE_URL` | `db-ok s2s_<slug> (<state>, <migrate>) s2s_<slug>_test (...)` |
 | `pick-port.sh`  | Keeps or chooses a free slot, and sets `PORT`, `SITE_URL`, `API_URL` and `VITE_API_URL` to match          | `port=<n> api=<n> redis=<n>`       |
 | `redis.sh`      | Runs this worktree's Redis container on the slot's port and sets `REDIS_HOST` and `REDIS_PORT`            | `redis-ok <container> port=<n>`    |
-| `start.sh`      | Launches both servers, each in its own process group, and runs `ready.sh`                                 | `ready http://...`                 |
+| `start.sh`      | Launches both servers, each in its own process group, runs `ready.sh`, and starts any `--warm`            | `ready http://...`                 |
+
+`db.sh` copies a new database from `s2s_tpl_schema_<day>_<hash>`, a migrated, empty template that the global dev-loop skill's `db-template.sh` builds once per day and migration head (`.agents/dev-loop.sh` configures it). The `<state>` is `copied <template>`, `reused` or `new`. It then compares `drizzle.__drizzle_migrations` with the migration folders on disk, row for row, and prints `skipped` when they match, else runs `pnpm db:migrate` and prints `migrated`. Without the dev-loop skill, or with `RUN_DEV_SERVER_NO_TEMPLATE=1`, it creates an empty database and migrates it.
 
 On a failure, run the named script alone after the fix. When a step's message points at a log, read its tail.
 
@@ -90,7 +92,7 @@ The servers listen on `localhost` only, so the URL works on this machine. From a
 ## Sign in
 
 ```bash
-.agents/skills/run-dev-server/scripts/sign-in.sh [dancer|admin|email]
+.agents/skills/run-dev-server/scripts/sign-in.sh [--redirect /path] [dancer|admin|email]
 ```
 
 There is no seed. The first run creates the user it signs in as:
@@ -107,14 +109,14 @@ signed-in <email> (<type> <role>) cookies=<path>
 sign-in-link http://localhost:<api-port>/auth/dev-sign-in?code=<code>
 ```
 
-The link points at the backend port. `GET /auth/dev-sign-in` deletes the code as it reads it, logs in exactly as `POST /auth/login` does, and redirects to the frontend; `localhost` cookies are not tied to a port. A used or expired code answers `410`. A `404` means the backend started before `env-copy.sh` set `DEV_SIGN_IN_LINK_ENABLED`: run `env-copy.sh`, then `restart.sh`. Do not paste the link anywhere but the report to Cameron; until it is used, it signs in whoever opens it.
+The link points at the backend port. `GET /auth/dev-sign-in` deletes the code as it reads it, logs in exactly as `POST /auth/login` does, and redirects to the frontend: to the `--redirect` path when given (the link then ends in `&redirect=<encoded path>`), else to its home page. The backend accepts only a path on the frontend and answers `422` for anything else. `localhost` cookies are not tied to a port. A used or expired code answers `410`. A `404` means the backend started before `env-copy.sh` set `DEV_SIGN_IN_LINK_ENABLED`: run `env-copy.sh`, then `restart.sh`. Do not paste the link anywhere but the report to Cameron; until it is used, it signs in whoever opens it.
 
 The cookie file is a `0600` curl cookie jar for the backend: `curl -b <path> http://localhost:<api-port>/auth/session`. In a browser of your own, open the link in a `chrome-devtools-axi` session (`CHROME_DEVTOOLS_AXI_SESSION=s2s-<slug>`). `sign-in.sh` leaves passwords alone; the users it creates have none that works, so the login form does not sign them in.
 
 ## Restart or stop
 
 ```bash
-.agents/skills/run-dev-server/scripts/restart.sh
+.agents/skills/run-dev-server/scripts/restart.sh [--warm /path,/path]
 ```
 
 Done when the last line is the `ready` line. It runs `stop.sh`, then `db.sh` so both databases take the migrations of the code now checked out (it keeps their data), then `redis.sh`, then `start.sh`.
@@ -144,7 +146,7 @@ With the global dev-loop skill installed (`~/.agents/skills/dev-loop`), one call
 ~/.agents/skills/dev-loop/scripts/before-after.sh --out "$TMPDIR/shots" --path /some/page
 ```
 
-It shoots the before state on a shared server at `origin/main` (`~/work/studio2stadium-worktrees/main-before`, frontend on 5198) when your base matches it, and otherwise checks out the base here, restarts, shoots, and restores. `.agents/dev-loop.sh` tells it this repo's scripts, ports and sign-in; `--help` lists the flags. Shared-server mode only gives a fair before for pages whose data both databases hold, such as the signed-in user's own pages: there is no seed.
+It shoots the before state on a shared server at `origin/main` (`.worktrees/before-server` in the primary checkout, frontend on 5198, database `s2s_before_server_main`) when your base matches it, and otherwise checks out the base here, restarts, shoots, and restores. `.agents/dev-loop.sh` tells it this repo's scripts, ports, warm-up and sign-in; `--help` lists the flags. `before-server.sh map-url` cannot map record ids (the adapter has no `DEV_LOOP_ID_LOOKUPS`, since there is no seed), so give it paths without them, such as `/feed` or `/resources/favorites`. Shared-server mode only gives a fair before for pages whose data both databases hold, such as the signed-in user's own pages: there is no seed.
 
 A browser that signed in before the change keeps its old session: pass `--fresh-browser` once.
 
@@ -160,4 +162,4 @@ When the task wraps up and nothing more needs the app, drop your databases and R
 .agents/skills/run-dev-server/scripts/drop-db.sh
 ```
 
-Done when it prints `dropped s2s_<slug>, s2s_<slug>_test, studio2stadium-redis-<slug>`, with `(already gone)` after each name on a repeat. It stops your servers first. It drops only the names `db.sh` and `redis.sh` derive from your branch, and it refuses `s2s_dev`, `s2s_test`, `postgres` and the templates. If it reports other connections, find and close the ones you opened, then retry; leave anyone else's alone.
+Done when it prints `dropped s2s_<slug>, s2s_<slug>_test, studio2stadium-redis-<slug>`, with `(already gone)` after each name on a repeat. It stops your servers first. It drops only the names `db.sh` and `redis.sh` derive from your branch, and it refuses `s2s_dev`, `s2s_test`, `postgres`, `template0`, `template1` and the `s2s_tpl_*` templates. If it reports other connections, find and close the ones you opened, then retry; leave anyone else's alone.

@@ -5,12 +5,14 @@
 # running server, and a database migrated by the other code keeps that code's
 # schema. db.sh keeps the databases and their data, so this is safe to
 # repeat. Prints start.sh's ready line.
+# Usage: restart.sh [--warm /path,/path], passed to start.sh.
 # shellcheck source=lib.sh
 source "$(dirname "$0")/lib.sh"
 require_private_copy
+parse_start_args "$@"
 
 here=$(dirname "$0")
 "$here/stop.sh" >/dev/null
 "$here/db.sh" >/dev/null
 "$here/redis.sh" >/dev/null
-exec "$here/start.sh"
+exec "$here/start.sh" "$@"

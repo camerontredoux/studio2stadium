@@ -10,7 +10,7 @@ import { validator } from "./validator.ts";
 /**
  * Dev only: the one-click sign-in link that run-dev-server's sign-in.sh
  * prints. Logs the browser in exactly as POST /auth/login does, then sends it
- * to the frontend.
+ * to the frontend: to the `redirect` path when given, else its home page.
  */
 export default class DevSignInController {
   @inject()
@@ -37,6 +37,11 @@ export default class DevSignInController {
 
     await auth.use("redis").login(user);
 
-    return response.redirect(env.get("SITE_URL"));
+    // The validator allows only a same-origin path; check the result too.
+    const site = new URL(env.get("SITE_URL"));
+    const target = new URL(payload.redirect ?? "/", site);
+    if (target.origin !== site.origin) throw new E_NOT_FOUND("Not found");
+
+    return response.redirect(target.toString());
   }
 }

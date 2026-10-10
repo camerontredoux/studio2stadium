@@ -3,9 +3,15 @@
 # background, each in its own process group, then wait for ready.sh.
 # --strictPort makes a taken frontend port exit instead of moving to a port
 # SITE_URL does not name.
+# Usage: start.sh [--warm /path,/path]
+# --warm compiles those frontend routes' modules in the background once both
+# servers are ready (warm.mjs), so a browser opened a few seconds later does
+# not wait for Vite. It never delays or fails the start.
 # shellcheck source=lib.sh
 source "$(dirname "$0")/lib.sh"
 require_private_copy
+here=$(dirname "$0")
+parse_start_args "$@"
 
 web=$(env_port)
 [ -n "$web" ] && [ "$web" -ge "$first_port" ] || die "no worker port in SITE_URL: run pick-port.sh first"
@@ -45,9 +51,16 @@ echo "launched api on port $api, log=$api_log"
 echo "launched web on port $web, log=$web_log"
 # When one server fails, end both groups, so a frontend still compiling does
 # not keep its port after stop.sh found nothing to stop.
-if ! "$(dirname "$0")/ready.sh" "$api_launcher" "$web_launcher"; then
+if ! ready_line=$("$here/ready.sh" "$api_launcher" "$web_launcher"); then
   for launcher in $api_launcher $web_launcher; do
     stop_group "$launcher" || true
   done
   exit 1
 fi
+# The ready line comes last, after starting any warm-up.
+if [ -n "$warm" ]; then
+  warm_log="$out_dir/run-dev-server-warm-$slug.log"
+  nohup node "$here/warm.mjs" "$web" "$warm" >"$warm_log" 2>&1 </dev/null &
+  echo "warming $warm in the background, log=$warm_log"
+fi
+echo "$ready_line"

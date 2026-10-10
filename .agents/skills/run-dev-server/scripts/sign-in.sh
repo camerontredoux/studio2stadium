@@ -9,11 +9,37 @@
 # GET /auth/dev-sign-in consumes a code, starts a session as POST /auth/login
 # does, and redirects to the frontend. One code signs curl in and saves the
 # session cookies to a file for curl and scripts; the printed link carries
-# another for a browser. Passwords are left alone.
-# Usage: sign-in.sh [dancer|admin|email]
+# another for a browser, which lands on the --redirect path when given, else
+# on the frontend's home page. Passwords are left alone.
+# Usage: sign-in.sh [--redirect /path] [dancer|admin|email]
 # shellcheck source=lib.sh
 source "$(dirname "$0")/lib.sh"
 require_private_copy
+
+redirect=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --redirect)
+      redirect=${2:-}
+      shift $(($# >= 2 ? 2 : 1))
+      ;;
+    --redirect=*)
+      redirect=${1#--redirect=}
+      shift
+      ;;
+    -*) die "unknown option $1 (only --redirect /path)" ;;
+    *) break ;;
+  esac
+done
+[ $# -le 1 ] || die "sign-in.sh takes one account: dancer, admin or an email"
+# The backend accepts only a path on the frontend; refuse anything else here
+# with a clearer message than its 422.
+case "$redirect" in
+  "") ;;
+  //* | *[[:space:][:cntrl:]\\]*) die "--redirect takes a path on the frontend, such as /resources/favorites" ;;
+  /*) ;;
+  *) die "--redirect takes a path on the frontend, such as /resources/favorites" ;;
+esac
 
 case "${1:-dancer}" in
   dancer) email=dancer@run-dev-server.test role=user ;;
@@ -75,4 +101,8 @@ code=$(curl -s -m 30 -o /dev/null -w '%{http_code}' -b "$jar" "http://localhost:
 
 browser_code=$(mint_code)
 echo "signed-in $email ($account) cookies=$jar"
-echo "sign-in-link $(link "$browser_code")"
+browser_link=$(link "$browser_code")
+if [ -n "$redirect" ]; then
+  browser_link="$browser_link&redirect=$(node -e 'process.stdout.write(encodeURIComponent(process.argv[1]))' "$redirect")"
+fi
+echo "sign-in-link $browser_link"

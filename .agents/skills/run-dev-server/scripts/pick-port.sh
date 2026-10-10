@@ -4,13 +4,34 @@
 # API_URL in apps/backend/.env, and VITE_API_URL in apps/frontend/.env.local,
 # at them. The Vite proxy is fixed to Cameron's backend on 3333, so the
 # frontend calls this backend directly through VITE_API_URL instead.
+#
+# Worktrees starting at once would all see the same free slot, so the choice
+# is made under the machine-wide lock the global dev-loop skill's pick-port.sh
+# uses, and leaves a reservation on the frontend port that the others (in
+# every repo) skip for two minutes, until its servers have had time to bind.
 # shellcheck source=lib.sh
 source "$(dirname "$0")/lib.sh"
 require_private_copy
 
+ports_state=${XDG_STATE_HOME:-$HOME/.local/state}/run-dev-server/ports
+mkdir -p "$ports_state"
+exec 9>"$ports_state/.lock"
+flock -w 30 9 || die "another worktree has held the port lock for 30s"
+hold_secs=120
+
+# True when another worktree reserved the port in the last two minutes.
+reserved_by_other() {
+  local f="$ports_state/$1" owner at
+  [ -f "$f" ] || return 1
+  read -r owner at <"$f" || return 1
+  [ "$owner" != "$root" ] && [ $(($(date +%s) - ${at:-0})) -lt $hold_secs ]
+}
+reserve() { printf '%s %s\n' "$root" "$(date +%s)" >"$ports_state/$1"; }
+
 # True when every port in the slot is free or already this worktree's.
 slot_ours_or_free() {
   local web=$1 api redis pid port
+  reserved_by_other "$web" && return 1
   api=$(api_port_for "$web")
   redis=$(redis_port_for "$web")
   for port in "$web" "$api"; do
@@ -29,6 +50,7 @@ set_ports() {
   set_env_var API_URL "http://localhost:$api"
   set_env_var VITE_API_URL "http://localhost:$api" "$web_env_file"
   [ "$(env_port)" = "$web" ] || die "could not set SITE_URL in $env_file"
+  reserve "$web"
 }
 
 current=$(env_port)
