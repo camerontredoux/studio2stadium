@@ -108,7 +108,7 @@ function MilestoneChip({
 
   return (
     // Long titles truncate so a chip never runs past the card.
-    <div className="bg-background flex h-9 max-w-[min(100%,20rem)] items-center gap-0.5 rounded-2xl border pe-1">
+    <div className="bg-background flex h-9 max-w-[min(100%,24rem)] items-center gap-0.5 rounded-2xl border pe-1">
       <Toggle
         ref={toggleRef}
         pressed={done}
