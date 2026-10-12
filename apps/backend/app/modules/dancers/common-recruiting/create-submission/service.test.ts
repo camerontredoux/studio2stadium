@@ -4,6 +4,7 @@ import { dancerProfiles } from "#database/schema/dancers";
 import { schoolProfiles } from "#database/schema/schools";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
+import { graduatingClass } from "#shared/prospect-emails/cutoff";
 import { normalizeEmail } from "#utils/normalize-email";
 import hash from "@adonisjs/core/services/hash";
 import { faker } from "@faker-js/faker";
@@ -80,9 +81,10 @@ test.group("Create submission senior gating", (group) => {
     await db.execute(sql`truncate table ${users} cascade`);
   });
 
-  // Graduating seniors (2027) and older (already graduated: 2026, 2025) may
-  // submit; younger dancers may not.
-  for (const gradYear of [2027, 2026, 2025]) {
+  // This cycle's graduating seniors and older may submit; younger dancers may
+  // not. Relative to today, so the test holds across cycles.
+  const seniors = graduatingClass(new Date());
+  for (const gradYear of [seniors, seniors - 1, seniors - 2]) {
     test(`lets a graduating senior or older (grad year ${gradYear}) submit`, async ({
       assert,
     }) => {
@@ -105,10 +107,10 @@ test.group("Create submission senior gating", (group) => {
     });
   }
 
-  test("rejects a younger dancer (grad year 2028) and creates no submission", async ({
+  test("rejects a younger dancer (a junior) and creates no submission", async ({
     assert,
   }) => {
-    const dancer = await createDancer(2028);
+    const dancer = await createDancer(seniors + 1);
     const school = await createSchool();
 
     const service = new Service(new DatabaseService());
