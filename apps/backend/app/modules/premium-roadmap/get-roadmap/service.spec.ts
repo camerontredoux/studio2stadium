@@ -235,6 +235,31 @@ test.group("GetRoadmapService", (group) => {
     assert.equal(five.count, 5);
   });
 
+  test("a roadmap restarted after Premium began keeps earlier progress", async ({
+    assert,
+  }) => {
+    const dancer = await createDancer();
+    const startedAt = new Date(Date.now() - 60 * DAY_MS);
+    await subscribe(dancer.id, { startedAt });
+    await viewSchools(dancer, 5, new Date(startedAt.getTime() + DAY_MS));
+    await db.insert(trackerItems).values({
+      dancerId: dancer.profileId,
+      type: "deadline",
+      title: "Before the restart",
+      createdAt: new Date(startedAt.getTime() + DAY_MS),
+    });
+    await db.insert(premiumRoadmaps).values({
+      userId: dancer.id,
+      roadmapVersion: 1,
+      premiumStartedAt: new Date(Date.now() - DAY_MS),
+    });
+
+    const roadmap = eligible(await service().execute(dancer));
+    assert.equal(roadmap.daysSinceStart, 1);
+    assert.equal(step(roadmap, "program_views").status, "complete");
+    assert.equal(step(roadmap, "tracker").status, "complete");
+  });
+
   test("tracker step needs an item added since Premium started", async ({
     assert,
   }) => {
