@@ -1,24 +1,19 @@
 import { useSession } from "@/lib/session";
 import { useQuery } from "@tanstack/react-query";
 import { premiumRoadmapQueries } from "./api/queries";
-import { useRecruitingTrackerEnabled } from "./flag";
 import type { PremiumRoadmap } from "./types";
 
 /**
- * The dancer's roadmap, or undefined while loading, on error, if ineligible,
- * or with the feature flag off.
+ * The dancer's roadmap, or undefined while loading, on error, or if ineligible.
  */
 export function usePremiumRoadmap() {
   const session = useSession();
-  const flag = useRecruitingTrackerEnabled();
   const query = useQuery(
-    premiumRoadmapQueries.get({ enabled: session.type === "dancer" && !!flag }),
+    premiumRoadmapQueries.get({ enabled: session.type === "dancer" }),
   );
   return {
     ...query,
-    // Count waiting on the flag as loading, so the checklist doesn't flash.
-    isLoading: flag === undefined || query.isLoading,
-    roadmap: (flag && query.data?.roadmap) || undefined,
+    roadmap: query.data?.roadmap || undefined,
   };
 }
 
