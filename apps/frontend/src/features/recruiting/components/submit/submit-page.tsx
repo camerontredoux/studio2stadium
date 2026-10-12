@@ -2,7 +2,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { dancerQueries } from "@/features/dancer/api/queries";
 import {
   canSubmitCommonRecruitingVideo,
-  LATEST_ELIGIBLE_GRAD_YEAR,
+  graduatingClass,
 } from "@/lib/common-recruiting";
 import { useSession } from "@/lib/session/hooks/use-session";
 import { getYouTubeId } from "@/utils/get-youtube-id";
@@ -24,6 +24,7 @@ export function SubmitPage() {
 
   const { username } = useSession();
   const { data: dancer } = useSuspenseQuery(dancerQueries.profile(username));
+  const seniors = graduatingClass();
   const canSubmit = canSubmitCommonRecruitingVideo(dancer.gradYear);
 
   const [step, setStep] = useState<Step>("video");
@@ -74,9 +75,8 @@ export function SubmitPage() {
           <AlertTitle>Only graduating seniors and older can submit</AlertTitle>
           <AlertDescription>
             Common recruiting video submissions are open to graduating seniors
-            (class of {LATEST_ELIGIBLE_GRAD_YEAR}) and older. Because you
-            graduate after {LATEST_ELIGIBLE_GRAD_YEAR}, you can't submit a video
-            right now.
+            (class of {seniors}) and older. Because you graduate after {seniors}
+            , you can't submit a video right now.
           </AlertDescription>
         </Alert>
       </div>
