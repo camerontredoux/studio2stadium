@@ -120,9 +120,16 @@ export class GetRoadmapService {
       return INELIGIBLE;
     }
 
+    // Steps count activity since the member started paying. The roadmap's
+    // own start can be later (restart:premium-roadmaps moves it), and that
+    // must not undo progress made before it.
+    const factsSince = new Date(
+      Math.min(premiumStartedAt.getTime(), membership.startedAt.getTime())
+    );
+
     const [checklist, facts] = await Promise.all([
       this.profileChecklist.execute(user.profileId),
-      this.stepFacts(user, premiumStartedAt, now),
+      this.stepFacts(user, factsSince, now),
     ]);
 
     const done = {
@@ -234,14 +241,14 @@ export class GetRoadmapService {
   // Everything except the profile checklist, in one round trip.
   private async stepFacts(
     user: { id: string; profileId: string },
-    premiumStartedAt: Date,
+    factsSince: Date,
     now: Date
   ) {
     // Raw sql params go to postgres-js untyped, so pass dates as ISO text.
     const processingSince = new Date(
       now.getTime() - PROCESSING_WINDOW_MS
     ).toISOString();
-    const since = premiumStartedAt.toISOString();
+    const since = factsSince.toISOString();
 
     const [row] = await this.db.use((db) =>
       db.execute<{
