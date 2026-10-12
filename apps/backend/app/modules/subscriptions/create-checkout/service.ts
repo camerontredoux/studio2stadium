@@ -22,7 +22,7 @@ export class Service {
           quantity: 1,
         },
       ],
-      return_url: `${env.get("SITE_URL")}/settings/membership`,
+      return_url: `${env.get("SITE_URL")}/feed`,
     });
   }
 }
