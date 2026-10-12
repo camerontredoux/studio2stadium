@@ -13,6 +13,9 @@ import {
 } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import type { TrackerMilestone as Milestone } from "../api/mutations";
+import { AddMilestoneDialog } from "./add-milestone-dialog";
+
+type School = { name: string; avatar: string | null };
 
 // A chip's round indicator. On hover it fills with gold, tilts, and pulses,
 // like the stage stepper did.
@@ -23,7 +26,7 @@ const MAX_TITLE = 80;
 
 const TOGGLE_COOLDOWN_MS = 1000;
 
-// Shared by adding and renaming. Input styles its wrapper with className, so
+// Used by renaming. Input styles its wrapper with className, so
 // reach the field inside to fill it and keep the text clear of its rounded ends.
 const FIELD =
   "h-9 w-48 rounded-2xl before:rounded-[calc(var(--radius-2xl)-1px)] sm:h-9 *:data-[slot=input]:h-full *:data-[slot=input]:px-4";
@@ -155,64 +158,26 @@ function AddMilestone({
   school,
   onAdd,
 }: {
-  school: string;
+  school: School;
   onAdd: (title: string) => void;
 }) {
-  const [adding, setAdding] = useState(false);
-  const [title, setTitle] = useState("");
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const refocus = useRef(false);
-
-  useEffect(() => {
-    if (!adding && refocus.current) buttonRef.current?.focus();
-    refocus.current = false;
-  }, [adding]);
-
-  const close = (keyboard: boolean) => {
-    refocus.current = keyboard;
-    setTitle("");
-    setAdding(false);
-  };
-
-  if (adding) {
-    return (
-      <Input
-        autoFocus
-        size="sm"
-        className={FIELD}
-        aria-label={`New milestone for ${school}`}
-        maxLength={MAX_TITLE}
-        value={title}
-        onChange={(e) => setTitle(e.currentTarget.value)}
-        // Leaving with a title saves it, so a typed milestone isn't lost.
-        onBlur={() => {
-          if (title.trim()) onAdd(title.trim());
-          close(false);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && title.trim()) {
-            // Stay open and empty, ready for the next one.
-            onAdd(title.trim());
-            setTitle("");
-          }
-          if (e.key === "Escape") close(true);
-        }}
-      />
-    );
-  }
-
   return (
-    <Button
-      ref={buttonRef}
-      variant="ghost"
-      className="group/milestone text-muted-foreground border-border h-9 rounded-2xl border-dashed ps-1 pe-3 before:rounded-[calc(var(--radius-2xl)-1px)] sm:h-9"
-      onClick={() => setAdding(true)}
-    >
-      <span aria-hidden className={cn(INDICATOR, "border-transparent")}>
-        <PlusIcon className="size-3.5" />
-      </span>
-      Add milestone
-    </Button>
+    <AddMilestoneDialog
+      school={school}
+      maxLength={MAX_TITLE}
+      onAdd={onAdd}
+      trigger={
+        <Button
+          variant="ghost"
+          className="group/milestone text-muted-foreground border-border h-9 rounded-2xl border-dashed ps-1 pe-3 before:rounded-[calc(var(--radius-2xl)-1px)] sm:h-9"
+        >
+          <span aria-hidden className={cn(INDICATOR, "border-transparent")}>
+            <PlusIcon className="size-3.5" />
+          </span>
+          Add milestone
+        </Button>
+      }
+    />
   );
 }
 
@@ -224,7 +189,7 @@ export function Milestones({
   onRename,
   onDelete,
 }: {
-  school: string;
+  school: School;
   milestones: Milestone[];
   onAdd: (title: string) => void;
   /** `chip` is the toggled chip, for confetti. */

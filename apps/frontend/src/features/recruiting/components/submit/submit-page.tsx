@@ -1,5 +1,9 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { dancerQueries } from "@/features/dancer/api/queries";
+import {
+  canSubmitCommonRecruitingVideo,
+  LATEST_ELIGIBLE_GRAD_YEAR,
+} from "@/lib/common-recruiting";
 import { useSession } from "@/lib/session/hooks/use-session";
 import { getYouTubeId } from "@/utils/get-youtube-id";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -14,18 +18,13 @@ import { SuccessView } from "./success";
 import type { School, Step } from "./types";
 import { VideoStep } from "./video";
 
-// Common recruiting video submission is open to graduating seniors and older
-// — dancers graduating in this year or earlier (lower grad year == older).
-const LATEST_ELIGIBLE_GRAD_YEAR = 2027;
-
 export function SubmitPage() {
   const navigate = useNavigate();
   const { mutate, isPending } = useSubmitVideo();
 
   const { username } = useSession();
   const { data: dancer } = useSuspenseQuery(dancerQueries.profile(username));
-  const canSubmit =
-    dancer.gradYear != null && dancer.gradYear <= LATEST_ELIGIBLE_GRAD_YEAR;
+  const canSubmit = canSubmitCommonRecruitingVideo(dancer.gradYear);
 
   const [step, setStep] = useState<Step>("video");
   const [videoUrl, setVideoUrl] = useState("");
