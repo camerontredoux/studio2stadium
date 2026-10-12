@@ -107,10 +107,12 @@ function MilestoneChip({
   }
 
   return (
-    <div className="bg-background flex h-9 items-center gap-0.5 rounded-2xl border pe-1">
+    // Long titles truncate so a chip never runs past the card.
+    <div className="bg-background flex h-9 max-w-[min(100%,20rem)] items-center gap-0.5 rounded-2xl border pe-1">
       <Toggle
         ref={toggleRef}
         pressed={done}
+        title={milestone.title}
         onClick={() => {
           setQuiet(true);
           // Rapid clicks would otherwise each send a request.
@@ -122,11 +124,11 @@ function MilestoneChip({
         onPointerLeave={() => setQuiet(false)}
         className={cn(
           !quiet && "group/milestone",
-          "h-full rounded-2xl ps-1 pe-2 before:rounded-2xl data-pressed:bg-transparent sm:h-full",
+          "h-full min-w-0 shrink rounded-2xl ps-1 pe-2 before:rounded-2xl data-pressed:bg-transparent sm:h-full",
         )}
       >
         <Indicator done={done} />
-        {milestone.title}
+        <span className="truncate">{milestone.title}</span>
       </Toggle>
       <Menu>
         <MenuTrigger
@@ -205,7 +207,7 @@ export function Milestones({
       </p>
       <ul aria-labelledby={labelId} className="flex flex-wrap gap-2">
         {milestones.map((milestone) => (
-          <li key={milestone.id}>
+          <li key={milestone.id} className="max-w-full min-w-0">
             <MilestoneChip
               milestone={milestone}
               onToggle={() => onToggle(milestone)}
