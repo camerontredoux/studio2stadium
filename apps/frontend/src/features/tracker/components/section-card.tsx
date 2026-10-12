@@ -7,7 +7,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Frame,
@@ -50,6 +49,7 @@ import {
   TYPES,
 } from "../stages";
 import { Milestones } from "./milestones";
+import { SchoolLogo } from "./school-logo";
 import { DueBadge } from "./summary";
 import { celebrateCommitted } from "../celebrate";
 
@@ -250,12 +250,7 @@ export function SchoolCard({
       <FrameHeader>
         <div className="flex items-center gap-2">
           <ReorderHandle label={school.name} />
-          <Avatar className="size-7 rounded-md border">
-            {school.avatar && <AvatarImage src={school.avatar} alt="" />}
-            <AvatarFallback className="text-[0.625rem] font-semibold">
-              {school.name.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          <SchoolLogo school={school} />
           <FrameTitle className="min-w-0 truncate text-base">
             {school.name}
           </FrameTitle>
@@ -302,7 +297,7 @@ export function SchoolCard({
           </div>
         )}
         <Milestones
-          school={school.name}
+          school={school}
           milestones={milestones}
           onAdd={onAddMilestone}
           onToggle={onToggleMilestone}
