@@ -2,7 +2,16 @@ import { $api } from "@/lib/api/client";
 import { keepPreviousData } from "@tanstack/react-query";
 
 export const adminQueries = {
-  applications: () => $api.queryOptions("get", "/admin/applications"),
+  // Refetch on tab focus so an admin who leaves the page open sees new
+  // applications and signups without reloading.
+  applications: () =>
+    $api.queryOptions("get", "/admin/applications", undefined, {
+      refetchOnWindowFocus: true,
+    }),
+  unsubmittedSchools: () =>
+    $api.queryOptions("get", "/admin/unsubmitted-schools", undefined, {
+      refetchOnWindowFocus: true,
+    }),
   schools: () => $api.queryOptions("get", "/admin/schools"),
   schoolEvents: (username: string) =>
     $api.queryOptions("get", "/schools/{username}", {
