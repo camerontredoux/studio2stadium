@@ -121,8 +121,8 @@ export class GetRoadmapService {
     }
 
     // Steps count activity since the member started paying. The roadmap's
-    // own start can be later (restart:premium-roadmaps moves it), and that
-    // must not undo progress made before it.
+    // own start can be later (a one-off restart in October 2026 moved it
+    // for existing members), and that must not undo earlier progress.
     const factsSince = new Date(
       Math.min(premiumStartedAt.getTime(), membership.startedAt.getTime())
     );
