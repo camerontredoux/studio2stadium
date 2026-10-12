@@ -20366,6 +20366,9 @@
           "skills": {
             "type": "boolean"
           },
+          "skillCount": {
+            "type": "number"
+          },
           "styles": {
             "type": "boolean"
           },
@@ -20377,6 +20380,7 @@
           "gpa",
           "location",
           "skills",
+          "skillCount",
           "styles",
           "sports"
         ]

@@ -1,3 +1,4 @@
+import type { ApiSchemas } from "@/lib/api/client";
 import type {
   PremiumRoadmap,
   RoadmapStep,
@@ -36,6 +37,26 @@ export const STEP_COPY: Record<
     why: "Favorite a program to get on its coach's radar. You'll be notified when they view your profile!",
   },
 };
+
+const SKILLS_REQUIRED = 10;
+
+// What the dancer still has to add, worded like the profile checklist.
+export function missingProfileItems(
+  checklist: ApiSchemas["DancersMeChecklistResponse"],
+) {
+  const missing: string[] = [];
+  if (!checklist.skills) {
+    const count = checklist.skillCount;
+    missing.push(
+      `Select ${SKILLS_REQUIRED - count} more skills (${count}/${SKILLS_REQUIRED})`,
+    );
+  }
+  if (!checklist.styles) missing.push("Select a style");
+  if (!checklist.sports) missing.push("Select a sport");
+  if (!checklist.location) missing.push("Choose your location");
+  if (!checklist.gpa) missing.push("Enter your GPA");
+  return missing;
+}
 
 export function stepDetail(step: RoadmapStep) {
   if (step.key === "program_views" && step.status !== "complete") {
