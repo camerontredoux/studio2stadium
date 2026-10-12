@@ -6,8 +6,8 @@
 # edit through a link rewrites Cameron's file and every other worktree's.
 # Pool slots are reused, so a regular file already here can be a stripped copy
 # left by an earlier task; the marker line tells this branch's copy apart, and
-# any other file is moved aside, never deleted. apps/backend/.env.production
-# is never read.
+# any other file is replaced with a fresh copy. apps/backend/.env.production is
+# never read.
 # shellcheck source=lib.sh
 source "$(dirname "$0")/lib.sh"
 
@@ -35,11 +35,6 @@ private_copy() {
     return
   fi
   [ -f "$source_file" ] || die "the root clone has no $file to copy"
-  if [ -f "$file" ] && [ ! -L "$file" ]; then
-    stale="$file.stale.$(date +%s)"
-    mv "$file" "$stale"
-    echo "moved an earlier task's copy to $stale" >&2
-  fi
   rm -f "$file"
   install -m 600 "$source_file" "$file"
   printf '\n%s\n' "$marker" >>"$file"
