@@ -17,6 +17,8 @@ const DeleteGlobalEventController = () =>
   import("#modules/admin/delete-global-event/controller");
 const GetApplicationsController = () =>
   import("#modules/admin/get-applications/controller");
+const GetUnsubmittedSchoolsController = () =>
+  import("#modules/admin/get-unsubmitted-schools/controller");
 const GetSchoolsController = () =>
   import("#modules/admin/get-all-schools/controller");
 const GetDancersController = () =>
@@ -196,6 +198,14 @@ router
       summary: "Get all applications",
       description: "Returns all school applications for admin review",
     });
+
+    router
+      .get("unsubmitted-schools", [GetUnsubmittedSchoolsController])
+      .openapi({
+        summary: "Get schools that have not submitted an application",
+        description:
+          "Returns unverified, non-invited schools that signed up but have not submitted the application form",
+      });
 
     router.get("schools", [GetSchoolsController]).openapi({
       summary: "Get all schools",

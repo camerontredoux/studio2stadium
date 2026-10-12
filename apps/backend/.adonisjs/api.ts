@@ -79,6 +79,10 @@ type AdminApplicationsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/admin/get-applications/controller.ts').default['handle'], false>
 }
+type AdminUnsubmittedschoolsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/admin/get-unsubmitted-schools/controller.ts').default['handle'], false>
+}
 type AdminSchoolsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/admin/get-all-schools/controller.ts').default['handle'], false>
@@ -583,46 +587,6 @@ type SubscriptionsDevgrantPost = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/subscriptions/dev-grant/controller.ts').default['handle'], false>
 }
-type TrackerGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/tracker/list-items/controller.ts').default['handle'], false>
-}
-type TrackerEventsGetHead = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/list-events/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/tracker/list-events/controller.ts').default['handle'], true>
-}
-type TrackerItemsPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/create-item/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/tracker/create-item/controller.ts').default['handle'], true>
-}
-type TrackerItemsIdPatch = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/update-item/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/tracker/update-item/controller.ts').default['handle'], true>
-}
-type TrackerItemsIdDelete = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/delete-item/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/tracker/delete-item/controller.ts').default['handle'], true>
-}
-type TrackerSectionsDelete = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/delete-section/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/tracker/delete-section/controller.ts').default['handle'], true>
-}
-type TrackerMilestonesPost = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/create-milestone/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/tracker/create-milestone/controller.ts').default['handle'], true>
-}
-type TrackerMilestonesIdPatch = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/update-milestone/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/tracker/update-milestone/controller.ts').default['handle'], true>
-}
-type TrackerMilestonesIdDelete = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/delete-milestone/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/tracker/delete-milestone/controller.ts').default['handle'], true>
-}
-type TrackerSectionsOrderPut = {
-  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/update-section-order/validator.ts')['schema']>>
-  response: MakeTuyauResponse<import('../app/modules/tracker/update-section-order/controller.ts').default['handle'], true>
-}
 type StripeWebhookPost = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/webhooks/stripe/controller.ts').default['handle'], false>
@@ -935,6 +899,46 @@ type SchoolsIdInterestPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/show-interest/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/schools/show-interest/controller.ts').default['handle'], true>
 }
+type TrackerGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/tracker/list-items/controller.ts').default['handle'], false>
+}
+type TrackerEventsGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/list-events/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/list-events/controller.ts').default['handle'], true>
+}
+type TrackerItemsPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/create-item/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/create-item/controller.ts').default['handle'], true>
+}
+type TrackerItemsIdPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/update-item/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/update-item/controller.ts').default['handle'], true>
+}
+type TrackerItemsIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/delete-item/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/delete-item/controller.ts').default['handle'], true>
+}
+type TrackerSectionsDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/delete-section/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/delete-section/controller.ts').default['handle'], true>
+}
+type TrackerMilestonesPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/create-milestone/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/create-milestone/controller.ts').default['handle'], true>
+}
+type TrackerMilestonesIdPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/update-milestone/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/update-milestone/controller.ts').default['handle'], true>
+}
+type TrackerMilestonesIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/delete-milestone/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/delete-milestone/controller.ts').default['handle'], true>
+}
+type TrackerSectionsOrderPut = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/update-section-order/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/update-section-order/controller.ts').default['handle'], true>
+}
 type UsersCheckavailabilityGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/check-availability/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/users/check-availability/controller.ts').default['handle'], true>
@@ -1083,6 +1087,12 @@ export interface ApiDefinition {
           '$delete': AdminEventsSchoolIdDelete;
         };
       };
+    };
+    'unsubmitted-schools': {
+      '$url': {
+      };
+      '$get': AdminUnsubmittedschoolsGetHead;
+      '$head': AdminUnsubmittedschoolsGetHead;
     };
     'dancers': {
       '$url': {
@@ -1750,50 +1760,6 @@ export interface ApiDefinition {
       '$post': SubscriptionsDevgrantPost;
     };
   };
-  'tracker': {
-    '$url': {
-    };
-    '$get': TrackerGetHead;
-    '$head': TrackerGetHead;
-    'events': {
-      '$url': {
-      };
-      '$get': TrackerEventsGetHead;
-      '$head': TrackerEventsGetHead;
-    };
-    'items': {
-      '$url': {
-      };
-      '$post': TrackerItemsPost;
-      ':id': {
-        '$url': {
-        };
-        '$patch': TrackerItemsIdPatch;
-        '$delete': TrackerItemsIdDelete;
-      };
-    };
-    'sections': {
-      '$url': {
-      };
-      '$delete': TrackerSectionsDelete;
-      'order': {
-        '$url': {
-        };
-        '$put': TrackerSectionsOrderPut;
-      };
-    };
-    'milestones': {
-      '$url': {
-      };
-      '$post': TrackerMilestonesPost;
-      ':id': {
-        '$url': {
-        };
-        '$patch': TrackerMilestonesIdPatch;
-        '$delete': TrackerMilestonesIdDelete;
-      };
-    };
-  };
   'stripe': {
     'webhook': {
       '$url': {
@@ -2172,6 +2138,50 @@ export interface ApiDefinition {
         '$url': {
         };
         '$post': SchoolsIdInterestPost;
+      };
+    };
+  };
+  'tracker': {
+    '$url': {
+    };
+    '$get': TrackerGetHead;
+    '$head': TrackerGetHead;
+    'events': {
+      '$url': {
+      };
+      '$get': TrackerEventsGetHead;
+      '$head': TrackerEventsGetHead;
+    };
+    'items': {
+      '$url': {
+      };
+      '$post': TrackerItemsPost;
+      ':id': {
+        '$url': {
+        };
+        '$patch': TrackerItemsIdPatch;
+        '$delete': TrackerItemsIdDelete;
+      };
+    };
+    'sections': {
+      '$url': {
+      };
+      '$delete': TrackerSectionsDelete;
+      'order': {
+        '$url': {
+        };
+        '$put': TrackerSectionsOrderPut;
+      };
+    };
+    'milestones': {
+      '$url': {
+      };
+      '$post': TrackerMilestonesPost;
+      ':id': {
+        '$url': {
+        };
+        '$patch': TrackerMilestonesIdPatch;
+        '$delete': TrackerMilestonesIdDelete;
       };
     };
   };

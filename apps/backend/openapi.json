@@ -788,6 +788,28 @@
         "description": "Permanently deletes a school event by ID"
       }
     },
+    "/admin/unsubmitted-schools": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUnsubmittedschoolsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get schools that have not submitted an application",
+        "description": "Returns unverified, non-invited schools that signed up but have not submitted the application form"
+      }
+    },
     "/admin/dancers": {
       "get": {
         "parameters": [
@@ -6608,446 +6630,6 @@
         ]
       }
     },
-    "/tracker": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TrackerResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Tracker"
-        ],
-        "summary": "Get my recruiting tracker",
-        "description": "Returns the dancer's tracker items (newest first), each with its school and event summaries or null, their school milestones (oldest first, with completedAt null until reached), and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section."
-      }
-    },
-    "/tracker/events": {
-      "get": {
-        "parameters": [
-          {
-            "name": "schoolId",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TrackerEventsResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Tracker"
-        ],
-        "summary": "List events a clinic item can link",
-        "description": "Returns upcoming school-hosted events from verified schools, soonest first, each with its school. Pass schoolId to list only that school's events."
-      }
-    },
-    "/tracker/items": {
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TrackerItemsRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TrackerItemsResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Unknown Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Tracker"
-        ],
-        "summary": "Add a tracker item",
-        "description": "Adds a school, clinic, audition, application milestone, or deadline. schoolId references the schools directory and is required for a school item, whose title is the school's name. An unknown schoolId is a 422. A clinic item may link an event with eventId; an event of another item type, an unknown or unlisted event, or one the schoolId doesn't host is a 422. A dancer commits to one school at most: a second Committed school is a 409 E_ALREADY_COMMITTED."
-      }
-    },
-    "/tracker/items/{id}": {
-      "patch": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TrackerItemsIdRequest"
-              }
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TrackerItemsIdResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Unknown Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Tracker"
-        ],
-        "summary": "Update a tracker item",
-        "description": "Updates the title, schoolId, eventId, date, notes, or stage of one of the dancer's tracker items. The eventId follows the same rules as on create. A school item's title always comes from its school. Committing to a second school is a 409 E_ALREADY_COMMITTED."
-      },
-      "delete": {
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Tracker"
-        ],
-        "summary": "Delete a tracker item",
-        "description": "Deletes one of the dancer's tracker items."
-      }
-    },
-    "/tracker/sections": {
-      "delete": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TrackerSectionsRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Tracker"
-        ],
-        "summary": "Remove a school from the tracker",
-        "description": "Deletes the school item, the school's milestones, and every item the dancer tracks under that school."
-      }
-    },
-    "/tracker/sections/order": {
-      "put": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TrackerSectionsOrderRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Tracker"
-        ],
-        "summary": "Reorder tracker sections",
-        "description": "Saves the order of the dancer's tracker sections. Each entry is a school id, or null for 'Everything else'."
-      }
-    },
-    "/tracker/milestones": {
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TrackerMilestonesRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TrackerMilestonesResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Tracker"
-        ],
-        "summary": "Add a school milestone",
-        "description": "Adds a milestone the dancer wants to reach with a school, not yet completed. An unknown schoolId is a 422. Shares a limit of 60 requests a minute with the other milestone routes."
-      }
-    },
-    "/tracker/milestones/{id}": {
-      "patch": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TrackerMilestonesIdRequest"
-              }
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TrackerMilestonesIdResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Tracker"
-        ],
-        "summary": "Update a school milestone",
-        "description": "Renames one of the dancer's milestones or marks it complete. completed=true records when it was reached and keeps the original time if it was already complete; completed=false clears it. Shares a limit of 60 requests a minute with the other milestone routes."
-      },
-      "delete": {
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Tracker"
-        ],
-        "summary": "Delete a school milestone",
-        "description": "Deletes one of the dancer's milestones. Shares a limit of 60 requests a minute with the other milestone routes."
-      }
-    },
     "/stripe/webhook": {
       "post": {
         "responses": {
@@ -10027,6 +9609,446 @@
         "description": "A dancer can show interest in a school up to 3 times. This endpoint will increment the interest count for the school, and send a notification to the school."
       }
     },
+    "/tracker": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackerResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "Get my recruiting tracker",
+        "description": "Returns the dancer's tracker items (newest first), each with its school and event summaries or null, their school milestones (oldest first, with completedAt null until reached), and the order of their sections. sectionOrder lists school ids; null is the 'Everything else' section."
+      }
+    },
+    "/tracker/events": {
+      "get": {
+        "parameters": [
+          {
+            "name": "schoolId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackerEventsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "List events a clinic item can link",
+        "description": "Returns upcoming school-hosted events from verified schools, soonest first, each with its school. Pass schoolId to list only that school's events."
+      }
+    },
+    "/tracker/items": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackerItemsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackerItemsResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "Add a tracker item",
+        "description": "Adds a school, clinic, audition, application milestone, or deadline. schoolId references the schools directory and is required for a school item, whose title is the school's name. An unknown schoolId is a 422. A clinic item may link an event with eventId; an event of another item type, an unknown or unlisted event, or one the schoolId doesn't host is a 422. A dancer commits to one school at most: a second Committed school is a 409 E_ALREADY_COMMITTED."
+      }
+    },
+    "/tracker/items/{id}": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackerItemsIdRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackerItemsIdResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "Update a tracker item",
+        "description": "Updates the title, schoolId, eventId, date, notes, or stage of one of the dancer's tracker items. The eventId follows the same rules as on create. A school item's title always comes from its school. Committing to a second school is a 409 E_ALREADY_COMMITTED."
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "Delete a tracker item",
+        "description": "Deletes one of the dancer's tracker items."
+      }
+    },
+    "/tracker/sections": {
+      "delete": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackerSectionsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "Remove a school from the tracker",
+        "description": "Deletes the school item, the school's milestones, and every item the dancer tracks under that school."
+      }
+    },
+    "/tracker/sections/order": {
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackerSectionsOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "Reorder tracker sections",
+        "description": "Saves the order of the dancer's tracker sections. Each entry is a school id, or null for 'Everything else'."
+      }
+    },
+    "/tracker/milestones": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackerMilestonesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackerMilestonesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "Add a school milestone",
+        "description": "Adds a milestone the dancer wants to reach with a school, not yet completed. An unknown schoolId is a 422. Shares a limit of 60 requests a minute with the other milestone routes."
+      }
+    },
+    "/tracker/milestones/{id}": {
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackerMilestonesIdRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackerMilestonesIdResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "Update a school milestone",
+        "description": "Renames one of the dancer's milestones or marks it complete. completed=true records when it was reached and keeps the original time if it was already complete; completed=false clears it. Shares a limit of 60 requests a minute with the other milestone routes."
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tracker"
+        ],
+        "summary": "Delete a school milestone",
+        "description": "Deletes one of the dancer's milestones. Shares a limit of 60 requests a minute with the other milestone routes."
+      }
+    },
     "/users/check-availability": {
       "get": {
         "parameters": [
@@ -11557,6 +11579,44 @@
         "required": [
           "id"
         ]
+      },
+      "AdminUnsubmittedschoolsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "signedUpAt": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "email",
+            "name",
+            "firstName",
+            "lastName",
+            "location",
+            "signedUpAt"
+          ]
+        }
       },
       "AdminDancersResponse": {
         "type": "object",
@@ -13739,6 +13799,9 @@
           "skills": {
             "type": "boolean"
           },
+          "skillCount": {
+            "type": "number"
+          },
           "styles": {
             "type": "boolean"
           },
@@ -13750,6 +13813,7 @@
           "gpa",
           "location",
           "skills",
+          "skillCount",
           "styles",
           "sports"
         ]
@@ -18871,804 +18935,6 @@
           "granted"
         ]
       },
-      "TrackerResponse": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "notes": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "date": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "updatedAt": {
-                  "type": "string"
-                },
-                "school": {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "name": {
-                          "type": "string"
-                        },
-                        "username": {
-                          "type": "string"
-                        },
-                        "avatar": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        }
-                      },
-                      "required": [
-                        "id",
-                        "name",
-                        "username",
-                        "avatar"
-                      ]
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "type": {
-                  "type": "string",
-                  "enum": [
-                    "audition",
-                    "clinic",
-                    "deadline",
-                    "school",
-                    "application"
-                  ]
-                },
-                "title": {
-                  "type": "string"
-                },
-                "event": {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "title": {
-                          "type": "string"
-                        },
-                        "startDatetime": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "id",
-                        "title",
-                        "startDatetime"
-                      ]
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "stage": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "id",
-                "notes",
-                "date",
-                "createdAt",
-                "updatedAt",
-                "school",
-                "type",
-                "title",
-                "event",
-                "stage"
-              ]
-            }
-          },
-          "milestones": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "schoolId": {
-                  "type": "string"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "completedAt": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                }
-              },
-              "required": [
-                "id",
-                "createdAt",
-                "schoolId",
-                "title",
-                "completedAt"
-              ]
-            }
-          },
-          "sectionOrder": {
-            "type": "array",
-            "items": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          }
-        },
-        "required": [
-          "items",
-          "milestones",
-          "sectionOrder"
-        ]
-      },
-      "TrackerEventsResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "school": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "id",
-                "name"
-              ]
-            },
-            "type": {
-              "type": "string",
-              "enum": [
-                "recruitment",
-                "audition",
-                "other",
-                "rehearsal",
-                "recital",
-                "showcase",
-                "competition",
-                "class",
-                "intensive",
-                "workshop",
-                "fundraiser",
-                "combine",
-                "convention",
-                "clinic",
-                "deadline",
-                "performance",
-                "camp"
-              ]
-            },
-            "title": {
-              "type": "string"
-            },
-            "startDatetime": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "id",
-            "school",
-            "type",
-            "title",
-            "startDatetime"
-          ]
-        }
-      },
-      "TrackerItemsRequest": {
-        "type": "object",
-        "properties": {
-          "notes": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "date": {
-            "oneOf": [
-              {
-                "type": [
-                  "string",
-                  "number"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "schoolId": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "title": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "eventId": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "stage": {
-            "oneOf": [
-              {
-                "type": [
-                  "string",
-                  "number"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "audition",
-              "clinic",
-              "deadline",
-              "school",
-              "application"
-            ]
-          }
-        },
-        "required": [
-          "type"
-        ]
-      },
-      "TrackerItemsResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "notes": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "date": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "type": "string"
-          },
-          "school": {
-            "oneOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "username": {
-                    "type": "string"
-                  },
-                  "avatar": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                },
-                "required": [
-                  "id",
-                  "name",
-                  "username",
-                  "avatar"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "audition",
-              "clinic",
-              "deadline",
-              "school",
-              "application"
-            ]
-          },
-          "title": {
-            "type": "string"
-          },
-          "event": {
-            "oneOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "title": {
-                    "type": "string"
-                  },
-                  "startDatetime": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "id",
-                  "title",
-                  "startDatetime"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "stage": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "id",
-          "notes",
-          "date",
-          "createdAt",
-          "updatedAt",
-          "school",
-          "type",
-          "title",
-          "event",
-          "stage"
-        ]
-      },
-      "TrackerItemsIdRequest": {
-        "type": "object",
-        "properties": {
-          "notes": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "date": {
-            "oneOf": [
-              {
-                "type": [
-                  "string",
-                  "number"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "schoolId": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "title": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "eventId": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "stage": {
-            "oneOf": [
-              {
-                "type": [
-                  "string",
-                  "number"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        }
-      },
-      "TrackerItemsIdResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "notes": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "date": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "type": "string"
-          },
-          "school": {
-            "oneOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "username": {
-                    "type": "string"
-                  },
-                  "avatar": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                },
-                "required": [
-                  "id",
-                  "name",
-                  "username",
-                  "avatar"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "audition",
-              "clinic",
-              "deadline",
-              "school",
-              "application"
-            ]
-          },
-          "title": {
-            "type": "string"
-          },
-          "event": {
-            "oneOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "title": {
-                    "type": "string"
-                  },
-                  "startDatetime": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "id",
-                  "title",
-                  "startDatetime"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "stage": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "id",
-          "notes",
-          "date",
-          "createdAt",
-          "updatedAt",
-          "school",
-          "type",
-          "title",
-          "event",
-          "stage"
-        ]
-      },
-      "TrackerSectionsRequest": {
-        "type": "object",
-        "properties": {
-          "schoolId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "schoolId"
-        ]
-      },
-      "TrackerSectionsOrderRequest": {
-        "type": "object",
-        "properties": {
-          "sections": {
-            "type": "array",
-            "items": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          }
-        },
-        "required": [
-          "sections"
-        ]
-      },
-      "TrackerMilestonesRequest": {
-        "type": "object",
-        "properties": {
-          "schoolId": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "schoolId",
-          "title"
-        ]
-      },
-      "TrackerMilestonesResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "schoolId": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "completedAt": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "createdAt",
-          "schoolId",
-          "title",
-          "completedAt"
-        ]
-      },
-      "TrackerMilestonesIdRequest": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "completed": {
-            "oneOf": [
-              {
-                "type": [
-                  "string",
-                  "number",
-                  "boolean"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        }
-      },
-      "TrackerMilestonesIdResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "schoolId": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "completedAt": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "createdAt",
-          "schoolId",
-          "title",
-          "completedAt"
-        ]
-      },
       "StripeWebhookResponse": {
         "type": "object",
         "properties": {
@@ -23863,6 +23129,804 @@
         },
         "required": [
           "created"
+        ]
+      },
+      "TrackerResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "notes": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "date": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "school": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "username": {
+                          "type": "string"
+                        },
+                        "avatar": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "username",
+                        "avatar"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "audition",
+                    "clinic",
+                    "deadline",
+                    "school",
+                    "application"
+                  ]
+                },
+                "title": {
+                  "type": "string"
+                },
+                "event": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "startDatetime": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "startDatetime"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "stage": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "notes",
+                "date",
+                "createdAt",
+                "updatedAt",
+                "school",
+                "type",
+                "title",
+                "event",
+                "stage"
+              ]
+            }
+          },
+          "milestones": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "schoolId": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "completedAt": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "createdAt",
+                "schoolId",
+                "title",
+                "completedAt"
+              ]
+            }
+          },
+          "sectionOrder": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "items",
+          "milestones",
+          "sectionOrder"
+        ]
+      },
+      "TrackerEventsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "school": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "recruitment",
+                "audition",
+                "other",
+                "rehearsal",
+                "recital",
+                "showcase",
+                "competition",
+                "class",
+                "intensive",
+                "workshop",
+                "fundraiser",
+                "combine",
+                "convention",
+                "clinic",
+                "deadline",
+                "performance",
+                "camp"
+              ]
+            },
+            "title": {
+              "type": "string"
+            },
+            "startDatetime": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "school",
+            "type",
+            "title",
+            "startDatetime"
+          ]
+        }
+      },
+      "TrackerItemsRequest": {
+        "type": "object",
+        "properties": {
+          "notes": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "date": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "schoolId": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "eventId": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stage": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "audition",
+              "clinic",
+              "deadline",
+              "school",
+              "application"
+            ]
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "TrackerItemsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "notes": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "date": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "school": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "avatar": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "username",
+                  "avatar"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "audition",
+              "clinic",
+              "deadline",
+              "school",
+              "application"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "event": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "startDatetime": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "startDatetime"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stage": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "notes",
+          "date",
+          "createdAt",
+          "updatedAt",
+          "school",
+          "type",
+          "title",
+          "event",
+          "stage"
+        ]
+      },
+      "TrackerItemsIdRequest": {
+        "type": "object",
+        "properties": {
+          "notes": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "date": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "schoolId": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "eventId": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stage": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "TrackerItemsIdResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "notes": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "date": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "school": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "avatar": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "username",
+                  "avatar"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "audition",
+              "clinic",
+              "deadline",
+              "school",
+              "application"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "event": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "startDatetime": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "startDatetime"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stage": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "notes",
+          "date",
+          "createdAt",
+          "updatedAt",
+          "school",
+          "type",
+          "title",
+          "event",
+          "stage"
+        ]
+      },
+      "TrackerSectionsRequest": {
+        "type": "object",
+        "properties": {
+          "schoolId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "schoolId"
+        ]
+      },
+      "TrackerSectionsOrderRequest": {
+        "type": "object",
+        "properties": {
+          "sections": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "sections"
+        ]
+      },
+      "TrackerMilestonesRequest": {
+        "type": "object",
+        "properties": {
+          "schoolId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "schoolId",
+          "title"
+        ]
+      },
+      "TrackerMilestonesResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "schoolId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "completedAt": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "schoolId",
+          "title",
+          "completedAt"
+        ]
+      },
+      "TrackerMilestonesIdRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "completed": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "TrackerMilestonesIdResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "schoolId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "completedAt": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "schoolId",
+          "title",
+          "completedAt"
         ]
       },
       "UsersCheckavailabilityResponse": {
