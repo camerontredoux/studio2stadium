@@ -12,11 +12,13 @@ import {
 import { cn } from "@/components/utils/cn";
 import { track, trackOncePerSession } from "@/lib/analytics";
 import { useSession } from "@/lib/session";
+import { feedQueries } from "@/shared/feed/api/queries";
 import type {
   PremiumRoadmap,
   RoadmapStep,
   StepKey,
 } from "@/shared/premium-roadmap/types";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
   CheckCircle2Icon,
@@ -30,6 +32,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   isCollapsedByDefault,
   isComplete,
+  missingProfileItems,
   nextStep,
   ROADMAP_DAYS,
   stepDetail,
@@ -116,6 +119,22 @@ function StatusIcon({
         className,
       )}
     />
+  );
+}
+
+function MissingProfileItems() {
+  const { data } = useQuery(feedQueries.dancerChecklist());
+  const missing = data ? missingProfileItems(data) : [];
+  if (missing.length === 0) return null;
+  return (
+    <ul
+      aria-label="Missing from your profile"
+      className="mt-2 list-inside list-disc"
+    >
+      {missing.map((item) => (
+        <li key={item}>{item}</li>
+      ))}
+    </ul>
   );
 }
 
@@ -280,9 +299,12 @@ export function RoadmapCard({ roadmap }: { roadmap: PremiumRoadmap }) {
                     >
                       {STEP_COPY[step.key].title}
                     </span>
-                    <p className="text-muted-foreground col-start-2 row-start-2 mt-1 text-sm">
-                      {stepDetail(step)}
-                    </p>
+                    <div className="text-muted-foreground col-start-2 row-start-2 mt-1 text-sm">
+                      <p>{stepDetail(step)}</p>
+                      {step.key === "profile" && step.status !== "complete" && (
+                        <MissingProfileItems />
+                      )}
+                    </div>
                     {step.status !== "complete" && (
                       <StepLink
                         roadmap={roadmap}

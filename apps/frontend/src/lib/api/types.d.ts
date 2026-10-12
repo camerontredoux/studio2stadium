@@ -12922,6 +12922,7 @@ export interface components {
             gpa: boolean;
             location: boolean;
             skills: boolean;
+            skillCount: number;
             styles: boolean;
             sports: boolean;
         };

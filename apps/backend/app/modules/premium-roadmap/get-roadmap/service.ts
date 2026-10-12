@@ -133,7 +133,13 @@ export class GetRoadmapService {
     ]);
 
     const done = {
-      profile: !!checklist && Object.values(checklist).every(Boolean),
+      profile:
+        !!checklist &&
+        checklist.gpa &&
+        checklist.location &&
+        checklist.skills &&
+        checklist.styles &&
+        checklist.sports,
       video: facts.hasVideo,
       program_views: facts.programViews >= PROGRAM_VIEW_TARGET,
       tracker: facts.hasTrackerItem,
