@@ -18,7 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { canSubmitCommonRecruitingVideo } from "@/lib/common-recruiting";
 import { useSession } from "@/lib/session/hooks/use-session";
 import { useQuery } from "@tanstack/react-query";
-import { useState, type ReactElement } from "react";
+import { useRef, useState, type ReactElement, type RefObject } from "react";
 import { trackerQueries } from "../api/queries";
 import { SchoolLogo } from "./school-logo";
 
@@ -40,11 +40,13 @@ type School = { name: string; avatar: string | null };
 function AddMilestoneForm({
   school,
   maxLength,
+  inputRef,
   onAdd,
   onClose,
 }: {
   school: School;
   maxLength: number;
+  inputRef: RefObject<HTMLInputElement | null>;
   onAdd: (title: string) => void;
   onClose: () => void;
 }) {
@@ -108,6 +110,7 @@ function AddMilestoneForm({
         <Field>
           <FieldLabel>Make it your own</FieldLabel>
           <Input
+            ref={inputRef}
             value={title}
             maxLength={maxLength}
             placeholder="Write your own milestone"
@@ -148,14 +151,18 @@ export function AddMilestoneDialog({
   trigger: ReactElement;
 }) {
   const [open, setOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={trigger} />
-      <DialogPopup>
+      {/* Focus lands on the field, so the dancer can type their own right
+          away, as the inline input this replaced did. */}
+      <DialogPopup initialFocus={inputRef}>
         {/* Mounted only while open, so each opening starts blank. */}
         <AddMilestoneForm
           school={school}
           maxLength={maxLength}
+          inputRef={inputRef}
           onAdd={onAdd}
           onClose={() => setOpen(false)}
         />
