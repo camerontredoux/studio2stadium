@@ -66,6 +66,7 @@ Env var names are declared and validated in `apps/backend/start/env.ts`; `.env.e
 
 Root scripts forward to apps: `pnpm backend <script>`, `pnpm frontend <script>`, `pnpm emails <script>`. Each app's `package.json` is the source of truth.
 
+- Before writing SQL, look up real table and column names with `scripts/db-columns.sh <table>`; with no table it lists them.
 - Local services: `docker compose up db redis` (Postgres 18 and Redis). The compose `event-server` service needs `apps/events/cmd/.env`.
 - Backend tests need a migrated `s2s_test` database (`apps/backend/.env.test`). Test bootstrap does not create or migrate it, and tests delete rows from the tables they use.
 - One backend test file: `cd apps/backend && node ace test --files "app/modules/event-tiers/checkout/service.spec.ts"`.
