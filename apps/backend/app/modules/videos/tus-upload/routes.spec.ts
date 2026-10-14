@@ -56,10 +56,13 @@ async function createUnfinishedUploads(userId: string, total: number) {
 }
 
 // Cloudflare reports `existingState` for every upload the user already
-// started, and accepts the new tus upload.
+// started, and accepts the new tus upload. Returns the headers of each upload
+// sent to Cloudflare.
 function mockCloudflare(existingState: string) {
+  const uploads: Headers[] = [];
   globalThis.fetch = async (_input, init) => {
     if (init?.method === "POST") {
+      uploads.push(new Headers(init.headers));
       return new Response(null, {
         status: 201,
         headers: {
@@ -71,6 +74,7 @@ function mockCloudflare(existingState: string) {
 
     return Response.json({ result: { status: { state: existingState } } });
   };
+  return uploads;
 }
 
 async function bearerToken(client: ApiClient, email: string) {
@@ -83,13 +87,17 @@ async function bearerToken(client: ApiClient, email: string) {
   return (response.body() as { token: string }).token;
 }
 
-function initiateTus(client: ApiClient, token: string) {
+function initiateTus(
+  client: ApiClient,
+  token: string,
+  metadata = "filename dGVzdC5tcDQ="
+) {
   return client
     .post("/videos/tus")
     .header("Authorization", `Bearer ${token}`)
     .header("Tus-Resumable", "1.0.0")
     .header("Upload-Length", "1024")
-    .header("Upload-Metadata", "filename dGVzdC5tcDQ=");
+    .header("Upload-Metadata", metadata);
 }
 
 test.group("Videos / tus upload limit", (group) => {
@@ -143,5 +151,41 @@ test.group("Videos / tus upload limit", (group) => {
       message:
         "You can only upload 3 videos. Delete an existing video to upload a new one.",
     });
+  });
+});
+
+test.group("Videos / tus upload owner", (group) => {
+  group.setup(async () => {
+    await db.execute(sql`truncate table ${users} cascade`);
+  });
+
+  group.each.teardown(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  test("tags the Stream upload with the uploader, whatever the client sends", async ({
+    assert,
+    client,
+  }) => {
+    const dancer = await createPremiumDancer();
+    const token = await bearerToken(client, dancer.email);
+    const spoofed = Buffer.from(faker.string.uuid()).toString("base64");
+
+    const uploads = mockCloudflare("pendingupload");
+    const response = await initiateTus(
+      client,
+      token,
+      `filename dGVzdC5tcDQ=,userId ${spoofed}`
+    );
+
+    response.assertStatus(201);
+    assert.lengthOf(uploads, 1);
+    assert.equal(uploads[0].get("Upload-Creator"), dancer.id);
+    const metadata = uploads[0].get("Upload-Metadata")!.split(",");
+    assert.include(
+      metadata,
+      `userId ${Buffer.from(dancer.id).toString("base64")}`
+    );
+    assert.notInclude(metadata, `userId ${spoofed}`);
   });
 });
