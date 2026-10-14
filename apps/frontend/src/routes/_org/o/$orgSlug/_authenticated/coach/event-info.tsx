@@ -19,6 +19,7 @@ import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { orgQueries } from "@/features/org/api/queries";
 import { useOrg } from "@/features/org/context/use-org";
+import { dashboardRoster } from "@/features/org/lib/dashboard-roster";
 import { client } from "@/lib/api/client";
 import {
   AccentDot,
@@ -42,11 +43,16 @@ export const Route = createFileRoute(
 
 function EventInfo() {
   const { orgSlug } = Route.useParams();
-  const { isAdmin, myRoster } = useOrg();
+  const { isAdmin, myRoster, myRosters } = useOrg();
   const { data: events } = useQuery(adminQueries.events(orgSlug));
   const activeEvent = events?.find((e) => e.isActive) ?? null;
+  const roster = dashboardRoster(myRosters, {
+    isAdmin,
+    myRoster,
+    activeEventId: activeEvent?.id,
+  });
   const rosterEvent =
-    events?.find((event) => event.id === myRoster?.eventId) ?? null;
+    events?.find((event) => event.id === roster?.eventId) ?? null;
 
   if (!activeEvent && !rosterEvent) {
     return (
@@ -56,14 +62,14 @@ function EventInfo() {
     );
   }
 
-  if (isAdmin && !myRoster && activeEvent) {
+  if (isAdmin && !roster && activeEvent) {
     return <AttendEventGate orgSlug={orgSlug} eventName={activeEvent.name} />;
   }
 
   const event = rosterEvent ?? activeEvent;
   if (!event) return null;
 
-  if (!isAdmin && myRoster && (!myRoster.isActive || !myRoster.hasStarted)) {
+  if (!isAdmin && roster && (!roster.isActive || !roster.hasStarted)) {
     return <PreEventDashboard orgSlug={orgSlug} event={event} />;
   }
 
