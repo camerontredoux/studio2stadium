@@ -1,4 +1,5 @@
 import { E_BAD_REQUEST } from "#exceptions/bad-request";
+import { E_NOT_FOUND } from "#exceptions/not-found";
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
 import { DeleteProfileVideoService } from "./service.ts";
@@ -10,8 +11,11 @@ export default class DeleteProfileVideoController {
     const payload = await ctx.request.validateUsing(schema);
 
     try {
-      await service.execute(payload);
+      await service.execute(ctx.auth.user!.id, payload);
     } catch (e) {
+      if (e instanceof E_NOT_FOUND) {
+        throw e;
+      }
       if (e instanceof Error) {
         throw new E_BAD_REQUEST(e.message);
       }
