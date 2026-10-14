@@ -22,6 +22,8 @@ function extractTusErrorMessage(error: Error | tus.DetailedError): string {
   return error.message;
 }
 
+const TUS_CHUNK_SIZE = 10 * 1024 * 1024;
+
 // Use proxy in development to avoid cross-origin cookie issues
 const getTusEndpoint = () => {
   if (import.meta.env.DEV) {
@@ -45,7 +47,13 @@ export function uploadVideoTus({
       }
     },
     endpoint: endpoint ?? getTusEndpoint(),
-    retryDelays: [0, 1000, 3000, 5000],
+    // Without a chunk size the whole file goes up in one PATCH, which mobile
+    // browsers drop on a network blip with no response, and a retry restarts
+    // from byte 0. Cloudflare needs chunks of at least 5 MiB in multiples of
+    // 256 KiB, and caps a chunk at 200 MiB.
+    chunkSize: TUS_CHUNK_SIZE,
+    // Long enough to ride out a phone switching networks.
+    retryDelays: [0, 1000, 3000, 5000, 10000, 20000, 30000],
     metadata: {
       filename: file.name,
       filetype: file.type,
