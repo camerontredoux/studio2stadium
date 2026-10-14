@@ -29,6 +29,7 @@ export class GetMyOrgsService {
     return this.db.use(async (db) => {
       const [account] = await db
         .select({
+          role: users.role,
           tier: users.orgAccountTier,
           expiresAt: users.orgAccountTierExpiresAt,
         })
@@ -151,9 +152,14 @@ export class GetMyOrgsService {
       }
 
       // Coach and admin entries are staff access, unrelated to the dancer tier,
-      // so an expired window never hides them.
+      // so an expired window never hides them. Platform admins and the org's
+      // own admins keep it too, even when their only entry there is a dancer one.
+      const platformAdmin =
+        account?.role === "admin" || account?.role === "prodigy_admin";
       return [...orgsById.values()].filter(
         (org) =>
+          platformAdmin ||
+          org.role === "admin" ||
           !(
             org.type === "dancer" &&
             (dancerAccessExpired || orgWindowClosed.has(org.id))

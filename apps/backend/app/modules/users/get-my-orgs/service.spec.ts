@@ -31,7 +31,8 @@ async function createUser(
   email: string,
   type: "dancer" | "school",
   tier: "standard" | "limited" | null,
-  expiresAt: Date | null
+  expiresAt: Date | null,
+  role: "admin" | "prodigy_admin" | "user" = "user"
 ) {
   const [u] = await db
     .insert(users)
@@ -42,7 +43,7 @@ async function createUser(
       firstName: "Test",
       lastName: "User",
       password: "x",
-      role: "user",
+      role,
       type,
       verified: true,
       orgAccountTier: tier,
@@ -224,6 +225,44 @@ test.group("GetMyOrgsService", (group) => {
     const result = await service().execute(dancer.id);
     assert.lengthOf(result, 1);
     assert.equal(result[0]!.slug, "theorg");
+  });
+
+  test("never hides the org from a platform admin with only an expired dancer entry", async ({
+    assert,
+  }) => {
+    // Staff test the dancer experience by rostering themselves as a dancer.
+    // Neither the account window nor the org's own window hides it from them.
+    for (const role of ["admin", "prodigy_admin"] as const) {
+      const admin = await createUser(
+        `${role}@x.co`,
+        "dancer",
+        "standard",
+        PAST,
+        role
+      );
+      await roster(admin.id, "dancer", await pastEvent(12));
+
+      const result = await service().execute(admin.id);
+      assert.lengthOf(result, 1, role);
+      assert.equal(result[0]!.slug, "theorg");
+    }
+  });
+
+  test("never hides the org from its admin with only an expired dancer entry", async ({
+    assert,
+  }) => {
+    const admin = await createUser("orgadmin@x.co", "dancer", "standard", PAST);
+    await db.insert(orgMemberships).values({
+      userId: admin.id,
+      orgId: org.id,
+      type: "dancer",
+      role: "admin",
+    });
+    await roster(admin.id, "dancer", await pastEvent(12));
+
+    const result = await service().execute(admin.id);
+    assert.lengthOf(result, 1);
+    assert.equal(result[0]!.role, "admin");
   });
 
   test("keeps a coach rostered on an old event", async ({ assert }) => {
