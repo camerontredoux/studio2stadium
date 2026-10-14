@@ -90,13 +90,13 @@ async function bearerToken(client: ApiClient, email: string) {
 function initiateTus(
   client: ApiClient,
   token: string,
-  metadata = "filename dGVzdC5tcDQ="
+  { metadata = "filename dGVzdC5tcDQ=", uploadLength = "1024" } = {}
 ) {
   return client
     .post("/videos/tus")
     .header("Authorization", `Bearer ${token}`)
     .header("Tus-Resumable", "1.0.0")
-    .header("Upload-Length", "1024")
+    .header("Upload-Length", uploadLength)
     .header("Upload-Metadata", metadata);
 }
 
@@ -172,11 +172,9 @@ test.group("Videos / tus upload owner", (group) => {
     const spoofed = Buffer.from(faker.string.uuid()).toString("base64");
 
     const uploads = mockCloudflare("pendingupload");
-    const response = await initiateTus(
-      client,
-      token,
-      `filename dGVzdC5tcDQ=,userId ${spoofed}`
-    );
+    const response = await initiateTus(client, token, {
+      metadata: `filename dGVzdC5tcDQ=,userId ${spoofed}`,
+    });
 
     response.assertStatus(201);
     assert.lengthOf(uploads, 1);
@@ -187,5 +185,42 @@ test.group("Videos / tus upload owner", (group) => {
       `userId ${Buffer.from(dancer.id).toString("base64")}`
     );
     assert.notInclude(metadata, `userId ${spoofed}`);
+  });
+});
+
+test.group("Videos / tus upload size", (group) => {
+  group.setup(async () => {
+    await db.execute(sql`truncate table ${users} cascade`);
+  });
+
+  group.each.teardown(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  test("rejects an Upload-Length of {$self}")
+    .with(["abc", "0", "524288001"])
+    .run(async ({ client }, uploadLength) => {
+      const dancer = await createPremiumDancer();
+      const token = await bearerToken(client, dancer.email);
+      mockCloudflare("pendingupload");
+
+      const response = await initiateTus(client, token, { uploadLength });
+
+      response.assertStatus(400);
+      response.assertBodyContains({
+        error: "The video must be smaller than 500MB.",
+      });
+    });
+
+  test("accepts an upload of exactly 500MB", async ({ client }) => {
+    const dancer = await createPremiumDancer();
+    const token = await bearerToken(client, dancer.email);
+    mockCloudflare("pendingupload");
+
+    const response = await initiateTus(client, token, {
+      uploadLength: "524288000",
+    });
+
+    response.assertStatus(201);
   });
 });
