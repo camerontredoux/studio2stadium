@@ -64,7 +64,7 @@ export function VideoUploadDialog({
   const hasReachedYoutubeLimit = isYoutubeOnly && youtubeCount >= youtubeLimit;
   const cloudflareLimit = 3;
   const hasReachedCloudflareLimit = videoCount >= cloudflareLimit;
-  const { setIsProcessing } = useVideoProcessing();
+  const { trackUpload } = useVideoProcessing();
   const queryClient = useQueryClient();
 
   const [uploading, setUploading] = useState(false);
@@ -131,8 +131,8 @@ export function VideoUploadDialog({
     const upload = uploadVideoTus({
       file,
       onProgress: setProgress,
-      onSuccess: () => {
-        setIsProcessing(true);
+      onSuccess: (mediaId) => {
+        if (mediaId) trackUpload(mediaId);
         toastManager.add({
           title: "Upload complete",
           description:

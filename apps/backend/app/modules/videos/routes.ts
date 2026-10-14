@@ -7,6 +7,7 @@ const DeleteProfileVideoController = () =>
 const TusUploadController = () => import("./tus-upload/controller.ts");
 const AddYoutubeVideoController = () =>
   import("./add-youtube-video/controller.ts");
+const GetVideoUploadController = () => import("./get-upload/controller.ts");
 
 router
   .group(() => {
@@ -33,6 +34,12 @@ router
         description: "Add a YouTube video to the user's profile",
       })
       .use(middleware.profile());
+
+    router.get("uploads/:mediaId", [GetVideoUploadController]).openapi({
+      summary: "Get a video upload",
+      description:
+        "Returns the processing status of one of the user's video uploads. Admins can read any upload.",
+    });
   })
   .use(middleware.auth())
   .prefix("videos")

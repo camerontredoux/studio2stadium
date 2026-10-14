@@ -10415,6 +10415,47 @@
         "summary": "Add YouTube video",
         "description": "Add a YouTube video to the user's profile"
       }
+    },
+    "/videos/uploads/{mediaId}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "mediaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideosUploadsIdResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Videos"
+        ],
+        "summary": "Get a video upload",
+        "description": "Returns the processing status of one of the user's video uploads. Admins can read any upload."
+      }
     }
   },
   "components": {
@@ -24209,6 +24250,38 @@
         "required": [
           "id",
           "mediaId"
+        ]
+      },
+      "VideosUploadsIdResponse": {
+        "type": "object",
+        "properties": {
+          "mediaId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "processing",
+              "pending",
+              "ready",
+              "failed"
+            ]
+          },
+          "errorMessage": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "mediaId",
+          "status",
+          "errorMessage"
         ]
       }
     }

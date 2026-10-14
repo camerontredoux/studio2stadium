@@ -2,7 +2,9 @@ import { createContext } from "react";
 
 export interface VideoProcessingContextValue {
   isProcessing: boolean;
-  setIsProcessing: (value: boolean) => void;
+  pendingUploads: string[];
+  trackUpload: (mediaId: string) => void;
+  untrackUpload: (mediaId: string) => void;
 }
 
 export const VideoProcessingContext =
