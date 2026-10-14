@@ -28,7 +28,7 @@ export class Service {
   ): Promise<InitiateUploadResult> {
     const { userId, uploadLength, uploadMetadata } = params;
 
-    const [[completedCount], [pendingCount], dancerProfile, permissions] =
+    const [[completedCount], unfinishedUploads, dancerProfile, permissions] =
       await Promise.all([
         this.db.use((db) =>
           db
@@ -40,7 +40,7 @@ export class Service {
         ),
         this.db.use((db) =>
           db
-            .select({ count: count() })
+            .select({ cloudflareMediaId: videoUploads.cloudflareMediaId })
             .from(videoUploads)
             .where(
               and(
@@ -70,8 +70,13 @@ export class Service {
     }
 
     const videoLimit = permissions.directVideoLimit;
-    const totalVideos = completedCount.count + pendingCount.count;
-    if (videoLimit !== null && totalVideos >= videoLimit) {
+    if (
+      videoLimit !== null &&
+      completedCount.count + unfinishedUploads.length >= videoLimit &&
+      completedCount.count +
+        (await this.countReceivedUploads(unfinishedUploads)) >=
+        videoLimit
+    ) {
       return {
         error: "limit_exceeded",
         message: `You can only upload ${videoLimit} videos. Delete an existing video to upload a new one.`,
@@ -125,5 +130,51 @@ export class Service {
     );
 
     return { location, streamMediaId };
+  }
+
+  // An unfinished upload only counts toward the limit once Cloudflare has all
+  // of its bytes. One that failed or was abandoned mid-transfer stays in
+  // `pendingupload` (or `error`) until the reaper cron clears it hours later,
+  // and must not block the user's retry in the meantime. Only called when the
+  // user is at the limit, so most uploads skip these Cloudflare calls.
+  private async countReceivedUploads(uploads: { cloudflareMediaId: string }[]) {
+    const received = await Promise.all(
+      uploads.map((upload) => this.hasReceivedBytes(upload.cloudflareMediaId))
+    );
+    return received.filter(Boolean).length;
+  }
+
+  private async hasReceivedBytes(mediaId: string) {
+    try {
+      const response = await fetch(
+        `https://api.cloudflare.com/client/v4/accounts/${env.get(
+          "CLOUDFLARE_ACCOUNT_ID"
+        )}/stream/${mediaId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${env.get("CLOUDFLARE_STREAM_TOKEN")}`,
+          },
+        }
+      );
+
+      if (response.status === 404) {
+        return false;
+      }
+
+      if (!response.ok) {
+        return true;
+      }
+
+      const body = (await response.json()) as {
+        result?: { status?: { state?: string } };
+      };
+      const state = body.result?.status?.state;
+      return state !== "pendingupload" && state !== "error";
+    } catch {
+      // Cloudflare unreachable: keep counting it rather than let users exceed
+      // the limit.
+      return true;
+    }
   }
 }
