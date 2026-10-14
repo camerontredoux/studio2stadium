@@ -5,7 +5,7 @@ import { organizations, orgMemberships } from "#database/schema/organizations";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { users } from "#database/schema/users";
 import { inject } from "@adonisjs/core";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 
 export interface MyOrgEntry {
   id: string;
@@ -37,9 +37,9 @@ export class GetMyOrgsService {
         .limit(1);
 
       // Once the advisory window closes the dancer is a plain free user, so the
-      // org stops appearing for her. Only a lapsed window hides anything: a
-      // dancer still inside hers, and one who never had a tier at all (an unpaid
-      // free-tier attendee), both keep seeing the org they are rostered on.
+      // org stops appearing for her. A dancer who never had a tier at all (an
+      // unpaid free-tier attendee) has no account window, so only the org's own
+      // window below can hide it from her.
       const dancerAccessExpired = Boolean(
         account?.tier && account.expiresAt && account.expiresAt < new Date()
       );
@@ -55,6 +55,13 @@ export class GetMyOrgsService {
             rosterType: eventRosters.type,
             membershipRole: orgMemberships.role,
             membershipType: orgMemberships.type,
+            orgFeatures: organizations.features,
+            orgSettings: organizations.settings,
+            // The end of her latest Org Event as a dancer in this org. Her
+            // access there runs from it, so a newer upload refreshes it.
+            latestDancerEnd: sql<
+              string | null
+            >`max(case when ${eventRosters.type} = 'dancer' then ${orgEvents.endDate} end) over (partition by ${organizations.id})`,
           })
           .from(eventRosters)
           .innerJoin(orgEvents, eq(orgEvents.id, eventRosters.eventId))
@@ -85,6 +92,24 @@ export class GetMyOrgsService {
       ]);
 
       const orgsById = new Map<string, MyOrgEntry>();
+      const now = new Date();
+      // Each org sets its own window (1 month, 3 months, ...). The account
+      // window above can be held open by a different org, so check this one's
+      // too: once her latest event here is that far behind her, the org hides
+      // until she is uploaded to a newer one.
+      const orgWindowClosed = new Set<string>();
+      for (const r of rosterRows) {
+        if (!r.latestDancerEnd) continue;
+        const features =
+          (r.orgFeatures as Record<string, unknown> | null) ?? {};
+        const settings =
+          (r.orgSettings as Record<string, unknown> | null) ?? {};
+        const tierExpiryMonths =
+          Number(settings.tierExpiryMonths ?? features.tierExpiryMonths) || 3;
+        const expiresAt = new Date(r.latestDancerEnd);
+        expiresAt.setMonth(expiresAt.getMonth() + tierExpiryMonths);
+        if (expiresAt < now) orgWindowClosed.add(r.id);
+      }
 
       // A person can hold more than one membership in an org (ADR 0003), so
       // collapse them to the highest-privilege one rather than letting the last
@@ -128,7 +153,11 @@ export class GetMyOrgsService {
       // Coach and admin entries are staff access, unrelated to the dancer tier,
       // so an expired window never hides them.
       return [...orgsById.values()].filter(
-        (org) => !(dancerAccessExpired && org.type === "dancer")
+        (org) =>
+          !(
+            org.type === "dancer" &&
+            (dancerAccessExpired || orgWindowClosed.has(org.id))
+          )
       );
     });
   }
