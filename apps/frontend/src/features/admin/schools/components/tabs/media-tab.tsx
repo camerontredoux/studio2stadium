@@ -10,16 +10,18 @@ import {
 } from "@/features/admin/api/mutations";
 import { adminQueries } from "@/features/admin/api/queries";
 import { handleApiError } from "@/lib/api/errors";
+import { uploadOutcome } from "@/lib/video-processing/pending-uploads";
 import type { ApiSchemas } from "@/lib/api/client";
 import { useRequestUpload } from "@/shared/images/api/mutations";
 import { ImageUploadField } from "@/shared/images/components/image-upload-field";
+import { videoQueries } from "@/shared/videos/api/queries";
 import { videoUploadSchema as videoSchema } from "@/shared/videos/schema";
 import { VideoUploadField } from "@/shared/videos/components/video-upload-field";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
 import { uploadVideoTus } from "@/utils/upload-video-tus";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ImageIcon, TrashIcon, VideoIcon } from "lucide-react";
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Controller, FormProvider, useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -196,51 +198,46 @@ export const MediaTab = forwardRef<TabHandle, MediaTabProps>(
     const [videoProgress, setVideoProgress] = useState(0);
     const tusRef = useRef<tus.Upload | null>(null);
 
-    const [isVideoProcessing, setIsVideoProcessing] = useState(false);
-    const videoCountAtUpload = useRef<number | null>(null);
+    // Follows the upload by id, so a failed encode ends the wait too.
+    const [processingMediaId, setProcessingMediaId] = useState<string | null>(
+      null,
+    );
+    const processingUpload = useQuery({
+      ...videoQueries.upload(processingMediaId ?? ""),
+      enabled: processingMediaId !== null,
+    });
+    const isVideoProcessing = processingMediaId !== null;
 
-    const cfVideoCount = videos.filter((v) => v.type === "cloudflare").length;
     useEffect(() => {
-      if (
-        isVideoProcessing &&
-        videoCountAtUpload.current !== null &&
-        cfVideoCount > videoCountAtUpload.current
-      ) {
-        setIsVideoProcessing(false);
-        videoCountAtUpload.current = null;
+      if (!processingMediaId || !processingUpload.isSuccess) return;
+      const outcome = uploadOutcome(processingUpload.data);
+      if (outcome === "processing") return;
+
+      setProcessingMediaId(null);
+      if (outcome === "ready") {
+        queryClient.invalidateQueries({
+          queryKey: adminQueries.schoolEvents(username).queryKey,
+        });
         toastManager.add({
           title: "Video ready",
           description: "The video has been processed.",
           type: "success",
         });
-      }
-    }, [cfVideoCount, isVideoProcessing]);
-
-    const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-    const startPolling = useCallback(() => {
-      if (pollRef.current) return;
-      pollRef.current = setInterval(() => {
-        queryClient.invalidateQueries({
-          queryKey: adminQueries.schoolEvents(username).queryKey,
+      } else if (outcome === "failed") {
+        toastManager.add({
+          title: "Video processing failed",
+          description:
+            processingUpload.data?.errorMessage || "Please try uploading again.",
+          type: "error",
         });
-      }, 5000);
-    }, [queryClient, username]);
-
-    const stopPolling = useCallback(() => {
-      if (pollRef.current) {
-        clearInterval(pollRef.current);
-        pollRef.current = null;
       }
-    }, []);
-
-    useEffect(() => {
-      if (isVideoProcessing) {
-        startPolling();
-      } else {
-        stopPolling();
-      }
-      return stopPolling;
-    }, [isVideoProcessing, startPolling, stopPolling]);
+    }, [
+      processingMediaId,
+      processingUpload.isSuccess,
+      processingUpload.data,
+      queryClient,
+      username,
+    ]);
 
     const hasImageFile = imageForm.watch("files").length > 0;
     const hasVideoFile = videoForm.watch("files").length > 0;
@@ -317,14 +314,13 @@ export const MediaTab = forwardRef<TabHandle, MediaTabProps>(
         file,
         endpoint: getTusEndpoint(username),
         onProgress: setVideoProgress,
-        onSuccess: () => {
+        onSuccess: (mediaId) => {
           toastManager.add({
             title: "Upload complete",
             description: "Video is being processed.",
             type: "success",
           });
-          videoCountAtUpload.current = cfVideoCount;
-          setIsVideoProcessing(true);
+          if (mediaId) setProcessingMediaId(mediaId);
           setVideoUploading(false);
           setVideoProgress(0);
           videoForm.reset();
