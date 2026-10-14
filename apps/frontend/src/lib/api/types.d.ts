@@ -11169,6 +11169,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/videos/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get video permissions
+         * @description Returns which videos the user can add, the direct upload limit, and how many direct uploads are left.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["VideosPermissionsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/videos/uploads/{mediaId}": {
         parameters: {
             query?: never;
@@ -13669,6 +13708,15 @@ export interface components {
         VideosYoutubeResponse: {
             id: string;
             mediaId: string;
+        };
+        VideosPermissionsResponse: {
+            directVideosRemaining: number | null;
+            canUploadDirectVideo: boolean;
+            canAddYoutubeVideo: boolean;
+            canUploadPhoto: boolean;
+            directVideoLimit: number | null;
+            youtubeLimit: number | null;
+            photoLimit: number | null;
         };
         VideosUploadsIdResponse: {
             mediaId: string;

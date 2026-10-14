@@ -21,26 +21,25 @@ import { $api } from "@/lib/api/client";
 import { useSession } from "@/lib/session";
 import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { useVideoProcessing } from "@/lib/video-processing";
+import { videoQueries } from "@/shared/videos/api/queries";
 import {
   VideoUploadForm,
   type FormValues,
 } from "@/shared/videos/components/video-upload-form";
 import { getYouTubeId } from "@/utils/get-youtube-id";
 import { uploadVideoTus } from "@/utils/upload-video-tus";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { CrownIcon, VideoIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import type * as tus from "tus-js-client";
 
 interface VideoUploadDialogProps {
-  videoCount: number;
   youtubeCount: number;
   orgAccountTier?: string | null;
 }
 
 export function VideoUploadDialog({
-  videoCount,
   youtubeCount,
   orgAccountTier,
 }: VideoUploadDialogProps) {
@@ -62,8 +61,11 @@ export function VideoUploadDialog({
   const isYoutubeOnly = !subscribed && isOrgStandard;
   const youtubeLimit = 3;
   const hasReachedYoutubeLimit = isYoutubeOnly && youtubeCount >= youtubeLimit;
-  const cloudflareLimit = 3;
-  const hasReachedCloudflareLimit = videoCount >= cloudflareLimit;
+  // The server decides the direct upload limit, and counts uploads that are
+  // still processing. Schools have no limit.
+  const { data: permissions } = useQuery(videoQueries.permissions());
+  const cloudflareLimit = permissions?.directVideoLimit ?? null;
+  const hasReachedCloudflareLimit = permissions?.directVideosRemaining === 0;
   const { trackUpload } = useVideoProcessing();
   const queryClient = useQueryClient();
 
@@ -133,6 +135,9 @@ export function VideoUploadDialog({
       onProgress: setProgress,
       onSuccess: (mediaId) => {
         if (mediaId) trackUpload(mediaId);
+        queryClient.invalidateQueries({
+          queryKey: videoQueries.permissions().queryKey,
+        });
         toastManager.add({
           title: "Upload complete",
           description:
@@ -202,11 +207,13 @@ export function VideoUploadDialog({
         <span className="text-muted-foreground group-hover:text-foreground text-sm font-medium transition-colors">
           Video
         </span>
-        {!isYoutubeOnly && hasReachedCloudflareLimit && (
-          <span className="text-muted-foreground text-xs font-medium">
-            Limit {cloudflareLimit}/{cloudflareLimit}
-          </span>
-        )}
+        {!isYoutubeOnly &&
+          hasReachedCloudflareLimit &&
+          cloudflareLimit !== null && (
+            <span className="text-muted-foreground text-xs font-medium">
+              Limit {cloudflareLimit}/{cloudflareLimit}
+            </span>
+          )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -245,8 +252,9 @@ export function VideoUploadDialog({
               <TabsContent value="file" className="mt-4">
                 {hasReachedCloudflareLimit ? (
                   <div className="bg-muted/40 text-muted-foreground rounded-md p-4 text-sm">
-                    You have reached your cloud upload limit. You can still add
-                    videos using a YouTube link.
+                    You have used all {cloudflareLimit} video uploads. Videos
+                    that are still processing count too. You can still add a
+                    YouTube link.
                   </div>
                 ) : (
                   <VideoUploadForm

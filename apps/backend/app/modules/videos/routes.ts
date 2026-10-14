@@ -8,6 +8,8 @@ const TusUploadController = () => import("./tus-upload/controller.ts");
 const AddYoutubeVideoController = () =>
   import("./add-youtube-video/controller.ts");
 const GetVideoUploadController = () => import("./get-upload/controller.ts");
+const GetVideoPermissionsController = () =>
+  import("./get-permissions/controller.ts");
 
 router
   .group(() => {
@@ -34,6 +36,12 @@ router
         description: "Add a YouTube video to the user's profile",
       })
       .use(middleware.profile());
+
+    router.get("permissions", [GetVideoPermissionsController]).openapi({
+      summary: "Get video permissions",
+      description:
+        "Returns which videos the user can add, the direct upload limit, and how many direct uploads are left.",
+    });
 
     router.get("uploads/:mediaId", [GetVideoUploadController]).openapi({
       summary: "Get a video upload",

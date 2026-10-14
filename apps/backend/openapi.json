@@ -10416,6 +10416,28 @@
         "description": "Add a YouTube video to the user's profile"
       }
     },
+    "/videos/permissions": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideosPermissionsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Videos"
+        ],
+        "summary": "Get video permissions",
+        "description": "Returns which videos the user can add, the direct upload limit, and how many direct uploads are left."
+      }
+    },
     "/videos/uploads/{mediaId}": {
       "get": {
         "parameters": [
@@ -24250,6 +24272,69 @@
         "required": [
           "id",
           "mediaId"
+        ]
+      },
+      "VideosPermissionsResponse": {
+        "type": "object",
+        "properties": {
+          "directVideosRemaining": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "canUploadDirectVideo": {
+            "type": "boolean"
+          },
+          "canAddYoutubeVideo": {
+            "type": "boolean"
+          },
+          "canUploadPhoto": {
+            "type": "boolean"
+          },
+          "directVideoLimit": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "youtubeLimit": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "photoLimit": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "directVideosRemaining",
+          "canUploadDirectVideo",
+          "canAddYoutubeVideo",
+          "canUploadPhoto",
+          "directVideoLimit",
+          "youtubeLimit",
+          "photoLimit"
         ]
       },
       "VideosUploadsIdResponse": {

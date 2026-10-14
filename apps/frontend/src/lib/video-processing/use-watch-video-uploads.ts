@@ -3,6 +3,7 @@ import { dancerQueries } from "@/features/dancer/api/queries";
 import { schoolQueries } from "@/features/school/api/queries";
 import { client } from "@/lib/api/client";
 import { useSession } from "@/lib/session/hooks/use-session";
+import { videoQueries } from "@/shared/videos/api/queries";
 import { videoUploadErrorMessage } from "@/utils/video-duration";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -54,6 +55,9 @@ export function useWatchVideoUploads() {
 
       handled.current.add(mediaId);
       untrackUpload(mediaId);
+      queryClient.invalidateQueries({
+        queryKey: videoQueries.permissions().queryKey,
+      });
 
       if (outcome === "ready") {
         toastManager.add({

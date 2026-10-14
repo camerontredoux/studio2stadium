@@ -1,6 +1,6 @@
 import { dancerProfiles } from "#database/schema/dancers";
 import { videos, videoUploads } from "#database/schema/media";
-import { DatabaseService } from "#database/service";
+import { DatabaseService, type Transaction } from "#database/service";
 import { GetMediaPermissionsService } from "#modules/media/permissions/service";
 import { streamUploadHeaders } from "#shared/cloudflare/stream";
 import env from "#start/env";
@@ -59,30 +59,8 @@ export class Service {
           sql`select pg_advisory_xact_lock(hashtext(${userId}))`
         );
 
-        const [[completedCount], unfinishedUploads] = await Promise.all([
-          tx
-            .select({ count: count() })
-            .from(videos)
-            .where(
-              and(eq(videos.userId, userId), eq(videos.type, "cloudflare"))
-            ),
-          tx
-            .select({ cloudflareMediaId: videoUploads.cloudflareMediaId })
-            .from(videoUploads)
-            .where(
-              and(
-                eq(videoUploads.userId, userId),
-                isNull(videoUploads.videoId),
-                ne(videoUploads.status, "failed")
-              )
-            ),
-        ]);
-
         if (
-          completedCount.count + unfinishedUploads.length >= videoLimit &&
-          completedCount.count +
-            (await this.countReceivedUploads(unfinishedUploads)) >=
-            videoLimit
+          (await this.countDirectVideos(tx, userId, videoLimit)) >= videoLimit
         ) {
           return {
             error: "limit_exceeded" as const,
@@ -129,6 +107,47 @@ export class Service {
 
       return { location, streamMediaId };
     });
+  }
+
+  async directVideosRemaining(userId: string, limit: number | null) {
+    if (limit === null) return null;
+    const used = await this.db.use((db) =>
+      this.countDirectVideos(db, userId, limit)
+    );
+    return Math.max(0, limit - used);
+  }
+
+  // Exact only at the limit: below it, the count may include uploads that
+  // never finished, which saves the Cloudflare calls on most requests.
+  private async countDirectVideos(
+    db: Pick<Transaction, "select">,
+    userId: string,
+    limit: number
+  ) {
+    const [[completedCount], unfinishedUploads] = await Promise.all([
+      db
+        .select({ count: count() })
+        .from(videos)
+        .where(and(eq(videos.userId, userId), eq(videos.type, "cloudflare"))),
+      db
+        .select({ cloudflareMediaId: videoUploads.cloudflareMediaId })
+        .from(videoUploads)
+        .where(
+          and(
+            eq(videoUploads.userId, userId),
+            isNull(videoUploads.videoId),
+            ne(videoUploads.status, "failed")
+          )
+        ),
+    ]);
+
+    const total = completedCount.count + unfinishedUploads.length;
+    if (total < limit) return total;
+
+    return (
+      completedCount.count +
+      (await this.countReceivedUploads(unfinishedUploads))
+    );
   }
 
   // An unfinished upload only counts toward the limit once Cloudflare has all

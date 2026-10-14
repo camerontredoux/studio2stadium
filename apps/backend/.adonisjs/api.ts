@@ -987,6 +987,10 @@ type VideosYoutubePost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/videos/add-youtube-video/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/videos/add-youtube-video/controller.ts').default['handle'], true>
 }
+type VideosPermissionsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/videos/get-permissions/controller.ts').default['handle'], false>
+}
 type VideosUploadsIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/videos/get-upload/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/videos/get-upload/controller.ts').default['handle'], true>
@@ -2246,6 +2250,12 @@ export interface ApiDefinition {
       '$url': {
       };
       '$post': VideosYoutubePost;
+    };
+    'permissions': {
+      '$url': {
+      };
+      '$get': VideosPermissionsGetHead;
+      '$head': VideosPermissionsGetHead;
     };
     'uploads': {
       ':mediaId': {
