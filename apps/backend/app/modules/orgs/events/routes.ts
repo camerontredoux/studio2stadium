@@ -391,6 +391,7 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
+        middleware.orgEvent("scoped"),
         middleware.orgEvent("dancerSelfRead"),
         middleware.orgMember(),
       ]);
@@ -401,6 +402,7 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
+        middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
       ]);
@@ -411,6 +413,7 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
+        middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
       ]);
@@ -421,6 +424,7 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
+        middleware.orgEvent("scoped"),
         middleware.orgEvent("dancerSelfRead"),
         middleware.orgMember(),
       ]);
@@ -429,6 +433,7 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
+        middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
       ]);
@@ -437,6 +442,7 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
+        middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
       ]);
@@ -445,6 +451,7 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
+        middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
       ]);
@@ -455,6 +462,7 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
+        middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
       ]);
