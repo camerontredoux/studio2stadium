@@ -63,7 +63,7 @@ async function createSchool() {
   const user = await createUser("school");
   await db
     .insert(schoolProfiles)
-    .values({ userId: user.id, name: "Test University", location: "NY" });
+    .values({ userId: user.id, name: faker.company.name(), location: "NY" });
   return user;
 }
 
@@ -134,5 +134,38 @@ test.group("Dancers / get dancer / tier gates for schools", (group) => {
     assert.lengthOf(response.body().images, 1);
     assert.lengthOf(response.body().videos, 1);
     assert.equal(response.body().submission.youtubeId, "dQw4w9WgXcQ");
+  });
+});
+
+test.group("Dancers / get dancer / cached school view", (group) => {
+  const originalFetch = globalThis.fetch;
+
+  group.each.setup(async () => {
+    await db.execute(sql`truncate table ${users} cascade`);
+    await cache.clear();
+  });
+
+  group.each.teardown(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  test("a deleted video leaves the school's view at once", async ({
+    client,
+    assert,
+  }) => {
+    const dancer = await createDancer("standard");
+    const before = await viewAsSchool(client, dancer.username);
+    assert.lengthOf(before.videos, 1);
+
+    // Cloudflare accepts the Stream delete.
+    globalThis.fetch = async () => new Response(null, { status: 200 });
+    const token = await bearerToken(client, dancer.email);
+    const deleted = await client
+      .delete(`/videos/${before.videos[0].id}`)
+      .header("Authorization", `Bearer ${token}`);
+    deleted.assertStatus(204);
+
+    const after = await viewAsSchool(client, dancer.username);
+    assert.deepEqual(after.videos, []);
   });
 });
