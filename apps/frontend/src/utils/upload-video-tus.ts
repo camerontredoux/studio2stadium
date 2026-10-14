@@ -4,7 +4,7 @@ import { videoUploadErrorMessage } from "./video-duration";
 interface TusUploadOptions {
   file: File;
   onProgress: (percent: number) => void;
-  onSuccess: () => void;
+  onSuccess: (mediaId: string) => void;
   onError: (error: Error) => void;
   endpoint?: string;
 }
@@ -40,7 +40,14 @@ export function uploadVideoTus({
   onError,
   endpoint,
 }: TusUploadOptions): tus.Upload {
+  // Our endpoint returns the Stream id on the creation response, which the
+  // caller needs to follow processing.
+  let mediaId = "";
+
   const upload = new tus.Upload(file, {
+    onAfterResponse: (_request, response) => {
+      mediaId ||= response.getHeader("stream-media-id") ?? "";
+    },
     onBeforeRequest: (request) => {
       const xhr = request.getUnderlyingObject();
       if (request.getURL().includes(import.meta.env.VITE_API_URL)) {
@@ -70,7 +77,7 @@ export function uploadVideoTus({
       onProgress(percentage);
     },
     onSuccess: () => {
-      onSuccess();
+      onSuccess(mediaId);
     },
   });
 

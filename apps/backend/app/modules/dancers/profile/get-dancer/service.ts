@@ -59,6 +59,25 @@ export class Service {
     };
   }
 
+  // A school sees only what the profile page shows for the dancer's tier, so
+  // hidden media and the CRV video must not reach it in the response either.
+  async executeForSchool(username: string) {
+    const dancer = await this.execute(username);
+
+    if (!dancer) return null;
+
+    const tier = dancer.subscribed
+      ? "premium"
+      : (dancer.orgAccountTier ?? "free");
+
+    return {
+      ...dancer,
+      images: tier === "limited" ? [] : dancer.images,
+      videos: tier === "limited" ? [] : dancer.videos,
+      submission: tier === "premium" ? dancer.submission : null,
+    };
+  }
+
   async getDancer(username: string) {
     return await this.db.use((db) =>
       db.query.users.findFirst({

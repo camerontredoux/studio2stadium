@@ -5,8 +5,10 @@ import { ToastProvider } from "@/components/ui/toast";
 import { notificationQueries } from "@/features/notifications/api/queries";
 import { createAccess } from "@/lib/access/access";
 import { queries, SessionNetworkError } from "@/lib/session";
-import { useRealtime } from "@/lib/session/hooks/use-realtime";
-import { VideoProcessingProvider } from "@/lib/video-processing";
+import {
+  useWatchVideoUploads,
+  VideoProcessingProvider,
+} from "@/lib/video-processing";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import posthog from "posthog-js";
 
@@ -100,7 +102,7 @@ function RouteComponent() {
 }
 
 function RealtimeWrapper() {
-  useRealtime();
+  useWatchVideoUploads();
 
   return (
     <AppLayout>
