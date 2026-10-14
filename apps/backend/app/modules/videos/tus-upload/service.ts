@@ -5,7 +5,7 @@ import { GetMediaPermissionsService } from "#modules/media/permissions/service";
 import { streamUploadHeaders } from "#shared/cloudflare/stream";
 import env from "#start/env";
 import { inject } from "@adonisjs/core";
-import { and, count, eq, isNull, ne } from "drizzle-orm";
+import { and, count, eq, isNull, ne, sql } from "drizzle-orm";
 
 interface InitiateUploadParams {
   userId: string;
@@ -29,38 +29,17 @@ export class Service {
   ): Promise<InitiateUploadResult> {
     const { userId, uploadLength, uploadMetadata } = params;
 
-    const [[completedCount], unfinishedUploads, dancerProfile, permissions] =
-      await Promise.all([
-        this.db.use((db) =>
-          db
-            .select({ count: count() })
-            .from(videos)
-            .where(
-              and(eq(videos.userId, userId), eq(videos.type, "cloudflare"))
-            )
-        ),
-        this.db.use((db) =>
-          db
-            .select({ cloudflareMediaId: videoUploads.cloudflareMediaId })
-            .from(videoUploads)
-            .where(
-              and(
-                eq(videoUploads.userId, userId),
-                isNull(videoUploads.videoId),
-                ne(videoUploads.status, "failed")
-              )
-            )
-        ),
-        this.db.use((db) =>
-          db
-            .select({ id: dancerProfiles.id })
-            .from(dancerProfiles)
-            .where(eq(dancerProfiles.userId, userId))
-            .limit(1)
-            .then((rows) => rows[0])
-        ),
-        this.permissions.execute(userId),
-      ]);
+    const [dancerProfile, permissions] = await Promise.all([
+      this.db.use((db) =>
+        db
+          .select({ id: dancerProfiles.id })
+          .from(dancerProfiles)
+          .where(eq(dancerProfiles.userId, userId))
+          .limit(1)
+          .then((rows) => rows[0])
+      ),
+      this.permissions.execute(userId),
+    ]);
 
     if (dancerProfile && !permissions.canUploadDirectVideo) {
       return {
@@ -71,58 +50,85 @@ export class Service {
     }
 
     const videoLimit = permissions.directVideoLimit;
-    if (
-      videoLimit !== null &&
-      completedCount.count + unfinishedUploads.length >= videoLimit &&
-      completedCount.count +
-        (await this.countReceivedUploads(unfinishedUploads)) >=
-        videoLimit
-    ) {
-      return {
-        error: "limit_exceeded",
-        message: `You can only upload ${videoLimit} videos. Delete an existing video to upload a new one.`,
-      };
-    }
 
-    const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${env.get(
-        "CLOUDFLARE_ACCOUNT_ID"
-      )}/stream?direct_user=true`,
-      {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${env.get("CLOUDFLARE_STREAM_TOKEN")}`,
-          "Tus-Resumable": "1.0.0",
-          "Upload-Length": uploadLength,
-          ...streamUploadHeaders(uploadMetadata, userId),
-        },
+    return this.db.tx(async (tx) => {
+      if (videoLimit !== null) {
+        // Hold the user's lock from the count to the insert, so uploads
+        // started at the same time cannot all pass the limit.
+        await tx.execute(
+          sql`select pg_advisory_xact_lock(hashtext(${userId}))`
+        );
+
+        const [[completedCount], unfinishedUploads] = await Promise.all([
+          tx
+            .select({ count: count() })
+            .from(videos)
+            .where(
+              and(eq(videos.userId, userId), eq(videos.type, "cloudflare"))
+            ),
+          tx
+            .select({ cloudflareMediaId: videoUploads.cloudflareMediaId })
+            .from(videoUploads)
+            .where(
+              and(
+                eq(videoUploads.userId, userId),
+                isNull(videoUploads.videoId),
+                ne(videoUploads.status, "failed")
+              )
+            ),
+        ]);
+
+        if (
+          completedCount.count + unfinishedUploads.length >= videoLimit &&
+          completedCount.count +
+            (await this.countReceivedUploads(unfinishedUploads)) >=
+            videoLimit
+        ) {
+          return {
+            error: "limit_exceeded" as const,
+            message: `You can only upload ${videoLimit} videos. Delete an existing video to upload a new one.`,
+          };
+        }
       }
-    );
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Cloudflare Stream API error: ${error}`);
-    }
-
-    const location = response.headers.get("location");
-    const streamMediaId = response.headers.get("stream-media-id");
-
-    if (!location || !streamMediaId) {
-      throw new Error(
-        "Missing location or stream-media-id in Cloudflare response"
+      const response = await fetch(
+        `https://api.cloudflare.com/client/v4/accounts/${env.get(
+          "CLOUDFLARE_ACCOUNT_ID"
+        )}/stream?direct_user=true`,
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${env.get("CLOUDFLARE_STREAM_TOKEN")}`,
+            "Tus-Resumable": "1.0.0",
+            "Upload-Length": uploadLength,
+            ...streamUploadHeaders(uploadMetadata, userId),
+          },
+        }
       );
-    }
 
-    // Create video upload record
-    await this.db.use((db) =>
-      db.insert(videoUploads).values({
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Cloudflare Stream API error: ${error}`);
+      }
+
+      const location = response.headers.get("location");
+      const streamMediaId = response.headers.get("stream-media-id");
+
+      if (!location || !streamMediaId) {
+        throw new Error(
+          "Missing location or stream-media-id in Cloudflare response"
+        );
+      }
+
+      // Create video upload record
+      await tx.insert(videoUploads).values({
         userId,
         cloudflareMediaId: streamMediaId,
         status: "pending",
-      })
-    );
+      });
 
-    return { location, streamMediaId };
+      return { location, streamMediaId };
+    });
   }
 
   // An unfinished upload only counts toward the limit once Cloudflare has all

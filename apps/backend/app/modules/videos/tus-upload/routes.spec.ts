@@ -1,6 +1,6 @@
 import { db } from "#database/connection";
 import { dancerProfiles } from "#database/schema/dancers";
-import { videoUploads } from "#database/schema/media";
+import { videos, videoUploads } from "#database/schema/media";
 import { premiumGrants } from "#database/schema/organizations";
 import { users } from "#database/schema/users";
 import { normalizeEmail } from "#utils/normalize-email";
@@ -222,5 +222,54 @@ test.group("Videos / tus upload size", (group) => {
     });
 
     response.assertStatus(201);
+  });
+});
+
+test.group("Videos / tus upload concurrency", (group) => {
+  group.setup(async () => {
+    await db.execute(sql`truncate table ${users} cascade`);
+  });
+
+  group.each.teardown(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  test("uploads started at the same time cannot pass the limit", async ({
+    client,
+    assert,
+  }) => {
+    const dancer = await createPremiumDancer();
+    await db.insert(videos).values(
+      Array.from({ length: 2 }, () => ({
+        userId: dancer.id,
+        mediaId: faker.string.uuid(),
+        type: "cloudflare" as const,
+      }))
+    );
+    const token = await bearerToken(client, dancer.email);
+
+    // A slow Cloudflare widens the gap between the limit check and the insert.
+    globalThis.fetch = async (_input, init) => {
+      if (init?.method === "POST") {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        return new Response(null, {
+          status: 201,
+          headers: {
+            "location": "https://upload.example.test/tus/123",
+            "stream-media-id": faker.string.uuid(),
+          },
+        });
+      }
+      return Response.json({ result: { status: { state: "inprogress" } } });
+    };
+
+    const responses = await Promise.all(
+      Array.from({ length: 3 }, () => initiateTus(client, token))
+    );
+
+    assert.deepEqual(
+      responses.map((response) => response.status()).sort(),
+      [201, 403, 403]
+    );
   });
 });
