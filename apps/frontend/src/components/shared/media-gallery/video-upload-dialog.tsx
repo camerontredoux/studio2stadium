@@ -29,9 +29,9 @@ import {
 import { getYouTubeId } from "@/utils/get-youtube-id";
 import { uploadVideoTus } from "@/utils/upload-video-tus";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useBlocker } from "@tanstack/react-router";
 import { CrownIcon, VideoIcon } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type * as tus from "tus-js-client";
 
 interface VideoUploadDialogProps {
@@ -72,6 +72,26 @@ export function VideoUploadDialog({
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const uploadRef = useRef<tus.Upload | null>(null);
+  const [confirmingStop, setConfirmingStop] = useState(false);
+
+  // Leaving the page while a video uploads would stop it, so ask first.
+  const blocker = useBlocker({
+    shouldBlockFn: () => uploading,
+    enableBeforeUnload: () => uploading,
+    withResolver: true,
+  });
+  const askingToStop =
+    uploading && (confirmingStop || blocker.status === "blocked");
+
+  // An upload that ends on its own leaves nothing to stop, so let a held
+  // navigation go ahead.
+  useEffect(() => {
+    if (!uploading && blocker.status === "blocked") blocker.proceed();
+  }, [uploading, blocker]);
+
+  // If the dialog unmounts anyway, stop the upload rather than leave it
+  // running with no progress bar and no way to cancel it.
+  useEffect(() => () => void uploadRef.current?.abort(), []);
 
   const youtubeUpload = $api.useMutation("post", "/videos/youtube", {
     onSuccess: () => {
@@ -98,9 +118,10 @@ export function VideoUploadDialog({
   });
 
   const handleClose = (isOpen: boolean) => {
+    // Closing would stop a running upload, so ask first.
     if (!isOpen && uploadRef.current) {
-      uploadRef.current.abort();
-      uploadRef.current = null;
+      setConfirmingStop(true);
+      return;
     }
     setOpen(isOpen);
     if (!isOpen) {
@@ -108,6 +129,22 @@ export function VideoUploadDialog({
       setProgress(0);
       setYoutubeUrl("");
       setTab(hasReachedCloudflareLimit ? "youtube" : "file");
+    }
+  };
+
+  const keepUploading = () => {
+    setConfirmingStop(false);
+    blocker.reset?.();
+  };
+
+  const stopUpload = () => {
+    void uploadRef.current?.abort();
+    uploadRef.current = null;
+    setConfirmingStop(false);
+    if (blocker.status === "blocked") {
+      blocker.proceed();
+    } else {
+      handleClose(false);
     }
   };
 
@@ -129,6 +166,7 @@ export function VideoUploadDialog({
     const file = data.files[0];
     setProgress(0);
     setUploading(true);
+    setConfirmingStop(false);
 
     const upload = uploadVideoTus({
       file,
@@ -221,6 +259,11 @@ export function VideoUploadDialog({
           <DialogDescription>Add a video to your profile.</DialogDescription>
         </DialogHeader>
         <DialogPanel>
+          {askingToStop && (
+            <p className="mb-4 text-sm">
+              Stop this upload? Your video will not be saved.
+            </p>
+          )}
           {isYoutubeOnly ? (
             <form id="youtube-upload-form" onSubmit={handleYoutubeSubmit}>
               <Field>
@@ -245,7 +288,11 @@ export function VideoUploadDialog({
                 >
                   Upload File
                 </TabsTrigger>
-                <TabsTrigger value="youtube" className="flex-1">
+                <TabsTrigger
+                  value="youtube"
+                  className="flex-1"
+                  disabled={uploading}
+                >
                   YouTube Link
                 </TabsTrigger>
               </TabsList>
@@ -280,10 +327,21 @@ export function VideoUploadDialog({
           )}
         </DialogPanel>
         <DialogFooter>
-          <DialogClose render={<Button variant="secondary" />}>
-            Cancel
-          </DialogClose>
-          {isYoutubeOnly ? (
+          {askingToStop ? (
+            <>
+              <Button variant="secondary" onClick={keepUploading}>
+                Keep uploading
+              </Button>
+              <Button variant="destructive" onClick={stopUpload}>
+                Stop upload
+              </Button>
+            </>
+          ) : (
+            <DialogClose render={<Button variant="secondary" />}>
+              Cancel
+            </DialogClose>
+          )}
+          {askingToStop ? null : isYoutubeOnly ? (
             <Button
               disabled={youtubeUpload.isPending || !youtubeUrl}
               type="submit"
