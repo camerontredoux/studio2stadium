@@ -19,3 +19,30 @@ export async function deleteStreamVideo(mediaId: string) {
     );
   }
 }
+
+// Keys the server sets on every Stream upload. A client copy of any of them
+// is dropped so it cannot change the owner or lift the duration cap.
+const SERVER_METADATA_KEYS = new Set(["userid", "maxdurationseconds"]);
+
+const encode = (value: string) => Buffer.from(value).toString("base64");
+
+// Headers that tie a tus upload to its owner: Cloudflare stores
+// `Upload-Creator` as the video's `creator`, and `userId` lands in its `meta`.
+export function streamUploadHeaders(clientMetadata: string, userId: string) {
+  const clientPairs = clientMetadata
+    .split(",")
+    .map((pair) => pair.trim())
+    .filter(
+      (pair) =>
+        pair && !SERVER_METADATA_KEYS.has(pair.split(" ")[0].toLowerCase())
+    );
+
+  return {
+    "Upload-Creator": userId,
+    "Upload-Metadata": [
+      ...clientPairs,
+      `maxDurationSeconds ${encode("120")}`,
+      `userId ${encode(userId)}`,
+    ].join(","),
+  };
+}

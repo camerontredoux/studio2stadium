@@ -2,6 +2,7 @@ import { dancerProfiles } from "#database/schema/dancers";
 import { videos, videoUploads } from "#database/schema/media";
 import { DatabaseService } from "#database/service";
 import { GetMediaPermissionsService } from "#modules/media/permissions/service";
+import { streamUploadHeaders } from "#shared/cloudflare/stream";
 import env from "#start/env";
 import { inject } from "@adonisjs/core";
 import { and, count, eq, isNull, ne } from "drizzle-orm";
@@ -83,14 +84,6 @@ export class Service {
       };
     }
 
-    // Append maxDurationSeconds to metadata
-    const maxDurationMetadata = `maxDurationSeconds ${Buffer.from(
-      "120"
-    ).toString("base64")}`;
-    const fullMetadata = uploadMetadata
-      ? `${uploadMetadata},${maxDurationMetadata}`
-      : maxDurationMetadata;
-
     const response = await fetch(
       `https://api.cloudflare.com/client/v4/accounts/${env.get(
         "CLOUDFLARE_ACCOUNT_ID"
@@ -101,7 +94,7 @@ export class Service {
           "Authorization": `Bearer ${env.get("CLOUDFLARE_STREAM_TOKEN")}`,
           "Tus-Resumable": "1.0.0",
           "Upload-Length": uploadLength,
-          "Upload-Metadata": fullMetadata,
+          ...streamUploadHeaders(uploadMetadata, userId),
         },
       }
     );
