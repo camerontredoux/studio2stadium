@@ -4,7 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/recommended")({
   loader: ({ context: { queryClient } }) => {
-    queryClient.ensureQueryData(recommendedQueries.recommended());
+    queryClient.prefetchQuery(recommendedQueries.recommended());
   },
   component: RecommendedPage,
 });

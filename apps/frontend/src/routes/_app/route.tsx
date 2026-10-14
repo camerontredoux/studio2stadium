@@ -63,7 +63,7 @@ export const Route = createFileRoute("/_app")({
         }
       }
 
-      context.queryClient.ensureQueryData(notificationQueries.count());
+      context.queryClient.prefetchQuery(notificationQueries.count());
 
       const { id, firstName, lastName, displayEmail } = session
       posthog.identify(

@@ -16,9 +16,9 @@ export const Route = createFileRoute("/_app/(routes)/explore/$username")({
       schoolQueries.profile(params.username),
     );
     if (session.type === "dancer") {
-      queryClient.ensureQueryData(schoolQueries.metadata(school.id));
+      queryClient.prefetchQuery(schoolQueries.metadata(school.id));
       if (session.orgAccountTier) {
-        queryClient.ensureQueryData(
+        queryClient.prefetchQuery(
           schoolQueries.eventAccess(params.username),
         );
       }

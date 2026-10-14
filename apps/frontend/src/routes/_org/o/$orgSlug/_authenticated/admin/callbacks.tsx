@@ -55,7 +55,7 @@ export const Route = createFileRoute(
     }
   },
   loader: ({ context, params }) => {
-    context.queryClient.ensureQueryData(
+    context.queryClient.prefetchQuery(
       scoutingQueries.showcases(params.orgSlug),
     );
   },
