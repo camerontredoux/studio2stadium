@@ -13,13 +13,14 @@ import { handleApiError } from "@/lib/api/errors";
 import type { ApiSchemas } from "@/lib/api/client";
 import { useRequestUpload } from "@/shared/images/api/mutations";
 import { ImageUploadField } from "@/shared/images/components/image-upload-field";
+import { videoUploadSchema as videoSchema } from "@/shared/videos/schema";
 import { VideoUploadField } from "@/shared/videos/components/video-upload-field";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
 import { uploadVideoTus } from "@/utils/upload-video-tus";
 import { useQueryClient } from "@tanstack/react-query";
 import { ImageIcon, TrashIcon, VideoIcon } from "lucide-react";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { Controller, FormProvider, useForm } from "react-hook-form";
+import { Controller, FormProvider, useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { TabHandle } from "./types";
@@ -36,21 +37,6 @@ const imageSchema = z.object({
     .refine((files) => files.every((file) => file.size < 10 * 1024 * 1024), {
       message: "File size must be less than 10MB",
     }),
-});
-
-const videoSchema = z.object({
-  files: z
-    .array(z.custom<File>())
-    .min(1, "Please select a video")
-    .max(1, "Please select one video")
-    .refine(
-      (files) => files.every((file) => file.size < 500 * 1024 * 1024),
-      { message: "File size must be less than 500MB" },
-    )
-    .refine(
-      (files) => files.every((file) => file.type.startsWith("video/")),
-      { message: "Please select a video file" },
-    ),
 });
 
 type ImageFormData = z.infer<typeof imageSchema>;
@@ -259,7 +245,8 @@ export const MediaTab = forwardRef<TabHandle, MediaTabProps>(
     const hasImageFile = imageForm.watch("files").length > 0;
     const hasVideoFile = videoForm.watch("files").length > 0;
 
-    const isLoading = isImageLoading || videoUploading;
+    const isLoading =
+      isImageLoading || videoUploading || videoForm.formState.isSubmitting;
     const isDirty =
       uploadType === "image" ? hasImageFile : hasVideoFile;
 
@@ -358,12 +345,20 @@ export const MediaTab = forwardRef<TabHandle, MediaTabProps>(
       upload.start();
     };
 
+    const onVideoError = (errors: FieldErrors<VideoFormData>) => {
+      toastManager.add({
+        title: "Error",
+        description: errors.files?.message || "Failed to upload video",
+        type: "error",
+      });
+    };
+
     useImperativeHandle(ref, () => ({
       save: () => {
         if (uploadType === "image") {
           imageForm.handleSubmit(onImageSubmit)();
         } else {
-          videoForm.handleSubmit(onVideoSubmit)();
+          videoForm.handleSubmit(onVideoSubmit, onVideoError)();
         }
       },
       isDirty,
@@ -430,7 +425,7 @@ export const MediaTab = forwardRef<TabHandle, MediaTabProps>(
                 <form
                   id="admin-video-form"
                   onSubmit={(e) =>
-                    videoForm.handleSubmit(onVideoSubmit)(e)
+                    videoForm.handleSubmit(onVideoSubmit, onVideoError)(e)
                   }
                 >
                   <Controller
@@ -441,7 +436,7 @@ export const MediaTab = forwardRef<TabHandle, MediaTabProps>(
                         <VideoUploadField
                           value={field.value}
                           onValueChange={field.onChange}
-                          isLoading={videoUploading}
+                          isLoading={videoUploading || videoForm.formState.isSubmitting}
                           progress={videoProgress}
                         />
                       </Field>

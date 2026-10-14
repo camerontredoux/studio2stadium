@@ -1,4 +1,5 @@
 import * as tus from "tus-js-client";
+import { videoUploadErrorMessage } from "./video-duration";
 
 interface TusUploadOptions {
   file: File;
@@ -62,7 +63,7 @@ export function uploadVideoTus({
       const message = extractTusErrorMessage(
         error instanceof Error ? error : new Error(String(error)),
       );
-      onError(new Error(message));
+      onError(new Error(videoUploadErrorMessage(message)));
     },
     onProgress: (bytesUploaded, bytesTotal) => {
       const percentage = Math.round((bytesUploaded / bytesTotal) * 100);
