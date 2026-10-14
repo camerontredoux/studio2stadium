@@ -33,6 +33,7 @@ import {
 } from "@/features/org/components/dashboard-shared";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { useOrg } from "@/features/org/context/use-org";
+import { dashboardRoster } from "@/features/org/lib/dashboard-roster";
 import { useEventPhase } from "@/features/org/hooks/use-event-phase";
 import { DancerEventSwitcher } from "@/features/org/components/dancer-event-switcher";
 import { EventAccessBanner } from "@/features/org/components/event-access-banner";
@@ -48,15 +49,14 @@ function DancerEventInfo() {
   const { orgSlug } = Route.useParams();
   const { isAdmin, myRoster, myRosters } = useOrg();
   const dancerRosters = myRosters.filter((roster) => roster.type === "dancer");
-  const defaultRoster =
-    dancerRosters.find((roster) => roster.id === myRoster?.id) ??
-    dancerRosters[0] ??
-    null;
   const { data: events } = useQuery(adminQueries.events(orgSlug));
   const activeEvent = events?.find((e) => e.isActive) ?? null;
-  const [selectedEventId, setSelectedEventId] = useState(
-    defaultRoster?.eventId ?? "",
-  );
+  const defaultRoster = dashboardRoster(dancerRosters, {
+    isAdmin,
+    myRoster,
+    activeEventId: activeEvent?.id,
+  });
+  const [selectedEventId, setSelectedEventId] = useState("");
   const selectedRoster =
     dancerRosters.find((roster) => roster.eventId === selectedEventId) ??
     defaultRoster;
