@@ -1,6 +1,7 @@
 import { toastManager } from "@/components/ui/toast-manager";
 import { dancerQueries } from "@/features/dancer/api/queries";
 import { schoolQueries } from "@/features/school/api/queries";
+import { videoUploadErrorMessage } from "@/utils/video-duration";
 import { useVideoProcessing } from "@/lib/video-processing";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -54,7 +55,9 @@ export function useRealtime() {
           setIsProcessing(false);
           toastManager.add({
             title: "Video processing failed",
-            description: event.errorMessage || "Please try uploading again.",
+            description: videoUploadErrorMessage(
+              event.errorMessage || "Please try uploading again.",
+            ),
             type: "error",
           });
           break;
