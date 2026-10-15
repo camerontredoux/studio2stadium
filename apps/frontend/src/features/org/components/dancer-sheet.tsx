@@ -31,6 +31,13 @@ interface DancerSheetProps {
   /** Event whose scouting marks to show — defaults to the org's active event. */
   eventId?: string;
   eventName?: string;
+  /**
+   * Render the admin view of a dancer's callbacks (every program). Defaults to
+   * false — the coach view, scoped to the viewer's own program. This tracks the
+   * surface the sheet is on, not the viewer's membership, so an admin browsing
+   * the coach dashboard (view-as-coach) sees the coach-scoped list.
+   */
+  admin?: boolean;
   onFavoriteToggle?: (rosterId: string, current: boolean) => void;
   onSave?: (
     rosterId: string,
@@ -45,6 +52,7 @@ export function DancerSheet({
   readOnly,
   eventId,
   eventName,
+  admin = false,
   onFavoriteToggle,
   onSave,
 }: DancerSheetProps) {
@@ -57,6 +65,7 @@ export function DancerSheet({
             readOnly={readOnly}
             eventId={eventId}
             eventName={eventName}
+            admin={admin}
             onFavoriteToggle={onFavoriteToggle}
             onSave={onSave}
           />
@@ -71,6 +80,7 @@ function DancerSheetContent({
   readOnly,
   eventId,
   eventName,
+  admin = false,
   onFavoriteToggle,
   onSave,
 }: {
@@ -78,13 +88,14 @@ function DancerSheetContent({
   readOnly?: boolean;
   eventId?: string;
   eventName?: string;
+  admin?: boolean;
   onFavoriteToggle?: (rosterId: string, current: boolean) => void;
   onSave?: (
     rosterId: string,
     saved: { rating?: number; hasNote?: boolean },
   ) => void;
 }) {
-  const { org, hasFeature, isAdmin } = useOrg();
+  const { org, hasFeature } = useOrg();
   const qc = useQueryClient();
   const { data: dancer, isLoading } = useQuery(
     scoutingQueries.dancer(org.slug, rosterId, eventId),
@@ -304,7 +315,7 @@ function DancerSheetContent({
           <DancerCallbackList
             orgSlug={org.slug}
             dancerRosterId={rosterId}
-            admin={isAdmin}
+            admin={admin}
             eventId={eventId}
           />
         )}

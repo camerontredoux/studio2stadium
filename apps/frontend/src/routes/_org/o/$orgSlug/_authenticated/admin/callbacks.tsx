@@ -307,6 +307,7 @@ function AdminCallbacksPage() {
           if (!open) setSheetRosterId(null);
         }}
         readOnly
+        admin
       />
     </div>
   );
