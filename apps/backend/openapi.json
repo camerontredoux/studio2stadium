@@ -5712,6 +5712,43 @@
         ]
       }
     },
+    "/orgs/{slug}/dancers/{dancerRosterId}/callbacks": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dancerRosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdAdminDancersIdCallbacksResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Callbacks"
+        ]
+      }
+    },
     "/orgs/{slug}/admin/roster-claims": {
       "get": {
         "parameters": [

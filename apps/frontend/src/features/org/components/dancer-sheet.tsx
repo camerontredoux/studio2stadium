@@ -300,8 +300,12 @@ function DancerSheetContent({
           )}
         </div>
 
-        {isAdmin && hasFeature("callbacks") && (
-          <DancerCallbackList orgSlug={org.slug} dancerRosterId={rosterId} />
+        {hasFeature("callbacks") && (
+          <DancerCallbackList
+            orgSlug={org.slug}
+            dancerRosterId={rosterId}
+            admin={isAdmin}
+          />
         )}
 
         <div className="flex flex-1 flex-col">

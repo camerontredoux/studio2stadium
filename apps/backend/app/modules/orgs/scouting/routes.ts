@@ -23,6 +23,8 @@ const AdminCallbackBoard = () =>
   import("./callbacks/admin-board/controller.ts");
 const DancerCallbackDetail = () =>
   import("./callbacks/dancer-detail/controller.ts");
+const CoachDancerCallbackDetail = () =>
+  import("./callbacks/coach-dancer-detail/controller.ts");
 
 const ListShowcases = () => import("./showcases/list/controller.ts");
 const PublishShowcase = () => import("./showcases/publish/controller.ts");
@@ -118,6 +120,10 @@ router
 router
   .group(() => {
     router.get(":slug/callbacks", [ListCallbacks]);
+    // A coach's own-program view of a dancer's callbacks (scoped server-side).
+    router.get(":slug/dancers/:dancerRosterId/callbacks", [
+      CoachDancerCallbackDetail,
+    ]);
     router
       .post(":slug/callbacks", [CreateCallback])
       .use(middleware.orgEventDancer());
