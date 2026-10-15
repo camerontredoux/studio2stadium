@@ -472,8 +472,8 @@ type OrgsIdCallbacksGetHead = {
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/list/controller.ts').default['handle'], false>
 }
 type OrgsIdDancersIdCallbacksGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/coach-dancer-detail/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/event-query-validator.ts')['eventQuerySchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/coach-dancer-detail/controller.ts').default['handle'], true>
 }
 type OrgsIdCallbacksPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/callbacks/create/validator.ts')['schema']>>

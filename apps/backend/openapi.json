@@ -5119,6 +5119,21 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "eventId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
           }
         ],
         "responses": {

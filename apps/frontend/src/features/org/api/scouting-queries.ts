@@ -66,9 +66,14 @@ export const scoutingQueries = {
     ),
   // A coach's own-program view of a dancer's callbacks — scoped server-side to
   // the requesting coach, so it never reveals other programs' callbacks.
-  coachDancerCallbackDetail: (slug: string, dancerRosterId: string) =>
+  // eventId re-resolves the coach's roster for a past event being browsed.
+  coachDancerCallbackDetail: (
+    slug: string,
+    dancerRosterId: string,
+    eventId?: string,
+  ) =>
     $api.queryOptions("get", "/orgs/{slug}/dancers/{dancerRosterId}/callbacks", {
-      params: { path: { slug, dancerRosterId } },
+      params: { path: { slug, dancerRosterId }, query: { eventId } },
     }),
   publishedCallbacks: (slug: string, showcaseId: string) =>
     $api.queryOptions("get", "/orgs/{slug}/showcases/{showcaseId}/callbacks", {

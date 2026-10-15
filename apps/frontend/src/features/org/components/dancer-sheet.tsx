@@ -305,6 +305,7 @@ function DancerSheetContent({
             orgSlug={org.slug}
             dancerRosterId={rosterId}
             admin={isAdmin}
+            eventId={eventId}
           />
         )}
 

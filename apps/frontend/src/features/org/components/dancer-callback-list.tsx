@@ -21,19 +21,23 @@ export function DancerCallbackList({
   orgSlug,
   dancerRosterId,
   admin = false,
+  eventId,
 }: {
   orgSlug: string;
   dancerRosterId: string;
   admin?: boolean;
+  eventId?: string;
 }) {
   // Both responses share the same shape; only the active one fetches. Admins
-  // get every program, coaches get just their own (scoped server-side).
+  // get every program, coaches get just their own (scoped server-side). The
+  // coach query passes eventId so a past event reads against the coach's
+  // roster for that event.
   const adminQuery = useQuery({
     ...scoutingQueries.dancerCallbackDetail(orgSlug, dancerRosterId),
     enabled: admin,
   });
   const coachQuery = useQuery({
-    ...scoutingQueries.coachDancerCallbackDetail(orgSlug, dancerRosterId),
+    ...scoutingQueries.coachDancerCallbackDetail(orgSlug, dancerRosterId, eventId),
     enabled: !admin,
   });
   const { data: callbacks, isLoading } = admin ? adminQuery : coachQuery;
