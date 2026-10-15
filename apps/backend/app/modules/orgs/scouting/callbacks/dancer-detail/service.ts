@@ -22,8 +22,17 @@ export class DancerCallbackDetailService {
    * back in several showcases is a single school to connect with, so its
    * showcases are collapsed into one row and counted, rather than repeating the
    * school down the list.
+   *
+   * Pass `scopeCoachRosterId` to restrict the result to a single program's
+   * callback — a coach may only ever see their own program on a dancer, never
+   * which other programs called the dancer back. Omit it for the admin/dancer
+   * view, which sees every program.
    */
-  async execute(orgId: string, dancerRosterId: string) {
+  async execute(
+    orgId: string,
+    dancerRosterId: string,
+    scopeCoachRosterId?: string | null
+  ) {
     const isPublished = sql<boolean>`EXISTS (
       SELECT 1 FROM published_callbacks pc
       WHERE pc.showcase_id = ${eventCallbacks.showcaseId}
@@ -64,7 +73,10 @@ export class DancerCallbackDetailService {
           and(
             eq(eventCallbacks.dancerRosterId, dancerRosterId),
             eq(orgEvents.orgId, orgId),
-            eq(eventRosters.isStaff, false)
+            eq(eventRosters.isStaff, false),
+            ...(scopeCoachRosterId
+              ? [eq(eventCallbacks.coachRosterId, scopeCoachRosterId)]
+              : [])
           )
         )
         .groupBy(

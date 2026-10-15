@@ -5101,6 +5101,58 @@
         ]
       }
     },
+    "/orgs/{slug}/dancers/{dancerRosterId}/callbacks": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dancerRosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "eventId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdDancersIdCallbacksResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Callbacks"
+        ]
+      }
+    },
     "/orgs/{slug}/favorites": {
       "get": {
         "parameters": [
@@ -17197,6 +17249,80 @@
           "coachRosterId",
           "dancerRosterId"
         ]
+      },
+      "OrgsIdDancersIdCallbacksResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "organization": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "coachRosterId": {
+              "type": "string"
+            },
+            "avatarUrl": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "showcaseNumbers": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "latestShowcaseNumber": {
+              "type": "number"
+            },
+            "callbackCount": {
+              "type": "number"
+            },
+            "releasedCount": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "username",
+            "firstName",
+            "lastName",
+            "organization",
+            "coachRosterId",
+            "avatarUrl",
+            "showcaseNumbers",
+            "latestShowcaseNumber",
+            "callbackCount",
+            "releasedCount"
+          ]
+        }
       },
       "OrgsIdFavoritesResponse": {
         "type": "array",

@@ -172,4 +172,40 @@ test.group("DancerCallbackDetailService", (group) => {
     assert.equal(rows[0]!.releasedCount, 1);
     assert.deepEqual(rows[0]!.showcaseNumbers, [2, 1]);
   });
+
+  test("scopes to a single program when given a coach roster id", async ({
+    assert,
+  }) => {
+    const { org, event } = await setup();
+    const sc = await addShowcase(event.id, 1, "active");
+    const coachA = await addCoach(event.id, "Alex", "Program A");
+    const coachB = await addCoach(event.id, "Bailey", "Program B");
+    const coachC = await addCoach(event.id, "Casey", "Program C");
+    const coachD = await addCoach(event.id, "Drew", "Program D");
+    const dancer = await addDancer(event.id, 1);
+
+    // Programs A, B, and C each called the dancer back; D did not.
+    await callback(event.id, sc.id, coachA.id, dancer.id, false);
+    await callback(event.id, sc.id, coachB.id, dancer.id, false);
+    await callback(event.id, sc.id, coachC.id, dancer.id, false);
+
+    const service = new DancerCallbackDetailService();
+
+    // Unscoped (admin/dancer view) sees every program.
+    const all = await service.execute(org.id, dancer.id);
+    assert.deepEqual(all.map((r) => r.organization).sort(), [
+      "Program A",
+      "Program B",
+      "Program C",
+    ]);
+
+    // Coach C sees only their own program.
+    const asCoachC = await service.execute(org.id, dancer.id, coachC.id);
+    assert.lengthOf(asCoachC, 1);
+    assert.equal(asCoachC[0]!.organization, "Program C");
+
+    // Coach D, who did not call the dancer back, sees nothing.
+    const asCoachD = await service.execute(org.id, dancer.id, coachD.id);
+    assert.lengthOf(asCoachD, 0);
+  });
 });
