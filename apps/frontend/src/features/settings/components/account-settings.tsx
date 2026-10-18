@@ -1,3 +1,4 @@
+import { useDebouncedCallback } from "@/components/hooks/use-debounced-callback";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -9,7 +10,6 @@ import { Switch } from "@/components/ui/switch";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { debounce } from "@tanstack/pacer";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { AtSignIcon, CheckIcon, MailIcon, PhoneIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -222,13 +222,11 @@ function UsernameField({ currentUsername, onCheckingChange }: { currentUsername:
   const [debouncedValue, setDebouncedValue] = useState("");
   const [typing, setTyping] = useState(false);
 
-  const debouncedSet = debounce(
-    (value: string) => {
-      setDebouncedValue(value);
-      setTyping(false);
-    },
-    { wait: 500 },
-  );
+  // One timer across renders, so a burst of typing checks the name once.
+  const debouncedSet = useDebouncedCallback((value: string) => {
+    setDebouncedValue(value);
+    setTyping(false);
+  }, 500);
 
   const isOwnUsername = debouncedValue.toLowerCase() === currentUsername.toLowerCase();
 
@@ -291,6 +289,8 @@ function UsernameField({ currentUsername, onCheckingChange }: { currentUsername:
                   } else {
                     setTyping(false);
                     setDebouncedValue(value);
+                    // Replace any pending check so an older name can't land after this one.
+                    debouncedSet(value);
                   }
                 }}
               />
