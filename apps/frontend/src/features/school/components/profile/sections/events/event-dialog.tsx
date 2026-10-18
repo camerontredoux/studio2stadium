@@ -17,7 +17,7 @@ import {
   useUpdateEvent,
 } from "@/features/school/api/mutations";
 import type { SchoolEvent } from "@/features/school/types";
-import { handleApiError } from "@/lib/api/errors";
+import { toastApiError } from "@/lib/api/errors";
 import { PencilIcon, PlusIcon } from "lucide-react";
 import * as React from "react";
 import { useProfile } from "../../context/use-profile";
@@ -117,22 +117,7 @@ export function EventDialog({
             });
             setOpen(false);
           },
-          onError: handleApiError({
-            onError: (error) => {
-              toastManager.add({
-                title: "Error",
-                description: error.message,
-                type: "error",
-              });
-            },
-            onValidation: (_, message) => {
-              toastManager.add({
-                title: "Error",
-                description: message,
-                type: "error",
-              });
-            },
-          }),
+          onError: toastApiError,
         },
       );
     } else {
@@ -147,22 +132,7 @@ export function EventDialog({
             });
             setOpen(false);
           },
-          onError: handleApiError({
-            onError: (error) => {
-              toastManager.add({
-                title: "Error",
-                description: error.message,
-                type: "error",
-              });
-            },
-            onValidation: (_, message) => {
-              toastManager.add({
-                title: "Error",
-                description: message,
-                type: "error",
-              });
-            },
-          }),
+          onError: toastApiError,
         },
       );
     }

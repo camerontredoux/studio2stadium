@@ -13,7 +13,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { useUpdateProfile } from "@/features/dancer/api/mutations";
-import { handleApiError } from "@/lib/api/errors";
+import { toastApiError } from "@/lib/api/errors";
 import { makeBirthday } from "@/utils/birthday";
 import * as React from "react";
 import { EditForm, type EditFormData } from "./edit-form";
@@ -35,22 +35,7 @@ export function EditDialog({ username }: { username: string }) {
           });
           setOpen(false);
         },
-        onError: handleApiError({
-          onError: (error) => {
-            toastManager.add({
-              title: "Error",
-              description: error.message,
-              type: "error",
-            });
-          },
-          onValidation: (_, message) => {
-            toastManager.add({
-              title: "Error",
-              description: message,
-              type: "error",
-            });
-          },
-        }),
+        onError: toastApiError,
       },
     );
   };

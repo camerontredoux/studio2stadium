@@ -1,7 +1,6 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { toastManager } from "@/components/ui/toast-manager";
 import { dancerQueries } from "@/features/dancer/api/queries";
-import { handleApiError } from "@/lib/api/errors";
+import { toastApiError } from "@/lib/api/errors";
 import {
   canSubmitCommonRecruitingVideo,
   graduatingClass,
@@ -47,22 +46,7 @@ export function SubmitPage() {
       },
       {
         onSuccess: () => setSubmitted(true),
-        onError: handleApiError({
-          onError: (error) => {
-            toastManager.add({
-              title: "Error",
-              description: error.message,
-              type: "error",
-            });
-          },
-          onValidation: (_, message) => {
-            toastManager.add({
-              title: "Error",
-              description: message,
-              type: "error",
-            });
-          },
-        }),
+        onError: toastApiError,
       },
     );
   };
