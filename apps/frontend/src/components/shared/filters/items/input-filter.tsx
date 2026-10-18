@@ -1,6 +1,6 @@
+import { useDebouncedCallback } from "@/components/hooks/use-debounced-callback";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
-import { debounce } from "@tanstack/pacer";
 import { SearchIcon } from "lucide-react";
 import { useState } from "react";
 import type { OnFilterChange } from "../filter-item";
@@ -17,12 +17,10 @@ export function InputFilter({
 }: InputFilterProps) {
   const [value, setValue] = useState(initialValue);
 
-  const debouncedChange = debounce(
-    (v: string) => {
-      onFilterChange(v || undefined, { replace: true });
-    },
-    { wait: 200 },
-  );
+  // One timer across renders, so a burst of typing navigates once.
+  const debouncedChange = useDebouncedCallback((v: string) => {
+    onFilterChange(v || undefined, { replace: true });
+  }, 200);
 
   const handleSearch = (value: string) => {
     setValue(value);
