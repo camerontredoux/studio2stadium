@@ -17,6 +17,7 @@ import {
   useUpdateAchievement,
 } from "@/features/dancer/api/mutations";
 import type { Achievement } from "@/features/dancer/types";
+import { handleApiError } from "@/lib/api/errors";
 import { PencilIcon, PlusIcon } from "lucide-react";
 import * as React from "react";
 import {
@@ -64,6 +65,22 @@ export function AchievementsDialog({
             });
             setOpen(false);
           },
+          onError: handleApiError({
+            onError: (error) => {
+              toastManager.add({
+                title: "Error",
+                description: error.message,
+                type: "error",
+              });
+            },
+            onValidation: (_, message) => {
+              toastManager.add({
+                title: "Error",
+                description: message,
+                type: "error",
+              });
+            },
+          }),
         },
       );
     } else {
@@ -78,6 +95,22 @@ export function AchievementsDialog({
             });
             setOpen(false);
           },
+          onError: handleApiError({
+            onError: (error) => {
+              toastManager.add({
+                title: "Error",
+                description: error.message,
+                type: "error",
+              });
+            },
+            onValidation: (_, message) => {
+              toastManager.add({
+                title: "Error",
+                description: message,
+                type: "error",
+              });
+            },
+          }),
         },
       );
     }
