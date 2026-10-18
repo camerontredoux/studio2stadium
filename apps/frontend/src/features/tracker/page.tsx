@@ -140,6 +140,9 @@ export function TrackerPage() {
     ...order.filter((s) => present.has(s)),
   ];
 
+  // A lone section has nowhere to move, so it gets no drag handle.
+  const reorderable = sections.length > 1;
+
   const saveOrder = (next: string[]) =>
     reorder.mutate({ body: { sections: next.map(toSectionId) } });
 
@@ -249,7 +252,11 @@ export function TrackerPage() {
                 return (
                   <SortableItem key={section} value={section}>
                     {!school ? (
-                      <OtherItemsCard items={rows} {...handlers} />
+                      <OtherItemsCard
+                        items={rows}
+                        reorderable={reorderable}
+                        {...handlers}
+                      />
                     ) : (
                       <SchoolCard
                         school={school}
@@ -261,6 +268,7 @@ export function TrackerPage() {
                           (m) => m.schoolId === school.id,
                         )}
                         {...handlers}
+                        reorderable={reorderable}
                         onRemoveSchool={() =>
                           deleteSection.mutate({
                             body: { schoolId: school.id },
