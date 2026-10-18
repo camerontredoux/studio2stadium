@@ -9,7 +9,7 @@ import posthog from "posthog-js";
 
 import "@stripe/stripe-js";
 
-import { useIsFetching, type QueryClient } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { useEffect } from "react";
 import { Fragment } from "react/jsx-runtime";
@@ -83,16 +83,20 @@ NProgress.configure({
   trickleSpeed: 100,
 });
 
+// Wait this long before showing the bar so fast navigations don't flash it.
+const PROGRESS_DELAY_MS = 150;
+
 function RouterProgressBar() {
   const isPending = useRouterState({ select: (s) => s.status === "pending" });
-  const isFetching = useIsFetching();
-
-  const isLoading = isPending && isFetching > 0;
 
   useEffect(() => {
-    if (isLoading) NProgress.start();
-    else NProgress.done();
-  }, [isLoading]);
+    if (!isPending) {
+      NProgress.done();
+      return;
+    }
+    const timer = setTimeout(() => NProgress.start(), PROGRESS_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [isPending]);
 
   return null;
 }
