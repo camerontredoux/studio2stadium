@@ -211,7 +211,6 @@ export function SchoolCard({
   items,
   milestones,
   onRemoveSchool,
-  onAddMilestone,
   onToggleMilestone,
   onRenameMilestone,
   onDeleteMilestone,
@@ -225,7 +224,6 @@ export function SchoolCard({
   items: Item[];
   milestones: Milestone[];
   onRemoveSchool: () => void;
-  onAddMilestone: (title: string) => void;
   onToggleMilestone: (milestone: Milestone) => void;
   onRenameMilestone: (milestone: Milestone, title: string) => void;
   onDeleteMilestone: (milestone: Milestone) => void;
@@ -299,7 +297,6 @@ export function SchoolCard({
         <Milestones
           school={school}
           milestones={milestones}
-          onAdd={onAddMilestone}
           onToggle={onToggleMilestone}
           onRename={onRenameMilestone}
           onDelete={onDeleteMilestone}

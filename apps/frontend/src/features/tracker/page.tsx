@@ -18,7 +18,6 @@ import { PlusIcon, RouteIcon } from "lucide-react";
 import { useState } from "react";
 import {
   useCreateTrackerItem,
-  useCreateTrackerMilestone,
   useDeleteTrackerItem,
   useDeleteTrackerMilestone,
   useDeleteTrackerSection,
@@ -109,7 +108,8 @@ function celebrate(item: Pick<Item, "type" | "title">, stage: number) {
   }
 }
 
-// The API orders sections by school id, with null for "Everything else".
+// sectionOrder is the dancer's saved order of school ids, with null for
+// "Everything else"; it is empty until an order is first saved.
 const toSection = (id: string | null) => id ?? OTHER;
 const toSectionId = (section: string) => (section === OTHER ? null : section);
 
@@ -122,7 +122,6 @@ export function TrackerPage() {
   const committed = findCommitted(items);
   const deleteSection = useDeleteTrackerSection();
   const reorder = useReorderTrackerSections();
-  const createMilestone = useCreateTrackerMilestone();
   const updateMilestone = useUpdateTrackerMilestone();
   const deleteMilestone = useDeleteTrackerMilestone();
   const [dialog, setDialog] = useState<{
@@ -265,11 +264,6 @@ export function TrackerPage() {
                         onRemoveSchool={() =>
                           deleteSection.mutate({
                             body: { schoolId: school.id },
-                          })
-                        }
-                        onAddMilestone={(title) =>
-                          createMilestone.mutate({
-                            body: { schoolId: school.id, title },
                           })
                         }
                         onToggleMilestone={toggleMilestone}

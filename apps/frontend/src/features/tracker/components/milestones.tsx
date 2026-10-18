@@ -15,7 +15,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import type { TrackerMilestone as Milestone } from "../api/mutations";
 import { AddMilestoneDialog } from "./add-milestone-dialog";
 
-type School = { name: string; avatar: string | null };
+type School = { id: string; name: string; avatar: string | null };
 
 // A chip's round indicator. On hover it fills with gold, tilts, and pulses,
 // like the stage stepper did.
@@ -67,7 +67,15 @@ function MilestoneChip({
   const [quiet, setQuiet] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const refocus = useRef(false);
-  const lastToggle = useRef(0);
+  // Rapid clicks would otherwise each send a request against the API's shared
+  // limit of 60 milestone changes a minute, so a chip rests briefly after one.
+  const [cooling, setCooling] = useState(false);
+
+  useEffect(() => {
+    if (!cooling) return;
+    const timer = setTimeout(() => setCooling(false), TOGGLE_COOLDOWN_MS);
+    return () => clearTimeout(timer);
+  }, [cooling]);
 
   // Enter and Escape hand focus back to the chip; a blur leaves it where the
   // dancer moved it.
@@ -115,15 +123,16 @@ function MilestoneChip({
         title={milestone.title}
         onClick={() => {
           setQuiet(true);
-          // Rapid clicks would otherwise each send a request.
-          const now = Date.now();
-          if (now - lastToggle.current < TOGGLE_COOLDOWN_MS) return;
-          lastToggle.current = now;
+          if (cooling) return;
+          setCooling(true);
           onToggle();
         }}
+        // aria-disabled rather than disabled, so keyboard focus stays put.
+        aria-disabled={cooling || undefined}
         onPointerLeave={() => setQuiet(false)}
         className={cn(
           !quiet && "group/milestone",
+          cooling && "cursor-default opacity-64",
           "h-full min-w-0 shrink rounded-2xl ps-1 pe-2 before:rounded-2xl data-pressed:bg-transparent sm:h-full",
         )}
       >
@@ -156,18 +165,11 @@ function MilestoneChip({
   );
 }
 
-function AddMilestone({
-  school,
-  onAdd,
-}: {
-  school: School;
-  onAdd: (title: string) => void;
-}) {
+function AddMilestone({ school }: { school: School }) {
   return (
     <AddMilestoneDialog
       school={school}
       maxLength={MAX_TITLE}
-      onAdd={onAdd}
       trigger={
         <Button
           variant="ghost"
@@ -186,15 +188,12 @@ function AddMilestone({
 export function Milestones({
   school,
   milestones,
-  onAdd,
   onToggle,
   onRename,
   onDelete,
 }: {
   school: School;
   milestones: Milestone[];
-  onAdd: (title: string) => void;
-  /** `chip` is the toggled chip, for confetti. */
   onToggle: (milestone: Milestone) => void;
   onRename: (milestone: Milestone, title: string) => void;
   onDelete: (milestone: Milestone) => void;
@@ -217,7 +216,7 @@ export function Milestones({
           </li>
         ))}
         <li>
-          <AddMilestone school={school} onAdd={onAdd} />
+          <AddMilestone school={school} />
         </li>
       </ul>
     </div>
