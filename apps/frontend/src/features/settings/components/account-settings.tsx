@@ -26,6 +26,9 @@ export function AccountSettings() {
   const [usernameChecking, setUsernameChecking] = useState(false);
 
   const form = useForm({
+    // Validate as the user types: Update Profile is disabled while the form is
+    // invalid, so an error that waited for submit would never be seen.
+    mode: "onChange",
     resolver: zodResolver(accountSchemas.updateAccount),
     defaultValues: {
       username: data.username,
@@ -295,7 +298,7 @@ function UsernameField({ currentUsername, onCheckingChange }: { currentUsername:
                 <InputGroupAddon align="inline-end">
                   {checking ? (
                     <Spinner className="size-3.5" />
-                  ) : isTaken ? (
+                  ) : isTaken || fieldState.invalid ? (
                     <XIcon className="size-3.5 text-destructive" />
                   ) : (
                     <CheckIcon className="size-3.5 text-green-600" />
