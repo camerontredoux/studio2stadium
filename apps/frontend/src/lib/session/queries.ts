@@ -44,17 +44,22 @@ export const sessionQueries = {
     return queryOptions({
       queryKey: ["application"],
       queryFn: async () => {
-        try {
-          const { data, error, response } = await client.GET("/application");
+        const { data, error, response } = await client
+          .GET("/application")
+          .catch(() => {
+            throw new SessionNetworkError();
+          });
+        const { status } = response;
 
-          if (error || response?.status >= 500) {
-            return null;
-          }
-
-          return data;
-        } catch {
-          return null;
+        // A school without a profile gets 403, and has no application yet.
+        // Any other failure throws, so the route shows its error instead of
+        // sending a school that has applied back to onboarding.
+        if (status === 403) return null;
+        if (error) {
+          throw new Error(`Couldn't load your application (status ${status}).`);
         }
+
+        return data;
       },
       enabled,
       staleTime: Infinity,
