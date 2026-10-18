@@ -387,24 +387,16 @@ function PreEventChecklist({
           ? "critical"
           : "done";
 
-  const rawClient = client as unknown as {
-    POST: (
-      path: string,
-      opts: { body: unknown },
-    ) => Promise<{ data: ChecklistItem }>;
-    PATCH: (
-      path: string,
-      opts: { body: Record<string, unknown> },
-    ) => Promise<{ data: ChecklistItem }>;
-  };
-
   const toggleMutation = useMutation({
     mutationFn: async (item: ChecklistItem) => {
-      const res = await rawClient.PATCH(
-        `/orgs/${orgSlug}/events/${eventId}/checklist/${item.id}`,
-        { body: { completed: !item.completed } },
+      const { error } = await client.PATCH(
+        "/orgs/{slug}/events/{id}/checklist/{itemId}",
+        {
+          params: { path: { slug: orgSlug, id: eventId, itemId: item.id } },
+          body: { completed: !item.completed },
+        },
       );
-      return res.data;
+      if (error) throw error;
     },
     onMutate: async (item) => {
       await qc.cancelQueries({ queryKey });
@@ -418,16 +410,20 @@ function PreEventChecklist({
     },
     onError: (_err, _item, ctx) => {
       if (ctx?.prev) qc.setQueryData(queryKey, ctx.prev);
+      toastManager.add({ title: "Couldn't update item", type: "error" });
     },
   });
 
   const createMutation = useMutation({
     mutationFn: async (body: { title: string }) => {
-      const res = await rawClient.POST(
-        `/orgs/${orgSlug}/events/${eventId}/checklist`,
-        { body },
+      const { error } = await client.POST(
+        "/orgs/{slug}/events/{id}/checklist",
+        {
+          params: { path: { slug: orgSlug, id: eventId } },
+          body,
+        },
       );
-      return res.data;
+      if (error) throw error;
     },
     onMutate: async (body) => {
       await qc.cancelQueries({ queryKey });
@@ -461,9 +457,11 @@ function PreEventChecklist({
 
   const deleteMutation = useMutation({
     mutationFn: async (itemId: string) => {
-      await client.DELETE("/orgs/{slug}/events/{id}/checklist/{itemId}", {
-        params: { path: { slug: orgSlug, id: eventId, itemId } },
-      });
+      const { error } = await client.DELETE(
+        "/orgs/{slug}/events/{id}/checklist/{itemId}",
+        { params: { path: { slug: orgSlug, id: eventId, itemId } } },
+      );
+      if (error) throw error;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey });
@@ -481,11 +479,14 @@ function PreEventChecklist({
       itemId: string;
       title: string;
     }) => {
-      const res = await rawClient.PATCH(
-        `/orgs/${orgSlug}/events/${eventId}/checklist/${itemId}`,
-        { body: { title } },
+      const { error } = await client.PATCH(
+        "/orgs/{slug}/events/{id}/checklist/{itemId}",
+        {
+          params: { path: { slug: orgSlug, id: eventId, itemId } },
+          body: { title },
+        },
       );
-      return res.data;
+      if (error) throw error;
     },
     onMutate: async ({ itemId, title }) => {
       await qc.cancelQueries({ queryKey });
