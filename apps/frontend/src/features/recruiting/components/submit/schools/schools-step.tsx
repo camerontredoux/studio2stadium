@@ -49,12 +49,20 @@ export function SchoolsStep({
     }
   };
 
+  // Select All and Deselect All act on the schools the search shows, and
+  // keep picks the search hides.
+  const allVisibleSelected = filteredSchools.every((s) => selectedIds.has(s.id));
+
   const selectAll = () => {
-    onSelectionChange(filteredSchools);
+    onSelectionChange([
+      ...selectedSchools,
+      ...filteredSchools.filter((s) => !selectedIds.has(s.id)),
+    ]);
   };
 
   const deselectAll = () => {
-    onSelectionChange([]);
+    const visibleIds = new Set(filteredSchools.map((s) => s.id));
+    onSelectionChange(selectedSchools.filter((s) => !visibleIds.has(s.id)));
   };
 
   return (
@@ -72,15 +80,9 @@ export function SchoolsStep({
             <Button
               variant="ghost"
               size="xs"
-              onClick={
-                selectedSchools.length === filteredSchools.length
-                  ? deselectAll
-                  : selectAll
-              }
+              onClick={allVisibleSelected ? deselectAll : selectAll}
             >
-              {selectedSchools.length === filteredSchools.length
-                ? "Deselect All"
-                : "Select All"}
+              {allVisibleSelected ? "Deselect All" : "Select All"}
             </Button>
           </div>
         </div>
