@@ -1,10 +1,5 @@
-import type { ApiSchemas } from "@/lib/api/client";
-import { client } from "@/lib/api/client";
-import {
-  type InfiniteData,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { $api, type ApiSchemas } from "@/lib/api/client";
+import { type InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { notificationQueries } from "./queries";
 
 type NotificationsResponse = ApiSchemas["NotificationsResponse"];
@@ -12,14 +7,17 @@ type InfiniteNotifications = InfiniteData<
   NotificationsResponse,
   string | undefined
 >;
+type MutationContext = {
+  previousNotifications: InfiniteNotifications | undefined;
+  previousCount: { count: number } | undefined;
+};
 
 export function useMarkNotificationRead() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (id: string) =>
-      client.POST("/notifications/{id}", { params: { path: { id } } }),
-    onMutate: async (id) => {
+  return $api.useMutation("post", "/notifications/{id}", {
+    onMutate: async ({ params }) => {
+      const id = params.path.id;
       await queryClient.cancelQueries(notificationQueries.notifications());
       await queryClient.cancelQueries(notificationQueries.count());
 
@@ -55,7 +53,8 @@ export function useMarkNotificationRead() {
 
       return { previousNotifications, previousCount };
     },
-    onError: (_err, _id, context) => {
+    onError: (_err, _variables, onMutateResult) => {
+      const context = onMutateResult as MutationContext | undefined;
       if (context?.previousNotifications) {
         queryClient.setQueryData(
           notificationQueries.notifications().queryKey,
@@ -75,8 +74,7 @@ export function useMarkNotificationRead() {
 export function useMarkAllNotificationsRead() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: () => client.POST("/notifications/read-all"),
+  return $api.useMutation("post", "/notifications/read-all", {
     onMutate: async () => {
       await queryClient.cancelQueries(notificationQueries.notifications());
       await queryClient.cancelQueries(notificationQueries.count());
@@ -109,7 +107,8 @@ export function useMarkAllNotificationsRead() {
 
       return { previousNotifications, previousCount };
     },
-    onError: (_err, _vars, context) => {
+    onError: (_err, _variables, onMutateResult) => {
+      const context = onMutateResult as MutationContext | undefined;
       if (context?.previousNotifications) {
         queryClient.setQueryData(
           notificationQueries.notifications().queryKey,
