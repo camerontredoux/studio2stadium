@@ -2,6 +2,7 @@ import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
 import { SportsDialog } from "@/shared/sports/components/sports-dialog";
 import { useQuery } from "@tanstack/react-query";
+import { cloneElement } from "react";
 import { useUpdateSports } from "../../api/mutations";
 import { schoolQueries } from "../../api/queries";
 
@@ -47,6 +48,14 @@ export function SportsList({
       },
     );
   };
+
+  // Until the saved selection loads, the dialog would open with nothing
+  // selected and Save would overwrite it, so don't offer it yet.
+  if (!data) {
+    return cloneElement(render as React.ReactElement<{ disabled?: boolean }>, {
+      disabled: true,
+    });
+  }
 
   return (
     <SportsDialog

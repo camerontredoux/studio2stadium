@@ -53,6 +53,9 @@ export function SkillsList({ username, ...props }: SkillsListProps) {
       onSave={handleSave}
       isPending={isPending}
       {...props}
+      // Until the saved selection loads, the dialog would open with nothing
+      // selected and Save would overwrite it, so don't offer it yet.
+      disabled={!data || props.disabled}
     />
   );
 }
