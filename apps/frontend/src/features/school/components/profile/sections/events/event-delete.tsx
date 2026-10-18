@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { useDeleteEvent } from "@/features/school/api/mutations";
+import { handleApiError } from "@/lib/api/errors";
 
 interface EventDeleteProps {
   eventId: string;
@@ -38,6 +39,22 @@ export function EventDelete({
           });
           onDeleted?.();
         },
+        onError: handleApiError({
+          onError: (error) => {
+            toastManager.add({
+              title: "Error",
+              description: error.message,
+              type: "error",
+            });
+          },
+          onValidation: (_, message) => {
+            toastManager.add({
+              title: "Error",
+              description: message,
+              type: "error",
+            });
+          },
+        }),
       },
     );
   };
