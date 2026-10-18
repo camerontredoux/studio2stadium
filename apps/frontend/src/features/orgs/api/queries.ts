@@ -1,10 +1,6 @@
-export type PublicOrg = {
-  id: string;
-  slug: string;
-  name: string;
-  logoUrl: string | null;
-  primaryColor: string | null;
-};
+import type { ApiSchemas } from "@/lib/api/client";
+
+export type PublicOrg = ApiSchemas["OrgsResponse"][number];
 
 async function fetchJson<T>(path: string): Promise<T> {
   const response = await fetch(`${import.meta.env.VITE_API_URL}${path}`, {

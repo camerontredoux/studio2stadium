@@ -3,31 +3,14 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { client } from "@/lib/api/client";
+import { client, type ApiSchemas } from "@/lib/api/client";
 import { toastManager } from "@/components/ui/toast-manager";
 
 // Types
-export interface VideoCategory {
-  id: string;
-  eventId: string;
-  name: string;
-  sortOrder: number;
-  createdAt: string;
-}
+export type VideoCategory =
+  ApiSchemas["OrgsIdEventsIdVideocategoriesResponse"][number];
 
-export interface EventVideo {
-  id: string;
-  eventId: string;
-  categoryId: string;
-  title: string;
-  youtubeId: string;
-  sortOrder: number;
-  createdAt: string;
-  updatedAt: string;
-  audioKey?: string | null;
-  audioFilename?: string | null;
-  audioUrl?: string | null;
-}
+export type EventVideo = ApiSchemas["OrgsIdEventsIdVideosResponse"][number];
 
 export interface EventVideoGroup {
   category: VideoCategory;
@@ -35,13 +18,6 @@ export interface EventVideoGroup {
 }
 
 // Helpers
-async function fetchJson<T>(path: string): Promise<T> {
-  const res = await (
-    client as unknown as Record<string, (p: string) => Promise<{ data: T }>>
-  )["GET"](path);
-  return res.data;
-}
-
 async function postJson<T>(path: string, body: unknown): Promise<T> {
   const raw = client as unknown as {
     POST: (
@@ -54,35 +30,17 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
   return res.data;
 }
 
-async function patchJson<T>(path: string, body: unknown): Promise<T> {
-  const raw = client as unknown as {
-    PATCH: (
-      p: string,
-      opts: { body: unknown },
-    ) => Promise<{ data: T; error?: unknown }>;
-  };
-  const res = await raw.PATCH(path, { body });
-  if (res.error) throw res.error;
-  return res.data;
-}
-
-async function deleteJson(path: string): Promise<void> {
-  const raw = client as unknown as {
-    DELETE: (p: string) => Promise<{ error?: unknown }>;
-  };
-  const res = await raw.DELETE(path);
-  if (res.error) throw res.error;
-}
-
 // Query keys & options
 export const videoQueries = {
   categories: (slug: string, eventId: string) =>
     queryOptions({
       queryKey: ["orgs", slug, "events", eventId, "video-categories"],
       queryFn: () =>
-        fetchJson<VideoCategory[]>(
-          `/orgs/${slug}/events/${eventId}/video-categories`,
-        ),
+        client
+          .GET("/orgs/{slug}/events/{id}/video-categories", {
+            params: { path: { slug, id: eventId } },
+          })
+          .then((r) => r.data!),
       enabled: !!eventId,
     }),
 
@@ -90,7 +48,11 @@ export const videoQueries = {
     queryOptions({
       queryKey: ["orgs", slug, "events", eventId, "videos"],
       queryFn: () =>
-        fetchJson<EventVideo[]>(`/orgs/${slug}/events/${eventId}/videos`),
+        client
+          .GET("/orgs/{slug}/events/{id}/videos", {
+            params: { path: { slug, id: eventId } },
+          })
+          .then((r) => r.data!),
       enabled: !!eventId,
     }),
 };
@@ -120,10 +82,13 @@ export function useCreateCategory(slug: string, eventId: string) {
 export function useDeleteCategory(slug: string, eventId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (categoryId: string) =>
-      deleteJson(
-        `/orgs/${slug}/events/${eventId}/video-categories/${categoryId}`,
-      ),
+    mutationFn: async (categoryId: string) => {
+      const res = await client.DELETE(
+        "/orgs/{slug}/events/{id}/video-categories/{categoryId}",
+        { params: { path: { slug, id: eventId, categoryId } } },
+      );
+      if (res.error) throw res.error;
+    },
     onSuccess: () => {
       void qc.invalidateQueries(videoQueries.categories(slug, eventId));
       toastManager.add({ title: "Category deleted", type: "success" });
@@ -164,7 +129,7 @@ export function useCreateVideo(slug: string, eventId: string) {
 export function useUpdateVideo(slug: string, eventId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       videoId,
       ...body
     }: {
@@ -174,11 +139,17 @@ export function useUpdateVideo(slug: string, eventId: string) {
       youtubeId: string;
       audioKey?: string | null;
       audioFilename?: string | null;
-    }) =>
-      patchJson<EventVideo>(
-        `/orgs/${slug}/events/${eventId}/videos/${videoId}`,
-        body,
-      ),
+    }) => {
+      const res = await client.PATCH(
+        "/orgs/{slug}/events/{id}/videos/{videoId}",
+        {
+          params: { path: { slug, id: eventId, videoId } },
+          body,
+        },
+      );
+      if (res.error) throw res.error;
+      return res.data;
+    },
     onSuccess: () => {
       void qc.invalidateQueries(videoQueries.videos(slug, eventId));
       toastManager.add({ title: "Video updated", type: "success" });
@@ -195,8 +166,14 @@ export function useUpdateVideo(slug: string, eventId: string) {
 export function useDeleteVideo(slug: string, eventId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (videoId: string) =>
-      deleteJson(`/orgs/${slug}/events/${eventId}/videos/${videoId}`),
+    mutationFn: async (videoId: string) => {
+      // The spec lists no error responses here, so `error` is typed never.
+      const { error } = await client.DELETE(
+        "/orgs/{slug}/events/{id}/videos/{videoId}",
+        { params: { path: { slug, id: eventId, videoId } } },
+      );
+      if (error) throw error;
+    },
     onSuccess: () => {
       void qc.invalidateQueries(videoQueries.videos(slug, eventId));
       toastManager.add({ title: "Video deleted", type: "success" });

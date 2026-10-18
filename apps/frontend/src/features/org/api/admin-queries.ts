@@ -78,6 +78,10 @@ export const adminQueries = {
     queryOptions({
       queryKey: ["orgs", slug, "events", eventId, "checklist"],
       queryFn: () =>
-        fetchJson<ChecklistItem[]>(`/orgs/${slug}/events/${eventId}/checklist`),
+        client
+          .GET("/orgs/{slug}/events/{id}/checklist", {
+            params: { path: { slug, id: eventId } },
+          })
+          .then((r) => r.data!),
     }),
 };

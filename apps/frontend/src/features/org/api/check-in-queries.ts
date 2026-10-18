@@ -1,33 +1,22 @@
-import { client } from "@/lib/api/client";
+import { client, type ApiSchemas } from "@/lib/api/client";
 import {
   queryOptions,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
 
-const rawClient = client as unknown as {
-  POST: (
-    path: string,
-    opts?: { body?: unknown },
-  ) => Promise<{ data: unknown }>;
-  GET: (path: string) => Promise<{ data: unknown }>;
-};
-
-export type CheckInStatus = {
-  checkedInAt: string | null;
-  eventStartTime: string | null;
-  timezone: string | null;
-  canCheckIn: boolean;
-};
+export type CheckInStatus = ApiSchemas["OrgsIdEventsIdCheckinStatusResponse"];
 
 export const checkInQueries = {
   status: (slug: string, eventId: string) =>
     queryOptions({
       queryKey: ["orgs", slug, "events", eventId, "check-in", "status"],
       queryFn: () =>
-        rawClient
-          .GET(`/orgs/${slug}/events/${eventId}/check-in/status`)
-          .then((r) => r.data as CheckInStatus),
+        client
+          .GET("/orgs/{slug}/events/{id}/check-in/status", {
+            params: { path: { slug, id: eventId } },
+          })
+          .then((r) => r.data!),
     }),
 };
 
@@ -46,7 +35,9 @@ export function useDancerCheckIn(slug: string, eventId: string) {
 
   return useMutation({
     mutationFn: () =>
-      rawClient.POST(`/orgs/${slug}/events/${eventId}/check-in`),
+      client.POST("/orgs/{slug}/events/{id}/check-in", {
+        params: { path: { slug, id: eventId } },
+      }),
     onMutate: async () => {
       await qc.cancelQueries({ queryKey: statusKey });
       const prev = qc.getQueryData<CheckInStatus>(statusKey);
@@ -73,9 +64,11 @@ export function useResetCheckIn() {
 
   return useMutation({
     mutationFn: ({ slug, eventId }: { slug: string; eventId: string }) =>
-      rawClient
-        .POST(`/orgs/${slug}/events/${eventId}/rosters/check-in/reset`)
-        .then((r) => r.data as { reset: number }),
+      client
+        .POST("/orgs/{slug}/events/{id}/rosters/check-in/reset", {
+          params: { path: { slug, id: eventId } },
+        })
+        .then((r) => r.data!),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [...ROSTER_LIST_KEY_PREFIX] });
       qc.invalidateQueries({ queryKey: [...ROSTER_STATS_KEY_PREFIX] });
@@ -97,23 +90,15 @@ export function useAdminCheckInToggle() {
       rosterId: string;
       currentlyCheckedIn: boolean;
     }) =>
-      rawClient.POST(
-        `/orgs/${slug}/events/${eventId}/rosters/${rosterId}/check-in`,
-      ),
+      client.POST("/orgs/{slug}/events/{id}/rosters/{rosterId}/check-in", {
+        params: { path: { slug, id: eventId, rosterId } },
+      }),
     onMutate: async ({ rosterId, currentlyCheckedIn }) => {
       await qc.cancelQueries({ queryKey: [...ROSTER_LIST_KEY_PREFIX] });
       await qc.cancelQueries({ queryKey: [...ROSTER_STATS_KEY_PREFIX] });
 
-      type RosterResponse = {
-        data: { id: string; checkedInAt: string | null }[];
-        total: number;
-      };
-      type StatsResponse = {
-        total: number;
-        active: number;
-        pending: number;
-        checkedIn: number;
-      };
+      type RosterResponse = ApiSchemas["OrgsIdEventsIdRostersResponse"];
+      type StatsResponse = ApiSchemas["OrgsIdEventsIdRostersStatsResponse"];
 
       const rosterSnapshots: [readonly unknown[], RosterResponse][] = [];
       const statsSnapshots: [readonly unknown[], StatsResponse][] = [];

@@ -46,16 +46,10 @@ function SettingsPage() {
   const [selectedTz, setSelectedTz] = useState(currentTimezone);
   const isDirty = selectedTz !== currentTimezone;
 
-  const rawClient = client as unknown as {
-    PATCH: (
-      path: string,
-      opts: { body: Record<string, unknown> },
-    ) => Promise<{ data: unknown; error?: unknown }>;
-  };
-
   const mutation = useMutation({
     mutationFn: async (timezone: string | null) => {
-      const res = await rawClient.PATCH(`/orgs/${orgSlug}/settings`, {
+      const res = await client.PATCH("/orgs/{slug}/settings", {
+        params: { path: { slug: orgSlug } },
         body: { defaultTimezone: timezone },
       });
       if (res.error) throw new Error("Update failed");

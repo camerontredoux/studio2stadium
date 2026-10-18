@@ -49,7 +49,7 @@ export const Route = createFileRoute(
     const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     );
-    const features = ((data as any)?.features ?? {}) as Record<string, boolean>;
+    const features = (data?.features ?? {}) as Record<string, boolean>;
     if (!features.callbacks) {
       throw redirect({ to: "/o/$orgSlug/admin", params });
     }
@@ -108,7 +108,7 @@ function AdminCallbacksPage() {
     scoutingQueries.showcases(orgSlug),
   );
   const { data: org } = useSuspenseQuery(orgQueries.org(orgSlug));
-  const orgSettings = ((org as any)?.settings ?? {}) as Record<string, unknown>;
+  const orgSettings = (org?.settings ?? {}) as Record<string, unknown>;
   const maxCallbacks = resolveMaxCallbacks(orgSettings);
   const qc = useQueryClient();
   const sseStatus = useTransmitStatus();

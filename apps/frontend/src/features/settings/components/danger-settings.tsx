@@ -36,7 +36,7 @@ export function DangerSettings() {
         body: {
           feedback: feedback.trim() || undefined,
         },
-      } as any,
+      },
       {
         onSuccess: () => {
           window.location.href = "/login";

@@ -33,6 +33,7 @@ import {
   rosterSearchQueries,
   useAttachAccount,
 } from "@/features/org/api/roster-queries";
+import type { ApiSchemas } from "@/lib/api/client";
 import { useQuery } from "@tanstack/react-query";
 import { SearchIcon, TriangleAlertIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -46,14 +47,8 @@ export interface LinkedAccount {
   avatarUrl: string | null;
 }
 
-interface SearchResult {
-  id: string;
-  email: string;
-  firstName: string | null;
-  lastName: string | null;
-  avatar: string | null;
-  username: string;
-}
+type SearchResult =
+  ApiSchemas["OrgsIdEventsIdRostersSearchdancersResponse"][number];
 
 interface AttachAccountDialogProps {
   open: boolean;

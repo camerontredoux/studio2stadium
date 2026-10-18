@@ -45,10 +45,6 @@ const rawClient = client as unknown as {
     path: string,
     opts: { params: { path: Record<string, string> } },
   ) => Promise<{ data: unknown; error?: unknown }>;
-  POST: (
-    path: string,
-    opts: { params: { path: Record<string, string> }; body: unknown },
-  ) => Promise<{ data: unknown; error?: unknown }>;
 };
 
 export function TestEmailsSection({ orgSlug }: { orgSlug: string }) {
@@ -77,7 +73,7 @@ export function TestEmailsSection({ orgSlug }: { orgSlug: string }) {
 
   const mutation = useMutation({
     mutationFn: async (kind: TestEmailKind) => {
-      const res = await rawClient.POST(`/orgs/${orgSlug}/events/test-emails`, {
+      const res = await client.POST("/orgs/{slug}/events/test-emails", {
         params: { path: { slug: orgSlug } },
         body: {
           kind,

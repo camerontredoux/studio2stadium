@@ -40,8 +40,7 @@ export const adminQueries = {
           query: {
             page: search.page ?? 0,
             limit: search.limit ?? 10,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            sortBy: search.sortBy as any,
+            sortBy: search.sortBy,
             sortDirection: search.sortDirection,
           },
         },

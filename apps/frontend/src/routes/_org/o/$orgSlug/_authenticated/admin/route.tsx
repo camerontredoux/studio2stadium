@@ -18,7 +18,6 @@ import { queries } from "@/lib/session";
 import {
   ORG_AREA_ROUTES,
   resolveOrgArea,
-  type OrgAccess,
 } from "@/features/org/lib/org-destination";
 
 export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/admin")({
@@ -28,9 +27,9 @@ export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/admin")({
     );
     if (session?.role === "admin") return;
 
-    const data = (await context.queryClient.ensureQueryData(
+    const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
-    )) as OrgAccess | null;
+    );
     const area = resolveOrgArea(data);
     if (area !== "admin") {
       throw redirect({

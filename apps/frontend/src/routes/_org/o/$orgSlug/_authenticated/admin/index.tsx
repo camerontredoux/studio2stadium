@@ -112,10 +112,9 @@ function AdminDashboard({
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      const res = await (client as any).DELETE(
-        `/orgs/${orgSlug}/events/${activeEvent.id}`,
-        {},
-      );
+      const res = await client.DELETE("/orgs/{slug}/events/{id}", {
+        params: { path: { slug: orgSlug, id: activeEvent.id } },
+      });
       if (res.error) throw new Error("Delete failed");
     },
     onSuccess: () => {
@@ -394,10 +393,6 @@ function PreEventChecklist({
       path: string,
       opts: { body: Record<string, unknown> },
     ) => Promise<{ data: ChecklistItem }>;
-    DELETE: (
-      path: string,
-      opts?: Record<string, unknown>,
-    ) => Promise<{ data: unknown }>;
   };
 
   const toggleMutation = useMutation({
@@ -463,10 +458,9 @@ function PreEventChecklist({
 
   const deleteMutation = useMutation({
     mutationFn: async (itemId: string) => {
-      await rawClient.DELETE(
-        `/orgs/${orgSlug}/events/${eventId}/checklist/${itemId}`,
-        {},
-      );
+      await client.DELETE("/orgs/{slug}/events/{id}/checklist/{itemId}", {
+        params: { path: { slug: orgSlug, id: eventId, itemId } },
+      });
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey });
@@ -790,13 +784,6 @@ function ScheduleUploadPanel({
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const rawClient = client as unknown as {
-    PATCH: (
-      path: string,
-      opts: { body: Record<string, unknown> },
-    ) => Promise<{ data: unknown }>;
-  };
-
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
       const { key, url } = await requestUpload({
@@ -806,7 +793,8 @@ function ScheduleUploadPanel({
       setUploading(true);
       await uploadToCloudflare(url, file, setProgress);
 
-      await rawClient.PATCH(`/orgs/${orgSlug}/events/${eventId}`, {
+      await client.PATCH("/orgs/{slug}/events/{id}", {
+        params: { path: { slug: orgSlug, id: eventId } },
         body: { schedulePdfUrl: key },
       });
 
@@ -834,7 +822,8 @@ function ScheduleUploadPanel({
 
   const removeMutation = useMutation({
     mutationFn: async () => {
-      await rawClient.PATCH(`/orgs/${orgSlug}/events/${eventId}`, {
+      await client.PATCH("/orgs/{slug}/events/{id}", {
+        params: { path: { slug: orgSlug, id: eventId } },
         body: { schedulePdfUrl: null },
       });
     },

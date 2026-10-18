@@ -26,13 +26,10 @@ export function ViewSwitcher() {
   const queryClient = useQueryClient();
   const attendMutation = useMutation({
     mutationFn: async (type: "coach" | "dancer") => {
-      const raw = client as unknown as {
-        POST: (
-          path: string,
-          opts: { body: { type: "coach" | "dancer" } },
-        ) => Promise<void>;
-      };
-      await raw.POST(`/orgs/${orgSlug}/events/view-as`, { body: { type } });
+      await client.POST("/orgs/{slug}/events/view-as", {
+        params: { path: { slug: orgSlug } },
+        body: { type },
+      });
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries(orgQueries.org(orgSlug));

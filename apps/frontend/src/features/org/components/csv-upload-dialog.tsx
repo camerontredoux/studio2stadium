@@ -18,6 +18,7 @@ import {
   type ParseResult,
 } from "@/features/org/lib/csv-schemas";
 import { useOrg } from "@/features/org/context/use-org";
+import type { ApiSchemas } from "@/lib/api/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangleIcon,
@@ -64,22 +65,7 @@ type UploadResult = {
   errors: Array<{ row: number; reason: string }>;
 };
 
-type ServerPreview = {
-  totalRows: number;
-  /** Rows the server will process (after parser + account checks). */
-  acceptedRows: number;
-  /** Net-new rows that match an existing S2S account (will activate). */
-  willMatch: number;
-  /** Net-new rows that will trigger an invite email. */
-  willInvite: number;
-  /** Rows already on this event's roster (will be refreshed in place). */
-  willUpdate: number;
-  willError: number;
-  errors?: Array<{ row: number; reason: string }>;
-  /** CSV row indices that will update existing roster entries. */
-  updateRows?: number[];
-  previewToken?: string;
-};
+type ServerPreview = ApiSchemas["OrgsIdEventsIdUploadIdPreviewResponse"];
 
 function previewRowCounts(
   parse: ParseResult,

@@ -28,7 +28,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
+import { adminQueries } from "@/features/org/api/admin-queries";
 import { EventFormSheet } from "@/features/org/components/event-form-sheet";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import { client } from "@/lib/api/client";
@@ -62,13 +62,8 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
 
   const activate = useMutation({
     mutationFn: async (eventId: string) => {
-      const raw = client as unknown as {
-        PATCH: (
-          path: string,
-          options: { body: { isActive: boolean } },
-        ) => Promise<{ data: OrgEvent; error?: unknown }>;
-      };
-      const response = await raw.PATCH(`/orgs/${orgSlug}/events/${eventId}`, {
+      const response = await client.PATCH("/orgs/{slug}/events/{id}", {
+        params: { path: { slug: orgSlug, id: eventId } },
         body: { isActive: true },
       });
       if (response.error) throw new Error("Activation failed");

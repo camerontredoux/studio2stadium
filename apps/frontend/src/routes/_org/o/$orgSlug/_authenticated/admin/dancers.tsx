@@ -17,6 +17,7 @@ import { RosterDetailSheet } from "@/features/org/components/roster-detail-sheet
 import { RosterPageHeader } from "@/features/org/components/roster-page-header";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import { useOrg } from "@/features/org/context/use-org";
+import type { ApiSchemas } from "@/lib/api/client";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { type ColumnDef, type SortingState } from "@tanstack/react-table";
@@ -76,10 +77,7 @@ function PaidBadge({ paid }: { paid: boolean | null }) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type RosterEntryWithCheckIn = RosterEntry & { checkedInAt?: string | null };
-
-const baseColumns: ColumnDef<RosterEntryWithCheckIn, unknown>[] = [
+const baseColumns: ColumnDef<RosterEntry, unknown>[] = [
   {
     id: "bibNumber",
     accessorKey: "bibNumber",
@@ -125,7 +123,7 @@ const baseColumns: ColumnDef<RosterEntryWithCheckIn, unknown>[] = [
   },
 ];
 
-const checkedInColumn: ColumnDef<RosterEntryWithCheckIn, unknown> = {
+const checkedInColumn: ColumnDef<RosterEntry, unknown> = {
   id: "checkedInAt",
   accessorKey: "checkedInAt",
   header: "Checked In",
@@ -135,7 +133,7 @@ const checkedInColumn: ColumnDef<RosterEntryWithCheckIn, unknown> = {
   ),
 };
 
-const paidColumn: ColumnDef<RosterEntryWithCheckIn, unknown> = {
+const paidColumn: ColumnDef<RosterEntry, unknown> = {
   id: "paid",
   accessorKey: "paid",
   header: "Paid",
@@ -188,12 +186,9 @@ function DancersPage() {
     enabled: !!active,
   });
 
-  const data = (listQuery.data?.data ?? []) as RosterEntryWithCheckIn[];
+  const data = listQuery.data?.data ?? [];
   const total = listQuery.data?.total ?? 0;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const checkedInCount = (statsQuery.data as any)?.checkedIn as
-    | number
-    | undefined;
+  const checkedInCount = statsQuery.data?.checkedIn;
 
   const updateMutation = useUpdateRoster();
   const deleteMutation = useDeleteRosters();
@@ -202,7 +197,7 @@ function DancersPage() {
 
   const selectedEntry = data.find((r) => r.id === selectedId) ?? null;
 
-  const handleRowClick = (row: RosterEntryWithCheckIn) => {
+  const handleRowClick = (row: RosterEntry) => {
     setSelectedId(row.id);
     if (openSheetRafRef.current !== null) {
       cancelAnimationFrame(openSheetRafRef.current);
@@ -224,7 +219,7 @@ function DancersPage() {
   const handleCellEdit = useCallback(
     async (rowId: string, columnId: string, value: unknown) => {
       if (!active) return;
-      const body: Record<string, unknown> = {};
+      const body: ApiSchemas["OrgsIdEventsIdRostersIdRequest"] = {};
 
       if (columnId === "bibNumber") {
         body.bibNumber = value ? Number(value) : null;
@@ -243,8 +238,7 @@ function DancersPage() {
           params: {
             path: { slug: orgSlug, id: active.id, rosterId: rowId },
           },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          body: body as any,
+          body,
         });
         toastManager.add({ title: "Updated", type: "success" });
       } catch (err) {

@@ -15,6 +15,7 @@ import { RosterDetailSheet } from "@/features/org/components/roster-detail-sheet
 import { RosterPageHeader } from "@/features/org/components/roster-page-header";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import { useOrg } from "@/features/org/context/use-org";
+import type { ApiSchemas } from "@/lib/api/client";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { type ColumnDef, type SortingState } from "@tanstack/react-table";
@@ -158,7 +159,7 @@ function CoachesPage() {
   const handleCellEdit = useCallback(
     async (rowId: string, columnId: string, value: unknown) => {
       if (!active) return;
-      const body: Record<string, unknown> = {};
+      const body: ApiSchemas["OrgsIdEventsIdRostersIdRequest"] = {};
 
       if (columnId === "lastName") {
         const parts = String(value).trim().split(" ");
@@ -177,8 +178,7 @@ function CoachesPage() {
           params: {
             path: { slug: orgSlug, id: active.id, rosterId: rowId },
           },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          body: body as any,
+          body,
         });
         toastManager.add({ title: "Updated", type: "success" });
       } catch (err) {

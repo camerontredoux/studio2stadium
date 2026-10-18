@@ -1,4 +1,4 @@
-import { client } from "@/lib/api/client";
+import { client, type ApiSchemas } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toastManager } from "@/components/ui/toast-manager";
@@ -13,43 +13,13 @@ export const Route = createFileRoute(
   component: ReconciliationPage,
 });
 
-type InviteRow = {
-  id: string;
-  email: string;
-  organization: string | null;
-  token: string;
-  expiresAt: string;
-  consumedAt: string | null;
-  createdAt: string;
-};
+type SchoolUser =
+  ApiSchemas["OrgsIdEventsIdReconciliationSchoolusersResponse"][number];
 
-type OrphanRow = {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  organization: string | null;
-};
-
-type SchoolUser = {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-};
-
-async function fetchReconciliation(
-  slug: string,
-  eventId: string,
-): Promise<{ invites: InviteRow[]; orphanRosters: OrphanRow[] }> {
-  const res = await (
-    client as unknown as Record<
-      string,
-      (p: string) => Promise<{
-        data: { invites: InviteRow[]; orphanRosters: OrphanRow[] };
-      }>
-    >
-  )["GET"](`/orgs/${slug}/events/${eventId}/reconciliation`);
+async function fetchReconciliation(slug: string, eventId: string) {
+  const res = await client.GET("/orgs/{slug}/events/{id}/reconciliation", {
+    params: { path: { slug, id: eventId } },
+  });
   return res.data;
 }
 
@@ -100,14 +70,10 @@ function MergeDialog({
 
   const mergeMutation = useMutation({
     mutationFn: async (targetUserId: string) => {
-      await (
-        client as unknown as Record<
-          string,
-          (p: string, opts: { body: unknown }) => Promise<void>
-        >
-      )["POST"](
-        `/orgs/${slug}/events/${eventId}/reconciliation/rosters/${rosterId}/merge`,
+      await client.POST(
+        "/orgs/{slug}/events/{id}/reconciliation/rosters/{rosterId}/merge",
         {
+          params: { path: { slug, id: eventId, rosterId } },
           body: { targetUserId },
         },
       );
@@ -174,10 +140,9 @@ function ReconciliationPage() {
 
   const resendMutation = useMutation({
     mutationFn: async (inviteId: string) => {
-      await (client as unknown as Record<string, (p: string) => Promise<void>>)[
-        "POST"
-      ](
-        `/orgs/${orgSlug}/events/${active?.id}/reconciliation/invites/${inviteId}/resend`,
+      await client.POST(
+        "/orgs/{slug}/events/{id}/reconciliation/invites/{inviteId}/resend",
+        { params: { path: { slug: orgSlug, id: active!.id, inviteId } } },
       );
     },
     onSuccess: () => {
@@ -189,10 +154,9 @@ function ReconciliationPage() {
 
   const revokeMutation = useMutation({
     mutationFn: async (inviteId: string) => {
-      await (client as unknown as Record<string, (p: string) => Promise<void>>)[
-        "DELETE"
-      ](
-        `/orgs/${orgSlug}/events/${active?.id}/reconciliation/invites/${inviteId}`,
+      await client.DELETE(
+        "/orgs/{slug}/events/{id}/reconciliation/invites/{inviteId}",
+        { params: { path: { slug: orgSlug, id: active!.id, inviteId } } },
       );
     },
     onSuccess: () => {

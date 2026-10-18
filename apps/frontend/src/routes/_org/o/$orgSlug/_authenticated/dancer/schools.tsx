@@ -15,7 +15,7 @@ import {
 } from "react";
 import { ExternalLinkIcon, SearchIcon, StarIcon, XIcon } from "lucide-react";
 import type { ColumnDef, SortingState } from "@tanstack/react-table";
-import { $api } from "@/lib/api/client";
+import { $api, type ApiSchemas } from "@/lib/api/client";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { orgQueries } from "@/features/org/api/queries";
 import { useOrg } from "@/features/org/context/use-org";
@@ -58,14 +58,7 @@ export const Route = createFileRoute(
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-interface SchoolRow {
-  rosterId: string;
-  organization: string | null;
-  firstName: string;
-  lastName: string;
-  username: string | null;
-  isTopSchool: boolean;
-}
+type SchoolRow = ApiSchemas["OrgsIdSchoolsResponse"][number];
 
 /* ------------------------------------------------------------------ */
 /*  Columns                                                            */
@@ -202,9 +195,9 @@ function SchoolsPage() {
       await qc.cancelQueries({ queryKey: selectionsKey });
       const prevSchools = qc.getQueryData(schoolsKey);
       const prevSelections = qc.getQueryData(selectionsKey);
-      qc.setQueryData(schoolsKey, (old: any) =>
+      qc.setQueryData(schoolsKey, (old) =>
         Array.isArray(old)
-          ? old.map((s: any) =>
+          ? old.map((s) =>
               s.rosterId === body?.coachRosterId
                 ? { ...s, isTopSchool: true }
                 : s,
@@ -212,10 +205,10 @@ function SchoolsPage() {
           : old,
       );
       const school = (schools ?? []).find(
-        (s: any) => s.rosterId === body?.coachRosterId,
+        (s) => s.rosterId === body?.coachRosterId,
       );
       if (school) {
-        qc.setQueryData(selectionsKey, (old: any) =>
+        qc.setQueryData(selectionsKey, (old) =>
           Array.isArray(old)
             ? [
                 ...old,
@@ -250,30 +243,28 @@ function SchoolsPage() {
     "/orgs/{slug}/my-selections/{id}",
     {
       onMutate: async ({ params }) => {
-        const selectionId = (params?.path as any)?.id;
+        const selectionId = params?.path?.id;
         await qc.cancelQueries({ queryKey: schoolsKey });
         await qc.cancelQueries({ queryKey: selectionsKey });
         const prevSchools = qc.getQueryData(schoolsKey);
         const prevSelections = qc.getQueryData(selectionsKey);
 
         const selectionToRemove = (selections ?? []).find(
-          (s: any) => s.id === selectionId,
+          (s) => s.id === selectionId,
         );
         if (selectionToRemove) {
-          const coachRosterId = (selectionToRemove as any).coachRosterId;
-          qc.setQueryData(schoolsKey, (old: any) =>
+          const coachRosterId = selectionToRemove.coachRosterId;
+          qc.setQueryData(schoolsKey, (old) =>
             Array.isArray(old)
-              ? old.map((s: any) =>
+              ? old.map((s) =>
                   s.rosterId === coachRosterId
                     ? { ...s, isTopSchool: false }
                     : s,
                 )
               : old,
           );
-          qc.setQueryData(selectionsKey, (old: any) =>
-            Array.isArray(old)
-              ? old.filter((s: any) => s.id !== selectionId)
-              : old,
+          qc.setQueryData(selectionsKey, (old) =>
+            Array.isArray(old) ? old.filter((s) => s.id !== selectionId) : old,
           );
         }
         return { prevSchools, prevSelections };
@@ -299,11 +290,11 @@ function SchoolsPage() {
     (coachRosterId: string, current: boolean) => {
       if (current) {
         const sel = (selections ?? []).find(
-          (s: any) => s.coachRosterId === coachRosterId,
+          (s) => s.coachRosterId === coachRosterId,
         );
         if (sel) {
           removeSelection.mutate({
-            params: { path: { slug: orgSlug, id: (sel as any).id } },
+            params: { path: { slug: orgSlug, id: sel.id } },
           });
         }
       } else {
@@ -330,7 +321,7 @@ function SchoolsPage() {
     ],
   );
 
-  /* --- Derive isTopSchool from selections (works even before types are regenerated) --- */
+  /* --- Derive isTopSchool from selections --- */
   const selectedCoachIds = useMemo(
     () =>
       new Set((selections ?? []).map((selection) => selection.coachRosterId)),
@@ -339,13 +330,13 @@ function SchoolsPage() {
 
   /* --- Client-side filtering --- */
   const filteredData: SchoolRow[] = useMemo(() => {
-    let result = (schools ?? []).map((s: any) => ({
-      rosterId: s.rosterId as string,
-      organization: s.organization as string | null,
-      firstName: s.firstName as string,
-      lastName: s.lastName as string,
-      username: (s.username as string | null) ?? null,
-      isTopSchool: selectedCoachIds.has(s.rosterId as string),
+    let result = (schools ?? []).map((s) => ({
+      rosterId: s.rosterId,
+      organization: s.organization,
+      firstName: s.firstName,
+      lastName: s.lastName,
+      username: s.username ?? null,
+      isTopSchool: selectedCoachIds.has(s.rosterId),
     }));
 
     if (topOnly) {
