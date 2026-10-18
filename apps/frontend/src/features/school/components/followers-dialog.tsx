@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { type ApiSchemas } from "@/lib/api/client";
 import {
@@ -70,7 +71,9 @@ function FavoriteToggleButton({
 
 function FollowersList() {
   const { data: followers } = useSuspenseQuery(schoolQueries.followers());
-  const { data: following } = useQuery(schoolQueries.following());
+  const { data: following, isPending: isFollowingPending } = useQuery(
+    schoolQueries.following(),
+  );
 
   const favoritedIds = following?.map((d) => d.id) ?? [];
 
@@ -114,7 +117,14 @@ function FollowersList() {
                 </span>
               </div>
 
-              <FavoriteToggleButton dancer={dancer} isFavorited={isFavorited} />
+              {isFollowingPending ? (
+                <Skeleton className="h-8 w-20 rounded-lg sm:h-7" />
+              ) : (
+                <FavoriteToggleButton
+                  dancer={dancer}
+                  isFavorited={isFavorited}
+                />
+              )}
             </div>
           </div>
         );
