@@ -4,11 +4,29 @@ import {
   FramePanel,
   FrameTitle,
 } from "@/components/ui/frame";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { recruitingQueries } from "../../../api/queries";
 
 export function StatsSection() {
-  const { data } = useQuery(recruitingQueries.submissions());
+  const { data, isPending } = useQuery(recruitingQueries.submissions());
+
+  if (isPending) {
+    return (
+      <Frame compact>
+        <FrameHeader>
+          <FrameTitle>Stats</FrameTitle>
+        </FrameHeader>
+        <FramePanel>
+          <div className="grid grid-cols-3 gap-2 p-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-18 rounded-lg" />
+            ))}
+          </div>
+        </FramePanel>
+      </Frame>
+    );
+  }
 
   if (!data) {
     return (
