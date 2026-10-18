@@ -16,9 +16,23 @@ export function InputFilter({
   onFilterChange,
 }: InputFilterProps) {
   const [value, setValue] = useState(initialValue);
+  const [urlValue, setUrlValue] = useState(initialValue);
+  const [sent, setSent] = useState(initialValue);
+
+  // Follow the URL when something else changes it, such as Clear Filters or
+  // Back. Our own debounced search landing is not a reason to reset: the user
+  // may have typed more since it was sent.
+  if (initialValue !== urlValue) {
+    setUrlValue(initialValue);
+    if (initialValue !== sent) {
+      setValue(initialValue);
+      setSent(initialValue);
+    }
+  }
 
   // One timer across renders, so a burst of typing navigates once.
   const debouncedChange = useDebouncedCallback((v: string) => {
+    setSent(v || undefined);
     onFilterChange(v || undefined, { replace: true });
   }, 200);
 

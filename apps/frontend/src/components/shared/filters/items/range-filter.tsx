@@ -25,10 +25,15 @@ export function RangeFilter({ value, onFilterChange }: RangeFilterProps) {
   const clamp = (val: number | undefined, fallback: number) =>
     Math.min(Math.max(val || fallback, MIN), MAX);
 
-  const [values, setValues] = useState([
-    clamp(raw[0], MIN),
-    clamp(raw[1], MAX),
-  ]);
+  const fromUrl = () => [clamp(raw[0], MIN), clamp(raw[1], MAX)];
+  const [values, setValues] = useState(fromUrl);
+  const [urlValue, setUrlValue] = useState(value);
+
+  // Follow the URL when it changes, such as Clear Filters or Back.
+  if (String(value) !== String(urlValue)) {
+    setUrlValue(value);
+    setValues(fromUrl());
+  }
 
   const handleFilter = () => {
     onFilterChange(`${values[0]},${values[1]}`);
