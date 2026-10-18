@@ -17,6 +17,12 @@ interface RangeFilterProps {
 
 const MIN = 0;
 const MAX = 4;
+const STEP = 0.1;
+const STEP_DECIMALS = 1;
+
+// Slider steps add in floating point (0.1 + 0.2 = 0.30000000000000004), so
+// round to the step's precision before the value reaches state or the URL.
+const roundToStep = (v: number) => Number(v.toFixed(STEP_DECIMALS));
 
 export function RangeFilter({ value, onFilterChange }: RangeFilterProps) {
   const param = Array.isArray(value) ? value : value?.split(",");
@@ -40,7 +46,7 @@ export function RangeFilter({ value, onFilterChange }: RangeFilterProps) {
   };
 
   const updateValue = (index: number, newValue: number | null) => {
-    const v = newValue ?? MIN;
+    const v = roundToStep(newValue ?? MIN);
     setValues((prev) => {
       const next = [...prev];
       if (index === 0) {
@@ -73,8 +79,10 @@ export function RangeFilter({ value, onFilterChange }: RangeFilterProps) {
           thumbCollisionBehavior="none"
           max={MAX}
           min={MIN}
-          step={0.1}
-          onValueChange={(v) => setValues(Array.isArray(v) ? [...v] : [v])}
+          step={STEP}
+          onValueChange={(v) =>
+            setValues((Array.isArray(v) ? [...v] : [v]).map(roundToStep))
+          }
           value={values}
         />
         <NumberField
