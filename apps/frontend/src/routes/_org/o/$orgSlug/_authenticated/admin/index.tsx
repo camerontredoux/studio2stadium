@@ -797,10 +797,11 @@ function ScheduleUploadPanel({
       setUploading(true);
       await uploadToCloudflare(url, file, setProgress);
 
-      await client.PATCH("/orgs/{slug}/events/{id}", {
+      const { error } = await client.PATCH("/orgs/{slug}/events/{id}", {
         params: { path: { slug: orgSlug, id: eventId } },
         body: { schedulePdfUrl: key },
       });
+      if (error) throw error;
 
       return key;
     },
@@ -826,14 +827,18 @@ function ScheduleUploadPanel({
 
   const removeMutation = useMutation({
     mutationFn: async () => {
-      await client.PATCH("/orgs/{slug}/events/{id}", {
+      const { error } = await client.PATCH("/orgs/{slug}/events/{id}", {
         params: { path: { slug: orgSlug, id: eventId } },
         body: { schedulePdfUrl: null },
       });
+      if (error) throw error;
     },
     onSuccess: () => {
       invalidateOrgEvents(qc, orgSlug);
       toastManager.add({ title: "Schedule removed", type: "success" });
+    },
+    onError: () => {
+      toastManager.add({ title: "Failed to remove schedule", type: "error" });
     },
   });
 
