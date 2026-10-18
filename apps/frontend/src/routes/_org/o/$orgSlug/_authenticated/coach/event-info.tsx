@@ -146,10 +146,11 @@ function AttendEventGate({
   const queryClient = useQueryClient();
   const attendMutation = useMutation({
     mutationFn: async () => {
-      await client.POST("/orgs/{slug}/events/view-as", {
+      const { error } = await client.POST("/orgs/{slug}/events/view-as", {
         params: { path: { slug: orgSlug } },
         body: { type: "coach" },
       });
+      if (error) throw error;
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries(orgQueries.org(orgSlug));
