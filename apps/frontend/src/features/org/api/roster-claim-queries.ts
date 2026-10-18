@@ -7,6 +7,18 @@ const CLAIM_LIST_KEY_PREFIX = [
   "get",
   "/orgs/{slug}/admin/roster-claims",
 ] as const;
+const ROSTER_LIST_KEY_PREFIX = [
+  "get",
+  "/orgs/{slug}/events/{id}/rosters",
+] as const;
+const ROSTER_FILTERS_KEY_PREFIX = [
+  "get",
+  "/orgs/{slug}/events/{id}/rosters/filters",
+] as const;
+const ROSTER_STATS_KEY_PREFIX = [
+  "get",
+  "/orgs/{slug}/events/{id}/rosters/stats",
+] as const;
 
 /**
  * Files a dancer's request that a roster entry belongs to them. Creates a
@@ -28,7 +40,14 @@ export function useResolveRosterClaim() {
     "post",
     "/orgs/{slug}/admin/roster-claims/{claimId}/resolve",
     {
-      meta: { invalidateQueries: [CLAIM_LIST_KEY_PREFIX] },
+      meta: {
+        invalidateQueries: [
+          CLAIM_LIST_KEY_PREFIX,
+          ROSTER_LIST_KEY_PREFIX,
+          ROSTER_FILTERS_KEY_PREFIX,
+          ROSTER_STATS_KEY_PREFIX,
+        ],
+      },
     }
   );
 }
