@@ -4,25 +4,26 @@ import { Button } from "@/components/ui/button";
 import type { RecommendedDancer as RecommendedDancerType } from "@/features/feed/types";
 import { handleApiError } from "@/lib/api/errors";
 import { useFavoriteDancer } from "@/shared/engagement/api/mutations";
+import { queries } from "@/shared/engagement/api/queries";
 import { US_STATES } from "@/utils/constants/states";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { GraduationCapIcon, MapPinIcon, TargetIcon } from "lucide-react";
-import { useState } from "react";
 
 export function RecommendedDancer({
   dancer,
 }: {
   dancer: RecommendedDancerType;
 }) {
-  const { mutate } = useFavoriteDancer(dancer.id);
-  const [favorited, setFavorited] = useState(false);
+  const { data: favoritedIds } = useQuery(queries.followingIds("school"));
+  const { mutate, isPending, isSuccess } = useFavoriteDancer(dancer.id);
+  const favorited = isSuccess || (favoritedIds?.includes(dancer.id) ?? false);
   const [retryAfter, startCountdown] = useCountdown();
 
   const handleFavorite = () => {
     mutate(
       { params: { path: { id: dancer.id } } },
       {
-        onSuccess: () => setFavorited(true),
         onError: handleApiError({
           onRateLimit: (retryAfter) => {
             startCountdown(retryAfter);
@@ -71,7 +72,7 @@ export function RecommendedDancer({
           size="xs"
           variant="outline"
           onClick={handleFavorite}
-          disabled={favorited || !!retryAfter}
+          disabled={favorited || isPending || !!retryAfter}
         >
           {retryAfter
             ? `Retry in ${retryAfter}s`
