@@ -7,6 +7,7 @@ export function useSubmitVideo() {
       invalidateQueries: [
         recruitingQueries.submissions().queryKey,
         recruitingQueries.schools().queryKey,
+        recruitingQueries.submission().queryKey,
       ],
     },
   });
