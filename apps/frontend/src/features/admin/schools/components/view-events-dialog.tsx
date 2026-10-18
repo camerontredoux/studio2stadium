@@ -314,11 +314,7 @@ function EditEventDialog({
             type: "success",
           });
           queryClient.invalidateQueries({
-            queryKey: [
-              "get",
-              "/schools/{username}",
-              { path: { username: schoolUsername } },
-            ],
+            queryKey: adminQueries.schoolEvents(schoolUsername).queryKey,
           });
           onOpenChange(false);
         },
