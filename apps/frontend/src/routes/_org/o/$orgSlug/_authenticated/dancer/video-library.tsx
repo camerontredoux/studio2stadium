@@ -27,6 +27,13 @@ export const Route = createFileRoute(
       throw redirect({ to: "/o/$orgSlug/dancer", params });
     }
   },
+  // The page suspends on the events; awaiting them here keeps the dancer
+  // area on screen instead of the org loader.
+  loader: async ({ context, params }) => {
+    await context.queryClient.ensureQueryData(
+      adminQueries.events(params.orgSlug),
+    );
+  },
   component: DancerVideoLibrary,
 });
 

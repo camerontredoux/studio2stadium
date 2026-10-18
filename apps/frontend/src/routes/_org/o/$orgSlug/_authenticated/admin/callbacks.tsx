@@ -54,10 +54,17 @@ export const Route = createFileRoute(
       throw redirect({ to: "/o/$orgSlug/admin", params });
     }
   },
-  loader: ({ context, params }) => {
-    context.queryClient.prefetchQuery(
-      scoutingQueries.showcases(params.orgSlug),
-    );
+  // Awaited: the page suspends on both, and an unawaited prefetch let that
+  // replace the whole admin area with the org loader.
+  loader: async ({ context, params }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(
+        scoutingQueries.adminCallbacks(params.orgSlug),
+      ),
+      context.queryClient.ensureQueryData(
+        scoutingQueries.showcases(params.orgSlug),
+      ),
+    ]);
   },
   component: AdminCallbacksPage,
 });

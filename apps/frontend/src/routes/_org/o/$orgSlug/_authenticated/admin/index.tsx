@@ -18,7 +18,8 @@ import {
   UploadIcon,
   XIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import {
   AlertDialog,
@@ -1177,5 +1178,26 @@ function AdminHome() {
 
   if (!selectedEvent) return null;
 
-  return <AdminDashboard orgSlug={orgSlug} activeEvent={selectedEvent} />;
+  // The dashboard suspends on the event's stats and checklist; without its
+  // own boundary that replaced the whole admin area with the org loader.
+  return (
+    <Suspense fallback={<AdminDashboardSkeleton />}>
+      <AdminDashboard orgSlug={orgSlug} activeEvent={selectedEvent} />
+    </Suspense>
+  );
+}
+
+function AdminDashboardSkeleton() {
+  return (
+    <div className="flex flex-col gap-4 p-4 md:p-6">
+      <Skeleton className="h-8 w-64" />
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
+      </div>
+      <Skeleton className="h-64" />
+    </div>
+  );
 }
