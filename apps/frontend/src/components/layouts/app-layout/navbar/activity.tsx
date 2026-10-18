@@ -27,7 +27,7 @@ export function Activity() {
         </div>
         {session.type === "dancer" ? (
           <>
-            <DancerFollowersDialog>
+            <DancerFollowersDialog nativeButton={false}>
               <div className="group flex items-center gap-2">
                 <p className="text-muted-foreground group-hover:text-foreground">
                   Followers
@@ -35,7 +35,7 @@ export function Activity() {
                 <p className="ml-auto">{followers}</p>
               </div>
             </DancerFollowersDialog>
-            <DancerFollowingDialog>
+            <DancerFollowingDialog nativeButton={false}>
               <div className="group flex items-center gap-2">
                 <p className="text-muted-foreground group-hover:text-foreground">
                   Following
@@ -46,7 +46,7 @@ export function Activity() {
           </>
         ) : (
           <>
-            <SchoolFollowersDialog>
+            <SchoolFollowersDialog nativeButton={false}>
               <div className="group flex items-center gap-2">
                 <p className="text-muted-foreground group-hover:text-foreground">
                   Followers
@@ -54,7 +54,7 @@ export function Activity() {
                 <p className="ml-auto">{followers}</p>
               </div>
             </SchoolFollowersDialog>
-            <SchoolFollowingDialog>
+            <SchoolFollowingDialog nativeButton={false}>
               <div className="group flex items-center gap-2">
                 <p className="text-muted-foreground group-hover:text-foreground">
                   Favorites
