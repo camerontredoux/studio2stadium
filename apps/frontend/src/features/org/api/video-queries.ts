@@ -59,9 +59,14 @@ export function useDeleteCategory(slug: string, eventId: string) {
         void qc.invalidateQueries(videoQueries.categories(slug, eventId));
         toastManager.add({ title: "Category deleted", type: "success" });
       },
-      onError: () => {
+      onError: (error) => {
+        // The backend answers 409 with this message when videos still use
+        // the category; the error body carries no status or code.
+        const hasVideos = error?.message?.includes("videos still use it");
         toastManager.add({
-          title: "Cannot delete — category has videos",
+          title: hasVideos
+            ? "Cannot delete — category has videos"
+            : "Failed to delete category",
           type: "error",
         });
       },
