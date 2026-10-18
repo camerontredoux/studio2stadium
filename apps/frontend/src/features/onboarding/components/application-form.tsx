@@ -7,7 +7,7 @@ import { MaskInput } from "@/components/ui/mask-input";
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
-import { useSession } from "@/lib/session";
+import { phoneDraftKeyFor, useSession } from "@/lib/session";
 import { useRequestUpload } from "@/shared/images/api/mutations";
 import { ImageUploadField } from "@/shared/images/components/image-upload-field";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
@@ -46,7 +46,7 @@ export function ApplicationForm() {
   // The phone is only saved with the whole application, so keep a draft for
   // this tab: a reload or gate redirect before the ID upload succeeds would
   // otherwise empty the field. Keyed by user so another login can't see it.
-  const phoneDraftKey = `application-phone-draft:${session.id}`;
+  const phoneDraftKey = phoneDraftKeyFor(session.id);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
