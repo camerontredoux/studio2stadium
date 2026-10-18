@@ -31,6 +31,16 @@ export function MembershipSettings() {
         {},
         {
           onSuccess: (data) => {
+            // Without a Stripe subscription the backend redirects this request
+            // to /checkout, which arrives here as a success with no url.
+            if (!data?.url) {
+              toastManager.add({
+                title: "Error",
+                description: "Couldn't open billing. Please try again later.",
+                type: "error",
+              });
+              return;
+            }
             window.location.href = data.url;
           },
           onError: handleApiError({
