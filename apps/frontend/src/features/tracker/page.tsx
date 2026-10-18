@@ -157,8 +157,12 @@ export function TrackerPage() {
     setDialog((prev) => ({ key: prev.key + 1, open: true, item }));
 
   const setStage = (item: Item, stage: number) => {
-    updateItem.mutate({ params: { path: { id: item.id } }, body: { stage } });
-    if (stage > item.stage) celebrate(item, stage);
+    // Celebrate once the save lands, so a rejected move (a second Committed
+    // school, say) doesn't cheer before its error toast.
+    updateItem.mutate(
+      { params: { path: { id: item.id } }, body: { stage } },
+      { onSuccess: () => stage > item.stage && celebrate(item, stage) },
+    );
   };
 
   // The school's panel celebrates itself once every milestone is reached.
@@ -198,11 +202,11 @@ export function TrackerPage() {
           // Moving an item to a school that wasn't on the page puts that
           // school at the top, the same as adding one.
           if (!present.has(section)) saveOrder([section, ...sections]);
+          const stage = Number(changes.stage);
+          if (stage > item.stage) celebrate(item, stage);
         },
       },
     );
-    const stage = Number(changes.stage);
-    if (stage > item.stage) celebrate(item, stage);
   };
 
   const handlers: Handlers = {
