@@ -64,13 +64,11 @@ export function computeEventPhase(
     return { phase: "live", label, daysUntilStart, liveDay, totalDays };
   }
 
+  // The end date itself is still live, so the first wrapped day is the day
+  // after it.
   const daysSinceEnd = daysBetween(end, today);
   const label =
-    daysSinceEnd === 0
-      ? "Just wrapped"
-      : daysSinceEnd === 1
-        ? "Wrapped 1 day ago"
-        : `Wrapped ${daysSinceEnd} days ago`;
+    daysSinceEnd === 1 ? "Just wrapped" : `Wrapped ${daysSinceEnd} days ago`;
   return { phase: "wrapped", label, daysUntilStart, liveDay: null, totalDays };
 }
 
