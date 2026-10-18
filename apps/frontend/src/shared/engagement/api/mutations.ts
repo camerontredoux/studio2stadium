@@ -208,6 +208,14 @@ const schoolFollowingKey = $api.queryOptions(
   "/schools/me/following",
 ).queryKey;
 
+// A favorite also shows on the school's favorites page and as the
+// "Following" badge on Explore dancer cards.
+const schoolFavoritesKey = $api.queryOptions(
+  "get",
+  "/schools/me/favorites",
+).queryKey;
+const schoolFollowingIdsKey = queries.followingIds("school").queryKey;
+
 export function useFavoriteDancer(dancerId: string) {
   const queryClient = useQueryClient();
 
@@ -218,7 +226,12 @@ export function useFavoriteDancer(dancerId: string) {
 
   return $api.useMutation("post", "/dancers/{id}/favorite", {
     meta: {
-      invalidateQueries: [schoolFollowingKey],
+      invalidateQueries: [
+        schoolFollowingKey,
+        schoolFavoritesKey,
+        schoolFollowingIdsKey,
+        metadataQueryKey,
+      ],
     },
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: metadataQueryKey });
@@ -275,7 +288,12 @@ export function useUnfavoriteDancer(dancerId: string) {
 
   return $api.useMutation("delete", "/dancers/{id}/favorite", {
     meta: {
-      invalidateQueries: [schoolFollowingKey],
+      invalidateQueries: [
+        schoolFollowingKey,
+        schoolFavoritesKey,
+        schoolFollowingIdsKey,
+        metadataQueryKey,
+      ],
     },
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: metadataQueryKey });
