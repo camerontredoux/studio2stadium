@@ -214,7 +214,8 @@ export function AccountSettings() {
 }
 
 function UsernameField({ currentUsername, onCheckingChange }: { currentUsername: string; onCheckingChange: (checking: boolean) => void }) {
-  const { setError, clearErrors } = useFormContext<AccountSettingsSchema>();
+  const { setError, clearErrors, getFieldState } =
+    useFormContext<AccountSettingsSchema>();
   const [debouncedValue, setDebouncedValue] = useState("");
   const [typing, setTyping] = useState(false);
 
@@ -246,11 +247,14 @@ function UsernameField({ currentUsername, onCheckingChange }: { currentUsername:
 
   useEffect(() => {
     if (isTaken) {
-      setError("username", { type: "validate", message: "Username is already taken" });
-    } else {
+      setError("username", { type: "taken", message: "Username is already taken" });
+    } else if (getFieldState("username").error?.type === "taken") {
+      // Clear only our own error: clearing every error also hid the schema's
+      // ("Username must be alphanumeric") and showed "Available" while the
+      // form stayed invalid.
       clearErrors("username");
     }
-  }, [isTaken, setError, clearErrors]);
+  }, [isTaken, setError, clearErrors, getFieldState]);
 
   return (
     <Controller
