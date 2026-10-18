@@ -116,23 +116,19 @@ function AdminCallbacksPage() {
   const [publishOpen, setPublishOpen] = useState(false);
   const [nextOpen, setNextOpen] = useState(false);
 
-  useTransmitSubscription(`orgs/${orgSlug}/callbacks`, () => {
+  const refreshCallbacks = () => {
     qc.invalidateQueries({
       queryKey: scoutingQueries.adminCallbacks(orgSlug).queryKey,
     });
     qc.invalidateQueries({
       queryKey: scoutingQueries.showcases(orgSlug).queryKey,
     });
-  });
-
-  useTransmitSubscription(`orgs/${orgSlug}/showcases`, () => {
     qc.invalidateQueries({
-      queryKey: scoutingQueries.adminCallbacks(orgSlug).queryKey,
+      queryKey: scoutingQueries.publishPreview(orgSlug).queryKey,
     });
-    qc.invalidateQueries({
-      queryKey: scoutingQueries.showcases(orgSlug).queryKey,
-    });
-  });
+  };
+  useTransmitSubscription(`orgs/${orgSlug}/callbacks`, refreshCallbacks);
+  useTransmitSubscription(`orgs/${orgSlug}/showcases`, refreshCallbacks);
 
   const showcase = data.showcase;
   const isPublished = showcase?.status === "published";
