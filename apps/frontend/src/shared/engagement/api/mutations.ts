@@ -21,6 +21,10 @@ const dancerFollowingKey = $api.queryOptions(
 // Following a school completes the roadmap's favorite step.
 const premiumRoadmapKey = premiumRoadmapQueries.get().queryKey;
 
+// The feed is built from the schools a dancer follows, or the dancers a
+// school has favorited.
+const feedKey = ["get", "/feed"];
+
 export function useFollowSchool(school: FollowedSchool) {
   const queryClient = useQueryClient();
 
@@ -31,7 +35,7 @@ export function useFollowSchool(school: FollowedSchool) {
 
   return $api.useMutation("post", "/schools/{id}/follow", {
     meta: {
-      invalidateQueries: [premiumRoadmapKey],
+      invalidateQueries: [premiumRoadmapKey, feedKey],
     },
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: metadataQueryKey });
@@ -121,7 +125,7 @@ export function useUnfollowSchool(school: FollowedSchool) {
 
   return $api.useMutation("delete", "/schools/{id}/follow", {
     meta: {
-      invalidateQueries: [premiumRoadmapKey],
+      invalidateQueries: [premiumRoadmapKey, feedKey],
     },
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: metadataQueryKey });
@@ -231,6 +235,7 @@ export function useFavoriteDancer(dancerId: string) {
         schoolFavoritesKey,
         schoolFollowingIdsKey,
         metadataQueryKey,
+        feedKey,
       ],
     },
     onMutate: async () => {
@@ -293,6 +298,7 @@ export function useUnfavoriteDancer(dancerId: string) {
         schoolFavoritesKey,
         schoolFollowingIdsKey,
         metadataQueryKey,
+        feedKey,
       ],
     },
     onMutate: async () => {
