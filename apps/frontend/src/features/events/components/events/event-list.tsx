@@ -82,13 +82,15 @@ export function EventList() {
     <div ref={parentRef}>
       <div className="sticky top-14 z-10 pb-3">
         <div className="flex items-center justify-between">
-          <div className="border-brand/20 bg-background/90 flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-1 backdrop-blur-sm">
-            <CalendarIcon className="text-brand size-3.5" />
-            <span className="text-brand text-sm font-semibold">
-              {activeMonth || "Empty"}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
+          {activeMonth ? (
+            <div className="border-brand/20 bg-background/90 flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-1 backdrop-blur-sm">
+              <CalendarIcon className="text-brand size-3.5" />
+              <span className="text-brand text-sm font-semibold">
+                {activeMonth}
+              </span>
+            </div>
+          ) : null}
+          <div className="ml-auto flex items-center gap-2">
             <SavedToggle onChange={toggleShowSaved} />
             <div className="bg-background rounded-lg">
               <EventsFilterSheet />
