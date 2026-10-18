@@ -70,8 +70,14 @@ export function DancerSidebar() {
   useTransmitSubscription(
     hasFeature("callbacks") ? `orgs/${orgSlug}/showcases` : null,
     () => {
+      // Every event's callbacks: a key carrying `eventId: undefined` would
+      // not match the event-scoped queries the callbacks pages use.
       qc.invalidateQueries({
-        queryKey: scoutingQueries.dancerCallbacks(orgSlug).queryKey,
+        queryKey: [
+          "get",
+          "/orgs/{slug}/dancer/callbacks",
+          { params: { path: { slug: orgSlug } } },
+        ],
       });
     },
   );
