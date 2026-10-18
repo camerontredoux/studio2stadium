@@ -1,5 +1,5 @@
 import { $api, type ApiSchemas } from "@/lib/api/client";
-import { useQueryClient } from "@tanstack/react-query";
+import { type QueryKey, useQueryClient } from "@tanstack/react-query";
 import { eventQueries } from "./queries";
 
 type EventDetail = ApiSchemas["EventsIdResponse"];
@@ -7,8 +7,11 @@ type EventsList = ApiSchemas["EventsResponse"];
 type GlobalEventsList = ApiSchemas["EventsGlobalResponse"];
 type MutationContext = {
   previousDetail: EventDetail | undefined;
-  previousList: EventsList | undefined;
+  previousLists: [QueryKey, EventsList | undefined][];
 };
+// Every filter variant of the events list, e.g. ["get", "/events", { params }].
+const listsQueryKey = ["get", "/events"];
+
 type GlobalMutationContext = {
   previousGlobalEvents: GlobalEventsList | undefined;
 };
@@ -16,16 +19,17 @@ type GlobalMutationContext = {
 export function useSaveEvent(id: string) {
   const queryClient = useQueryClient();
   const detailQueryKey = eventQueries.event(id).queryKey;
-  const listQueryKey = eventQueries.events().queryKey;
 
   return $api.useMutation("post", "/events/{id}/save", {
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: detailQueryKey });
-      await queryClient.cancelQueries({ queryKey: listQueryKey });
+      await queryClient.cancelQueries({ queryKey: listsQueryKey });
 
       const previousDetail =
         queryClient.getQueryData<EventDetail>(detailQueryKey);
-      const previousList = queryClient.getQueryData<EventsList>(listQueryKey);
+      const previousLists = queryClient.getQueriesData<EventsList>({
+        queryKey: listsQueryKey,
+      });
 
       queryClient.setQueryData<EventDetail>(detailQueryKey, (old) =>
         old
@@ -33,16 +37,18 @@ export function useSaveEvent(id: string) {
           : old,
       );
 
-      queryClient.setQueryData<EventsList>(listQueryKey, (old) =>
-        old?.map((month) => ({
-          ...month,
-          events: month.events.map((event) =>
-            event.id === id ? { ...event, saved: true } : event,
-          ),
-        })),
+      queryClient.setQueriesData<EventsList>(
+        { queryKey: listsQueryKey },
+        (old) =>
+          old?.map((month) => ({
+            ...month,
+            events: month.events.map((event) =>
+              event.id === id ? { ...event, saved: true } : event,
+            ),
+          })),
       );
 
-      return { previousDetail, previousList };
+      return { previousDetail, previousLists };
     },
     onError: (_err, _variables, onMutateResult) => {
       const result = onMutateResult as MutationContext | undefined;
@@ -52,12 +58,12 @@ export function useSaveEvent(id: string) {
           result.previousDetail,
         );
       }
-      if (result?.previousList) {
-        queryClient.setQueryData<EventsList>(listQueryKey, result.previousList);
+      for (const [queryKey, previousList] of result?.previousLists ?? []) {
+        queryClient.setQueryData<EventsList>(queryKey, previousList);
       }
     },
     meta: {
-      invalidateQueries: [detailQueryKey],
+      invalidateQueries: [detailQueryKey, listsQueryKey],
     },
   });
 }
@@ -65,16 +71,17 @@ export function useSaveEvent(id: string) {
 export function useUnsaveEvent(id: string) {
   const queryClient = useQueryClient();
   const detailQueryKey = eventQueries.event(id).queryKey;
-  const listQueryKey = eventQueries.events().queryKey;
 
   return $api.useMutation("delete", "/events/{id}/unsave", {
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: detailQueryKey });
-      await queryClient.cancelQueries({ queryKey: listQueryKey });
+      await queryClient.cancelQueries({ queryKey: listsQueryKey });
 
       const previousDetail =
         queryClient.getQueryData<EventDetail>(detailQueryKey);
-      const previousList = queryClient.getQueryData<EventsList>(listQueryKey);
+      const previousLists = queryClient.getQueriesData<EventsList>({
+        queryKey: listsQueryKey,
+      });
 
       queryClient.setQueryData<EventDetail>(detailQueryKey, (old) =>
         old
@@ -86,16 +93,18 @@ export function useUnsaveEvent(id: string) {
           : old,
       );
 
-      queryClient.setQueryData<EventsList>(listQueryKey, (old) =>
-        old?.map((month) => ({
-          ...month,
-          events: month.events.map((event) =>
-            event.id === id ? { ...event, saved: false } : event,
-          ),
-        })),
+      queryClient.setQueriesData<EventsList>(
+        { queryKey: listsQueryKey },
+        (old) =>
+          old?.map((month) => ({
+            ...month,
+            events: month.events.map((event) =>
+              event.id === id ? { ...event, saved: false } : event,
+            ),
+          })),
       );
 
-      return { previousDetail, previousList };
+      return { previousDetail, previousLists };
     },
     onError: (_err, _variables, onMutateResult) => {
       const result = onMutateResult as MutationContext | undefined;
@@ -105,12 +114,12 @@ export function useUnsaveEvent(id: string) {
           result.previousDetail,
         );
       }
-      if (result?.previousList) {
-        queryClient.setQueryData<EventsList>(listQueryKey, result.previousList);
+      for (const [queryKey, previousList] of result?.previousLists ?? []) {
+        queryClient.setQueryData<EventsList>(queryKey, previousList);
       }
     },
     meta: {
-      invalidateQueries: [detailQueryKey],
+      invalidateQueries: [detailQueryKey, listsQueryKey],
     },
   });
 }
