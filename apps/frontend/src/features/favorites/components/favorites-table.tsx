@@ -327,7 +327,7 @@ export function FavoritesTable() {
               Loading favorites...
             </p>
           </div>
-        ) : isError ? (
+        ) : isError && !data ? (
           <FavoritesError onRetry={() => refetch()} />
         ) : paginatedData.length ? (
           <>
@@ -510,7 +510,7 @@ export function FavoritesTable() {
                   </div>
                 </TableCell>
               </TableRow>
-            ) : isError ? (
+            ) : isError && !data ? (
               <TableRow className="hover:bg-transparent">
                 <TableCell className="h-24" colSpan={columns.length}>
                   <FavoritesError onRetry={() => refetch()} />
