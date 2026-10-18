@@ -44,17 +44,23 @@ export const sessionQueries = {
     return queryOptions({
       queryKey: ["application"],
       queryFn: async () => {
+        // Not SessionNetworkError: the session is already cached, so its
+        // /login redirect would bounce straight back to /feed and loop.
         const { data, error, response } = await client
           .GET("/application")
           .catch(() => {
-            throw new SessionNetworkError();
+            throw new Error(
+              "Couldn't reach the server to load your application. Check your connection and reload.",
+            );
           });
         const { status } = response;
 
-        // A school without a profile gets 403, and has no application yet.
-        // Any other failure throws, so the route shows its error instead of
-        // sending a school that has applied back to onboarding.
-        if (status === 403) return null;
+        // A school without a profile gets 403, and has no application yet. A
+        // 401 means the session expired; returning null keeps the old flow,
+        // where the next authenticated request signs the user out. Any other
+        // failure throws, so the route shows its error instead of sending a
+        // school that has applied back to onboarding.
+        if (status === 403 || status === 401) return null;
         if (error) {
           throw new Error(`Couldn't load your application (status ${status}).`);
         }
