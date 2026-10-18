@@ -141,7 +141,12 @@ function AddMilestoneForm({
           onClick={submit}
         >
           {createMilestone.isPending ? (
-            <Spinner label="Adding…" />
+            // Offline, the save waits for the connection instead of failing.
+            <Spinner
+              label={
+                createMilestone.isPaused ? "Waiting for connection…" : "Adding…"
+              }
+            />
           ) : (
             "Add milestone"
           )}

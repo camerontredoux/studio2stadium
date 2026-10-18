@@ -298,6 +298,7 @@ export function TrackerPage() {
         onAdd={addItem}
         onSave={saveItem}
         pending={dialog.item ? updateItem.isPending : createItem.isPending}
+        paused={dialog.item ? updateItem.isPaused : createItem.isPaused}
       />
     </div>
   );
