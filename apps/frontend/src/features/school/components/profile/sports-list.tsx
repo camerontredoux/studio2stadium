@@ -1,5 +1,6 @@
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
+import { retryLoad } from "@/lib/retry-load";
 import { SportsDialog } from "@/shared/sports/components/sports-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { cloneElement } from "react";
@@ -13,7 +14,7 @@ export function SportsList({
   render: React.ReactElement;
   username?: string;
 }) {
-  const { data } = useQuery(schoolQueries.sports());
+  const { data, isError, refetch } = useQuery(schoolQueries.sports());
   const { mutateAsync, isPending } = useUpdateSports(username);
 
   const selectedSportIds = (data ?? []).map((sport) => sport.sportId);
@@ -50,11 +51,18 @@ export function SportsList({
   };
 
   // Until the saved selection loads, the dialog would open with nothing
-  // selected and Save would overwrite it, so don't offer it yet.
+  // selected and Save would overwrite it, so don't offer it yet. If the load
+  // failed, the trigger retries it instead of staying disabled.
   if (!data) {
-    return cloneElement(render as React.ReactElement<{ disabled?: boolean }>, {
-      disabled: true,
-    });
+    return cloneElement(
+      render as React.ReactElement<{
+        disabled?: boolean;
+        onClick?: () => void;
+      }>,
+      isError
+        ? { onClick: () => retryLoad(refetch, "Error loading your sports") }
+        : { disabled: true },
+    );
   }
 
   return (

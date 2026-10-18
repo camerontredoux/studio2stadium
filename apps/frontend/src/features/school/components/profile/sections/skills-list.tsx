@@ -2,6 +2,7 @@ import { toastManager } from "@/components/ui/toast-manager";
 import { useUpdateSkills } from "@/features/school/api/mutations";
 import { schoolQueries } from "@/features/school/api/queries";
 import { handleApiError } from "@/lib/api/errors";
+import { retryLoad } from "@/lib/retry-load";
 import { SkillsDialog } from "@/shared/skills/components/skills-dialog";
 import type { ButtonProps } from "@base-ui/react";
 import { useQuery } from "@tanstack/react-query";
@@ -11,7 +12,7 @@ interface SkillsListProps extends ButtonProps {
 }
 
 export function SkillsList({ username, ...props }: SkillsListProps) {
-  const { data } = useQuery(schoolQueries.skills());
+  const { data, isError, refetch } = useQuery(schoolQueries.skills());
   const { mutateAsync, isPending } = useUpdateSkills(username);
 
   const selectedSkillIds = (data ?? []).map((skill) => skill.skillId);
@@ -61,8 +62,17 @@ export function SkillsList({ username, ...props }: SkillsListProps) {
       isPending={isPending}
       {...props}
       // Until the saved selection loads, the dialog would open with nothing
-      // selected and Save would overwrite it, so don't offer it yet.
-      disabled={!data || props.disabled}
+      // selected and Save would overwrite it, so don't offer it yet. If the
+      // load failed, the trigger retries it instead of opening the dialog.
+      disabled={(!data && !isError) || props.disabled}
+      onClick={
+        !data && isError
+          ? (event) => {
+              event.preventBaseUIHandler();
+              void retryLoad(refetch, "Error loading your skills");
+            }
+          : props.onClick
+      }
     />
   );
 }

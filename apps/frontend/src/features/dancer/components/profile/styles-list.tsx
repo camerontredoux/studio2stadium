@@ -1,5 +1,6 @@
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
+import { retryLoad } from "@/lib/retry-load";
 import { useSession } from "@/lib/session";
 import { StylesDialog } from "@/shared/styles/components/styles-dialog";
 import { useQuery } from "@tanstack/react-query";
@@ -10,7 +11,7 @@ import { dancerQueries } from "../../api/queries";
 export function StylesList({ render }: { render: React.ReactElement }) {
   const session = useSession();
 
-  const { data } = useQuery(dancerQueries.styles());
+  const { data, isError, refetch } = useQuery(dancerQueries.styles());
   const { mutateAsync, isPending } = useUpdateStyles(session.username);
 
   const selectedStyleIds = (data ?? []).map((style) => style.styleId);
@@ -47,11 +48,18 @@ export function StylesList({ render }: { render: React.ReactElement }) {
   };
 
   // Until the saved selection loads, the dialog would open with nothing
-  // selected and Save would overwrite it, so don't offer it yet.
+  // selected and Save would overwrite it, so don't offer it yet. If the load
+  // failed, the trigger retries it instead of staying disabled.
   if (!data) {
-    return cloneElement(render as React.ReactElement<{ disabled?: boolean }>, {
-      disabled: true,
-    });
+    return cloneElement(
+      render as React.ReactElement<{
+        disabled?: boolean;
+        onClick?: () => void;
+      }>,
+      isError
+        ? { onClick: () => retryLoad(refetch, "Error loading your styles") }
+        : { disabled: true },
+    );
   }
 
   return (
