@@ -63,13 +63,14 @@ function MergeDialog({
 
   const mergeMutation = useMutation({
     mutationFn: async (targetUserId: string) => {
-      await client.POST(
+      const { error } = await client.POST(
         "/orgs/{slug}/events/{id}/reconciliation/rosters/{rosterId}/merge",
         {
           params: { path: { slug, id: eventId, rosterId } },
           body: { targetUserId },
         },
       );
+      if (error) throw error;
     },
     onSuccess: () => {
       toastManager.add({ title: "Roster merged", type: "success" });
@@ -136,10 +137,11 @@ function ReconciliationPage() {
 
   const resendMutation = useMutation({
     mutationFn: async (inviteId: string) => {
-      await client.POST(
+      const { error } = await client.POST(
         "/orgs/{slug}/events/{id}/reconciliation/invites/{inviteId}/resend",
         { params: { path: { slug: orgSlug, id: active!.id, inviteId } } },
       );
+      if (error) throw error;
     },
     onSuccess: () => {
       toastManager.add({ title: "Invite resent", type: "success" });
@@ -150,10 +152,11 @@ function ReconciliationPage() {
 
   const revokeMutation = useMutation({
     mutationFn: async (inviteId: string) => {
-      await client.DELETE(
+      const { error } = await client.DELETE(
         "/orgs/{slug}/events/{id}/reconciliation/invites/{inviteId}",
         { params: { path: { slug: orgSlug, id: active!.id, inviteId } } },
       );
+      if (error) throw error;
     },
     onSuccess: () => {
       toastManager.add({ title: "Invite revoked", type: "success" });
