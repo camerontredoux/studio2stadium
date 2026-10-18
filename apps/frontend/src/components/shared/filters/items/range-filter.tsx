@@ -31,7 +31,11 @@ export function RangeFilter({ value, onFilterChange }: RangeFilterProps) {
   const clamp = (val: number | undefined, fallback: number) =>
     Math.min(Math.max(val || fallback, MIN), MAX);
 
-  const fromUrl = () => [clamp(raw[0], MIN), clamp(raw[1], MAX)];
+  // Old links can carry unrounded values, so round those too.
+  const fromUrl = () => [
+    roundToStep(clamp(raw[0], MIN)),
+    roundToStep(clamp(raw[1], MAX)),
+  ];
   const [values, setValues] = useState(fromUrl);
   const [urlValue, setUrlValue] = useState(value);
 
