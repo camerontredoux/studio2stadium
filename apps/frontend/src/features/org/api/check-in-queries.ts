@@ -1,22 +1,12 @@
-import { client, type ApiSchemas } from "@/lib/api/client";
-import {
-  queryOptions,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { $api, client, type ApiSchemas } from "@/lib/api/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export type CheckInStatus = ApiSchemas["OrgsIdEventsIdCheckinStatusResponse"];
 
 export const checkInQueries = {
   status: (slug: string, eventId: string) =>
-    queryOptions({
-      queryKey: ["orgs", slug, "events", eventId, "check-in", "status"],
-      queryFn: () =>
-        client
-          .GET("/orgs/{slug}/events/{id}/check-in/status", {
-            params: { path: { slug, id: eventId } },
-          })
-          .then((r) => r.data!),
+    $api.queryOptions("get", "/orgs/{slug}/events/{id}/check-in/status", {
+      params: { path: { slug, id: eventId } },
     }),
 };
 

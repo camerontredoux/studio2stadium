@@ -53,6 +53,7 @@ import {
   adminQueries,
   type ChecklistItem,
   type CsvUploadSummary,
+  invalidateOrgEvents,
   type OrgEvent,
 } from "@/features/org/api/admin-queries";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
@@ -81,7 +82,7 @@ import {
   useEventPhase,
   type EventPhaseInfo,
 } from "@/features/org/hooks/use-event-phase";
-import { client } from "@/lib/api/client";
+import { $api, client } from "@/lib/api/client";
 import { useRequestUpload } from "@/shared/images/api/mutations";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
 
@@ -110,23 +111,21 @@ function AdminDashboard({
     () => setEditOpen(true),
   );
 
-  const deleteMutation = useMutation({
-    mutationFn: async () => {
-      const res = await client.DELETE("/orgs/{slug}/events/{id}", {
-        params: { path: { slug: orgSlug, id: activeEvent.id } },
-      });
-      if (res.error) throw new Error("Delete failed");
+  const deleteMutation = $api.useMutation(
+    "delete",
+    "/orgs/{slug}/events/{id}",
+    {
+      onSuccess: () => {
+        invalidateOrgEvents(qc, orgSlug);
+        toastManager.add({ title: "Event deleted", type: "success" });
+        setDeleteOpen(false);
+        setDeleteConfirmText("");
+      },
+      onError: () => {
+        toastManager.add({ title: "Couldn't delete event", type: "error" });
+      },
     },
-    onSuccess: () => {
-      qc.invalidateQueries(adminQueries.events(orgSlug));
-      toastManager.add({ title: "Event deleted", type: "success" });
-      setDeleteOpen(false);
-      setDeleteConfirmText("");
-    },
-    onError: () => {
-      toastManager.add({ title: "Couldn't delete event", type: "error" });
-    },
-  });
+  );
 
   const handleDeleteOpenChange = (open: boolean) => {
     setDeleteOpen(open);
@@ -300,7 +299,11 @@ function AdminDashboard({
                 deleteConfirmText.toLowerCase() !== "delete" ||
                 deleteMutation.isPending
               }
-              onClick={() => deleteMutation.mutate()}
+              onClick={() =>
+                deleteMutation.mutate({
+                  params: { path: { slug: orgSlug, id: activeEvent.id } },
+                })
+              }
             >
               {deleteMutation.isPending ? (
                 <Spinner label="Deleting..." />
@@ -801,7 +804,7 @@ function ScheduleUploadPanel({
       return key;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["orgs", orgSlug, "events"] });
+      invalidateOrgEvents(qc, orgSlug);
       setFiles([]);
       setProgress(0);
       setUploading(false);
@@ -828,7 +831,7 @@ function ScheduleUploadPanel({
       });
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["orgs", orgSlug, "events"] });
+      invalidateOrgEvents(qc, orgSlug);
       toastManager.add({ title: "Schedule removed", type: "success" });
     },
   });

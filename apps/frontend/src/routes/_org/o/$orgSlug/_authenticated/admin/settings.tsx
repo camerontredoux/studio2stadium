@@ -7,8 +7,8 @@ import { toastManager } from "@/components/ui/toast-manager";
 import { orgQueries } from "@/features/org/api/queries";
 import { TestEmailsSection } from "@/features/org/components/test-emails-section";
 import { useOrg } from "@/features/org/context/use-org";
-import { client } from "@/lib/api/client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { $api } from "@/lib/api/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { CheckIcon, ChevronDownIcon, GlobeIcon } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
@@ -46,15 +46,7 @@ function SettingsPage() {
   const [selectedTz, setSelectedTz] = useState(currentTimezone);
   const isDirty = selectedTz !== currentTimezone;
 
-  const mutation = useMutation({
-    mutationFn: async (timezone: string | null) => {
-      const res = await client.PATCH("/orgs/{slug}/settings", {
-        params: { path: { slug: orgSlug } },
-        body: { defaultTimezone: timezone },
-      });
-      if (res.error) throw new Error("Update failed");
-      return res.data;
-    },
+  const mutation = $api.useMutation("patch", "/orgs/{slug}/settings", {
     onSuccess: () => {
       qc.invalidateQueries(orgQueries.org(orgSlug));
       toastManager.add({ title: "Settings saved", type: "success" });
@@ -65,7 +57,10 @@ function SettingsPage() {
   });
 
   const handleSave = () => {
-    mutation.mutate(selectedTz || null);
+    mutation.mutate({
+      params: { path: { slug: orgSlug } },
+      body: { defaultTimezone: selectedTz || null },
+    });
   };
 
   return (

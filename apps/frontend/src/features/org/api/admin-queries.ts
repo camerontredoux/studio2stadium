@@ -1,12 +1,5 @@
-import { queryOptions } from "@tanstack/react-query";
-import { client } from "@/lib/api/client";
-
-async function fetchJson<T>(path: string): Promise<T> {
-  const res = await (
-    client as unknown as Record<string, (p: string) => Promise<{ data: T }>>
-  )["GET"](path);
-  return res.data;
-}
+import type { QueryClient } from "@tanstack/react-query";
+import { $api } from "@/lib/api/client";
 
 export type OrgEvent = {
   id: string;
@@ -62,26 +55,51 @@ export type ChecklistItem = {
   updatedAt: string;
 };
 
+// The spec types the event list with the feature-flag schema and /stats with
+// a different shape than the backend returns, so these two read the data as
+// the hand-written types above.
+const asOrgEvents = (data: unknown) => data as OrgEvent[];
+const asOrgEventStats = (data: unknown) => data as OrgEventStats;
+
 export const adminQueries = {
   events: (slug: string) =>
-    queryOptions({
-      queryKey: ["orgs", slug, "events"],
-      queryFn: () => fetchJson<OrgEvent[]>(`/orgs/${slug}/events`),
-    }),
+    $api.queryOptions(
+      "get",
+      "/orgs/{slug}/events",
+      { params: { path: { slug } } },
+      { select: asOrgEvents },
+    ),
   stats: (slug: string, eventId: string) =>
-    queryOptions({
-      queryKey: ["orgs", slug, "events", eventId, "stats"],
-      queryFn: () =>
-        fetchJson<OrgEventStats>(`/orgs/${slug}/events/${eventId}/stats`),
-    }),
+    $api.queryOptions(
+      "get",
+      "/orgs/{slug}/events/{id}/stats",
+      { params: { path: { slug, id: eventId } } },
+      { select: asOrgEventStats },
+    ),
   checklist: (slug: string, eventId: string) =>
-    queryOptions({
-      queryKey: ["orgs", slug, "events", eventId, "checklist"],
-      queryFn: () =>
-        client
-          .GET("/orgs/{slug}/events/{id}/checklist", {
-            params: { path: { slug, id: eventId } },
-          })
-          .then((r) => r.data!),
+    $api.queryOptions("get", "/orgs/{slug}/events/{id}/checklist", {
+      params: { path: { slug, id: eventId } },
     }),
 };
+
+// The event-scoped queries used to share the key prefix
+// ["orgs", slug, "events"], so invalidating the event list also refreshed
+// every event's stats, checklist, check-in status and videos. This keeps that.
+const ORG_EVENT_QUERY_PATHS = new Set<unknown>([
+  "/orgs/{slug}/events",
+  "/orgs/{slug}/events/{id}/stats",
+  "/orgs/{slug}/events/{id}/checklist",
+  "/orgs/{slug}/events/{id}/check-in/status",
+  "/orgs/{slug}/events/{id}/video-categories",
+  "/orgs/{slug}/events/{id}/videos",
+]);
+
+export function invalidateOrgEvents(qc: QueryClient, slug: string) {
+  return qc.invalidateQueries({
+    predicate: ({ queryKey: [method, path, init] }) =>
+      method === "get" &&
+      ORG_EVENT_QUERY_PATHS.has(path) &&
+      (init as { params?: { path?: { slug?: string } } } | undefined)?.params
+        ?.path?.slug === slug,
+  });
+}

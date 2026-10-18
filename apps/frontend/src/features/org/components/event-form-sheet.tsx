@@ -35,7 +35,10 @@ import { Controller, useForm, type Control } from "react-hook-form";
 import type { DateRange } from "react-day-picker";
 import { z } from "zod";
 import { client, type ApiSchemas } from "@/lib/api/client";
-import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
+import {
+  invalidateOrgEvents,
+  type OrgEvent,
+} from "@/features/org/api/admin-queries";
 import { useOrg } from "@/features/org/context/use-org";
 
 const COMMON_TIMEZONES = [
@@ -423,7 +426,7 @@ export function EventFormSheet({
       return activateRes.data;
     },
     onSuccess: () => {
-      qc.invalidateQueries(adminQueries.events(orgSlug));
+      invalidateOrgEvents(qc, orgSlug);
       toastManager.add({ title: "Event created", type: "success" });
       bypassDirtyCheckRef.current = true;
       onOpenChange(false);
@@ -452,7 +455,7 @@ export function EventFormSheet({
       return res.data;
     },
     onSuccess: () => {
-      qc.invalidateQueries(adminQueries.events(orgSlug));
+      invalidateOrgEvents(qc, orgSlug);
       toastManager.add({ title: "Event updated", type: "success" });
       bypassDirtyCheckRef.current = true;
       onOpenChange(false);
@@ -649,7 +652,7 @@ export function CreateEventForm({
       return activateRes.data;
     },
     onSuccess: (ev) => {
-      qc.invalidateQueries(adminQueries.events(orgSlug));
+      invalidateOrgEvents(qc, orgSlug);
       onCreated?.(ev);
     },
     onError: () => {

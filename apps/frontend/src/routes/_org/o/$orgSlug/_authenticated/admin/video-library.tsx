@@ -113,9 +113,16 @@ function AdminVideoLibrary() {
 
   function confirmDelete() {
     if (!deletingVideo) return;
-    deleteVideo.mutate(deletingVideo.id, {
-      onSettled: () => setDeletingVideo(null),
-    });
+    deleteVideo.mutate(
+      {
+        params: {
+          path: { slug: orgSlug, id: eventId, videoId: deletingVideo.id },
+        },
+      },
+      {
+        onSettled: () => setDeletingVideo(null),
+      },
+    );
   }
 
   if (!selectedEvent) {

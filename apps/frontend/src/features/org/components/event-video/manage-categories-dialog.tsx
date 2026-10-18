@@ -53,7 +53,7 @@ export function ManageCategoriesDialog({
     const trimmed = newName.trim();
     if (!trimmed) return;
     createCategory.mutate(
-      { name: trimmed },
+      { params: { path: { slug, id: eventId } }, body: { name: trimmed } },
       { onSuccess: () => setNewName("") },
     );
   }
@@ -157,9 +157,18 @@ export function ManageCategoriesDialog({
               disabled={deleteCategory.isPending}
               onClick={() => {
                 if (!deletingCategory) return;
-                deleteCategory.mutate(deletingCategory.id, {
-                  onSuccess: () => setDeletingCategory(null),
-                });
+                deleteCategory.mutate(
+                  {
+                    params: {
+                      path: {
+                        slug,
+                        id: eventId,
+                        categoryId: deletingCategory.id,
+                      },
+                    },
+                  },
+                  { onSuccess: () => setDeletingCategory(null) },
+                );
               }}
             >
               {deleteCategory.isPending ? (

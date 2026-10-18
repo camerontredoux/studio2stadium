@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { CheckIcon, PlusIcon, ZapIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -28,10 +28,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { adminQueries } from "@/features/org/api/admin-queries";
+import { invalidateOrgEvents } from "@/features/org/api/admin-queries";
 import { EventFormSheet } from "@/features/org/components/event-form-sheet";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
-import { client } from "@/lib/api/client";
+import { $api } from "@/lib/api/client";
 
 /**
  * Icon-only square on phones; the label (an `sr-only` span that becomes
@@ -60,18 +60,10 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
     label: event.name,
   }));
 
-  const activate = useMutation({
-    mutationFn: async (eventId: string) => {
-      const response = await client.PATCH("/orgs/{slug}/events/{id}", {
-        params: { path: { slug: orgSlug, id: eventId } },
-        body: { isActive: true },
-      });
-      if (response.error) throw new Error("Activation failed");
-      return response.data;
-    },
+  const activate = $api.useMutation("patch", "/orgs/{slug}/events/{id}", {
     onSuccess: () => {
       setConfirmOpen(false);
-      void queryClient.invalidateQueries(adminQueries.events(orgSlug));
+      void invalidateOrgEvents(queryClient, orgSlug);
       toastManager.add({ title: "Active event updated", type: "success" });
     },
     onError: () => {
@@ -170,7 +162,12 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
                 </AlertDialogClose>
                 <Button
                   onClick={() => {
-                    if (selectedEvent) activate.mutate(selectedEvent.id);
+                    if (selectedEvent) {
+                      activate.mutate({
+                        params: { path: { slug: orgSlug, id: selectedEvent.id } },
+                        body: { isActive: true },
+                      });
+                    }
                   }}
                   disabled={!selectedEvent || activate.isPending}
                 >

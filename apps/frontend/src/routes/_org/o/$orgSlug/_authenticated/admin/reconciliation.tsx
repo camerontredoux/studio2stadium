@@ -1,4 +1,4 @@
-import { client, type ApiSchemas } from "@/lib/api/client";
+import { $api, client, type ApiSchemas } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toastManager } from "@/components/ui/toast-manager";
@@ -15,13 +15,6 @@ export const Route = createFileRoute(
 
 type SchoolUser =
   ApiSchemas["OrgsIdEventsIdReconciliationSchoolusersResponse"][number];
-
-async function fetchReconciliation(slug: string, eventId: string) {
-  const res = await client.GET("/orgs/{slug}/events/{id}/reconciliation", {
-    params: { path: { slug, id: eventId } },
-  });
-  return res.data;
-}
 
 async function fetchSchoolUsers(
   slug: string,
@@ -132,11 +125,14 @@ function ReconciliationPage() {
 
   const [mergingRosterId, setMergingRosterId] = useState<string | null>(null);
 
-  const dataQuery = useQuery({
-    queryKey: ["reconciliation", orgSlug, active?.id],
-    queryFn: () => fetchReconciliation(orgSlug, active!.id),
-    enabled: !!active,
-  });
+  const dataQuery = useQuery(
+    $api.queryOptions(
+      "get",
+      "/orgs/{slug}/events/{id}/reconciliation",
+      { params: { path: { slug: orgSlug, id: active?.id ?? "" } } },
+      { enabled: !!active },
+    ),
+  );
 
   const resendMutation = useMutation({
     mutationFn: async (inviteId: string) => {
