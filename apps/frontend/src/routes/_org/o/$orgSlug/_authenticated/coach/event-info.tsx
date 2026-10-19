@@ -20,7 +20,7 @@ import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { orgQueries } from "@/features/org/api/queries";
 import { useOrg } from "@/features/org/context/use-org";
 import { dashboardRoster } from "@/features/org/lib/dashboard-roster";
-import { client } from "@/lib/api/client";
+import { client, type ApiSchemas } from "@/lib/api/client";
 import {
   AccentDot,
   DashboardHeader,
@@ -146,15 +146,11 @@ function AttendEventGate({
   const queryClient = useQueryClient();
   const attendMutation = useMutation({
     mutationFn: async () => {
-      const raw = client as unknown as {
-        POST: (
-          path: string,
-          opts: { body: { type: "coach" | "dancer" } },
-        ) => Promise<void>;
-      };
-      await raw.POST(`/orgs/${orgSlug}/events/view-as`, {
+      const { error } = await client.POST("/orgs/{slug}/events/view-as", {
+        params: { path: { slug: orgSlug } },
         body: { type: "coach" },
       });
+      if (error) throw error;
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries(orgQueries.org(orgSlug));
@@ -361,15 +357,7 @@ function QuickNavPanel({
   );
 }
 
-type RankedDancer = {
-  rosterId: string;
-  firstName: string;
-  lastName: string;
-  bibNumber: number | null;
-  studio: string | null;
-  rating: number | null;
-  profilePhotoUrl: string | null;
-};
+type RankedDancer = ApiSchemas["OrgsIdRankingsResponse"][number];
 
 function TopRankedPanel({
   orgSlug,

@@ -1,5 +1,6 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { dancerQueries } from "@/features/dancer/api/queries";
+import { toastApiError } from "@/lib/api/errors";
 import {
   canSubmitCommonRecruitingVideo,
   graduatingClass,
@@ -45,6 +46,7 @@ export function SubmitPage() {
       },
       {
         onSuccess: () => setSubmitted(true),
+        onError: toastApiError,
       },
     );
   };

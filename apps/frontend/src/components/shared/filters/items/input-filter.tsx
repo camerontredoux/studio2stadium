@@ -1,6 +1,6 @@
+import { useDebouncedCallback } from "@/components/hooks/use-debounced-callback";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
-import { debounce } from "@tanstack/pacer";
 import { SearchIcon } from "lucide-react";
 import { useState } from "react";
 import type { OnFilterChange } from "../filter-item";
@@ -16,13 +16,25 @@ export function InputFilter({
   onFilterChange,
 }: InputFilterProps) {
   const [value, setValue] = useState(initialValue);
+  const [urlValue, setUrlValue] = useState(initialValue);
+  const [sent, setSent] = useState(initialValue);
 
-  const debouncedChange = debounce(
-    (v: string) => {
-      onFilterChange(v || undefined, { replace: true });
-    },
-    { wait: 200 },
-  );
+  // Follow the URL when something else changes it, such as Clear Filters or
+  // Back. Our own debounced search landing is not a reason to reset: the user
+  // may have typed more since it was sent.
+  if (initialValue !== urlValue) {
+    setUrlValue(initialValue);
+    if (initialValue !== sent) {
+      setValue(initialValue);
+      setSent(initialValue);
+    }
+  }
+
+  // One timer across renders, so a burst of typing navigates once.
+  const debouncedChange = useDebouncedCallback((v: string) => {
+    setSent(v || undefined);
+    onFilterChange(v || undefined, { replace: true });
+  }, 200);
 
   const handleSearch = (value: string) => {
     setValue(value);

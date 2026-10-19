@@ -211,7 +211,7 @@ export function SchoolCard({
   items,
   milestones,
   onRemoveSchool,
-  onAddMilestone,
+  reorderable,
   onToggleMilestone,
   onRenameMilestone,
   onDeleteMilestone,
@@ -225,7 +225,7 @@ export function SchoolCard({
   items: Item[];
   milestones: Milestone[];
   onRemoveSchool: () => void;
-  onAddMilestone: (title: string) => void;
+  reorderable: boolean;
   onToggleMilestone: (milestone: Milestone) => void;
   onRenameMilestone: (milestone: Milestone, title: string) => void;
   onDeleteMilestone: (milestone: Milestone) => void;
@@ -249,7 +249,7 @@ export function SchoolCard({
     <Frame>
       <FrameHeader>
         <div className="flex items-center gap-2">
-          <ReorderHandle label={school.name} />
+          {reorderable && <ReorderHandle label={school.name} />}
           <SchoolLogo school={school} />
           <FrameTitle className="min-w-0 truncate text-base">
             {school.name}
@@ -299,7 +299,6 @@ export function SchoolCard({
         <Milestones
           school={school}
           milestones={milestones}
-          onAdd={onAddMilestone}
           onToggle={onToggleMilestone}
           onRename={onRenameMilestone}
           onDelete={onDeleteMilestone}
@@ -373,12 +372,13 @@ export function OtherItemsCard({
   onEdit,
   onDelete,
   onAdd,
-}: Handlers & { items: Item[] }) {
+  reorderable,
+}: Handlers & { items: Item[]; reorderable: boolean }) {
   return (
     <Frame>
       <FrameHeader>
         <div className="flex items-center gap-2">
-          <ReorderHandle label="Everything else" />
+          {reorderable && <ReorderHandle label="Everything else" />}
           <FrameTitle className="text-base">Everything else</FrameTitle>
         </div>
       </FrameHeader>

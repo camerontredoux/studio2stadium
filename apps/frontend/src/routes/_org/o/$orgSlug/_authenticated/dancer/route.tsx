@@ -12,7 +12,6 @@ import { queries } from "@/lib/session";
 import {
   ORG_AREA_ROUTES,
   resolveOrgArea,
-  type OrgAccess,
 } from "@/features/org/lib/org-destination";
 
 export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/dancer")({
@@ -22,12 +21,13 @@ export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/dancer")({
     );
     if (session?.role === "admin") return;
 
-    const data = (context.queryClient.getQueryData(
-      orgQueries.org(params.orgSlug).queryKey,
-    ) ??
+    const data =
+      context.queryClient.getQueryData(
+        orgQueries.org(params.orgSlug).queryKey,
+      ) ??
       (await context.queryClient.ensureQueryData(
         orgQueries.org(params.orgSlug),
-      ))) as OrgAccess | null;
+      ));
     const area = resolveOrgArea(data);
     if (area !== "dancer") {
       throw redirect({

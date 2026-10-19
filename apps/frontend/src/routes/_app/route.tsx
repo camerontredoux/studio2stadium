@@ -67,6 +67,14 @@ export const Route = createFileRoute("/_app")({
 
       context.queryClient.prefetchQuery(notificationQueries.count());
 
+      // Premium screens treat a dancer as unsubscribed until this loads, so
+      // load it before rendering rather than flash "Subscribe" at subscribers.
+      if (session.type === "dancer") {
+        await context.queryClient
+          .ensureQueryData(queries.subscribed())
+          .catch(() => undefined);
+      }
+
       const { id, firstName, lastName, displayEmail } = session
       posthog.identify(
         id, { email: displayEmail, name: `${firstName} ${lastName}`},

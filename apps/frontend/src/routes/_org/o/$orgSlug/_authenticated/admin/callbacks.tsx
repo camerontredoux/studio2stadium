@@ -49,15 +49,22 @@ export const Route = createFileRoute(
     const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     );
-    const features = ((data as any)?.features ?? {}) as Record<string, boolean>;
+    const features = (data?.features ?? {}) as Record<string, boolean>;
     if (!features.callbacks) {
       throw redirect({ to: "/o/$orgSlug/admin", params });
     }
   },
-  loader: ({ context, params }) => {
-    context.queryClient.prefetchQuery(
-      scoutingQueries.showcases(params.orgSlug),
-    );
+  // Awaited: the page suspends on both, and an unawaited prefetch let that
+  // replace the whole admin area with the org loader.
+  loader: async ({ context, params }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(
+        scoutingQueries.adminCallbacks(params.orgSlug),
+      ),
+      context.queryClient.ensureQueryData(
+        scoutingQueries.showcases(params.orgSlug),
+      ),
+    ]);
   },
   component: AdminCallbacksPage,
 });
@@ -101,7 +108,7 @@ function AdminCallbacksPage() {
     scoutingQueries.showcases(orgSlug),
   );
   const { data: org } = useSuspenseQuery(orgQueries.org(orgSlug));
-  const orgSettings = ((org as any)?.settings ?? {}) as Record<string, unknown>;
+  const orgSettings = (org?.settings ?? {}) as Record<string, unknown>;
   const maxCallbacks = resolveMaxCallbacks(orgSettings);
   const qc = useQueryClient();
   const sseStatus = useTransmitStatus();
@@ -109,23 +116,19 @@ function AdminCallbacksPage() {
   const [publishOpen, setPublishOpen] = useState(false);
   const [nextOpen, setNextOpen] = useState(false);
 
-  useTransmitSubscription(`orgs/${orgSlug}/callbacks`, () => {
+  const refreshCallbacks = () => {
     qc.invalidateQueries({
       queryKey: scoutingQueries.adminCallbacks(orgSlug).queryKey,
     });
     qc.invalidateQueries({
       queryKey: scoutingQueries.showcases(orgSlug).queryKey,
     });
-  });
-
-  useTransmitSubscription(`orgs/${orgSlug}/showcases`, () => {
     qc.invalidateQueries({
-      queryKey: scoutingQueries.adminCallbacks(orgSlug).queryKey,
+      queryKey: scoutingQueries.publishPreview(orgSlug).queryKey,
     });
-    qc.invalidateQueries({
-      queryKey: scoutingQueries.showcases(orgSlug).queryKey,
-    });
-  });
+  };
+  useTransmitSubscription(`orgs/${orgSlug}/callbacks`, refreshCallbacks);
+  useTransmitSubscription(`orgs/${orgSlug}/showcases`, refreshCallbacks);
 
   const showcase = data.showcase;
   const isPublished = showcase?.status === "published";

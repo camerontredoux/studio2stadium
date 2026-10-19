@@ -13,6 +13,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { useUpdateProfile } from "@/features/dancer/api/mutations";
+import { toastApiError } from "@/lib/api/errors";
 import * as React from "react";
 import { ExtraForm, type ExtraFormData } from "./extra-form";
 
@@ -32,6 +33,7 @@ export function ExtraDialog({ username }: { username: string }) {
           });
           setOpen(false);
         },
+        onError: toastApiError,
       },
     );
   };

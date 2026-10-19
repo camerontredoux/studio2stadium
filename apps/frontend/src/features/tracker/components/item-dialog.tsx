@@ -60,6 +60,7 @@ export function ItemDialog({
   onAdd,
   onSave,
   pending,
+  paused,
   item,
   defaultSchool,
   defaultType = "school",
@@ -70,6 +71,8 @@ export function ItemDialog({
   onAdd: (item: NewItem) => void;
   onSave: (item: TrackerItem, changes: ItemChanges) => void;
   pending: boolean;
+  /** Offline, the save waits for the connection instead of failing. */
+  paused?: boolean;
   item?: TrackerItem;
   defaultSchool?: { id: string; name: string };
   defaultType?: ItemType;
@@ -378,7 +381,15 @@ export function ItemDialog({
             }
           >
             {pending ? (
-              <Spinner label={editing ? "Saving…" : "Adding…"} />
+              <Spinner
+                label={
+                  paused
+                    ? "Waiting for connection…"
+                    : editing
+                      ? "Saving…"
+                      : "Adding…"
+                }
+              />
             ) : editing ? (
               "Save Changes"
             ) : (

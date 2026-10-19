@@ -31,6 +31,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { toastManager } from "@/components/ui/toast-manager";
+import type { ApiSchemas } from "@/lib/api/client";
 import { useAdminCheckInToggle } from "@/features/org/api/check-in-queries";
 import { toastRosterMutationError } from "@/features/org/api/roster-mutation-error";
 import {
@@ -117,7 +118,7 @@ export function RosterDetailSheet({
   const onSubmit = async (data: FormValues) => {
     if (!entry) return;
 
-    let body: Record<string, unknown>;
+    let body: ApiSchemas["OrgsIdEventsIdRostersIdRequest"];
     if (isActive) {
       // Registered entries: bib number is the only field admins can change.
       if (!isDancer) return;
@@ -142,8 +143,7 @@ export function RosterDetailSheet({
     try {
       await updateMutation.mutateAsync({
         params: { path: { slug: orgSlug, id: eventId, rosterId: entry.id } },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        body: body as any,
+        body,
       });
       toastManager.add({ title: "Entry updated", type: "success" });
       onOpenChange(false);

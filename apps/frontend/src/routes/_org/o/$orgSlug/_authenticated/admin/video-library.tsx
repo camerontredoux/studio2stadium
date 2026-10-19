@@ -33,7 +33,7 @@ export const Route = createFileRoute(
     const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     );
-    const features = ((data as any)?.features ?? {}) as Record<string, boolean>;
+    const features = (data?.features ?? {}) as Record<string, boolean>;
     if (!features.video_library) {
       throw redirect({ to: "/o/$orgSlug/admin", params });
     }
@@ -113,9 +113,16 @@ function AdminVideoLibrary() {
 
   function confirmDelete() {
     if (!deletingVideo) return;
-    deleteVideo.mutate(deletingVideo.id, {
-      onSettled: () => setDeletingVideo(null),
-    });
+    deleteVideo.mutate(
+      {
+        params: {
+          path: { slug: orgSlug, id: eventId, videoId: deletingVideo.id },
+        },
+      },
+      {
+        onSettled: () => setDeletingVideo(null),
+      },
+    );
   }
 
   if (!selectedEvent) {

@@ -18,7 +18,6 @@ import { PlusIcon, RouteIcon } from "lucide-react";
 import { useState } from "react";
 import {
   useCreateTrackerItem,
-  useCreateTrackerMilestone,
   useDeleteTrackerItem,
   useDeleteTrackerMilestone,
   useDeleteTrackerSection,
@@ -109,7 +108,8 @@ function celebrate(item: Pick<Item, "type" | "title">, stage: number) {
   }
 }
 
-// The API orders sections by school id, with null for "Everything else".
+// sectionOrder is the dancer's saved order of school ids, with null for
+// "Everything else"; it is empty until an order is first saved.
 const toSection = (id: string | null) => id ?? OTHER;
 const toSectionId = (section: string) => (section === OTHER ? null : section);
 
@@ -122,7 +122,6 @@ export function TrackerPage() {
   const committed = findCommitted(items);
   const deleteSection = useDeleteTrackerSection();
   const reorder = useReorderTrackerSections();
-  const createMilestone = useCreateTrackerMilestone();
   const updateMilestone = useUpdateTrackerMilestone();
   const deleteMilestone = useDeleteTrackerMilestone();
   const [dialog, setDialog] = useState<{
@@ -141,6 +140,9 @@ export function TrackerPage() {
     ...order.filter((s) => present.has(s)),
   ];
 
+  // A lone section has nowhere to move, so it gets no drag handle.
+  const reorderable = sections.length > 1;
+
   const saveOrder = (next: string[]) =>
     reorder.mutate({ body: { sections: next.map(toSectionId) } });
 
@@ -157,8 +159,12 @@ export function TrackerPage() {
     setDialog((prev) => ({ key: prev.key + 1, open: true, item }));
 
   const setStage = (item: Item, stage: number) => {
-    updateItem.mutate({ params: { path: { id: item.id } }, body: { stage } });
-    if (stage > item.stage) celebrate(item, stage);
+    // Celebrate once the save lands, so a rejected move (a second Committed
+    // school, say) doesn't cheer before its error toast.
+    updateItem.mutate(
+      { params: { path: { id: item.id } }, body: { stage } },
+      { onSuccess: () => stage > item.stage && celebrate(item, stage) },
+    );
   };
 
   // The school's panel celebrates itself once every milestone is reached.
@@ -198,11 +204,11 @@ export function TrackerPage() {
           // Moving an item to a school that wasn't on the page puts that
           // school at the top, the same as adding one.
           if (!present.has(section)) saveOrder([section, ...sections]);
+          const stage = Number(changes.stage);
+          if (stage > item.stage) celebrate(item, stage);
         },
       },
     );
-    const stage = Number(changes.stage);
-    if (stage > item.stage) celebrate(item, stage);
   };
 
   const handlers: Handlers = {
@@ -246,7 +252,11 @@ export function TrackerPage() {
                 return (
                   <SortableItem key={section} value={section}>
                     {!school ? (
-                      <OtherItemsCard items={rows} {...handlers} />
+                      <OtherItemsCard
+                        items={rows}
+                        reorderable={reorderable}
+                        {...handlers}
+                      />
                     ) : (
                       <SchoolCard
                         school={school}
@@ -258,14 +268,10 @@ export function TrackerPage() {
                           (m) => m.schoolId === school.id,
                         )}
                         {...handlers}
+                        reorderable={reorderable}
                         onRemoveSchool={() =>
                           deleteSection.mutate({
                             body: { schoolId: school.id },
-                          })
-                        }
-                        onAddMilestone={(title) =>
-                          createMilestone.mutate({
-                            body: { schoolId: school.id, title },
                           })
                         }
                         onToggleMilestone={toggleMilestone}
@@ -300,6 +306,7 @@ export function TrackerPage() {
         onAdd={addItem}
         onSave={saveItem}
         pending={dialog.item ? updateItem.isPending : createItem.isPending}
+        paused={dialog.item ? updateItem.isPaused : createItem.isPaused}
       />
     </div>
   );

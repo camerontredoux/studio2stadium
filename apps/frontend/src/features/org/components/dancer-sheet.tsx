@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { useOrg } from "@/features/org/context/use-org";
-import { $api } from "@/lib/api/client";
+import { $api, type ApiSchemas } from "@/lib/api/client";
 import { Loader2Icon } from "lucide-react";
 import { FavoriteButton } from "./favorite-button";
 import { CallbackButton } from "./callback-button";
@@ -168,16 +168,19 @@ function DancerSheetContent({
       ).queryKey;
 
       if (!notesFailed) {
-        qc.setQueryData(dancerQueryKey, (old: any) =>
-          old
-            ? { ...old, note: trimmedNotes === "" ? null : currentNotes }
-            : old,
+        qc.setQueryData<ApiSchemas["OrgsIdDancersIdResponse"]>(
+          dancerQueryKey,
+          (old) =>
+            old
+              ? { ...old, note: trimmedNotes === "" ? null : currentNotes }
+              : old,
         );
         setNotes(null);
       }
       if (!ratingFailed) {
-        qc.setQueryData(dancerQueryKey, (old: any) =>
-          old ? { ...old, rating: currentRating ?? 0 } : old,
+        qc.setQueryData<ApiSchemas["OrgsIdDancersIdResponse"]>(
+          dancerQueryKey,
+          (old) => (old ? { ...old, rating: currentRating ?? 0 } : old),
         );
         setRating(undefined);
       }

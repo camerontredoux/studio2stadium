@@ -2,7 +2,7 @@ import { toastManager } from "@/components/ui/toast-manager";
 import { dancerQueries } from "@/features/dancer/api/queries";
 import { schoolQueries } from "@/features/school/api/queries";
 import { useSession } from "@/lib/session/hooks/use-session";
-import { videoQueries } from "@/shared/videos/api/queries";
+import { uploadCheckGaveUp, videoQueries } from "@/shared/videos/api/queries";
 import { videoUploadErrorMessage } from "@/utils/video-duration";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -29,9 +29,13 @@ export function useWatchVideoUploads() {
   useEffect(() => {
     results.forEach((result, index) => {
       const mediaId = pendingUploads[index];
-      if (!mediaId || !result.isSuccess || handled.current.has(mediaId)) {
+      if (!mediaId || handled.current.has(mediaId)) return;
+      if (uploadCheckGaveUp(result)) {
+        handled.current.add(mediaId);
+        untrackUpload(mediaId);
         return;
       }
+      if (!result.isSuccess) return;
 
       const upload = result.data;
       const outcome = uploadOutcome(upload);

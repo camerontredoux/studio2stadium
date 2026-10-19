@@ -245,7 +245,9 @@ export function SidebarPhaseSection({ phase }: { phase: EventPhaseInfo }) {
     phase.phase === "live"
       ? `of ${phase.totalDays}`
       : phase.phase === "wrapped"
-        ? phase.label.toLowerCase().replace(/^wrapped\s*/, "")
+        ? phase.label === "Just wrapped"
+          ? "yesterday"
+          : phase.label.toLowerCase().replace(/^wrapped\s*/, "")
         : "until kickoff";
 
   return (

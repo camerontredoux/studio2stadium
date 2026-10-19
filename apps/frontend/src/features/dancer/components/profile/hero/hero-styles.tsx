@@ -22,9 +22,8 @@ export function HeroStyles({ styles }: { styles: string[] }) {
         <StylesList
           render={
             <Badge
-              role="button"
+              render={<button type="button" />}
               aria-label="Edit styles"
-              tabIndex={0}
               className="cursor-pointer rounded-full px-1"
             >
               Edit

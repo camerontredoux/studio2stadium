@@ -3,8 +3,10 @@ import { RecommendedPage } from "@/features/recommended/page";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/recommended")({
-  loader: ({ context: { queryClient } }) => {
-    queryClient.prefetchQuery(recommendedQueries.recommended());
+  // Awaited: the page suspends on it, and an unawaited prefetch let that
+  // suspend into the full-page loader.
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(recommendedQueries.recommended());
   },
   component: RecommendedPage,
 });

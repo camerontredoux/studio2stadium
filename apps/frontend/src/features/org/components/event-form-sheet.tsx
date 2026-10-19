@@ -34,8 +34,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm, type Control } from "react-hook-form";
 import type { DateRange } from "react-day-picker";
 import { z } from "zod";
-import { client } from "@/lib/api/client";
-import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
+import { client, type ApiSchemas } from "@/lib/api/client";
+import {
+  invalidateOrgEvents,
+  type OrgEvent,
+} from "@/features/org/api/admin-queries";
 import { useOrg } from "@/features/org/context/use-org";
 
 const COMMON_TIMEZONES = [
@@ -415,15 +418,15 @@ export function EventFormSheet({
         body: { ...body, isActive: false },
       });
       if (createRes.error) throw new Error("Create failed");
-      const activateRes = await rawClient.PATCH(
-        `/orgs/${orgSlug}/events/${createRes.data.id}`,
-        { body: { isActive: true } },
-      );
+      const activateRes = await client.PATCH("/orgs/{slug}/events/{id}", {
+        params: { path: { slug: orgSlug, id: createRes.data.id } },
+        body: { isActive: true },
+      });
       if (activateRes.error) throw new Error("Activate failed");
-      return activateRes.data as OrgEvent;
+      return activateRes.data;
     },
     onSuccess: () => {
-      qc.invalidateQueries(adminQueries.events(orgSlug));
+      invalidateOrgEvents(qc, orgSlug);
       toastManager.add({ title: "Event created", type: "success" });
       bypassDirtyCheckRef.current = true;
       onOpenChange(false);
@@ -434,11 +437,12 @@ export function EventFormSheet({
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (body: Record<string, unknown>) => {
+    mutationFn: async (body: ApiSchemas["OrgsIdEventsIdRequest"]) => {
       if (!event) {
         throw new Error("Event is required to update");
       }
-      const res = await rawClient.PATCH(`/orgs/${orgSlug}/events/${event.id}`, {
+      const res = await client.PATCH("/orgs/{slug}/events/{id}", {
+        params: { path: { slug: orgSlug, id: event.id } },
         body,
       });
       if (res.error) {
@@ -448,10 +452,10 @@ export function EventFormSheet({
             : "Update failed";
         throw new Error(msg);
       }
-      return res.data as OrgEvent;
+      return res.data;
     },
     onSuccess: () => {
-      qc.invalidateQueries(adminQueries.events(orgSlug));
+      invalidateOrgEvents(qc, orgSlug);
       toastManager.add({ title: "Event updated", type: "success" });
       bypassDirtyCheckRef.current = true;
       onOpenChange(false);
@@ -640,15 +644,15 @@ export function CreateEventForm({
         body: { ...body, isActive: false },
       });
       if (createRes.error) throw new Error("Create failed");
-      const activateRes = await rawClient.PATCH(
-        `/orgs/${orgSlug}/events/${createRes.data.id}`,
-        { body: { isActive: true } },
-      );
+      const activateRes = await client.PATCH("/orgs/{slug}/events/{id}", {
+        params: { path: { slug: orgSlug, id: createRes.data.id } },
+        body: { isActive: true },
+      });
       if (activateRes.error) throw new Error("Activate failed");
-      return activateRes.data as OrgEvent;
+      return activateRes.data;
     },
     onSuccess: (ev) => {
-      qc.invalidateQueries(adminQueries.events(orgSlug));
+      invalidateOrgEvents(qc, orgSlug);
       onCreated?.(ev);
     },
     onError: () => {

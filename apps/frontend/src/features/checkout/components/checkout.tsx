@@ -1,7 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { useSession } from "@/lib/session";
+import { toastManager } from "@/components/ui/toast-manager";
+import { handleApiError } from "@/lib/api/errors";
+import { queries, useSession } from "@/lib/session";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useDevGrant } from "../api/mutations";
 import { CheckoutDialog } from "./checkout-dialog";
 import { ChoosePlan } from "./choose-plan";
 import { PlanDetails } from "./plan-details";
@@ -9,28 +13,41 @@ import { PlanDetails } from "./plan-details";
 export function Checkout() {
   const session = useSession();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [plan, setPlan] = useState<"basic" | "premium">("premium");
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly" | null>(
     "yearly",
   );
 
-  const [granting, setGranting] = useState(false);
+  const devGrant = useDevGrant();
 
-  async function handleDevGrant() {
-    setGranting(true);
-    try {
-      await fetch(`${import.meta.env.VITE_API_URL}/subscriptions/dev-grant`, {
-        method: "POST",
-        credentials: "include",
-      });
-      navigate({
-        to: "/$username",
-        params: { username: session.username },
-      });
-    } finally {
-      setGranting(false);
-    }
+  function handleDevGrant() {
+    devGrant.mutate(
+      {},
+      {
+        // Refresh the subscription first, so premium screens don't still
+        // show the dancer as unsubscribed.
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
+            queryKey: queries.subscribed().queryKey,
+          });
+          navigate({
+            to: "/$username",
+            params: { username: session.username },
+          });
+        },
+        onError: handleApiError({
+          onError: (error) => {
+            toastManager.add({
+              title: "Error",
+              description: error.message,
+              type: "error",
+            });
+          },
+        }),
+      },
+    );
   }
 
   return (
@@ -67,10 +84,10 @@ export function Checkout() {
           <Button
             variant="destructive"
             size="sm"
-            disabled={granting}
+            disabled={devGrant.isPending}
             onClick={handleDevGrant}
           >
-            {granting ? "Granting..." : "Grant Premium (1 year)"}
+            {devGrant.isPending ? "Granting..." : "Grant Premium (1 year)"}
           </Button>
         </div>
       )}

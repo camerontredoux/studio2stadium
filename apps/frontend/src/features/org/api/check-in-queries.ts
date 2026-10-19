@@ -1,33 +1,16 @@
-import { client } from "@/lib/api/client";
+import { $api, client, type ApiSchemas } from "@/lib/api/client";
 import {
-  queryOptions,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+  rosterQueries,
+  type RosterType,
+} from "@/features/org/api/roster-queries";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-const rawClient = client as unknown as {
-  POST: (
-    path: string,
-    opts?: { body?: unknown },
-  ) => Promise<{ data: unknown }>;
-  GET: (path: string) => Promise<{ data: unknown }>;
-};
-
-export type CheckInStatus = {
-  checkedInAt: string | null;
-  eventStartTime: string | null;
-  timezone: string | null;
-  canCheckIn: boolean;
-};
+export type CheckInStatus = ApiSchemas["OrgsIdEventsIdCheckinStatusResponse"];
 
 export const checkInQueries = {
   status: (slug: string, eventId: string) =>
-    queryOptions({
-      queryKey: ["orgs", slug, "events", eventId, "check-in", "status"],
-      queryFn: () =>
-        rawClient
-          .GET(`/orgs/${slug}/events/${eventId}/check-in/status`)
-          .then((r) => r.data as CheckInStatus),
+    $api.queryOptions("get", "/orgs/{slug}/events/{id}/check-in/status", {
+      params: { path: { slug, id: eventId } },
     }),
 };
 
@@ -45,8 +28,14 @@ export function useDancerCheckIn(slug: string, eventId: string) {
   const statusKey = checkInQueries.status(slug, eventId).queryKey;
 
   return useMutation({
-    mutationFn: () =>
-      rawClient.POST(`/orgs/${slug}/events/${eventId}/check-in`),
+    mutationFn: async () => {
+      const { data, error } = await client.POST(
+        "/orgs/{slug}/events/{id}/check-in",
+        { params: { path: { slug, id: eventId } } },
+      );
+      if (error) throw error;
+      return data;
+    },
     onMutate: async () => {
       await qc.cancelQueries({ queryKey: statusKey });
       const prev = qc.getQueryData<CheckInStatus>(statusKey);
@@ -72,13 +61,26 @@ export function useResetCheckIn() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ slug, eventId }: { slug: string; eventId: string }) =>
-      rawClient
-        .POST(`/orgs/${slug}/events/${eventId}/rosters/check-in/reset`)
-        .then((r) => r.data as { reset: number }),
-    onSuccess: () => {
+    mutationFn: async ({
+      slug,
+      eventId,
+    }: {
+      slug: string;
+      eventId: string;
+    }) => {
+      const { data, error } = await client.POST(
+        "/orgs/{slug}/events/{id}/rosters/check-in/reset",
+        { params: { path: { slug, id: eventId } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_data, { slug, eventId }) => {
       qc.invalidateQueries({ queryKey: [...ROSTER_LIST_KEY_PREFIX] });
       qc.invalidateQueries({ queryKey: [...ROSTER_STATS_KEY_PREFIX] });
+      qc.invalidateQueries({
+        queryKey: checkInQueries.status(slug, eventId).queryKey,
+      });
     },
   });
 }
@@ -87,7 +89,7 @@ export function useAdminCheckInToggle() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       slug,
       eventId,
       rosterId,
@@ -96,33 +98,31 @@ export function useAdminCheckInToggle() {
       eventId: string;
       rosterId: string;
       currentlyCheckedIn: boolean;
-    }) =>
-      rawClient.POST(
-        `/orgs/${slug}/events/${eventId}/rosters/${rosterId}/check-in`,
-      ),
-    onMutate: async ({ rosterId, currentlyCheckedIn }) => {
+    }) => {
+      const { data, error } = await client.POST(
+        "/orgs/{slug}/events/{id}/rosters/{rosterId}/check-in",
+        { params: { path: { slug, id: eventId, rosterId } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onMutate: async ({ slug, eventId, rosterId, currentlyCheckedIn }) => {
       await qc.cancelQueries({ queryKey: [...ROSTER_LIST_KEY_PREFIX] });
       await qc.cancelQueries({ queryKey: [...ROSTER_STATS_KEY_PREFIX] });
 
-      type RosterResponse = {
-        data: { id: string; checkedInAt: string | null }[];
-        total: number;
-      };
-      type StatsResponse = {
-        total: number;
-        active: number;
-        pending: number;
-        checkedIn: number;
-      };
+      type RosterResponse = ApiSchemas["OrgsIdEventsIdRostersResponse"];
+      type StatsResponse = ApiSchemas["OrgsIdEventsIdRostersStatsResponse"];
 
       const rosterSnapshots: [readonly unknown[], RosterResponse][] = [];
       const statsSnapshots: [readonly unknown[], StatsResponse][] = [];
+      let rosterType: RosterType | undefined;
 
       qc.getQueriesData<RosterResponse>({
         queryKey: [...ROSTER_LIST_KEY_PREFIX],
       }).forEach(([key, data]) => {
         if (!data) return;
         rosterSnapshots.push([key, data]);
+        rosterType ??= data.data.find((r) => r.id === rosterId)?.type;
         qc.setQueryData(key, {
           ...data,
           data: data.data.map((r) =>
@@ -138,27 +138,32 @@ export function useAdminCheckInToggle() {
         });
       });
 
-      const delta = currentlyCheckedIn ? -1 : 1;
-      qc.getQueriesData<StatsResponse>({
-        queryKey: [...ROSTER_STATS_KEY_PREFIX],
-      }).forEach(([key, data]) => {
-        if (!data) return;
-        statsSnapshots.push([key, data]);
-        qc.setQueryData(key, {
-          ...data,
-          checkedIn: Math.max(0, data.checkedIn + delta),
-        });
-      });
+      // Stats are cached per event and roster type; only the toggled entry's
+      // count changes. Without the entry in a cached list, onSettled refetches.
+      if (rosterType) {
+        const statsKey = rosterQueries.stats(
+          slug,
+          eventId,
+          rosterType,
+        ).queryKey;
+        const stats = qc.getQueryData<StatsResponse>(statsKey);
+        if (stats) {
+          statsSnapshots.push([statsKey, stats]);
+          qc.setQueryData<StatsResponse>(statsKey, {
+            ...stats,
+            checkedIn: Math.max(
+              0,
+              stats.checkedIn + (currentlyCheckedIn ? -1 : 1),
+            ),
+          });
+        }
+      }
 
       return { rosterSnapshots, statsSnapshots };
     },
     onError: (_err, _vars, ctx) => {
-      ctx?.rosterSnapshots.forEach(([key, data]) =>
-        qc.setQueryData(key, data),
-      );
-      ctx?.statsSnapshots.forEach(([key, data]) =>
-        qc.setQueryData(key, data),
-      );
+      ctx?.rosterSnapshots.forEach(([key, data]) => qc.setQueryData(key, data));
+      ctx?.statsSnapshots.forEach(([key, data]) => qc.setQueryData(key, data));
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: [...ROSTER_LIST_KEY_PREFIX] });

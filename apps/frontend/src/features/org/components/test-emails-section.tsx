@@ -11,9 +11,10 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { useOrg } from "@/features/org/context/use-org";
-import { client } from "@/lib/api/client";
+import { adminQueries } from "@/features/org/api/admin-queries";
+import { $api } from "@/lib/api/client";
 import { useSession } from "@/lib/session";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 type TestEmailKind = "invite" | "roster-added" | "school-account-invite" | "free-tier-invite";
@@ -32,25 +33,6 @@ const SCHOOL_BUTTONS: { kind: TestEmailKind; label: string }[] = [
   { kind: "school-account-invite", label: "School Account Invite" },
 ];
 
-// The generated list-response type is mis-mapped in the OpenAPI spec, so we
-// fetch with the raw client and assert the shape we actually rely on.
-interface OrgEventRow {
-  id: string;
-  name: string;
-  startDate: string | null;
-}
-
-const rawClient = client as unknown as {
-  GET: (
-    path: string,
-    opts: { params: { path: Record<string, string> } },
-  ) => Promise<{ data: unknown; error?: unknown }>;
-  POST: (
-    path: string,
-    opts: { params: { path: Record<string, string> }; body: unknown },
-  ) => Promise<{ data: unknown; error?: unknown }>;
-};
-
 export function TestEmailsSection({ orgSlug }: { orgSlug: string }) {
   const session = useSession();
   const { hasFeature } = useOrg();
@@ -59,35 +41,14 @@ export function TestEmailsSection({ orgSlug }: { orgSlug: string }) {
   const [eventId, setEventId] = useState<string | null>(null);
   const [audience, setAudience] = useState<"dancer" | "coach">("dancer");
 
-  const eventsQuery = useQuery({
-    queryKey: ["org-events-test-emails", orgSlug],
-    queryFn: async () => {
-      const res = await rawClient.GET(`/orgs/${orgSlug}/events`, {
-        params: { path: { slug: orgSlug } },
-      });
-      if (res.error) throw new Error("Failed to load events");
-      return (res.data as OrgEventRow[]) ?? [];
-    },
-  });
+  const eventsQuery = useQuery(adminQueries.events(orgSlug));
 
   const events = eventsQuery.data ?? [];
   // Default to the first event until the user explicitly chooses.
   const selectedEventId =
     eventId ?? (events.length > 0 ? events[0]!.id : NO_EVENT);
 
-  const mutation = useMutation({
-    mutationFn: async (kind: TestEmailKind) => {
-      const res = await rawClient.POST(`/orgs/${orgSlug}/events/test-emails`, {
-        params: { path: { slug: orgSlug } },
-        body: {
-          kind,
-          eventId: selectedEventId === NO_EVENT ? undefined : selectedEventId,
-          audience,
-        },
-      });
-      if (res.error) throw new Error("Send failed");
-      return res.data;
-    },
+  const mutation = $api.useMutation("post", "/orgs/{slug}/events/test-emails", {
     onSuccess: () => {
       toastManager.add({
         title: `Test email sent to ${session.displayEmail}`,
@@ -98,6 +59,17 @@ export function TestEmailsSection({ orgSlug }: { orgSlug: string }) {
       toastManager.add({ title: "Couldn't send test email", type: "error" });
     },
   });
+
+  const send = (kind: TestEmailKind) =>
+    mutation.mutate({
+      params: { path: { slug: orgSlug } },
+      body: {
+        kind,
+        eventId: selectedEventId === NO_EVENT ? undefined : selectedEventId,
+        audience,
+      },
+    });
+  const sendingKind = mutation.variables?.body?.kind;
 
   return (
     <Frame>
@@ -180,8 +152,8 @@ export function TestEmailsSection({ orgSlug }: { orgSlug: string }) {
                   label={btn.label}
                   kind={btn.kind}
                   pending={mutation.isPending}
-                  isThis={mutation.variables === btn.kind}
-                  onSend={() => mutation.mutate(btn.kind)}
+                  isThis={sendingKind === btn.kind}
+                  onSend={() => send(btn.kind)}
                 />
               ))}
             </div>
@@ -198,8 +170,8 @@ export function TestEmailsSection({ orgSlug }: { orgSlug: string }) {
                   label={btn.label}
                   kind={btn.kind}
                   pending={mutation.isPending}
-                  isThis={mutation.variables === btn.kind}
-                  onSend={() => mutation.mutate(btn.kind)}
+                  isThis={sendingKind === btn.kind}
+                  onSend={() => send(btn.kind)}
                 />
               ))}
             </div>
@@ -215,8 +187,8 @@ export function TestEmailsSection({ orgSlug }: { orgSlug: string }) {
                   label="Free-Tier Invite"
                   kind="free-tier-invite"
                   pending={mutation.isPending}
-                  isThis={mutation.variables === "free-tier-invite"}
-                  onSend={() => mutation.mutate("free-tier-invite")}
+                  isThis={sendingKind === "free-tier-invite"}
+                  onSend={() => send("free-tier-invite")}
                 />
               </div>
             </div>

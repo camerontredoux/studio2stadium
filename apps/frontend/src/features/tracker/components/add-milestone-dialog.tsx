@@ -15,10 +15,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Radio, RadioGroup } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
+import { Spinner } from "@/components/ui/spinner";
 import { canSubmitCommonRecruitingVideo } from "@/lib/common-recruiting";
 import { useSession } from "@/lib/session/hooks/use-session";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState, type ReactElement, type RefObject } from "react";
+import { useCreateTrackerMilestone } from "../api/mutations";
 import { trackerQueries } from "../api/queries";
 import { SchoolLogo } from "./school-logo";
 
@@ -35,25 +37,24 @@ const SUGGESTIONS = [
   "Complete the team's recruiting questionnaire",
 ];
 
-type School = { name: string; avatar: string | null };
+type School = { id: string; name: string; avatar: string | null };
 
 function AddMilestoneForm({
   school,
   maxLength,
   inputRef,
-  onAdd,
   onClose,
 }: {
   school: School;
   maxLength: number;
   inputRef: RefObject<HTMLInputElement | null>;
-  onAdd: (title: string) => void;
   onClose: () => void;
 }) {
   const { username } = useSession();
   const { data: dancer } = useQuery(trackerQueries.dancer(username));
   const [picked, setPicked] = useState<string | null>(null);
   const [title, setTitle] = useState("");
+  const createMilestone = useCreateTrackerMilestone();
 
   // The video is for graduating seniors and older, the same rule as
   // submitting one; hide it until the profile says so.
@@ -65,9 +66,13 @@ function AddMilestoneForm({
 
   const submit = () => {
     const next = title.trim();
-    if (!next) return;
-    onAdd(next);
-    onClose();
+    if (!next || createMilestone.isPending) return;
+    // Close once the save lands; on failure the error toasts and the dialog
+    // stays open with the title, so the dancer can try again.
+    createMilestone.mutate(
+      { body: { schoolId: school.id, title: next } },
+      { onSuccess: onClose },
+    );
   };
 
   return (
@@ -131,8 +136,20 @@ function AddMilestoneForm({
         <Button variant="ghost" onClick={onClose}>
           Cancel
         </Button>
-        <Button disabled={!title.trim()} onClick={submit}>
-          Add milestone
+        <Button
+          disabled={!title.trim() || createMilestone.isPending}
+          onClick={submit}
+        >
+          {createMilestone.isPending ? (
+            // Offline, the save waits for the connection instead of failing.
+            <Spinner
+              label={
+                createMilestone.isPaused ? "Waiting for connection…" : "Adding…"
+              }
+            />
+          ) : (
+            "Add milestone"
+          )}
         </Button>
       </DialogFooter>
     </>
@@ -142,12 +159,10 @@ function AddMilestoneForm({
 export function AddMilestoneDialog({
   school,
   maxLength,
-  onAdd,
   trigger,
 }: {
   school: School;
   maxLength: number;
-  onAdd: (title: string) => void;
   trigger: ReactElement;
 }) {
   const [open, setOpen] = useState(false);
@@ -163,7 +178,6 @@ export function AddMilestoneDialog({
           school={school}
           maxLength={maxLength}
           inputRef={inputRef}
-          onAdd={onAdd}
           onClose={() => setOpen(false)}
         />
       </DialogPopup>

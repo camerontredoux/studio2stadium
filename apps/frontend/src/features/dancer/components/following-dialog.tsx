@@ -83,15 +83,17 @@ function FollowingList() {
 
 export function DancerFollowingDialog({
   children,
+  nativeButton = true,
 }: {
   children: React.ReactElement;
+  nativeButton?: boolean;
 }) {
   return (
     <Dialog>
       <DialogTrigger
         render={children}
         className="cursor-pointer"
-        nativeButton={false}
+        nativeButton={nativeButton}
       />
       <DialogContent showCloseButton={false}>
         <DialogHeader>

@@ -1,3 +1,4 @@
+import { useDebouncedCallback } from "@/components/hooks/use-debounced-callback";
 import { Button } from "@/components/ui/button";
 import {
   InputGroup,
@@ -12,7 +13,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Spinner } from "@/components/ui/spinner";
-import { debounce } from "@tanstack/pacer";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { CheckIcon, InfoIcon, XIcon } from "lucide-react";
@@ -28,15 +28,11 @@ export function DancerInputGroup() {
 
   const { data, isFetching, error } = useQuery(queries.available(debounced));
 
-  const debouncedUsername = debounce(
-    (username: string) => {
-      setDebouncedUsername(username);
-      setTyping(false);
-    },
-    {
-      wait: 500,
-    },
-  );
+  // One timer across renders, so a burst of typing checks the name once.
+  const debouncedUsername = useDebouncedCallback((username: string) => {
+    setDebouncedUsername(username);
+    setTyping(false);
+  }, 500);
 
   const navigate = useNavigate();
 

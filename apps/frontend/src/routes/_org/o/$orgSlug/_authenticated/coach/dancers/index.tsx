@@ -10,7 +10,7 @@ import {
 } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { HeartIcon, PencilIcon, StarIcon, XIcon } from "lucide-react";
-import { $api } from "@/lib/api/client";
+import { $api, type ApiSchemas } from "@/lib/api/client";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { useOrg } from "@/features/org/context/use-org";
 import { DancerTable } from "@/features/org/components/dancer-table/dancer-table";
@@ -820,19 +820,7 @@ function DancerSearch() {
 /*  Sidebar                                                            */
 /* ------------------------------------------------------------------ */
 
-type DancerData = {
-  rosterId: string;
-  bibNumber: number | null;
-  firstName: string;
-  lastName: string;
-  gradYear: number | null;
-  gpa: number | null;
-  state: string | null;
-  studio: string | null;
-  isFavorited?: boolean;
-  rating?: number | null;
-  hasNote?: boolean;
-};
+type DancerData = ApiSchemas["OrgsIdDancersResponse"][number];
 
 function ScoutingSidebar({
   dancers,

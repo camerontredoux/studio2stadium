@@ -14,12 +14,12 @@ import { uploadOutcome } from "@/lib/video-processing/pending-uploads";
 import type { ApiSchemas } from "@/lib/api/client";
 import { useRequestUpload } from "@/shared/images/api/mutations";
 import { ImageUploadField } from "@/shared/images/components/image-upload-field";
-import { videoQueries } from "@/shared/videos/api/queries";
+import { uploadCheckGaveUp, videoQueries } from "@/shared/videos/api/queries";
 import { videoUploadSchema as videoSchema } from "@/shared/videos/schema";
 import { VideoUploadField } from "@/shared/videos/components/video-upload-field";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
 import { uploadVideoTus } from "@/utils/upload-video-tus";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { ImageIcon, TrashIcon, VideoIcon } from "lucide-react";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Controller, FormProvider, useForm, type FieldErrors } from "react-hook-form";
@@ -62,12 +62,12 @@ function ExistingMedia({
   images,
   videos,
   username,
-  isVideoProcessing,
+  processingCount,
 }: {
   images: SchoolImage[];
   videos: SchoolVideo[];
   username: string;
-  isVideoProcessing: boolean;
+  processingCount: number;
 }) {
   const { mutate: deleteImage, isPending: isDeletingImage } =
     useAdminDeleteSchoolImage(username);
@@ -83,7 +83,7 @@ function ExistingMedia({
       new Date(a.data.createdAt).getTime(),
   );
 
-  if (items.length === 0 && !isVideoProcessing) {
+  if (items.length === 0 && processingCount === 0) {
     return (
       <div className="text-muted-foreground py-4 text-center text-sm">
         No media uploaded yet
@@ -93,14 +93,17 @@ function ExistingMedia({
 
   return (
     <div className="grid grid-cols-4 gap-2">
-      {isVideoProcessing && (
-        <div className="bg-muted flex aspect-square items-center justify-center rounded-md">
+      {Array.from({ length: processingCount }, (_, index) => (
+        <div
+          key={`processing-${index}`}
+          className="bg-muted flex aspect-square items-center justify-center rounded-md"
+        >
           <div className="flex flex-col items-center gap-2">
             <Spinner className="size-5" />
             <span className="text-muted-foreground text-xs">Processing</span>
           </div>
         </div>
-      )}
+      ))}
       {items.map((item) => (
         <div key={item.data.id} className="group relative aspect-square">
           {item.kind === "image" ? (
@@ -198,46 +201,49 @@ export const MediaTab = forwardRef<TabHandle, MediaTabProps>(
     const [videoProgress, setVideoProgress] = useState(0);
     const tusRef = useRef<tus.Upload | null>(null);
 
-    // Follows the upload by id, so a failed encode ends the wait too.
-    const [processingMediaId, setProcessingMediaId] = useState<string | null>(
-      null,
-    );
-    const processingUpload = useQuery({
-      ...videoQueries.upload(processingMediaId ?? ""),
-      enabled: processingMediaId !== null,
+    // Follows each upload by id, so a failed encode ends its wait too and a
+    // second upload does not hide the first one's result.
+    const [processingMediaIds, setProcessingMediaIds] = useState<string[]>([]);
+    const processingUploads = useQueries({
+      queries: processingMediaIds.map((mediaId) =>
+        videoQueries.upload(mediaId),
+      ),
     });
-    const isVideoProcessing = processingMediaId !== null;
 
     useEffect(() => {
-      if (!processingMediaId || !processingUpload.isSuccess) return;
-      const outcome = uploadOutcome(processingUpload.data);
-      if (outcome === "processing") return;
+      processingUploads.forEach((result, index) => {
+        const mediaId = processingMediaIds[index];
+        if (!mediaId) return;
+        const untrack = () =>
+          setProcessingMediaIds((ids) => ids.filter((id) => id !== mediaId));
+        if (uploadCheckGaveUp(result)) {
+          untrack();
+          return;
+        }
+        if (!result.isSuccess) return;
+        const outcome = uploadOutcome(result.data);
+        if (outcome === "processing") return;
 
-      setProcessingMediaId(null);
-      if (outcome === "ready") {
-        queryClient.invalidateQueries({
-          queryKey: adminQueries.schoolEvents(username).queryKey,
-        });
-        toastManager.add({
-          title: "Video ready",
-          description: "The video has been processed.",
-          type: "success",
-        });
-      } else if (outcome === "failed") {
-        toastManager.add({
-          title: "Video processing failed",
-          description:
-            processingUpload.data?.errorMessage || "Please try uploading again.",
-          type: "error",
-        });
-      }
-    }, [
-      processingMediaId,
-      processingUpload.isSuccess,
-      processingUpload.data,
-      queryClient,
-      username,
-    ]);
+        untrack();
+        if (outcome === "ready") {
+          queryClient.invalidateQueries({
+            queryKey: adminQueries.schoolEvents(username).queryKey,
+          });
+          toastManager.add({
+            title: "Video ready",
+            description: "The video has been processed.",
+            type: "success",
+          });
+        } else if (outcome === "failed") {
+          toastManager.add({
+            title: "Video processing failed",
+            description:
+              result.data?.errorMessage || "Please try uploading again.",
+            type: "error",
+          });
+        }
+      });
+    }, [processingMediaIds, processingUploads, queryClient, username]);
 
     const hasImageFile = imageForm.watch("files").length > 0;
     const hasVideoFile = videoForm.watch("files").length > 0;
@@ -320,7 +326,11 @@ export const MediaTab = forwardRef<TabHandle, MediaTabProps>(
             description: "Video is being processed.",
             type: "success",
           });
-          if (mediaId) setProcessingMediaId(mediaId);
+          if (mediaId) {
+            setProcessingMediaIds((ids) =>
+              ids.includes(mediaId) ? ids : [...ids, mediaId],
+            );
+          }
           setVideoUploading(false);
           setVideoProgress(0);
           videoForm.reset();
@@ -371,7 +381,7 @@ export const MediaTab = forwardRef<TabHandle, MediaTabProps>(
           images={images}
           videos={videos}
           username={username}
-          isVideoProcessing={isVideoProcessing}
+          processingCount={processingMediaIds.length}
         />
 
         <div className="border-t pt-4">

@@ -5,6 +5,7 @@ import { useElementScrollRestoration, useSearch } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useDeferredValue, useRef } from "react";
 import { exploreQueries } from "../../api/queries";
+import { ListError } from "../list-error";
 import { SchoolCard } from "./school-card";
 import { SchoolEmpty } from "./school-empty";
 import { SchoolListSkeleton } from "./school-skeleton";
@@ -12,11 +13,13 @@ import { SchoolListSkeleton } from "./school-skeleton";
 export function SchoolList() {
   const { name, ...search } = useSearch({ from: "/_app/(routes)/explore/" });
 
-  const { data, isPending, isPlaceholderData } = useQuery(
+  const { data, isPending, isPlaceholderData, refetch } = useQuery(
     exploreQueries.schools(search),
   );
 
-  const { data: following } = useQuery(queries.followingIds("dancer"));
+  const { data: following, isError: followingFailed } = useQuery(
+    queries.followingIds("dancer"),
+  );
 
   const deferredName = useDeferredValue(name as string | undefined);
 
@@ -45,6 +48,12 @@ export function SchoolList() {
 
   if (isPending) {
     return <SchoolListSkeleton />;
+  }
+
+  if (!data) {
+    return (
+      <ListError title="Error loading schools" onRetry={() => refetch()} />
+    );
   }
 
   if (rows.length === 0) {
@@ -79,7 +88,10 @@ export function SchoolList() {
           {virtualItems.map((row) => {
             const school = rows[row.index];
 
-            const isFollowing = following?.some((id) => id === school.id);
+            // Without the ids, show no badge rather than a skeleton forever.
+            const isFollowing = followingFailed
+              ? false
+              : following?.some((id) => id === school.id);
 
             return (
               <div

@@ -29,6 +29,10 @@ import {
   useUpdateVideo,
   useAudioUploadUrl,
 } from "@/features/org/api/video-queries";
+import type { ApiSchemas } from "@/lib/api/client";
+
+type AudioContentType =
+  ApiSchemas["OrgsIdEventsIdVideosAudiouploadurlRequest"]["contentType"];
 
 interface AddEditVideoDialogProps {
   open: boolean;
@@ -63,7 +67,7 @@ export function AddEditVideoDialog({
   const [audioRemoved, setAudioRemoved] = useState(false);
   const [audioUploading, setAudioUploading] = useState(false);
   const [audioProgress, setAudioProgress] = useState(0);
-  const audioUploadUrl = useAudioUploadUrl(slug, eventId);
+  const audioUploadUrl = useAudioUploadUrl();
   const audioInputRef = useRef<HTMLInputElement>(null);
 
   if (open && !prevOpenRef.current) {
@@ -138,8 +142,13 @@ export function AddEditVideoDialog({
       setAudioProgress(0);
       try {
         const { key, url } = await audioUploadUrl.mutateAsync({
-          contentType: audioFile.type || "audio/mpeg",
-          filename: audioFile.name,
+          params: { path: { slug, id: eventId } },
+          body: {
+            // The spec enum is the set the backend accepts. Any other file
+            // type is sent as is and rejected, failing like an upload error.
+            contentType: (audioFile.type || "audio/mpeg") as AudioContentType,
+            filename: audioFile.name,
+          },
         });
         await uploadToCloudflare(url, audioFile, setAudioProgress);
         audioKey = key;
@@ -165,11 +174,17 @@ export function AddEditVideoDialog({
 
     if (isEditing && editingVideo) {
       updateVideo.mutate(
-        { videoId: editingVideo.id, ...body },
+        {
+          params: { path: { slug, id: eventId, videoId: editingVideo.id } },
+          body,
+        },
         { onSuccess: () => onOpenChange(false) },
       );
     } else {
-      createVideo.mutate(body, { onSuccess: () => onOpenChange(false) });
+      createVideo.mutate(
+        { params: { path: { slug, id: eventId } }, body },
+        { onSuccess: () => onOpenChange(false) },
+      );
     }
   }
 

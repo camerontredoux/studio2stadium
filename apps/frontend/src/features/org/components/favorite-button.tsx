@@ -1,4 +1,4 @@
-import { $api } from "@/lib/api/client";
+import { $api, type ApiSchemas } from "@/lib/api/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { Heart } from "lucide-react";
@@ -30,12 +30,14 @@ export function FavoriteButton({
   const dancersPrefix = ["get", "/orgs/{slug}/dancers"] as const;
 
   function setFavoritedInList(value: boolean) {
-    qc.setQueriesData({ queryKey: [...dancersPrefix] }, (old: any) =>
-      Array.isArray(old)
-        ? old.map((d: any) =>
-            d.rosterId === dancerRosterId ? { ...d, isFavorited: value } : d,
-          )
-        : old,
+    qc.setQueriesData<ApiSchemas["OrgsIdDancersResponse"]>(
+      { queryKey: [...dancersPrefix] },
+      (old) =>
+        Array.isArray(old)
+          ? old.map((d) =>
+              d.rosterId === dancerRosterId ? { ...d, isFavorited: value } : d,
+            )
+          : old,
     );
   }
 
@@ -46,14 +48,15 @@ export function FavoriteButton({
       await qc.cancelQueries({ queryKey: favKey });
       const previousDancer = qc.getQueryData(dancerKey);
       const previousFavs = qc.getQueryData(favKey);
-      qc.setQueryData(dancerKey, (old: any) => {
+      qc.setQueryData<ApiSchemas["OrgsIdDancersIdResponse"]>(dancerKey, (old) => {
         if (!old) return old;
         return { ...old, isFavorited: true };
       });
       setFavoritedInList(true);
-      qc.setQueryData(favKey, (old: any) => {
+      qc.setQueryData<ApiSchemas["OrgsIdFavoritesResponse"]>(favKey, (old) => {
         if (!Array.isArray(old)) return old;
-        const dancer = qc.getQueryData(dancerKey) as any;
+        const dancer =
+          qc.getQueryData<ApiSchemas["OrgsIdDancersIdResponse"]>(dancerKey);
         if (!dancer) return old;
         return [...old, { rosterId: dancerRosterId, bibNumber: dancer.bibNumber, firstName: dancer.firstName, lastName: dancer.lastName, profilePhotoUrl: dancer.profilePhotoUrl, gradYear: dancer.gradYear, studio: dancer.studio, state: dancer.state, gpa: dancer.gpa }];
       });
@@ -87,13 +90,16 @@ export function FavoriteButton({
         await qc.cancelQueries({ queryKey: favKey });
         const previousDancer = qc.getQueryData(dancerKey);
         const previousFavs = qc.getQueryData(favKey);
-        qc.setQueryData(dancerKey, (old: any) => {
-          if (!old) return old;
-          return { ...old, isFavorited: false };
-        });
+        qc.setQueryData<ApiSchemas["OrgsIdDancersIdResponse"]>(
+          dancerKey,
+          (old) => {
+            if (!old) return old;
+            return { ...old, isFavorited: false };
+          },
+        );
         setFavoritedInList(false);
-        qc.setQueryData(favKey, (old: any) =>
-          Array.isArray(old) ? old.filter((d: any) => d.rosterId !== dancerRosterId) : old,
+        qc.setQueryData<ApiSchemas["OrgsIdFavoritesResponse"]>(favKey, (old) =>
+          Array.isArray(old) ? old.filter((d) => d.rosterId !== dancerRosterId) : old,
         );
         return { previousDancer, previousFavs };
       },

@@ -18,7 +18,8 @@ import {
   UploadIcon,
   XIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import {
   AlertDialog,
@@ -52,6 +53,7 @@ import {
   adminQueries,
   type ChecklistItem,
   type CsvUploadSummary,
+  invalidateOrgEvents,
   type OrgEvent,
 } from "@/features/org/api/admin-queries";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
@@ -80,7 +82,7 @@ import {
   useEventPhase,
   type EventPhaseInfo,
 } from "@/features/org/hooks/use-event-phase";
-import { client } from "@/lib/api/client";
+import { $api, client } from "@/lib/api/client";
 import { useRequestUpload } from "@/shared/images/api/mutations";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
 
@@ -109,24 +111,21 @@ function AdminDashboard({
     () => setEditOpen(true),
   );
 
-  const deleteMutation = useMutation({
-    mutationFn: async () => {
-      const res = await (client as any).DELETE(
-        `/orgs/${orgSlug}/events/${activeEvent.id}`,
-        {},
-      );
-      if (res.error) throw new Error("Delete failed");
+  const deleteMutation = $api.useMutation(
+    "delete",
+    "/orgs/{slug}/events/{id}",
+    {
+      onSuccess: () => {
+        invalidateOrgEvents(qc, orgSlug);
+        toastManager.add({ title: "Event deleted", type: "success" });
+        setDeleteOpen(false);
+        setDeleteConfirmText("");
+      },
+      onError: () => {
+        toastManager.add({ title: "Couldn't delete event", type: "error" });
+      },
     },
-    onSuccess: () => {
-      qc.invalidateQueries(adminQueries.events(orgSlug));
-      toastManager.add({ title: "Event deleted", type: "success" });
-      setDeleteOpen(false);
-      setDeleteConfirmText("");
-    },
-    onError: () => {
-      toastManager.add({ title: "Couldn't delete event", type: "error" });
-    },
-  });
+  );
 
   const handleDeleteOpenChange = (open: boolean) => {
     setDeleteOpen(open);
@@ -300,7 +299,11 @@ function AdminDashboard({
                 deleteConfirmText.toLowerCase() !== "delete" ||
                 deleteMutation.isPending
               }
-              onClick={() => deleteMutation.mutate()}
+              onClick={() =>
+                deleteMutation.mutate({
+                  params: { path: { slug: orgSlug, id: activeEvent.id } },
+                })
+              }
             >
               {deleteMutation.isPending ? (
                 <Spinner label="Deleting..." />
@@ -384,28 +387,16 @@ function PreEventChecklist({
           ? "critical"
           : "done";
 
-  const rawClient = client as unknown as {
-    POST: (
-      path: string,
-      opts: { body: unknown },
-    ) => Promise<{ data: ChecklistItem }>;
-    PATCH: (
-      path: string,
-      opts: { body: Record<string, unknown> },
-    ) => Promise<{ data: ChecklistItem }>;
-    DELETE: (
-      path: string,
-      opts?: Record<string, unknown>,
-    ) => Promise<{ data: unknown }>;
-  };
-
   const toggleMutation = useMutation({
     mutationFn: async (item: ChecklistItem) => {
-      const res = await rawClient.PATCH(
-        `/orgs/${orgSlug}/events/${eventId}/checklist/${item.id}`,
-        { body: { completed: !item.completed } },
+      const { error } = await client.PATCH(
+        "/orgs/{slug}/events/{id}/checklist/{itemId}",
+        {
+          params: { path: { slug: orgSlug, id: eventId, itemId: item.id } },
+          body: { completed: !item.completed },
+        },
       );
-      return res.data;
+      if (error) throw error;
     },
     onMutate: async (item) => {
       await qc.cancelQueries({ queryKey });
@@ -419,16 +410,20 @@ function PreEventChecklist({
     },
     onError: (_err, _item, ctx) => {
       if (ctx?.prev) qc.setQueryData(queryKey, ctx.prev);
+      toastManager.add({ title: "Couldn't update item", type: "error" });
     },
   });
 
   const createMutation = useMutation({
     mutationFn: async (body: { title: string }) => {
-      const res = await rawClient.POST(
-        `/orgs/${orgSlug}/events/${eventId}/checklist`,
-        { body },
+      const { error } = await client.POST(
+        "/orgs/{slug}/events/{id}/checklist",
+        {
+          params: { path: { slug: orgSlug, id: eventId } },
+          body,
+        },
       );
-      return res.data;
+      if (error) throw error;
     },
     onMutate: async (body) => {
       await qc.cancelQueries({ queryKey });
@@ -462,10 +457,11 @@ function PreEventChecklist({
 
   const deleteMutation = useMutation({
     mutationFn: async (itemId: string) => {
-      await rawClient.DELETE(
-        `/orgs/${orgSlug}/events/${eventId}/checklist/${itemId}`,
-        {},
+      const { error } = await client.DELETE(
+        "/orgs/{slug}/events/{id}/checklist/{itemId}",
+        { params: { path: { slug: orgSlug, id: eventId, itemId } } },
       );
+      if (error) throw error;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey });
@@ -483,11 +479,14 @@ function PreEventChecklist({
       itemId: string;
       title: string;
     }) => {
-      const res = await rawClient.PATCH(
-        `/orgs/${orgSlug}/events/${eventId}/checklist/${itemId}`,
-        { body: { title } },
+      const { error } = await client.PATCH(
+        "/orgs/{slug}/events/{id}/checklist/{itemId}",
+        {
+          params: { path: { slug: orgSlug, id: eventId, itemId } },
+          body: { title },
+        },
       );
-      return res.data;
+      if (error) throw error;
     },
     onMutate: async ({ itemId, title }) => {
       await qc.cancelQueries({ queryKey });
@@ -789,13 +788,6 @@ function ScheduleUploadPanel({
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const rawClient = client as unknown as {
-    PATCH: (
-      path: string,
-      opts: { body: Record<string, unknown> },
-    ) => Promise<{ data: unknown }>;
-  };
-
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
       const { key, url } = await requestUpload({
@@ -805,14 +797,16 @@ function ScheduleUploadPanel({
       setUploading(true);
       await uploadToCloudflare(url, file, setProgress);
 
-      await rawClient.PATCH(`/orgs/${orgSlug}/events/${eventId}`, {
+      const { error } = await client.PATCH("/orgs/{slug}/events/{id}", {
+        params: { path: { slug: orgSlug, id: eventId } },
         body: { schedulePdfUrl: key },
       });
+      if (error) throw error;
 
       return key;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["orgs", orgSlug, "events"] });
+      invalidateOrgEvents(qc, orgSlug);
       setFiles([]);
       setProgress(0);
       setUploading(false);
@@ -833,13 +827,18 @@ function ScheduleUploadPanel({
 
   const removeMutation = useMutation({
     mutationFn: async () => {
-      await rawClient.PATCH(`/orgs/${orgSlug}/events/${eventId}`, {
+      const { error } = await client.PATCH("/orgs/{slug}/events/{id}", {
+        params: { path: { slug: orgSlug, id: eventId } },
         body: { schedulePdfUrl: null },
       });
+      if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["orgs", orgSlug, "events"] });
+      invalidateOrgEvents(qc, orgSlug);
       toastManager.add({ title: "Schedule removed", type: "success" });
+    },
+    onError: () => {
+      toastManager.add({ title: "Failed to remove schedule", type: "error" });
     },
   });
 
@@ -1177,5 +1176,26 @@ function AdminHome() {
 
   if (!selectedEvent) return null;
 
-  return <AdminDashboard orgSlug={orgSlug} activeEvent={selectedEvent} />;
+  // The dashboard suspends on the event's stats and checklist; without its
+  // own boundary that replaced the whole admin area with the org loader.
+  return (
+    <Suspense fallback={<AdminDashboardSkeleton />}>
+      <AdminDashboard orgSlug={orgSlug} activeEvent={selectedEvent} />
+    </Suspense>
+  );
+}
+
+function AdminDashboardSkeleton() {
+  return (
+    <div className="flex flex-col gap-4 p-4 md:p-6">
+      <Skeleton className="h-8 w-64" />
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
+      </div>
+      <Skeleton className="h-64" />
+    </div>
+  );
 }

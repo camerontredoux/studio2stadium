@@ -1,6 +1,16 @@
 import { $api, client } from "@/lib/api/client";
 import { queryOptions } from "@tanstack/react-query";
 
+const UPLOAD_CHECK_FAILURE_LIMIT = 5;
+
+// A server that keeps failing the check (a persistent 5xx) would otherwise
+// be polled forever. After this many failed checks polling stops, and the
+// watchers drop the upload the same way they drop one the server no longer
+// has.
+export function uploadCheckGaveUp(state: { errorUpdateCount: number }) {
+  return state.errorUpdateCount >= UPLOAD_CHECK_FAILURE_LIMIT;
+}
+
 export const videoQueries = {
   permissions: () => $api.queryOptions("get", "/videos/permissions"),
   // Polls one upload until Cloudflare finishes it. `null` means the server
@@ -17,6 +27,7 @@ export const videoQueries = {
         if (!data) throw new Error("Could not check the video upload");
         return data;
       },
-      refetchInterval: 5000,
+      refetchInterval: (query) =>
+        uploadCheckGaveUp(query.state) ? false : 5000,
     }),
 };

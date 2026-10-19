@@ -30,8 +30,9 @@ export function DancersFilterSheet() {
   const filters = useSearch({
     from: "/_app/(routes)/dancers",
     select: (search) =>
+      // The page number is pagination, not a filter.
       Object.keys(search).filter(
-        (k) => search[k as keyof typeof search] !== undefined,
+        (k) => k !== "page" && search[k as keyof typeof search] !== undefined,
       ).length,
   });
 

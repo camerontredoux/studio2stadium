@@ -11,6 +11,7 @@ import { PremiumRoadmap } from "./components/roadmap/premium-roadmap";
 import { DancerSpotlight } from "./components/spotlight/dancer-spotlight";
 import { DancerSpotlightSkeleton } from "./components/spotlight/dancer-spotlight-skeleton";
 import { ProgramSpotlight } from "./components/spotlight/program-spotlight";
+import { ProgramSpotlightSkeleton } from "./components/spotlight/program-spotlight-skeleton";
 
 export function FeedPage() {
   const session = useSession();
@@ -36,7 +37,9 @@ export function FeedPage() {
           <>
             <FreeTierAlert />
             <PremiumRoadmap />
-            <ProgramSpotlight />
+            <Suspense fallback={<ProgramSpotlightSkeleton />}>
+              <ProgramSpotlight />
+            </Suspense>
           </>
         )}
 

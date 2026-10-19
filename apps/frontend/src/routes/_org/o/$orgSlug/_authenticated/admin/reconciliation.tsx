@@ -1,4 +1,4 @@
-import { client } from "@/lib/api/client";
+import { $api, client, type ApiSchemas } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toastManager } from "@/components/ui/toast-manager";
@@ -13,45 +13,8 @@ export const Route = createFileRoute(
   component: ReconciliationPage,
 });
 
-type InviteRow = {
-  id: string;
-  email: string;
-  organization: string | null;
-  token: string;
-  expiresAt: string;
-  consumedAt: string | null;
-  createdAt: string;
-};
-
-type OrphanRow = {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  organization: string | null;
-};
-
-type SchoolUser = {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-};
-
-async function fetchReconciliation(
-  slug: string,
-  eventId: string,
-): Promise<{ invites: InviteRow[]; orphanRosters: OrphanRow[] }> {
-  const res = await (
-    client as unknown as Record<
-      string,
-      (p: string) => Promise<{
-        data: { invites: InviteRow[]; orphanRosters: OrphanRow[] };
-      }>
-    >
-  )["GET"](`/orgs/${slug}/events/${eventId}/reconciliation`);
-  return res.data;
-}
+type SchoolUser =
+  ApiSchemas["OrgsIdEventsIdReconciliationSchoolusersResponse"][number];
 
 async function fetchSchoolUsers(
   slug: string,
@@ -100,17 +63,14 @@ function MergeDialog({
 
   const mergeMutation = useMutation({
     mutationFn: async (targetUserId: string) => {
-      await (
-        client as unknown as Record<
-          string,
-          (p: string, opts: { body: unknown }) => Promise<void>
-        >
-      )["POST"](
-        `/orgs/${slug}/events/${eventId}/reconciliation/rosters/${rosterId}/merge`,
+      const { error } = await client.POST(
+        "/orgs/{slug}/events/{id}/reconciliation/rosters/{rosterId}/merge",
         {
+          params: { path: { slug, id: eventId, rosterId } },
           body: { targetUserId },
         },
       );
+      if (error) throw error;
     },
     onSuccess: () => {
       toastManager.add({ title: "Roster merged", type: "success" });
@@ -166,19 +126,22 @@ function ReconciliationPage() {
 
   const [mergingRosterId, setMergingRosterId] = useState<string | null>(null);
 
-  const dataQuery = useQuery({
-    queryKey: ["reconciliation", orgSlug, active?.id],
-    queryFn: () => fetchReconciliation(orgSlug, active!.id),
-    enabled: !!active,
-  });
+  const dataQuery = useQuery(
+    $api.queryOptions(
+      "get",
+      "/orgs/{slug}/events/{id}/reconciliation",
+      { params: { path: { slug: orgSlug, id: active?.id ?? "" } } },
+      { enabled: !!active },
+    ),
+  );
 
   const resendMutation = useMutation({
     mutationFn: async (inviteId: string) => {
-      await (client as unknown as Record<string, (p: string) => Promise<void>>)[
-        "POST"
-      ](
-        `/orgs/${orgSlug}/events/${active?.id}/reconciliation/invites/${inviteId}/resend`,
+      const { error } = await client.POST(
+        "/orgs/{slug}/events/{id}/reconciliation/invites/{inviteId}/resend",
+        { params: { path: { slug: orgSlug, id: active!.id, inviteId } } },
       );
+      if (error) throw error;
     },
     onSuccess: () => {
       toastManager.add({ title: "Invite resent", type: "success" });
@@ -189,11 +152,11 @@ function ReconciliationPage() {
 
   const revokeMutation = useMutation({
     mutationFn: async (inviteId: string) => {
-      await (client as unknown as Record<string, (p: string) => Promise<void>>)[
-        "DELETE"
-      ](
-        `/orgs/${orgSlug}/events/${active?.id}/reconciliation/invites/${inviteId}`,
+      const { error } = await client.DELETE(
+        "/orgs/{slug}/events/{id}/reconciliation/invites/{inviteId}",
+        { params: { path: { slug: orgSlug, id: active!.id, inviteId } } },
       );
+      if (error) throw error;
     },
     onSuccess: () => {
       toastManager.add({ title: "Invite revoked", type: "success" });

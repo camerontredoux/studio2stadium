@@ -55,7 +55,7 @@ export function TeamInfo({ school }: TeamInfoProps) {
               value="No team information available"
             />
           ) : null}
-          {school.size && (
+          {!!school.size && (
             <TeamInfoItem
               icon={<UsersIcon className="size-4 shrink-0" />}
               label="Students"

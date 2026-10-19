@@ -48,24 +48,16 @@ export function ChecklistItemDialog({
   const isCreate = item === undefined;
   const queryKey = adminQueries.checklist(orgSlug, eventId).queryKey;
 
-  const rawClient = client as unknown as {
-    POST: (
-      path: string,
-      opts: { body: unknown },
-    ) => Promise<{ data: ChecklistItem }>;
-    PATCH: (
-      path: string,
-      opts: { body: Record<string, unknown> },
-    ) => Promise<{ data: ChecklistItem }>;
-  };
-
   const createMutation = useMutation({
     mutationFn: async (body: { title: string }) => {
-      const res = await rawClient.POST(
-        `/orgs/${orgSlug}/events/${eventId}/checklist`,
-        { body },
+      const { error } = await client.POST(
+        "/orgs/{slug}/events/{id}/checklist",
+        {
+          params: { path: { slug: orgSlug, id: eventId } },
+          body,
+        },
       );
-      return res.data;
+      if (error) throw error;
     },
     onMutate: async (body) => {
       await qc.cancelQueries({ queryKey });
@@ -99,11 +91,14 @@ export function ChecklistItemDialog({
   const updateMutation = useMutation({
     mutationFn: async (body: { title: string }) => {
       if (!item) throw new Error("Item is required to update");
-      const res = await rawClient.PATCH(
-        `/orgs/${orgSlug}/events/${eventId}/checklist/${item.id}`,
-        { body },
+      const { error } = await client.PATCH(
+        "/orgs/{slug}/events/{id}/checklist/{itemId}",
+        {
+          params: { path: { slug: orgSlug, id: eventId, itemId: item.id } },
+          body,
+        },
       );
-      return res.data;
+      if (error) throw error;
     },
     onMutate: async (body) => {
       if (!item) return;

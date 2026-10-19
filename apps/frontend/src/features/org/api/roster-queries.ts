@@ -172,12 +172,15 @@ export async function downloadRosterCsv(
     parseAs: "text",
   });
 
+  // The callers toast "Export failed" on a throw; don't download an empty file.
+  if (!res.response.ok) throw res.error;
+
   const csv = (res.data as unknown as string) ?? "";
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `${params.type}s-export.csv`;
+  a.download = `${params.type === "coach" ? "coaches" : "dancers"}-export.csv`;
   document.body.appendChild(a);
   a.click();
   a.remove();

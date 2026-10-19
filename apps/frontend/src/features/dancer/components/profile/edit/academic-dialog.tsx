@@ -23,6 +23,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { useUpdateProfile } from "@/features/dancer/api/mutations";
 import { dancerQueries } from "@/features/dancer/api/queries";
+import { toastApiError } from "@/lib/api/errors";
 import { birthdaySchema } from "@/lib/schemas";
 import { makeBirthday } from "@/utils/birthday";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -73,6 +74,7 @@ export function AcademicDialog({ username }: { username: string }) {
           });
           setOpen(false);
         },
+        onError: toastApiError,
       },
     );
   };

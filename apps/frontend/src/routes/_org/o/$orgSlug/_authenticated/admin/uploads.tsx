@@ -304,7 +304,7 @@ function ChildrenSheet({
     enabled: open && !!entry?.id,
   });
 
-  const children = (childrenQuery.data?.data ?? []) as AuditLogChildEntry[];
+  const children = childrenQuery.data?.data ?? [];
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -702,7 +702,7 @@ function AuditLogPage() {
     enabled: !!selectedEventId,
   });
 
-  const data = (listQuery.data?.data ?? []) as AuditLogEntry[];
+  const data = listQuery.data?.data ?? [];
   const total = listQuery.data?.total ?? 0;
   const totalPages = Math.ceil(total / limit);
   const start = total === 0 ? 0 : page * limit + 1;
