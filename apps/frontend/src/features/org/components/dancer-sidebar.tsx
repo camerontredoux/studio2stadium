@@ -9,6 +9,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -61,6 +62,10 @@ export function DancerSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { setOpenMobile } = useSidebar();
+  // The mobile Sheet is controlled and the provider outlives route changes,
+  // so close it on every nav tap, including a tap on the current route.
+  const closeMobileSidebar = () => setOpenMobile(false);
 
   useQuery({
     ...scoutingQueries.dancerCallbacks(orgSlug),
@@ -192,6 +197,7 @@ export function DancerSidebar() {
                 <Link
                   to={"/o/$orgSlug/dancer" as any}
                   params={{ orgSlug } as any}
+                  onClick={closeMobileSidebar}
                 />
               }
             >
@@ -229,6 +235,7 @@ export function DancerSidebar() {
                   <Link
                     to={dashboardItem.to as any}
                     params={{ orgSlug } as any}
+                    onClick={closeMobileSidebar}
                     className={`flex min-h-10 items-center gap-2 border-t-2 px-3 py-2 transition-colors ${
                       isItemActive(dashboardItem.to, dashboardItem.exact)
                         ? "border-primary text-primary bg-sidebar-accent/40"
@@ -265,6 +272,7 @@ export function DancerSidebar() {
                           key={label}
                           to={to as any}
                           params={{ orgSlug } as any}
+                          onClick={closeMobileSidebar}
                           className={`border-sidebar-border flex min-h-10 items-center gap-2 border-t-2 px-3 py-2 transition-colors ${section.items.length > 1 ? "border-r even:border-r-0" : ""} ${
                             isActive
                               ? "border-t-primary text-primary bg-sidebar-accent/40"
@@ -297,6 +305,7 @@ export function DancerSidebar() {
                     key={label}
                     to={to as any}
                     params={{ orgSlug } as any}
+                    onClick={closeMobileSidebar}
                     title={label}
                     aria-label={label}
                     className={`border-sidebar-border flex h-12 items-center justify-center border-t-2 border-b transition-colors ${
