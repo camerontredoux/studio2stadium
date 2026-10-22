@@ -14,7 +14,7 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
       {isSubroute && (
         <TabsList
           variant="underline"
-          className="**:data-[slot=tab-indicator]:bg-brand bg-background sticky top-12 z-50 -mt-2 w-full"
+          className="**:data-[slot=tab-indicator]:bg-brand bg-background top-header sticky z-50 -mt-2 w-full"
         >
           <TabsTab
             nativeButton={false}

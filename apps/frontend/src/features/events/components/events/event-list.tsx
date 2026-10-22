@@ -80,7 +80,7 @@ export function EventList() {
 
   return (
     <div ref={parentRef}>
-      <div className="sticky top-14 z-10 pb-3">
+      <div className="top-header-2 sticky z-10 pb-3">
         <div className="flex items-center justify-between">
           {activeMonth ? (
             <div className="border-brand/20 bg-background/90 flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-1 backdrop-blur-sm">

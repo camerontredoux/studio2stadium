@@ -76,7 +76,7 @@ export function SchoolSubmissionsList({
             key={group.date}
             className="relative flex flex-col gap-2 lg:gap-3"
           >
-            <div className="sticky top-12 z-10 py-2">
+            <div className="top-header sticky z-10 py-2">
               <div className="flex items-center gap-2">
                 <div className="border-brand/20 bg-background/90 flex items-center gap-1.5 rounded-full border px-2.5 py-1 backdrop-blur-sm">
                   <CalendarIcon className="text-brand size-3.5" />

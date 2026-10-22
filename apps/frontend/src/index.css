@@ -7,6 +7,8 @@
 @custom-variant desktop (@media (pointer: fine));
 
 :root {
+  /* Height of the fixed top bar that sticky elements pin under. */
+  --header-offset: 3rem;
   --brand: oklch(0.7332 0.0605 71.75);
   --brand-foreground: oklch(255 255 255);
   --brand-border: oklch(0.7332 0.0605 71.75 / 0.2);
@@ -284,6 +286,29 @@
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+/*
+  AppLayout sets data-header-hidden while the mobile top bar is slid away on
+  scroll, so sticky elements move up to the top of the screen with it.
+*/
+[data-header-hidden] {
+  --header-offset: env(safe-area-inset-top, 0px);
+}
+
+/*
+  Pins a sticky element under the top bar, plus an optional spacing step
+  (top-header-2). The transition matches the top bar's 200ms slide so the two
+  move together.
+*/
+@utility top-header {
+  top: var(--header-offset);
+  transition: top 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@utility top-header-* {
+  top: calc(var(--header-offset) + var(--spacing) * --value(integer));
+  transition: top 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #nprogress .bar {
