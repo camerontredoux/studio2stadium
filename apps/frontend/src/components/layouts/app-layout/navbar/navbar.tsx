@@ -1,3 +1,4 @@
+import { cn } from "@/components/utils/cn";
 import { Separator } from "@/components/ui/separator";
 
 import {
@@ -23,11 +24,22 @@ import { useSession } from "@/lib/session";
 import { Activity } from "./activity";
 import { NavLink } from "./nav-link";
 
-export function Navbar() {
+interface NavbarProps {
+  hidden: boolean;
+  onFocus: () => void;
+}
+
+export function Navbar({ hidden, onFocus }: NavbarProps) {
   const session = useSession();
 
   return (
-    <aside className="mobile:z-50 mobile:fixed mobile:bg-background mobile:left-0 mobile:right-0 mobile:bottom-0 mobile:w-full mobile:border-t w-fit shrink-0 xl:w-72">
+    <aside
+      onFocus={onFocus}
+      className={cn(
+        "mobile:z-50 mobile:fixed mobile:bg-background mobile:left-0 mobile:right-0 mobile:bottom-0 mobile:w-full mobile:border-t mobile:transition-transform mobile:duration-200 w-fit shrink-0 xl:w-72",
+        hidden && "mobile:translate-y-full",
+      )}
+    >
       <nav className="mobile:px-2 sticky top-12 py-0 pl-2 xl:p-4 xl:pr-0">
         <div className="bg-background mobile:flex-row mobile:justify-between desktop:flex-col desktop:border-r desktop:h-[calc(100vh-3rem)] desktop:xl:h-auto desktop:pl-0 desktop:xl:pl-2 mobile:px-0 flex gap-1 p-2 xl:rounded-xl xl:border">
           <NavLink

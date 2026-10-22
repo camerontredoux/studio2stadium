@@ -1,3 +1,4 @@
+import { cn } from "@/components/utils/cn";
 import { HelpButton } from "@/components/shared/help-button";
 import { MainLogo } from "@/components/shared/main-logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,7 +24,12 @@ import { HiBell, HiCog } from "react-icons/hi";
 import { useTernaryDarkMode, type TernaryDarkMode } from "usehooks-ts";
 import { VideoProcessingIndicator } from "./video-processing-indicator";
 
-export function Topbar() {
+interface TopbarProps {
+  hidden: boolean;
+  onFocus: () => void;
+}
+
+export function Topbar({ hidden, onFocus }: TopbarProps) {
   const session = useSession();
   const { data: notificationCount } = useQuery(notificationQueries.count());
   const { isProcessing } = useVideoProcessing();
@@ -33,7 +39,13 @@ export function Topbar() {
   });
 
   return (
-    <header className="bg-background border-border fixed top-0 right-0 left-0 z-50 h-12 border-b">
+    <header
+      onFocus={onFocus}
+      className={cn(
+        "bg-background border-border mobile:transition-transform mobile:duration-200 fixed top-0 right-0 left-0 z-50 h-12 border-b",
+        hidden && "mobile:-translate-y-full",
+      )}
+    >
       <div className="relative mx-auto flex h-full max-w-7xl items-center justify-between px-2 lg:px-4">
         <div className="flex items-center gap-1 sm:hidden">
           <Button
