@@ -34,9 +34,10 @@ export function Navbar({ hidden, onFocus }: NavbarProps) {
 
   return (
     <aside
+      data-hide-on-scroll
       onFocus={onFocus}
       className={cn(
-        "mobile:z-50 mobile:fixed mobile:bg-background mobile:left-0 mobile:right-0 mobile:bottom-0 mobile:w-full mobile:border-t mobile:transition-transform mobile:duration-200 w-fit shrink-0 xl:w-72",
+        "mobile:z-50 mobile:fixed mobile:bg-background mobile:left-0 mobile:right-0 mobile:bottom-0 mobile:w-full mobile:border-t w-fit shrink-0 xl:w-72",
         hidden && "mobile:translate-y-full",
       )}
     >

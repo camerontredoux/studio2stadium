@@ -40,9 +40,10 @@ export function Topbar({ hidden, onFocus }: TopbarProps) {
 
   return (
     <header
+      data-hide-on-scroll
       onFocus={onFocus}
       className={cn(
-        "bg-background border-border mobile:transition-transform mobile:duration-200 fixed top-0 right-0 left-0 z-50 h-12 border-b",
+        "bg-background border-border fixed top-0 right-0 left-0 z-50 h-12 border-b",
         hidden && "mobile:-translate-y-full",
       )}
     >
