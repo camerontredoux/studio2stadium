@@ -60,7 +60,7 @@ Env var names are declared and validated in `apps/backend/start/env.ts`; `.env.e
 - Sentry: `instrument.ts` loads first in `bin/server.ts` and is a no-op without `SENTRY_DSN`.
 - Fly.io backend: root `fly.toml` (app `studio2stadium-dev`, `iad`, health check `/health`) built from the root `Dockerfile`. `.github/workflows/deploy.yml` deploys on push to `main` touching backend paths. It is the only workflow, so no CI runs tests or lint.
 - Fly.io events worker: `apps/events/fly.toml` (`studio2stadium-events-dev`). No workflow deploys it.
-- The root `Dockerfile` pins Node 24.19 because 24.20 breaks the OpenAPI command index build; read its header before changing the base image.
+- The root `Dockerfile` pins patched Node 24.22.1. Node 24.20+ broke the OpenAPI command index build until `patches/jsonschema@1.5.0.patch`; read the Dockerfile header before changing the base image or that patch.
 
 ## Commands
 
