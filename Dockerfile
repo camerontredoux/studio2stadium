@@ -1,7 +1,10 @@
-# Pinned to patched 24.22.1: Node 24.20 broke the WHATWG URL parsing that jsonschema@1.5.0
-# (via @adonisjs/ace) relies on to resolve $refs, so `adonis-kit index` fails to
-# generate packages/openapi/build/commands/main.js and the backend build cannot
-# resolve it. Unpin once ace/jsonschema ship a fix.
+# Pinned to 24.22.1, the Node.js security release on the 24 line. Since 24.20, Node
+# rejects path-relative URLs against an opaque base, as the WHATWG URL spec requires.
+# jsonschema@1.5.0 (via @adonisjs/ace) resolves $refs with
+# `new URL(ref, 'thismessage::/')`, so `adonis-kit index` threw "Invalid URL" and
+# packages/openapi/build/commands/main.js was never generated.
+# patches/jsonschema@1.5.0.patch switches that base to `thismessage:/`; drop the
+# patch once jsonschema ships a fix.
 FROM node:24.22.1-slim AS base
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
