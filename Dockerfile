@@ -1,8 +1,8 @@
-# Pinned to 24.19: Node 24.20 broke the WHATWG URL parsing that jsonschema@1.5.0
+# Pinned to patched 24.22.1: Node 24.20 broke the WHATWG URL parsing that jsonschema@1.5.0
 # (via @adonisjs/ace) relies on to resolve $refs, so `adonis-kit index` fails to
 # generate packages/openapi/build/commands/main.js and the backend build cannot
 # resolve it. Unpin once ace/jsonschema ship a fix.
-FROM node:24.19-slim AS base
+FROM node:24.22.1-slim AS base
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Install dependencies
