@@ -5,6 +5,11 @@ settings:
   excludeLinksFromLockfile: false
   injectWorkspacePackages: true
 
+patchedDependencies:
+  jsonschema@1.5.0:
+    hash: 02b494fbce740dfb0bc37d32c62cc55478a4ca4a149bbaf8de1c27bddd96b5ba
+    path: patches/jsonschema@1.5.0.patch
+
 importers:
 
   .:
@@ -9367,7 +9372,7 @@ snapshots:
       '@poppinss/prompts': 3.1.6
       '@poppinss/utils': 6.10.1
       fastest-levenshtein: 1.0.16
-      jsonschema: 1.5.0
+      jsonschema: 1.5.0(patch_hash=02b494fbce740dfb0bc37d32c62cc55478a4ca4a149bbaf8de1c27bddd96b5ba)
       string-width: 7.2.0
       yargs-parser: 21.1.1
       youch: 3.3.4
@@ -16638,7 +16643,7 @@ snapshots:
     optionalDependencies:
       graceful-fs: 4.2.11
 
-  jsonschema@1.5.0: {}
+  jsonschema@1.5.0(patch_hash=02b494fbce740dfb0bc37d32c62cc55478a4ca4a149bbaf8de1c27bddd96b5ba): {}
 
   jsonwebtoken@9.0.3:
     dependencies:
