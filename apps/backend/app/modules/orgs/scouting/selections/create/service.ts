@@ -1,57 +1,51 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { eventSchoolSelections } from "#database/schema/event-features";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import { lockDancerSelections } from "../rank.ts";
 
 @inject()
 export class CreateSelectionService {
   constructor(private db: DatabaseService = new DatabaseService()) {}
 
+  /** Adds a school as the dancer's lowest-ranked choice; re-adding one returns it unchanged. */
   async execute(
     eventId: string,
     dancerRosterId: string,
     coachRosterId: string,
     maxSelections = 3
   ) {
-    const [countRow] = await this.db.use((db) =>
-      db
-        .select({ count: sql<number>`count(*)::int` })
+    return this.db.tx(async (tx) => {
+      await lockDancerSelections(tx, dancerRosterId);
+      const current = await tx
+        .select()
         .from(eventSchoolSelections)
         .where(
           and(
             eq(eventSchoolSelections.eventId, eventId),
             eq(eventSchoolSelections.dancerRosterId, dancerRosterId)
           )
-        )
-    );
+        );
 
-    if (maxSelections !== -1 && countRow.count >= maxSelections) {
-      return { error: "max_selections" as const };
-    }
+      const existing = current.find(
+        (row) => row.coachRosterId === coachRosterId
+      );
+      if (existing) return { data: existing };
 
-    const [row] = await this.db.use((db) =>
-      db
+      if (maxSelections !== -1 && current.length >= maxSelections) {
+        return { error: "max_selections" as const };
+      }
+
+      const [row] = await tx
         .insert(eventSchoolSelections)
-        .values({ eventId, dancerRosterId, coachRosterId })
-        .onConflictDoNothing()
-        .returning()
-    );
-
-    if (row) return { data: row };
-
-    const [existing] = await this.db.use((db) =>
-      db
-        .select()
-        .from(eventSchoolSelections)
-        .where(
-          and(
-            eq(eventSchoolSelections.eventId, eventId),
-            eq(eventSchoolSelections.dancerRosterId, dancerRosterId),
-            eq(eventSchoolSelections.coachRosterId, coachRosterId)
-          )
-        )
-        .limit(1)
-    );
-    return { data: existing };
+        .values({
+          eventId,
+          dancerRosterId,
+          coachRosterId,
+          rank: current.length + 1,
+        })
+        .returning();
+      return { data: row! };
+    });
   }
 }

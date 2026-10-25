@@ -3,9 +3,14 @@ import { resolveEffectiveMembership } from "#shared/org/membership";
 import { DatabaseService } from "#database/service";
 import { organizations, orgMemberships } from "#database/schema/organizations";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
-import { hasEventStarted } from "#utils/event-time";
+import {
+  hasEventStarted,
+  orgDefaultTimezone,
+  resolveEventZone,
+  todayInZone,
+} from "#utils/event-time";
 import { inject } from "@adonisjs/core";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 export interface OrgRosterSummary {
   id: string;
@@ -66,16 +71,18 @@ export class GetOrgService {
           );
         membership = resolveEffectiveMembership(membershipRows);
 
-        const today = new Date().toISOString().slice(0, 10);
+        const orgDefault = orgDefaultTimezone(org.settings);
         const rosterRows = await db
           .select({
             id: eventRosters.id,
             eventId: eventRosters.eventId,
             type: eventRosters.type,
+            createdAt: eventRosters.createdAt,
             eventName: orgEvents.name,
             eventStartDate: orgEvents.startDate,
             eventEndDate: orgEvents.endDate,
             eventStartTime: orgEvents.startTime,
+            eventEndTime: orgEvents.endTime,
             eventTimezone: orgEvents.timezone,
             isActive: orgEvents.isActive,
           })
@@ -83,21 +90,35 @@ export class GetOrgService {
           .innerJoin(orgEvents, eq(orgEvents.id, eventRosters.eventId))
           .where(
             and(eq(orgEvents.orgId, org.id), eq(eventRosters.userId, userId))
-          )
-          .orderBy(
-            desc(orgEvents.isActive),
-            asc(
-              sql`CASE WHEN ${orgEvents.startDate} >= ${today} THEN 0 ELSE 1 END`
-            ),
-            asc(
-              sql`CASE WHEN ${orgEvents.startDate} >= ${today} THEN ${orgEvents.startDate} END`
-            ),
-            desc(
-              sql`CASE WHEN ${orgEvents.startDate} < ${today} THEN ${orgEvents.startDate} END`
-            ),
-            desc(eventRosters.createdAt)
           );
-        myRosters = rosterRows.map((roster) => ({
+
+        // Active event first, then upcoming ones soonest first, then past ones
+        // latest first, then the newest Roster Entry. "Upcoming" means the
+        // start date is today or later in the event's own zone.
+        const now = Date.now();
+        const sorted = rosterRows
+          .map((roster) => ({
+            roster,
+            upcoming:
+              roster.eventStartDate >=
+              todayInZone(
+                resolveEventZone(roster.eventTimezone, orgDefault),
+                now
+              ),
+          }))
+          .sort((a, b) => {
+            if (a.roster.isActive !== b.roster.isActive) {
+              return a.roster.isActive ? -1 : 1;
+            }
+            if (a.upcoming !== b.upcoming) return a.upcoming ? -1 : 1;
+            const byStart = a.roster.eventStartDate.localeCompare(
+              b.roster.eventStartDate
+            );
+            if (byStart !== 0) return a.upcoming ? byStart : -byStart;
+            return b.roster.createdAt.getTime() - a.roster.createdAt.getTime();
+          });
+
+        myRosters = sorted.map(({ roster }) => ({
           id: roster.id,
           eventId: roster.eventId,
           type: roster.type,
@@ -106,9 +127,15 @@ export class GetOrgService {
           eventEndDate: roster.eventEndDate,
           isActive: roster.isActive,
           hasStarted: hasEventStarted(
-            roster.eventStartDate,
-            roster.eventStartTime,
-            roster.eventTimezone
+            {
+              startDate: roster.eventStartDate,
+              endDate: roster.eventEndDate,
+              startTime: roster.eventStartTime,
+              endTime: roster.eventEndTime,
+              timezone: roster.eventTimezone,
+            },
+            orgDefault,
+            now
           ),
         }));
         myRoster = myRosters[0] ?? null;

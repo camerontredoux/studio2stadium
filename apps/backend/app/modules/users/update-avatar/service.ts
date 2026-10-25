@@ -10,7 +10,7 @@ export class UpdateAvatarService {
   constructor(private db: DatabaseService) {}
 
   async execute(userId: string, avatar: string | null, { key }: Validator) {
-    const disk = drive.use("r2");
+    const disk = drive.use();
 
     if (avatar && avatar.startsWith("avatar")) {
       await disk.delete(avatar);

@@ -2,7 +2,7 @@ import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { eventSchoolSelections } from "#database/schema/event-features";
 import { eventRosters } from "#database/schema/org-events";
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 
 @inject()
 export class ListSelectionsService {
@@ -15,6 +15,7 @@ export class ListSelectionsService {
           id: eventSchoolSelections.id,
           coachRosterId: eventSchoolSelections.coachRosterId,
           organization: eventRosters.organization,
+          rank: eventSchoolSelections.rank,
           createdAt: eventSchoolSelections.createdAt,
         })
         .from(eventSchoolSelections)
@@ -28,7 +29,7 @@ export class ListSelectionsService {
             eq(eventSchoolSelections.dancerRosterId, dancerRosterId)
           )
         )
-        .orderBy(eventSchoolSelections.createdAt)
+        .orderBy(asc(eventSchoolSelections.rank))
     );
   }
 }

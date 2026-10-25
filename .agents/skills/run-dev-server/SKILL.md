@@ -49,6 +49,7 @@ The private `apps/backend/.env` keeps the root clone's values except these:
 - `NODE_ENV=development` and `CRON_EMAILS_ENABLED=false`.
 - `DEV_SIGN_IN_LINK_ENABLED=true`, which registers the backend's dev-only `GET /auth/dev-sign-in` that `sign-in.sh` links to. The backend registers it only for the HTTP server with `NODE_ENV=development`, so production never has it.
 - `SQS_QUEUE_URL` and `SQS_DEAD_LETTER_QUEUE_URL` point at a closed local port. The `publish-outbox` cron then logs `[Outbox]: Error publishing events` and leaves rows unpublished. It does not send this database's events to the shared dev queue.
+- `DRIVE_DISK=fs` writes uploads (schedules, images, blog files) to `apps/backend/storage`, served from `/uploads` on this backend, instead of the R2 bucket.
 
 The private `apps/frontend/.env.local` sets `VITE_API_URL=http://localhost:<api-port>`. The Vite proxy in `apps/frontend/vite.config.ts` is fixed to `localhost:3333`, so the frontend calls this backend directly instead. Dev CORS allows any origin, and `localhost` cookies are not tied to a port.
 
@@ -56,7 +57,7 @@ These cannot be isolated per worktree without changing app code, so treat them a
 
 - **Video uploads.** In development, `src/utils/upload-video-tus.ts` and the admin school media tab upload through the `/api` proxy. That reaches Cameron's backend on 3333, not yours. Do not test video uploads on a worker server.
 - **Cookies.** The backend's cookie names `auth_session` and `auth_cache` are fixed in `config/auth.ts`. A sign-in on one `localhost` server replaces the cookies of every other server in the same browser profile, Cameron's too. Use a browser session of your own.
-- **Outside services.** Stripe (test mode), the R2 bucket, Cloudflare Stream and SES use the root clone's real credentials. Uploads land in the shared bucket and Stream account. Emails really send, so do not trigger signup, invite or password-reset emails to addresses you do not own.
+- **Outside services.** Stripe (test mode), Cloudflare Stream and SES use the root clone's real credentials. Video uploads land in the shared Stream account. Emails really send, so do not trigger signup, invite or password-reset emails to addresses you do not own.
 - **The events worker** (`apps/events`) is not started. It reads the shared SQS queue, and the backend sends it nothing. Notifications that it writes do not appear on a worker server.
 
 ## Backend tests

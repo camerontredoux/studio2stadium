@@ -11,6 +11,11 @@
 
 import { Env } from "@adonisjs/core/env";
 
+// Read when the schema is validated, after the .env files are loaded into
+// process.env.
+const usesLocalDisk = () =>
+  process.env.DRIVE_DISK === "fs" && process.env.NODE_ENV !== "production";
+
 export default await Env.create(new URL("../", import.meta.url), {
   PORT: Env.schema.number(),
   APP_KEY: Env.schema.string(),
@@ -119,14 +124,23 @@ export default await Env.create(new URL("../", import.meta.url), {
 
   /*
   |----------------------------------------------------------
-  | Variables for configuring the drive package
+  | Variables for configuring the drive package.
+  | "fs" writes files to apps/backend/storage for local
+  | development and needs no R2 variables. Production must
+  | use "r2": "fs" fails validation there.
   |----------------------------------------------------------
   */
-  DRIVE_DISK: Env.schema.enum(["r2"] as const),
-  R2_BUCKET: Env.schema.string(),
-  R2_KEY: Env.schema.string(),
-  R2_SECRET: Env.schema.string(),
-  R2_ENDPOINT: Env.schema.string(),
+  DRIVE_DISK: (key: string, value?: string) => {
+    const disk = Env.schema.enum(["r2", "fs"] as const)(key, value);
+    if (disk === "fs" && process.env.NODE_ENV === "production") {
+      throw new Error(`${key}=fs cannot be used in production; set it to r2`);
+    }
+    return disk;
+  },
+  R2_BUCKET: Env.schema.string.optionalWhen(usesLocalDisk),
+  R2_KEY: Env.schema.string.optionalWhen(usesLocalDisk),
+  R2_SECRET: Env.schema.string.optionalWhen(usesLocalDisk),
+  R2_ENDPOINT: Env.schema.string.optionalWhen(usesLocalDisk),
 
   /*
   |----------------------------------------------------------

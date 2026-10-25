@@ -4,7 +4,11 @@ import router from "@adonisjs/core/services/router";
 const CreateEventController = () => import("./create/controller.ts");
 const UpdateEventController = () => import("./update/controller.ts");
 const DeleteEventController = () => import("./delete/controller.ts");
-const ListEventsController = () => import("./list/controller.ts");
+// Through the alias, not "./list/controller.ts": Tuyau finds a lazy
+// controller's file by suffix, and that suffix also matches
+// dancers/profile/get-profile-checklist/controller.ts.
+const ListEventsController = () =>
+  import("#modules/orgs/events/list/controller");
 const UploadCoachesController = () => import("./upload-coaches/controller.ts");
 const UploadDancersController = () => import("./upload-dancers/controller.ts");
 const UploadPreviewController = () => import("./upload-preview/controller.ts");
@@ -58,9 +62,12 @@ const AudioUploadUrlController = () =>
 const ViewAsController = () => import("./view-as/controller.ts");
 const CheckInController = () => import("./check-in/controller.ts");
 const AdminCheckInController = () => import("./rosters/check-in/controller.ts");
+const RosterCheckInCodeController = () =>
+  import("./rosters/check-in-code/controller.ts");
 const ResetCheckInController = () =>
   import("./rosters/check-in/reset/controller.ts");
 const CheckInStatusController = () => import("./check-in/status-controller.ts");
+const ScanCheckInController = () => import("./check-in/scan/controller.ts");
 const ScheduleController = () => import("./schedule/controller.ts");
 const TestEmailsController = () => import("./test-emails/controller.ts");
 
@@ -376,6 +383,34 @@ router
         middleware.orgMember(),
         middleware.orgAdmin(),
       ]);
+    router
+      .get(":slug/events/:id/rosters/:rosterId/check-in-code", [
+        RosterCheckInCodeController,
+      ])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ])
+      .openapi({
+        summary: "Get a dancer's check-in pass code",
+        description:
+          "Returns the signed code a Dancer's check-in pass QR encodes, so an organizer can show the pass at the desk. 404 when the Roster Entry is not a Dancer in this event of this org.",
+      });
+    router
+      .post(":slug/events/:id/check-in/scan", [ScanCheckInController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ])
+      .openapi({
+        summary: "Check a dancer in from their pass",
+        description:
+          "Verifies the signed code from a Dancer's check-in pass QR and sets their check-in time if it is not set yet. A repeat scan returns already_checked_in and changes nothing.",
+      });
     router
       .get(":slug/events/:id/schedule", [ScheduleController])
       .use([

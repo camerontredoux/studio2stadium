@@ -6,6 +6,7 @@ import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { users } from "#database/schema/users";
 import { inject } from "@adonisjs/core";
 import { and, desc, eq, sql } from "drizzle-orm";
+import { tierExpiryFrom } from "#utils/event-time";
 
 export interface MyOrgEntry {
   id: string;
@@ -107,8 +108,7 @@ export class GetMyOrgsService {
           (r.orgSettings as Record<string, unknown> | null) ?? {};
         const tierExpiryMonths =
           Number(settings.tierExpiryMonths ?? features.tierExpiryMonths) || 3;
-        const expiresAt = new Date(r.latestDancerEnd);
-        expiresAt.setMonth(expiresAt.getMonth() + tierExpiryMonths);
+        const expiresAt = tierExpiryFrom(r.latestDancerEnd, tierExpiryMonths);
         if (expiresAt < now) orgWindowClosed.add(r.id);
       }
 

@@ -73,6 +73,9 @@ transmit.authorize<{ slug: string }>(
   async (ctx, { slug }) => {
     const subscriber = await loadSubscriber(ctx, slug);
     if (!subscriber) return false;
+    // Platform admins hold no membership row; the `orgMember` route
+    // middleware admits them anyway, so the board they load must stream too.
+    if (subscriber.user.role === "admin") return true;
 
     return grantsOrgAdmin(resolveEffectiveMembership(subscriber.memberships));
   }

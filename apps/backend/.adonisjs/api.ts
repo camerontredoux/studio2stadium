@@ -249,7 +249,7 @@ type OrgsIdEventsIdDelete = {
 }
 type OrgsIdEventsGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/profile/get-profile-checklist/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/list/controller.ts').default['handle'], false>
 }
 type OrgsIdEventsIdUploadCoachesPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/upload-coaches/validator.ts')['schema']>>
@@ -379,6 +379,14 @@ type OrgsIdEventsIdRostersIdCheckinPost = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/check-in/controller.ts').default['handle'], false>
 }
+type OrgsIdEventsIdRostersIdCheckincodeGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/check-in-code/controller.ts').default['handle'], false>
+}
+type OrgsIdEventsIdCheckinScanPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/check-in/scan/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/check-in/scan/controller.ts').default['handle'], true>
+}
 type OrgsIdEventsIdScheduleGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/schedule/controller.ts').default['handle'], false>
@@ -464,8 +472,12 @@ type OrgsIdMyselectionsPost = {
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/selections/create/controller.ts').default['handle'], true>
 }
 type OrgsIdMyselectionsIdDelete = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/selections/delete/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/selections/delete/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/selections/delete/controller.ts').default['handle'], true>
+}
+type OrgsIdMyselectionsIdMovePost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/selections/move/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/selections/move/controller.ts').default['handle'], true>
 }
 type OrgsIdCallbacksGetHead = {
   request: unknown
@@ -1377,6 +1389,12 @@ export interface ApiDefinition {
                 };
                 '$post': OrgsIdEventsIdRostersIdCheckinPost;
               };
+              'check-in-code': {
+                '$url': {
+                };
+                '$get': OrgsIdEventsIdRostersIdCheckincodeGetHead;
+                '$head': OrgsIdEventsIdRostersIdCheckincodeGetHead;
+              };
             };
             '$delete': OrgsIdEventsIdRostersDelete;
             'resend-invites': {
@@ -1474,6 +1492,11 @@ export interface ApiDefinition {
             '$url': {
             };
             '$post': OrgsIdEventsIdCheckinPost;
+            'scan': {
+              '$url': {
+              };
+              '$post': OrgsIdEventsIdCheckinScanPost;
+            };
           };
           'schedule': {
             '$url': {
@@ -1590,6 +1613,11 @@ export interface ApiDefinition {
           '$url': {
           };
           '$delete': OrgsIdMyselectionsIdDelete;
+          'move': {
+            '$url': {
+            };
+            '$post': OrgsIdMyselectionsIdMovePost;
+          };
         };
       };
       'callbacks': {

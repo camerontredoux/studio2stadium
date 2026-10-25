@@ -37,7 +37,12 @@ export const orgEvents = pg.pgTable(
     // flow starts setting it from what was actually paid for.
     eventTier: eventTier().notNull().default("enterprise"),
     schedulePdfUrl: pg.text(),
+    // The event's daily hours: `startTime` to `endTime` ("HH:mm") on every day
+    // from `startDate` to `endDate`, local to `timezone`. `endTime` needs both of
+    // the others and is after `startTime`; the rules are in
+    // `orgs/events/event-schedule.ts`.
     startTime: pg.text(),
+    endTime: pg.text(),
     timezone: pg.text(),
     ...timestamps,
   },

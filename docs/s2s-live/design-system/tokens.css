@@ -1,0 +1,112 @@
+/* S2S Live tokens, generated from tokens.json (the source of truth). Dark theme only. */
+:root {
+  --bg-000: #0c0c0c; /* Camera viewfinder while the camera is live. Nothing else sits this dark. */
+  --bg-100: #121212; /* The app shell and page background, under the dot grid. Also the ground inside an idle viewfinder. */
+  --bg-150: #141414; /* Backdrop behind a document preview (the schedule PDF) inside an open tile. */
+  --bg-200: #151515; /* Mobile bottom bar fill (the solid bar; the floating dock uses `glass`). */
+  --bg-300: #161616; /* Inset fields: search and date inputs, textarea, the segmented-control track, the audit diff box, a disabled tile. */
+  --surface: #1a1a1a; /* Panels and dashboard tiles, the right rail, sticky panel heads. The main working surface. */
+  --surface-head: #1d1d1d; /* Table header rows, the totals row, sub-section heads inside a tile, and the dialog body. */
+  --surface-hover: #1e1e1e; /* Hover on table rows, nav items, tile heads and accordion questions; an expanded audit or note row. */
+  --surface-raised: #202020; /* Default buttons, selects, menus, popovers and the date/time pickers. */
+  --surface-chip: #222222; /* Chips, video thumbnails and a selected table row. */
+  --surface-active: #252525; /* The current nav item and ghost-button hover. */
+  --surface-raised-hover: #282828; /* Hover on a default button. */
+  --surface-pressed: #2a2a2a; /* Pressed segment, menu-item hover, split-button hover, an active filter chip. */
+  --line-soft: #262626; /* Row dividers inside tables and lists; also the fill of the current item in the mobile dock. */
+  --line: #2b2b2b; /* Panel and tile borders, panel-head dividers, the sidebar section rule. */
+  --line-control: #333333; /* Borders of buttons, inputs, menus, status tags and the vertical separator. As in the mockup these borders are quiet (1.5:1 on `surface`), so a control is always also told apart by its `surface-raised` fill or its label. */
+  --line-dashed: #3a3a3a; /* The dashed border of an upload drop zone. */
+  --line-hover: #404040; /* Chip, select and peek-tile border on hover; the underline under a linked number. */
+  --line-check: #444444; /* Border of an unchecked menu checkbox. */
+  --line-focus: #555555; /* Focused input border, the idle viewfinder corners, the breadcrumb slash. 2.4:1 on `bg-300`, below the 3:1 a focus mark needs, so keyboard focus also gets the solid 2px `fg` outline (see the brand book). */
+  --track: #2e2e2e; /* Empty track of a progress bar. */
+  --track-upcoming: #313131; /* Day segments still to come in the event progress strip. */
+  --fg: #ededed; /* Primary text and icons on every ground from `bg-000` to `surface-pressed`. Also the fill of a primary button, a pressed pill and the live viewfinder corners. */
+  --fg-strong: #ffffff; /* Hover text on buttons and links, and the primary button's hover fill. Never resting text. */
+  --fg-media: #c4c4c4; /* A tile label over the blurred document thumbnail, where `fg-3` would sink. */
+  --fg-2: #a3a3a3; /* Secondary text: nav items at rest, emails, schools, summaries, ghost-button labels. Legible on every ground up to `surface-pressed`. */
+  --fg-3: #929292; /* Labels, metadata, timestamps, placeholders and resting icons, on every ground from `bg-000` to `surface-pressed` (4.6:1 at worst, on `surface-pressed`; 4.9:1 on `surface-active`). Lightened from the mockup's #8a8a8a so it clears 4.5:1 on the hover and pressed grounds. */
+  --fg-disabled: #6b6b6b; /* Disabled labels, an empty value (a dash) and resting heart or note icons. 3.3:1 on `surface`: fine for inactive controls and 16px icons, never for live text. */
+  --fill-done: #d4d4d4; /* Event days already past in the day progress strip. */
+  --fill-bar: #e5e5e5; /* Progress-bar fill and the paper of a document preview. */
+  --live: #6ee7a0; /* Live state: the LIVE word, a connected status icon, today's share of the day strip. The default `accent`. */
+  --amber: #d6ae62; /* Alternative event accent, chosen per event. */
+  --sky: #7dd3fc; /* Alternative event accent, chosen per event. */
+  --accent: var(--live); /* The event's accent, set per event (`live` by default; `amber`, `sky` or `fg` are the other choices). Only for the LIVE word, live status and today's progress; never for buttons or large fills. */
+  --count: #d6ae62; /* Counts beside a nav item (the roster sizes in the sidebar). */
+  --danger: #f87171; /* Destructive actions (Delete event, Remove) and an offline status icon. Always paired with a word or icon. */
+  --on-fg: var(--bg-100); /* Text and icons on an `fg` fill: the primary button, a pressed pill, the dock's current item, the QR modules. */
+  --scrim: rgba(0,0,0,.6); /* Dims the page behind a modal dialog; also the duration badge on a video thumbnail. */
+  --glass: rgba(26,26,26,.88); /* Floating mobile dock, with a 16px backdrop blur. */
+  --veil: rgba(12,12,12,.8); /* Scan result laid over the live camera, with an 8px backdrop blur. */
+  --dot-grid: rgba(255,255,255,.035); /* The 1px dot grid on the app shell, at a 14px pitch. */
+  --space-2: 2px; /* Gap between nav items and between segments. */
+  --space-4: 4px; /* Gap between chips, day segments and stacked lines in a peek tile. */
+  --space-6: 6px; /* Icon-to-label gap inside buttons and chips; menu padding. */
+  --space-8: 8px; /* THE gutter: between panels, tiles and the sidebar edge; sidebar padding; header-to-actions gap. */
+  --space-10: 10px; /* Button side padding; icon-to-label gap in nav items and menu items. */
+  --space-12: 12px; /* Header gap and table column gap; dialog footer padding. */
+  --space-14: 14px; /* Inner padding of panels and tiles (left edge of every head and row). */
+  --space-16: 16px; /* Dialog padding; page side gutter on phones. */
+  --space-20: 20px; /* Padding around the scanner. */
+  --space-24: 24px; /* Padding inside the viewfinder and a check-in pass. */
+  --radius-2: 2px; /* Document paper, rating segments, skeleton lines. */
+  --radius-3: 3px; /* Progress bars and day segments. */
+  --radius-4: 4px; /* Status tags, video thumbnails in a peek grid, menu checkboxes. */
+  --radius-5: 5px; /* Chips, the header LIVE badge, segment buttons, calendar cells, 24px buttons. */
+  --radius-6: 6px; /* Buttons, inputs, selects, nav items, menu items, the org mark. */
+  --radius-7: 7px; /* The segmented-control track (radius-5 inside + 2px padding). */
+  --radius-8: 8px; /* Workspace switcher, inset boxes (diff, drop zone), video cards. */
+  --radius-10: 10px; /* Panels, tiles, menus and popovers. */
+  --radius-11: 11px; /* Items inside the floating mobile dock. */
+  --radius-12: 12px; /* Dialogs and the viewfinder. */
+  --radius-pill: 13px; /* 26px-tall pill toggles (Call back, top-choice picks): half their height. */
+  --radius-16: 16px; /* The floating mobile dock. */
+  --radius-round: 50%; /* Avatars. */
+  --shadow-panel: 0 4px 12px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.3); /* Every panel and tile. Disabled tiles drop it. */
+  --shadow-pop: 0 12px 32px rgba(0,0,0,.5); /* Menus, popovers, date and time pickers. */
+  --shadow-dialog: 0 24px 64px rgba(0,0,0,.6); /* Modal dialogs. */
+  --shadow-dock: 0 10px 30px rgba(0,0,0,.45), 0 1px 2px rgba(0,0,0,.3); /* The floating mobile dock. */
+  --shadow-paper: 0 4px 24px rgba(0,0,0,.4); /* A document page inside a preview. */
+  --control-sm: 24px; /* Small buttons in tile heads, chips, segment buttons, status tags. */
+  --control: 28px; /* Default height of buttons, inputs, selects, split buttons and icon buttons (28 square). */
+  --control-lg: 32px; /* Dialog buttons, the scanner's Open camera, nav items, inputs inside a dialog. */
+  --row: 44px; /* Table rows, tile heads and collapsed tile strips. */
+  --row-head: 32px; /* Table header rows. */
+  --panel-head: 40px; /* Panel header height. */
+  --header: 56px; /* The page header bar. */
+  --sidebar: 232px; /* Expanded sidebar width. */
+  --sidebar-collapsed: 56px; /* Collapsed (icon-only) sidebar width. */
+  --rail: 300px; /* Right event rail width: beside the widgets above 1000px, wrapped below them from 1000px down. */
+  --icon: 16px; /* Nav and strip icons. */
+  --icon-sm: 14px; /* Icons inside buttons, chips, menus and table cells. */
+  --tile-open: 640px; /* Height of an open dashboard widget; shorter screens use the window height under the header minus 72px (at least 400px). */
+  --tile-peek-m: 148px; /* Height of a stacked widget peek on phones (800px and below). */
+  --bp-sidebar: 1360px; /* Breakpoint: at and below this width the sidebar collapses on its own. */
+  --bp-board: 1180px; /* Breakpoint: at and below this width boards with a second row go to 3 widgets per row. */
+  --bp-rail: 1000px; /* Breakpoint: at and below this width the rail wraps below the widgets and the header shows the LIVE badge and dates. */
+  --bp-phone: 800px; /* Breakpoint: at and below this width the phone layout applies (dock, stacked widgets, fewer table columns). */
+  --bp-small: 480px; /* Breakpoint: at and below this width header dates hide, tables drop another column and buttons go icon-only. */
+  --font-sans: Geist, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --text-display-day: 600 32px/1 var(--font-sans); /* The event day in the right rail, followed by `title-sm` "of 3" in `fg-3`. */ /* letter-spacing -0.035em */
+  --text-display-stat: 600 32px/1 var(--font-sans); /* The one number on a peek tile (requests, checked in, callbacks). Follow it with a `control` caption in `fg-3`. */ /* letter-spacing -0.03em */
+  --text-bib-hero: 500 56px/1 var(--font-mono); /* A dancer's bib on their own check-in pass. */ /* letter-spacing -0.03em */
+  --text-bib-lg: 500 32px/1 var(--font-mono); /* A bib on a scan result or a dancer's peek tile. */ /* letter-spacing -0.02em */
+  --text-rank: 500 18px/1 var(--font-mono); /* Rank numbers in a top-choices list. */
+  --text-title: 600 15px/1.4 var(--font-sans); /* Page title in the header, dialog titles, the name on a pass. */
+  --text-title-sm: 600 14px/1.4 var(--font-sans); /* The workspace name in the sidebar switcher and a scan result's dancer name. */
+  --text-nav: 500 13.5px/1.4 var(--font-sans); /* Sidebar nav items and accordion questions. */
+  --text-body: 400 13px/1.4 var(--font-sans); /* Default UI text: table cells, menu items, detail values. */
+  --text-body-strong: 500 13px/1.4 var(--font-sans); /* Names in rows, roster links, the user's name. Use 600 only for a panel title. */
+  --text-body-long: 400 13px/1.55 var(--font-sans); /* Running prose: FAQ answers and note text, in `fg-2`. */
+  --text-control: 500 12.5px/1.4 var(--font-sans); /* Labels on buttons, chips, segments, selects and search inputs. */
+  --text-caption: 400 12px/1.4 var(--font-sans); /* Small buttons (24px), audit filters, secondary notes. */
+  --text-caption-sm: 400 11.5px/1.4 var(--font-sans); /* Detail-list terms and the user's email under their name, in `fg-3`. */
+  --text-data: 400 13px/1.4 var(--font-mono); /* Bibs and right-aligned numbers in tables, with tabular figures. */
+  --text-data-sm: 400 12px/1.4 var(--font-mono); /* File names, timestamps in the audit log, the header dates, counts in a panel head. */
+  --text-meta: 400 11.5px/1.4 var(--font-mono); /* Metadata lines under a title, relative times, the LIVE badge and percentages. */
+  --text-label: 400 11px/1.4 var(--font-mono); /* UPPERCASE section and column labels (`lbl`) in `fg-3`; status words in a table. */
+  --text-tag: 400 10.5px/1.4 var(--font-mono); /* UPPERCASE text inside a bordered status tag. */
+}

@@ -32,7 +32,7 @@ export default class SweepBlogOrphans extends BaseCommand {
   declare dryRun: boolean;
 
   async run() {
-    const disk = drive.use("r2");
+    const disk = drive.use();
 
     // Build the set of keys still in use: attachment keys (structured) plus any
     // key that appears inside post content (blog content images are stored

@@ -4,7 +4,11 @@ import { orgEvents, eventRosters } from "#database/schema/org-events";
 import { organizations } from "#database/schema/organizations";
 import { users } from "#database/schema/users";
 import { eq } from "drizzle-orm";
-import { CheckInService, CheckInNotOpenError, NotOnRosterError } from "./service.ts";
+import {
+  CheckInService,
+  CheckInNotOpenError,
+  NotOnRosterError,
+} from "./service.ts";
 
 test.group("CheckInService", (group) => {
   let orgId: string;
@@ -16,11 +20,16 @@ test.group("CheckInService", (group) => {
     await db.delete(orgEvents).execute();
     await db.delete(users).execute();
 
-    const [org] = await db
-      .select()
-      .from(organizations)
-      .limit(1);
-    orgId = org.id;
+    // Other suites delete orgs, so don't rely on one being left over.
+    const [existing] = await db.select().from(organizations).limit(1);
+    let org = existing;
+    if (!org) {
+      [org] = await db
+        .insert(organizations)
+        .values({ name: "Check-in Org", slug: `check-in-org-${Date.now()}` })
+        .returning();
+    }
+    orgId = org!.id;
 
     const ts = Date.now();
     const [dancer] = await db
@@ -53,16 +62,14 @@ test.group("CheckInService", (group) => {
       .returning();
     eventId = ev.id;
 
-    await db
-      .insert(eventRosters)
-      .values({
-        eventId,
-        userId: dancerUserId,
-        type: "dancer",
-        email: "dancer@test.com",
-        firstName: "Test",
-        lastName: "Dancer",
-      });
+    await db.insert(eventRosters).values({
+      eventId,
+      userId: dancerUserId,
+      type: "dancer",
+      email: "dancer@test.com",
+      firstName: "Test",
+      lastName: "Dancer",
+    });
   });
 
   test("checks in a dancer when event has started", async ({ assert }) => {
@@ -71,17 +78,21 @@ test.group("CheckInService", (group) => {
     assert.isNotNull(result.checkedInAt);
   });
 
-  test("is idempotent — second call returns same timestamp", async ({ assert }) => {
+  test("is idempotent — second call returns same timestamp", async ({
+    assert,
+  }) => {
     const svc = new CheckInService();
     const first = await svc.execute(eventId, dancerUserId);
     const second = await svc.execute(eventId, dancerUserId);
     assert.equal(
       first.checkedInAt?.toISOString(),
-      second.checkedInAt?.toISOString(),
+      second.checkedInAt?.toISOString()
     );
   });
 
-  test("allows check-in when event has no startTime but date is past", async ({ assert }) => {
+  test("allows check-in when event has no startTime but date is past", async ({
+    assert,
+  }) => {
     await db
       .update(orgEvents)
       .set({ startTime: null, timezone: null })
@@ -92,20 +103,28 @@ test.group("CheckInService", (group) => {
     assert.isNotNull(result.checkedInAt);
   });
 
-  test("throws CheckInNotOpenError when event has not started", async ({ assert }) => {
+  test("throws CheckInNotOpenError when event has not started", async ({
+    assert,
+  }) => {
     await db
       .update(orgEvents)
-      .set({ startDate: "2099-12-31", startTime: "23:59", timezone: "America/New_York" })
+      .set({
+        startDate: "2099-12-31",
+        startTime: "23:59",
+        timezone: "America/New_York",
+      })
       .where(eq(orgEvents.id, eventId));
 
     const svc = new CheckInService();
     await assert.rejects(
       () => svc.execute(eventId, dancerUserId),
-      CheckInNotOpenError.prototype.message,
+      CheckInNotOpenError.prototype.message
     );
   });
 
-  test("throws NotOnRosterError when user is not a dancer on this event", async ({ assert }) => {
+  test("throws NotOnRosterError when user is not a dancer on this event", async ({
+    assert,
+  }) => {
     const ts2 = Date.now();
     const [other] = await db
       .insert(users)
@@ -125,7 +144,7 @@ test.group("CheckInService", (group) => {
     const svc = new CheckInService();
     await assert.rejects(
       () => svc.execute(eventId, other.id),
-      NotOnRosterError.prototype.message,
+      NotOnRosterError.prototype.message
     );
   });
 });

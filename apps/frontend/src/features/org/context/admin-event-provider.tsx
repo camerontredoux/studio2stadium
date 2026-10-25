@@ -21,11 +21,10 @@ export function AdminEventProvider({
       activeEvent: events.find((event) => event.isActive) ?? null,
       events,
       selectedEvent: resolveAdminEventSelection(events, selectedEventId),
-      selectEvent: (eventId) => {
-        if (events.some((event) => event.id === eventId)) {
-          setSelectedEventId(eventId);
-        }
-      },
+      // An id not in `events` yet (an event just created, before the list
+      // refetches) is kept and resolves once it arrives; until then the
+      // selection falls back as usual.
+      selectEvent: (eventId) => setSelectedEventId(eventId),
     }),
     [events, selectedEventId],
   );

@@ -1,35 +1,37 @@
-import { Button } from "@/components/ui/button";
+import { MusicNotesIcon, PlusIcon, XIcon } from "@phosphor-icons/react";
+import { useMemo, useRef, useState } from "react";
+
+import { Button } from "@/components/event/button";
 import {
   Dialog,
-  DialogContent,
+  DialogBody,
+  DialogClose,
   DialogFooter,
   DialogHeader,
+  DialogPopup,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
-import { getYouTubeId } from "@/utils/get-youtube-id";
-import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
-import { useMemo, useRef, useState } from "react";
-import { Music2Icon, XIcon } from "lucide-react";
+} from "@/components/event/dialog";
+import { Icon } from "@/components/event/icon";
+import { Select } from "@/components/event/select";
+import { BusyLabel } from "@/features/org/live/shared/busy-label";
 import type {
   EventVideo,
   VideoCategory,
 } from "@/features/org/api/video-queries";
 import {
+  useAudioUploadUrl,
   useCreateVideo,
   useUpdateVideo,
-  useAudioUploadUrl,
 } from "@/features/org/api/video-queries";
+import {
+  SheetField,
+  SheetFieldFrame,
+} from "@/features/org/live/shared/sheet-field";
 import type { ApiSchemas } from "@/lib/api/client";
+import { getYouTubeId } from "@/utils/get-youtube-id";
+import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
+
+const FORM_ID = "event-video-form";
 
 type AudioContentType =
   ApiSchemas["OrgsIdEventsIdVideosAudiouploadurlRequest"]["contentType"];
@@ -55,7 +57,7 @@ export function AddEditVideoDialog({
   const createVideo = useCreateVideo(slug, eventId);
   const updateVideo = useUpdateVideo(slug, eventId);
 
-  const prevOpenRef = useRef(open);
+  const [prevOpen, setPrevOpen] = useState(open);
   const [title, setTitle] = useState("");
   const [categoryId, setCategoryId] = useState<string>("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
@@ -70,7 +72,11 @@ export function AddEditVideoDialog({
   const audioUploadUrl = useAudioUploadUrl();
   const audioInputRef = useRef<HTMLInputElement>(null);
 
-  if (open && !prevOpenRef.current) {
+  // Reset the form each time the dialog opens.
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+  }
+  if (open && !prevOpen) {
     if (editingVideo) {
       setTitle(editingVideo.title);
       setCategoryId(editingVideo.categoryId);
@@ -90,14 +96,16 @@ export function AddEditVideoDialog({
     setAudioUploading(false);
     setAudioProgress(0);
   }
-  prevOpenRef.current = open;
 
   const isPending =
     createVideo.isPending || updateVideo.isPending || audioUploading;
 
   const youtubeId = useMemo(() => getYouTubeId(youtubeUrl), [youtubeUrl]);
 
-  const categoryItems = categories.map((c) => ({ value: c.id, label: c.name }));
+  const categoryOptions = categories.map((c) => ({
+    value: c.id,
+    label: c.name,
+  }));
 
   function validate(): boolean {
     const next: Record<string, string> = {};
@@ -190,156 +198,148 @@ export function AddEditVideoDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogPopup className="max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Video" : "Add Video"}</DialogTitle>
+          <DialogTitle>{isEditing ? "Edit video" : "Add video"}</DialogTitle>
         </DialogHeader>
 
-        <div className="flex max-h-[60vh] flex-col gap-4 overflow-y-auto px-6 py-2">
-          <Field invalid={!!errors.title}>
-            <FieldLabel>Title</FieldLabel>
-            <Input
+        <form
+          id={FORM_ID}
+          noValidate
+          onSubmit={(e) => {
+            e.preventDefault();
+            void handleSubmit();
+          }}
+          className="flex min-h-0 flex-col"
+        >
+          <DialogBody>
+            <SheetField
+              label="Title"
+              autoComplete="off"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Hip Hop Combo – Week 1"
+              onValueChange={setTitle}
+              placeholder="e.g. Hip hop combo, week 1"
+              error={errors.title}
             />
-            <FieldError error={errors.title ? { type: "validate", message: errors.title } : undefined} />
-          </Field>
 
-          <Field invalid={!!errors.categoryId}>
-            <FieldLabel>Category</FieldLabel>
-            <Select
-              items={categoryItems}
-              value={categoryId || null}
-              onValueChange={(value) => setCategoryId(value ?? "")}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categoryItems.map((item) => (
-                  <SelectItem key={item.value} value={item.value}>
-                    {item.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FieldError error={errors.categoryId ? { type: "validate", message: errors.categoryId } : undefined} />
-          </Field>
+            <SheetFieldFrame label="Category" error={errors.categoryId}>
+              <Select
+                size="lg"
+                options={categoryOptions}
+                value={categoryId || null}
+                onChange={(value) => setCategoryId(value ?? "")}
+                placeholder="Select category"
+                className={errors.categoryId ? "border-danger" : undefined}
+              />
+            </SheetFieldFrame>
 
-          <Field invalid={!!errors.youtubeUrl}>
-            <FieldLabel>YouTube URL</FieldLabel>
-            <Input
+            <SheetField
+              label="YouTube URL"
+              type="url"
+              autoComplete="off"
               value={youtubeUrl}
-              onChange={(e) => setYoutubeUrl(e.target.value)}
+              onValueChange={setYoutubeUrl}
               placeholder="https://www.youtube.com/watch?v=..."
+              error={errors.youtubeUrl}
             />
-            <FieldError error={errors.youtubeUrl ? { type: "validate", message: errors.youtubeUrl } : undefined} />
-          </Field>
 
-          {youtubeId && (
-            <div className="overflow-clip rounded-xl border bg-black/5 dark:bg-white/5">
-              <div className="aspect-video">
+            {youtubeId && (
+              <div className="border-line bg-bg-000 aspect-video overflow-clip rounded-(--radius-8) border">
                 <iframe
                   src={`https://www.youtube.com/embed/${youtubeId}`}
                   title="Video preview"
-                  className="h-full w-full"
+                  className="block h-full w-full border-0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
               </div>
-            </div>
-          )}
+            )}
 
-          <Field invalid={!!errors.audio}>
-            <FieldLabel>Music Track (optional)</FieldLabel>
-            {audioFile ? (
-              <div className="flex items-center gap-2 rounded-lg border bg-muted/50 px-3 py-2 text-sm">
-                <Music2Icon className="size-4 shrink-0 text-muted-foreground" />
-                <span className="min-w-0 flex-1 truncate">
-                  {audioFile.name}
-                </span>
-                <span className="shrink-0 text-muted-foreground">
-                  {(audioFile.size / (1024 * 1024)).toFixed(1)} MB
-                </span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-xs"
-                  onClick={clearAudio}
-                >
-                  <XIcon className="size-3" />
-                </Button>
-              </div>
-            ) : existingAudioFilename && !audioRemoved ? (
-              <div className="flex items-center gap-2 rounded-lg border bg-muted/50 px-3 py-2 text-sm">
-                <Music2Icon className="size-4 shrink-0 text-muted-foreground" />
-                <span className="min-w-0 flex-1 truncate">
-                  {existingAudioFilename}
-                </span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-xs"
-                  onClick={clearAudio}
-                >
-                  <XIcon className="size-3" />
-                </Button>
-              </div>
-            ) : (
-              <div>
-                <input
-                  ref={audioInputRef}
-                  type="file"
-                  accept="audio/mpeg,.mp3"
-                  onChange={handleAudioSelect}
-                  className="hidden"
-                  id="audio-file-input"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => audioInputRef.current?.click()}
-                >
-                  <Music2Icon className="mr-1.5 size-3.5" />
-                  Add music track (MP3, max 20 MB)
-                </Button>
-              </div>
-            )}
-            {audioUploading && (
-              <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+            <SheetFieldFrame
+              label="Music track (optional)"
+              error={errors.audio}
+            >
+              {audioFile || (existingAudioFilename && !audioRemoved) ? (
+                <div className="border-line-control bg-bg-300 flex h-(--control-lg) items-center gap-(--space-8) rounded-(--radius-6) border ps-[9px] pe-(--space-2)">
+                  <Icon icon={MusicNotesIcon} className="text-fg-3" />
+                  <span className="type-body text-fg min-w-0 flex-1 truncate">
+                    {audioFile ? audioFile.name : existingAudioFilename}
+                  </span>
+                  {audioFile && (
+                    <span className="type-meta text-fg-3 shrink-0">
+                      {(audioFile.size / (1024 * 1024)).toFixed(1)} MB
+                    </span>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    iconOnly
+                    label="Remove music track"
+                    onClick={clearAudio}
+                    disabled={audioUploading}
+                  >
+                    <Icon icon={XIcon} />
+                  </Button>
+                </div>
+              ) : (
+                <div>
+                  <input
+                    ref={audioInputRef}
+                    type="file"
+                    accept="audio/mpeg,.mp3"
+                    onChange={handleAudioSelect}
+                    className="hidden"
+                    id="audio-file-input"
+                  />
+                  <Button
+                    size="lg"
+                    onClick={() => audioInputRef.current?.click()}
+                  >
+                    <Icon icon={PlusIcon} />
+                    Add music track (MP3, max 20 MB)
+                  </Button>
+                </div>
+              )}
+              {audioUploading && (
                 <div
-                  className="h-full rounded-full bg-primary transition-all duration-300"
-                  style={{ width: `${audioProgress}%` }}
-                />
-              </div>
-            )}
-            <FieldError
-              error={
-                errors.audio
-                  ? { type: "validate", message: errors.audio }
-                  : undefined
-              }
-            />
-          </Field>
-        </div>
+                  role="progressbar"
+                  aria-label="Uploading music track"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={Math.round(audioProgress)}
+                  className="bg-surface-pressed h-1 w-full overflow-hidden rounded-full"
+                >
+                  <div
+                    className="bg-fg h-full rounded-full transition-[width] duration-300"
+                    style={{ width: `${audioProgress}%` }}
+                  />
+                </div>
+              )}
+            </SheetFieldFrame>
+          </DialogBody>
+        </form>
 
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+          <DialogClose render={<Button variant="ghost" size="lg" />}>
             Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={isPending}>
+          </DialogClose>
+          <Button
+            type="submit"
+            form={FORM_ID}
+            variant="primary"
+            size="lg"
+            disabled={isPending}
+          >
             {isPending ? (
-              <Spinner label={isEditing ? "Saving..." : "Adding..."} />
+              <BusyLabel label={isEditing ? "Saving…" : "Adding…"} />
             ) : isEditing ? (
-              "Save Changes"
+              "Save changes"
             ) : (
-              "Add Video"
+              "Add video"
             )}
           </Button>
         </DialogFooter>
-      </DialogContent>
+      </DialogPopup>
     </Dialog>
   );
 }

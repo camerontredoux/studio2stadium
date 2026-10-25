@@ -1,0 +1,409 @@
+import { DownloadSimpleIcon } from "@phosphor-icons/react";
+import { keepPreviousData, useQueries, useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+
+import { AuditLogRow } from "@/components/event/audit-diff";
+import { Button } from "@/components/event/button";
+import { DataTable } from "@/components/event/data-table";
+import { Icon } from "@/components/event/icon";
+import { Label } from "@/components/event/label";
+import { Panel } from "@/components/event/panel";
+import { useDebouncedCallback } from "@/components/hooks/use-debounced-callback";
+import { toastManager } from "@/components/ui/toast-manager";
+import { cn } from "@/components/utils/cn";
+import {
+  auditQueries,
+  type AuditLogEntry,
+} from "@/features/org/api/audit-queries";
+import { useAdminEvent } from "@/features/org/context/use-admin-event";
+import { SubpageHeader } from "@/features/org/live/shared/event-header";
+import { ShellPage } from "@/features/org/live/shared/shell-slots";
+
+import { AuditEntryDetail } from "./audit-entry-detail";
+import { auditCsv, auditCsvFilename, downloadCsv } from "./audit-export";
+import { AuditFilterBar } from "./audit-filter-bar";
+import { AuditStatsPanel, AuditStatsRail } from "./audit-stats";
+import {
+  EMPTY_FILTERS,
+  hasActiveFilters,
+  isServerExact,
+  matchesFilters,
+  toListParams,
+  type AuditFilters,
+} from "./audit-filters";
+import {
+  ACTION_LABELS,
+  absoluteTime,
+  actorName,
+  displayAction,
+  RESOURCE_LABELS,
+  relativeTime,
+  subjectLabel,
+  summarizeEntry,
+  type AuditDisplayAction,
+} from "./audit-format";
+
+const PAGE_SIZE = 50;
+
+// Mockup `.al-grid`: chevron, timestamp, actor, action, resource, dancer, summary
+// (940px min). The Activity rail and sidebar make the panel narrower than that
+// at many widths, so the table sizes by its own container: under 940px,
+// Resource and Dancer drop (both show when a row expands). The template comes
+// from `--audit-cols` so it can change with the container.
+const auditCols =
+  "[--audit-cols:16px_104px_minmax(120px,1fr)_112px_120px_minmax(130px,1fr)_minmax(220px,2fr)] " +
+  "@max-[940px]:[--audit-cols:16px_104px_minmax(100px,1fr)_112px_minmax(200px,2fr)]";
+// Phones (≤800): timestamp and action fit their content; actor and summary
+// split the rest evenly.
+const phoneColumns = "16px max-content minmax(0,1fr) max-content minmax(0,1fr)";
+const hideBelowBoard = "@max-[940px]:hidden";
+// Full-width rows inside the table cancel its side padding (see DataTable).
+const rowEdge = "-mx-(--dt-pad)";
+const rowPad = "px-(--dt-pad)";
+
+/** A clock for relative times; ticks every minute. */
+function useNow(intervalMs = 60_000) {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(new Date()), intervalMs);
+    return () => window.clearInterval(id);
+  }, [intervalMs]);
+  return now;
+}
+
+function EmptyRow({
+  children,
+  action,
+}: {
+  children: ReactNode;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="text-fg-3 flex flex-wrap items-center justify-center gap-(--space-10) px-(--space-14) py-[28px] text-center">
+      <span>{children}</span>
+      {action}
+    </div>
+  );
+}
+
+function EntrySummary({
+  entry,
+  now,
+  timeZone,
+}: {
+  entry: AuditLogEntry;
+  now: Date;
+  timeZone: string | null;
+}) {
+  const action = displayAction(entry);
+  const dancer = subjectLabel(entry);
+  return (
+    <>
+      <span
+        className="type-data-sm text-fg-2 whitespace-nowrap"
+        title={absoluteTime(entry.createdAt, timeZone)}
+      >
+        {relativeTime(entry.createdAt, now)}
+      </span>
+      <span className="min-w-0 truncate font-medium">{actorName(entry)}</span>
+      <span
+        className={cn(
+          "type-label min-w-0 truncate",
+          action === "delete" ? "text-danger" : "text-fg",
+        )}
+      >
+        {ACTION_LABELS[action]}
+      </span>
+      <span className={cn("text-fg-2 min-w-0 truncate", hideBelowBoard)}>
+        {RESOURCE_LABELS[entry.resource] ?? entry.resource}
+      </span>
+      <span
+        className={cn(
+          "min-w-0 truncate",
+          dancer ? "text-fg" : "text-fg-disabled",
+          hideBelowBoard,
+        )}
+      >
+        {dancer ?? "—"}
+      </span>
+      <span className="text-fg-2 min-w-0 truncate">
+        {summarizeEntry(entry, timeZone)}
+        {entry.childCount > 0 && (
+          <span className="text-fg-3"> · {entry.childCount} entries</span>
+        )}
+      </span>
+    </>
+  );
+}
+
+export type AuditLogPageProps = { orgSlug: string };
+
+/** The admin audit log: filter chips, search, and expandable entries with their diffs. */
+export function AuditLogPage({ orgSlug }: AuditLogPageProps) {
+  const { events, selectedEvent } = useAdminEvent();
+  const eventId = selectedEvent?.id ?? "";
+  // The event's zone, as the backend resolves it (its own, else the org
+  // default): the display and the day filters both count days in it.
+  const timeZone =
+    selectedEvent?.timezone ?? selectedEvent?.effectiveTimezone ?? null;
+  const eventDates = selectedEvent
+    ? {
+        startDate: selectedEvent.startDate,
+        endDate: selectedEvent.endDate,
+        timeZone,
+      }
+    : null;
+  const now = useNow();
+
+  const [filters, setFilters] = useState<AuditFilters>(EMPTY_FILTERS);
+  const [searchText, setSearchText] = useState("");
+  // Date presets are relative to when they were picked, so the query key
+  // doesn't change every time the clock ticks.
+  const [anchor, setAnchor] = useState(() => new Date());
+  const [pageCount, setPageCount] = useState(1);
+
+  const applyFilters = (next: AuditFilters) => {
+    setFilters(next);
+    setAnchor(new Date());
+    setPageCount(1);
+  };
+  const applySearch = useDebouncedCallback((search: string) => {
+    setFilters((current) => ({ ...current, search }));
+    setPageCount(1);
+  }, 300);
+
+  const clearFilters = () => {
+    setSearchText("");
+    applyFilters(EMPTY_FILTERS);
+  };
+
+  const params = useMemo(
+    () => toListParams(filters, anchor, eventDates),
+    // eventDates is rebuilt each render; its strings are the dependency.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [filters, anchor, eventDates?.startDate, eventDates?.endDate, timeZone],
+  );
+
+  const pages = useQueries({
+    queries: Array.from({ length: pageCount }, (_, page) => ({
+      ...auditQueries.list(orgSlug, eventId, {
+        ...params,
+        page,
+        limit: PAGE_SIZE,
+      }),
+      enabled: !!eventId,
+      placeholderData: page === 0 ? keepPreviousData : undefined,
+    })),
+  });
+  const statsQuery = useQuery({
+    ...auditQueries.stats(orgSlug, eventId),
+    enabled: !!eventId,
+  });
+
+  const statsProps = {
+    stats: statsQuery.data,
+    isPending: statsQuery.isPending,
+    isError: statsQuery.isError,
+    onRetry: () => void statsQuery.refetch(),
+  };
+
+  const firstPage = pages[0];
+  const total = firstPage?.data?.total ?? 0;
+  const loaded = pages.flatMap(
+    (page) => (page.data?.data ?? []) as AuditLogEntry[],
+  );
+  const rows = loaded.filter((entry) => matchesFilters(entry, filters));
+  const loadingMore = pages.some((page) => page.isFetching && !page.data);
+  const hasMore = loaded.length < total && !loadingMore;
+  const exact = isServerExact(filters);
+  const filtered = hasActiveFilters(filters) || searchText.trim() !== "";
+
+  // The stats count top-level entries per API action. Check-ins are API
+  // updates, so neither "Update" nor "Check in" gets a count.
+  const actionCounts = useMemo(() => {
+    const counts: Partial<Record<AuditDisplayAction, number>> = {};
+    for (const { action, count } of statsQuery.data?.actionBreakdown ?? []) {
+      if (action !== "update") counts[action] = count;
+    }
+    return counts;
+  }, [statsQuery.data]);
+
+  // The list is paged on the server, so this saves the entries loaded so far
+  // that pass the filters, and says so.
+  const exportLoaded = () => {
+    downloadCsv(
+      auditCsvFilename(selectedEvent?.name ?? null, new Date()),
+      auditCsv(rows, timeZone),
+    );
+    toastManager.add({
+      title: `Exported ${rows.length.toLocaleString()} loaded ${rows.length === 1 ? "entry" : "entries"}`,
+      description: hasMore
+        ? "Use Show more to load older entries, then export again."
+        : undefined,
+      type: "success",
+    });
+  };
+
+  const header = (
+    <SubpageHeader
+      event={selectedEvent ?? null}
+      title="Audit log"
+      dashboardTo="/o/$orgSlug/admin"
+      showStatus
+      actions={
+        <Button
+          aria-label="Export loaded entries as CSV"
+          disabled={rows.length === 0}
+          onClick={exportLoaded}
+        >
+          <Icon icon={DownloadSimpleIcon} />
+          <span className="bp-small:hidden">Export</span>
+        </Button>
+      }
+    />
+  );
+
+  if (!selectedEvent) {
+    return (
+      <ShellPage header={header}>
+        <EmptyRow>
+          {events.length === 0
+            ? "No events yet."
+            : "Select an event to view its audit log."}
+        </EmptyRow>
+      </ShellPage>
+    );
+  }
+
+  let body: ReactNode = null;
+  if (firstPage?.isPending) {
+    body = <EmptyRow>Loading entries…</EmptyRow>;
+  } else if (firstPage?.isError) {
+    body = (
+      <EmptyRow
+        action={<Button onClick={() => firstPage.refetch()}>Try again</Button>}
+      >
+        Couldn’t load the audit log
+      </EmptyRow>
+    );
+  } else if (rows.length === 0) {
+    body = hasMore ? (
+      <EmptyRow
+        action={
+          <>
+            <Button onClick={() => setPageCount((n) => n + 1)}>
+              Search older entries
+            </Button>
+            <Button variant="ghost" onClick={clearFilters}>
+              Clear filters
+            </Button>
+          </>
+        }
+      >
+        No matches in the latest {loaded.length} entries
+      </EmptyRow>
+    ) : filtered ? (
+      <EmptyRow action={<Button onClick={clearFilters}>Clear filters</Button>}>
+        No entries match
+      </EmptyRow>
+    ) : (
+      <EmptyRow>No activity recorded yet</EmptyRow>
+    );
+  }
+
+  const footer =
+    rows.length > 0 ? (
+      <div className="border-line-soft text-fg-3 type-caption flex min-h-11 shrink-0 flex-wrap items-center gap-(--space-10) border-t px-(--space-14) py-(--space-6)">
+        <span aria-live="polite">
+          {exact
+            ? `Showing ${rows.length} of ${total.toLocaleString()} entries`
+            : `${rows.length} matches in the latest ${loaded.length} of ${total.toLocaleString()} entries`}
+        </span>
+        {(hasMore || loadingMore) && (
+          <Button
+            size="sm"
+            className="ms-auto"
+            disabled={loadingMore}
+            onClick={() => setPageCount((n) => n + 1)}
+          >
+            {loadingMore ? "Loading…" : "Show more"}
+          </Button>
+        )}
+      </div>
+    ) : null;
+
+  return (
+    <ShellPage header={header} rail={<AuditStatsRail {...statsProps} />}>
+      <div className="flex min-w-0 flex-col gap-(--space-8)">
+        <AuditStatsPanel {...statsProps} />
+        <Panel aria-label="Audit log" className="desk:max-h-[calc(100vh-64px)]">
+          <AuditFilterBar
+            filters={filters}
+            onFiltersChange={applyFilters}
+            searchText={searchText}
+            onSearchTextChange={(text) => {
+              setSearchText(text);
+              applySearch(text.trim());
+            }}
+            onClear={clearFilters}
+            event={eventDates}
+            now={now}
+            actionCounts={actionCounts}
+          />
+          <div className="@container min-h-0 flex-auto overflow-auto">
+            {/* Rows are collapsibles, not table rows, so the grid drops the table role. */}
+            <DataTable
+              role={undefined}
+              columns="var(--audit-cols)"
+              phoneColumns={phoneColumns}
+              className={cn(
+                auditCols,
+                "desk:@max-[940px]:min-w-[608px] bp-phone:min-w-0 min-w-[940px]",
+              )}
+            >
+              <div
+                className={cn(
+                  "bg-surface-head border-line-soft sticky top-0 z-2 col-span-full grid min-h-8 grid-cols-subgrid items-center border-b",
+                  rowEdge,
+                  rowPad,
+                )}
+              >
+                <span />
+                <Label className="text-fg-3 truncate">Timestamp</Label>
+                <Label className="text-fg-3 truncate">Actor</Label>
+                <Label className="text-fg-3 truncate">Action</Label>
+                <Label className={cn("text-fg-3 truncate", hideBelowBoard)}>
+                  Resource
+                </Label>
+                <Label className={cn("text-fg-3 truncate", hideBelowBoard)}>
+                  Dancer
+                </Label>
+                <Label className="text-fg-3 truncate">Summary</Label>
+              </div>
+              {rows.map((entry) => (
+                <AuditLogRow
+                  key={entry.id}
+                  className={rowEdge}
+                  rowClassName={rowPad}
+                  summary={
+                    <EntrySummary entry={entry} now={now} timeZone={timeZone} />
+                  }
+                >
+                  <AuditEntryDetail
+                    entry={entry}
+                    orgSlug={orgSlug}
+                    eventId={eventId}
+                    timeZone={timeZone}
+                    now={now}
+                  />
+                </AuditLogRow>
+              ))}
+            </DataTable>
+          </div>
+          {body}
+          {footer}
+        </Panel>
+      </div>
+    </ShellPage>
+  );
+}

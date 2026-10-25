@@ -1,22 +1,16 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { $api } from "@/lib/api/client";
+import type { components } from "@/lib/api/types";
 
-export type OrgEvent = {
-  id: string;
-  orgId: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-  startTime: string | null;
-  timezone: string | null;
-  venueName: string | null;
-  venueAddress: string | null;
-  contactEmail: string | null;
-  schedulePdfUrl: string | null;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-};
+/**
+ * An Org Event from `GET /orgs/{slug}/events`. `startTime`–`endTime` are the
+ * daily hours ("HH:mm", every day of the event) in `timezone`. `startsAt` and
+ * `endsAt` are the first day's start and the last day's end as ISO instants,
+ * and `effectiveTimezone` is the zone they were computed in (the event's, else
+ * the org default, else UTC). The backend computes them; read phase and time
+ * from them rather than from the dates.
+ */
+export type OrgEvent = components["schemas"]["OrgsIdEventsResponse"][number];
 
 export type CsvUploadSummary = {
   id: string;
@@ -55,20 +49,15 @@ export type ChecklistItem = {
   updatedAt: string;
 };
 
-// The spec types the event list with the feature-flag schema and /stats with
-// a different shape than the backend returns, so these two read the data as
-// the hand-written types above.
-const asOrgEvents = (data: unknown) => data as OrgEvent[];
+// The spec types /stats with a different shape than the backend returns, so
+// this reads the data as the hand-written type above.
 const asOrgEventStats = (data: unknown) => data as OrgEventStats;
 
 export const adminQueries = {
   events: (slug: string) =>
-    $api.queryOptions(
-      "get",
-      "/orgs/{slug}/events",
-      { params: { path: { slug } } },
-      { select: asOrgEvents },
-    ),
+    $api.queryOptions("get", "/orgs/{slug}/events", {
+      params: { path: { slug } },
+    }),
   stats: (slug: string, eventId: string) =>
     $api.queryOptions(
       "get",
@@ -93,6 +82,16 @@ const ORG_EVENT_QUERY_PATHS = new Set<unknown>([
   "/orgs/{slug}/events/{id}/video-categories",
   "/orgs/{slug}/events/{id}/videos",
 ]);
+
+/**
+ * Refresh after the org's live Org Event changes. Many org routes resolve the
+ * live event on the server (the org's `myRoster`, schools, callbacks, claims,
+ * scouting), so their cached answers belong to the old event even when their
+ * key has no event id. Refreshing everything is simpler than tracking them.
+ */
+export function invalidateAfterLiveEventChange(qc: QueryClient) {
+  return qc.invalidateQueries();
+}
 
 export function invalidateOrgEvents(qc: QueryClient, slug: string) {
   return qc.invalidateQueries({

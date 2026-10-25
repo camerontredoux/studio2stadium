@@ -1,7 +1,9 @@
 import { DatabaseService } from "#database/service";
 import { orgEvents } from "#database/schema/org-events";
+import { organizations } from "#database/schema/organizations";
+import { eventEndsAt, orgDefaultTimezone } from "#utils/event-time";
 import { inject } from "@adonisjs/core";
-import { and, asc, eq, gte } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 
 @inject()
 export class DeleteEventService {
@@ -18,18 +20,29 @@ export class DeleteEventService {
         if (!deleted) return false;
 
         if (deleted.isActive) {
-          const today = new Date().toISOString().slice(0, 10);
-          const [next] = await tx
-            .select({ id: orgEvents.id })
+          // The next event to make active is the earliest one that hasn't
+          // ended yet, judged by its own end in its own zone.
+          const [org] = await tx
+            .select({ settings: organizations.settings })
+            .from(organizations)
+            .where(eq(organizations.id, orgId));
+          const orgDefault = orgDefaultTimezone(org?.settings);
+          const candidates = await tx
+            .select({
+              id: orgEvents.id,
+              startDate: orgEvents.startDate,
+              endDate: orgEvents.endDate,
+              startTime: orgEvents.startTime,
+              endTime: orgEvents.endTime,
+              timezone: orgEvents.timezone,
+            })
             .from(orgEvents)
-            .where(
-              and(
-                eq(orgEvents.orgId, orgId),
-                gte(orgEvents.endDate, today),
-              ),
-            )
-            .orderBy(asc(orgEvents.startDate))
-            .limit(1);
+            .where(eq(orgEvents.orgId, orgId))
+            .orderBy(asc(orgEvents.startDate));
+          const now = Date.now();
+          const next = candidates.find(
+            (event) => eventEndsAt(event, orgDefault).getTime() > now
+          );
 
           if (next) {
             await tx

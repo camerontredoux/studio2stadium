@@ -1,25 +1,27 @@
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Spinner } from "@/components/ui/spinner";
-import { toastManager } from "@/components/ui/toast-manager";
-import {
-  adminQueries,
-  type ChecklistItem,
-} from "@/features/org/api/admin-queries";
-import { client } from "@/lib/api/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
+
+import { Button } from "@/components/event/button";
+import {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogFooter,
+  DialogHeader,
+  DialogPopup,
+  DialogTitle,
+} from "@/components/event/dialog";
+import { toastManager } from "@/components/ui/toast-manager";
+import {
+  adminQueries,
+  type ChecklistItem,
+} from "@/features/org/api/admin-queries";
+import { BusyLabel } from "@/features/org/live/shared/busy-label";
+import { SheetField } from "@/features/org/live/shared/sheet-field";
+import { client } from "@/lib/api/client";
 
 const schema = z.object({
   title: z.string().min(1, "Required").max(160),
@@ -147,7 +149,7 @@ export function ChecklistItemDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogPopup>
         <DialogHeader>
           <DialogTitle>
             {isCreate ? "Add checklist item" : "Edit checklist item"}
@@ -155,32 +157,43 @@ export function ChecklistItemDialog({
         </DialogHeader>
         <form
           id={FORM_ID}
+          noValidate
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-4 px-6 pt-2 pb-2"
+          className="flex min-h-0 flex-col"
         >
-          <Controller
-            control={control}
-            name="title"
-            render={({ field, fieldState }) => (
-              <Field name={field.name} invalid={fieldState.invalid}>
-                <FieldLabel>Title</FieldLabel>
-                <Input
+          <DialogBody>
+            <Controller
+              control={control}
+              name="title"
+              render={({ field, fieldState }) => (
+                <SheetField
+                  label="Title"
+                  name={field.name}
+                  ref={field.ref}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
                   autoFocus
                   placeholder="e.g. Venue confirmed"
-                  {...field}
                 />
-                <FieldError error={fieldState.error} />
-              </Field>
-            )}
-          />
+              )}
+            />
+          </DialogBody>
         </form>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+          <DialogClose render={<Button variant="ghost" size="lg" />}>
             Cancel
-          </Button>
-          <Button type="submit" form={FORM_ID} disabled={pending}>
+          </DialogClose>
+          <Button
+            type="submit"
+            form={FORM_ID}
+            variant="primary"
+            size="lg"
+            disabled={pending}
+          >
             {pending ? (
-              <Spinner label={isCreate ? "Adding…" : "Saving…"} />
+              <BusyLabel label={isCreate ? "Adding…" : "Saving…"} />
             ) : isCreate ? (
               "Add item"
             ) : (
@@ -188,7 +201,7 @@ export function ChecklistItemDialog({
             )}
           </Button>
         </DialogFooter>
-      </DialogContent>
+      </DialogPopup>
     </Dialog>
   );
 }

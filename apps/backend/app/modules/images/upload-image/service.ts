@@ -81,7 +81,7 @@ export class UploadImageService {
       }
     }
 
-    const disk = drive.use("r2");
+    const disk = drive.use();
 
     const ext = type === "schedule" ? extFromMime(contentType) : "";
     // Blog PDFs get a `.pdf` extension so the download route and orphan sweep

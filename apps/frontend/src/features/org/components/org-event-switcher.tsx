@@ -1,48 +1,54 @@
+import { PlusIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { CheckIcon, PlusIcon, ZapIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { Button } from "@/components/event/button";
 import {
-  AlertDialog,
-  AlertDialogClose,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/components/utils/cn";
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogPopup,
+  DialogTitle,
+} from "@/components/event/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Menu,
+  MenuGroup,
+  MenuGroupLabel,
+  MenuItem,
+  MenuPopup,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuSeparator,
+  MenuTrigger,
+} from "@/components/event/menu";
+import { ShellSidebarBrand } from "@/components/event/shell";
+import { Tag } from "@/components/event/tag";
 import { toastManager } from "@/components/ui/toast-manager";
 import {
-  Tooltip,
-  TooltipPopup,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { invalidateOrgEvents } from "@/features/org/api/admin-queries";
+  invalidateAfterLiveEventChange,
+  type OrgEvent,
+} from "@/features/org/api/admin-queries";
 import { EventFormSheet } from "@/features/org/components/event-form-sheet";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
+import { useOrg } from "@/features/org/context/use-org";
+import { monogram } from "@/features/org/live/shared/monogram";
 import { $api } from "@/lib/api/client";
 
 /**
- * Icon-only square on phones; the label (an `sr-only` span that becomes
- * visible at `sm`) keeps the accessible name either way.
+ * The admin event switcher: the sidebar brand (monogram + org name) opening an
+ * "Events" menu. Picking an event shows it in the admin area; the live event
+ * is tagged LIVE and any other can be made live (PATCH `isActive: true`,
+ * after a confirm). "New event" opens the event form.
  */
-const COMPACT_BUTTON = "size-8 shrink-0 p-0 sm:w-auto";
-
 export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
   const queryClient = useQueryClient();
-  const { activeEvent, events, selectedEvent, selectEvent } = useAdminEvent();
+  const { org } = useOrg();
+  const { events, selectedEvent, selectEvent } = useAdminEvent();
   const [createOpen, setCreateOpen] = useState(false);
+  const [confirmEvent, setConfirmEvent] = useState<OrgEvent | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const sortedEvents = useMemo(
@@ -55,152 +61,139 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
     [events],
   );
 
-  const items = sortedEvents.map((event) => ({
-    value: event.id,
-    label: event.name,
-  }));
-
   const activate = $api.useMutation("patch", "/orgs/{slug}/events/{id}", {
-    onSuccess: () => {
+    onSuccess: (_data, { params }) => {
       setConfirmOpen(false);
-      void invalidateOrgEvents(queryClient, orgSlug);
-      toastManager.add({ title: "Active event updated", type: "success" });
+      // Show the event that just went live.
+      selectEvent(params.path.id);
+      void invalidateAfterLiveEventChange(queryClient);
+      toastManager.add({ title: "Live event updated", type: "success" });
     },
     onError: () => {
-      toastManager.add({
-        title: "Couldn't make event active",
-        type: "error",
-      });
+      toastManager.add({ title: "Couldn't make event live", type: "error" });
     },
   });
 
-  const isSelectedActive =
-    selectedEvent !== null && selectedEvent.id === activeEvent?.id;
-
   return (
-    <TooltipProvider delay={0}>
-      <div className="flex min-w-0 items-center gap-2">
-        <Select
-          items={items}
-          value={selectedEvent?.id ?? null}
-          onValueChange={(value) => {
-            if (value) selectEvent(value);
-          }}
-          disabled={items.length === 0}
-        >
-          <SelectTrigger
-            aria-label="Event to view"
-            className="bg-background h-8 min-w-0 flex-1 text-xs sm:w-[220px] sm:flex-none 2xl:text-sm"
-          >
-            <SelectValue placeholder="Select event" />
-          </SelectTrigger>
-          <SelectContent>
-            {sortedEvents.map((event) => (
-              <SelectItem key={event.id} value={event.id}>
-                <span className="flex min-w-0 items-center justify-between gap-3">
-                  <span className="truncate">{event.name}</span>
-                  {event.isActive && (
-                    <span className="text-muted-foreground text-[10px] font-medium tracking-wide uppercase">
-                      Active
-                    </span>
-                  )}
-                </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {isSelectedActive ? (
-          <Button
-            variant="outline"
-            size="xs"
-            className={cn(COMPACT_BUTTON, "gap-1.5 sm:px-2.5")}
-            disabled
-          >
-            <CheckIcon aria-hidden className="size-4 sm:size-3" />
-            <span className="sr-only sm:not-sr-only">Active event</span>
-          </Button>
-        ) : (
-          <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-            <Tooltip>
-              <AlertDialogTrigger
-                render={
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        size="xs"
-                        className={cn(COMPACT_BUTTON, "sm:px-2.5")}
-                        disabled={!selectedEvent}
-                      />
-                    }
-                  />
-                }
+    <>
+      <Menu>
+        <MenuTrigger
+          render={
+            <ShellSidebarBrand
+              mark={monogram(org.name)}
+              name={org.name}
+              aria-label={`${org.name}: switch event`}
+            />
+          }
+        />
+        <MenuPopup align="start" className="w-[300px] max-w-[calc(100vw-16px)]">
+          <MenuGroup>
+            <MenuGroupLabel>Events</MenuGroupLabel>
+            {sortedEvents.length === 0 ? (
+              <p className="type-body text-fg-3 m-0 px-(--space-8) py-(--space-6)">
+                No events yet
+              </p>
+            ) : (
+              <MenuRadioGroup
+                value={selectedEvent?.id ?? ""}
+                onValueChange={(eventId: string) => selectEvent(eventId)}
               >
-                <ZapIcon aria-hidden className="size-4 sm:hidden" />
-                <span className="sr-only sm:not-sr-only">Make active</span>
-              </AlertDialogTrigger>
-              <TooltipPopup className="sm:hidden">Make active</TooltipPopup>
-            </Tooltip>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  Make {selectedEvent?.name} the active event?
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  Dancers and coaches will see this as the active event. If
-                  another event is active, it will no longer be shown to them.
-                  Admins can still view any event from the event switcher.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogClose
-                  render={
-                    <Button variant="ghost" disabled={activate.isPending} />
-                  }
-                >
-                  Cancel
-                </AlertDialogClose>
-                <Button
-                  onClick={() => {
-                    if (selectedEvent) {
-                      activate.mutate({
-                        params: { path: { slug: orgSlug, id: selectedEvent.id } },
-                        body: { isActive: true },
-                      });
-                    }
-                  }}
-                  disabled={!selectedEvent || activate.isPending}
-                >
-                  {activate.isPending ? "Making active…" : "Make active"}
-                </Button>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        )}
+                {sortedEvents.map((event) => (
+                  <MenuRadioItem
+                    key={event.id}
+                    value={event.id}
+                    indicator="start"
+                    closeOnClick
+                    className="h-9"
+                  >
+                    <span className="flex min-w-0 items-center gap-(--space-8)">
+                      <span
+                        className={
+                          event.id === selectedEvent?.id
+                            ? "text-fg min-w-0 truncate font-medium"
+                            : "text-fg-2 min-w-0 truncate font-medium"
+                        }
+                      >
+                        {event.name}
+                      </span>
+                      <span className="ms-auto flex shrink-0 items-center">
+                        {event.isActive ? (
+                          <Tag tone="live">Live</Tag>
+                        ) : (
+                          <Button
+                            size="sm"
+                            className="text-[11.5px]"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              setConfirmEvent(event);
+                              setConfirmOpen(true);
+                            }}
+                          >
+                            Make live
+                          </Button>
+                        )}
+                      </span>
+                    </span>
+                  </MenuRadioItem>
+                ))}
+              </MenuRadioGroup>
+            )}
+          </MenuGroup>
+          <MenuSeparator />
+          <MenuItem icon={PlusIcon} onClick={() => setCreateOpen(true)}>
+            New event
+          </MenuItem>
+        </MenuPopup>
+      </Menu>
 
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="xs"
-                className={cn(COMPACT_BUTTON, "gap-1 sm:px-2")}
-                onClick={() => setCreateOpen(true)}
-              />
-            }
-          >
-            <PlusIcon aria-hidden className="size-4 sm:size-3" />
-            <span className="sr-only sm:not-sr-only">New</span>
-          </TooltipTrigger>
-          <TooltipPopup className="sm:hidden">New event</TooltipPopup>
-        </Tooltip>
-      </div>
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogPopup>
+          <DialogHeader>
+            <DialogTitle>Make {confirmEvent?.name} live?</DialogTitle>
+          </DialogHeader>
+          <DialogBody className="pt-(--space-8)">
+            <DialogDescription>
+              Dancers and coaches will see this as the live event. If another
+              event is live, they won't see it anymore. Admins can still open
+              any event from this menu.
+            </DialogDescription>
+          </DialogBody>
+          <DialogFooter>
+            <DialogClose
+              render={
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  disabled={activate.isPending}
+                />
+              }
+            >
+              Cancel
+            </DialogClose>
+            <Button
+              variant="primary"
+              size="lg"
+              disabled={!confirmEvent || activate.isPending}
+              onClick={() => {
+                if (!confirmEvent) return;
+                activate.mutate({
+                  params: { path: { slug: orgSlug, id: confirmEvent.id } },
+                  body: { isActive: true },
+                });
+              }}
+            >
+              {activate.isPending ? "Making live…" : "Make live"}
+            </Button>
+          </DialogFooter>
+        </DialogPopup>
+      </Dialog>
 
       <EventFormSheet
         orgSlug={orgSlug}
         open={createOpen}
         onOpenChange={setCreateOpen}
       />
-    </TooltipProvider>
+    </>
   );
 }
