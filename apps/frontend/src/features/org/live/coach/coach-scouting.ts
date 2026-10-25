@@ -19,8 +19,8 @@ type DancerDetail = ApiSchemas["OrgsIdDancersIdResponse"];
 /**
  * The rating API's validator takes 1 to 5 and its controller also rejects
  * anything above the org's `rating_scale_max` (default 10), so the scale a
- * coach sees is the smaller of the two. The API has no way to clear a rating,
- * so clicking the current score does nothing.
+ * coach sees is the smaller of the two. Clicking the current score clears the
+ * rating through the DELETE route.
  */
 const RATING_API_MAX = 5;
 
@@ -106,6 +106,36 @@ export function useCoachScouting() {
     },
   );
 
+  const clearRating = $api.useMutation(
+    "delete",
+    "/orgs/{slug}/dancers/{dancerRosterId}/rating",
+    {
+      onMutate: async ({ params }): Promise<RatingContext> => ({
+        snapshot: await patchScoutedDancer(qc, params.path.dancerRosterId, {
+          rating: null,
+        }),
+      }),
+      onError: (error, _variables, context) => {
+        restoreScoutingCaches(
+          qc,
+          (context as RatingContext | undefined)?.snapshot,
+        );
+        toastManager.add({
+          title: "Couldn't clear rating",
+          description: errorMessage(error),
+          type: "error",
+        });
+      },
+      meta: {
+        invalidateQueries: [
+          ["get", "/orgs/{slug}/dancers"],
+          ["get", "/orgs/{slug}/dancers/{rosterId}"],
+          ["get", "/orgs/{slug}/rankings"],
+        ],
+      },
+    },
+  );
+
   const upsertNote = $api.useMutation(
     "put",
     "/orgs/{slug}/dancers/{dancerRosterId}/notes",
@@ -147,14 +177,16 @@ export function useCoachScouting() {
 
   const rate = useCallback(
     (rosterId: string, value: number) => {
-      // The API can't clear a rating; the Rating control reports 0 for that.
+      const path = { slug, dancerRosterId: rosterId };
+      // The Rating control reports 0 when the coach clicks the current score.
+      if (value === 0) {
+        clearRating.mutate({ params: { path } });
+        return;
+      }
       if (value < 1 || value > ratingMax) return;
-      rating.mutate({
-        params: { path: { slug, dancerRosterId: rosterId } },
-        body: { rating: value },
-      });
+      rating.mutate({ params: { path }, body: { rating: value } });
     },
-    [slug, rating, ratingMax],
+    [slug, rating, clearRating, ratingMax],
   );
 
   /** Saves the note (an empty one deletes it). Resolves true when it saved. */

@@ -455,6 +455,10 @@ type OrgsIdDancersIdRatingPut = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/ratings/upsert/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/ratings/upsert/controller.ts').default['handle'], true>
 }
+type OrgsIdDancersIdRatingDelete = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/ratings/delete/controller.ts').default['handle'], false>
+}
 type OrgsIdRankingsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/rankings/controller.ts').default['handle'], false>
@@ -1570,6 +1574,7 @@ export interface ApiDefinition {
             '$url': {
             };
             '$put': OrgsIdDancersIdRatingPut;
+            '$delete': OrgsIdDancersIdRatingDelete;
           };
           'callbacks': {
             '$url': {

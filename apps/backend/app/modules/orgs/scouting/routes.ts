@@ -9,6 +9,7 @@ const ListFavorites = () => import("./favorites/list/controller.ts");
 const UpsertNote = () => import("./notes/upsert/controller.ts");
 const DeleteNote = () => import("./notes/delete/controller.ts");
 const UpsertRating = () => import("./ratings/upsert/controller.ts");
+const DeleteRating = () => import("./ratings/delete/controller.ts");
 const ListRankings = () => import("./rankings/controller.ts");
 
 const ListSchools = () => import("./schools/list/controller.ts");
@@ -75,6 +76,9 @@ router
       .use(middleware.orgEventDancer());
     router
       .put(":slug/dancers/:dancerRosterId/rating", [UpsertRating])
+      .use(middleware.orgEventDancer());
+    router
+      .delete(":slug/dancers/:dancerRosterId/rating", [DeleteRating])
       .use(middleware.orgEventDancer());
     router.get(":slug/rankings", [ListRankings]);
   })
