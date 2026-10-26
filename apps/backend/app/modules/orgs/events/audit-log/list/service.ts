@@ -38,9 +38,11 @@ export class ListAuditLogService {
     ];
 
     if (q.actions?.length) {
-      const isCheckIn = sql`(${eventAuditLog.action} = 'update'
+      // COALESCE: an entry without a `field` key makes the comparison NULL,
+      // and `not NULL` would drop it from Update as well.
+      const isCheckIn = sql`coalesce(${eventAuditLog.action} = 'update'
         and ${eventAuditLog.resource} = 'roster'
-        and ${eventAuditLog.metadata}->>'field' = 'checkedInAt')`;
+        and ${eventAuditLog.metadata}->>'field' = 'checkedInAt', false)`;
       const plain = q.actions.filter((a) => a !== "check_in");
       const matches = [];
       if (q.actions.includes("check_in")) matches.push(isCheckIn);

@@ -217,6 +217,15 @@ test.group("ListAuditLogService", (group) => {
         metadata: { before: {}, after: {} },
       },
       {
+        // A roster edit with no `field` key is still a plain update.
+        eventId,
+        actorId,
+        action: "update",
+        resource: "roster",
+        resourceId: rosterId,
+        metadata: { before: { firstName: "A" }, after: { firstName: "B" } },
+      },
+      {
         eventId,
         actorId,
         action: "delete",
@@ -240,10 +249,10 @@ test.group("ListAuditLogService", (group) => {
       checkIns.data.map((r) => r.resource),
       ["roster"]
     );
-    assert.deepEqual(
-      updates.data.map((r) => r.resource),
-      ["event"]
-    );
+    assert.deepEqual(updates.data.map((r) => r.resource).sort(), [
+      "event",
+      "roster",
+    ]);
     assert.equal(both.total, 2);
     assert.equal(byResource.total, 2);
   });
