@@ -98,24 +98,7 @@ function CheckInDesk({ orgSlug, event }: { orgSlug: string; event: OrgEvent }) {
   return (
     <ShellPage
       header={
-        <DeskHeader
-          event={event}
-          tally={
-            <p
-              aria-live="polite"
-              aria-atomic="true"
-              className="flex items-baseline gap-(--space-6) whitespace-nowrap"
-            >
-              <span className="text-fg bp-phone:text-[22px] text-[28px] leading-none font-semibold tracking-[-0.03em] tabular-nums">
-                {desk.checkedIn}
-              </span>
-              <span className="text-fg-3 font-mono text-[14px] tabular-nums">
-                /{desk.total}
-              </span>
-              <span className="type-body text-fg-3">checked in</span>
-            </p>
-          }
-        />
+        <DeskHeader event={event} />
       }
     >
       {/* Full width with the usual 8px panel gap, like the other admin pages. */}
@@ -141,21 +124,17 @@ function CheckInDesk({ orgSlug, event }: { orgSlug: string; event: OrgEvent }) {
   );
 }
 
-/** The desk's sub-page header: "Event name /", the live badge, "Check-in" and the tally. */
-function DeskHeader({
-  event,
-  tally,
-}: {
-  event: OrgEvent | null;
-  tally?: React.ReactNode;
-}) {
+/**
+ * The desk's sub-page header: "Event name /", the live badge and "Check-in".
+ * The checked-in count lives on the dashboard Check-in widget, not here.
+ */
+function DeskHeader({ event }: { event: OrgEvent | null }) {
   return (
     <SubpageHeader
       event={event}
       title="Check-in"
       dashboardTo="/o/$orgSlug/admin"
       showStatus
-      actions={tally}
     />
   );
 }
