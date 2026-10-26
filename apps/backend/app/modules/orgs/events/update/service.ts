@@ -90,6 +90,9 @@ export class UpdateEventService {
             timezone: patch.timezone || null,
           }),
           ...(patch.isActive !== undefined && { isActive: patch.isActive }),
+          ...(patch.selfCheckIn !== undefined && {
+            selfCheckIn: patch.selfCheckIn,
+          }),
         })
         .where(and(eq(orgEvents.id, eventId), eq(orgEvents.orgId, orgId)))
         .returning();

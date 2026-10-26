@@ -34,6 +34,12 @@ interface ScanInput {
   actorId: string;
 }
 
+interface CheckInInput {
+  eventId: string;
+  rosterId: string;
+  actorId: string;
+}
+
 /**
  * Checks a Dancer in from the code on their check-in pass. Set-only: a second
  * scan reports the first check-in instead of undoing it, so holding a phone up
@@ -59,6 +65,15 @@ export class ScanCheckInService {
     if (!pass) throw new E_CHECK_IN_CODE_INVALID();
     if (pass.eventId !== eventId) throw new E_CHECK_IN_CODE_WRONG_EVENT();
 
+    return this.checkIn({ eventId, rosterId: pass.rosterId, actorId });
+  }
+
+  /**
+   * Sets a Dancer's check-in time unless it is set already. The caller has
+   * checked that the event belongs to the org and that the actor may check
+   * this Roster Entry in: a scanned pass, or a Dancer's own self check-in.
+   */
+  async checkIn({ eventId, rosterId, actorId }: CheckInInput) {
     return this.db.withAudit({ eventId, actorId }, async (tx, audit) => {
       const columns = {
         id: eventRosters.id,
@@ -72,7 +87,7 @@ export class ScanCheckInService {
         .from(eventRosters)
         .where(
           and(
-            eq(eventRosters.id, pass.rosterId),
+            eq(eventRosters.id, rosterId),
             eq(eventRosters.eventId, eventId),
             eq(eventRosters.type, "dancer")
           )

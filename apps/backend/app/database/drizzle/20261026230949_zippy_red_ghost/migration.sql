@@ -1,0 +1,1 @@
+ALTER TABLE "org_events" ADD COLUMN "self_check_in" boolean DEFAULT false NOT NULL;

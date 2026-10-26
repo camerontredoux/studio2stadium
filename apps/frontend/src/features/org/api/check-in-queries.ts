@@ -1,4 +1,5 @@
 import { $api, client, type ApiSchemas } from "@/lib/api/client";
+import { invalidateOrgEvents } from "@/features/org/api/admin-queries";
 import {
   ROSTER_LIST_KEY_PREFIX,
   ROSTER_STATS_KEY_PREFIX,
@@ -134,6 +135,39 @@ export function useDancerCheckIn(slug: string, eventId: string) {
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: statusKey });
+    },
+  });
+}
+
+/**
+ * Turns an event's self check-in on or off. The desk and dashboard read it
+ * from the check-in status, so that cache flips at once.
+ */
+export function useSelfCheckInSetting(slug: string, eventId: string) {
+  const qc = useQueryClient();
+  const statusKey = checkInQueries.status(slug, eventId).queryKey;
+
+  return useMutation({
+    mutationFn: async (selfCheckIn: boolean) => {
+      const { data, error } = await client.PATCH("/orgs/{slug}/events/{id}", {
+        params: { path: { slug, id: eventId } },
+        body: { selfCheckIn },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onMutate: async (selfCheckIn) => {
+      await qc.cancelQueries({ queryKey: statusKey });
+      const prev = qc.getQueryData<CheckInStatus>(statusKey);
+      if (prev) qc.setQueryData<CheckInStatus>(statusKey, { ...prev, selfCheckIn });
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) qc.setQueryData(statusKey, ctx.prev);
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: statusKey });
+      void invalidateOrgEvents(qc, slug);
     },
   });
 }

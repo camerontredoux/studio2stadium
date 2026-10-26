@@ -4397,6 +4397,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * Check yourself in
+         * @description Sets the requesting Dancer's check-in time on an event with self check-in turned on, through the same path as a scanned pass. 403 when self check-in is off or the requester is not a Dancer on the roster; 422 before check-in opens.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -12396,6 +12400,7 @@ export interface components {
             startTime: string | null;
             endTime: string | null;
             timezone: string | null;
+            selfCheckIn: boolean;
             startsAt: string;
             endsAt: string;
             effectiveTimezone: string;
@@ -12430,6 +12435,7 @@ export interface components {
             startTime: string | null;
             endTime: string | null;
             timezone: string | null;
+            selfCheckIn: boolean;
             startsAt: string;
             endsAt: string;
             effectiveTimezone: string;
@@ -12446,6 +12452,7 @@ export interface components {
             startTime?: string | null;
             endTime?: string | null;
             timezone?: string | null;
+            selfCheckIn?: (string | number | boolean) | null;
         };
         OrgsIdEventsIdResponse: {
             id: string;
@@ -12465,6 +12472,7 @@ export interface components {
             startTime: string | null;
             endTime: string | null;
             timezone: string | null;
+            selfCheckIn: boolean;
             startsAt: string;
             endsAt: string;
             effectiveTimezone: string;
@@ -12817,14 +12825,22 @@ export interface components {
             lastName: string;
         }[];
         OrgsIdEventsIdCheckinResponse: {
-            id: string;
-            checkedInAt: string | null;
+            roster: {
+                id: string;
+                bib: number | null;
+                firstName: string;
+                lastName: string;
+                checkedInAt: string | null;
+            };
+            /** @enum {string} */
+            result: "checked_in" | "already_checked_in";
         };
         OrgsIdEventsIdCheckinStatusResponse: {
             checkedInAt: string | null;
             eventStartTime: string | null;
             timezone: string | null;
             canCheckIn: boolean;
+            selfCheckIn: boolean;
             checkInCode: string | null;
             bibNumber: number | null;
         };
@@ -12965,12 +12981,12 @@ export interface components {
         };
         OrgsIdDancersResponse: {
             data: {
+                profilePhotoUrl: string | null;
                 rosterId: string;
                 bibNumber: number | null;
                 firstName: string;
                 lastName: string;
                 isRegistered: boolean;
-                profilePhotoUrl: string | null;
                 gpa: number | null;
                 gradYear: number | null;
                 studio: string | null;

@@ -20,15 +20,14 @@ test.group("CheckInService", (group) => {
     await db.delete(orgEvents).execute();
     await db.delete(users).execute();
 
-    // Other suites delete orgs, so don't rely on one being left over.
-    const [existing] = await db.select().from(organizations).limit(1);
-    let org = existing;
-    if (!org) {
-      [org] = await db
-        .insert(organizations)
-        .values({ name: "Check-in Org", slug: `check-in-org-${Date.now()}` })
-        .returning();
-    }
+    const [org] = await db
+      .insert(organizations)
+      .values({
+        name: "Check-in Org",
+        slug: `check-in-org-${Date.now()}`,
+        features: { check_in: true },
+      })
+      .returning();
     orgId = org!.id;
 
     const ts = Date.now();
@@ -58,6 +57,7 @@ test.group("CheckInService", (group) => {
         startTime: "09:00",
         timezone: "America/New_York",
         isActive: true,
+        selfCheckIn: true,
       })
       .returning();
     eventId = ev.id;
@@ -74,20 +74,19 @@ test.group("CheckInService", (group) => {
 
   test("checks in a dancer when event has started", async ({ assert }) => {
     const svc = new CheckInService();
-    const result = await svc.execute(eventId, dancerUserId);
-    assert.isNotNull(result.checkedInAt);
+    const result = await svc.execute(orgId, eventId, dancerUserId);
+    assert.equal(result.result, "checked_in");
+    assert.isNotNull(result.roster.checkedInAt);
   });
 
   test("is idempotent — second call returns same timestamp", async ({
     assert,
   }) => {
     const svc = new CheckInService();
-    const first = await svc.execute(eventId, dancerUserId);
-    const second = await svc.execute(eventId, dancerUserId);
-    assert.equal(
-      first.checkedInAt?.toISOString(),
-      second.checkedInAt?.toISOString()
-    );
+    const first = await svc.execute(orgId, eventId, dancerUserId);
+    const second = await svc.execute(orgId, eventId, dancerUserId);
+    assert.equal(second.result, "already_checked_in");
+    assert.equal(first.roster.checkedInAt, second.roster.checkedInAt);
   });
 
   test("allows check-in when event has no startTime but date is past", async ({
@@ -99,8 +98,9 @@ test.group("CheckInService", (group) => {
       .where(eq(orgEvents.id, eventId));
 
     const svc = new CheckInService();
-    const result = await svc.execute(eventId, dancerUserId);
-    assert.isNotNull(result.checkedInAt);
+    const result = await svc.execute(orgId, eventId, dancerUserId);
+    assert.equal(result.result, "checked_in");
+    assert.isNotNull(result.roster.checkedInAt);
   });
 
   test("throws CheckInNotOpenError when event has not started", async ({
@@ -117,7 +117,7 @@ test.group("CheckInService", (group) => {
 
     const svc = new CheckInService();
     await assert.rejects(
-      () => svc.execute(eventId, dancerUserId),
+      () => svc.execute(orgId, eventId, dancerUserId),
       CheckInNotOpenError.prototype.message
     );
   });
@@ -143,7 +143,7 @@ test.group("CheckInService", (group) => {
 
     const svc = new CheckInService();
     await assert.rejects(
-      () => svc.execute(eventId, other.id),
+      () => svc.execute(orgId, eventId, other.id),
       NotOnRosterError.prototype.message
     );
   });

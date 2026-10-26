@@ -4536,7 +4536,9 @@
               }
             }
           }
-        }
+        },
+        "summary": "Check yourself in",
+        "description": "Sets the requesting Dancer's check-in time on an event with self check-in turned on, through the same path as a scanned pass. 403 when self check-in is off or the requester is not a Dancer on the roster; 422 before check-in opens."
       }
     },
     "/orgs/{slug}/events/{id}/check-in/status": {
@@ -14849,6 +14851,9 @@
                 }
               ]
             },
+            "selfCheckIn": {
+              "type": "boolean"
+            },
             "startsAt": {
               "type": "string"
             },
@@ -14876,6 +14881,7 @@
             "startTime",
             "endTime",
             "timezone",
+            "selfCheckIn",
             "startsAt",
             "endsAt",
             "effectiveTimezone"
@@ -15081,6 +15087,9 @@
               }
             ]
           },
+          "selfCheckIn": {
+            "type": "boolean"
+          },
           "startsAt": {
             "type": "string"
           },
@@ -15108,6 +15117,7 @@
           "startTime",
           "endTime",
           "timezone",
+          "selfCheckIn",
           "startsAt",
           "endsAt",
           "effectiveTimezone"
@@ -15229,6 +15239,20 @@
                 "type": "null"
               }
             ]
+          },
+          "selfCheckIn": {
+            "oneOf": [
+              {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         }
       },
@@ -15338,6 +15362,9 @@
               }
             ]
           },
+          "selfCheckIn": {
+            "type": "boolean"
+          },
           "startsAt": {
             "type": "string"
           },
@@ -15365,6 +15392,7 @@
           "startTime",
           "endTime",
           "timezone",
+          "selfCheckIn",
           "startsAt",
           "endsAt",
           "effectiveTimezone"
@@ -17324,23 +17352,58 @@
       "OrgsIdEventsIdCheckinResponse": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string"
-          },
-          "checkedInAt": {
-            "oneOf": [
-              {
+          "roster": {
+            "type": "object",
+            "properties": {
+              "id": {
                 "type": "string"
               },
-              {
-                "type": "null"
+              "bib": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "firstName": {
+                "type": "string"
+              },
+              "lastName": {
+                "type": "string"
+              },
+              "checkedInAt": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               }
+            },
+            "required": [
+              "id",
+              "bib",
+              "firstName",
+              "lastName",
+              "checkedInAt"
+            ]
+          },
+          "result": {
+            "type": "string",
+            "enum": [
+              "checked_in",
+              "already_checked_in"
             ]
           }
         },
         "required": [
-          "id",
-          "checkedInAt"
+          "roster",
+          "result"
         ]
       },
       "OrgsIdEventsIdCheckinStatusResponse": {
@@ -17379,6 +17442,9 @@
           "canCheckIn": {
             "type": "boolean"
           },
+          "selfCheckIn": {
+            "type": "boolean"
+          },
           "checkInCode": {
             "oneOf": [
               {
@@ -17405,6 +17471,7 @@
           "eventStartTime",
           "timezone",
           "canCheckIn",
+          "selfCheckIn",
           "checkInCode",
           "bibNumber"
         ]
@@ -18113,6 +18180,16 @@
             "items": {
               "type": "object",
               "properties": {
+                "profilePhotoUrl": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "rosterId": {
                   "type": "string"
                 },
@@ -18134,16 +18211,6 @@
                 },
                 "isRegistered": {
                   "type": "boolean"
-                },
-                "profilePhotoUrl": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
                 },
                 "gpa": {
                   "oneOf": [
@@ -18222,12 +18289,12 @@
                 }
               },
               "required": [
+                "profilePhotoUrl",
                 "rosterId",
                 "bibNumber",
                 "firstName",
                 "lastName",
                 "isRegistered",
-                "profilePhotoUrl",
                 "gpa",
                 "gradYear",
                 "studio",

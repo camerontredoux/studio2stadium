@@ -96,6 +96,7 @@ test.group("dancer cross-event access", (group) => {
           endDate: dateFromToday(32),
           startTime: "09:00",
           timezone: "America/Los_Angeles",
+          selfCheckIn: true,
         },
       ])
       .returning();
@@ -175,7 +176,7 @@ test.group("dancer cross-event access", (group) => {
     });
 
     await assert.rejects(
-      () => new CheckInService().execute(futureEvent!.id, dancer.id),
+      () => new CheckInService().execute(org!.id, futureEvent!.id, dancer.id),
       CheckInNotOpenError.prototype.message
     );
 
@@ -191,7 +192,11 @@ test.group("dancer cross-event access", (group) => {
   }) => {
     const [org] = await db
       .insert(organizations)
-      .values({ name: "Active Dancer Org", slug: "active-dancer-org" })
+      .values({
+        name: "Active Dancer Org",
+        slug: "active-dancer-org",
+        features: { check_in: true },
+      })
       .returning();
     const [event] = await db
       .insert(orgEvents)
@@ -203,6 +208,7 @@ test.group("dancer cross-event access", (group) => {
         startTime: "09:00",
         timezone: "America/Los_Angeles",
         isActive: true,
+        selfCheckIn: true,
       })
       .returning();
     const dancer = await createDancer(`active_dancer_${Date.now()}`);
@@ -226,6 +232,6 @@ test.group("dancer cross-event access", (group) => {
       .post(`/orgs/${org!.slug}/events/${event!.id}/check-in`)
       .header("Authorization", `Bearer ${token}`);
     response.assertStatus(200);
-    assert.isNotNull(response.body().checkedInAt);
+    assert.isNotNull(response.body().roster.checkedInAt);
   });
 });

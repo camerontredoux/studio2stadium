@@ -44,6 +44,9 @@ export const orgEvents = pg.pgTable(
     startTime: pg.text(),
     endTime: pg.text(),
     timezone: pg.text(),
+    // Dancers check themselves in from their dashboard instead of showing
+    // their pass QR at the desk.
+    selfCheckIn: pg.boolean().notNull().default(false),
     ...timestamps,
   },
   (table) => [

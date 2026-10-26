@@ -44,8 +44,9 @@ function statusText(
 
 /**
  * The dancer's Check-in widget: the bib and status on the peek; open, the
- * check-in pass (bib, name, the signed pass code as a QR) and, while check-in
- * is open, the self check-in button. Locked without the `check_in` feature.
+ * check-in pass (bib, name, the signed pass code as a QR). On an event with
+ * self check-in, a Check in button replaces the QR while check-in is open.
+ * Locked without the `check_in` feature.
  */
 export function CheckInPassWidget({
   event,
@@ -111,7 +112,9 @@ function PassBody({
     [session.firstName, session.lastName].filter(Boolean).join(" ").trim() ||
     "[Dancer name]";
   const checkedIn = !!status?.checkedInAt;
-  const code = status?.checkInCode ?? null;
+  const selfCheckInOn = !!status?.selfCheckIn;
+  // Self check-in replaces the QR: the desk has no scanner to show it to.
+  const code = selfCheckInOn ? null : (status?.checkInCode ?? null);
 
   const selfCheckIn = () =>
     checkIn.mutate(undefined, {
@@ -139,12 +142,12 @@ function PassBody({
           className={cn(
             // No bib yet: drop the empty bib line's gap.
             bib === null && "[&>span:first-child]:hidden",
-            // No signed code (an admin previewing, or no Roster Entry): no QR card.
+            // No signed code (an admin previewing, no Roster Entry, or self check-in): no QR card.
             !code && "[&>div]:hidden",
           )}
         />
-        {!checkedIn && status?.canCheckIn && (
-          <div className="flex flex-col items-center gap-(--space-8) px-(--space-16) pb-(--space-24)">
+        {!checkedIn && selfCheckInOn && status?.canCheckIn && (
+          <div className="flex flex-col items-center px-(--space-16) pb-(--space-24)">
             <Button
               variant="primary"
               disabled={checkIn.isPending}
@@ -153,9 +156,6 @@ function PassBody({
               <Icon icon={CheckIcon} />
               {checkIn.isPending ? "Checking in…" : "Check in"}
             </Button>
-            <span className="type-caption text-fg-3 text-center">
-              Or show this pass at the check-in desk
-            </span>
           </div>
         )}
         {!checkedIn && status && !status.canCheckIn && (

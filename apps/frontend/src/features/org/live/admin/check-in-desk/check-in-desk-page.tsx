@@ -123,6 +123,7 @@ function CheckInDesk({ orgSlug, event }: { orgSlug: string; event: OrgEvent }) {
         <ScanPassPanel
           slug={orgSlug}
           eventId={event.id}
+          selfCheckIn={desk.status?.selfCheckIn}
           onScanned={flashRow}
           note={scanNote}
         />
