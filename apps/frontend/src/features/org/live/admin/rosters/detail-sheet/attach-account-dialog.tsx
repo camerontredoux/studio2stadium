@@ -22,16 +22,14 @@ import {
   ComboboxRoot,
 } from "@/components/event/combobox";
 import { Icon } from "@/components/event/icon";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BusyLabel } from "@/features/org/live/shared/busy-label";
+import { PersonAvatar } from "@/features/org/live/shared/person-avatar";
 import { toastManager } from "@/components/ui/toast-manager";
 import {
   rosterSearchQueries,
   useAttachAccount,
 } from "@/features/org/api/roster-queries";
 import type { ApiSchemas } from "@/lib/api/client";
-
-import { initials } from "./roster-sheet-model";
 
 /** The account a roster entry currently belongs to, if any. */
 export interface LinkedAccount {
@@ -66,23 +64,6 @@ function fullName(
 ): string {
   if (!person) return "";
   return [person.firstName, person.lastName].filter(Boolean).join(" ").trim();
-}
-
-function AccountAvatar({
-  person,
-  src,
-}: {
-  person: { firstName: string | null; lastName: string | null };
-  src: string | null;
-}) {
-  return (
-    <Avatar className="bg-surface-chip size-8 shrink-0">
-      <AvatarImage src={src ?? undefined} />
-      <AvatarFallback className="bg-surface-chip text-fg-2 type-meta">
-        {initials(person.firstName, person.lastName)}
-      </AvatarFallback>
-    </Avatar>
-  );
 }
 
 /**
@@ -198,7 +179,11 @@ export function AttachAccountDialog({
         <DialogBody>
           {linkedUser && (
             <div className="border-line bg-bg-300 flex items-center gap-(--space-10) rounded-(--radius-6) border p-(--space-10)">
-              <AccountAvatar person={linkedUser} src={linkedUser.avatarUrl} />
+              <PersonAvatar
+                firstName={linkedUser.firstName}
+                lastName={linkedUser.lastName}
+                src={linkedUser.avatarUrl}
+              />
               <div className="min-w-0 flex-1">
                 <p className="type-meta text-fg-3">Currently linked to</p>
                 <p className="type-body-strong text-fg truncate">
@@ -232,7 +217,11 @@ export function AttachAccountDialog({
               <ComboboxList>
                 {(user: SearchResult) => (
                   <ComboboxItem key={user.id} value={user}>
-                    <AccountAvatar person={user} src={user.avatar} />
+                    <PersonAvatar
+                      firstName={user.firstName}
+                      lastName={user.lastName}
+                      src={user.avatar}
+                    />
                     <span className="flex min-w-0 flex-1 flex-col">
                       <span className="type-body-strong text-fg truncate">
                         {fullName(user) || user.email}

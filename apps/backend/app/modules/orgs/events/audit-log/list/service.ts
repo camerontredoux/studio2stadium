@@ -1,8 +1,14 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
-import { eventAuditLog, eventRosters } from "#database/schema/org-events";
+import {
+  eventAuditLog,
+  eventDancerProfiles,
+  eventRosters,
+} from "#database/schema/org-events";
 import { users } from "#database/schema/users";
+import { imageUrl } from "#utils/image-url";
 import { and, asc, count, desc, eq, gte, isNull, lte, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import type { Validator } from "./validator.ts";
 
 @inject()
@@ -79,6 +85,7 @@ export class ListAuditLogService {
 
     // `resourceId` is polymorphic, so the join has to be narrowed to the rows
     // where it actually points at a roster entry.
+    const subjectUsers = alias(users, "subject_users");
     const subjectJoin = and(
       eq(eventAuditLog.resourceId, eventRosters.id),
       eq(eventAuditLog.resource, "roster")
@@ -106,6 +113,8 @@ export class ListAuditLogService {
             subjectLastName: eventRosters.lastName,
             subjectEmail: eventRosters.email,
             subjectBibNumber: eventRosters.bibNumber,
+            subjectPhotoUrl: eventDancerProfiles.profilePhotoUrl,
+            subjectAvatar: subjectUsers.avatar,
             childCount: sql<number>`(
               select count(*)::int from event_audit_log c
               where c.parent_id = ${eventAuditLog.id}
@@ -114,6 +123,11 @@ export class ListAuditLogService {
           .from(eventAuditLog)
           .innerJoin(users, eq(users.id, eventAuditLog.actorId))
           .leftJoin(eventRosters, subjectJoin)
+          .leftJoin(
+            eventDancerProfiles,
+            eq(eventDancerProfiles.rosterId, eventRosters.id)
+          )
+          .leftJoin(subjectUsers, eq(subjectUsers.id, eventRosters.userId))
           .where(and(...searchFilters))
           .orderBy(orderExpr)
           .limit(limit)
@@ -144,7 +158,7 @@ export class ListAuditLogService {
             firstName: r.actorFirstName,
             lastName: r.actorLastName,
             email: r.actorEmail,
-            avatarUrl: r.actorAvatar,
+            avatarUrl: imageUrl(r.actorAvatar, "avatar"),
           },
           // Who the entry is about, when that is a roster entry. Null for
           // event/checklist/video rows, and for roster entries that have since
@@ -156,6 +170,8 @@ export class ListAuditLogService {
                 lastName: r.subjectLastName,
                 email: r.subjectEmail,
                 bibNumber: r.subjectBibNumber,
+                avatarUrl:
+                  r.subjectPhotoUrl ?? imageUrl(r.subjectAvatar, "avatar"),
               }
             : null,
           childCount: r.childCount,

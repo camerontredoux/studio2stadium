@@ -25,6 +25,7 @@ import { Segmented } from "@/components/event/segmented";
 import { Tag } from "@/components/event/tag";
 import { cn } from "@/components/utils/cn";
 import { SubpageHeader } from "@/features/org/live/shared/event-header";
+import { PersonAvatar } from "@/features/org/live/shared/person-avatar";
 import { ShellPage } from "@/features/org/live/shared/shell-slots";
 import { useActiveOrgEvent } from "@/features/org/live/shared/use-active-org-event";
 
@@ -288,8 +289,19 @@ function CoachTableRow({
           row.name
         )}
       </DataTableCell>
-      <DataTableCell kind="dim" className="bp-phone:hidden">
-        {row.coach || "–"}
+      <DataTableCell
+        kind="dim"
+        className="bp-phone:hidden flex min-w-0 items-center gap-(--space-8)"
+      >
+        {row.coach && (
+          <PersonAvatar
+            firstName={row.school.firstName}
+            lastName={row.school.lastName}
+            src={row.school.avatarUrl}
+            className="size-6"
+          />
+        )}
+        <span className="min-w-0 truncate">{row.coach || "–"}</span>
       </DataTableCell>
       {callbacksOn && (
         <DataTableCell className="flex min-w-0 items-center gap-(--space-8)">
