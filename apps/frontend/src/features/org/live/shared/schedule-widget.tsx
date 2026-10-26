@@ -21,6 +21,7 @@ import { DropZone } from "@/components/event/drop-zone";
 import { Icon } from "@/components/event/icon";
 import { ProgressBar } from "@/components/event/progress-bar";
 import { Widget } from "@/components/event/shell";
+import { useWidgetBoardSlot } from "@/components/event/shell/widget-board-context";
 import { toastManager } from "@/components/ui/toast-manager";
 import {
   invalidateOrgEvents,
@@ -28,6 +29,7 @@ import {
 } from "@/features/org/api/admin-queries";
 import { scheduleFileUrl } from "@/features/org/components/dashboard-shared";
 import { useOrg } from "@/features/org/context/use-org";
+import { BusyLabel } from "@/features/org/live/shared/busy-label";
 import { client } from "@/lib/api/client";
 import { useRequestUpload } from "@/shared/images/api/mutations";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
@@ -86,19 +88,29 @@ function SchedulePreview({
   fileUrl: string;
   isPdf: boolean;
 }) {
+  const [loaded, setLoaded] = useState(false);
+
   return (
     <div className="bg-bg-150 relative h-full min-h-[320px]">
+      {!loaded && (
+        <div className="type-body text-fg-2 absolute inset-0 flex items-center justify-center gap-(--space-8)">
+          <BusyLabel label="Loading schedule…" />
+        </div>
+      )}
       {isPdf ? (
         <iframe
           src={fileUrl}
           title="Event schedule"
           className="absolute inset-0 size-full border-0"
+          onLoad={() => setLoaded(true)}
         />
       ) : (
         <img
           src={fileUrl}
           alt="Event schedule"
           className="absolute inset-0 size-full object-contain p-(--space-16)"
+          onLoad={() => setLoaded(true)}
+          onError={() => setLoaded(true)}
         />
       )}
     </div>
@@ -117,6 +129,14 @@ function ScheduleWidget({ event, mode, id = "schedule" }: ScheduleWidgetProps) {
   const [progress, setProgress] = useState<number | null>(null);
   const [confirmRemove, setConfirmRemove] = useState(false);
   const replaceInput = useRef<HTMLInputElement>(null);
+  // The board keeps every layer in the DOM, so a mounted preview would fetch
+  // the file and start the browser's PDF viewer on dashboard load even while
+  // the widget is folded. Mount it on first open and keep it, so collapsing
+  // and reopening doesn't reload it.
+  const slot = useWidgetBoardSlot(id);
+  const [previewMounted, setPreviewMounted] = useState(false);
+  const isOpen = slot ? slot.state === "open" : true;
+  if (isOpen && !previewMounted) setPreviewMounted(true);
 
   const scheduleKey = event.schedulePdfUrl;
   const fileUrl = scheduleKey ? scheduleFileUrl(orgSlug, event.id) : null;
@@ -261,10 +281,14 @@ function ScheduleWidget({ event, mode, id = "schedule" }: ScheduleWidgetProps) {
   } else if (fileUrl && scheduleKey) {
     body = (
       <div className="relative h-full">
-        <SchedulePreview
-          fileUrl={fileUrl}
-          isPdf={scheduleKey.toLowerCase().endsWith(".pdf")}
-        />
+        {previewMounted && (
+          <SchedulePreview
+            // The URL stays the same across a replace; a new key reloads the file.
+            key={scheduleKey}
+            fileUrl={fileUrl}
+            isPdf={scheduleKey.toLowerCase().endsWith(".pdf")}
+          />
+        )}
         {uploading && progress !== null && (
           <div className="bg-surface border-line absolute inset-x-0 bottom-0 border-t p-(--space-12)">
             <ProgressBar value={progress} label="Uploading schedule" />
