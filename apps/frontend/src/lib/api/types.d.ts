@@ -4478,6 +4478,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/events/{id}/schedule/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get an Org Event's schedule file
+         * @description Streams the schedule file through the API, for clients that render it in the page and cannot follow the schedule route's redirect to storage. 404 when the Org Event has no schedule.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/events/{id}/video-categories": {
         parameters: {
             query?: never;

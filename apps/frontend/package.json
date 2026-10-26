@@ -57,6 +57,7 @@
     "openapi-fetch": "^0.15.0",
     "openapi-react-query": "^0.5.1",
     "papaparse": "^5.5.3",
+    "pdfjs-dist": "^6.4.299",
     "posthog-js": "^1.369.0",
     "qrcode.react": "^4.2.0",
     "qs": "^6.14.1",

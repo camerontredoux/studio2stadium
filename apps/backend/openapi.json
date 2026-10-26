@@ -4406,6 +4406,35 @@
         }
       }
     },
+    "/orgs/{slug}/events/{id}/schedule/file": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "summary": "Get an Org Event's schedule file",
+        "description": "Streams the schedule file through the API, for clients that render it in the page and cannot follow the schedule route's redirect to storage. 404 when the Org Event has no schedule."
+      }
+    },
     "/orgs/{slug}/events/{id}/video-categories": {
       "get": {
         "parameters": [

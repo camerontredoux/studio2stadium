@@ -5,7 +5,15 @@ import {
   TrashIcon,
 } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { type ReactNode, useRef, useState } from "react";
+import {
+  type ComponentType,
+  lazy,
+  type ReactNode,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { Button } from "@/components/event/button";
 import {
@@ -30,6 +38,7 @@ import {
 import { scheduleFileUrl } from "@/features/org/components/dashboard-shared";
 import { useOrg } from "@/features/org/context/use-org";
 import { BusyLabel } from "@/features/org/live/shared/busy-label";
+import type { SchedulePdfPagesProps } from "@/features/org/live/shared/schedule-pdf-pages";
 import { client } from "@/lib/api/client";
 import { useRequestUpload } from "@/shared/images/api/mutations";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
@@ -81,6 +90,34 @@ function ScheduleSheet() {
   );
 }
 
+// pdf.js is large, so it loads only when a schedule PDF is shown this way.
+// If the chunk fails to load (a deploy replaced it, a flaky network), fall
+// back to the iframe instead of the error boundary.
+const SchedulePdfPages = lazy<ComponentType<SchedulePdfPagesProps>>(() =>
+  import("@/features/org/live/shared/schedule-pdf-pages").catch(() => ({
+    default: PdfPagesUnavailable,
+  })),
+);
+
+function PdfPagesUnavailable({ onError }: SchedulePdfPagesProps) {
+  useEffect(() => onError(), [onError]);
+  return null;
+}
+
+/**
+ * iOS Safari draws a PDF in an iframe as a still image of page 1 that can't
+ * be scrolled to later pages, and Android Chrome has no in-frame viewer at
+ * all (`pdfViewerEnabled` is false). Those browsers get the pages in-page.
+ */
+function pdfNeedsInPageView() {
+  const ua = navigator.userAgent;
+  // iPadOS reports a Mac user agent; touch points tell it apart.
+  const iOS =
+    /iPad|iPhone|iPod/.test(ua) ||
+    (ua.includes("Macintosh") && navigator.maxTouchPoints > 1);
+  return iOS || navigator.pdfViewerEnabled === false;
+}
+
 function SchedulePreview({
   fileUrl,
   isPdf,
@@ -92,6 +129,8 @@ function SchedulePreview({
   mounted: boolean;
 }) {
   const [loaded, setLoaded] = useState(false);
+  // Falls back to the iframe if pdf.js can't fetch or read the file.
+  const [inPage, setInPage] = useState(() => isPdf && pdfNeedsInPageView());
 
   return (
     <div className="bg-bg-150 relative h-full min-h-[320px]">
@@ -100,7 +139,15 @@ function SchedulePreview({
           <BusyLabel label="Loading schedule…" />
         </div>
       )}
-      {!mounted ? null : isPdf ? (
+      {!mounted ? null : isPdf && inPage ? (
+        <Suspense fallback={null}>
+          <SchedulePdfPages
+            url={`${fileUrl}/file`}
+            onReady={() => setLoaded(true)}
+            onError={() => setInPage(false)}
+          />
+        </Suspense>
+      ) : isPdf ? (
         <iframe
           src={fileUrl}
           title="Event schedule"
