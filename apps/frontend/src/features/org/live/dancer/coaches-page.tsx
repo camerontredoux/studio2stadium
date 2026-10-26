@@ -4,6 +4,7 @@ import {
   PlusIcon,
   StarIcon,
 } from "@phosphor-icons/react";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { Button } from "@/components/event/button";
@@ -274,7 +275,19 @@ function CoachTableRow({
 
   return (
     <DataTableRow className="min-h-12">
-      <DataTableCell kind="strong">{row.name}</DataTableCell>
+      <DataTableCell kind="strong">
+        {row.school.username ? (
+          <Link
+            to="/explore/$username"
+            params={{ username: row.school.username }}
+            className="text-fg s2s-focus rounded-(--radius-4) no-underline hover:underline"
+          >
+            {row.name}
+          </Link>
+        ) : (
+          row.name
+        )}
+      </DataTableCell>
       <DataTableCell kind="dim" className="bp-phone:hidden">
         {row.coach || "–"}
       </DataTableCell>
