@@ -164,6 +164,7 @@ function DancerSheetContent({
           )
         }
         title={name}
+        wrapMeta
         meta={
           !dancer.isRegistered ? "Not registered" : meta || "No profile details"
         }
