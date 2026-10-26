@@ -745,14 +745,15 @@ html:not(.dark) .theme-s2s {
     flex: none;
   }
 
-  /* No trackpad rubber-band on the dashboard page (the board is sized to the
-     window, so the bounce only jiggles it). Touch screens keep theirs. Only
-     the page itself: on a widget's scroll area it would stop the wheel
+  /* No vertical trackpad rubber-band on the dashboard page (the board is sized
+     to the window, so the bounce only jiggles it). Horizontal stays free so a
+     trackpad swipe still goes back and forward. Touch screens keep theirs.
+     Only the page itself: on a widget's scroll area it would stop the wheel
      passing on to the page once the widget reaches its end. */
   @media (pointer: fine) {
     html:has(.s2s-board),
     html:has(.s2s-board) body {
-      overscroll-behavior: none;
+      overscroll-behavior-y: none;
     }
   }
 
