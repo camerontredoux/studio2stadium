@@ -12,7 +12,7 @@ Your worktree gets these things of its own:
 - A Redis container, `studio2stadium-redis-<slug>` (with `-` in place of `_`). `config/redis.ts` has no database index or key prefix setting, so one shared Redis would mix sessions and cached data across servers. The container keeps nothing on disk; recreating it signs everyone out.
 - One port slot: the frontend on 5180 to 5199, the backend on the matching 3340 to 3359, and Redis on 6390 to 6409. `pick-port.sh` chooses it under the machine-wide port lock the global dev-loop skill uses, so worktrees of every repo that start at once never take the same port.
 
-The Postgres server on `localhost:5432` (it listens on `127.0.0.1` only; `docker-compose.yml` binds its `db` and `redis` there too), the `s2s_tpl_*` template databases, the `s2s_dev` and `s2s_test` databases, the root clone's env files, and Cameron's ports 5173, 3333 and 6379 are shared with Cameron and every other worker. The scripts never write to them.
+The Postgres server on `localhost:5432` (it listens on `127.0.0.1` only; `docker-compose.yml` binds its `db` and `redis` there too), the `s2s_tpl_*` and `s2s_prod_anon` template databases, the `s2s_dev` and `s2s_test` databases, the root clone's env files, and Cameron's ports 5173, 3333 and 6379 are shared with Cameron and every other worker. The scripts never write to them.
 
 The scripts live in `.agents/skills/run-dev-server/scripts/`. Run them from the worktree root. Each acts on the worktree it runs in (`git rev-parse --show-toplevel`), so a copy stored anywhere works. Each one ends on one success line, or exits non-zero with a `run-dev-server:` message that names the fix. Each is safe to repeat. Create your branch first; a detached HEAD has no slug.
 
@@ -28,18 +28,30 @@ The scripts live in `.agents/skills/run-dev-server/scripts/`. Run them from the 
 | --------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------- |
 | `check-deps.sh` | Node 24, `pnpm install` if missing, builds `@stos/emails` and `@stos/openapi`, Docker, shared Postgres up | `deps-ok`                          |
 | `env-copy.sh`   | Swaps the symlinked env files for private `0600` copies and checks the backend's required variables       | `private-copy-ok ...`              |
-| `db.sh`         | Copies `s2s_<slug>` and `s2s_<slug>_test` from the schema template, or reuses them; migrates each unless it already holds every migration; sets `DATABASE_URL` | `db-ok s2s_<slug> (<state>, <migrate>) s2s_<slug>_test (...)` |
+| `db.sh`         | Copies `s2s_<slug>` from `s2s_prod_anon` (anonymized production data) when it exists, and `s2s_<slug>_test` from the schema template, or reuses them; migrates each unless it already holds every migration; sets `DATABASE_URL` | `db-ok s2s_<slug> (<state>, <migrate>) s2s_<slug>_test (...)` |
 | `pick-port.sh`  | Keeps or chooses a free slot, and sets `PORT`, `SITE_URL`, `API_URL` and `VITE_API_URL` to match          | `port=<n> api=<n> redis=<n>`       |
 | `redis.sh`      | Runs this worktree's Redis container on the slot's port and sets `REDIS_HOST` and `REDIS_PORT`            | `redis-ok <container> port=<n>`    |
 | `start.sh`      | Launches both servers, each in its own process group, runs `ready.sh`, and starts any `--warm`            | `ready http://...`                 |
 
-`db.sh` copies a new database from `s2s_tpl_schema_<day>_<hash>`, a migrated, empty template that the global dev-loop skill's `db-template.sh` builds once per day and migration head (`.agents/dev-loop.sh` configures it). The `<state>` is `copied <template>`, `reused` or `new`. It then compares `drizzle.__drizzle_migrations` with the migration folders on disk, row for row, and prints `skipped` when they match, else runs `pnpm db:migrate` and prints `migrated`. Without the dev-loop skill, or with `RUN_DEV_SERVER_NO_TEMPLATE=1`, it creates an empty database and migrates it.
+`db.sh` copies a new `s2s_<slug>` from `s2s_prod_anon` when it exists (see [Production data](#production-data)). It copies a new `s2s_<slug>_test`, and a new `s2s_<slug>` without `s2s_prod_anon`, from `s2s_tpl_schema_<day>_<hash>`, a migrated, empty template that the global dev-loop skill's `db-template.sh` builds once per day and migration head (`.agents/dev-loop.sh` configures it). The `<state>` is `copied <template>`, `reused` or `new`. It then compares `drizzle.__drizzle_migrations` with the migration folders on disk, row for row, and prints `skipped` when they match, else runs `pnpm db:migrate` and prints `migrated`. Without the dev-loop skill, or with `RUN_DEV_SERVER_NO_TEMPLATE=1`, it creates an empty database and migrates it.
 
 On a failure, run the named script alone after the fix. When a step's message points at a log, read its tail.
 
 `env-copy.sh` stops when the root clone's `apps/backend/.env` lacks a variable that `apps/backend/start/env.ts` requires, and names each one. Do not invent values. Ask Cameron. Cameron adds them to the root clone's file for later worktrees, and you may set the values Cameron gives you in your private copy (see [Edit your settings](#edit-your-settings)).
 
 There is no copy of Cameron's dev data. The root clone's `DATABASE_URL` names `s2s_dev`, and the scripts never read from it or write to it.
+
+## Production data
+
+A new `s2s_<slug>` is a copy of `s2s_prod_anon` when it exists: production's records with every email address replaced and every credential cleared. `db.sh` then migrates it when your branch has migrations that production has not run. The shared before server copies the same template, so a record URL from your server opens the same record there. An existing database keeps its data: run `drop-db.sh`, then `db.sh`, to switch an older one. The test database never copies it, because the tests delete rows.
+
+`scripts/prod-anon-template.sh` builds or refreshes it, from the root clone or any worktree, in about 30 seconds. It reads production read-only, restores it into a scratch database, anonymizes it with `scripts/prod-anon-template.sql`, and fails the build if any production email address survives. It deletes the dump and the scratch database on every exit. Done when the last line reads `prod-anon-template-ok s2s_prod_anon (<size>)`.
+
+- A user's address becomes `user-<users.id>@example.test` everywhere it appears, including rosters, invites, JSON and free text. Any other address becomes `contact-<n>@example.test`. Names, phone numbers and everything else stay.
+- Passwords are `unset`, invite tokens are random, outbox rows count as published, and unfinished video uploads count as failed, so no local cron sends or deletes anything for them. Images and videos still load from production storage; never delete media from a copy with real Cloudflare credentials.
+- **It stays on this machine.** Never dump it, copy it elsewhere, or point CI at it. Postgres listens on `127.0.0.1:5432` only.
+- **Sign in** as `dancer` or `admin` as usual (`sign-in.sh` creates them), or as any production user with `sign-in.sh user-<id>@example.test`.
+- Pass `--no-prod-data` to `db.sh`, or set `RUN_DEV_SERVER_NO_PROD_DATA=1`, for an empty database instead.
 
 ## What each server talks to
 
@@ -96,12 +108,12 @@ The servers listen on `localhost` only, so the URL works on this machine. From a
 .agents/skills/run-dev-server/scripts/sign-in.sh [--redirect /path] [dancer|admin|email]
 ```
 
-There is no seed. The first run creates the user it signs in as:
+There is no seed. The first run creates the `dancer` or `admin` user it signs in as, also in a copy of `s2s_prod_anon`:
 
 - `dancer` (the default) is `dancer@run-dev-server.test`, a Dancer.
 - `admin` is `admin@run-dev-server.test`, a Dancer account with the `admin` role.
 
-Any other email must already be a user in your database, for example one you signed up in the browser. To test a school account, sign it up in the browser; the signup form creates the School profile.
+Any other email must already be a user in your database: a production user in a copy of `s2s_prod_anon` (`user-<id>@example.test`), or one you signed up in the browser. To test a school account, sign it up in the browser; the signup form creates the School profile.
 
 Each run stores one-time codes for the user in your Redis (only each code's SHA-256, for 5 minutes), follows one with curl to save a session, checks `/auth/session`, and prints two lines:
 
@@ -163,4 +175,4 @@ When the task wraps up and nothing more needs the app, drop your databases and R
 .agents/skills/run-dev-server/scripts/drop-db.sh
 ```
 
-Done when it prints `dropped s2s_<slug>, s2s_<slug>_test, studio2stadium-redis-<slug>`, with `(already gone)` after each name on a repeat. It stops your servers first. It drops only the names `db.sh` and `redis.sh` derive from your branch, and it refuses `s2s_dev`, `s2s_test`, `postgres`, `template0`, `template1` and the `s2s_tpl_*` templates. If it reports other connections, find and close the ones you opened, then retry; leave anyone else's alone.
+Done when it prints `dropped s2s_<slug>, s2s_<slug>_test, studio2stadium-redis-<slug>`, with `(already gone)` after each name on a repeat. It stops your servers first. It drops only the names `db.sh` and `redis.sh` derive from your branch, and it refuses `s2s_dev`, `s2s_test`, `postgres`, `template0`, `template1`, the `s2s_tpl_*` templates and `s2s_prod_anon`. If it reports other connections, find and close the ones you opened, then retry; leave anyone else's alone.

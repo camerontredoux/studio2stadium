@@ -1,17 +1,28 @@
 #!/usr/bin/env bash
 # Create and migrate this branch's own databases, s2s_<slug> for the server
 # and s2s_<slug>_test for the backend tests, and point the private
-# apps/backend/.env at the first. A new database is a copy of the schema
-# template the global dev-loop skill's db-template.sh keeps, built once per
-# migration head (.agents/dev-loop.sh configures it). Without that skill, or
-# with RUN_DEV_SERVER_NO_TEMPLATE=1, it creates an empty database and migrates
-# it. A database that already holds every migration on disk skips the
-# migrate. There is no seed: sign-in.sh creates the users it signs in as.
+# apps/backend/.env at the first. A new s2s_<slug> is a copy of s2s_prod_anon,
+# the anonymized production copy that scripts/prod-anon-template.sh builds,
+# when it exists. Otherwise, and always for s2s_<slug>_test, a new database is
+# a copy of the schema template the global dev-loop skill's db-template.sh
+# keeps, built once per migration head (.agents/dev-loop.sh configures it).
+# Pass --no-prod-data, or set RUN_DEV_SERVER_NO_PROD_DATA=1, to skip
+# s2s_prod_anon. Without the dev-loop skill, or with
+# RUN_DEV_SERVER_NO_TEMPLATE=1, it creates an empty database and migrates it.
+# A database that already holds every migration on disk skips the migrate.
+# There is no seed: sign-in.sh creates the users it signs in as.
 # shellcheck source=lib.sh
 source "$(dirname "$0")/lib.sh"
 require_private_copy
 
-[ $# = 0 ] || die "db.sh takes no options"
+no_prod_data=${RUN_DEV_SERVER_NO_PROD_DATA:-}
+for arg in "$@"; do
+  case "$arg" in
+    --no-prod-data) no_prod_data=1 ;;
+    *) die "unknown option $arg (only --no-prod-data)" ;;
+  esac
+done
+prod_template=s2s_prod_anon
 
 db_exists() { [ "$(psql "$pg_admin" -Atc "select 1 from pg_database where datname = '$1'")" = 1 ]; }
 
@@ -55,11 +66,20 @@ migrations_up_to_date() {
   [ "$disk" = "$applied" ]
 }
 
-# Usage: ensure_db NAME. Prints reused, new, or "copied <template>".
+# Usage: ensure_db NAME [prod]. Prints reused, new, or "copied <template>".
+# With prod, a new database copies s2s_prod_anon when it exists. Its own
+# migration journal is production's, so the migrate below applies only the
+# migrations production has not run yet.
 ensure_db() {
-  local name=$1 global=$HOME/.agents/skills/dev-loop/scripts/db-template.sh copied
+  local name=$1 prod=${2:-} global=$HOME/.agents/skills/dev-loop/scripts/db-template.sh copied
   if db_exists "$name"; then
     echo reused
+    return
+  fi
+  if [ -n "$prod" ] && [ -z "$no_prod_data" ] && db_exists "$prod_template"; then
+    psql "$pg_admin" -qc "create database $name template $prod_template" >/dev/null \
+      || die "could not copy $prod_template into $name"
+    echo "copied $prod_template"
     return
   fi
   if [ -z "${RUN_DEV_SERVER_NO_TEMPLATE:-}" ] && [ -x "$global" ]; then
@@ -75,7 +95,7 @@ ensure_db() {
   echo new
 }
 
-state=$(ensure_db "$db")
+state=$(ensure_db "$db" prod)
 test_state=$(ensure_db "$test_db")
 
 # The root clone's DATABASE_URL may name Cameron's database; this copy must
