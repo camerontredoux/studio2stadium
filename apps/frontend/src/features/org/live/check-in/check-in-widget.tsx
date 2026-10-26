@@ -20,7 +20,7 @@ import {
   type ScannedDancer,
   type ScanOutcome,
 } from "@/features/org/live/check-in/inline-scanner";
-import { SelfCheckInButton } from "@/features/org/live/check-in/self-check-in-button";
+import { SelfCheckInToggle } from "@/features/org/live/check-in/self-check-in-toggle";
 import { SelfCheckInNotice } from "@/features/org/live/check-in/self-check-in-notice";
 
 type CheckInWidgetPartProps = { slug: string; eventId: string };
@@ -239,11 +239,10 @@ export function CheckInWidget({
       }
       actions={
         enabled && (
-          <SelfCheckInButton
+          <SelfCheckInToggle
             slug={slug}
             eventId={eventId}
             selfCheckIn={selfCheckIn}
-            size="sm"
           />
         )
       }

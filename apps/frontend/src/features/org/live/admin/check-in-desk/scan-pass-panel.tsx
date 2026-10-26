@@ -5,7 +5,7 @@ import {
   InlineScanner,
   type ScanOutcome,
 } from "@/features/org/live/check-in/inline-scanner";
-import { SelfCheckInButton } from "@/features/org/live/check-in/self-check-in-button";
+import { SelfCheckInToggle } from "@/features/org/live/check-in/self-check-in-toggle";
 import { SelfCheckInNotice } from "@/features/org/live/check-in/self-check-in-notice";
 
 export interface ScanPassPanelProps {
@@ -21,7 +21,7 @@ export interface ScanPassPanelProps {
 
 /**
  * The desk's "Scan pass" panel: the shared inline scanner at its large size,
- * and the button that turns the event's Self check-in on and off. The camera starts as soon as the desk
+ * and the switch that turns the event's Self check-in on and off. The camera starts as soon as the desk
  * opens and stops when it closes; every result that names a dancer flashes
  * their row in the list. With self check-in on there is no camera, only a
  * note that dancers check themselves in.
@@ -46,7 +46,7 @@ export function ScanPassPanel({
       <PanelHead
         label="Scan pass"
         actions={
-          <SelfCheckInButton
+          <SelfCheckInToggle
             slug={slug}
             eventId={eventId}
             selfCheckIn={selfCheckIn}
