@@ -115,6 +115,9 @@ function DancerSheetContent({
 
   const name = `${dancer.firstName} ${dancer.lastName}`.trim();
   const meta = [
+    dancer.profilePhotoUrl && dancer.bibNumber != null
+      ? `Bib ${dancer.bibNumber}`
+      : null,
     dancer.gradYear ? `Class of ${dancer.gradYear}` : null,
     dancer.studio,
     dancer.location ?? dancer.state,
