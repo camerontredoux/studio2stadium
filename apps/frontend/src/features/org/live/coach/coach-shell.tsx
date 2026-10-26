@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { ShellHeader } from "@/components/event/shell";
 import { CoachSidebar } from "@/features/org/components/coach-sidebar";
-import { PreviewModeBanner } from "@/features/org/components/preview-mode-banner";
+import { ViewAsIndicator } from "@/features/org/components/view-as-indicator";
 import { useOrg } from "@/features/org/context/use-org";
 import { ActiveEventScope } from "@/features/org/live/shared/active-event-scope";
 import { DancerDialogProvider } from "@/features/org/live/shared/dancer-dialog";
@@ -25,10 +25,16 @@ function CoachFrame({ children }: { children: ReactNode }) {
         phoneBrand={
           <OrgSidebarBrand dashboardTo="/o/$orgSlug/coach/event-info" />
         }
+        viewAs={(placement) => (
+          <ViewAsIndicator
+            role="coach"
+            orgSlug={org.slug}
+            placement={placement}
+          />
+        )}
         fallbackHeader={<ShellHeader title={event?.name ?? org.name} />}
         dock={<EventPhoneDock items={items} />}
       >
-        <PreviewModeBanner role="coach" orgSlug={org.slug} />
         {children}
       </AreaShellFrame>
     </DancerDialogProvider>
@@ -37,7 +43,7 @@ function CoachFrame({ children }: { children: ReactNode }) {
 
 /**
  * The coach area frame: sidebar (brand, Dashboard, Dancers, FAQ, person
- * menu), phone brand row and dock, the admin preview banner, and the shared
+ * menu), phone brand row and dock, the admin view-as indicator, and the shared
  * dancer dialog (coach view). Pages set their header and rail with `ShellPage`.
  */
 export function CoachAreaShell({ children }: { children: ReactNode }) {
