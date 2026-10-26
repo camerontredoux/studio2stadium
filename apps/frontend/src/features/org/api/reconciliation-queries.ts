@@ -60,6 +60,10 @@ export const reconciliationQueries = {
         return data;
       },
       initialPageParam: 0,
+      // Drop a list once nothing shows it. Returning to a stale cached list
+      // refetches every page it had loaded (121 requests for a deep audit
+      // scroll); a fresh one loads page 0 and pages on as it scrolls.
+      gcTime: 0,
       getNextPageParam: (lastPage, pages) =>
         pages.length * pageSize < lastPage.total ? pages.length : undefined,
     }),
@@ -94,6 +98,10 @@ export const reconciliationQueries = {
         return data;
       },
       initialPageParam: 0,
+      // Drop a list once nothing shows it. Returning to a stale cached list
+      // refetches every page it had loaded (121 requests for a deep audit
+      // scroll); a fresh one loads page 0 and pages on as it scrolls.
+      gcTime: 0,
       getNextPageParam: (lastPage, pages) =>
         pages.length * pageSize < lastPage.total ? pages.length : undefined,
     }),
