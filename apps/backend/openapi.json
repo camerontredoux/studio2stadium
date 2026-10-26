@@ -5947,6 +5947,113 @@
         ]
       }
     },
+    "/orgs/{slug}/schools/page": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "eventId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdSchoolsPageResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org School Selections"
+        ],
+        "summary": "List a page of schools",
+        "description": "A page of the org's schools, one per school, by name. `search` matches the school or coach name."
+      }
+    },
     "/orgs/{slug}/my-selections": {
       "get": {
         "parameters": [
@@ -18978,6 +19085,77 @@
           ]
         }
       },
+      "OrgsIdSchoolsPageResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "rosterId": {
+                  "type": "string"
+                },
+                "organization": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "username": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "avatarUrl": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "isTopSchool": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "rosterId",
+                "organization",
+                "firstName",
+                "lastName",
+                "username",
+                "avatarUrl",
+                "isTopSchool"
+              ]
+            }
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total"
+        ]
+      },
       "OrgsIdMyselectionsResponse": {
         "type": "array",
         "items": {
@@ -18987,6 +19165,12 @@
               "type": "string"
             },
             "createdAt": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
               "type": "string"
             },
             "organization": {
@@ -19009,6 +19193,8 @@
           "required": [
             "id",
             "createdAt",
+            "firstName",
+            "lastName",
             "organization",
             "coachRosterId",
             "rank"
@@ -19114,6 +19300,12 @@
             "createdAt": {
               "type": "string"
             },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
             "organization": {
               "oneOf": [
                 {
@@ -19134,6 +19326,8 @@
           "required": [
             "id",
             "createdAt",
+            "firstName",
+            "lastName",
             "organization",
             "coachRosterId",
             "rank"

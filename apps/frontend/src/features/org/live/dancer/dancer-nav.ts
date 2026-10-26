@@ -3,7 +3,7 @@ import {
   QuestionIcon,
   SquaresFourIcon,
 } from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useLocation } from "@tanstack/react-router";
 
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
@@ -16,8 +16,9 @@ export function useDancerNav(): EventNavItem[] {
   const { org } = useOrg();
   const { event } = useActiveOrgEvent();
   const pathname = useLocation({ select: (location) => location.pathname });
-  const schools = useQuery({
-    ...scoutingQueries.schools(org.slug, event?.id),
+  // The first page carries the total, and Top choices on the dashboard shares it.
+  const schools = useInfiniteQuery({
+    ...scoutingQueries.schoolPages(org.slug, event?.id),
     enabled: !!event,
     retry: false,
   });
@@ -37,7 +38,7 @@ export function useDancerNav(): EventNavItem[] {
       label: "Coaches",
       icon: ChalkboardTeacherIcon,
       to: "/o/$orgSlug/dancer/coaches",
-      count: schools.data?.length,
+      count: schools.data?.pages[0]?.total,
       current: path.startsWith(`${base}/coaches`),
     },
     {

@@ -5632,6 +5632,61 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/schools/page": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List a page of schools
+         * @description A page of the org's schools, one per school, by name. `search` matches the school or coach name.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    search?: string | null;
+                    eventId?: string | null;
+                    limit?: (string | number) | null;
+                    page?: (string | number) | null;
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdSchoolsPageResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/my-selections": {
         parameters: {
             query?: never;
@@ -13101,9 +13156,23 @@ export interface components {
             avatarUrl: string | null;
             isTopSchool: boolean;
         }[];
+        OrgsIdSchoolsPageResponse: {
+            data: {
+                rosterId: string;
+                organization: string | null;
+                firstName: string;
+                lastName: string;
+                username: string | null;
+                avatarUrl: string | null;
+                isTopSchool: boolean;
+            }[];
+            total: number;
+        };
         OrgsIdMyselectionsResponse: {
             id: string;
             createdAt: string;
+            firstName: string;
+            lastName: string;
             organization: string | null;
             coachRosterId: string;
             rank: number;
@@ -13134,6 +13203,8 @@ export interface components {
         OrgsIdMyselectionsIdMoveResponse: {
             id: string;
             createdAt: string;
+            firstName: string;
+            lastName: string;
             organization: string | null;
             coachRosterId: string;
             rank: number;

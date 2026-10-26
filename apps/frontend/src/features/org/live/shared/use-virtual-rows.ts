@@ -11,7 +11,8 @@ import { useIsPhone } from "@/features/org/live/admin/rosters/use-is-phone";
  *
  * From the desk breakpoint up the rows scroll in `scrollRef`; at phone width
  * the page itself scrolls, so they follow the window, offset by where `list`
- * starts on the page.
+ * starts on the page. With `boxOnly` the rows scroll in `scrollRef` at every
+ * width, below whatever else the box holds above `list`.
  */
 export function useVirtualRows({
   count,
@@ -22,6 +23,7 @@ export function useVirtualRows({
   loadingMore,
   onLoadMore,
   resetKey,
+  boxOnly = false,
 }: {
   count: number;
   scrollRef: RefObject<HTMLElement | null>;
@@ -33,13 +35,29 @@ export function useVirtualRows({
   onLoadMore?: () => void;
   /** A change (new tab, search, filter or sort) starts the list again from the top. */
   resetKey?: unknown;
+  /** Scroll in `scrollRef` on phones too, for a list inside a fixed-height box. */
+  boxOnly?: boolean;
 }) {
-  const phone = useIsPhone();
+  const phone = useIsPhone() && !boxOnly;
   const [listTop, setListTop] = useState(0);
   useLayoutEffect(() => {
     if (phone && list)
       setListTop(list.getBoundingClientRect().top + window.scrollY);
   }, [phone, list]);
+  // In a box, content above the list (Top choices' ranked slots) can change
+  // height on any render, so measure where the list starts every time. An
+  // unchanged value doesn't render again.
+  const [boxTop, setBoxTop] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- runs every render
+  useLayoutEffect(() => {
+    const box = scrollRef.current;
+    if (!boxOnly || !list || !box) return;
+    setBoxTop(
+      list.getBoundingClientRect().top -
+        box.getBoundingClientRect().top +
+        box.scrollTop,
+    );
+  });
 
   const inBox = useVirtualizer({
     count,
@@ -47,6 +65,7 @@ export function useVirtualRows({
     getScrollElement: () => scrollRef.current,
     estimateSize: () => estimate,
     overscan: 10,
+    scrollMargin: boxTop,
   });
   const inWindow = useWindowVirtualizer({
     count,
@@ -78,7 +97,7 @@ export function useVirtualRows({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run only on a reset
   }, [reset]);
   const items = virtualizer.getVirtualItems();
-  const margin = phone ? listTop : 0;
+  const margin = phone ? listTop : boxTop;
   const first = items[0];
   const last = items.at(-1);
 

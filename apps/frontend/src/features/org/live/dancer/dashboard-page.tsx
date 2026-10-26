@@ -65,7 +65,7 @@ function Dashboard({
   roster: MyRoster | null;
 }) {
   const { hasFeature } = useOrg();
-  const scouting = useDancerScouting(event, roster);
+  const scouting = useDancerScouting(event, roster, { allSchools: false });
   const enabled = (widget: (typeof WIDGETS)[number]) =>
     !("feature" in widget) || hasFeature(widget.feature);
   const order = [
