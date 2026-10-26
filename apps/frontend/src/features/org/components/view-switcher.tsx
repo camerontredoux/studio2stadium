@@ -31,6 +31,10 @@ import {
   MenuSeparator,
   MenuTrigger,
 } from "@/components/event/menu";
+import {
+  viewForPathname,
+  type View,
+} from "@/features/org/components/current-view";
 import { ShellSidebarUser } from "@/components/event/shell";
 import { toastManager } from "@/components/ui/toast-manager";
 import { orgQueries } from "@/features/org/api/queries";
@@ -39,8 +43,6 @@ import { useOrgTheme, type OrgTheme } from "@/features/org/hooks/use-org-theme";
 import { client } from "@/lib/api/client";
 import { grantsOrgAdmin } from "@/lib/access";
 import { useSession } from "@/lib/session";
-
-type View = "Admin" | "Coach" | "Dancer";
 
 const VIEWS = [
   { view: "Admin", icon: ShieldCheckIcon },
@@ -101,11 +103,7 @@ export function ViewSwitcher({
 
   const canSwitchView = grantsOrgAdmin(membership) || session.role === "admin";
 
-  const current: View = location.pathname.includes("/admin")
-    ? "Admin"
-    : location.pathname.includes("/coach")
-      ? "Coach"
-      : "Dancer";
+  const current = viewForPathname(location.pathname);
 
   async function handleSelect(view: View) {
     if (view === current) return;
