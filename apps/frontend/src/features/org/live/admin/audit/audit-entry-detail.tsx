@@ -55,8 +55,10 @@ function metaLine(
 // Child rows: chevron, action, summary, time. The rows' own 14px side padding
 // is cancelled by a matching negative margin (the grid carries the padding), so
 // a subgrid's edge tracks keep their width instead of losing it to the padding.
+// Phones drop the action track: action and time share the first line and the
+// summary wraps below.
 const childGrid =
-  "grid grid-cols-[16px_112px_minmax(0,1fr)_max-content] gap-x-(--space-12) px-(--space-14)";
+  "grid grid-cols-[16px_112px_minmax(0,1fr)_max-content] gap-x-(--space-12) px-(--space-14) bp-phone:grid-cols-[16px_minmax(0,1fr)_max-content] bp-phone:gap-x-(--space-10)";
 
 function ChildEntries({
   entry,
@@ -101,22 +103,22 @@ function ChildEntries({
               <AuditLogRow
                 key={child.id}
                 className="-mx-(--space-14)"
-                rowClassName="min-h-9 bg-transparent"
+                rowClassName="min-h-9 bg-transparent bp-phone:gap-y-(--space-2) bp-phone:py-(--space-8)"
                 summary={
                   <>
                     <span
                       className={cn(
-                        "type-label truncate",
+                        "type-label bp-phone:col-start-2 bp-phone:row-start-1 truncate",
                         action === "delete" ? "text-danger" : "text-fg",
                       )}
                     >
                       {ACTION_LABELS[action]}
                     </span>
-                    <span className="text-fg-2 truncate">
+                    <span className="text-fg-2 bp-phone:col-[2/-1] bp-phone:row-start-2 bp-phone:whitespace-normal bp-phone:[overflow-wrap:anywhere] truncate">
                       {summarizeEntry(child, timeZone)}
                     </span>
                     <span
-                      className="type-data-sm text-fg-3 whitespace-nowrap"
+                      className="type-data-sm text-fg-3 bp-phone:col-start-3 bp-phone:row-start-1 whitespace-nowrap"
                       title={absoluteTime(child.createdAt, timeZone)}
                     >
                       {relativeTime(child.createdAt, now)}
@@ -164,7 +166,9 @@ export function AuditEntryDetail({
   return (
     <div className="flex flex-col gap-(--space-10)">
       <div className="flex flex-wrap items-center gap-x-(--space-10) gap-y-(--space-6)">
-        <span className="type-meta text-fg-3">{metaLine(entry, timeZone)}</span>
+        <span className="type-meta text-fg-3 [overflow-wrap:anywhere]">
+          {metaLine(entry, timeZone)}
+        </span>
         {subject && (
           <DancerBib
             variant="chip"
