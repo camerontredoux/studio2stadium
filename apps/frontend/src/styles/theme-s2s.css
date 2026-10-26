@@ -35,7 +35,7 @@
   Breakpoint variants: bp-sidebar: (≤1360) bp-board: (≤1180) bp-rail: (≤1000)
   bp-phone: (≤800) bp-small: (≤480) desk: (≥801). Inclusive, unlike max-[1000px].
 
-  Other utilities: s2s-ground (bg-100 under the dot grid), s2s-focus (the 2px fg focus
+  Other utilities: s2s-ground (the bg-100 page ground), s2s-focus (the 2px fg focus
   outline), s2s-input-size (16px on phones, 12.5px above).
 
   Shell layout (sidebar, header, body grid, rail, widget board, widget, dock) and every
@@ -257,7 +257,7 @@
   --input: var(--line-control);
   --ring: var(--fg);
   --radius: 6px;
-  /* Transparent so the dot-grid ground shows through, as in the design. */
+  /* Transparent so the page ground shows through. */
   --sidebar: transparent;
   --sidebar-foreground: var(--fg-2);
   --sidebar-primary: var(--fg);
@@ -484,13 +484,6 @@ html:not(.dark) .theme-s2s {
 /* ── Helpers ── */
 @utility s2s-ground {
   background-color: var(--bg-100);
-  background-image: radial-gradient(
-    circle,
-    var(--dot-grid) 1px,
-    transparent 1.3px
-  );
-  background-size: 14px 14px;
-  background-position: 7px 7px;
 }
 /* Keyboard focus: a solid 2px fg outline with a 2px offset. */
 @utility s2s-focus {
@@ -529,13 +522,6 @@ html:not(.dark) .theme-s2s {
     font-size: 13px;
     line-height: 1.4;
     background-color: var(--bg-100);
-    background-image: radial-gradient(
-      circle,
-      var(--dot-grid) 1px,
-      transparent 1.3px
-    );
-    background-size: 14px 14px;
-    background-position: 7px 7px;
   }
 
   /* ── Sidebar ── */
