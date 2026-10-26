@@ -1128,29 +1128,45 @@ html:not(.dark) .theme-s2s {
     box-shadow: var(--shadow-panel);
     transition: border-color 0.2s;
     scroll-margin-top: 8px;
+    /* The board resizes every widget on each frame of an open or close; keep that layout and paint inside the widget. */
+    contain: layout paint;
   }
   .s2s-widget[data-state="peek"]:hover,
   .s2s-widget[data-state="strip"]:hover {
     border-color: var(--line-hover);
   }
+  /* Hidden layers skip rendering once faded out, so the board's animation doesn't lay out their content every frame. */
   .s2s-widget-layer {
     position: absolute;
     inset: 0;
     box-sizing: border-box;
     opacity: 0;
     visibility: hidden;
+    content-visibility: hidden;
     transition:
       opacity 0.15s ease,
-      visibility 0s linear 0.15s;
+      visibility 0s linear 0.15s,
+      content-visibility 0s linear 0.15s;
+    transition-behavior: allow-discrete;
   }
   .s2s-widget[data-state="peek"] > .s2s-widget-peek,
   .s2s-widget[data-state="strip"] > .s2s-widget-strip,
   .s2s-widget[data-state="open"] > .s2s-widget-full {
     opacity: 1;
     visibility: visible;
+    content-visibility: visible;
     transition:
       opacity 0.3s ease 0.25s,
-      visibility 0s;
+      visibility 0s,
+      content-visibility 0s;
+    transition-behavior: allow-discrete;
+  }
+  /* While the board animates, the open panel keeps the size it last settled at (set by
+     WidgetBoard) and the widget clips it, so its content lays out once instead of every frame. */
+  .s2s-board[data-anim][data-open-size] .s2s-widget-full {
+    inset: 0 auto auto 0;
+    width: var(--open-panel-w);
+    height: var(--open-panel-h);
   }
   button.s2s-widget-layer {
     display: flex;

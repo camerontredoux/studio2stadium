@@ -130,6 +130,34 @@ function WidgetBoard({
     [notify, scrollInStep],
   );
 
+  // Record the open panel's settled size (`--open-panel-w`/`-h`) so the next
+  // animation can hold the panel at it instead of laying it out every frame.
+  // A board resize with nothing open makes the record stale, so drop it.
+  React.useEffect(() => {
+    const board = boardRef.current;
+    if (!board || anim) return;
+    if (openId === null) {
+      let first = true;
+      const ro = new ResizeObserver(() => {
+        if (first) first = false;
+        else delete board.dataset.openSize;
+      });
+      ro.observe(board);
+      return () => ro.disconnect();
+    }
+    const widget = board.querySelector<HTMLElement>(
+      '.s2s-widget[data-state="open"]',
+    );
+    if (!widget) return;
+    const ro = new ResizeObserver(() => {
+      board.style.setProperty("--open-panel-w", `${widget.clientWidth}px`);
+      board.style.setProperty("--open-panel-h", `${widget.clientHeight}px`);
+      board.dataset.openSize = "";
+    });
+    ro.observe(widget);
+    return () => ro.disconnect();
+  }, [anim, openId]);
+
   const ctx = React.useMemo(
     () => ({ order, openId, animating: anim, setOpen }),
     [order, openId, anim, setOpen],

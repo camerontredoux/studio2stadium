@@ -84,23 +84,23 @@ function ScheduleSheet() {
 function SchedulePreview({
   fileUrl,
   isPdf,
-  settled,
+  mounted,
 }: {
   fileUrl: string;
   isPdf: boolean;
-  /** False while the widget opens; the file mounts once it has its final size. */
-  settled: boolean;
+  /** False until the widget first settles open; the file loads from then on. */
+  mounted: boolean;
 }) {
   const [loaded, setLoaded] = useState(false);
 
   return (
     <div className="bg-bg-150 relative h-full min-h-[320px]">
-      {(!settled || !loaded) && (
+      {(!mounted || !loaded) && (
         <div className="type-body text-fg-2 absolute inset-0 flex items-center justify-center gap-(--space-8)">
           <BusyLabel label="Loading schedule…" />
         </div>
       )}
-      {!settled ? null : isPdf ? (
+      {!mounted ? null : isPdf ? (
         <iframe
           src={fileUrl}
           title="Event schedule"
@@ -132,12 +132,14 @@ function ScheduleWidget({ event, mode, id = "schedule" }: ScheduleWidgetProps) {
   const [progress, setProgress] = useState<number | null>(null);
   const [confirmRemove, setConfirmRemove] = useState(false);
   const replaceInput = useRef<HTMLInputElement>(null);
-  // The board keeps every layer in the DOM and animates its tracks on open and
-  // close. A mounted PDF viewer re-lays out on every frame of that, so the file
-  // mounts only once the widget is open and settled, and unmounts as it closes.
+  // The board keeps every layer in the DOM, so the file would otherwise load
+  // and start the browser's PDF viewer on dashboard load. Mount it once the
+  // widget first settles open, after its animation, and keep it so reopening
+  // shows it at once. The board holds the open panel's size while it animates.
   const slot = useWidgetBoardSlot(id);
-  const isOpen = slot ? slot.state === "open" : true;
-  const settled = slot ? !slot.animating : true;
+  const settledOpen = slot ? slot.state === "open" && !slot.animating : true;
+  const [previewMounted, setPreviewMounted] = useState(false);
+  if (settledOpen && !previewMounted) setPreviewMounted(true);
 
   const scheduleKey = event.schedulePdfUrl;
   const fileUrl = scheduleKey ? scheduleFileUrl(orgSlug, event.id) : null;
@@ -282,15 +284,13 @@ function ScheduleWidget({ event, mode, id = "schedule" }: ScheduleWidgetProps) {
   } else if (fileUrl && scheduleKey) {
     body = (
       <div className="relative h-full">
-        {isOpen && (
-          <SchedulePreview
-            // The URL stays the same across a replace; a new key reloads the file.
-            key={scheduleKey}
-            fileUrl={fileUrl}
-            isPdf={scheduleKey.toLowerCase().endsWith(".pdf")}
-            settled={settled}
-          />
-        )}
+        <SchedulePreview
+          // The URL stays the same across a replace; a new key reloads the file.
+          key={scheduleKey}
+          fileUrl={fileUrl}
+          isPdf={scheduleKey.toLowerCase().endsWith(".pdf")}
+          mounted={previewMounted}
+        />
         {uploading && progress !== null && (
           <div className="bg-surface border-line absolute inset-x-0 bottom-0 border-t p-(--space-12)">
             <ProgressBar value={progress} label="Uploading schedule" />
