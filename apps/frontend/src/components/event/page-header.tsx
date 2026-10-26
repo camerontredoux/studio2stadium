@@ -3,7 +3,7 @@ import * as React from "react";
 
 import { cn } from "@/components/utils/cn";
 
-/** Content every `PageHeader` shows before everything else, set by the area shell. */
+/** Content every `PageHeader` shows just before its actions, set by the area shell. */
 const PageHeaderEndContext = React.createContext<React.ReactNode>(null);
 
 type PageHeaderCrumb = {
@@ -59,7 +59,6 @@ function PageHeader({
   const end = React.useContext(PageHeaderEndContext);
   return (
     <header className={cn("s2s-header", className)} {...props}>
-      {end}
       {crumb && <Crumb {...crumb} />}
       <h1 className="s2s-header-title">{title}</h1>
       {status !== undefined && (
@@ -71,6 +70,7 @@ function PageHeader({
         </div>
       )}
       <span className="s2s-header-spacer" />
+      {end}
       {actions !== undefined && (
         <div className="s2s-header-actions">{actions}</div>
       )}

@@ -20,7 +20,7 @@ import {
 type AreaShellFrameProps = Omit<EventShellProps, "header" | "rail"> & {
   /** Shown until a page renders its own header through `ShellPage`. */
   fallbackHeader: ReactNode;
-  /** The admin "viewing as" indicator, shown at the start of the header (desktop) and the phone brand row. */
+  /** The admin "viewing as" indicator, shown before the header buttons (desktop) and the phone brand row. */
   viewAs?: (placement: "header" | "phone") => ReactNode;
 };
 
