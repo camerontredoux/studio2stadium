@@ -63,31 +63,30 @@ function CheckInDesk({ orgSlug, event }: { orgSlug: string; event: OrgEvent }) {
     const name = dancerName(entry);
     setPendingIds((ids) => new Set(ids).add(entry.id));
     flashRow(entry.id);
-    toggle.mutate(
-      {
+    // `mutate`'s own callbacks fire only for the latest call, so a quick
+    // second toggle would leave the first row pending; each promise settles.
+    toggle
+      .mutateAsync({
         slug: orgSlug,
         eventId: event.id,
         rosterId: entry.id,
         currentlyCheckedIn,
-      },
-      {
-        onError: () => {
-          toastManager.add({
-            title: currentlyCheckedIn
-              ? `Couldn’t undo the check-in for ${name}`
-              : `Couldn’t check in ${name}`,
-            type: "error",
-          });
-        },
-        onSettled: () => {
-          setPendingIds((ids) => {
-            const next = new Set(ids);
-            next.delete(entry.id);
-            return next;
-          });
-        },
-      },
-    );
+      })
+      .catch(() => {
+        toastManager.add({
+          title: currentlyCheckedIn
+            ? `Couldn’t undo the check-in for ${name}`
+            : `Couldn’t check in ${name}`,
+          type: "error",
+        });
+      })
+      .finally(() => {
+        setPendingIds((ids) => {
+          const next = new Set(ids);
+          next.delete(entry.id);
+          return next;
+        });
+      });
   };
 
   const startTime = desk.status?.eventStartTime?.slice(0, 5);
