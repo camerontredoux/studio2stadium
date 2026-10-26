@@ -303,7 +303,7 @@ function RosterCell({
       return (
         <DataTableCell
           kind="status"
-          className={cn(row.paid ? "text-fg" : "text-fg-3", phone)}
+          className={cn(row.paid ? "text-count" : "text-fg-3", phone)}
         >
           {row.paid == null ? "—" : row.paid ? "Paid" : "Unpaid"}
         </DataTableCell>

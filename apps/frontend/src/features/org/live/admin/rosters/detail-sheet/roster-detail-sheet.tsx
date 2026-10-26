@@ -473,7 +473,7 @@ function RosterSheet({
               {showPaid && (
                 <DetailSheetRow label="Access">
                   <span className="flex min-w-0 flex-col">
-                    <span className="type-body text-fg">
+                    <span className={cn("type-body", paid ? "text-count" : "text-fg")}>
                       {paid ? "Paid" : "Unpaid"}
                     </span>
                     <span className="type-caption text-fg-3">
