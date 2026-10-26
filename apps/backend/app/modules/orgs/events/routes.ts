@@ -69,6 +69,7 @@ const ResetCheckInController = () =>
 const CheckInStatusController = () => import("./check-in/status-controller.ts");
 const ScanCheckInController = () => import("./check-in/scan/controller.ts");
 const ScheduleController = () => import("./schedule/controller.ts");
+const ScheduleFileController = () => import("./schedule-file/controller.ts");
 const TestEmailsController = () => import("./test-emails/controller.ts");
 
 router
@@ -419,6 +420,19 @@ router
         middleware.orgEvent("dancerSelfRead"),
         middleware.orgMember(),
       ]);
+    router
+      .get(":slug/events/:id/schedule/file", [ScheduleFileController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgEvent("dancerSelfRead"),
+        middleware.orgMember(),
+      ])
+      .openapi({
+        summary: "Get an Org Event's schedule file",
+        description:
+          "Streams the schedule file through the API, for clients that render it in the page and cannot follow the schedule route's redirect to storage. 404 when the Org Event has no schedule.",
+      });
 
     // Video categories
     router
