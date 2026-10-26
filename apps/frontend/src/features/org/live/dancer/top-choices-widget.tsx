@@ -13,6 +13,7 @@ import { Label } from "@/components/event/label";
 import { Widget } from "@/components/event/shell";
 import { Tag } from "@/components/event/tag";
 import { cn } from "@/components/utils/cn";
+import { PersonAvatar } from "@/features/org/live/shared/person-avatar";
 
 import {
   buildCoachRows,
@@ -211,6 +212,12 @@ function TopChoicesBody({
             key={row.school.rosterId}
             className="border-line-soft flex min-h-11 items-center gap-(--space-12) border-b pr-(--space-8) pl-(--space-14)"
           >
+            <PersonAvatar
+              firstName={row.school.firstName}
+              lastName={row.school.lastName}
+              src={row.school.avatarUrl}
+              className="size-6"
+            />
             <span className="flex min-w-0 flex-1 flex-col gap-px">
               <span className="truncate">{row.name}</span>
               {row.coach && (
