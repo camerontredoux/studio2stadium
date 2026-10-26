@@ -1,99 +1,118 @@
-import { useQueries, useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import { checkInQueries } from "@/features/org/api/check-in-queries";
 import {
-  type RosterEntry,
-  type RosterListParams,
+  ROSTER_LIST_KEY_PREFIX,
+  ROSTER_STATS_KEY_PREFIX,
   rosterQueries,
 } from "@/features/org/api/roster-queries";
+import {
+  useTransmitStatus,
+  useTransmitSubscription,
+} from "@/features/org/hooks/use-transmit";
 
-import { countDesk } from "./desk-list";
+/** Rows per page of each desk list. */
+export const DESK_PAGE_SIZE = 50;
 
-/** Check-in and roster changes have no realtime broadcast, so the desk polls. */
-const POLL_MS = 10_000;
+/** Check-ins arrive in bursts at the door; one refetch covers a burst. */
+const LIVE_REFRESH_MS = 500;
 
-/** The largest page the roster list endpoint accepts (its validator caps `limit` at 200). */
-export const DESK_PAGE_SIZE = 200;
+/**
+ * Refetches the roster lists and stats when a check-in changes anywhere: at
+ * another desk, by scan, or on a dancer's own pass. Only the pages already
+ * loaded refetch. A dropped connection misses broadcasts, so the desk also
+ * refetches once it reconnects.
+ */
+function useLiveCheckIns(slug: string) {
+  const qc = useQueryClient();
+  const timer = useRef<number | undefined>(undefined);
+  const refresh = useCallback(() => {
+    if (timer.current !== undefined) return;
+    timer.current = window.setTimeout(() => {
+      timer.current = undefined;
+      void qc.invalidateQueries({ queryKey: [...ROSTER_LIST_KEY_PREFIX] });
+      void qc.invalidateQueries({ queryKey: [...ROSTER_STATS_KEY_PREFIX] });
+    }, LIVE_REFRESH_MS);
+  }, [qc]);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
 
-function pageParams(page: number): RosterListParams {
-  return {
-    type: "dancer",
-    page,
-    limit: DESK_PAGE_SIZE,
-    sortBy: "lastName",
-    sortDir: "asc",
-  };
-}
+  useTransmitSubscription(`orgs/${slug}/check-in`, refresh);
 
-type ListPage = { data?: { data: RosterEntry[] } };
-
-// Module-level so TanStack Query keeps the combined result stable between
-// renders while no page changes.
-function combinePages(pages: ListPage[]): RosterEntry[] {
-  return pages.flatMap((page) => page.data?.data ?? []);
+  const status = useTransmitStatus();
+  const dropped = useRef(false);
+  useEffect(() => {
+    if (status === "disconnected" || status === "reconnecting") {
+      dropped.current = true;
+    } else if (status === "connected" && dropped.current) {
+      dropped.current = false;
+      refresh();
+    }
+  }, [status, refresh]);
 }
 
 /**
- * Every dancer on the event's roster (paged through at 200 a page), the roster
- * stats and the check-in status, all polled every 10s. The list queries share
- * the roster list cache, so `useAdminCheckInToggle`'s optimistic update shows
- * on the desk at once.
+ * The desk's tally (the roster stats, counted on the server) and the event's
+ * check-in status, kept live by `useLiveCheckIns`.
  */
 export function useDeskData(slug: string, eventId: string) {
-  const first = useQuery({
-    ...rosterQueries.list(slug, eventId, pageParams(0)),
-    refetchInterval: POLL_MS,
-  });
+  useLiveCheckIns(slug);
+  const stats = useQuery(rosterQueries.stats(slug, eventId, "dancer"));
+  const status = useQuery(checkInQueries.status(slug, eventId));
 
-  const pageCount = first.data
-    ? Math.max(1, Math.ceil(first.data.total / DESK_PAGE_SIZE))
-    : 1;
-
-  const restRows = useQueries({
-    queries: Array.from({ length: pageCount - 1 }, (_, i) => ({
-      ...rosterQueries.list(slug, eventId, pageParams(i + 1)),
-      refetchInterval: POLL_MS,
-    })),
-    combine: combinePages,
-  });
-
-  const stats = useQuery({
-    ...rosterQueries.stats(slug, eventId, "dancer"),
-    refetchInterval: POLL_MS,
-  });
-
-  const status = useQuery({
-    ...checkInQueries.status(slug, eventId),
-    refetchInterval: POLL_MS,
-  });
-
-  const dancers = useMemo(() => {
-    const seen = new Set<string>();
-    const all: RosterEntry[] = [];
-    for (const entry of [...(first.data?.data ?? []), ...restRows]) {
-      // A dancer added or removed between page fetches can shift a row
-      // across a page boundary; keep the first copy.
-      if (seen.has(entry.id)) continue;
-      seen.add(entry.id);
-      all.push(entry);
-    }
-    return all;
-  }, [first.data, restRows]);
-
-  // The stats endpoint is the source of truth for the totals; until it loads,
-  // count the rows we have.
-  const listCounts = countDesk(dancers);
-  const total = stats.data?.total ?? listCounts.total;
-  const checkedIn = stats.data?.checkedIn ?? listCounts.checkedIn;
-
+  const total = stats.data?.total ?? 0;
+  const checkedIn = stats.data?.checkedIn ?? 0;
   return {
-    dancers,
     total,
     checkedIn,
     notYet: Math.max(0, total - checkedIn),
-    isLoading: first.isPending,
-    isError: first.isError,
     status: status.data,
   };
+}
+
+/**
+ * One desk list a page at a time: "Not yet" by name, or "Checked in" newest
+ * first. It shares the roster list cache, so `useAdminCheckInToggle`'s
+ * optimistic update moves a row between the lists at once.
+ */
+export function useDeskList(
+  slug: string,
+  eventId: string,
+  {
+    checkedIn,
+    search,
+    enabled,
+  }: { checkedIn: boolean; search: string; enabled: boolean },
+) {
+  const query = useInfiniteQuery({
+    ...rosterQueries.listPages(
+      slug,
+      eventId,
+      {
+        type: "dancer",
+        checkedIn,
+        search: search || undefined,
+        sortBy: checkedIn ? "checkedInAt" : "lastName",
+        sortDir: checkedIn ? "desc" : "asc",
+      },
+      DESK_PAGE_SIZE,
+    ),
+    enabled,
+    placeholderData: keepPreviousData,
+  });
+  const pages = query.data?.pages;
+  const rows = useMemo(() => {
+    const seen = new Set<string>();
+    // A check-in between page fetches shifts a row across a page boundary;
+    // keep the first copy.
+    return (pages ?? [])
+      .flatMap((page) => page.data)
+      .filter((entry) => !seen.has(entry.id) && !!seen.add(entry.id));
+  }, [pages]);
+  return { query, rows, total: pages?.[0]?.total ?? 0 };
 }

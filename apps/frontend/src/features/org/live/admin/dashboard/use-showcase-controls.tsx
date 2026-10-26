@@ -1,11 +1,18 @@
 import { PaperPlaneTiltIcon, SkipForwardIcon } from "@phosphor-icons/react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 
 import { Button } from "@/components/event/button";
 import { Icon } from "@/components/event/icon";
 import { toastManager } from "@/components/ui/toast-manager";
-import { scoutingQueries } from "@/features/org/api/scouting-queries";
+import {
+  ADMIN_CALLBACKS_KEY_PREFIX,
+  scoutingQueries,
+} from "@/features/org/api/scouting-queries";
 import { useTransmitSubscription } from "@/features/org/hooks/use-transmit";
 import { $api } from "@/lib/api/client";
 
@@ -29,14 +36,16 @@ export function useShowcaseControls(
   } = {},
 ) {
   const qc = useQueryClient();
-  const current = useQuery(scoutingQueries.adminCallbacks(orgSlug));
+  // Paged in bib order: the widget's peek needs only the first page, and the
+  // full list loads as it scrolls. A live refresh refetches the loaded pages.
+  const current = useInfiniteQuery(scoutingQueries.adminCallbackPages(orgSlug));
   const showcases = useQuery(scoutingQueries.showcases(orgSlug));
   const [publishOpen, setPublishOpen] = useState(false);
   const [nextOpen, setNextOpen] = useState(false);
 
   const refresh = () => {
     void qc.invalidateQueries({
-      queryKey: scoutingQueries.adminCallbacks(orgSlug).queryKey,
+      queryKey: ADMIN_CALLBACKS_KEY_PREFIX,
     });
     void qc.invalidateQueries({
       queryKey: scoutingQueries.showcases(orgSlug).queryKey,
@@ -72,13 +81,25 @@ export function useShowcaseControls(
     },
   });
 
-  const showcase = current.data?.showcase;
-  const bibs = current.data?.bibs ?? [];
+  const pages = current.data?.pages;
+  const totals = pages?.[0];
+  const showcase = totals?.showcase;
+  const bibs = useMemo(
+    () => pages?.flatMap((page) => page.bibs) ?? [],
+    [pages],
+  );
+  /** Every called-back dancer, loaded or not. */
+  const total = totals?.uniqueCallbacks ?? 0;
+  const more = {
+    hasMore: current.hasNextPage && !current.isFetchNextPageError,
+    loadingMore: current.isFetchingNextPage,
+    onLoadMore: () => void current.fetchNextPage(),
+  };
   const isPublished = showcase?.status === "published";
   // The number Publish will release (each school's top picks), as the confirm shows it.
   const preview = useQuery({
     ...scoutingQueries.publishPreview(orgSlug),
-    enabled: showcase != null && !isPublished && bibs.length > 0,
+    enabled: showcase != null && !isPublished && total > 0,
   });
   const toPublish = preview.data?.totalWillPublish;
   const earlier = (showcases.data ?? [])
@@ -96,13 +117,13 @@ export function useShowcaseControls(
         <Button
           size={size}
           variant={primary ? "primary" : "secondary"}
-          disabled={bibs.length === 0}
-          title={bibs.length === 0 ? "No callbacks to publish yet" : undefined}
+          disabled={total === 0}
+          title={total === 0 ? "No callbacks to publish yet" : undefined}
           onClick={() => setPublishOpen(true)}
         >
           <Icon icon={PaperPlaneTiltIcon} />
           Publish
-          {bibs.length > 0 && toPublish != null && (
+          {total > 0 && toPublish != null && (
             <span
               className="font-mono tabular-nums opacity-70"
               aria-label={`${toPublish} callbacks`}
@@ -140,8 +161,11 @@ export function useShowcaseControls(
 
   return {
     current,
+    totals,
     showcase,
     bibs,
+    total,
+    more,
     isPublished,
     earlier,
     primaryAction,

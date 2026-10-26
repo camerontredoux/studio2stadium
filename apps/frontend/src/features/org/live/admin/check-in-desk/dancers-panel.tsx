@@ -4,8 +4,9 @@ import {
   QrCodeIcon,
 } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
+import { useDebouncedCallback } from "@/components/hooks/use-debounced-callback";
 import { Button } from "@/components/event/button";
 import { CheckInPass } from "@/components/event/check-in-pass";
 import {
@@ -25,6 +26,7 @@ import { checkInQueries } from "@/features/org/api/check-in-queries";
 import type { RosterEntry } from "@/features/org/api/roster-queries";
 import { useOrg } from "@/features/org/context/use-org";
 import { DancerBib } from "@/features/org/live/shared/dancer-bib";
+import { useVirtualRows } from "@/features/org/live/shared/use-virtual-rows";
 
 import {
   type DeskFilter,
@@ -32,8 +34,8 @@ import {
   dancerName,
   emptyMessage,
   formatCheckInTime,
-  groupDesk,
 } from "./desk-list";
+import { useDeskList } from "./use-desk-data";
 import { useEventTimeZone } from "@/features/org/live/shared/use-event-time-zone";
 
 /** The last row checked in or scanned; a new `n` replays the flash. */
@@ -41,12 +43,9 @@ export type DeskFlash = { id: string; n: number } | null;
 
 export interface DancersPanelProps {
   eventId: string;
-  dancers: RosterEntry[];
   total: number;
   checkedIn: number;
   notYet: number;
-  isLoading: boolean;
-  isError: boolean;
   flash: DeskFlash;
   /** Roster Entry ids with a check-in or undo in flight. */
   pendingIds: ReadonlySet<string>;
@@ -54,29 +53,113 @@ export interface DancersPanelProps {
   onToggle: (entry: RosterEntry) => void;
 }
 
+type DeskItem =
+  | { kind: "group"; key: "out" | "in"; label: string; count: number }
+  | { kind: "dancer"; entry: RosterEntry };
+
+/** A dancer row's height before it's measured (48px plus its border). */
+const ROW_ESTIMATE = 49;
+
 export function DancersPanel({
   eventId,
-  dancers,
   total,
   checkedIn,
   notYet,
-  isLoading,
-  isError,
   flash,
   pendingIds,
   onToggle,
 }: DancersPanelProps) {
+  const { org } = useOrg();
   const [filter, setFilter] = useState<DeskFilter>("all");
   const [query, setQuery] = useState("");
+  // The search the server sees trails the box by a beat, so typing a name
+  // sends one request rather than one per letter. A leading "#" is a bib.
+  const [search, setSearch] = useState("");
+  const commitSearch = useDebouncedCallback(
+    (value: string) => setSearch(value.trim().replace(/^#/, "")),
+    250,
+  );
   const percent = checkInPercent(checkedIn, total);
 
-  const groups = useMemo(
-    () => groupDesk(dancers, { filter, query }),
-    [dancers, filter, query],
-  );
+  const showOut = filter !== "in";
+  const showIn = filter !== "out";
+  const out = useDeskList(org.slug, eventId, {
+    checkedIn: false,
+    search,
+    enabled: showOut,
+  });
+  const checkedInList = useDeskList(org.slug, eventId, {
+    checkedIn: true,
+    search,
+    enabled: showIn,
+  });
+  // Under "All", "Checked in" follows "Not yet", so its rows show once the
+  // last "Not yet" page has loaded.
+  const inShown =
+    showIn && (!showOut || (out.query.isSuccess && !out.query.hasNextPage));
+  const loading =
+    (showOut && out.query.isPending) ||
+    (showIn && checkedInList.query.isPending);
+  const failed =
+    (showOut && out.query.isError && !out.query.isFetchNextPageError) ||
+    (showIn &&
+      checkedInList.query.isError &&
+      !checkedInList.query.isFetchNextPageError);
+
+  const items = useMemo(() => {
+    const list: DeskItem[] = [];
+    if (showOut && out.rows.length > 0) {
+      list.push({
+        kind: "group",
+        key: "out",
+        label: "Not yet",
+        count: out.total,
+      });
+      for (const entry of out.rows) list.push({ kind: "dancer", entry });
+    }
+    if (inShown && checkedInList.rows.length > 0) {
+      list.push({
+        kind: "group",
+        key: "in",
+        label: "Checked in",
+        count: checkedInList.total,
+      });
+      for (const entry of checkedInList.rows) {
+        list.push({ kind: "dancer", entry });
+      }
+    }
+    return list;
+  }, [
+    showOut,
+    out.rows,
+    out.total,
+    inShown,
+    checkedInList.rows,
+    checkedInList.total,
+  ]);
+
+  const more =
+    showOut && out.query.hasNextPage
+      ? out.query
+      : inShown
+        ? checkedInList.query
+        : null;
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [listEl, setListEl] = useState<HTMLUListElement | null>(null);
+  const virtual = useVirtualRows({
+    count: items.length,
+    scrollRef,
+    list: listEl,
+    estimate: ROW_ESTIMATE,
+    hasMore: !!more?.hasNextPage && !more.isFetchNextPageError,
+    loadingMore: !!more?.isFetchingNextPage,
+    onLoadMore: () => void more?.fetchNextPage(),
+    // A new tab, search or filter starts again from the top.
+    resetKey: [filter, search],
+  });
 
   return (
-    <Panel aria-label="Dancers">
+    <Panel aria-label="Dancers" className="desk:max-h-[calc(100vh-64px)]">
       <PanelHead
         label="Dancers"
         actions={
@@ -93,7 +176,10 @@ export function DancersPanel({
           aria-label="Search dancers by name or bib"
           autoComplete="off"
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            commitSearch(event.target.value);
+          }}
           className="bp-phone:flex-[1_1_180px] ms-0 flex-[1_1_180px]"
         />
         <Segmented
@@ -108,31 +194,82 @@ export function DancersPanel({
         />
       </div>
 
-      {isLoading ? (
-        <DeskEmpty>Loading dancers</DeskEmpty>
-      ) : isError ? (
-        <DeskEmpty>
-          Couldn’t load the roster. It retries every 10 seconds.
-        </DeskEmpty>
-      ) : groups.length === 0 ? (
-        <DeskEmpty>
-          {emptyMessage({ filter, query, total: dancers.length })}
-        </DeskEmpty>
-      ) : (
-        groups.map((group) => (
-          <DeskGroupList
-            key={group.key}
-            label={group.label}
-            rows={group.rows}
-            eventId={eventId}
-            flash={flash}
-            pendingIds={pendingIds}
-            onToggle={onToggle}
-          />
-        ))
-      )}
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto">
+        {loading ? (
+          <DeskEmpty>Loading dancers</DeskEmpty>
+        ) : failed ? (
+          <DeskEmpty>
+            Couldn’t load the roster.{" "}
+            <Button
+              variant="secondary"
+              onClick={() => {
+                void out.query.refetch();
+                void checkedInList.query.refetch();
+              }}
+            >
+              Try again
+            </Button>
+          </DeskEmpty>
+        ) : items.length === 0 ? (
+          <DeskEmpty>
+            {emptyMessage({ filter, query: search, total })}
+          </DeskEmpty>
+        ) : (
+          <ul ref={setListEl} aria-label="Dancers">
+            <ListSpacer height={virtual.padTop} />
+            {virtual.items.map((item) => {
+              const deskItem = items[item.index]!;
+              return deskItem.kind === "group" ? (
+                <li
+                  key={deskItem.key}
+                  ref={virtual.measure}
+                  data-index={item.index}
+                  data-testid={`desk-group-${deskItem.key}`}
+                >
+                  <PanelSubHead className="border-line-soft">
+                    <span className="type-label text-fg-3">
+                      {deskItem.label}
+                    </span>
+                    <span className="type-data-sm text-fg-2">
+                      {deskItem.count}
+                    </span>
+                  </PanelSubHead>
+                </li>
+              ) : (
+                <DeskRow
+                  key={deskItem.entry.id}
+                  ref={virtual.measure}
+                  index={item.index}
+                  entry={deskItem.entry}
+                  eventId={eventId}
+                  flashN={flash?.id === deskItem.entry.id ? flash.n : undefined}
+                  pending={pendingIds.has(deskItem.entry.id)}
+                  onToggle={onToggle}
+                  // A group heading or the panel's border closes the row.
+                  closing={
+                    virtual.isLast(item.index) ||
+                    items[item.index + 1]?.kind === "group"
+                  }
+                />
+              );
+            })}
+            <ListSpacer height={virtual.padBottom} />
+            {more?.isFetchingNextPage && (
+              <li className="text-fg-3 type-meta py-(--space-12) text-center">
+                Loading more dancers…
+              </li>
+            )}
+          </ul>
+        )}
+      </div>
     </Panel>
   );
+}
+
+/** Stands in for the rows scrolled out of view. */
+function ListSpacer({ height }: { height: number }) {
+  if (height <= 0) return null;
+  return <li aria-hidden style={{ height }} />;
 }
 
 function DeskEmpty({ children }: { children: React.ReactNode }) {
@@ -143,58 +280,26 @@ function DeskEmpty({ children }: { children: React.ReactNode }) {
   );
 }
 
-function DeskGroupList({
-  label,
-  rows,
-  eventId,
-  flash,
-  pendingIds,
-  onToggle,
-}: {
-  label: string;
-  rows: RosterEntry[];
-  eventId: string;
-  flash: DeskFlash;
-  pendingIds: ReadonlySet<string>;
-  onToggle: (entry: RosterEntry) => void;
-}) {
-  const headingId = useId();
-  return (
-    <section aria-labelledby={headingId}>
-      <PanelSubHead className="border-line-soft">
-        <span id={headingId} className="type-label text-fg-3">
-          {label}
-        </span>
-        <span className="type-data-sm text-fg-2">{rows.length}</span>
-      </PanelSubHead>
-      <ul>
-        {rows.map((entry) => (
-          <DeskRow
-            key={entry.id}
-            entry={entry}
-            eventId={eventId}
-            flashN={flash?.id === entry.id ? flash.n : undefined}
-            pending={pendingIds.has(entry.id)}
-            onToggle={onToggle}
-          />
-        ))}
-      </ul>
-    </section>
-  );
-}
-
 function DeskRow({
+  ref: measure,
+  index,
   entry,
   eventId,
   flashN,
   pending,
   onToggle,
+  closing,
 }: {
+  /** The virtualizer measures the row through this. */
+  ref: (el: HTMLLIElement | null) => void;
+  index: number;
   entry: RosterEntry;
   eventId: string;
   flashN: number | undefined;
   pending: boolean;
   onToggle: (entry: RosterEntry) => void;
+  /** The last row above a group heading or the panel's edge: no divider. */
+  closing: boolean;
 }) {
   const ref = useRef<HTMLLIElement>(null);
   const timeZone = useEventTimeZone();
@@ -222,8 +327,15 @@ function DeskRow({
 
   return (
     <li
-      ref={ref}
-      className="border-line-soft flex min-h-12 items-center gap-(--space-12) border-b py-(--space-6) pr-(--space-8) pl-(--space-14) last:border-b-0"
+      ref={(el) => {
+        ref.current = el;
+        measure(el);
+      }}
+      data-index={index}
+      className={cn(
+        "border-line-soft flex min-h-12 items-center gap-(--space-12) border-b py-(--space-6) pr-(--space-8) pl-(--space-14)",
+        closing && "border-b-0",
+      )}
     >
       <span
         className={cn(

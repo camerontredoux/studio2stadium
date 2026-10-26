@@ -335,9 +335,17 @@ type OrgsIdEventsIdAuditlogGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/audit-log/list/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/events/audit-log/list/controller.ts').default['handle'], true>
 }
-type OrgsIdEventsIdReconciliationGetHead = {
+type OrgsIdEventsIdReconciliationInvitesGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/reconciliation/validator.ts')['invitesSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/invites-controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdReconciliationOrphansGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/reconciliation/validator.ts')['orphansSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/orphans-controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdReconciliationCountsGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/list-controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/counts-controller.ts').default['handle'], false>
 }
 type OrgsIdEventsIdReconciliationInvitesIdResendPost = {
   request: unknown
@@ -508,8 +516,8 @@ type OrgsIdCallbacksIdDelete = {
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/delete/controller.ts').default['handle'], false>
 }
 type OrgsIdAdminCallbacksGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/admin-board/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/callbacks/board-page-validator.ts')['boardPageSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/admin-board/controller.ts').default['handle'], true>
 }
 type OrgsIdAdminDancersIdCallbacksGetHead = {
   request: unknown
@@ -520,8 +528,8 @@ type OrgsIdShowcasesGetHead = {
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/list/controller.ts').default['handle'], false>
 }
 type OrgsIdShowcasesIdCallbacksGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/published-callbacks/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/callbacks/board-page-validator.ts')['boardPageSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/published-callbacks/controller.ts').default['handle'], true>
 }
 type OrgsIdShowcasesPublishpreviewGetHead = {
   request: unknown
@@ -1462,11 +1470,11 @@ export interface ApiDefinition {
             '$head': OrgsIdEventsIdAuditlogGetHead;
           };
           'reconciliation': {
-            '$url': {
-            };
-            '$get': OrgsIdEventsIdReconciliationGetHead;
-            '$head': OrgsIdEventsIdReconciliationGetHead;
             'invites': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdReconciliationInvitesGetHead;
+              '$head': OrgsIdEventsIdReconciliationInvitesGetHead;
               ':inviteId': {
                 'resend': {
                   '$url': {
@@ -1477,6 +1485,18 @@ export interface ApiDefinition {
                 };
                 '$delete': OrgsIdEventsIdReconciliationInvitesIdDelete;
               };
+            };
+            'orphans': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdReconciliationOrphansGetHead;
+              '$head': OrgsIdEventsIdReconciliationOrphansGetHead;
+            };
+            'counts': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdReconciliationCountsGetHead;
+              '$head': OrgsIdEventsIdReconciliationCountsGetHead;
             };
             'rosters': {
               ':rosterId': {

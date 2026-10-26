@@ -1,5 +1,6 @@
 import { inject } from "@adonisjs/core";
 import type { HttpContext } from "@adonisjs/core/http";
+import transmit from "@adonisjs/transmit/services/main";
 import { CheckInService, CheckInNotOpenError, NotOnRosterError } from "./service.ts";
 
 export default class CheckInController {
@@ -8,6 +9,7 @@ export default class CheckInController {
     const userId = ctx.auth.getUserOrFail().id;
     try {
       const result = await service.execute(ctx.params.id, userId);
+      transmit.broadcast(`orgs/${ctx.org!.slug}/check-in`, {});
       return ctx.response.ok(result);
     } catch (err) {
       if (err instanceof CheckInNotOpenError) {

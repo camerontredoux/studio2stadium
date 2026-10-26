@@ -1,7 +1,7 @@
 import { CheckIcon } from "@phosphor-icons/react";
+import { type RefObject, useState } from "react";
 import type * as React from "react";
 
-import { Button } from "@/components/event/button";
 import {
   DataTable,
   DataTableBody,
@@ -19,6 +19,8 @@ import { useEventTimeZone } from "@/features/org/live/shared/use-event-time-zone
 import type { RosterEntry } from "@/features/org/api/roster-queries";
 import { DancerBib } from "@/features/org/live/shared/dancer-bib";
 import { PersonAvatar } from "@/features/org/live/shared/person-avatar";
+import { useVirtualRows } from "@/features/org/live/shared/use-virtual-rows";
+import { Spacer } from "@/features/org/live/shared/virtual-spacer";
 
 import {
   fullName,
@@ -42,10 +44,19 @@ export interface RosterTableProps {
   onOpenEntry: (entry: RosterEntry) => void;
   /** Shown as the only body row when `rows` is empty (loading, error, no results). */
   empty?: React.ReactNode;
-  /** The "Show more" row under the last loaded row. */
-  footer?: React.ReactNode;
   /** Dims the rows while a new filter's results load. */
   stale?: boolean;
+  /**
+   * The box the table scrolls in from the desk breakpoint up. At phone width
+   * the page itself scrolls, so the rows follow the window instead.
+   */
+  scrollRef: RefObject<HTMLElement | null>;
+  /** A change starts the list again from the top. */
+  resetKey?: unknown;
+  /** More rows wait on the server; `onLoadMore` fetches the next page. */
+  hasMore?: boolean;
+  loadingMore?: boolean;
+  onLoadMore?: () => void;
 }
 
 const hideOnPhone = "bp-phone:hidden";
@@ -62,9 +73,23 @@ export function RosterTable({
   onSelectedChange,
   onOpenEntry,
   empty,
-  footer,
   stale = false,
+  scrollRef,
+  resetKey,
+  hasMore = false,
+  loadingMore = false,
+  onLoadMore,
 }: RosterTableProps) {
+  const [table, setTable] = useState<HTMLDivElement | null>(null);
+  const virtual = useVirtualRows({
+    count: rows.length,
+    scrollRef,
+    list: table,
+    hasMore,
+    loadingMore,
+    onLoadMore,
+    resetKey,
+  });
   const templates = gridTemplates(columns);
   const timeZone = useEventTimeZone();
   const selectedCount = rows.filter((r) => selectedIds.has(r.id)).length;
@@ -79,6 +104,7 @@ export function RosterTable({
 
   return (
     <DataTable
+      ref={setTable}
       columns={templates.columns}
       phoneColumns={templates.phoneColumns}
       selectable
@@ -122,39 +148,60 @@ export function RosterTable({
       </DataTableHead>
       <DataTableBody
         className={cn(
-          stale && "[&>[role=row]]:opacity-60",
-          "[&>[role=row]]:transition-opacity",
+          stale && "[&_[role=row]]:opacity-60",
+          "[&_[role=row]]:transition-opacity",
         )}
       >
-        {rows.length === 0
-          ? empty
-          : rows.map((row) => {
+        {rows.length === 0 ? (
+          empty
+        ) : (
+          <>
+            <Spacer height={virtual.padTop} />
+            {virtual.items.map((item) => {
+              const row = rows[item.index]!;
               const name = fullName(row);
               const selected = selectedIds.has(row.id);
               return (
-                <DataTableRow
+                <div
                   key={row.id}
-                  selected={selected}
-                  data-testid="roster-row"
+                  ref={virtual.measure}
+                  data-index={item.index}
+                  role="none"
+                  className={cn(
+                    "col-span-full grid grid-cols-subgrid",
+                    virtual.isLast(item.index) && "[&>[role=row]]:border-b-0",
+                  )}
                 >
-                  <DataTableSelectCell
-                    label={`Select ${name}`}
-                    checked={selected}
-                    onCheckedChange={(checked) => toggleRow(row.id, checked)}
-                  />
-                  {columns.map((column) => (
-                    <RosterCell
-                      key={column.id}
-                      column={column}
-                      row={row}
-                      onOpenEntry={onOpenEntry}
-                      timeZone={timeZone}
+                  <DataTableRow selected={selected} data-testid="roster-row">
+                    <DataTableSelectCell
+                      label={`Select ${name}`}
+                      checked={selected}
+                      onCheckedChange={(checked) => toggleRow(row.id, checked)}
                     />
-                  ))}
-                </DataTableRow>
+                    {columns.map((column) => (
+                      <RosterCell
+                        key={column.id}
+                        column={column}
+                        row={row}
+                        onOpenEntry={onOpenEntry}
+                        timeZone={timeZone}
+                      />
+                    ))}
+                  </DataTableRow>
+                </div>
               );
             })}
-        {rows.length > 0 && footer}
+            <Spacer height={virtual.padBottom} />
+            {loadingMore && (
+              <div
+                role="row"
+                className="text-fg-3 type-meta col-span-full py-(--space-12) text-center"
+              >
+                <span role="cell">Loading more {config.plural}…</span>
+              </div>
+            )}
+          </>
+        )}
       </DataTableBody>
     </DataTable>
   );
@@ -282,33 +329,4 @@ function RosterCell({
         </DataTableCell>
       );
   }
-}
-
-/** The row under the last loaded row: loads the next page. */
-export function RosterShowMore({
-  loaded,
-  total,
-  loading,
-  onClick,
-}: {
-  loaded: number;
-  total: number;
-  loading: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <div role="row" className="col-span-full">
-      <div
-        role="cell"
-        className="flex items-center justify-center gap-(--space-10) px-(--space-14) py-(--space-10)"
-      >
-        <Button variant="ghost" onClick={onClick} disabled={loading}>
-          {loading ? "Loading…" : "Show more"}
-        </Button>
-        <span className="type-data-sm text-fg-3">
-          {loaded} of {total}
-        </span>
-      </div>
-    </div>
-  );
 }

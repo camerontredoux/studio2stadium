@@ -7,7 +7,19 @@ import {
 } from "#database/schema/org-events";
 import { users } from "#database/schema/users";
 import { imageUrl } from "#utils/image-url";
-import { and, asc, count, desc, eq, gte, isNull, lte, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gte,
+  inArray,
+  isNull,
+  lte,
+  or,
+  sql,
+} from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { Validator } from "./validator.ts";
 
@@ -25,12 +37,27 @@ export class ListAuditLogService {
       isNull(eventAuditLog.parentId),
     ];
 
-    if (q.action) {
-      filters.push(eq(eventAuditLog.action, q.action));
+    if (q.actions?.length) {
+      // COALESCE: an entry without a `field` key makes the comparison NULL,
+      // and `not NULL` would drop it from Update as well.
+      const isCheckIn = sql`coalesce(${eventAuditLog.action} = 'update'
+        and ${eventAuditLog.resource} = 'roster'
+        and ${eventAuditLog.metadata}->>'field' = 'checkedInAt', false)`;
+      const plain = q.actions.filter((a) => a !== "check_in");
+      const matches = [];
+      if (q.actions.includes("check_in")) matches.push(isCheckIn);
+      if (plain.length) {
+        matches.push(
+          plain.includes("update")
+            ? and(inArray(eventAuditLog.action, plain), sql`not ${isCheckIn}`)
+            : inArray(eventAuditLog.action, plain)
+        );
+      }
+      filters.push(or(...matches)!);
     }
 
-    if (q.resource) {
-      filters.push(eq(eventAuditLog.resource, q.resource));
+    if (q.resources?.length) {
+      filters.push(inArray(eventAuditLog.resource, q.resources));
     }
 
     if (q.actorId) {
@@ -82,6 +109,9 @@ export class ListAuditLogService {
       sortDir === "asc"
         ? asc(eventAuditLog.createdAt)
         : desc(eventAuditLog.createdAt);
+    // Entries written in the same instant need a fixed order to page by offset.
+    const tieBreak =
+      sortDir === "asc" ? asc(eventAuditLog.id) : desc(eventAuditLog.id);
 
     // `resourceId` is polymorphic, so the join has to be narrowed to the rows
     // where it actually points at a roster entry.
@@ -129,7 +159,7 @@ export class ListAuditLogService {
           )
           .leftJoin(subjectUsers, eq(subjectUsers.id, eventRosters.userId))
           .where(and(...searchFilters))
-          .orderBy(orderExpr)
+          .orderBy(orderExpr, tieBreak)
           .limit(limit)
           .offset(page * limit),
         db

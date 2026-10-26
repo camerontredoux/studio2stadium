@@ -1,24 +1,42 @@
-import { CheckIcon } from "@phosphor-icons/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import {
+  CheckIcon,
+  EnvelopeSimpleIcon,
+  SealCheckIcon,
+  UserCircleDashedIcon,
+} from "@phosphor-icons/react";
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/event/button";
 import { Icon } from "@/components/event/icon";
-import { Panel, PanelHead } from "@/components/event/panel";
+import { Panel, PanelToolbar } from "@/components/event/panel";
 import { Search } from "@/components/event/search";
+import { Segmented, type SegmentedOption } from "@/components/event/segmented";
 import { Tag } from "@/components/event/tag";
+import { useDebouncedCallback } from "@/components/hooks/use-debounced-callback";
 import { toastManager } from "@/components/ui/toast-manager";
 import { cn } from "@/components/utils/cn";
+import {
+  RECONCILIATION_KEY_PREFIX,
+  reconciliationQueries,
+  type OrphanRoster,
+  type ReconciliationInvite,
+} from "@/features/org/api/reconciliation-queries";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import { ConfirmDialog } from "@/features/org/live/shared/confirm-dialog";
 import { SubpageHeader } from "@/features/org/live/shared/event-header";
 import { ShellPage } from "@/features/org/live/shared/shell-slots";
-import { $api, type ApiSchemas, client } from "@/lib/api/client";
+import { useVirtualRows } from "@/features/org/live/shared/use-virtual-rows";
+import { type ApiSchemas, client } from "@/lib/api/client";
 
 import { relativeTime } from "./age";
 
-type Invite =
-  ApiSchemas["OrgsIdEventsIdReconciliationResponse"]["invites"][number];
 type SchoolUser =
   ApiSchemas["OrgsIdEventsIdReconciliationSchoolusersResponse"][number];
 
@@ -39,35 +57,93 @@ async function fetchSchoolUsers(
   return res.data ?? [];
 }
 
+/** The server's view behind each tab. */
+type View = "unclaimed" | "claimed" | "orphans";
+
+const PAGE_SIZE = 50;
+
 /**
- * /admin/reconciliation: school invites nobody has claimed (resend or revoke)
- * and roster rows with no account (merge into a school user).
+ * /admin/reconciliation: school invites nobody has claimed (resend or revoke),
+ * the ones already claimed, and roster rows with no account (merge into a
+ * school user). Each tab pages on the server and renders only nearby rows.
  */
 export function ReconciliationPage({ orgSlug }: { orgSlug: string }) {
   const { selectedEvent: event } = useAdminEvent();
+  const queryClient = useQueryClient();
+  const [view, setView] = useState<View>("unclaimed");
   const [merging, setMerging] = useState<string | null>(null);
-  const [revoking, setRevoking] = useState<Invite | null>(null);
+  const [query, setQuery] = useState("");
+  const [search, setSearch] = useState("");
+  const commitSearch = useDebouncedCallback((value: string) => {
+    setSearch(value.trim());
+    setMerging(null);
+  }, 300);
+  const [revoking, setRevoking] = useState<ReconciliationInvite | null>(null);
+  const eventId = event?.id ?? "";
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: RECONCILIATION_KEY_PREFIX });
 
-  const data = useQuery(
-    $api.queryOptions(
-      "get",
-      "/orgs/{slug}/events/{id}/reconciliation",
-      { params: { path: { slug: orgSlug, id: event?.id ?? "" } } },
-      { enabled: !!event },
+  const countsQuery = useQuery({
+    ...reconciliationQueries.counts(orgSlug, eventId),
+    enabled: !!event,
+  });
+  const q = search || undefined;
+  const invitesQuery = useInfiniteQuery({
+    ...reconciliationQueries.invitePages(
+      orgSlug,
+      eventId,
+      { claimed: view === "claimed", search: q },
+      PAGE_SIZE,
     ),
+    enabled: !!event && view !== "orphans",
+    placeholderData: keepPreviousData,
+  });
+  const orphansQuery = useInfiniteQuery({
+    ...reconciliationQueries.orphanPages(
+      orgSlug,
+      eventId,
+      { search: q },
+      PAGE_SIZE,
+    ),
+    enabled: !!event && view === "orphans",
+    placeholderData: keepPreviousData,
+  });
+  const list = view === "orphans" ? orphansQuery : invitesQuery;
+  const pages = list.data?.pages;
+  const rows = useMemo(
+    () =>
+      (
+        pages as { data: (ReconciliationInvite | OrphanRoster)[] }[] | undefined
+      )?.flatMap((page) => page.data) ?? [],
+    [pages],
   );
+  const { fetchNextPage } = list;
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [listEl, setListEl] = useState<HTMLUListElement | null>(null);
+  const virtual = useVirtualRows({
+    count: rows.length,
+    scrollRef,
+    list: listEl,
+    estimate: 57,
+    hasMore: list.hasNextPage && !list.isFetchNextPageError,
+    loadingMore: list.isFetchingNextPage,
+    onLoadMore: () => void fetchNextPage(),
+    // A new tab, search or filter starts again from the top.
+    resetKey: [view, search],
+  });
 
   const resend = useMutation({
     mutationFn: async (inviteId: string) => {
       const { error } = await client.POST(
         "/orgs/{slug}/events/{id}/reconciliation/invites/{inviteId}/resend",
-        { params: { path: { slug: orgSlug, id: event!.id, inviteId } } },
+        { params: { path: { slug: orgSlug, id: eventId, inviteId } } },
       );
       if (error) throw error;
     },
     onSuccess: () => {
       toastManager.add({ title: "Invite resent", type: "success" });
-      void data.refetch();
+      void refresh();
     },
     onError: () => toastManager.add({ title: "Resend failed", type: "error" }),
   });
@@ -76,14 +152,14 @@ export function ReconciliationPage({ orgSlug }: { orgSlug: string }) {
     mutationFn: async (inviteId: string) => {
       const { error } = await client.DELETE(
         "/orgs/{slug}/events/{id}/reconciliation/invites/{inviteId}",
-        { params: { path: { slug: orgSlug, id: event!.id, inviteId } } },
+        { params: { path: { slug: orgSlug, id: eventId, inviteId } } },
       );
       if (error) throw error;
     },
     onSuccess: () => {
       toastManager.add({ title: "Invite revoked", type: "success" });
       setRevoking(null);
-      void data.refetch();
+      void refresh();
     },
     onError: () => toastManager.add({ title: "Revoke failed", type: "error" }),
   });
@@ -107,140 +183,187 @@ export function ReconciliationPage({ orgSlug }: { orgSlug: string }) {
     );
   }
 
-  const allInvites = data.data?.invites ?? [];
-  // The API lists every invite. Claimed ones need no action (the backend
-  // refuses to resend them), so they sit in their own read-only list.
-  const invites = allInvites.filter((invite) => !invite.consumedAt);
-  const claimed = allInvites.filter((invite) => invite.consumedAt);
-  const orphans = data.data?.orphanRosters ?? [];
-  const loading = data.isPending;
+  const counts = countsQuery.data;
+  const options: SegmentedOption<View>[] = [
+    {
+      value: "unclaimed",
+      label: "Unclaimed",
+      icon: EnvelopeSimpleIcon,
+      count: counts?.unclaimed,
+    },
+    {
+      value: "claimed",
+      label: "Claimed",
+      icon: SealCheckIcon,
+      count: counts?.claimed,
+    },
+    {
+      value: "orphans",
+      label: "Orphan rows",
+      icon: UserCircleDashedIcon,
+      count: counts?.orphans,
+    },
+  ];
+
+  const now = new Date();
+  const renderRow = (row: ReconciliationInvite | OrphanRoster) => {
+    if (view === "orphans") {
+      const orphan = row as OrphanRoster;
+      return (
+        <>
+          <div className="flex min-h-12 flex-wrap items-center gap-x-(--space-10) gap-y-(--space-6) px-(--space-14) py-(--space-8)">
+            <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span className="text-fg truncate text-[13px] leading-[1.4] font-medium">
+                {orphan.firstName} {orphan.lastName}
+              </span>
+              <span className="text-fg-3 truncate font-mono text-[11.5px] leading-[1.4]">
+                {orphan.email}
+                {orphan.organization && ` · ${orphan.organization}`}
+              </span>
+            </span>
+            <Button
+              size="sm"
+              aria-expanded={merging === orphan.id}
+              onClick={() =>
+                setMerging(merging === orphan.id ? null : orphan.id)
+              }
+            >
+              {merging === orphan.id ? "Cancel" : "Merge"}
+            </Button>
+          </div>
+          {merging === orphan.id && (
+            <MergeForm
+              slug={orgSlug}
+              eventId={event.id}
+              rosterId={orphan.id}
+              onMerged={() => {
+                setMerging(null);
+                void refresh();
+              }}
+            />
+          )}
+        </>
+      );
+    }
+    const invite = row as ReconciliationInvite;
+    if (invite.consumedAt) {
+      return (
+        <RowBody>
+          <InviteText
+            email={invite.email}
+            meta={[
+              invite.organization,
+              `Sent ${relativeTime(invite.createdAt)}`,
+              `Claimed ${relativeTime(invite.consumedAt)}`,
+            ]}
+            tag={<Tag tone="muted">Claimed</Tag>}
+          />
+        </RowBody>
+      );
+    }
+    const expired = new Date(invite.expiresAt) < now;
+    return (
+      <RowBody>
+        <InviteText
+          email={invite.email}
+          meta={[
+            invite.organization,
+            `Sent ${relativeTime(invite.createdAt)}`,
+            `${expired ? "Expired" : "Expires"} ${relativeTime(invite.expiresAt)}`,
+          ]}
+          tag={expired && <Tag tone="danger">Expired</Tag>}
+        />
+        <span className="flex shrink-0 items-center gap-(--space-4)">
+          <Button size="sm" variant="ghost" onClick={() => setRevoking(invite)}>
+            Revoke
+          </Button>
+          <Button
+            size="sm"
+            disabled={resend.isPending && resend.variables === invite.id}
+            // Resending also pushes the expiry out, so it revives an expired link.
+            title={expired ? "Resend the email and extend the link" : undefined}
+            onClick={() => resend.mutate(invite.id)}
+          >
+            Resend
+          </Button>
+        </span>
+      </RowBody>
+    );
+  };
+
+  const emptyText = search
+    ? "Nothing matches."
+    : view === "unclaimed"
+      ? "No unclaimed invites."
+      : view === "claimed"
+        ? "No claimed invites."
+        : "No orphan rows.";
 
   return (
     <ShellPage header={header}>
-      <Panel aria-label="Unclaimed invites">
-        <PanelHead
-          label="Unclaimed invites"
-          count={loading ? undefined : invites.length}
-        />
-        {loading ? (
-          <Empty>Loading…</Empty>
-        ) : invites.length === 0 ? (
-          <Empty>No unclaimed invites.</Empty>
-        ) : (
-          <ul className="m-0 list-none p-0">
-            {invites.map((invite) => {
-              const expired = new Date(invite.expiresAt) < new Date();
-              return (
-                <Row key={invite.id}>
-                  <InviteText
-                    email={invite.email}
-                    meta={[
-                      invite.organization,
-                      `Sent ${relativeTime(invite.createdAt)}`,
-                      `${expired ? "Expired" : "Expires"} ${relativeTime(invite.expiresAt)}`,
-                    ]}
-                    tag={expired && <Tag tone="danger">Expired</Tag>}
-                  />
-                  <span className="flex shrink-0 items-center gap-(--space-4)">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setRevoking(invite)}
-                    >
-                      Revoke
-                    </Button>
-                    <Button
-                      size="sm"
-                      disabled={
-                        resend.isPending && resend.variables === invite.id
-                      }
-                      // Resending also pushes the expiry out, so it revives an expired link.
-                      title={
-                        expired
-                          ? "Resend the email and extend the link"
-                          : undefined
-                      }
-                      onClick={() => resend.mutate(invite.id)}
-                    >
-                      Resend
-                    </Button>
-                  </span>
-                </Row>
-              );
-            })}
-          </ul>
-        )}
-      </Panel>
-
-      {claimed.length > 0 && (
-        <Panel aria-label="Claimed invites">
-          <PanelHead label="Claimed invites" count={claimed.length} />
-          <ul className="m-0 list-none p-0">
-            {claimed.map((invite) => (
-              <Row key={invite.id}>
-                <InviteText
-                  email={invite.email}
-                  meta={[
-                    invite.organization,
-                    `Sent ${relativeTime(invite.createdAt)}`,
-                    `Claimed ${relativeTime(invite.consumedAt!)}`,
-                  ]}
-                  tag={<Tag tone="muted">Claimed</Tag>}
-                />
-              </Row>
-            ))}
-          </ul>
-        </Panel>
-      )}
-
-      <Panel aria-label="Orphan roster rows">
-        <PanelHead
-          label="Orphan roster rows"
-          count={loading ? undefined : orphans.length}
-        />
-        {loading ? (
-          <Empty>Loading…</Empty>
-        ) : orphans.length === 0 ? (
-          <Empty>No orphan rows.</Empty>
-        ) : (
-          <ul className="m-0 list-none p-0">
-            {orphans.map((row) => (
-              <li key={row.id} className="border-line border-b last:border-b-0">
-                <div className="flex min-h-12 flex-wrap items-center gap-x-(--space-10) gap-y-(--space-6) px-(--space-14) py-(--space-8)">
-                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <span className="text-fg truncate text-[13px] leading-[1.4] font-medium">
-                      {row.firstName} {row.lastName}
-                    </span>
-                    <span className="text-fg-3 truncate font-mono text-[11.5px] leading-[1.4]">
-                      {row.email}
-                      {row.organization && ` · ${row.organization}`}
-                    </span>
-                  </span>
-                  <Button
-                    size="sm"
-                    aria-expanded={merging === row.id}
-                    onClick={() =>
-                      setMerging(merging === row.id ? null : row.id)
-                    }
+      <Panel
+        aria-label="Reconciliation"
+        className="desk:max-h-[calc(100vh-64px)]"
+      >
+        <PanelToolbar>
+          <Segmented
+            label="Show"
+            value={view}
+            onChange={(next) => {
+              setView(next);
+              setMerging(null);
+            }}
+            options={options}
+          />
+          <Search
+            placeholder="Search"
+            aria-label={
+              view === "orphans"
+                ? "Search orphan rows by name, email or school"
+                : "Search invites by email or school"
+            }
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              commitSearch(e.target.value);
+            }}
+          />
+        </PanelToolbar>
+        <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto">
+          {list.isPending ? (
+            <Empty>Loading…</Empty>
+          ) : list.isError && !list.isFetchNextPageError ? (
+            <Empty>Couldn’t load this list.</Empty>
+          ) : rows.length === 0 ? (
+            <Empty>{emptyText}</Empty>
+          ) : (
+            <ul
+              ref={setListEl}
+              className="m-0 list-none p-0"
+              style={{
+                paddingTop: virtual.padTop,
+                paddingBottom: virtual.padBottom,
+              }}
+            >
+              {virtual.items.map((item) => {
+                const row = rows[item.index]!;
+                return (
+                  <li
+                    key={row.id}
+                    ref={virtual.measure}
+                    data-index={item.index}
+                    className={cn(
+                      "border-line border-b",
+                      virtual.isLast(item.index) && "border-b-0",
+                    )}
                   >
-                    {merging === row.id ? "Cancel" : "Merge"}
-                  </Button>
-                </div>
-                {merging === row.id && (
-                  <MergeForm
-                    slug={orgSlug}
-                    eventId={event.id}
-                    rosterId={row.id}
-                    onMerged={() => {
-                      setMerging(null);
-                      void data.refetch();
-                    }}
-                  />
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
+                    {renderRow(row)}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
       </Panel>
 
       <ConfirmDialog
@@ -405,11 +528,11 @@ function InviteText({
   );
 }
 
-function Row({ children }: { children: React.ReactNode }) {
+function RowBody({ children }: { children: React.ReactNode }) {
   return (
-    <li className="border-line flex min-h-12 items-center gap-(--space-10) border-b px-(--space-14) py-(--space-8) last:border-b-0">
+    <div className="flex min-h-12 items-center gap-(--space-10) px-(--space-14) py-(--space-8)">
       {children}
-    </li>
+    </div>
   );
 }
 

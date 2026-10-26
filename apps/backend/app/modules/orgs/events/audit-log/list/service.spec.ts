@@ -68,7 +68,11 @@ test.group("ListAuditLogService", (group) => {
         type: "attach_to_account",
         relinked: true,
         before: { email: ORIGINAL_EMAIL, firstName: "Csv", lastName: "Row" },
-        after: { email: CURRENT_EMAIL, firstName: "Claimed", lastName: "Dancer" },
+        after: {
+          email: CURRENT_EMAIL,
+          firstName: "Claimed",
+          lastName: "Dancer",
+        },
         previousEmail: ORIGINAL_EMAIL,
         newEmail: CURRENT_EMAIL,
       },
@@ -191,5 +195,65 @@ test.group("ListAuditLogService", (group) => {
 
     assert.lengthOf(res.data, 1);
     assert.isNull(res.data[0]!.subject);
+  });
+
+  test("tells check-ins apart from other updates", async ({ assert }) => {
+    await db.delete(eventAuditLog).execute();
+    await db.insert(eventAuditLog).values([
+      {
+        eventId,
+        actorId,
+        action: "update",
+        resource: "roster",
+        resourceId: rosterId,
+        metadata: { field: "checkedInAt", before: null, after: "2020-01-01" },
+      },
+      {
+        eventId,
+        actorId,
+        action: "update",
+        resource: "event",
+        resourceId: eventId,
+        metadata: { before: {}, after: {} },
+      },
+      {
+        // A roster edit with no `field` key is still a plain update.
+        eventId,
+        actorId,
+        action: "update",
+        resource: "roster",
+        resourceId: rosterId,
+        metadata: { before: { firstName: "A" }, after: { firstName: "B" } },
+      },
+      {
+        eventId,
+        actorId,
+        action: "delete",
+        resource: "video",
+        resourceId: eventId,
+        metadata: {},
+      },
+    ]);
+
+    const svc = new ListAuditLogService();
+    const checkIns = await svc.execute(eventId, { actions: ["check_in"] });
+    const updates = await svc.execute(eventId, { actions: ["update"] });
+    const both = await svc.execute(eventId, {
+      actions: ["check_in", "delete"],
+    });
+    const byResource = await svc.execute(eventId, {
+      resources: ["event", "video"],
+    });
+
+    assert.deepEqual(
+      checkIns.data.map((r) => r.resource),
+      ["roster"]
+    );
+    assert.deepEqual(updates.data.map((r) => r.resource).sort(), [
+      "event",
+      "roster",
+    ]);
+    assert.equal(both.total, 2);
+    assert.equal(byResource.total, 2);
   });
 });

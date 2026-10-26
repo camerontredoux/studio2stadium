@@ -7,6 +7,15 @@ export type DancerListParams = NonNullable<
   paths["/orgs/{slug}/dancers"]["get"]["parameters"]["query"]
 >;
 
+/** Bib chips per page of a showcase's callbacks. */
+const CALLBACK_PAGE_SIZE = 100;
+
+/** Every admin callback-board query's key starts with this. */
+export const ADMIN_CALLBACKS_KEY_PREFIX = [
+  "get",
+  "/orgs/{slug}/admin/callbacks",
+] as const;
+
 /** Rows per page of the coach's dancer list. */
 export const DANCER_PAGE_SIZE = 50;
 
@@ -74,9 +83,33 @@ export const scoutingQueries = {
     $api.queryOptions("get", "/orgs/{slug}/callbacks", {
       params: { path: { slug } },
     }),
-  adminCallbacks: (slug: string) =>
-    $api.queryOptions("get", "/orgs/{slug}/admin/callbacks", {
-      params: { path: { slug } },
+  /** The current showcase's called-back dancers a page at a time, in bib order. */
+  adminCallbackPages: (slug: string) =>
+    infiniteQueryOptions({
+      queryKey: [
+        ...ADMIN_CALLBACKS_KEY_PREFIX,
+        { params: { path: { slug } } },
+        "pages",
+      ] as const,
+      queryFn: async ({ pageParam, signal }) => {
+        const { data, error } = await client.GET(
+          "/orgs/{slug}/admin/callbacks",
+          {
+            params: {
+              path: { slug },
+              query: { page: pageParam, limit: CALLBACK_PAGE_SIZE },
+            },
+            signal,
+          },
+        );
+        if (error) throw error;
+        return data;
+      },
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, pages) =>
+        pages.length * CALLBACK_PAGE_SIZE < lastPage.uniqueCallbacks
+          ? pages.length
+          : undefined,
     }),
   showcases: (slug: string) =>
     $api.queryOptions("get", "/orgs/{slug}/showcases", {
@@ -106,11 +139,40 @@ export const scoutingQueries = {
     dancerRosterId: string,
     eventId?: string,
   ) =>
-    $api.queryOptions("get", "/orgs/{slug}/dancers/{dancerRosterId}/callbacks", {
-      params: { path: { slug, dancerRosterId }, query: { eventId } },
-    }),
-  publishedCallbacks: (slug: string, showcaseId: string) =>
-    $api.queryOptions("get", "/orgs/{slug}/showcases/{showcaseId}/callbacks", {
-      params: { path: { slug, showcaseId } },
+    $api.queryOptions(
+      "get",
+      "/orgs/{slug}/dancers/{dancerRosterId}/callbacks",
+      {
+        params: { path: { slug, dancerRosterId }, query: { eventId } },
+      },
+    ),
+  /** A published showcase's dancers a page at a time, in bib order. */
+  publishedCallbackPages: (slug: string, showcaseId: string) =>
+    infiniteQueryOptions({
+      queryKey: [
+        "get",
+        "/orgs/{slug}/showcases/{showcaseId}/callbacks",
+        { params: { path: { slug, showcaseId } } },
+        "pages",
+      ] as const,
+      queryFn: async ({ pageParam, signal }) => {
+        const { data, error } = await client.GET(
+          "/orgs/{slug}/showcases/{showcaseId}/callbacks",
+          {
+            params: {
+              path: { slug, showcaseId },
+              query: { page: pageParam, limit: CALLBACK_PAGE_SIZE },
+            },
+            signal,
+          },
+        );
+        if (error) throw error;
+        return data;
+      },
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, pages) =>
+        pages.length * CALLBACK_PAGE_SIZE < lastPage.total
+          ? pages.length
+          : undefined,
     }),
 };

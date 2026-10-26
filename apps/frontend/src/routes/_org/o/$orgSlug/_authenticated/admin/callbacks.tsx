@@ -19,8 +19,8 @@ export const Route = createFileRoute(
   // Warms the page's two queries so it opens without a loading state.
   loader: async ({ context, params }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(
-        scoutingQueries.adminCallbacks(params.orgSlug),
+      context.queryClient.ensureInfiniteQueryData(
+        scoutingQueries.adminCallbackPages(params.orgSlug),
       ),
       context.queryClient.ensureQueryData(
         scoutingQueries.showcases(params.orgSlug),

@@ -1,6 +1,10 @@
 import { DownloadSimpleIcon } from "@phosphor-icons/react";
-import { keepPreviousData, useQueries, useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useQuery,
+} from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { AuditLogRow } from "@/components/event/audit-diff";
 import { Button } from "@/components/event/button";
@@ -13,12 +17,15 @@ import { toastManager } from "@/components/ui/toast-manager";
 import { cn } from "@/components/utils/cn";
 import {
   auditQueries,
+  fetchAuditPage,
   type AuditLogEntry,
 } from "@/features/org/api/audit-queries";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import { SubpageHeader } from "@/features/org/live/shared/event-header";
 import { PersonAvatar } from "@/features/org/live/shared/person-avatar";
 import { ShellPage } from "@/features/org/live/shared/shell-slots";
+import { useVirtualRows } from "@/features/org/live/shared/use-virtual-rows";
+import { Spacer } from "@/features/org/live/shared/virtual-spacer";
 
 import { AuditEntryDetail } from "./audit-entry-detail";
 import { auditCsv, auditCsvFilename, downloadCsv } from "./audit-export";
@@ -27,8 +34,6 @@ import { AuditStatsPanel, AuditStatsRail } from "./audit-stats";
 import {
   EMPTY_FILTERS,
   hasActiveFilters,
-  isServerExact,
-  matchesFilters,
   toListParams,
   type AuditFilters,
 } from "./audit-filters";
@@ -45,6 +50,14 @@ import {
 } from "./audit-format";
 
 const PAGE_SIZE = 50;
+/** Export pages through the whole log at the API's largest page. */
+const EXPORT_PAGE_SIZE = 200;
+/** A collapsed row's height before it's measured. */
+const ROW_ESTIMATE = 41;
+// The container's border closes the list, so the last row drops its divider,
+// open or shut.
+const lastRow =
+  "[&_[data-slot=collapsible-trigger]]:border-b-0 [&_[data-slot=collapsible-panel]>div]:border-b-0";
 
 // Mockup `.al-grid`: chevron, timestamp, actor, action, resource, dancer, summary
 // (940px min). The Activity rail and sidebar make the panel narrower than that
@@ -187,16 +200,13 @@ export function AuditLogPage({ orgSlug }: AuditLogPageProps) {
   // Date presets are relative to when they were picked, so the query key
   // doesn't change every time the clock ticks.
   const [anchor, setAnchor] = useState(() => new Date());
-  const [pageCount, setPageCount] = useState(1);
 
   const applyFilters = (next: AuditFilters) => {
     setFilters(next);
     setAnchor(new Date());
-    setPageCount(1);
   };
   const applySearch = useDebouncedCallback((search: string) => {
     setFilters((current) => ({ ...current, search }));
-    setPageCount(1);
   }, 300);
 
   const clearFilters = () => {
@@ -211,17 +221,13 @@ export function AuditLogPage({ orgSlug }: AuditLogPageProps) {
     [filters, anchor, eventDates?.startDate, eventDates?.endDate, timeZone],
   );
 
-  const pages = useQueries({
-    queries: Array.from({ length: pageCount }, (_, page) => ({
-      ...auditQueries.list(orgSlug, eventId, {
-        ...params,
-        page,
-        limit: PAGE_SIZE,
-      }),
-      enabled: !!eventId,
-      placeholderData: page === 0 ? keepPreviousData : undefined,
-    })),
+  const entriesQuery = useInfiniteQuery({
+    ...auditQueries.listPages(orgSlug, eventId, params, PAGE_SIZE),
+    enabled: !!eventId,
+    // Keep the old entries up while new filters load.
+    placeholderData: keepPreviousData,
   });
+  const { fetchNextPage } = entriesQuery;
   const statsQuery = useQuery({
     ...auditQueries.stats(orgSlug, eventId),
     enabled: !!eventId,
@@ -234,16 +240,27 @@ export function AuditLogPage({ orgSlug }: AuditLogPageProps) {
     onRetry: () => void statsQuery.refetch(),
   };
 
-  const firstPage = pages[0];
-  const total = firstPage?.data?.total ?? 0;
-  const loaded = pages.flatMap(
-    (page) => (page.data?.data ?? []) as AuditLogEntry[],
+  const pages = entriesQuery.data?.pages;
+  const rows = useMemo(
+    () => pages?.flatMap((page) => page.data) ?? [],
+    [pages],
   );
-  const rows = loaded.filter((entry) => matchesFilters(entry, filters));
-  const loadingMore = pages.some((page) => page.isFetching && !page.data);
-  const hasMore = loaded.length < total && !loadingMore;
-  const exact = isServerExact(filters);
+  const total = pages?.[0]?.total ?? 0;
   const filtered = hasActiveFilters(filters) || searchText.trim() !== "";
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [table, setTable] = useState<HTMLDivElement | null>(null);
+  const virtual = useVirtualRows({
+    count: rows.length,
+    scrollRef,
+    list: table,
+    estimate: ROW_ESTIMATE,
+    hasMore: entriesQuery.hasNextPage && !entriesQuery.isFetchNextPageError,
+    loadingMore: entriesQuery.isFetchingNextPage,
+    onLoadMore: () => void fetchNextPage(),
+    // A new tab, search or filter starts again from the top.
+    resetKey: params,
+  });
 
   // The stats count top-level entries per API action. Check-ins are API
   // updates, so neither "Update" nor "Check in" gets a count.
@@ -255,20 +272,34 @@ export function AuditLogPage({ orgSlug }: AuditLogPageProps) {
     return counts;
   }, [statsQuery.data]);
 
-  // The list is paged on the server, so this saves the entries loaded so far
-  // that pass the filters, and says so.
-  const exportLoaded = () => {
-    downloadCsv(
-      auditCsvFilename(selectedEvent?.name ?? null, new Date()),
-      auditCsv(rows, timeZone),
-    );
-    toastManager.add({
-      title: `Exported ${rows.length.toLocaleString()} loaded ${rows.length === 1 ? "entry" : "entries"}`,
-      description: hasMore
-        ? "Use Show more to load older entries, then export again."
-        : undefined,
-      type: "success",
-    });
+  // Saves every entry that matches the filters, not only the loaded ones.
+  const [exporting, setExporting] = useState(false);
+  const exportMatching = async () => {
+    setExporting(true);
+    try {
+      const entries: AuditLogEntry[] = [];
+      for (let page = 0; ; page++) {
+        const result = await fetchAuditPage(orgSlug, eventId, {
+          ...params,
+          page,
+          limit: EXPORT_PAGE_SIZE,
+        });
+        entries.push(...result.data);
+        if (result.data.length === 0 || entries.length >= result.total) break;
+      }
+      downloadCsv(
+        auditCsvFilename(selectedEvent?.name ?? null, new Date()),
+        auditCsv(entries, timeZone),
+      );
+      toastManager.add({
+        title: `Exported ${entries.length.toLocaleString()} ${entries.length === 1 ? "entry" : "entries"}`,
+        type: "success",
+      });
+    } catch {
+      toastManager.add({ title: "Export failed", type: "error" });
+    } finally {
+      setExporting(false);
+    }
   };
 
   const header = (
@@ -279,9 +310,9 @@ export function AuditLogPage({ orgSlug }: AuditLogPageProps) {
       showStatus
       actions={
         <Button
-          aria-label="Export loaded entries as CSV"
-          disabled={rows.length === 0}
-          onClick={exportLoaded}
+          aria-label="Export matching entries as CSV"
+          disabled={rows.length === 0 || exporting}
+          onClick={() => void exportMatching()}
         >
           <Icon icon={DownloadSimpleIcon} />
           <span className="bp-small:hidden">Export</span>
@@ -303,33 +334,20 @@ export function AuditLogPage({ orgSlug }: AuditLogPageProps) {
   }
 
   let body: ReactNode = null;
-  if (firstPage?.isPending) {
+  if (entriesQuery.isPending) {
     body = <EmptyRow>Loading entries…</EmptyRow>;
-  } else if (firstPage?.isError) {
+  } else if (entriesQuery.isError && !entriesQuery.isFetchNextPageError) {
     body = (
       <EmptyRow
-        action={<Button onClick={() => firstPage.refetch()}>Try again</Button>}
+        action={
+          <Button onClick={() => void entriesQuery.refetch()}>Try again</Button>
+        }
       >
         Couldn’t load the audit log
       </EmptyRow>
     );
   } else if (rows.length === 0) {
-    body = hasMore ? (
-      <EmptyRow
-        action={
-          <>
-            <Button onClick={() => setPageCount((n) => n + 1)}>
-              Search older entries
-            </Button>
-            <Button variant="ghost" onClick={clearFilters}>
-              Clear filters
-            </Button>
-          </>
-        }
-      >
-        No matches in the latest {loaded.length} entries
-      </EmptyRow>
-    ) : filtered ? (
+    body = filtered ? (
       <EmptyRow action={<Button onClick={clearFilters}>Clear filters</Button>}>
         No entries match
       </EmptyRow>
@@ -342,20 +360,9 @@ export function AuditLogPage({ orgSlug }: AuditLogPageProps) {
     rows.length > 0 ? (
       <div className="border-line-soft text-fg-3 type-caption flex min-h-11 shrink-0 flex-wrap items-center gap-(--space-10) border-t px-(--space-14) py-(--space-6)">
         <span aria-live="polite">
-          {exact
-            ? `Showing ${rows.length} of ${total.toLocaleString()} entries`
-            : `${rows.length} matches in the latest ${loaded.length} of ${total.toLocaleString()} entries`}
+          {`${total.toLocaleString()} ${total === 1 ? "entry" : "entries"}`}
+          {entriesQuery.isFetchingNextPage && " · Loading more…"}
         </span>
-        {(hasMore || loadingMore) && (
-          <Button
-            size="sm"
-            className="ms-auto"
-            disabled={loadingMore}
-            onClick={() => setPageCount((n) => n + 1)}
-          >
-            {loadingMore ? "Loading…" : "Show more"}
-          </Button>
-        )}
       </div>
     ) : null;
 
@@ -377,9 +384,13 @@ export function AuditLogPage({ orgSlug }: AuditLogPageProps) {
             now={now}
             actionCounts={actionCounts}
           />
-          <div className="@container min-h-0 flex-auto overflow-auto">
+          <div
+            ref={scrollRef}
+            className="@container min-h-0 flex-auto overflow-auto"
+          >
             {/* Rows are collapsibles, not table rows, so the grid drops the table role. */}
             <DataTable
+              ref={setTable}
               role={undefined}
               columns="var(--audit-cols)"
               phoneColumns={phoneColumns}
@@ -407,24 +418,43 @@ export function AuditLogPage({ orgSlug }: AuditLogPageProps) {
                 </Label>
                 <Label className="text-fg-3 truncate">Summary</Label>
               </div>
-              {rows.map((entry) => (
-                <AuditLogRow
-                  key={entry.id}
-                  className={rowEdge}
-                  rowClassName={cn(rowPad, phoneRow)}
-                  summary={
-                    <EntrySummary entry={entry} now={now} timeZone={timeZone} />
-                  }
-                >
-                  <AuditEntryDetail
-                    entry={entry}
-                    orgSlug={orgSlug}
-                    eventId={eventId}
-                    timeZone={timeZone}
-                    now={now}
-                  />
-                </AuditLogRow>
-              ))}
+              <Spacer height={virtual.padTop} />
+              {virtual.items.map((item) => {
+                const entry = rows[item.index]!;
+                return (
+                  // Measured as one item, so an open entry counts too.
+                  <div
+                    key={entry.id}
+                    ref={virtual.measure}
+                    data-index={item.index}
+                    className={cn(
+                      "col-span-full grid grid-cols-subgrid",
+                      virtual.isLast(item.index) && lastRow,
+                    )}
+                  >
+                    <AuditLogRow
+                      className={rowEdge}
+                      rowClassName={cn(rowPad, phoneRow)}
+                      summary={
+                        <EntrySummary
+                          entry={entry}
+                          now={now}
+                          timeZone={timeZone}
+                        />
+                      }
+                    >
+                      <AuditEntryDetail
+                        entry={entry}
+                        orgSlug={orgSlug}
+                        eventId={eventId}
+                        timeZone={timeZone}
+                        now={now}
+                      />
+                    </AuditLogRow>
+                  </div>
+                );
+              })}
+              <Spacer height={virtual.padBottom} />
             </DataTable>
           </div>
           {body}

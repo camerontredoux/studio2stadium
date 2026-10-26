@@ -108,11 +108,7 @@ export function CoachDancersPage() {
   );
   const counts = pages?.[0]?.counts;
 
-  // A new search, filter, sort or event starts again from the top.
   const scrollRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: 0 });
-  }, [eventChoice, effectiveFilter, q, sort]);
 
   useEffect(() => {
     setSelectedIds(new Set());
@@ -309,6 +305,8 @@ export function CoachDancersPage() {
           <DancerRosterTable
             rows={rows}
             scrollRef={scrollRef}
+            // A new search, filter, sort or event starts again from the top.
+            resetKey={[eventChoice, effectiveFilter, q, sort]}
             hasMore={
               dancersQuery.hasNextPage && !dancersQuery.isFetchNextPageError
             }

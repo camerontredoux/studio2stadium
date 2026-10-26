@@ -3101,6 +3101,7 @@ export interface paths {
                     search?: string | null;
                     status?: ("pending" | "active" | "all") | null;
                     org?: string | null;
+                    checkedIn?: (string | number | boolean) | null;
                     limit?: (string | number) | null;
                     page?: (string | number) | null;
                     sortBy?: ("email" | "createdAt" | "firstName" | "lastName" | "organization" | "bibNumber" | "checkedInAt" | "isRegistered") | null;
@@ -3920,8 +3921,8 @@ export interface paths {
                 query?: {
                     search?: string | null;
                     actorId?: string | null;
-                    action?: ("upload" | "create" | "update" | "delete" | "activate" | "resend_invite") | null;
-                    resource?: ("video" | "roster" | "event" | "checklist" | "csv_upload" | "invite" | "video_category") | null;
+                    actions?: ("upload" | "create" | "update" | "delete" | "activate" | "resend_invite" | "check_in") | ("upload" | "create" | "update" | "delete" | "activate" | "resend_invite" | "check_in")[] | null;
+                    resources?: ("video" | "roster" | "event" | "checklist" | "csv_upload" | "invite" | "video_category") | ("video" | "roster" | "event" | "checklist" | "csv_upload" | "invite" | "video_category")[] | null;
                     from?: string | null;
                     to?: string | null;
                     limit?: (string | number) | null;
@@ -4042,7 +4043,110 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/orgs/{slug}/events/{id}/reconciliation": {
+    "/orgs/{slug}/events/{id}/reconciliation/invites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    search?: string | null;
+                    limit?: (string | number) | null;
+                    page?: (string | number) | null;
+                    claimed?: (string | number | boolean) | null;
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdReconciliationInvitesResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/reconciliation/orphans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    search?: string | null;
+                    limit?: (string | number) | null;
+                    page?: (string | number) | null;
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdReconciliationOrphansResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/reconciliation/counts": {
         parameters: {
             query?: never;
             header?: never;
@@ -4067,7 +4171,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdReconciliationResponse"];
+                        "application/json": components["schemas"]["OrgsIdEventsIdReconciliationCountsResponse"];
                     };
                 };
             };
@@ -5899,7 +6003,10 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    limit?: (string | number) | null;
+                    page?: (string | number) | null;
+                };
                 header?: never;
                 path: {
                     slug: string;
@@ -5915,6 +6022,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["OrgsIdAdminCallbacksResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -6143,7 +6259,10 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    limit?: (string | number) | null;
+                    page?: (string | number) | null;
+                };
                 header?: never;
                 path: {
                     slug: string;
@@ -6160,6 +6279,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["OrgsIdShowcasesIdCallbacksResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -12670,24 +12798,6 @@ export interface components {
                 };
             }[];
         };
-        OrgsIdEventsIdReconciliationResponse: {
-            invites: {
-                id: string;
-                email: string;
-                createdAt: string;
-                organization: string | null;
-                expiresAt: string;
-                token: string;
-                consumedAt: string | null;
-            }[];
-            orphanRosters: {
-                id: string;
-                email: string;
-                firstName: string;
-                lastName: string;
-                organization: string | null;
-            }[];
-        };
         OrgsIdEventsIdReconciliationInvitesIdResponse: {
             revoked: boolean;
         };
@@ -13121,12 +13231,15 @@ export interface components {
             publishedAt: string | null;
         }[];
         OrgsIdShowcasesIdCallbacksResponse: {
-            dancerRosterId: string;
-            bibNumber: number | null;
-            firstName: string;
-            lastName: string;
-            coachCount: number;
-        }[];
+            data: {
+                dancerRosterId: string;
+                bibNumber: number | null;
+                firstName: string;
+                lastName: string;
+                coachCount: number;
+            }[];
+            total: number;
+        };
         OrgsIdShowcasesPublishpreviewResponse: {
             coaches: {
                 coachRosterId: string;
@@ -14230,6 +14343,32 @@ export interface components {
         };
         OrgsIdEventsIdScheduleUrlResponse: {
             url: string;
+        };
+        OrgsIdEventsIdReconciliationInvitesResponse: {
+            data: {
+                id: string;
+                email: string;
+                createdAt: string;
+                organization: string | null;
+                expiresAt: string;
+                consumedAt: string | null;
+            }[];
+            total: number;
+        };
+        OrgsIdEventsIdReconciliationOrphansResponse: {
+            data: {
+                id: string;
+                email: string;
+                firstName: string;
+                lastName: string;
+                organization: string | null;
+            }[];
+            total: number;
+        };
+        OrgsIdEventsIdReconciliationCountsResponse: {
+            unclaimed: number;
+            claimed: number;
+            orphans: number;
         };
     };
     responses: never;

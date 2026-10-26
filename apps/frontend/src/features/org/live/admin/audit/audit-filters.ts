@@ -1,7 +1,5 @@
 import type {
-  AuditAction,
   AuditListParams,
-  AuditLogEntry,
   AuditResource,
 } from "@/features/org/api/audit-queries";
 
@@ -12,7 +10,7 @@ import {
   zonedInstant,
 } from "@/features/org/lib/event-clock";
 
-import { displayAction, type AuditDisplayAction } from "./audit-format";
+import type { AuditDisplayAction } from "./audit-format";
 
 export type DatePreset =
   | "all"
@@ -123,65 +121,22 @@ export function resolveDateRange(
   }
 }
 
-function apiAction(action: AuditDisplayAction): AuditAction {
-  return action === "check_in" ? "update" : action;
-}
-
-/**
- * The list query's params. The API filters one action and one resource at a
- * time, so it gets a value only when the selection maps to exactly one;
- * `matchesFilters` narrows the rest on the client.
- */
+/** The list query's params; the API applies every filter itself. */
 export function toListParams(
   filters: AuditFilters,
   now: Date,
   event: EventDates,
 ): Omit<AuditListParams, "page" | "limit"> {
   const { from, to } = resolveDateRange(filters, now, event);
-  const actions = new Set(filters.actions.map(apiAction));
   const search = filters.search.trim();
   return {
     search: search || undefined,
-    action: actions.size === 1 ? [...actions][0] : undefined,
-    resource: filters.resources.length === 1 ? filters.resources[0] : undefined,
+    actions: filters.actions.length > 0 ? filters.actions : undefined,
+    resources: filters.resources.length > 0 ? filters.resources : undefined,
     from: from?.toISOString(),
     to: to?.toISOString(),
     sortDir: "desc",
   };
-}
-
-/** True when the API applies every filter itself, so its total is exact. */
-export function isServerExact(filters: AuditFilters): boolean {
-  const actionsExact =
-    filters.actions.length === 0 ||
-    (filters.actions.length === 1 &&
-      filters.actions[0] !== "update" &&
-      filters.actions[0] !== "check_in") ||
-    // Update + check in is every API `update`.
-    (filters.actions.length === 2 &&
-      filters.actions.includes("update") &&
-      filters.actions.includes("check_in"));
-  return actionsExact && filters.resources.length <= 1;
-}
-
-/** The client-side half of the action and resource filters. */
-export function matchesFilters(
-  entry: AuditLogEntry,
-  filters: Pick<AuditFilters, "actions" | "resources">,
-): boolean {
-  if (
-    filters.actions.length > 0 &&
-    !filters.actions.includes(displayAction(entry))
-  ) {
-    return false;
-  }
-  if (
-    filters.resources.length > 0 &&
-    !filters.resources.includes(entry.resource)
-  ) {
-    return false;
-  }
-  return true;
 }
 
 export function hasActiveFilters(filters: AuditFilters): boolean {

@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef } from "react";
 
 import { Tag } from "@/components/event/tag";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
@@ -12,6 +13,13 @@ export type CallbackBib = {
   firstName: string;
   lastName: string;
   coachCount: number;
+};
+
+/** Loads the next page of chips as the end of the list nears the viewport. */
+export type LoadMore = {
+  hasMore: boolean;
+  loadingMore: boolean;
+  onLoadMore: () => void;
 };
 
 export type Showcase = {
@@ -38,25 +46,60 @@ export function PublishedShowcase({
   showcase: Showcase;
   enabled: boolean;
 }) {
-  const { data, isPending } = useQuery({
-    ...scoutingQueries.publishedCallbacks(orgSlug, showcase.id),
+  const query = useInfiniteQuery({
+    ...scoutingQueries.publishedCallbackPages(orgSlug, showcase.id),
     enabled,
   });
-  return <ShowcaseGroup showcase={showcase} bibs={data} loading={isPending} />;
+  const pages = query.data?.pages;
+  const bibs = useMemo(() => pages?.flatMap((page) => page.data), [pages]);
+  return (
+    <ShowcaseGroup
+      showcase={showcase}
+      bibs={bibs}
+      loading={query.isPending}
+      more={{
+        hasMore: query.hasNextPage && !query.isFetchNextPageError,
+        loadingMore: query.isFetchingNextPage,
+        onLoadMore: () => void query.fetchNextPage(),
+      }}
+    />
+  );
 }
 
-/** One showcase: title, when, status pill, then its dancers as bib chips. */
+/**
+ * One showcase: title, when, status pill, then its dancers as bib chips.
+ * The chips wrap at their own widths, so they aren't virtualized; they arrive a
+ * page at a time as the end scrolls into view.
+ */
 export function ShowcaseGroup({
   showcase,
   bibs,
   loading = false,
   note,
+  more,
 }: {
   showcase: Showcase;
   bibs: CallbackBib[] | undefined;
   loading?: boolean;
   note?: string;
+  more?: LoadMore;
 }) {
+  const end = useRef<HTMLSpanElement>(null);
+  const hasMore = !!more?.hasMore;
+  const loadingMore = !!more?.loadingMore;
+  const onLoadMore = more?.onLoadMore;
+  useEffect(() => {
+    const el = end.current;
+    if (!el || !hasMore || loadingMore || !onLoadMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) onLoadMore();
+      },
+      { rootMargin: "400px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore, onLoadMore]);
   const published = showcase.status === "published";
   return (
     <section
@@ -103,6 +146,11 @@ export function ShowcaseGroup({
           </span>
         )}
       </div>
+      {hasMore && (
+        <span ref={end} className="text-fg-3 text-[12px]">
+          {loadingMore ? "Loading more…" : null}
+        </span>
+      )}
     </section>
   );
 }

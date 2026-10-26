@@ -81,6 +81,19 @@ transmit.authorize<{ slug: string }>(
   }
 );
 
+// The check-in desk listens here for check-ins made anywhere else (another
+// desk, a scan, a dancer's own pass), so it admits who `orgAdmin` admits.
+transmit.authorize<{ slug: string }>(
+  "orgs/:slug/check-in",
+  async (ctx, { slug }) => {
+    const subscriber = await loadSubscriber(ctx, slug);
+    if (!subscriber) return false;
+    if (subscriber.user.role === "admin") return true;
+
+    return grantsOrgAdmin(resolveEffectiveMembership(subscriber.memberships));
+  }
+);
+
 // Subscribed by the admin callbacks board and by the dancer sidebar, so it
 // admits who the `orgMember` + `orgDancer` route middleware admits: platform
 // admins, org admins (Organizers included), and dancers.
