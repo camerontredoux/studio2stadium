@@ -91,7 +91,7 @@ export function ShowcaseGroup({
             >
               {`${bib.firstName} ${bib.lastName}`.trim()}
               {bib.coachCount > 1 && (
-                <span className="text-fg-3 font-mono text-[11px]">
+                <span className="text-count font-mono text-[11px]">
                   ×{bib.coachCount}
                 </span>
               )}
