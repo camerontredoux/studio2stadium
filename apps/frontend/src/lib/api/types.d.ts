@@ -12528,6 +12528,7 @@ export interface components {
                     lastName: string | null;
                     email: string | null;
                     bibNumber: number | null;
+                    avatarUrl: string | null;
                 } | null;
             }[];
             total: number;
@@ -12896,6 +12897,7 @@ export interface components {
             firstName: string;
             lastName: string;
             username: string | null;
+            avatarUrl: string | null;
             isTopSchool: boolean;
         }[];
         OrgsIdMyselectionsResponse: {

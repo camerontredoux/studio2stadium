@@ -26,6 +26,7 @@ import { cn } from "@/components/utils/cn";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { useIsPhone } from "@/features/org/live/admin/rosters/use-is-phone";
 import { DancerBib } from "@/features/org/live/shared/dancer-bib";
+import { PersonAvatar } from "@/features/org/live/shared/person-avatar";
 
 import {
   dancerName,
@@ -347,7 +348,16 @@ function RosterRow({
           />
         </DataTableCell>
         {/* `text`, not `strong`: a truncating cell would clip the button's focus ring. */}
-        <DataTableCell kind="text" className="flex min-w-0">
+        <DataTableCell
+          kind="text"
+          className="flex min-w-0 items-center gap-(--space-8)"
+        >
+          <PersonAvatar
+            firstName={row.firstName}
+            lastName={row.lastName}
+            src={row.profilePhotoUrl}
+            className="size-6"
+          />
           <button
             type="button"
             onClick={() => onOpenDancer(row.rosterId)}

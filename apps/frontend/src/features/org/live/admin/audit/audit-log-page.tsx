@@ -17,6 +17,7 @@ import {
 } from "@/features/org/api/audit-queries";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import { SubpageHeader } from "@/features/org/live/shared/event-header";
+import { PersonAvatar } from "@/features/org/live/shared/person-avatar";
 import { ShellPage } from "@/features/org/live/shared/shell-slots";
 
 import { AuditEntryDetail } from "./audit-entry-detail";
@@ -105,7 +106,15 @@ function EntrySummary({
       >
         {relativeTime(entry.createdAt, now)}
       </span>
-      <span className="min-w-0 truncate font-medium">{actorName(entry)}</span>
+      <span className="flex min-w-0 items-center gap-(--space-8)">
+        <PersonAvatar
+          firstName={entry.actor.firstName}
+          lastName={entry.actor.lastName}
+          src={entry.actor.avatarUrl}
+          className="size-6"
+        />
+        <span className="min-w-0 truncate font-medium">{actorName(entry)}</span>
+      </span>
       <span
         className={cn(
           "type-label min-w-0 truncate",
@@ -119,12 +128,20 @@ function EntrySummary({
       </span>
       <span
         className={cn(
-          "min-w-0 truncate",
+          "flex min-w-0 items-center gap-(--space-8)",
           dancer ? "text-fg" : "text-fg-disabled",
           hideBelowBoard,
         )}
       >
-        {dancer ?? "—"}
+        {entry.subject && dancer && (
+          <PersonAvatar
+            firstName={entry.subject.firstName}
+            lastName={entry.subject.lastName}
+            src={entry.subject.avatarUrl}
+            className="size-6"
+          />
+        )}
+        <span className="min-w-0 truncate">{dancer ?? "—"}</span>
       </span>
       <span className="text-fg-2 min-w-0 truncate">
         {summarizeEntry(entry, timeZone)}

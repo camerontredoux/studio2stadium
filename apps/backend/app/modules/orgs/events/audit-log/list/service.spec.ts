@@ -4,6 +4,7 @@ import {
   csvUploadRows,
   csvUploads,
   eventAuditLog,
+  eventDancerProfiles,
   eventRosters,
   orgEvents,
 } from "#database/schema/org-events";
@@ -102,6 +103,20 @@ test.group("ListAuditLogService", (group) => {
     assert.equal(res.data[0]!.subject?.rosterId, rosterId);
     assert.equal(res.data[0]!.subject?.email, CURRENT_EMAIL);
     assert.equal(res.data[0]!.subject?.bibNumber, 337);
+  });
+
+  test("gives the dancer their event profile photo", async ({ assert }) => {
+    await db
+      .insert(eventDancerProfiles)
+      .values({ rosterId, profilePhotoUrl: "https://example.com/dancer.jpg" });
+
+    const svc = new ListAuditLogService();
+    const res = await svc.execute(eventId, {});
+
+    assert.equal(
+      res.data[0]!.subject?.avatarUrl,
+      "https://example.com/dancer.jpg"
+    );
   });
 
   test("still matches the acting admin", async ({ assert }) => {

@@ -17,6 +17,7 @@ import { formatClock } from "@/features/org/lib/event-clock";
 import { useEventTimeZone } from "@/features/org/live/shared/use-event-time-zone";
 import type { RosterEntry } from "@/features/org/api/roster-queries";
 import { DancerBib } from "@/features/org/live/shared/dancer-bib";
+import { PersonAvatar } from "@/features/org/live/shared/person-avatar";
 
 import {
   fullName,
@@ -201,7 +202,16 @@ function RosterCell({
     case "name":
       // `text`, not `strong`: a truncating cell would clip the button's focus ring.
       return (
-        <DataTableCell kind="text" className={phone}>
+        <DataTableCell
+          kind="text"
+          className={cn(phone, "flex min-w-0 items-center gap-(--space-8)")}
+        >
+          <PersonAvatar
+            firstName={row.firstName}
+            lastName={row.lastName}
+            src={row.profile?.profilePhotoUrl ?? row.linkedUser?.avatarUrl}
+            className="size-6"
+          />
           <button
             type="button"
             onClick={() => onOpenEntry(row)}

@@ -63,6 +63,7 @@ describe("auditCsv", () => {
           firstName: "Mary",
           lastName: "Miller",
           email: "mary@example.com",
+          avatarUrl: null,
         },
       } as Partial<AuditLogEntry>),
       entry({

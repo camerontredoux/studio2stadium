@@ -16541,6 +16541,16 @@
                               "type": "null"
                             }
                           ]
+                        },
+                        "avatarUrl": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         }
                       },
                       "required": [
@@ -16548,7 +16558,8 @@
                         "firstName",
                         "lastName",
                         "email",
-                        "bibNumber"
+                        "bibNumber",
+                        "avatarUrl"
                       ]
                     },
                     {
@@ -18614,6 +18625,16 @@
                 }
               ]
             },
+            "avatarUrl": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "isTopSchool": {
               "type": "boolean"
             }
@@ -18624,6 +18645,7 @@
             "firstName",
             "lastName",
             "username",
+            "avatarUrl",
             "isTopSchool"
           ]
         }

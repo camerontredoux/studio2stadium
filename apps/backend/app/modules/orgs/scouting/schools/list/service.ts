@@ -4,6 +4,7 @@ import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { eventSchoolSelections } from "#database/schema/event-features";
 import { orgMemberships } from "#database/schema/organizations";
 import { users } from "#database/schema/users";
+import { imageUrl } from "#utils/image-url";
 import { and, eq, sql } from "drizzle-orm";
 
 @inject()
@@ -34,6 +35,7 @@ export class ListSchoolsService {
           firstName: eventRosters.firstName,
           lastName: eventRosters.lastName,
           username: users.username,
+          avatar: users.avatar,
           isTopSchool: isTopSchoolSubquery,
           userId: eventRosters.userId,
           eventId: eventRosters.eventId,
@@ -92,6 +94,7 @@ export class ListSchoolsService {
         firstName: row.firstName,
         lastName: row.lastName,
         username: row.username,
+        avatarUrl: imageUrl(row.avatar, "avatar"),
         isTopSchool: row.isTopSchool,
       }));
   }
