@@ -61,6 +61,15 @@ export default await Env.create(new URL("../", import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Who gets the "new school application" email when a school
+  | submits its application (defaults to
+  | abbey@studio2stadium.com when unset)
+  |----------------------------------------------------------
+  */
+  APPLICATION_ALERT_EMAIL: Env.schema.string.optional({ format: "email" }),
+
+  /*
+  |----------------------------------------------------------
   | Dev-only one-click sign-in link (GET /auth/dev-sign-in).
   | Set only by run-dev-server's private .env copy; ignored
   | unless NODE_ENV=development.
