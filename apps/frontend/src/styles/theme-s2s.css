@@ -517,6 +517,18 @@ html:not(.dark) .theme-s2s {
     font-size: 16px;
   }
 }
+/* The open panel's settled size, which WidgetBoard writes on each panel. Not inherited,
+   so a new size restyles only the panel, not the hundreds of elements inside it. */
+@property --open-panel-w {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --open-panel-h {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
 
 /* ═══════════════════════════════════════════════════════════════════════
    Shell: sidebar, header, body grid, rail, widget board, widget, phone dock.
@@ -1252,6 +1264,16 @@ html:not(.dark) .theme-s2s {
     flex: 1;
     min-height: 0;
     overflow: auto;
+  }
+  /* `visibility` inherits, so each open or close of the layer restyled every element in
+     the body (hundreds of Callbacks chips). Setting it here stops that at the body. The
+     layer's `content-visibility: hidden` flips with its `visibility`, so a hidden layer's
+     body still isn't rendered, clickable or focusable; without that support, keep the
+     inherited `visibility` doing the hiding. */
+  @supports (content-visibility: hidden) {
+    .s2s-widget-fbody {
+      visibility: visible;
+    }
   }
   .s2s-widget[data-state="open"] {
     overflow: clip;
