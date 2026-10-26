@@ -7,8 +7,8 @@ import { useOrg } from "@/features/org/context/use-org";
 import { cn } from "@/components/utils/cn";
 
 /**
- * Shown to admins while they "view as" a coach/dancer, at the end of the app
- * header. Their favorites, ratings, and callbacks here live in a staff sandbox
+ * Shown to admins while they "view as" a coach/dancer, at the start of the app
+ * header, in its own pill. Their favorites, ratings, and callbacks here live in a staff sandbox
  * (a hidden `is_staff` roster) and never surface in participant tables or
  * results. Renders nothing for real participants.
  *
@@ -33,7 +33,7 @@ export function ViewAsIndicator({
     <div
       role="status"
       className={cn(
-        "type-caption text-fg flex flex-none items-center gap-(--space-4) font-medium whitespace-nowrap",
+        "type-caption text-fg bg-surface-chip border-line flex flex-none items-center gap-(--space-4) rounded-full border py-0.5 ps-2.5 pe-1 font-medium whitespace-nowrap",
         placement === "header"
           ? "max-[800px]:hidden"
           : "ms-auto min-[801px]:hidden",
