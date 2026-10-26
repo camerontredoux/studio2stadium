@@ -13,6 +13,7 @@ import {
 } from "#database/schema/event-features";
 import { dancerProfiles } from "#database/schema/dancers";
 import { users } from "#database/schema/users";
+import { imageUrl } from "#utils/image-url";
 import { and, eq, isNotNull, sql, type SQL } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 import type { ScoutingViewScope } from "../../view-scope.ts";
@@ -36,6 +37,7 @@ type Row = {
   hasNote: boolean;
   isCalledBack: boolean;
   username: string | null;
+  avatar: string | null;
   eventId: string;
 };
 
@@ -102,6 +104,7 @@ export class ListDancersService {
             has_note AS "hasNote",
             is_called_back AS "isCalledBack",
             username,
+            avatar,
             event_id AS "eventId"
           FROM shown
           WHERE ${matches}
@@ -128,7 +131,12 @@ export class ListDancersService {
       rated: 0,
       total: 0,
     };
-    return { data: [...rows], total, counts: tabs };
+    // The event photo, else the linked account's avatar, as the admin roster does.
+    const data = [...rows].map(({ avatar, ...row }) => ({
+      ...row,
+      profilePhotoUrl: row.profilePhotoUrl ?? imageUrl(avatar, "avatar"),
+    }));
+    return { data, total, counts: tabs };
   }
 
   /**
@@ -274,6 +282,7 @@ export class ListDancersService {
           ${hasNote} AS has_note,
           ${isCalledBack} AS is_called_back,
           ${users.username} AS username,
+          ${users.avatar} AS avatar,
           ${eventRosters.userId} AS user_id,
           NULLIF(LOWER(TRIM(${eventRosters.email})), '') AS email_key,
           ${eventRosters.eventId} AS event_id,

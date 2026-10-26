@@ -9,6 +9,7 @@ import {
 } from "#database/schema/org-events";
 import { eventFavorites, eventRatings } from "#database/schema/event-features";
 import { seedOrganizations } from "#commands/backfill-organizations";
+import { imageUrl } from "#utils/image-url";
 import { eq } from "drizzle-orm";
 import { ListDancersService } from "./service.ts";
 
@@ -223,6 +224,42 @@ test.group("ListDancersService", (group) => {
     assert.equal(rows.length, 1);
     assert.isNull(rows[0]!.profilePhotoUrl);
     assert.isNull(rows[0]!.studio);
+  });
+
+  test("falls back to the linked account's avatar when there is no event photo", async ({
+    assert,
+  }) => {
+    const [user] = await db
+      .insert(users)
+      .values({
+        username: "alice",
+        email: "alice@x.co",
+        displayEmail: "alice@x.co",
+        firstName: "Alice",
+        lastName: "Smith",
+        password: "x",
+        role: "user",
+        type: "dancer",
+        verified: true,
+        avatar: "avatar/alice/photo",
+      })
+      .returning();
+    await db.insert(eventRosters).values({
+      eventId: event.id,
+      type: "dancer",
+      email: "alice@x.co",
+      firstName: "Alice",
+      lastName: "Smith",
+      bibNumber: 101,
+      userId: user!.id,
+    });
+
+    const svc = new ListDancersService();
+    const { data: rows } = await svc.execute(summit.id, event.id, null, {});
+    assert.equal(
+      rows[0]!.profilePhotoUrl,
+      imageUrl("avatar/alice/photo", "avatar")
+    );
   });
 
   test("returns eventDancerProfiles fields when profile exists", async ({
