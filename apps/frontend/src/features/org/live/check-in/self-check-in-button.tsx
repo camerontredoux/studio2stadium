@@ -50,7 +50,7 @@ export function SelfCheckInButton({
       onClick={toggle}
     >
       <Icon icon={selfCheckIn ? CheckIcon : HandTapIcon} />
-      {selfCheckIn ? "Self check-in on" : "Allow self check-in"}
+      {selfCheckIn ? "Self check-in on" : "Self check-in off"}
     </Button>
   );
 }
