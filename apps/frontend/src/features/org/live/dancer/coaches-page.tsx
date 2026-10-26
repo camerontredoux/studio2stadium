@@ -276,32 +276,30 @@ function CoachTableRow({
 
   return (
     <DataTableRow className="min-h-12">
-      <DataTableCell kind="strong">
+      <DataTableCell
+        kind="strong"
+        className="flex min-w-0 items-center gap-(--space-8)"
+      >
+        <PersonAvatar
+          firstName={row.school.firstName}
+          lastName={row.school.lastName}
+          src={row.school.avatarUrl}
+          className="size-6"
+        />
         {row.school.username ? (
           <Link
             to="/explore/$username"
             params={{ username: row.school.username }}
-            className="text-fg s2s-focus rounded-(--radius-4) no-underline hover:underline"
+            className="text-fg s2s-focus min-w-0 truncate rounded-(--radius-4) no-underline hover:underline"
           >
             {row.name}
           </Link>
         ) : (
-          row.name
+          <span className="min-w-0 truncate">{row.name}</span>
         )}
       </DataTableCell>
-      <DataTableCell
-        kind="dim"
-        className="bp-phone:hidden flex min-w-0 items-center gap-(--space-8)"
-      >
-        {row.coach && (
-          <PersonAvatar
-            firstName={row.school.firstName}
-            lastName={row.school.lastName}
-            src={row.school.avatarUrl}
-            className="size-6"
-          />
-        )}
-        <span className="min-w-0 truncate">{row.coach || "–"}</span>
+      <DataTableCell kind="dim" className="bp-phone:hidden">
+        {row.coach || "–"}
       </DataTableCell>
       {callbacksOn && (
         <DataTableCell className="flex min-w-0 items-center gap-(--space-8)">
