@@ -131,8 +131,8 @@ function WidgetBoard({
   );
 
   const ctx = React.useMemo(
-    () => ({ order, openId, setOpen }),
-    [order, openId, setOpen],
+    () => ({ order, openId, animating: anim, setOpen }),
+    [order, openId, anim, setOpen],
   );
 
   const n = order.length;

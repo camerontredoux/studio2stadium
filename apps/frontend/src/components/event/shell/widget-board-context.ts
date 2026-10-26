@@ -3,6 +3,8 @@ import * as React from "react";
 type WidgetBoardContextValue = {
   order: readonly string[];
   openId: string | null;
+  /** True while the board's tracks animate after an open or close. */
+  animating: boolean;
   setOpen: (id: string | null) => void;
 };
 
@@ -19,6 +21,7 @@ export function useWidgetBoardSlot(id: string) {
   return {
     index,
     state,
+    animating: ctx.animating,
     open: () => ctx.setOpen(id),
     collapse: () => ctx.setOpen(null),
   };
