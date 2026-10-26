@@ -57,10 +57,19 @@ export function useVirtualRows({
   });
   const virtualizer = phone ? inWindow : inBox;
 
-  // Through the virtualizer, not the element: it drops the old rows' measured
-  // heights and its own scroll offset, which would otherwise shift the new
-  // rows' positions and scroll the box back down as they're measured.
-  // Compared by value: callers pass a fresh array or object each render.
+  // A row measured above the viewport shifts the rows below it, so the
+  // virtualizer scrolls by the difference. By default it judges "above" by its
+  // own offset, which lags a programmatic scroll until the scroll event: after
+  // a reset to the top, the new rows looked above the old offset and scrolled
+  // the box back down to it. Judge by where the box or page really is.
+  inBox.shouldAdjustScrollPositionOnItemSizeChange = (item) =>
+    item.start < (scrollRef.current?.scrollTop ?? 0);
+  inWindow.shouldAdjustScrollPositionOnItemSizeChange = (item) =>
+    item.start < window.scrollY;
+
+  // Through the virtualizer, not the element, so its measured heights start
+  // over with the new rows. Compared by value: callers pass a fresh array or
+  // object each render.
   const reset = JSON.stringify(resetKey ?? null);
   useLayoutEffect(() => {
     if (phone) return;
