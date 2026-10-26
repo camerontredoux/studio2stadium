@@ -10,6 +10,7 @@ import {
   lazy,
   type ReactNode,
   Suspense,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -90,9 +91,9 @@ function ScheduleSheet() {
   );
 }
 
-// pdf.js is large, so it loads only when a schedule PDF is shown this way.
-// If the chunk fails to load (a deploy replaced it, a flaky network), fall
-// back to the iframe instead of the error boundary.
+// pdf.js is large, so it loads only when the widget shows a schedule PDF.
+// If the chunk fails to load (a deploy replaced it, a flaky network), show
+// the download fallback instead of the error boundary.
 const SchedulePdfPages = lazy<ComponentType<SchedulePdfPagesProps>>(() =>
   import("@/features/org/live/shared/schedule-pdf-pages").catch(() => ({
     default: PdfPagesUnavailable,
@@ -105,32 +106,59 @@ function PdfPagesUnavailable({ onError }: SchedulePdfPagesProps) {
 }
 
 /**
- * iOS Safari draws a PDF in an iframe as a still image of page 1 that can't
- * be scrolled to later pages, and Android Chrome has no in-frame viewer at
- * all (`pdfViewerEnabled` is false). Those browsers get the pages in-page.
+ * Fetches the schedule PDF straight from storage with a signed URL, so the
+ * bytes never pass through the API. If storage refuses the read (its CORS
+ * rule doesn't allow this origin) or the URL fails, it falls back to the
+ * API's copy, which the browser may cache by the schedule's key.
  */
-function pdfNeedsInPageView() {
-  const ua = navigator.userAgent;
-  // iPadOS reports a Mac user agent; touch points tell it apart.
-  const iOS =
-    /iPad|iPhone|iPod/.test(ua) ||
-    (ua.includes("Macintosh") && navigator.maxTouchPoints > 1);
-  return iOS || navigator.pdfViewerEnabled === false;
+async function fetchSchedulePdf(
+  orgSlug: string,
+  eventId: string,
+  scheduleKey: string,
+  signal: AbortSignal,
+): Promise<Uint8Array> {
+  try {
+    const { data } = await client.GET("/orgs/{slug}/events/{id}/schedule/url", {
+      params: { path: { slug: orgSlug, id: eventId } },
+      signal,
+    });
+    if (data) {
+      const res = await fetch(data.url, { credentials: "omit", signal });
+      if (res.ok) return new Uint8Array(await res.arrayBuffer());
+    }
+  } catch (err) {
+    if (signal.aborted) throw err;
+  }
+
+  const fallback = `${scheduleFileUrl(orgSlug, eventId)}/file?v=${encodeURIComponent(scheduleKey)}`;
+  const res = await fetch(fallback, { credentials: "include", signal });
+  if (!res.ok) throw new Error(`Schedule fetch failed: ${res.status}`);
+  return new Uint8Array(await res.arrayBuffer());
 }
 
 function SchedulePreview({
+  orgSlug,
+  eventId,
+  scheduleKey,
   fileUrl,
-  isPdf,
   mounted,
 }: {
+  orgSlug: string;
+  eventId: string;
+  scheduleKey: string;
   fileUrl: string;
-  isPdf: boolean;
   /** False until the widget first settles open; the file loads from then on. */
   mounted: boolean;
 }) {
   const [loaded, setLoaded] = useState(false);
-  // Falls back to the iframe if pdf.js can't fetch or read the file.
-  const [inPage, setInPage] = useState(() => isPdf && pdfNeedsInPageView());
+  const [failed, setFailed] = useState(false);
+  const isPdf = scheduleKey.toLowerCase().endsWith(".pdf");
+
+  const loadPdf = useCallback(
+    (signal: AbortSignal) =>
+      fetchSchedulePdf(orgSlug, eventId, scheduleKey, signal),
+    [orgSlug, eventId, scheduleKey],
+  );
 
   return (
     <div className="bg-bg-150 relative h-full min-h-[320px]">
@@ -139,21 +167,30 @@ function SchedulePreview({
           <BusyLabel label="Loading schedule…" />
         </div>
       )}
-      {!mounted ? null : isPdf && inPage ? (
+      {!mounted ? null : failed ? (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-(--space-10) p-(--space-16) text-center">
+          <p className="type-body text-fg-2 m-0">
+            The schedule couldn&apos;t be shown here.
+          </p>
+          <Button
+            size="sm"
+            render={<a href={fileUrl} target="_blank" rel="noreferrer" />}
+          >
+            <Icon icon={DownloadSimpleIcon} />
+            Open the schedule
+          </Button>
+        </div>
+      ) : isPdf ? (
         <Suspense fallback={null}>
           <SchedulePdfPages
-            url={`${fileUrl}/file`}
+            load={loadPdf}
             onReady={() => setLoaded(true)}
-            onError={() => setInPage(false)}
+            onError={() => {
+              setFailed(true);
+              setLoaded(true);
+            }}
           />
         </Suspense>
-      ) : isPdf ? (
-        <iframe
-          src={fileUrl}
-          title="Event schedule"
-          className="absolute inset-0 size-full border-0"
-          onLoad={() => setLoaded(true)}
-        />
       ) : (
         <img
           src={fileUrl}
@@ -180,7 +217,7 @@ function ScheduleWidget({ event, mode, id = "schedule" }: ScheduleWidgetProps) {
   const [confirmRemove, setConfirmRemove] = useState(false);
   const replaceInput = useRef<HTMLInputElement>(null);
   // The board keeps every layer in the DOM, so the file would otherwise load
-  // and start the browser's PDF viewer on dashboard load. Mount it once the
+  // and pull in pdf.js on dashboard load. Mount it once the
   // widget first settles open, after its animation, and keep it so reopening
   // shows it at once. The board holds the open panel's size while it animates.
   const slot = useWidgetBoardSlot(id);
@@ -334,8 +371,10 @@ function ScheduleWidget({ event, mode, id = "schedule" }: ScheduleWidgetProps) {
         <SchedulePreview
           // The URL stays the same across a replace; a new key reloads the file.
           key={scheduleKey}
+          orgSlug={orgSlug}
+          eventId={event.id}
+          scheduleKey={scheduleKey}
           fileUrl={fileUrl}
-          isPdf={scheduleKey.toLowerCase().endsWith(".pdf")}
           mounted={previewMounted}
         />
         {uploading && progress !== null && (

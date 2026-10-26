@@ -14,32 +14,67 @@ GlobalWorkerOptions.workerSrc = workerUrl;
 // Sharp on retina screens without the canvas memory of a 3x render.
 const MAX_PIXEL_RATIO = 2;
 
+// Pages within one column height above or below the visible area are drawn.
+// Pages further away keep their size but give their canvas memory back.
+const NEAR_MARGIN = "100% 0px";
+
+// Width over height of a US Letter page, until the real size is known.
+const LETTER_ASPECT = 8.5 / 11;
+
 type SchedulePdfPagesProps = {
-  /** Same-origin-safe URL that returns the PDF's bytes to a credentialed fetch. */
-  url: string;
+  /** Resolves to the PDF's bytes. Called once per mount. */
+  load: (signal: AbortSignal) => Promise<Uint8Array>;
   /** Called once the first page is drawn. */
   onReady: () => void;
   /** Called when the file can't be fetched or parsed. */
   onError: () => void;
 };
 
+type LoadedPdf = {
+  doc: PDFDocumentProxy;
+  /** Width over height of each page, in page order. */
+  aspects: number[];
+};
+
 function PdfPage({
   doc,
   pageNumber,
+  aspect,
   width,
+  root,
   onRendered,
 }: {
   doc: PDFDocumentProxy;
   pageNumber: number;
+  aspect: number;
   width: number;
+  root: HTMLElement;
   onRendered?: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [aspect, setAspect] = useState<number | null>(null);
+  const [near, setNear] = useState(false);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setNear(entry?.isIntersecting ?? false),
+      { root, rootMargin: NEAR_MARGIN },
+    );
+    observer.observe(canvas);
+    return () => observer.disconnect();
+  }, [root]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || width <= 0) return;
+    if (!near) {
+      // Zero size frees the bitmap; CSS keeps the placeholder at page size.
+      canvas.width = 0;
+      canvas.height = 0;
+      delete canvas.dataset.drawn;
+      return;
+    }
     let cancelled = false;
     let task: RenderTask | null = null;
 
@@ -52,13 +87,14 @@ function PdfPage({
       });
       canvas.width = Math.floor(viewport.width);
       canvas.height = Math.floor(viewport.height);
-      setAspect(base.width / base.height);
       task = page.render({ canvas, viewport });
       task.promise.then(
         () => {
-          if (!cancelled) onRendered?.();
+          if (cancelled) return;
+          canvas.dataset.drawn = "";
+          onRendered?.();
         },
-        // A re-render on resize cancels the previous one; nothing to report.
+        // A re-render on resize or scroll cancels the previous one.
         () => {},
       );
     });
@@ -67,7 +103,7 @@ function PdfPage({
       cancelled = true;
       task?.cancel();
     };
-  }, [doc, pageNumber, width, onRendered]);
+  }, [doc, pageNumber, width, near, onRendered]);
 
   return (
     <canvas
@@ -75,26 +111,26 @@ function PdfPage({
       role="img"
       aria-label={`Page ${pageNumber} of ${doc.numPages}`}
       className="block w-full bg-white shadow-sm"
-      style={{ aspectRatio: aspect ?? 8.5 / 11 }}
+      style={{ aspectRatio: aspect }}
     />
   );
 }
 
 /**
- * Draws every page of a PDF into canvases stacked in a scrolling column.
- * Used where the browser's own viewer fails inside an iframe: iOS Safari
- * draws only page 1 as a still image, and Android Chrome draws nothing.
- * Loaded on demand, so pdf.js stays out of the dashboard bundle.
+ * Draws a PDF's pages into canvases stacked in a scrolling column, the full
+ * width of the column. Only pages near the visible area are drawn; the rest
+ * are blank placeholders at their page's size. Loaded on demand, so pdf.js
+ * stays out of the dashboard bundle.
  */
-function SchedulePdfPages({ url, onReady, onError }: SchedulePdfPagesProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
+function SchedulePdfPages({ load, onReady, onError }: SchedulePdfPagesProps) {
+  const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);
+  const [pdf, setPdf] = useState<LoadedPdf | null>(null);
   const [width, setWidth] = useState(0);
 
   // Keep the latest callbacks without refetching when the parent re-renders.
-  const callbacks = useRef({ onReady, onError });
+  const callbacks = useRef({ load, onReady, onError });
   useEffect(() => {
-    callbacks.current = { onReady, onError };
+    callbacks.current = { load, onReady, onError };
   });
 
   useEffect(() => {
@@ -102,15 +138,20 @@ function SchedulePdfPages({ url, onReady, onError }: SchedulePdfPagesProps) {
     let task: PDFDocumentLoadingTask | null = null;
 
     (async () => {
-      const res = await fetch(url, {
-        credentials: "include",
-        signal: controller.signal,
-      });
-      if (!res.ok) throw new Error(`Schedule fetch failed: ${res.status}`);
-      const data = new Uint8Array(await res.arrayBuffer());
+      const data = await callbacks.current.load(controller.signal);
       if (controller.signal.aborted) return;
       task = getDocument({ data });
-      setDoc(await task.promise);
+      const doc = await task.promise;
+      // Page sizes come from each page's dictionary; nothing is drawn yet.
+      const aspects = await Promise.all(
+        Array.from({ length: doc.numPages }, async (_, i) => {
+          const { width: w, height: h } = (
+            await doc.getPage(i + 1)
+          ).getViewport({ scale: 1 });
+          return w / h;
+        }),
+      );
+      if (!controller.signal.aborted) setPdf({ doc, aspects });
     })().catch(() => {
       if (!controller.signal.aborted) callbacks.current.onError();
     });
@@ -119,18 +160,17 @@ function SchedulePdfPages({ url, onReady, onError }: SchedulePdfPagesProps) {
       controller.abort();
       void task?.destroy();
     };
-  }, [url]);
+  }, []);
 
   // Render at the column's width, and again when it changes (rotation, resize).
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
+    if (!scrollEl) return;
     const observer = new ResizeObserver(([entry]) => {
       if (entry) setWidth(Math.floor(entry.contentRect.width));
     });
-    observer.observe(el);
+    observer.observe(scrollEl);
     return () => observer.disconnect();
-  }, []);
+  }, [scrollEl]);
 
   const handleFirstRendered = useCallback(
     () => callbacks.current.onReady(),
@@ -139,19 +179,21 @@ function SchedulePdfPages({ url, onReady, onError }: SchedulePdfPagesProps) {
 
   return (
     <div
-      ref={scrollRef}
+      ref={setScrollEl}
       role="document"
       aria-label="Event schedule"
       className="absolute inset-0 overflow-y-auto overscroll-contain p-(--space-8)"
     >
-      {doc && width > 0 && (
+      {pdf && scrollEl && width > 0 && (
         <div className="flex flex-col gap-(--space-8)">
-          {Array.from({ length: doc.numPages }, (_, i) => (
+          {pdf.aspects.map((aspect, i) => (
             <PdfPage
               key={i + 1}
-              doc={doc}
+              doc={pdf.doc}
               pageNumber={i + 1}
+              aspect={aspect || LETTER_ASPECT}
               width={width}
+              root={scrollEl}
               onRendered={i === 0 ? handleFirstRendered : undefined}
             />
           ))}

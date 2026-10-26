@@ -395,6 +395,10 @@ type OrgsIdEventsIdScheduleFileGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/schedule-file/controller.ts').default['handle'], false>
 }
+type OrgsIdEventsIdScheduleUrlGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/schedule-url/controller.ts').default['handle'], false>
+}
 type OrgsIdEventsIdVideocategoriesGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/video-categories/list/controller.ts').default['handle'], false>
@@ -1516,6 +1520,12 @@ export interface ApiDefinition {
               };
               '$get': OrgsIdEventsIdScheduleFileGetHead;
               '$head': OrgsIdEventsIdScheduleFileGetHead;
+            };
+            'url': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdScheduleUrlGetHead;
+              '$head': OrgsIdEventsIdScheduleUrlGetHead;
             };
           };
           'video-categories': {
