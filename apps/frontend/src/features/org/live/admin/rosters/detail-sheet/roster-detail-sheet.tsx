@@ -16,6 +16,7 @@ import { Button } from "@/components/event/button";
 import { ChipRow } from "@/components/event/chip";
 import { Icon } from "@/components/event/icon";
 import { MenuItem } from "@/components/event/menu";
+import { Tag } from "@/components/event/tag";
 import { SplitButton } from "@/components/event/split-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BusyLabel } from "@/features/org/live/shared/busy-label";
@@ -295,6 +296,7 @@ function RosterSheet({
   });
 
   const linked = entry.linkedUser ?? null;
+  const pictureUrl = entry.profile?.profilePhotoUrl ?? linked?.avatarUrl;
   const tileText =
     isDancer && entry.bibNumber != null
       ? String(entry.bibNumber)
@@ -311,22 +313,37 @@ function RosterSheet({
       {/* Header: bib tile, name, status and check-in line, close. */}
       <DetailSheetHeader
         tile={
-          <DetailSheetTile
-            aria-hidden={isDancer && entry.bibNumber != null ? undefined : true}
-            className={tileText.length > 3 ? "text-[18px]" : "text-[24px]"}
-          >
-            {isDancer && entry.bibNumber != null && (
-              <span className="sr-only">Bib </span>
-            )}
-            {tileText}
-          </DetailSheetTile>
+          pictureUrl ? (
+            <Avatar className="bg-surface-chip size-14 shrink-0 rounded-(--radius-10) after:rounded-(--radius-10)">
+              <AvatarImage
+                src={pictureUrl}
+                alt=""
+                className="rounded-(--radius-10)"
+              />
+              <AvatarFallback className="bg-fg text-on-fg rounded-(--radius-10) font-mono text-[24px] font-medium">
+                {tileText}
+              </AvatarFallback>
+            </Avatar>
+          ) : (
+            <DetailSheetTile
+              aria-hidden={
+                isDancer && entry.bibNumber != null ? undefined : true
+              }
+              className={tileText.length > 3 ? "text-[18px]" : "text-[24px]"}
+            >
+              {isDancer && entry.bibNumber != null && (
+                <span className="sr-only">Bib </span>
+              )}
+              {tileText}
+            </DetailSheetTile>
+          )
         }
         title={fullName}
         meta={
           <>
-            <span className={isActive ? "text-fg" : "text-fg-3"}>
+            <Tag tone={isActive ? "live" : "muted"}>
               {isActive ? "Active" : "Pending"}
-            </span>
+            </Tag>
             {showCheckIn ? (
               <> · {checkInSummary(checkedInAt)}</>
             ) : (
@@ -343,12 +360,6 @@ function RosterSheet({
           data-testid="roster-account"
           className="flex items-center gap-(--space-12) px-(--space-16) py-(--space-14)"
         >
-          <Avatar className="bg-surface-chip size-9 shrink-0">
-            <AvatarImage src={linked?.avatarUrl ?? undefined} />
-            <AvatarFallback className="bg-surface-chip text-fg-2 type-meta">
-              {initials(entry.firstName, entry.lastName)}
-            </AvatarFallback>
-          </Avatar>
           <div className="min-w-0 flex-1">
             <p className="type-body text-fg truncate text-[13.5px]">
               {linked?.email ?? entry.email}

@@ -12,6 +12,7 @@ import {
   DataTableSelectCell,
 } from "@/components/event/data-table";
 import { Icon } from "@/components/event/icon";
+import { Tag } from "@/components/event/tag";
 import { cn } from "@/components/utils/cn";
 import { formatClock } from "@/features/org/lib/event-clock";
 import { useEventTimeZone } from "@/features/org/live/shared/use-event-time-zone";
@@ -245,11 +246,10 @@ function RosterCell({
       );
     case "status":
       return (
-        <DataTableCell
-          kind="status"
-          className={cn(row.isRegistered ? "text-fg" : "text-fg-3", phone)}
-        >
-          {row.isRegistered ? "Active" : "Pending"}
+        <DataTableCell kind="status" className={phone}>
+          <Tag tone={row.isRegistered ? "live" : "muted"}>
+            {row.isRegistered ? "Active" : "Pending"}
+          </Tag>
         </DataTableCell>
       );
     case "paid":
