@@ -1,7 +1,10 @@
 import { useRender } from "@base-ui/react/use-render";
-import type * as React from "react";
+import * as React from "react";
 
 import { cn } from "@/components/utils/cn";
+
+/** Content every `PageHeader` shows after its actions, set by the area shell. */
+const PageHeaderEndContext = React.createContext<React.ReactNode>(null);
 
 type PageHeaderCrumb = {
   /** The event name, linking back to the dashboard. */
@@ -53,6 +56,7 @@ function PageHeader({
   className,
   ...props
 }: PageHeaderProps) {
+  const end = React.useContext(PageHeaderEndContext);
   return (
     <header className={cn("s2s-header", className)} {...props}>
       {crumb && <Crumb {...crumb} />}
@@ -69,9 +73,10 @@ function PageHeader({
       {actions !== undefined && (
         <div className="s2s-header-actions">{actions}</div>
       )}
+      {end}
     </header>
   );
 }
 
-export { PageHeader };
+export { PageHeader, PageHeaderEndContext };
 export type { PageHeaderCrumb, PageHeaderProps };

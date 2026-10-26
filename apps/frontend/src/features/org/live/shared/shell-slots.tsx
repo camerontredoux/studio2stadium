@@ -7,6 +7,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
+import { PageHeaderEndContext } from "@/components/event/page-header";
 import { EventShell, type EventShellProps } from "@/components/event/shell";
 import { ViewSwitcher } from "@/features/org/components/view-switcher";
 
@@ -19,6 +20,8 @@ import {
 type AreaShellFrameProps = Omit<EventShellProps, "header" | "rail"> & {
   /** Shown until a page renders its own header through `ShellPage`. */
   fallbackHeader: ReactNode;
+  /** The admin "viewing as" indicator, shown at the end of the header (desktop) and the phone brand row. */
+  viewAs?: (placement: "header" | "phone") => ReactNode;
 };
 
 /**
@@ -28,6 +31,7 @@ type AreaShellFrameProps = Omit<EventShellProps, "header" | "rail"> & {
  */
 export function AreaShellFrame({
   fallbackHeader,
+  viewAs,
   phoneBrand,
   children,
   ...props
@@ -58,32 +62,35 @@ export function AreaShellFrame({
 
   return (
     <ShellSlotsContext.Provider value={value}>
-      <EventShell
-        {...props}
-        // Phones hide the sidebar, so its person menu (View as, Profile,
-        // theme, Log out) opens from an avatar at the end of the brand row.
-        phoneBrand={
-          phoneBrand !== undefined ? (
+      <PageHeaderEndContext.Provider value={viewAs?.("header") ?? null}>
+        <EventShell
+          {...props}
+          // Phones hide the sidebar, so its person menu (View as, Profile,
+          // theme, Log out) opens from an avatar at the end of the brand row.
+          phoneBrand={
+            phoneBrand !== undefined ? (
+              <>
+                {phoneBrand}
+                {viewAs?.("phone")}
+                <ViewSwitcher variant="phone" />
+              </>
+            ) : undefined
+          }
+          header={
             <>
-              {phoneBrand}
-              <ViewSwitcher variant="phone" />
+              {headerCount === 0 && fallbackHeader}
+              <div ref={setHeaderEl} className="contents" />
             </>
-          ) : undefined
-        }
-        header={
-          <>
-            {headerCount === 0 && fallbackHeader}
-            <div ref={setHeaderEl} className="contents" />
-          </>
-        }
-        rail={
-          railCount > 0 ? (
-            <div ref={setRailEl} className="contents" />
-          ) : undefined
-        }
-      >
-        {children}
-      </EventShell>
+          }
+          rail={
+            railCount > 0 ? (
+              <div ref={setRailEl} className="contents" />
+            ) : undefined
+          }
+        >
+          {children}
+        </EventShell>
+      </PageHeaderEndContext.Provider>
     </ShellSlotsContext.Provider>
   );
 }

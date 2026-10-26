@@ -5,7 +5,7 @@ import {
   DancerSidebar,
   DancerSidebarBrand,
 } from "@/features/org/components/dancer-sidebar";
-import { PreviewModeBanner } from "@/features/org/components/preview-mode-banner";
+import { ViewAsIndicator } from "@/features/org/components/view-as-indicator";
 import { useOrg } from "@/features/org/context/use-org";
 import { ActiveEventScope } from "@/features/org/live/shared/active-event-scope";
 import { AreaShellFrame } from "@/features/org/live/shared/shell-slots";
@@ -23,10 +23,16 @@ function DancerFrame({ children }: { children: ReactNode }) {
     <AreaShellFrame
       sidebar={<DancerSidebar />}
       phoneBrand={<DancerSidebarBrand />}
+      viewAs={(placement) => (
+        <ViewAsIndicator
+          role="dancer"
+          orgSlug={org.slug}
+          placement={placement}
+        />
+      )}
       fallbackHeader={<ShellHeader title={event?.name ?? org.name} />}
       dock={<EventPhoneDock items={items} />}
     >
-      <PreviewModeBanner role="dancer" orgSlug={org.slug} />
       {children}
     </AreaShellFrame>
   );
@@ -34,8 +40,8 @@ function DancerFrame({ children }: { children: ReactNode }) {
 
 /**
  * The dancer area frame: sidebar (brand or event switcher, Dashboard,
- * Coaches, FAQ, person menu), phone brand row and dock, and the admin preview
- * banner. Pages set their header and rail with `ShellPage`.
+ * Coaches, FAQ, person menu), phone brand row and dock, and the admin view-as
+ * indicator. Pages set their header and rail with `ShellPage`.
  */
 export function DancerAreaShell({ children }: { children: ReactNode }) {
   return (
