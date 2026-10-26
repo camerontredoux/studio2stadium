@@ -13,9 +13,13 @@ import {
   UploadSimpleIcon,
   XIcon,
 } from "@phosphor-icons/react";
-import { keepPreviousData, useQueries, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useQuery,
+} from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/event/button";
 import { DataTableEmpty } from "@/components/event/data-table";
@@ -77,7 +81,7 @@ import {
   type RosterSortKey,
   type RosterStatusFilter,
 } from "./roster-config";
-import { RosterShowMore, RosterTable } from "./roster-table";
+import { RosterTable } from "./roster-table";
 
 const PAGE_SIZE = 50;
 
@@ -139,11 +143,9 @@ function RosterPageContent({
   // The coach school filter stays local, as on the old page.
   const [school, setSchool] = useState<string | null>(null);
 
-  // Paging and selection belong to one view of the list; a new filter, search
-  // or sort starts both over.
+  // Selection belongs to one view of the list; a new filter, search or sort
+  // starts it over.
   const viewKey = JSON.stringify([status, q, sort, dir, school]);
-  const [paging, setPaging] = useState({ key: viewKey, count: 1 });
-  const pageCount = paging.key === viewKey ? paging.count : 1;
   const [selection, setSelection] = useState({
     key: viewKey,
     ids: new Set<string>() as ReadonlySet<string>,
@@ -153,26 +155,32 @@ function RosterPageContent({
   const setSelectedIds = (ids: ReadonlySet<string>) =>
     setSelection({ key: viewKey, ids });
 
-  const pages = useQueries({
-    queries: Array.from({ length: pageCount }, (_, page) => ({
-      ...rosterQueries.list(orgSlug, eventId, {
+  const rosterQuery = useInfiniteQuery({
+    ...rosterQueries.listPages(
+      orgSlug,
+      eventId,
+      {
         type,
-        page,
-        limit: PAGE_SIZE,
         search: q || undefined,
         status: status === "all" ? undefined : status,
         org: school ?? undefined,
         sortBy: sort,
         sortDir: sort ? dir : undefined,
-      }),
-      placeholderData: keepPreviousData,
-    })),
+      },
+      PAGE_SIZE,
+    ),
+    // Keep the old rows up while a new search or sort loads, so the table
+    // doesn't blank on every keystroke.
+    placeholderData: keepPreviousData,
   });
-  const firstPage = pages[0];
-  const rows = mergePages(pages.map((p) => p.data?.data));
-  const total = firstPage?.data?.total ?? 0;
-  const loadingMore = pages.some((p) => p.isPending);
-  const hasMore = rows.length < total;
+  const { fetchNextPage } = rosterQuery;
+  const rows = mergePages(rosterQuery.data?.pages.map((p) => p.data) ?? []);
+
+  // A new filter, search or sort starts again from the top.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0 });
+  }, [viewKey]);
 
   const statsQuery = useQuery(rosterQueries.stats(orgSlug, eventId, type));
   const stats = statsQuery.data;
@@ -399,11 +407,13 @@ function RosterPageContent({
     />
   );
 
-  const empty = firstPage?.isPending ? (
+  const empty = rosterQuery.isPending ? (
     <DataTableEmpty>Loading {config.plural}…</DataTableEmpty>
-  ) : firstPage?.isError ? (
+  ) : rosterQuery.isError ? (
     <DataTableEmpty
-      action={<Button onClick={() => firstPage.refetch()}>Try again</Button>}
+      action={
+        <Button onClick={() => void rosterQuery.refetch()}>Try again</Button>
+      }
     >
       Couldn’t load {config.plural}
     </DataTableEmpty>
@@ -531,7 +541,7 @@ function RosterPageContent({
             </Button>
           </PanelToolbar>
         )}
-        <div className="min-h-0 flex-1 overflow-auto">
+        <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto">
           <RosterTable
             config={config}
             columns={columns}
@@ -542,20 +552,14 @@ function RosterPageContent({
             selectedIds={selectedIds}
             onSelectedChange={setSelectedIds}
             onOpenEntry={openEntry}
-            stale={!!firstPage?.isPlaceholderData}
+            stale={rosterQuery.isPlaceholderData}
             empty={empty}
-            footer={
-              hasMore && (
-                <RosterShowMore
-                  loaded={rows.length}
-                  total={total}
-                  loading={loadingMore}
-                  onClick={() =>
-                    setPaging({ key: viewKey, count: pageCount + 1 })
-                  }
-                />
-              )
+            scrollRef={scrollRef}
+            hasMore={
+              rosterQuery.hasNextPage && !rosterQuery.isFetchNextPageError
             }
+            loadingMore={rosterQuery.isFetchingNextPage}
+            onLoadMore={() => void fetchNextPage()}
           />
         </div>
       </Panel>

@@ -3101,6 +3101,7 @@ export interface paths {
                     search?: string | null;
                     status?: ("pending" | "active" | "all") | null;
                     org?: string | null;
+                    checkedIn?: (string | number | boolean) | null;
                     limit?: (string | number) | null;
                     page?: (string | number) | null;
                     sortBy?: ("email" | "createdAt" | "firstName" | "lastName" | "organization" | "bibNumber" | "checkedInAt" | "isRegistered") | null;

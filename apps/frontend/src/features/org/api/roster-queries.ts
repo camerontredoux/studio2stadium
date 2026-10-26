@@ -1,3 +1,5 @@
+import { infiniteQueryOptions } from "@tanstack/react-query";
+
 import { $api, client, type ApiSchemas } from "@/lib/api/client";
 
 export type RosterType = "dancer" | "coach";
@@ -14,6 +16,7 @@ export interface RosterListParams {
   search?: string;
   status?: RosterStatus;
   org?: string;
+  checkedIn?: boolean;
   sortBy?:
     | "lastName"
     | "firstName"
@@ -32,7 +35,7 @@ export interface RosterListParams {
  * matches every variation of that endpoint regardless of params, so a single
  * mutation can invalidate every roster list query on the page.
  */
-const ROSTER_LIST_KEY_PREFIX = [
+export const ROSTER_LIST_KEY_PREFIX = [
   "get",
   "/orgs/{slug}/events/{id}/rosters",
 ] as const;
@@ -40,7 +43,7 @@ const ROSTER_FILTERS_KEY_PREFIX = [
   "get",
   "/orgs/{slug}/events/{id}/rosters/filters",
 ] as const;
-const ROSTER_STATS_KEY_PREFIX = [
+export const ROSTER_STATS_KEY_PREFIX = [
   "get",
   "/orgs/{slug}/events/{id}/rosters/stats",
 ] as const;
@@ -53,6 +56,42 @@ export const rosterQueries = {
         query: params,
       },
     }),
+  /**
+   * The roster a page at a time. The key extends `list`'s key, so every patch
+   * and invalidation aimed at the roster lists reaches it too.
+   */
+  listPages: (
+    slug: string,
+    eventId: string,
+    params: Omit<RosterListParams, "page" | "limit">,
+    pageSize: number,
+  ) => {
+    const query = { ...params, limit: pageSize };
+    return infiniteQueryOptions({
+      queryKey: [
+        ...ROSTER_LIST_KEY_PREFIX,
+        { params: { path: { slug, id: eventId }, query } },
+        "pages",
+      ] as const,
+      queryFn: async ({ pageParam, signal }) => {
+        const { data, error } = await client.GET(
+          "/orgs/{slug}/events/{id}/rosters",
+          {
+            params: {
+              path: { slug, id: eventId },
+              query: { ...query, page: pageParam },
+            },
+            signal,
+          },
+        );
+        if (error) throw error;
+        return data;
+      },
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, pages) =>
+        pages.length * pageSize < lastPage.total ? pages.length : undefined,
+    });
+  },
   filters: (slug: string, eventId: string, type: RosterType) =>
     $api.queryOptions("get", "/orgs/{slug}/events/{id}/rosters/filters", {
       params: {
@@ -91,10 +130,7 @@ export function useSetRosterPaid() {
     "/orgs/{slug}/events/{id}/rosters/{rosterId}/paid",
     {
       meta: {
-        invalidateQueries: [
-          ROSTER_LIST_KEY_PREFIX,
-          ROSTER_STATS_KEY_PREFIX,
-        ],
+        invalidateQueries: [ROSTER_LIST_KEY_PREFIX, ROSTER_STATS_KEY_PREFIX],
       },
     },
   );

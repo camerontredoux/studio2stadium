@@ -129,12 +129,9 @@ function CheckInDesk({ orgSlug, event }: { orgSlug: string; event: OrgEvent }) {
         />
         <DancersPanel
           eventId={event.id}
-          dancers={desk.dancers}
           total={desk.total}
           checkedIn={desk.checkedIn}
           notYet={desk.notYet}
-          isLoading={desk.isLoading}
-          isError={desk.isError}
           flash={flash}
           pendingIds={pendingIds}
           onToggle={onToggle}

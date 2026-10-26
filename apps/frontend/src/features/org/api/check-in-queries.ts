@@ -1,9 +1,17 @@
 import { $api, client, type ApiSchemas } from "@/lib/api/client";
 import {
+  ROSTER_LIST_KEY_PREFIX,
+  ROSTER_STATS_KEY_PREFIX,
   rosterQueries,
-  type RosterType,
+  type RosterEntry,
+  type RosterListParams,
 } from "@/features/org/api/roster-queries";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  type InfiniteData,
+  type QueryClient,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 export type CheckInStatus = ApiSchemas["OrgsIdEventsIdCheckinStatusResponse"];
 
@@ -21,14 +29,80 @@ export const checkInQueries = {
     ),
 };
 
-const ROSTER_LIST_KEY_PREFIX = [
+type RosterResponse = ApiSchemas["OrgsIdEventsIdRostersResponse"];
+type StatsResponse = ApiSchemas["OrgsIdEventsIdRostersStatsResponse"];
+type CachedRosterList = RosterResponse | InfiniteData<RosterResponse>;
+type RosterListKey = readonly [
   "get",
-  "/orgs/{slug}/events/{id}/rosters",
-] as const;
-const ROSTER_STATS_KEY_PREFIX = [
-  "get",
-  "/orgs/{slug}/events/{id}/rosters/stats",
-] as const;
+  string,
+  { params: { path: { id: string }; query: RosterListParams } },
+  ...unknown[],
+];
+
+function entriesOf(list: CachedRosterList): RosterEntry[] {
+  return "pages" in list ? list.pages.flatMap((page) => page.data) : list.data;
+}
+
+/**
+ * Writes an entry's new check-in time into every cached roster list, single
+ * pages and paged lists alike. A list filtered on `checkedIn` drops the entry
+ * once it stops matching; one that lists the newest check-ins first takes it
+ * on top. Returns the lists as they were, to roll back, and the entry.
+ */
+function setCheckedInAt(
+  qc: QueryClient,
+  rosterId: string,
+  checkedInAt: string | null,
+) {
+  const lists = qc.getQueriesData<CachedRosterList>({
+    queryKey: [...ROSTER_LIST_KEY_PREFIX],
+  });
+  const snapshots: [readonly unknown[], CachedRosterList][] = [];
+  const entry = lists
+    .flatMap(([, list]) => (list ? entriesOf(list) : []))
+    .find((r) => r.id === rosterId);
+  if (!entry) return { snapshots, entry };
+  const next = { ...entry, checkedInAt };
+
+  for (const [key, list] of lists) {
+    if (!list) continue;
+    const { path, query } = (key as RosterListKey)[2].params;
+    const matches =
+      query.checkedIn === undefined || query.checkedIn === !!checkedInAt;
+    const listed = entriesOf(list).some((r) => r.id === rosterId);
+    const addOnTop =
+      matches &&
+      !listed &&
+      !!checkedInAt &&
+      query.checkedIn === true &&
+      query.sortBy === "checkedInAt" &&
+      query.sortDir === "desc" &&
+      !query.search &&
+      query.type === entry.type &&
+      path.id === entry.eventId;
+    if (!listed && !addOnTop) continue;
+
+    snapshots.push([key, list]);
+    const delta = addOnTop ? 1 : matches ? 0 : -1;
+    const patch = (page: RosterResponse, first: boolean): RosterResponse => {
+      const rows = page.data
+        .filter((r) => matches || r.id !== rosterId)
+        .map((r) => (r.id === rosterId ? next : r));
+      return {
+        ...page,
+        data: first && addOnTop ? [next, ...rows] : rows,
+        total: Math.max(0, page.total + delta),
+      };
+    };
+    qc.setQueryData<CachedRosterList>(
+      key,
+      "pages" in list
+        ? { ...list, pages: list.pages.map((page, i) => patch(page, i === 0)) }
+        : patch(list, true),
+    );
+  }
+  return { snapshots, entry };
+}
 
 export function useDancerCheckIn(slug: string, eventId: string) {
   const qc = useQueryClient();
@@ -117,33 +191,13 @@ export function useAdminCheckInToggle() {
       await qc.cancelQueries({ queryKey: [...ROSTER_LIST_KEY_PREFIX] });
       await qc.cancelQueries({ queryKey: [...ROSTER_STATS_KEY_PREFIX] });
 
-      type RosterResponse = ApiSchemas["OrgsIdEventsIdRostersResponse"];
-      type StatsResponse = ApiSchemas["OrgsIdEventsIdRostersStatsResponse"];
-
-      const rosterSnapshots: [readonly unknown[], RosterResponse][] = [];
+      const { snapshots: rosterSnapshots, entry } = setCheckedInAt(
+        qc,
+        rosterId,
+        currentlyCheckedIn ? null : new Date().toISOString(),
+      );
       const statsSnapshots: [readonly unknown[], StatsResponse][] = [];
-      let rosterType: RosterType | undefined;
-
-      qc.getQueriesData<RosterResponse>({
-        queryKey: [...ROSTER_LIST_KEY_PREFIX],
-      }).forEach(([key, data]) => {
-        if (!data) return;
-        rosterSnapshots.push([key, data]);
-        rosterType ??= data.data.find((r) => r.id === rosterId)?.type;
-        qc.setQueryData(key, {
-          ...data,
-          data: data.data.map((r) =>
-            r.id === rosterId
-              ? {
-                  ...r,
-                  checkedInAt: currentlyCheckedIn
-                    ? null
-                    : new Date().toISOString(),
-                }
-              : r,
-          ),
-        });
-      });
+      const rosterType = entry?.type;
 
       // Stats are cached per event and roster type; only the toggled entry's
       // count changes. Without the entry in a cached list, onSettled refetches.
@@ -201,21 +255,8 @@ export function useScanCheckIn(slug: string, eventId: string) {
     },
     onSuccess: ({ result, roster }) => {
       if (result !== "checked_in") return;
-      type RosterResponse = ApiSchemas["OrgsIdEventsIdRostersResponse"];
-      type StatsResponse = ApiSchemas["OrgsIdEventsIdRostersStatsResponse"];
-
       // Show the check-in at once; the invalidations below confirm it.
-      qc.getQueriesData<RosterResponse>({
-        queryKey: [...ROSTER_LIST_KEY_PREFIX],
-      }).forEach(([key, data]) => {
-        if (!data?.data.some((r) => r.id === roster.id)) return;
-        qc.setQueryData(key, {
-          ...data,
-          data: data.data.map((r) =>
-            r.id === roster.id ? { ...r, checkedInAt: roster.checkedInAt } : r,
-          ),
-        });
-      });
+      setCheckedInAt(qc, roster.id, roster.checkedInAt);
       const statsKey = rosterQueries.stats(slug, eventId, "dancer").queryKey;
       const stats = qc.getQueryData<StatsResponse>(statsKey);
       if (stats) {

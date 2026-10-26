@@ -9,6 +9,8 @@ export const schema = vine.compile(
     search: vine.string().trim().minLength(1).optional(),
     status: vine.enum(["all", "active", "pending"] as const).optional(),
     org: vine.string().trim().minLength(1).optional(),
+    /** Only entries checked in (`true`) or not yet checked in (`false`). */
+    checkedIn: vine.boolean().optional(),
     sortBy: vine
       .enum([
         "lastName",

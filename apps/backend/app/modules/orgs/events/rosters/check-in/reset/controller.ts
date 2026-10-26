@@ -1,5 +1,6 @@
 import { inject } from "@adonisjs/core";
 import type { HttpContext } from "@adonisjs/core/http";
+import transmit from "@adonisjs/transmit/services/main";
 import { ResetCheckInService } from "./service.ts";
 
 export default class ResetCheckInController {
@@ -9,6 +10,7 @@ export default class ResetCheckInController {
     const eventId = ctx.params.id;
 
     const result = await service.execute(eventId, { eventId, actorId });
+    transmit.broadcast(`orgs/${ctx.org!.slug}/check-in`, {});
 
     return ctx.response.ok(result);
   }

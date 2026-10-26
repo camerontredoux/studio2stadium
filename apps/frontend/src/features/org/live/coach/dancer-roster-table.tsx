@@ -1,13 +1,6 @@
 import { NotePencilIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { useVirtualizer, useWindowVirtualizer } from "@tanstack/react-virtual";
-import {
-  useEffect,
-  useLayoutEffect,
-  useState,
-  type ReactNode,
-  type RefObject,
-} from "react";
+import { useState, type ReactNode, type RefObject } from "react";
 
 import { Button } from "@/components/event/button";
 import {
@@ -24,9 +17,10 @@ import { Rating } from "@/components/event/rating";
 import { Textarea } from "@/components/event/textarea";
 import { cn } from "@/components/utils/cn";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
-import { useIsPhone } from "@/features/org/live/admin/rosters/use-is-phone";
 import { DancerBib } from "@/features/org/live/shared/dancer-bib";
 import { PersonAvatar } from "@/features/org/live/shared/person-avatar";
+import { useVirtualRows } from "@/features/org/live/shared/use-virtual-rows";
+import { Spacer } from "@/features/org/live/shared/virtual-spacer";
 
 import {
   dancerName,
@@ -68,70 +62,6 @@ export interface DancerRosterTableProps {
   onLoadMore?: () => void;
 }
 
-/** A row's height before it's measured; a note panel under it grows it. */
-const ROW_ESTIMATE = 45;
-
-/**
- * Only the rows near the viewport are in the DOM. A roster runs to the
- * thousands, and rendering every row made each search, sort and mark take
- * seconds. Asking for the next page as the end comes into view keeps scrolling
- * continuous.
- */
-function useVirtualRows({
-  count,
-  scrollRef,
-  table,
-  hasMore,
-  loadingMore,
-  onLoadMore,
-}: {
-  count: number;
-  scrollRef: RefObject<HTMLElement | null>;
-  table: HTMLDivElement | null;
-  hasMore: boolean;
-  loadingMore: boolean;
-  onLoadMore?: () => void;
-}) {
-  const phone = useIsPhone();
-  const [tableTop, setTableTop] = useState(0);
-  useLayoutEffect(() => {
-    if (phone && table)
-      setTableTop(table.getBoundingClientRect().top + window.scrollY);
-  }, [phone, table]);
-
-  const inBox = useVirtualizer({
-    count,
-    enabled: !phone,
-    getScrollElement: () => scrollRef.current,
-    estimateSize: () => ROW_ESTIMATE,
-    overscan: 10,
-  });
-  const inWindow = useWindowVirtualizer({
-    count,
-    enabled: phone,
-    estimateSize: () => ROW_ESTIMATE,
-    overscan: 10,
-    scrollMargin: tableTop,
-  });
-  const virtualizer = phone ? inWindow : inBox;
-  const items = virtualizer.getVirtualItems();
-  const margin = phone ? tableTop : 0;
-  const first = items[0];
-  const last = items.at(-1);
-
-  useEffect(() => {
-    if (last && last.index >= count - 1 && hasMore && !loadingMore)
-      onLoadMore?.();
-  }, [last, count, hasMore, loadingMore, onLoadMore]);
-
-  return {
-    items,
-    measure: virtualizer.measureElement,
-    padTop: first ? first.start - margin : 0,
-    padBottom: last ? virtualizer.getTotalSize() - (last.end - margin) : 0,
-  };
-}
-
 /**
  * The coach's roster: bib, name, year, studio, GPA, then their rating,
  * favorite, callback and note on each dancer. A row opens the dancer sheet, a bib the
@@ -158,7 +88,7 @@ export function DancerRosterTable({
   const virtual = useVirtualRows({
     count: rows.length,
     scrollRef,
-    table,
+    list: table,
     hasMore,
     loadingMore,
     onLoadMore,
@@ -297,12 +227,6 @@ export function DancerRosterTable({
       </DataTableBody>
     </DataTable>
   );
-}
-
-/** Stands in for the rows scrolled out of view. */
-function Spacer({ height }: { height: number }) {
-  if (height <= 0) return null;
-  return <div aria-hidden className="col-span-full" style={{ height }} />;
 }
 
 function RosterRow({

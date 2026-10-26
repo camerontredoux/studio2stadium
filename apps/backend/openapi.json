@@ -2674,6 +2674,25 @@
             }
           },
           {
+            "name": "checkedIn",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
             "name": "limit",
             "in": "query",
             "required": false,
