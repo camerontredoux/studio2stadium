@@ -37,8 +37,12 @@ const ListAuditLogController = () => import("./audit-log/list/controller.ts");
 const AuditLogStatsController = () => import("./audit-log/stats/controller.ts");
 const ListAuditLogChildrenController = () =>
   import("./audit-log/children/controller.ts");
-const ListReconciliationController = () =>
-  import("./reconciliation/list-controller.ts");
+const ListInvitesController = () =>
+  import("./reconciliation/invites-controller.ts");
+const ListOrphansController = () =>
+  import("./reconciliation/orphans-controller.ts");
+const ReconciliationCountsController = () =>
+  import("./reconciliation/counts-controller.ts");
 const ResendInviteController = () =>
   import("./reconciliation/resend-controller.ts");
 const RevokeInviteController = () =>
@@ -282,7 +286,25 @@ router
         middleware.orgAdmin(),
       ]);
     router
-      .get(":slug/events/:id/reconciliation", [ListReconciliationController])
+      .get(":slug/events/:id/reconciliation/invites", [ListInvitesController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events/:id/reconciliation/orphans", [ListOrphansController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events/:id/reconciliation/counts", [
+        ReconciliationCountsController,
+      ])
       .use([
         middleware.auth(),
         middleware.org(),

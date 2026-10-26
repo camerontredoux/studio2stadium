@@ -335,9 +335,17 @@ type OrgsIdEventsIdAuditlogGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/audit-log/list/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/events/audit-log/list/controller.ts').default['handle'], true>
 }
-type OrgsIdEventsIdReconciliationGetHead = {
+type OrgsIdEventsIdReconciliationInvitesGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/reconciliation/validator.ts')['invitesSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/invites-controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdReconciliationOrphansGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/reconciliation/validator.ts')['orphansSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/orphans-controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdReconciliationCountsGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/list-controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/counts-controller.ts').default['handle'], false>
 }
 type OrgsIdEventsIdReconciliationInvitesIdResendPost = {
   request: unknown
@@ -1462,11 +1470,11 @@ export interface ApiDefinition {
             '$head': OrgsIdEventsIdAuditlogGetHead;
           };
           'reconciliation': {
-            '$url': {
-            };
-            '$get': OrgsIdEventsIdReconciliationGetHead;
-            '$head': OrgsIdEventsIdReconciliationGetHead;
             'invites': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdReconciliationInvitesGetHead;
+              '$head': OrgsIdEventsIdReconciliationInvitesGetHead;
               ':inviteId': {
                 'resend': {
                   '$url': {
@@ -1477,6 +1485,18 @@ export interface ApiDefinition {
                 };
                 '$delete': OrgsIdEventsIdReconciliationInvitesIdDelete;
               };
+            };
+            'orphans': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdReconciliationOrphansGetHead;
+              '$head': OrgsIdEventsIdReconciliationOrphansGetHead;
+            };
+            'counts': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdReconciliationCountsGetHead;
+              '$head': OrgsIdEventsIdReconciliationCountsGetHead;
             };
             'rosters': {
               ':rosterId': {

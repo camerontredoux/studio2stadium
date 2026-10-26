@@ -4,55 +4,155 @@ import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { orgMemberships, organizations } from "#database/schema/organizations";
 import { users } from "#database/schema/users";
 import { inject } from "@adonisjs/core";
-import { and, eq, isNull, notInArray, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  isNotNull,
+  isNull,
+  notExists,
+  or,
+  sql,
+} from "drizzle-orm";
 import { sendSchoolAccountInviteEmail } from "#shared/org/school-account-invite-email";
 import { rosterTypeMembershipConflict } from "#shared/org/membership";
+import type { InvitesValidator, OrphansValidator } from "./validator.ts";
 
 @inject()
 export class ReconciliationService {
   constructor(private db: DatabaseService) {}
 
-  async listUnclaimed(eventId: string) {
-    const invites = await this.db.use((db) =>
-      db
-        .select({
-          id: schoolInvites.id,
-          email: schoolInvites.email,
-          organization: schoolInvites.organization,
-          token: schoolInvites.token,
-          expiresAt: schoolInvites.expiresAt,
-          consumedAt: schoolInvites.consumedAt,
-          createdAt: schoolInvites.createdAt,
-        })
-        .from(schoolInvites)
-        .where(eq(schoolInvites.eventId, eventId))
-        .orderBy(sql`${schoolInvites.createdAt} desc`)
-    );
-
-    const orphanRosters = await this.db.use((db) => {
-      const inviteEmails = invites.map((i) => i.email);
-      return db
-        .select({
-          id: eventRosters.id,
-          email: eventRosters.email,
-          firstName: eventRosters.firstName,
-          lastName: eventRosters.lastName,
-          organization: eventRosters.organization,
-        })
-        .from(eventRosters)
-        .where(
-          and(
-            eq(eventRosters.eventId, eventId),
-            eq(eventRosters.type, "coach"),
-            isNull(eventRosters.userId),
-            inviteEmails.length > 0
-              ? notInArray(eventRosters.email, inviteEmails)
-              : undefined
+  /** One page of the event's invites, claimed or not, newest first. */
+  async listInvites(eventId: string, q: InvitesValidator) {
+    const page = q.page ?? 0;
+    const limit = q.limit ?? 50;
+    const where = and(
+      eq(schoolInvites.eventId, eventId),
+      q.claimed
+        ? isNotNull(schoolInvites.consumedAt)
+        : isNull(schoolInvites.consumedAt),
+      q.search
+        ? or(
+            ilike(schoolInvites.email, `%${q.search}%`),
+            ilike(schoolInvites.organization, `%${q.search}%`)
           )
-        );
-    });
+        : undefined
+    );
+    const [data, [{ total }]] = await Promise.all([
+      this.db.use((db) =>
+        db
+          .select({
+            id: schoolInvites.id,
+            email: schoolInvites.email,
+            organization: schoolInvites.organization,
+            expiresAt: schoolInvites.expiresAt,
+            consumedAt: schoolInvites.consumedAt,
+            createdAt: schoolInvites.createdAt,
+          })
+          .from(schoolInvites)
+          .where(where)
+          .orderBy(desc(schoolInvites.createdAt), desc(schoolInvites.id))
+          .limit(limit)
+          .offset(page * limit)
+      ),
+      this.db.use((db) =>
+        db.select({ total: count() }).from(schoolInvites).where(where)
+      ),
+    ]);
+    return { data, total };
+  }
 
-    return { invites, orphanRosters };
+  /** One page of the event's coach rows with no account and no invite. */
+  async listOrphans(eventId: string, q: OrphansValidator) {
+    const page = q.page ?? 0;
+    const limit = q.limit ?? 50;
+    const pattern = q.search ? `%${q.search}%` : undefined;
+    const where = and(
+      this.orphanFilter(eventId),
+      pattern
+        ? or(
+            ilike(
+              sql`${eventRosters.firstName} || ' ' || ${eventRosters.lastName}`,
+              pattern
+            ),
+            ilike(eventRosters.email, pattern),
+            ilike(eventRosters.organization, pattern)
+          )
+        : undefined
+    );
+    const [data, [{ total }]] = await Promise.all([
+      this.db.use((db) =>
+        db
+          .select({
+            id: eventRosters.id,
+            email: eventRosters.email,
+            firstName: eventRosters.firstName,
+            lastName: eventRosters.lastName,
+            organization: eventRosters.organization,
+          })
+          .from(eventRosters)
+          .where(where)
+          .orderBy(
+            asc(eventRosters.lastName),
+            asc(eventRosters.firstName),
+            asc(eventRosters.id)
+          )
+          .limit(limit)
+          .offset(page * limit)
+      ),
+      this.db.use((db) =>
+        db.select({ total: count() }).from(eventRosters).where(where)
+      ),
+    ]);
+    return { data, total };
+  }
+
+  /** How many invites and orphan rows each list holds. */
+  async counts(eventId: string) {
+    const [[invites], [orphans]] = await Promise.all([
+      this.db.use((db) =>
+        db
+          .select({
+            unclaimed:
+              sql<number>`count(*) filter (where ${schoolInvites.consumedAt} is null)`.mapWith(
+                Number
+              ),
+            claimed: sql<number>`count(${schoolInvites.consumedAt})`.mapWith(
+              Number
+            ),
+          })
+          .from(schoolInvites)
+          .where(eq(schoolInvites.eventId, eventId))
+      ),
+      this.db.use((db) =>
+        db
+          .select({ total: count() })
+          .from(eventRosters)
+          .where(this.orphanFilter(eventId))
+      ),
+    ]);
+    return {
+      unclaimed: invites?.unclaimed ?? 0,
+      claimed: invites?.claimed ?? 0,
+      orphans: orphans?.total ?? 0,
+    };
+  }
+
+  /** A coach row with no account whose email no invite went to. */
+  private orphanFilter(eventId: string) {
+    return and(
+      eq(eventRosters.eventId, eventId),
+      eq(eventRosters.type, "coach"),
+      isNull(eventRosters.userId),
+      notExists(
+        sql`(select 1 from ${schoolInvites}
+          where ${schoolInvites.eventId} = ${eventId}
+            and ${schoolInvites.email} = ${eventRosters.email})`
+      )
+    );
   }
 
   async resendInvite(inviteId: string, eventId: string, orgSlug: string) {
@@ -71,7 +171,7 @@ export class ReconciliationService {
     if (!invite) return { notFound: true } as const;
 
     // An already-claimed invite must never be re-emailed — the coach has already
-    // registered. listUnclaimed still surfaces consumed invites (with a badge),
+    // registered. the claimed list still shows consumed invites (with a badge),
     // so the resend action can reach this path; treat it as a no-op.
     if (invite.consumedAt) return { alreadyClaimed: true } as const;
 

@@ -62,12 +62,12 @@ import {
 import { CsvUploadDialog } from "@/features/org/components/csv-upload-dialog";
 import { ResetCheckInDialog } from "@/features/org/components/reset-check-in-dialog";
 import type { OrgEvent } from "@/features/org/api/admin-queries";
+import { reconciliationQueries } from "@/features/org/api/reconciliation-queries";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import { useOrg } from "@/features/org/context/use-org";
 import { RosterDetailSheet } from "@/features/org/live/admin/rosters/detail-sheet/roster-detail-sheet";
 import { SubpageHeader } from "@/features/org/live/shared/event-header";
 import { ShellPage } from "@/features/org/live/shared/shell-slots";
-import { $api } from "@/lib/api/client";
 
 import {
   bulkCheckInPlan,
@@ -190,17 +190,12 @@ function RosterPageContent({
   });
   const schools = filtersQuery.data?.organizations ?? [];
   // Coaches link to Reconciliation; the count is what still needs an admin.
-  const reconciliation = useQuery(
-    $api.queryOptions(
-      "get",
-      "/orgs/{slug}/events/{id}/reconciliation",
-      { params: { path: { slug: orgSlug, id: eventId } } },
-      { enabled: type === "coach" },
-    ),
-  );
+  const reconciliation = useQuery({
+    ...reconciliationQueries.counts(orgSlug, eventId),
+    enabled: type === "coach",
+  });
   const toReconcile = reconciliation.data
-    ? reconciliation.data.invites.filter((invite) => !invite.consumedAt)
-        .length + reconciliation.data.orphanRosters.length
+    ? reconciliation.data.unclaimed + reconciliation.data.orphans
     : undefined;
 
   const selected = rows.filter((r) => selectedIds.has(r.id));
