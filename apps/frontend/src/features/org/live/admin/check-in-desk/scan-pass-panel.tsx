@@ -1,7 +1,9 @@
 import { useCallback } from "react";
+import { CheckIcon, HandTapIcon } from "@phosphor-icons/react";
 
+import { Button } from "@/components/event/button";
+import { Icon } from "@/components/event/icon";
 import { Panel, PanelHead } from "@/components/event/panel";
-import { PillToggle } from "@/components/event/pill-toggle";
 import { toastManager } from "@/components/ui/toast-manager";
 import { useSelfCheckInSetting } from "@/features/org/api/check-in-queries";
 import {
@@ -23,7 +25,7 @@ export interface ScanPassPanelProps {
 
 /**
  * The desk's "Scan pass" panel: the shared inline scanner at its large size,
- * and the event's Self check-in toggle. The camera starts as soon as the desk
+ * and the button that turns the event's Self check-in on and off. The camera starts as soon as the desk
  * opens and stops when it closes; every result that names a dancer flashes
  * their row in the list. With self check-in on there is no camera, only a
  * note that dancers check themselves in.
@@ -43,7 +45,8 @@ export function ScanPassPanel({
     [onScanned],
   );
 
-  const onSelfCheckInChange = (next: boolean) =>
+  const toggleSelfCheckIn = () => {
+    const next = !selfCheckIn;
     setting.mutate(next, {
       onError: () =>
         toastManager.add({
@@ -53,6 +56,7 @@ export function ScanPassPanel({
           type: "error",
         }),
     });
+  };
 
   return (
     // Square up to 680px tall; the scanner shrinks its viewfinder to fit.
@@ -60,14 +64,16 @@ export function ScanPassPanel({
       <PanelHead
         label="Scan pass"
         actions={
-          <PillToggle
-            variant="outline"
-            pressed={!!selfCheckIn}
+          // The label names the current state; aria-pressed carries it too.
+          <Button
+            variant="primary"
+            aria-pressed={!!selfCheckIn}
             disabled={selfCheckIn === undefined || setting.isPending}
-            onChange={onSelfCheckInChange}
+            onClick={toggleSelfCheckIn}
           >
-            Self check-in
-          </PillToggle>
+            <Icon icon={selfCheckIn ? CheckIcon : HandTapIcon} />
+            {selfCheckIn ? "Self check-in on" : "Allow self check-in"}
+          </Button>
         }
       />
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-(--space-14) px-(--space-16) py-(--space-24)">
