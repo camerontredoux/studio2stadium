@@ -1,6 +1,13 @@
 import { NotePencilIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { useState, type ReactNode } from "react";
+import { useVirtualizer, useWindowVirtualizer } from "@tanstack/react-virtual";
+import {
+  useEffect,
+  useLayoutEffect,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from "react";
 
 import { Button } from "@/components/event/button";
 import {
@@ -17,6 +24,7 @@ import { Rating } from "@/components/event/rating";
 import { Textarea } from "@/components/event/textarea";
 import { cn } from "@/components/utils/cn";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
+import { useIsPhone } from "@/features/org/live/admin/rosters/use-is-phone";
 import { DancerBib } from "@/features/org/live/shared/dancer-bib";
 
 import {
@@ -48,11 +56,84 @@ export interface DancerRosterTableProps {
   eventId?: string;
   /** Shown as the only body row when `rows` is empty. */
   empty: ReactNode;
+  /**
+   * The box the table scrolls in from the desk breakpoint up. At phone width
+   * the page itself scrolls, so the rows follow the window instead.
+   */
+  scrollRef: RefObject<HTMLElement | null>;
+  /** More rows wait on the server; `onLoadMore` fetches the next page. */
+  hasMore?: boolean;
+  loadingMore?: boolean;
+  onLoadMore?: () => void;
+}
+
+/** A row's height before it's measured; a note panel under it grows it. */
+const ROW_ESTIMATE = 45;
+
+/**
+ * Only the rows near the viewport are in the DOM. A roster runs to the
+ * thousands, and rendering every row made each search, sort and mark take
+ * seconds. Asking for the next page as the end comes into view keeps scrolling
+ * continuous.
+ */
+function useVirtualRows({
+  count,
+  scrollRef,
+  table,
+  hasMore,
+  loadingMore,
+  onLoadMore,
+}: {
+  count: number;
+  scrollRef: RefObject<HTMLElement | null>;
+  table: HTMLDivElement | null;
+  hasMore: boolean;
+  loadingMore: boolean;
+  onLoadMore?: () => void;
+}) {
+  const phone = useIsPhone();
+  const [tableTop, setTableTop] = useState(0);
+  useLayoutEffect(() => {
+    if (phone && table)
+      setTableTop(table.getBoundingClientRect().top + window.scrollY);
+  }, [phone, table]);
+
+  const inBox = useVirtualizer({
+    count,
+    enabled: !phone,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => ROW_ESTIMATE,
+    overscan: 10,
+  });
+  const inWindow = useWindowVirtualizer({
+    count,
+    enabled: phone,
+    estimateSize: () => ROW_ESTIMATE,
+    overscan: 10,
+    scrollMargin: tableTop,
+  });
+  const virtualizer = phone ? inWindow : inBox;
+  const items = virtualizer.getVirtualItems();
+  const margin = phone ? tableTop : 0;
+  const first = items[0];
+  const last = items.at(-1);
+
+  useEffect(() => {
+    if (last && last.index >= count - 1 && hasMore && !loadingMore)
+      onLoadMore?.();
+  }, [last, count, hasMore, loadingMore, onLoadMore]);
+
+  return {
+    items,
+    measure: virtualizer.measureElement,
+    padTop: first ? first.start - margin : 0,
+    padBottom: last ? virtualizer.getTotalSize() - (last.end - margin) : 0,
+  };
 }
 
 /**
- * The coach's roster: bib, name, year, studio, GPA, then her rating, favorite,
- * callback and note on each dancer. A row opens the dancer sheet, a bib the
+ * The coach's roster: bib, name, year, studio, GPA, then their rating,
+ * favorite, callback and note on each dancer. A row opens the dancer sheet, a bib the
  * dancer dialog, the note icon a private-note panel under the row. Dancers
  * from another event (the "All events" view, or before her event) are read-only.
  */
@@ -66,8 +147,21 @@ export function DancerRosterTable({
   onOpenDancer,
   eventId,
   empty,
+  scrollRef,
+  hasMore = false,
+  loadingMore = false,
+  onLoadMore,
 }: DancerRosterTableProps) {
   const [noteFor, setNoteFor] = useState<string | null>(null);
+  const [table, setTable] = useState<HTMLDivElement | null>(null);
+  const virtual = useVirtualRows({
+    count: rows.length,
+    scrollRef,
+    table,
+    hasMore,
+    loadingMore,
+    onLoadMore,
+  });
   const showCall = scouting.callbacksEnabled;
   const selectable = rows.filter((row) => scouting.canScoutDancer(row));
   const selectedCount = selectable.filter((row) =>
@@ -110,6 +204,7 @@ export function DancerRosterTable({
 
   return (
     <DataTable
+      ref={setTable}
       columns={columns}
       phoneColumns={phoneColumns}
       aria-label="Dancers"
@@ -147,28 +242,59 @@ export function DancerRosterTable({
         <DataTableHeaderCell aria-label="Note" />
       </DataTableHead>
       <DataTableBody>
-        {rows.length === 0
-          ? empty
-          : rows.map((row) => (
-              <RosterRow
-                key={row.rosterId}
-                row={row}
-                scouting={scouting}
-                eventId={eventId}
-                selected={selectedIds.has(row.rosterId)}
-                onSelect={(checked) => toggleRow(row.rosterId, checked)}
-                noteOpen={noteFor === row.rosterId}
-                onToggleNote={() =>
-                  setNoteFor((current) =>
-                    current === row.rosterId ? null : row.rosterId,
-                  )
-                }
-                onOpenDancer={onOpenDancer}
-              />
-            ))}
+        {rows.length === 0 ? (
+          empty
+        ) : (
+          <>
+            <Spacer height={virtual.padTop} />
+            {virtual.items.map((item) => {
+              const row = rows[item.index]!;
+              return (
+                // Measured as one item, so an open note panel counts too.
+                <div
+                  key={row.rosterId}
+                  ref={virtual.measure}
+                  data-index={item.index}
+                  role="none"
+                  className="col-span-full grid grid-cols-subgrid"
+                >
+                  <RosterRow
+                    row={row}
+                    scouting={scouting}
+                    eventId={eventId}
+                    selected={selectedIds.has(row.rosterId)}
+                    onSelect={(checked) => toggleRow(row.rosterId, checked)}
+                    noteOpen={noteFor === row.rosterId}
+                    onToggleNote={() =>
+                      setNoteFor((current) =>
+                        current === row.rosterId ? null : row.rosterId,
+                      )
+                    }
+                    onOpenDancer={onOpenDancer}
+                  />
+                </div>
+              );
+            })}
+            <Spacer height={virtual.padBottom} />
+            {loadingMore && (
+              <div
+                role="row"
+                className="text-fg-3 type-meta col-span-full py-(--space-12) text-center"
+              >
+                <span role="cell">Loading more dancers…</span>
+              </div>
+            )}
+          </>
+        )}
       </DataTableBody>
     </DataTable>
   );
+}
+
+/** Stands in for the rows scrolled out of view. */
+function Spacer({ height }: { height: number }) {
+  if (height <= 0) return null;
+  return <div aria-hidden className="col-span-full" style={{ height }} />;
 }
 
 function RosterRow({

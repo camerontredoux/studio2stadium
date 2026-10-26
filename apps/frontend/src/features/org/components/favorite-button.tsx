@@ -1,5 +1,6 @@
 import { $api, type ApiSchemas } from "@/lib/api/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { updateDancerLists } from "@/features/org/api/scouting-mutations";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { Heart } from "lucide-react";
 import { useOrg } from "@/features/org/context/use-org";
@@ -30,14 +31,8 @@ export function FavoriteButton({
   const dancersPrefix = ["get", "/orgs/{slug}/dancers"] as const;
 
   function setFavoritedInList(value: boolean) {
-    qc.setQueriesData<ApiSchemas["OrgsIdDancersResponse"]>(
-      { queryKey: [...dancersPrefix] },
-      (old) =>
-        Array.isArray(old)
-          ? old.map((d) =>
-              d.rosterId === dancerRosterId ? { ...d, isFavorited: value } : d,
-            )
-          : old,
+    updateDancerLists(qc, (d) =>
+      d.rosterId === dancerRosterId ? { ...d, isFavorited: value } : d,
     );
   }
 

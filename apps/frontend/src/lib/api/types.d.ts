@@ -4913,8 +4913,13 @@ export interface paths {
             parameters: {
                 query?: {
                     search?: string | null;
+                    filter?: ("all" | "favorites" | "calledBack" | "rated") | null;
                     eventId?: string | null;
                     interested?: (string | number | boolean) | null;
+                    limit?: (string | number) | null;
+                    page?: (string | number) | null;
+                    sortBy?: ("name" | "gpa" | "year" | "studio" | "rating" | "rank" | "bib") | null;
+                    sortDir?: ("asc" | "desc") | null;
                     bib?: (string | number) | null;
                 };
                 header?: never;
@@ -12757,24 +12762,33 @@ export interface components {
             isStaff: boolean;
         };
         OrgsIdDancersResponse: {
-            rosterId: string;
-            bibNumber: number | null;
-            firstName: string;
-            lastName: string;
-            isRegistered: boolean;
-            profilePhotoUrl: string | null;
-            gpa: number | null;
-            gradYear: number | null;
-            studio: string | null;
-            state: string | null;
-            interestedInMySchool: boolean;
-            isFavorited: boolean;
-            rating: number | null;
-            hasNote: boolean;
-            isCalledBack: boolean;
-            username: string | null;
-            eventId: string;
-        }[];
+            data: {
+                rosterId: string;
+                bibNumber: number | null;
+                firstName: string;
+                lastName: string;
+                isRegistered: boolean;
+                profilePhotoUrl: string | null;
+                gpa: number | null;
+                gradYear: number | null;
+                studio: string | null;
+                state: string | null;
+                interestedInMySchool: boolean;
+                isFavorited: boolean;
+                rating: number | null;
+                hasNote: boolean;
+                isCalledBack: boolean;
+                username: string | null;
+                eventId: string;
+            }[];
+            total: number;
+            counts: {
+                all: number;
+                favorites: number;
+                calledBack: number;
+                rated: number;
+            };
+        };
         OrgsIdDancersIdResponse: {
             note: string | null;
             username: string | null;
@@ -12931,6 +12945,7 @@ export interface components {
             studio: string | null;
             state: string | null;
             gpa: number | null;
+            rating: number | null;
         }[];
         OrgsIdCallbacksRequest: {
             dancerRosterId: string;

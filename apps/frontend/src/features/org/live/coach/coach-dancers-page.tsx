@@ -4,10 +4,15 @@ import {
   MegaphoneSimpleIcon,
   XIcon,
 } from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useQuery,
+} from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/event/button";
+import { useDebouncedCallback } from "@/components/hooks/use-debounced-callback";
 import { DataTableEmpty } from "@/components/event/data-table";
 import { Icon } from "@/components/event/icon";
 import { Panel, PanelSeparator, PanelToolbar } from "@/components/event/panel";
@@ -22,11 +27,7 @@ import { SubpageHeader } from "@/features/org/live/shared/event-header";
 import { ShellPage } from "@/features/org/live/shared/shell-slots";
 import { useActiveOrgEvent } from "@/features/org/live/shared/use-active-org-event";
 
-import {
-  dancerName,
-  useCoachScouting,
-  type ScoutedDancer,
-} from "./coach-scouting";
+import { useCoachScouting, type ScoutedDancer } from "./coach-scouting";
 import { DancerRosterTable } from "./dancer-roster-table";
 import { nextSort, type RosterSort } from "./roster-order";
 
@@ -34,50 +35,20 @@ type Filter = "all" | "fav" | "called";
 
 const ALL_EVENTS = "all";
 
-function compare(a: ScoutedDancer, b: ScoutedDancer, sort: RosterSort) {
-  const dir = sort.dir === "asc" ? 1 : -1;
-  const pick = (dancer: ScoutedDancer): string | number | null => {
-    switch (sort.key) {
-      case "bib":
-        return dancer.bibNumber;
-      case "name":
-        return dancerName(dancer).toLowerCase();
-      case "year":
-        return dancer.gradYear;
-      case "studio":
-        return dancer.studio?.toLowerCase() ?? null;
-      case "gpa":
-        return dancer.gpa;
-      case "rating":
-        return dancer.rating;
-    }
-  };
-  const x = pick(a);
-  const y = pick(b);
-  // Blanks sort last in both directions.
-  if (x === null && y === null) return (a.bibNumber ?? 0) - (b.bibNumber ?? 0);
-  if (x === null) return 1;
-  if (y === null) return -1;
-  if (x < y) return -dir;
-  if (x > y) return dir;
-  return (a.bibNumber ?? 0) - (b.bibNumber ?? 0);
-}
-
-function matches(dancer: ScoutedDancer, query: string) {
-  if (!query) return true;
-  const q = query.toLowerCase();
-  return (
-    String(dancer.bibNumber ?? "").includes(q) ||
-    dancerName(dancer).toLowerCase().includes(q) ||
-    (dancer.studio ?? "").toLowerCase().includes(q)
-  );
-}
+/** The server's name for each filter tab. */
+const SERVER_FILTER = {
+  all: "all",
+  fav: "favorites",
+  called: "calledBack",
+} as const;
 
 /**
  * The coach's Dancers page: filter (all / favorites / called), search, a
- * sortable roster with her marks on every row, and bulk call back / favorite.
- * It opens on her event; "All events" browses every Org Event's dancers
- * read-only, as the old page let her before her event started.
+ * sortable roster with their marks on every row, and bulk call back / favorite.
+ * It opens on their event; "All events" browses every Org Event's dancers
+ * read-only, as the old page allowed before the event started. The server
+ * filters, searches, sorts and pages the roster, so a page holds the rows the
+ * full list would show in that order.
  */
 export function CoachDancersPage() {
   const scouting = useCoachScouting();
@@ -97,14 +68,15 @@ export function CoachDancersPage() {
     eventChoice && eventChoice !== ALL_EVENTS ? eventChoice : undefined;
   const shownEvent = events?.find((e) => e.id === eventId) ?? null;
 
-  const dancersQuery = useQuery({
-    ...scoutingQueries.dancers(slug, { eventId }),
-    enabled: eventChoice !== undefined,
-  });
-  const dancers = useMemo(() => dancersQuery.data ?? [], [dancersQuery.data]);
-
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
+  // The search the server sees trails the box by a beat, so typing a name
+  // sends one request rather than one per letter.
+  const [search, setSearch] = useState("");
+  const commitSearch = useDebouncedCallback(
+    (value: string) => setSearch(value.trim()),
+    250,
+  );
   const [sort, setSort] = useState<RosterSort>({ key: "bib", dir: "asc" });
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [sheetFor, setSheetFor] = useState<string | null>(null);
@@ -113,7 +85,34 @@ export function CoachDancersPage() {
 
   const effectiveFilter =
     !callbacksEnabled && filter === "called" ? "all" : filter;
-  const q = query.trim();
+  const q = search;
+
+  const dancersQuery = useInfiniteQuery({
+    ...scoutingQueries.dancerPages(slug, {
+      eventId,
+      filter: SERVER_FILTER[effectiveFilter],
+      search: q || undefined,
+      sortBy: sort.key,
+      sortDir: sort.dir,
+    }),
+    enabled: eventChoice !== undefined,
+    // Keep the old rows up while a new search or sort loads, so the table
+    // doesn't blank on every keystroke.
+    placeholderData: keepPreviousData,
+  });
+  const { fetchNextPage } = dancersQuery;
+  const pages = dancersQuery.data?.pages;
+  const rows = useMemo(
+    () => pages?.flatMap((page) => page.data) ?? [],
+    [pages],
+  );
+  const counts = pages?.[0]?.counts;
+
+  // A new search, filter, sort or event starts again from the top.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0 });
+  }, [eventChoice, effectiveFilter, q, sort]);
 
   useEffect(() => {
     setSelectedIds(new Set());
@@ -122,20 +121,6 @@ export function CoachDancersPage() {
     setSheetFor(null);
   }, [eventChoice]);
 
-  const rows = useMemo(
-    () =>
-      dancers
-        .filter((dancer) =>
-          effectiveFilter === "fav"
-            ? dancer.isFavorited
-            : effectiveFilter === "called"
-              ? dancer.isCalledBack
-              : true,
-        )
-        .filter((dancer) => matches(dancer, q))
-        .sort((a, b) => compare(a, b, sort)),
-    [dancers, effectiveFilter, q, sort],
-  );
   const selected = rows.filter((row) => selectedIds.has(row.rosterId));
 
   // "/" focuses the search; Escape clears the selection (as the old page did).
@@ -158,14 +143,14 @@ export function CoachDancersPage() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  const favCount = dancers.filter((d) => d.isFavorited).length;
-  const calledCount = dancers.filter((d) => d.isCalledBack).length;
+  const favCount = counts?.favorites;
+  const calledCount = counts?.calledBack;
   const options: SegmentedOption<Filter>[] = [
     {
       value: "all",
       label: "All",
       icon: ListBulletsIcon,
-      count: dancers.length,
+      count: counts?.all,
     },
     { value: "fav", label: "Favorites", icon: HeartIcon, count: favCount },
     ...(callbacksEnabled
@@ -222,6 +207,7 @@ export function CoachDancersPage() {
   const clearFilters = () => {
     setFilter("all");
     setQuery("");
+    setSearch("");
   };
 
   const empty = dancersQuery.isPending ? (
@@ -232,7 +218,7 @@ export function CoachDancersPage() {
     >
       Couldn’t load dancers
     </DataTableEmpty>
-  ) : dancers.length === 0 ? (
+  ) : counts?.all === 0 ? (
     <DataTableEmpty>No dancers yet</DataTableEmpty>
   ) : (
     <DataTableEmpty
@@ -246,7 +232,7 @@ export function CoachDancersPage() {
     </DataTableEmpty>
   );
 
-  const sheetDancer = dancers.find((d) => d.rosterId === sheetFor);
+  const sheetDancer = rows.find((d) => d.rosterId === sheetFor);
 
   const header = (
     <SubpageHeader
@@ -287,7 +273,10 @@ export function CoachDancersPage() {
               placeholder="Search bib, name, studio"
               aria-label="Search dancers"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                commitSearch(event.target.value);
+              }}
             />
           </PanelToolbar>
         ) : (
@@ -316,9 +305,15 @@ export function CoachDancersPage() {
             </Button>
           </PanelToolbar>
         )}
-        <div className="min-h-0 flex-1 overflow-auto">
+        <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto">
           <DancerRosterTable
             rows={rows}
+            scrollRef={scrollRef}
+            hasMore={
+              dancersQuery.hasNextPage && !dancersQuery.isFetchNextPageError
+            }
+            loadingMore={dancersQuery.isFetchingNextPage}
+            onLoadMore={() => void fetchNextPage()}
             scouting={scouting}
             sort={sort}
             onSort={(key) => setSort((current) => nextSort(current, key))}
