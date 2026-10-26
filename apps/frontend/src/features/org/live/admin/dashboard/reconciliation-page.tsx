@@ -304,7 +304,8 @@ function MergeForm({
   return (
     <div className="bg-surface-head border-line flex flex-col gap-(--space-8) border-t px-(--space-14) py-(--space-10)">
       <Search
-        placeholder="Search school by name or email"
+        placeholder="Search"
+        aria-label="Search school by name or email"
         autoFocus
         className="ms-0 flex-auto"
         value={query}

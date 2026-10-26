@@ -276,6 +276,7 @@ export function InlineScanner({
       <div
         className={cn(
           "flex w-full justify-center",
+          !fillHeight && "shrink-0",
           // A size container, so the viewfinder can cap its width at the
           // height left over (100cqh) and stay square.
           fillHeight && "@container-[size] min-h-0 flex-1 items-center",

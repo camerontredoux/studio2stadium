@@ -190,7 +190,7 @@ function CoachesPanel({ scouting }: { scouting: DancerScouting }) {
           />
         )}
         <Search
-          placeholder="Search school or coach"
+          placeholder="Search"
           aria-label="Search coaches"
           value={query}
           onChange={(event) => setQuery(event.target.value)}

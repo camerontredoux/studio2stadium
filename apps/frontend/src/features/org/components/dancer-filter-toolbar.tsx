@@ -159,7 +159,8 @@ export function DancerFilterToolbar({
           ref={searchRef}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search..."
+          placeholder="Search"
+          aria-label="Search dancers"
           inputMode="search"
           data-size="sm"
         />

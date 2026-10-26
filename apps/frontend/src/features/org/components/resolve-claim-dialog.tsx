@@ -170,7 +170,7 @@ export function ResolveClaimDialog({
           >
             <ComboboxField
               aria-label="Search roster entries"
-              placeholder="Search the roster by name or email"
+              placeholder="Search"
               loading={
                 debouncedQuery.trim().length >= 2 && rosterQuery.isFetching
               }

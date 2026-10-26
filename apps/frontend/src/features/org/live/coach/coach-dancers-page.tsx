@@ -270,7 +270,7 @@ export function CoachDancersPage() {
             />
             <Search
               ref={searchRef}
-              placeholder="Search bib, name, studio"
+              placeholder="Search"
               aria-label="Search dancers"
               value={query}
               onChange={(event) => {
