@@ -1,15 +1,11 @@
 import { useCallback } from "react";
-import { CheckIcon, HandTapIcon } from "@phosphor-icons/react";
 
-import { Button } from "@/components/event/button";
-import { Icon } from "@/components/event/icon";
 import { Panel, PanelHead } from "@/components/event/panel";
-import { toastManager } from "@/components/ui/toast-manager";
-import { useSelfCheckInSetting } from "@/features/org/api/check-in-queries";
 import {
   InlineScanner,
   type ScanOutcome,
 } from "@/features/org/live/check-in/inline-scanner";
+import { SelfCheckInButton } from "@/features/org/live/check-in/self-check-in-button";
 import { SelfCheckInNotice } from "@/features/org/live/check-in/self-check-in-notice";
 
 export interface ScanPassPanelProps {
@@ -37,7 +33,6 @@ export function ScanPassPanel({
   onScanned,
   note,
 }: ScanPassPanelProps) {
-  const setting = useSelfCheckInSetting(slug, eventId);
   const handleResult = useCallback(
     (outcome: ScanOutcome) => {
       if ("roster" in outcome) onScanned?.(outcome.roster.id);
@@ -45,35 +40,17 @@ export function ScanPassPanel({
     [onScanned],
   );
 
-  const toggleSelfCheckIn = () => {
-    const next = !selfCheckIn;
-    setting.mutate(next, {
-      onError: () =>
-        toastManager.add({
-          title: next
-            ? "Couldn’t turn on self check-in"
-            : "Couldn’t turn off self check-in",
-          type: "error",
-        }),
-    });
-  };
-
   return (
     // Square up to 680px tall; the scanner shrinks its viewfinder to fit.
     <Panel aria-label="Scan a pass" className="aspect-square max-h-[680px]">
       <PanelHead
         label="Scan pass"
         actions={
-          // The label names the current state; aria-pressed carries it too.
-          <Button
-            variant="primary"
-            aria-pressed={!!selfCheckIn}
-            disabled={selfCheckIn === undefined || setting.isPending}
-            onClick={toggleSelfCheckIn}
-          >
-            <Icon icon={selfCheckIn ? CheckIcon : HandTapIcon} />
-            {selfCheckIn ? "Self check-in on" : "Allow self check-in"}
-          </Button>
+          <SelfCheckInButton
+            slug={slug}
+            eventId={eventId}
+            selfCheckIn={selfCheckIn}
+          />
         }
       />
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-(--space-14) px-(--space-16) py-(--space-24)">

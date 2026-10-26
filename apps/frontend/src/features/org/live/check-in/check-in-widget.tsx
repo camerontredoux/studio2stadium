@@ -20,6 +20,7 @@ import {
   type ScannedDancer,
   type ScanOutcome,
 } from "@/features/org/live/check-in/inline-scanner";
+import { SelfCheckInButton } from "@/features/org/live/check-in/self-check-in-button";
 import { SelfCheckInNotice } from "@/features/org/live/check-in/self-check-in-notice";
 
 type CheckInWidgetPartProps = { slug: string; eventId: string };
@@ -43,10 +44,11 @@ function useCheckInStats(slug: string, eventId: string, enabled = true) {
   };
 }
 
-function useSelfCheckIn(slug: string, eventId: string) {
+function useSelfCheckIn(slug: string, eventId: string, enabled = true) {
   const { data } = useQuery({
     ...checkInQueries.status(slug, eventId),
     refetchInterval: POLL_MS,
+    enabled,
   });
   return data?.selfCheckIn;
 }
@@ -220,6 +222,7 @@ export function CheckInWidget({
     eventId,
     enabled,
   );
+  const selfCheckIn = useSelfCheckIn(slug, eventId, enabled);
 
   return (
     <Tile
@@ -233,6 +236,16 @@ export function CheckInWidget({
         enabled ? (
           <CheckInWidgetPeek slug={slug} eventId={eventId} />
         ) : undefined
+      }
+      actions={
+        enabled && (
+          <SelfCheckInButton
+            slug={slug}
+            eventId={eventId}
+            selfCheckIn={selfCheckIn}
+            size="sm"
+          />
+        )
       }
       fullPage={
         <Link to="/o/$orgSlug/admin/check-in" params={{ orgSlug: slug }} />
