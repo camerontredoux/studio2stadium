@@ -11,7 +11,7 @@ export class DeleteProfileImageService {
   constructor(private db: DatabaseService) {}
 
   async execute({ params }: Validator) {
-    const disk = drive.use("r2");
+    const disk = drive.use();
 
     const image = await this.db.use((db) =>
       db.query.images.findFirst({

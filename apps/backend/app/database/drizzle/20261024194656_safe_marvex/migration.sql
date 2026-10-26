@@ -1,0 +1,1 @@
+ALTER TABLE "org_events" ADD COLUMN "end_time" text;

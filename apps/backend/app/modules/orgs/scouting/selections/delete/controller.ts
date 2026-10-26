@@ -1,6 +1,7 @@
 import { inject } from "@adonisjs/core";
 import type { HttpContext } from "@adonisjs/core/http";
 import { DeleteSelectionService } from "./service.ts";
+import { schema } from "./validator.ts";
 
 export default class DeleteSelectionController {
   @inject()
@@ -11,11 +12,11 @@ export default class DeleteSelectionController {
       });
     }
 
-    const selectionId = ctx.params.id;
+    const { params } = await ctx.request.validateUsing(schema);
     const row = await service.execute(
       ctx.orgEvent!.id,
       ctx.orgRoster.id,
-      selectionId
+      params.id
     );
 
     if (!row) {

@@ -56,10 +56,12 @@ test.group("StatsRosterService", (group) => {
     const { event } = await makeOrgAndEvent();
     const service = new StatsRosterService();
     const result = await service.execute(event.id, { type: "dancer" });
-    assert.deepEqual(result, { total: 0, active: 0, pending: 0 });
+    assert.deepEqual(result, { total: 0, active: 0, pending: 0, checkedIn: 0 });
   });
 
-  test("counts active and pending dancers correctly", async ({ assert }) => {
+  test("counts active, pending and checked-in dancers correctly", async ({
+    assert,
+  }) => {
     const { event } = await makeOrgAndEvent();
     const u1 = await makeUser("u1");
     const u2 = await makeUser("u2");
@@ -72,6 +74,7 @@ test.group("StatsRosterService", (group) => {
         firstName: "Alice",
         lastName: "Active",
         userId: u1.id,
+        checkedInAt: new Date(),
       },
       {
         eventId: event.id,
@@ -93,7 +96,7 @@ test.group("StatsRosterService", (group) => {
 
     const service = new StatsRosterService();
     const result = await service.execute(event.id, { type: "dancer" });
-    assert.deepEqual(result, { total: 3, active: 2, pending: 1 });
+    assert.deepEqual(result, { total: 3, active: 2, pending: 1, checkedIn: 1 });
   });
 
   test("does not count rosters of the wrong type", async ({ assert }) => {
@@ -130,8 +133,18 @@ test.group("StatsRosterService", (group) => {
     const dancerResult = await service.execute(event.id, { type: "dancer" });
     const coachResult = await service.execute(event.id, { type: "coach" });
 
-    assert.deepEqual(dancerResult, { total: 1, active: 0, pending: 1 });
-    assert.deepEqual(coachResult, { total: 2, active: 0, pending: 2 });
+    assert.deepEqual(dancerResult, {
+      total: 1,
+      active: 0,
+      pending: 1,
+      checkedIn: 0,
+    });
+    assert.deepEqual(coachResult, {
+      total: 2,
+      active: 0,
+      pending: 2,
+      checkedIn: 0,
+    });
   });
 
   test("does not count rosters from a different event", async ({ assert }) => {
@@ -175,6 +188,6 @@ test.group("StatsRosterService", (group) => {
 
     const service = new StatsRosterService();
     const result = await service.execute(eventA.id, { type: "dancer" });
-    assert.deepEqual(result, { total: 1, active: 0, pending: 1 });
+    assert.deepEqual(result, { total: 1, active: 0, pending: 1, checkedIn: 0 });
   });
 });

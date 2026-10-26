@@ -1,44 +1,37 @@
-import {
-  AlertDialog,
-  AlertDialogClose,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogPopup,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import {
-  Combobox,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-  ComboboxPopup,
-} from "@/components/ui/combobox";
+import { ArrowDownIcon, WarningIcon } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import { Button } from "@/components/event/button";
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogPanel,
   DialogPopup,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Spinner } from "@/components/ui/spinner";
-import { toastManager } from "@/components/ui/toast-manager";
+} from "@/components/event/dialog";
 import {
-  rosterQueries,
-  type RosterEntry,
-} from "@/features/org/api/roster-queries";
+  ComboboxEmpty,
+  ComboboxField,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxPopup,
+  ComboboxRoot,
+} from "@/components/event/combobox";
+import { Icon } from "@/components/event/icon";
+import { toastManager } from "@/components/ui/toast-manager";
 import {
   useResolveRosterClaim,
   type RosterClaim,
 } from "@/features/org/api/roster-claim-queries";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowDown, SearchIcon, TriangleAlertIcon } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  rosterQueries,
+  type RosterEntry,
+} from "@/features/org/api/roster-queries";
+import { BusyLabel } from "@/features/org/live/shared/busy-label";
 
 interface ResolveClaimDialogProps {
   open: boolean;
@@ -140,167 +133,174 @@ export function ResolveClaimDialog({
     .join(" ");
 
   return (
-    <>
-      <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogPopup>
-          <DialogHeader>
-            <DialogTitle>Find their roster entry</DialogTitle>
-            <DialogDescription>
-              Pick the entry that belongs to {requesterName}. Their account gets
-              linked to it.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogPanel>
-            <div className="flex flex-col gap-3">
-              <div className="bg-muted/50 rounded-md border p-3 text-sm">
-                <p className="text-muted-foreground text-xs">
-                  They say they registered as
-                </p>
-                <p className="font-medium">
-                  {claim.claimed.firstName} {claim.claimed.lastName}
-                </p>
-                {claim.claimed.email && (
-                  <p className="text-muted-foreground text-xs">
-                    using {claim.claimed.email}
-                  </p>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogPopup>
+        <DialogHeader>
+          <DialogTitle>Find their roster entry</DialogTitle>
+          <DialogDescription>
+            Pick the entry that belongs to {requesterName}. Their account gets
+            linked to it.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogBody>
+          <div className="border-line bg-bg-300 flex flex-col gap-(--space-2) rounded-(--radius-6) border p-(--space-10)">
+            <p className="type-meta text-fg-3 m-0">
+              They say they registered as
+            </p>
+            <p className="type-body-strong text-fg m-0 truncate">
+              {claim.claimed.firstName} {claim.claimed.lastName}
+            </p>
+            {claim.claimed.email && (
+              <p className="type-caption text-fg-2 m-0 truncate">
+                using {claim.claimed.email}
+              </p>
+            )}
+          </div>
+
+          <ComboboxRoot
+            items={entries}
+            filter={null}
+            value={null}
+            itemToStringLabel={entryLabel}
+            onInputValueChange={setQuery}
+            onValueChange={(entry: RosterEntry | null) => {
+              if (entry) setPicked(entry);
+            }}
+            autoHighlight
+          >
+            <ComboboxField
+              aria-label="Search roster entries"
+              placeholder="Search the roster by name or email"
+              loading={
+                debouncedQuery.trim().length >= 2 && rosterQuery.isFetching
+              }
+            />
+            <ComboboxPopup aria-label="Matching roster entries">
+              <ComboboxEmpty>{emptyMessage}</ComboboxEmpty>
+              <ComboboxList>
+                {(entry: RosterEntry) => (
+                  <ComboboxItem key={entry.id} value={entry}>
+                    <span className="flex min-w-0 flex-1 flex-col">
+                      <span className="type-body-strong text-fg truncate">
+                        {entry.firstName} {entry.lastName}
+                        {entry.bibNumber !== null && (
+                          <span className="type-data-sm text-fg-3 ml-(--space-6)">
+                            #{entry.bibNumber}
+                          </span>
+                        )}
+                      </span>
+                      <span className="type-caption text-fg-2 truncate">
+                        {entry.email}
+                        {entry.isRegistered && " · already claimed"}
+                      </span>
+                    </span>
+                  </ComboboxItem>
                 )}
-              </div>
+              </ComboboxList>
+            </ComboboxPopup>
+          </ComboboxRoot>
+        </DialogBody>
+        <DialogFooter>
+          <DialogClose render={<Button variant="ghost" size="lg" />}>
+            Cancel
+          </DialogClose>
+        </DialogFooter>
 
-              <Combobox
-                items={entries}
-                filter={null}
-                value={null}
-                itemToStringLabel={entryLabel}
-                onInputValueChange={setQuery}
-                onValueChange={(entry: RosterEntry | null) => {
-                  if (entry) setPicked(entry);
-                }}
-                autoHighlight
-              >
-                <ComboboxInput
-                  aria-label="Search roster entries"
-                  placeholder="Search the roster by name or email…"
-                  startAddon={<SearchIcon />}
-                />
-                <ComboboxPopup aria-label="Matching roster entries">
-                  <ComboboxEmpty>{emptyMessage}</ComboboxEmpty>
-                  <ComboboxList>
-                    {(entry: RosterEntry) => (
-                      <ComboboxItem key={entry.id} value={entry}>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-medium">
-                            {entry.firstName} {entry.lastName}
-                            {entry.bibNumber !== null && (
-                              <span className="text-muted-foreground ml-1.5 text-xs">
-                                #{entry.bibNumber}
-                              </span>
-                            )}
-                          </p>
-                          <p className="text-muted-foreground truncate text-xs">
-                            {entry.email}
-                            {entry.isRegistered && " · already claimed"}
-                          </p>
-                        </div>
-                      </ComboboxItem>
-                    )}
-                  </ComboboxList>
-                </ComboboxPopup>
-              </Combobox>
-            </div>
-          </DialogPanel>
-          <DialogFooter>
-            <DialogClose render={<Button variant="ghost" />}>
-              Cancel
-            </DialogClose>
-          </DialogFooter>
-        </DialogPopup>
-      </Dialog>
+        <Dialog
+          open={picked !== null}
+          onOpenChange={(next) => {
+            if (!next) setPicked(null);
+          }}
+        >
+          <DialogPopup role="alertdialog">
+            <DialogHeader>
+              <DialogTitle>
+                {picked?.linkedUser
+                  ? "Reassign this roster entry?"
+                  : "Connect this roster entry?"}
+              </DialogTitle>
+              <DialogDescription>
+                Roster entry{" "}
+                <span className="text-fg font-medium">
+                  {picked?.firstName} {picked?.lastName}
+                </span>{" "}
+                ({picked?.email}) will be linked to a different account.
+              </DialogDescription>
+            </DialogHeader>
 
-      <AlertDialog
-        open={picked !== null}
-        onOpenChange={(next) => {
-          if (!next) setPicked(null);
-        }}
-      >
-        <AlertDialogPopup>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {picked?.linkedUser
-                ? "Reassign this roster entry?"
-                : "Connect this roster entry?"}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Roster entry{" "}
-              <span className="text-foreground font-medium">
-                {picked?.firstName} {picked?.lastName}
-              </span>{" "}
-              ({picked?.email}) will be linked to a different account.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          <div className="mx-6 mb-4 flex flex-col gap-3">
-            <div className="border-border flex flex-col gap-2 rounded-md border p-3 text-sm">
-              <div className="flex flex-col gap-0.5">
-                <span className="text-muted-foreground text-xs">From</span>
-                {picked?.linkedUser ? (
-                  <>
-                    <span className="font-medium">
-                      {[picked.linkedUser.firstName, picked.linkedUser.lastName]
-                        .filter(Boolean)
-                        .join(" ")}
+            <DialogBody>
+              <div className="border-line bg-bg-300 flex flex-col gap-(--space-8) rounded-(--radius-6) border p-(--space-10)">
+                <div className="flex min-w-0 flex-col gap-(--space-2)">
+                  <span className="type-meta text-fg-3">From</span>
+                  {picked?.linkedUser ? (
+                    <>
+                      <span className="type-body-strong text-fg truncate">
+                        {[
+                          picked.linkedUser.firstName,
+                          picked.linkedUser.lastName,
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
+                      </span>
+                      <span className="type-caption text-fg-2 break-all">
+                        {picked.linkedUser.email}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="type-body text-fg-3">
+                      No account linked
                     </span>
-                    <span className="text-muted-foreground text-xs break-all">
-                      {picked.linkedUser.email}
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-muted-foreground">
-                    No account linked
+                  )}
+                </div>
+                <Icon icon={ArrowDownIcon} className="text-fg-3" />
+                <div className="flex min-w-0 flex-col gap-(--space-2)">
+                  <span className="type-meta text-fg-3">To</span>
+                  <span className="type-body-strong text-fg truncate">
+                    {requesterName}
                   </span>
-                )}
+                  <span className="type-caption text-fg-2 break-all">
+                    {claim.requester.email}
+                  </span>
+                </div>
               </div>
-              <ArrowDown className="text-muted-foreground size-4" />
-              <div className="flex flex-col gap-0.5">
-                <span className="text-muted-foreground text-xs">To</span>
-                <span className="font-medium">{requesterName}</span>
-                <span className="text-muted-foreground text-xs break-all">
-                  {claim.requester.email}
-                </span>
-              </div>
-            </div>
 
-            {picked?.linkedUser && (
-              <div className="border-destructive/30 bg-destructive/5 text-destructive flex gap-2 rounded-md border p-3 text-sm">
-                <TriangleAlertIcon className="mt-0.5 size-4 shrink-0" />
-                <p>
+              {picked?.linkedUser && (
+                <p className="border-danger/40 text-danger type-body m-0 flex gap-(--space-8) rounded-(--radius-6) border p-(--space-10)">
+                  <Icon icon={WarningIcon} className="mt-[2px]" />
                   This unregisters the current account from the event and drops
                   any callbacks it received. If it is a different dancer, stop
                   and check first.
                 </p>
-              </div>
-            )}
-          </div>
-
-          <AlertDialogFooter>
-            <AlertDialogClose render={<Button variant="ghost" />}>
-              Cancel
-            </AlertDialogClose>
-            <Button
-              variant={picked?.linkedUser ? "destructive" : "default"}
-              onClick={handleConfirm}
-              disabled={resolve.isPending}
-            >
-              {resolve.isPending ? (
-                <Spinner label="Connecting…" />
-              ) : picked?.linkedUser ? (
-                "Reassign entry"
-              ) : (
-                "Connect entry"
               )}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogPopup>
-      </AlertDialog>
-    </>
+            </DialogBody>
+
+            <DialogFooter>
+              <DialogClose render={<Button variant="ghost" size="lg" />}>
+                Cancel
+              </DialogClose>
+              <Button
+                variant={picked?.linkedUser ? "danger" : "primary"}
+                size="lg"
+                className={
+                  picked?.linkedUser
+                    ? "border-danger/40 hover:border-danger"
+                    : undefined
+                }
+                onClick={handleConfirm}
+                disabled={resolve.isPending}
+              >
+                {resolve.isPending ? (
+                  <BusyLabel label="Connecting…" />
+                ) : picked?.linkedUser ? (
+                  "Reassign entry"
+                ) : (
+                  "Connect entry"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogPopup>
+        </Dialog>
+      </DialogPopup>
+    </Dialog>
   );
 }

@@ -26,7 +26,7 @@ export class Service {
     // Best-effort cleanup of the post's attachment objects in R2. A failure
     // here must not fail the delete — the orphan sweep is the safety net for
     // anything left behind.
-    const disk = drive.use("r2");
+    const disk = drive.use();
     for (const attachment of post.attachments ?? []) {
       try {
         if (await disk.exists(attachment.key)) {

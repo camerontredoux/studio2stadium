@@ -12,6 +12,13 @@ export const checkInQueries = {
     $api.queryOptions("get", "/orgs/{slug}/events/{id}/check-in/status", {
       params: { path: { slug, id: eventId } },
     }),
+  /** A Dancer's pass code, for an organizer to show at the desk (admin only). */
+  rosterCode: (slug: string, eventId: string, rosterId: string) =>
+    $api.queryOptions(
+      "get",
+      "/orgs/{slug}/events/{id}/rosters/{rosterId}/check-in-code",
+      { params: { path: { slug, id: eventId, rosterId } } },
+    ),
 };
 
 const ROSTER_LIST_KEY_PREFIX = [
@@ -168,6 +175,62 @@ export function useAdminCheckInToggle() {
     onSettled: () => {
       qc.invalidateQueries({ queryKey: [...ROSTER_LIST_KEY_PREFIX] });
       qc.invalidateQueries({ queryKey: [...ROSTER_STATS_KEY_PREFIX] });
+    },
+  });
+}
+
+export type ScanCheckInResponse =
+  ApiSchemas["OrgsIdEventsIdCheckinScanResponse"];
+
+/**
+ * Checks a Dancer in from the text read off their pass QR. Set-only on the
+ * server, so a repeat scan never checks anyone out. The thrown error is the
+ * API's `{ message, code, status }` body.
+ */
+export function useScanCheckIn(slug: string, eventId: string) {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (code: string) => {
+      const { data, error } = await client.POST(
+        "/orgs/{slug}/events/{id}/check-in/scan",
+        { params: { path: { slug, id: eventId } }, body: { code } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: ({ result, roster }) => {
+      if (result !== "checked_in") return;
+      type RosterResponse = ApiSchemas["OrgsIdEventsIdRostersResponse"];
+      type StatsResponse = ApiSchemas["OrgsIdEventsIdRostersStatsResponse"];
+
+      // Show the check-in at once; the invalidations below confirm it.
+      qc.getQueriesData<RosterResponse>({
+        queryKey: [...ROSTER_LIST_KEY_PREFIX],
+      }).forEach(([key, data]) => {
+        if (!data?.data.some((r) => r.id === roster.id)) return;
+        qc.setQueryData(key, {
+          ...data,
+          data: data.data.map((r) =>
+            r.id === roster.id ? { ...r, checkedInAt: roster.checkedInAt } : r,
+          ),
+        });
+      });
+      const statsKey = rosterQueries.stats(slug, eventId, "dancer").queryKey;
+      const stats = qc.getQueryData<StatsResponse>(statsKey);
+      if (stats) {
+        qc.setQueryData<StatsResponse>(statsKey, {
+          ...stats,
+          checkedIn: Math.min(stats.total, stats.checkedIn + 1),
+        });
+      }
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: [...ROSTER_LIST_KEY_PREFIX] });
+      qc.invalidateQueries({ queryKey: [...ROSTER_STATS_KEY_PREFIX] });
+      qc.invalidateQueries({
+        queryKey: checkInQueries.status(slug, eventId).queryKey,
+      });
     },
   });
 }

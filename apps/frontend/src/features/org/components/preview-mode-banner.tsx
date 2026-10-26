@@ -1,7 +1,9 @@
-import { Button } from "@/components/ui/button";
-import { useOrg } from "@/features/org/context/use-org";
+import { EyeIcon, XIcon } from "@phosphor-icons/react";
 import { useNavigate } from "@tanstack/react-router";
-import { EyeIcon, XIcon } from "lucide-react";
+
+import { Button } from "@/components/event/button";
+import { Icon } from "@/components/event/icon";
+import { useOrg } from "@/features/org/context/use-org";
 
 /**
  * Shown to admins while they "view as" a coach/dancer. Their favorites, ratings,
@@ -24,21 +26,24 @@ export function PreviewModeBanner({
   const audience = role === "coach" ? "coaches" : "dancers";
 
   return (
-    <div className="flex shrink-0 items-center gap-2 border-b border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-amber-700 dark:text-amber-300">
-      <EyeIcon className="size-3.5 shrink-0" />
-      <span className="text-xs 2xl:text-sm">
-        Preview mode — viewing as {role}. Your activity here is a staff sandbox
-        and stays hidden from {audience} and results.
+    <div
+      role="status"
+      className="border-line bg-surface flex min-h-(--control-lg) items-center gap-(--space-8) rounded-(--radius-10) border py-(--space-4) ps-(--space-12) pe-(--space-4)"
+    >
+      <Icon icon={EyeIcon} className="text-amber" />
+      <span className="type-caption text-fg-2 min-w-0 flex-1">
+        <span className="text-fg font-medium">Viewing as {role}.</span> Your
+        activity here is a staff sandbox and stays hidden from {audience} and
+        results.
       </span>
       <Button
         variant="ghost"
-        size="xs"
-        className="ml-auto h-6 gap-1 px-2 text-amber-700 hover:bg-amber-500/20 dark:text-amber-300"
+        size="sm"
         onClick={() =>
           void navigate({ to: "/o/$orgSlug/admin", params: { orgSlug } })
         }
       >
-        <XIcon className="size-3" />
+        <Icon icon={XIcon} />
         Exit
       </Button>
     </div>

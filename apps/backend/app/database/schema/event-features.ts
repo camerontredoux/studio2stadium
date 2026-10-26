@@ -99,12 +99,18 @@ export const eventSchoolSelections = pg.pgTable(
       .uuid()
       .notNull()
       .references(() => eventRosters.id, { onDelete: "cascade" }),
+    // The dancer's order of preference, 1 first. Ranks stay contiguous: a
+    // removal closes the gap and a move swaps two neighbours. The unique index
+    // is checked row by row, so writes that shift ranks pass through negative
+    // values first (see selections/rank.ts).
+    rank: pg.integer().notNull(),
     createdAt: pg.timestamp().notNull().defaultNow(),
   },
   (table) => [
     pg
       .uniqueIndex()
       .on(table.eventId, table.dancerRosterId, table.coachRosterId),
+    pg.uniqueIndex().on(table.eventId, table.dancerRosterId, table.rank),
     pg.index().on(table.eventId, table.dancerRosterId),
     pg.index().on(table.eventId, table.coachRosterId),
   ]

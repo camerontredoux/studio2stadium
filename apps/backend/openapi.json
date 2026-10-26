@@ -1175,7 +1175,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AdminOrgsResponse"
+                  "$ref": "#/components/schemas/AdminOrgsPostResponse"
                 }
               }
             }
@@ -1346,7 +1346,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AdminOrgsIdMembersResponse"
+                  "$ref": "#/components/schemas/AdminOrgsIdMembersPostResponse"
                 }
               }
             }
@@ -2238,16 +2238,6 @@
                 }
               }
             }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
           }
         }
       },
@@ -2277,23 +2267,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrgsIdEventsResponse"
+                  "$ref": "#/components/schemas/OrgsIdEventsPostResponse"
                 }
               }
             }
           },
           "409": {
             "description": "Unknown Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
@@ -2830,7 +2810,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrgsIdEventsIdRostersResponse"
+                  "$ref": "#/components/schemas/OrgsIdEventsIdRostersDeleteResponse"
                 }
               }
             }
@@ -3342,6 +3322,50 @@
         }
       }
     },
+    "/orgs/{slug}/events/{id}/rosters/{rosterId}/check-in-code": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdRostersIdCheckincodeResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get a dancer's check-in pass code",
+        "description": "Returns the signed code a Dancer's check-in pass QR encodes, so an organizer can show the pass at the desk. 404 when the Roster Entry is not a Dancer in this event of this org."
+      }
+    },
     "/orgs/{slug}/events/{id}/rosters/resend-invites": {
       "post": {
         "requestBody": {
@@ -3555,7 +3579,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrgsIdEventsIdChecklistResponse"
+                  "$ref": "#/components/schemas/OrgsIdEventsIdChecklistPostResponse"
                 }
               }
             }
@@ -4290,6 +4314,61 @@
         }
       }
     },
+    "/orgs/{slug}/events/{id}/check-in/scan": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdEventsIdCheckinScanRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdCheckinScanResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Check a dancer in from their pass",
+        "description": "Verifies the signed code from a Dancer's check-in pass QR and sets their check-in time if it is not set yet. A repeat scan returns already_checked_in and changes nothing."
+      }
+    },
     "/orgs/{slug}/events/{id}/schedule": {
       "get": {
         "parameters": [
@@ -4394,7 +4473,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrgsIdEventsIdVideocategoriesResponse"
+                  "$ref": "#/components/schemas/OrgsIdEventsIdVideocategoriesPostResponse"
                 }
               }
             }
@@ -4524,7 +4603,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrgsIdEventsIdVideosResponse"
+                  "$ref": "#/components/schemas/OrgsIdEventsIdVideosPostResponse"
                 }
               }
             }
@@ -5099,6 +5178,44 @@
         "tags": [
           "Org Scouting"
         ]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dancerRosterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Scouting"
+        ]
       }
     },
     "/orgs/{slug}/dancers/{dancerRosterId}/callbacks": {
@@ -5232,7 +5349,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrgsIdFavoritesResponse"
+                  "$ref": "#/components/schemas/OrgsIdFavoritesPostResponse"
                 }
               }
             }
@@ -5485,7 +5602,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrgsIdMyselectionsResponse"
+                  "$ref": "#/components/schemas/OrgsIdMyselectionsPostResponse"
                 }
               }
             }
@@ -5503,7 +5620,9 @@
         },
         "tags": [
           "Org School Selections"
-        ]
+        ],
+        "summary": "Add a top choice",
+        "description": "Adds a school to the dancer's selections for the active Org Event, ranked after the existing ones. Adding a school already selected returns it unchanged; 422 when the org's limit is reached."
       }
     },
     "/orgs/{slug}/my-selections/{id}": {
@@ -5556,11 +5675,91 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "tags": [
           "Org School Selections"
-        ]
+        ],
+        "summary": "Remove a top choice",
+        "description": "Removes one of the dancer's school selections for the active Org Event. The schools ranked below it move up one place."
+      }
+    },
+    "/orgs/{slug}/my-selections/{id}/move": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgsIdMyselectionsIdMoveRequest"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdMyselectionsIdMoveResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org School Selections"
+        ],
+        "summary": "Move a top choice up or down",
+        "description": "Swaps one of the dancer's school selections with the one ranked above (up) or below (down) it, for the active Org Event, and returns the selections in their new order. 422 when the selection is already first or last."
       }
     },
     "/orgs/{slug}/callbacks": {
@@ -5627,7 +5826,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrgsIdCallbacksResponse"
+                  "$ref": "#/components/schemas/OrgsIdCallbacksPostResponse"
                 }
               }
             }
@@ -12306,6 +12505,76 @@
           "slug"
         ]
       },
+      "AdminOrgsPostResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "primaryColor": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "accentColor": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "features": {
+            "type": "object",
+            "properties": {}
+          },
+          "settings": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "name",
+          "slug",
+          "logoUrl",
+          "primaryColor",
+          "accentColor",
+          "features",
+          "settings"
+        ]
+      },
       "AdminOrgsIdRequest": {
         "type": "object",
         "properties": {
@@ -12560,6 +12829,50 @@
           "email",
           "role",
           "type"
+        ]
+      },
+      "AdminOrgsIdMembersPostResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "member"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "dancer",
+              "coach",
+              "organizer"
+            ]
+          },
+          "userId": {
+            "type": "string"
+          },
+          "orgId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "role",
+          "type",
+          "userId",
+          "orgId"
         ]
       },
       "AdminOrgsIdMembersIdRequest": {
@@ -13903,35 +14216,145 @@
         ]
       },
       "OrgsIdEventsResponse": {
-        "type": "object",
-        "properties": {
-          "gpa": {
-            "type": "boolean"
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "updatedAt": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "eventTier": {
+              "type": "string",
+              "enum": [
+                "core",
+                "regional",
+                "national",
+                "enterprise"
+              ]
+            },
+            "orgId": {
+              "type": "string"
+            },
+            "startDate": {
+              "type": "string"
+            },
+            "endDate": {
+              "type": "string"
+            },
+            "venueName": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "venueAddress": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "contactEmail": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "isActive": {
+              "type": "boolean"
+            },
+            "schedulePdfUrl": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "startTime": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "endTime": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "timezone": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "startsAt": {
+              "type": "string"
+            },
+            "endsAt": {
+              "type": "string"
+            },
+            "effectiveTimezone": {
+              "type": "string"
+            }
           },
-          "location": {
-            "type": "boolean"
-          },
-          "skills": {
-            "type": "boolean"
-          },
-          "skillCount": {
-            "type": "number"
-          },
-          "styles": {
-            "type": "boolean"
-          },
-          "sports": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "gpa",
-          "location",
-          "skills",
-          "skillCount",
-          "styles",
-          "sports"
-        ]
+          "required": [
+            "id",
+            "createdAt",
+            "updatedAt",
+            "name",
+            "eventTier",
+            "orgId",
+            "startDate",
+            "endDate",
+            "venueName",
+            "venueAddress",
+            "contactEmail",
+            "isActive",
+            "schedulePdfUrl",
+            "startTime",
+            "endTime",
+            "timezone",
+            "startsAt",
+            "endsAt",
+            "effectiveTimezone"
+          ]
+        }
       },
       "OrgsIdEventsRequest": {
         "type": "object",
@@ -13990,6 +14413,16 @@
               }
             ]
           },
+          "endTime": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "timezone": {
             "oneOf": [
               {
@@ -14014,6 +14447,144 @@
           "name",
           "startDate",
           "endDate"
+        ]
+      },
+      "OrgsIdEventsPostResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "eventTier": {
+            "type": "string",
+            "enum": [
+              "core",
+              "regional",
+              "national",
+              "enterprise"
+            ]
+          },
+          "orgId": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "venueName": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "venueAddress": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "contactEmail": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "schedulePdfUrl": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "startTime": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "endTime": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timezone": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "startsAt": {
+            "type": "string"
+          },
+          "endsAt": {
+            "type": "string"
+          },
+          "effectiveTimezone": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "name",
+          "eventTier",
+          "orgId",
+          "startDate",
+          "endDate",
+          "venueName",
+          "venueAddress",
+          "contactEmail",
+          "isActive",
+          "schedulePdfUrl",
+          "startTime",
+          "endTime",
+          "timezone",
+          "startsAt",
+          "endsAt",
+          "effectiveTimezone"
         ]
       },
       "OrgsIdEventsIdRequest": {
@@ -14104,6 +14675,16 @@
             ]
           },
           "startTime": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "endTime": {
             "oneOf": [
               {
                 "type": "string"
@@ -14211,6 +14792,16 @@
               }
             ]
           },
+          "endTime": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "timezone": {
             "oneOf": [
               {
@@ -14220,6 +14811,15 @@
                 "type": "null"
               }
             ]
+          },
+          "startsAt": {
+            "type": "string"
+          },
+          "endsAt": {
+            "type": "string"
+          },
+          "effectiveTimezone": {
+            "type": "string"
           }
         },
         "required": [
@@ -14237,7 +14837,11 @@
           "isActive",
           "schedulePdfUrl",
           "startTime",
-          "timezone"
+          "endTime",
+          "timezone",
+          "startsAt",
+          "endsAt",
+          "effectiveTimezone"
         ]
       },
       "OrgsIdEventsIdUploadCoachesRequest": {
@@ -14810,6 +15414,17 @@
           "total"
         ]
       },
+      "OrgsIdEventsIdRostersDeleteResponse": {
+        "type": "object",
+        "properties": {
+          "deletedCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "deletedCount"
+        ]
+      },
       "OrgsIdEventsIdRostersFiltersResponse": {
         "type": "object",
         "properties": {
@@ -15350,6 +15965,17 @@
           "isStaff"
         ]
       },
+      "OrgsIdEventsIdRostersIdCheckincodeResponse": {
+        "type": "object",
+        "properties": {
+          "checkInCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "checkInCode"
+        ]
+      },
       "OrgsIdEventsIdRostersResendinvitesRequest": {
         "type": "object",
         "properties": {
@@ -15518,6 +16144,52 @@
         },
         "required": [
           "title"
+        ]
+      },
+      "OrgsIdEventsIdChecklistPostResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean"
+          },
+          "position": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "title",
+          "description",
+          "eventId",
+          "completed",
+          "position"
         ]
       },
       "OrgsIdEventsIdChecklistIdRequest": {
@@ -16267,13 +16939,103 @@
           },
           "canCheckIn": {
             "type": "boolean"
+          },
+          "checkInCode": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bibNumber": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
           "checkedInAt",
           "eventStartTime",
           "timezone",
-          "canCheckIn"
+          "canCheckIn",
+          "checkInCode",
+          "bibNumber"
+        ]
+      },
+      "OrgsIdEventsIdCheckinScanRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "OrgsIdEventsIdCheckinScanResponse": {
+        "type": "object",
+        "properties": {
+          "roster": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "bib": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "firstName": {
+                "type": "string"
+              },
+              "lastName": {
+                "type": "string"
+              },
+              "checkedInAt": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "bib",
+              "firstName",
+              "lastName",
+              "checkedInAt"
+            ]
+          },
+          "result": {
+            "type": "string",
+            "enum": [
+              "checked_in",
+              "already_checked_in"
+            ]
+          }
+        },
+        "required": [
+          "roster",
+          "result"
         ]
       },
       "OrgsIdEventsIdVideocategoriesResponse": {
@@ -16315,6 +17077,33 @@
         },
         "required": [
           "name"
+        ]
+      },
+      "OrgsIdEventsIdVideocategoriesPostResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "name",
+          "eventId",
+          "sortOrder"
         ]
       },
       "OrgsIdEventsIdVideosResponse": {
@@ -16491,6 +17280,67 @@
           "youtubeId",
           "title",
           "categoryId"
+        ]
+      },
+      "OrgsIdEventsIdVideosPostResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "youtubeId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "number"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "audioKey": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "audioFilename": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "youtubeId",
+          "title",
+          "eventId",
+          "sortOrder",
+          "categoryId",
+          "audioKey",
+          "audioFilename"
         ]
       },
       "OrgsIdEventsIdVideosIdRequest": {
@@ -17423,6 +18273,37 @@
           "dancerRosterId"
         ]
       },
+      "OrgsIdFavoritesPostResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "coachRosterId": {
+            "type": "string"
+          },
+          "dancerRosterId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "eventId",
+          "coachRosterId",
+          "dancerRosterId"
+        ]
+      },
       "OrgsIdRankingsResponse": {
         "type": "array",
         "items": {
@@ -17634,13 +18515,17 @@
             },
             "coachRosterId": {
               "type": "string"
+            },
+            "rank": {
+              "type": "number"
             }
           },
           "required": [
             "id",
             "createdAt",
             "organization",
-            "coachRosterId"
+            "coachRosterId",
+            "rank"
           ]
         }
       },
@@ -17653,6 +18538,37 @@
         },
         "required": [
           "coachRosterId"
+        ]
+      },
+      "OrgsIdMyselectionsPostResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "coachRosterId": {
+            "type": "string"
+          },
+          "dancerRosterId": {
+            "type": "string"
+          },
+          "rank": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "eventId",
+          "coachRosterId",
+          "dancerRosterId",
+          "rank"
         ]
       },
       "OrgsIdMyselectionsIdResponse": {
@@ -17672,6 +18588,9 @@
           },
           "dancerRosterId": {
             "type": "string"
+          },
+          "rank": {
+            "type": "number"
           }
         },
         "required": [
@@ -17679,8 +18598,61 @@
           "createdAt",
           "eventId",
           "coachRosterId",
-          "dancerRosterId"
+          "dancerRosterId",
+          "rank"
         ]
+      },
+      "OrgsIdMyselectionsIdMoveRequest": {
+        "type": "object",
+        "properties": {
+          "direction": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down"
+            ]
+          }
+        },
+        "required": [
+          "direction"
+        ]
+      },
+      "OrgsIdMyselectionsIdMoveResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "organization": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "coachRosterId": {
+              "type": "string"
+            },
+            "rank": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "id",
+            "createdAt",
+            "organization",
+            "coachRosterId",
+            "rank"
+          ]
+        }
       },
       "OrgsIdCallbacksResponse": {
         "type": "array",
@@ -17779,6 +18751,41 @@
         },
         "required": [
           "dancerRosterId"
+        ]
+      },
+      "OrgsIdCallbacksPostResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "coachRosterId": {
+            "type": "string"
+          },
+          "dancerRosterId": {
+            "type": "string"
+          },
+          "showcaseId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "eventId",
+          "coachRosterId",
+          "dancerRosterId",
+          "showcaseId"
         ]
       },
       "OrgsIdAdminCallbacksResponse": {
@@ -21415,6 +22422,9 @@
           "startTime": {
             "type": "string"
           },
+          "endTime": {
+            "type": "string"
+          },
           "attendees": {
             "type": "number"
           },
@@ -21423,9 +22433,6 @@
           },
           "eventAttendees": {
             "type": "number"
-          },
-          "endTime": {
-            "type": "string"
           }
         },
         "required": [
@@ -21445,10 +22452,10 @@
           "startDate",
           "endDate",
           "startTime",
+          "endTime",
           "attendees",
           "saved",
-          "eventAttendees",
-          "endTime"
+          "eventAttendees"
         ]
       },
       "EventsIdRequest": {

@@ -9,12 +9,14 @@ const ListFavorites = () => import("./favorites/list/controller.ts");
 const UpsertNote = () => import("./notes/upsert/controller.ts");
 const DeleteNote = () => import("./notes/delete/controller.ts");
 const UpsertRating = () => import("./ratings/upsert/controller.ts");
+const DeleteRating = () => import("./ratings/delete/controller.ts");
 const ListRankings = () => import("./rankings/controller.ts");
 
 const ListSchools = () => import("./schools/list/controller.ts");
 const ListSelections = () => import("./selections/list/controller.ts");
 const CreateSelection = () => import("./selections/create/controller.ts");
 const DeleteSelection = () => import("./selections/delete/controller.ts");
+const MoveSelection = () => import("./selections/move/controller.ts");
 
 const ListCallbacks = () => import("./callbacks/list/controller.ts");
 const CreateCallback = () => import("./callbacks/create/controller.ts");
@@ -75,6 +77,9 @@ router
     router
       .put(":slug/dancers/:dancerRosterId/rating", [UpsertRating])
       .use(middleware.orgEventDancer());
+    router
+      .delete(":slug/dancers/:dancerRosterId/rating", [DeleteRating])
+      .use(middleware.orgEventDancer());
     router.get(":slug/rankings", [ListRankings]);
   })
   .prefix("orgs")
@@ -104,8 +109,21 @@ router
 
 router
   .group(() => {
-    router.post(":slug/my-selections", [CreateSelection]);
-    router.delete(":slug/my-selections/:id", [DeleteSelection]);
+    router.post(":slug/my-selections", [CreateSelection]).openapi({
+      summary: "Add a top choice",
+      description:
+        "Adds a school to the dancer's selections for the active Org Event, ranked after the existing ones. Adding a school already selected returns it unchanged; 422 when the org's limit is reached.",
+    });
+    router.delete(":slug/my-selections/:id", [DeleteSelection]).openapi({
+      summary: "Remove a top choice",
+      description:
+        "Removes one of the dancer's school selections for the active Org Event. The schools ranked below it move up one place.",
+    });
+    router.post(":slug/my-selections/:id/move", [MoveSelection]).openapi({
+      summary: "Move a top choice up or down",
+      description:
+        "Swaps one of the dancer's school selections with the one ranked above (up) or below (down) it, for the active Org Event, and returns the selections in their new order. 422 when the selection is already first or last.",
+    });
   })
   .prefix("orgs")
   .use([

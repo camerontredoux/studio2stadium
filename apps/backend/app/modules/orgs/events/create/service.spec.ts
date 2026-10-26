@@ -16,6 +16,7 @@ import { E_DATABASE_ERROR } from "#exceptions/database";
 import { ListRosterService } from "../rosters/list/service.ts";
 import CreateEventController from "./controller.ts";
 import OrgAdminMiddleware from "#middleware/routes/org-admin";
+import { EventScheduleError } from "../event-schedule.ts";
 
 const svc = new CreateEventService(new DatabaseService());
 
@@ -69,6 +70,60 @@ test.group("CreateEventService", (group) => {
     assert.equal(ev.name, "Summit 2026");
     assert.isTrue(ev.isActive);
     assert.equal(ev.orgId, summit!.id);
+  });
+
+  test("persists the daily hours and zone", async ({ assert }) => {
+    const actor = await makeActorUser();
+    const [summit] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "summit"));
+    const ev = await svc.execute(
+      summit!.id,
+      {
+        name: "Summit 2026",
+        startDate: "2026-10-22",
+        endDate: "2026-10-24",
+        startTime: "10:00",
+        endTime: "16:00",
+        timezone: "America/Chicago",
+      },
+      actor.id
+    );
+    const [stored] = await db
+      .select()
+      .from(orgEvents)
+      .where(eq(orgEvents.id, ev.id));
+    assert.equal(stored!.startTime, "10:00");
+    assert.equal(stored!.endTime, "16:00");
+    assert.equal(stored!.timezone, "America/Chicago");
+  });
+
+  test("rejects an end time before the start time and writes nothing", async ({
+    assert,
+  }) => {
+    const actor = await makeActorUser();
+    const [summit] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "summit"));
+    await assert.rejects(
+      () =>
+        svc.execute(
+          summit!.id,
+          {
+            name: "Backwards",
+            startDate: "2026-10-22",
+            endDate: "2026-10-22",
+            startTime: "16:00",
+            endTime: "10:00",
+            timezone: "America/Chicago",
+          },
+          actor.id
+        ),
+      EventScheduleError
+    );
+    assert.lengthOf(await db.select().from(orgEvents), 0);
   });
 
   test("throws E_UNIQUE_VIOLATION when a second active event is created", async ({

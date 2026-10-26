@@ -1,7 +1,9 @@
 import type { HttpContext } from "@adonisjs/core/http";
 import { inject } from "@adonisjs/core";
-import { UpdateEventService, StartTimePairError } from "./service.ts";
+import { UpdateEventService } from "./service.ts";
 import { schema } from "./validator.ts";
+import { orgDefaultTimezone, withEventInstants } from "#utils/event-time";
+import { EventScheduleError } from "../event-schedule.ts";
 
 export default class UpdateEventController {
   @inject()
@@ -12,9 +14,13 @@ export default class UpdateEventController {
         eventId: ctx.params.id,
         actorId: ctx.auth.getUserOrFail().id,
       });
-      return ev ? ctx.response.ok(ev) : ctx.response.notFound();
+      return ev
+        ? ctx.response.ok(
+            withEventInstants(ev, orgDefaultTimezone(ctx.org!.settings))
+          )
+        : ctx.response.notFound();
     } catch (err) {
-      if (err instanceof StartTimePairError) {
+      if (err instanceof EventScheduleError) {
         return ctx.response.unprocessableEntity({ message: err.message });
       }
       throw err;

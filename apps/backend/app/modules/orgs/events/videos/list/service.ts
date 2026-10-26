@@ -17,7 +17,7 @@ export class ListVideosService {
         .orderBy(asc(eventVideos.sortOrder), asc(eventVideos.createdAt))
     );
 
-    const disk = drive.use("r2");
+    const disk = drive.use();
     const results = await Promise.all(
       videos.map(async (video) => {
         if (!video.audioKey) {

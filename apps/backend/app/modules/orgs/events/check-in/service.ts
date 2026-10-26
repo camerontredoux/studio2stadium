@@ -1,6 +1,7 @@
 import { DatabaseService } from "#database/service";
 import { orgEvents, eventRosters } from "#database/schema/org-events";
-import { isCheckInOpen } from "#utils/event-time";
+import { organizations } from "#database/schema/organizations";
+import { isCheckInOpen, orgDefaultTimezone } from "#utils/event-time";
 import { inject } from "@adonisjs/core";
 import { and, eq, isNull, sql } from "drizzle-orm";
 
@@ -25,15 +26,19 @@ export class CheckInService {
       const [event] = await db
         .select({
           startDate: orgEvents.startDate,
+          endDate: orgEvents.endDate,
           startTime: orgEvents.startTime,
+          endTime: orgEvents.endTime,
           timezone: orgEvents.timezone,
+          orgSettings: organizations.settings,
         })
         .from(orgEvents)
+        .innerJoin(organizations, eq(organizations.id, orgEvents.orgId))
         .where(eq(orgEvents.id, eventId));
 
       if (
         !event ||
-        !isCheckInOpen(event.startDate, event.startTime, event.timezone)
+        !isCheckInOpen(event, orgDefaultTimezone(event.orgSettings))
       ) {
         throw new CheckInNotOpenError();
       }
@@ -45,8 +50,8 @@ export class CheckInService {
           and(
             eq(eventRosters.eventId, eventId),
             eq(eventRosters.userId, userId),
-            eq(eventRosters.type, "dancer"),
-          ),
+            eq(eventRosters.type, "dancer")
+          )
         );
 
       if (!roster) throw new NotOnRosterError();
@@ -57,10 +62,7 @@ export class CheckInService {
         .update(eventRosters)
         .set({ checkedInAt: sql`NOW()` })
         .where(
-          and(
-            eq(eventRosters.id, roster.id),
-            isNull(eventRosters.checkedInAt),
-          ),
+          and(eq(eventRosters.id, roster.id), isNull(eventRosters.checkedInAt))
         )
         .returning();
 

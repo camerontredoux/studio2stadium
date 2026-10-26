@@ -13,7 +13,10 @@ import type { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { useEffect } from "react";
 import { Fragment } from "react/jsx-runtime";
-import { ORG_THEME_STORAGE_KEY } from "@/features/org/hooks/use-org-theme";
+import {
+  ORG_THEME_DEFAULT,
+  ORG_THEME_STORAGE_KEY,
+} from "@/features/org/hooks/use-org-theme";
 import { useTernaryDarkMode } from "usehooks-ts";
 
 import NProgress from "nprogress";
@@ -36,7 +39,7 @@ function RootComponent() {
   });
   const orgTheme = useTernaryDarkMode({
     localStorageKey: ORG_THEME_STORAGE_KEY,
-    defaultValue: "light",
+    defaultValue: ORG_THEME_DEFAULT,
   });
   const isDarkMode = isOrgRoute ? orgTheme.isDarkMode : appTheme.isDarkMode;
 
@@ -46,14 +49,11 @@ function RootComponent() {
 
   useEffect(() => {
     if (!import.meta.env.PROD) return;
-    posthog.init(
-      import.meta.env.VITE_POSTHOG_TOKEN,
-      {
-        api_host: "https://us.i.posthog.com",
-        person_profiles: "identified_only",
-      },
-    )
-  }, [])
+    posthog.init(import.meta.env.VITE_POSTHOG_TOKEN, {
+      api_host: "https://us.i.posthog.com",
+      person_profiles: "identified_only",
+    });
+  }, []);
 
   return (
     <Fragment>

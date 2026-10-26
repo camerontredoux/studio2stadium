@@ -1402,7 +1402,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["AdminOrgsResponse"];
+                        "application/json": components["schemas"]["AdminOrgsPostResponse"];
                     };
                 };
                 /** @description Unprocessable Entity */
@@ -1576,7 +1576,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["AdminOrgsIdMembersResponse"];
+                        "application/json": components["schemas"]["AdminOrgsIdMembersPostResponse"];
                     };
                 };
                 /** @description Unprocessable Entity */
@@ -2745,15 +2745,6 @@ export interface paths {
                         "application/json": components["schemas"]["OrgsIdEventsResponse"];
                     };
                 };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
             };
         };
         put?: never;
@@ -2778,20 +2769,11 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["OrgsIdEventsResponse"];
+                        "application/json": components["schemas"]["OrgsIdEventsPostResponse"];
                     };
                 };
                 /** @description Unknown Response */
                 409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -3174,7 +3156,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdRostersResponse"];
+                        "application/json": components["schemas"]["OrgsIdEventsIdRostersDeleteResponse"];
                     };
                 };
             };
@@ -3599,6 +3581,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/events/{id}/rosters/{rosterId}/check-in-code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a dancer's check-in pass code
+         * @description Returns the signed code a Dancer's check-in pass QR encodes, so an organizer can show the pass at the desk. 404 when the Roster Entry is not a Dancer in this event of this org.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                    rosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdRostersIdCheckincodeResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/events/{id}/rosters/resend-invites": {
         parameters: {
             query?: never;
@@ -3790,7 +3815,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdChecklistResponse"];
+                        "application/json": components["schemas"]["OrgsIdEventsIdChecklistPostResponse"];
                     };
                 };
                 /** @description Unprocessable Entity */
@@ -4353,6 +4378,61 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/events/{id}/check-in/scan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Check a dancer in from their pass
+         * @description Verifies the signed code from a Dancer's check-in pass QR and sets their check-in time if it is not set yet. A repeat scan returns already_checked_in and changes nothing.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsIdCheckinScanRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdCheckinScanResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/events/{id}/schedule": {
         parameters: {
             query?: never;
@@ -4451,7 +4531,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdVideocategoriesResponse"];
+                        "application/json": components["schemas"]["OrgsIdEventsIdVideocategoriesPostResponse"];
                     };
                 };
                 /** @description Unprocessable Entity */
@@ -4570,7 +4650,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdVideosResponse"];
+                        "application/json": components["schemas"]["OrgsIdEventsIdVideosPostResponse"];
                     };
                 };
                 /** @description Unprocessable Entity */
@@ -5047,7 +5127,36 @@ export interface paths {
             };
         };
         post?: never;
-        delete?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    dancerRosterId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -5155,7 +5264,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["OrgsIdFavoritesResponse"];
+                        "application/json": components["schemas"]["OrgsIdFavoritesPostResponse"];
                     };
                 };
                 /** @description Unknown Response */
@@ -5373,6 +5482,10 @@ export interface paths {
             };
         };
         put?: never;
+        /**
+         * Add a top choice
+         * @description Adds a school to the dancer's selections for the active Org Event, ranked after the existing ones. Adding a school already selected returns it unchanged; 422 when the org's limit is reached.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -5394,7 +5507,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["OrgsIdMyselectionsResponse"];
+                        "application/json": components["schemas"]["OrgsIdMyselectionsPostResponse"];
                     };
                 };
                 /** @description Unknown Response */
@@ -5424,6 +5537,10 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
+        /**
+         * Remove a top choice
+         * @description Removes one of the dancer's school selections for the active Org Event. The schools ranked below it move up one place.
+         */
         delete: {
             parameters: {
                 query?: never;
@@ -5463,8 +5580,81 @@ export interface paths {
                         "application/json": components["schemas"]["Error"];
                     };
                 };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
             };
         };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/my-selections/{id}/move": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Move a top choice up or down
+         * @description Swaps one of the dancer's school selections with the one ranked above (up) or below (down) it, for the active Org Event, and returns the selections in their new order. 422 when the selection is already first or last.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdMyselectionsIdMoveRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdMyselectionsIdMoveResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -5530,7 +5720,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["OrgsIdCallbacksResponse"];
+                        "application/json": components["schemas"]["OrgsIdCallbacksPostResponse"];
                     };
                 };
                 /** @description Unknown Response */
@@ -11626,6 +11816,18 @@ export interface components {
             name: string;
             slug: string;
         };
+        AdminOrgsPostResponse: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            name: string;
+            slug: string;
+            logoUrl: string | null;
+            primaryColor: string | null;
+            accentColor: string | null;
+            features: Record<string, never>;
+            settings: Record<string, never>;
+        };
         AdminOrgsIdRequest: {
             name?: string | null;
             slug?: string | null;
@@ -11669,6 +11871,17 @@ export interface components {
             role: "admin" | "member";
             /** @enum {string} */
             type: "dancer" | "coach" | "organizer";
+        };
+        AdminOrgsIdMembersPostResponse: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            /** @enum {string} */
+            role: "admin" | "member";
+            /** @enum {string} */
+            type: "dancer" | "coach" | "organizer";
+            userId: string;
+            orgId: string;
         };
         AdminOrgsIdMembersIdRequest: {
             role?: ("admin" | "member") | null;
@@ -11942,23 +12155,60 @@ export interface components {
             }[];
         };
         OrgsIdEventsResponse: {
-            gpa: boolean;
-            location: boolean;
-            skills: boolean;
-            skillCount: number;
-            styles: boolean;
-            sports: boolean;
-        };
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            name: string;
+            /** @enum {string} */
+            eventTier: "core" | "regional" | "national" | "enterprise";
+            orgId: string;
+            startDate: string;
+            endDate: string;
+            venueName: string | null;
+            venueAddress: string | null;
+            contactEmail: string | null;
+            isActive: boolean;
+            schedulePdfUrl: string | null;
+            startTime: string | null;
+            endTime: string | null;
+            timezone: string | null;
+            startsAt: string;
+            endsAt: string;
+            effectiveTimezone: string;
+        }[];
         OrgsIdEventsRequest: {
             venueName?: string | null;
             venueAddress?: string | null;
             contactEmail?: string | null;
             isActive?: (string | number | boolean) | null;
             startTime?: string | null;
+            endTime?: string | null;
             timezone?: string | null;
             name: string;
             startDate: string;
             endDate: string;
+        };
+        OrgsIdEventsPostResponse: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            name: string;
+            /** @enum {string} */
+            eventTier: "core" | "regional" | "national" | "enterprise";
+            orgId: string;
+            startDate: string;
+            endDate: string;
+            venueName: string | null;
+            venueAddress: string | null;
+            contactEmail: string | null;
+            isActive: boolean;
+            schedulePdfUrl: string | null;
+            startTime: string | null;
+            endTime: string | null;
+            timezone: string | null;
+            startsAt: string;
+            endsAt: string;
+            effectiveTimezone: string;
         };
         OrgsIdEventsIdRequest: {
             name?: string | null;
@@ -11970,6 +12220,7 @@ export interface components {
             isActive?: (string | number | boolean) | null;
             schedulePdfUrl?: string | null;
             startTime?: string | null;
+            endTime?: string | null;
             timezone?: string | null;
         };
         OrgsIdEventsIdResponse: {
@@ -11988,7 +12239,11 @@ export interface components {
             isActive: boolean;
             schedulePdfUrl: string | null;
             startTime: string | null;
+            endTime: string | null;
             timezone: string | null;
+            startsAt: string;
+            endsAt: string;
+            effectiveTimezone: string;
         };
         OrgsIdEventsIdUploadCoachesRequest: {
             previewToken?: string | null;
@@ -12090,6 +12345,9 @@ export interface components {
             }[];
             total: number;
         };
+        OrgsIdEventsIdRostersDeleteResponse: {
+            deletedCount: number;
+        };
         OrgsIdEventsIdRostersFiltersResponse: {
             organizations: string[];
         };
@@ -12174,6 +12432,9 @@ export interface components {
             paid: boolean | null;
             isStaff: boolean;
         };
+        OrgsIdEventsIdRostersIdCheckincodeResponse: {
+            checkInCode: string;
+        };
         OrgsIdEventsIdRostersResendinvitesRequest: {
             ids: string[];
         };
@@ -12209,6 +12470,16 @@ export interface components {
         OrgsIdEventsIdChecklistRequest: {
             description?: string | null;
             title: string;
+        };
+        OrgsIdEventsIdChecklistPostResponse: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            title: string;
+            description: string | null;
+            eventId: string;
+            completed: boolean;
+            position: number;
         };
         OrgsIdEventsIdChecklistIdRequest: {
             title?: string | null;
@@ -12347,6 +12618,22 @@ export interface components {
             eventStartTime: string | null;
             timezone: string | null;
             canCheckIn: boolean;
+            checkInCode: string | null;
+            bibNumber: number | null;
+        };
+        OrgsIdEventsIdCheckinScanRequest: {
+            code: string;
+        };
+        OrgsIdEventsIdCheckinScanResponse: {
+            roster: {
+                id: string;
+                bib: number | null;
+                firstName: string;
+                lastName: string;
+                checkedInAt: string | null;
+            };
+            /** @enum {string} */
+            result: "checked_in" | "already_checked_in";
         };
         OrgsIdEventsIdVideocategoriesResponse: {
             id: string;
@@ -12357,6 +12644,13 @@ export interface components {
         }[];
         OrgsIdEventsIdVideocategoriesRequest: {
             name: string;
+        };
+        OrgsIdEventsIdVideocategoriesPostResponse: {
+            id: string;
+            createdAt: string;
+            name: string;
+            eventId: string;
+            sortOrder: number;
         };
         OrgsIdEventsIdVideosResponse: ({
             id: string;
@@ -12389,6 +12683,18 @@ export interface components {
             youtubeId: string;
             title: string;
             categoryId: string;
+        };
+        OrgsIdEventsIdVideosPostResponse: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            youtubeId: string;
+            title: string;
+            eventId: string;
+            sortOrder: number;
+            categoryId: string;
+            audioKey: string | null;
+            audioFilename: string | null;
         };
         OrgsIdEventsIdVideosIdRequest: {
             audioKey?: string | null;
@@ -12545,6 +12851,14 @@ export interface components {
         OrgsIdFavoritesRequest: {
             dancerRosterId: string;
         };
+        OrgsIdFavoritesPostResponse: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            eventId: string;
+            coachRosterId: string;
+            dancerRosterId: string;
+        };
         OrgsIdRankingsResponse: {
             note: string | null;
             firstName: string;
@@ -12575,9 +12889,18 @@ export interface components {
             createdAt: string;
             organization: string | null;
             coachRosterId: string;
+            rank: number;
         }[];
         OrgsIdMyselectionsRequest: {
             coachRosterId: string;
+        };
+        OrgsIdMyselectionsPostResponse: {
+            id: string;
+            createdAt: string;
+            eventId: string;
+            coachRosterId: string;
+            dancerRosterId: string;
+            rank: number;
         };
         OrgsIdMyselectionsIdResponse: {
             id: string;
@@ -12585,7 +12908,19 @@ export interface components {
             eventId: string;
             coachRosterId: string;
             dancerRosterId: string;
+            rank: number;
         };
+        OrgsIdMyselectionsIdMoveRequest: {
+            /** @enum {string} */
+            direction: "up" | "down";
+        };
+        OrgsIdMyselectionsIdMoveResponse: {
+            id: string;
+            createdAt: string;
+            organization: string | null;
+            coachRosterId: string;
+            rank: number;
+        }[];
         OrgsIdCallbacksResponse: {
             rosterId: string;
             bibNumber: number | null;
@@ -12599,6 +12934,15 @@ export interface components {
         }[];
         OrgsIdCallbacksRequest: {
             dancerRosterId: string;
+        };
+        OrgsIdCallbacksPostResponse: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            eventId: string;
+            coachRosterId: string;
+            dancerRosterId: string;
+            showcaseId: string;
         };
         OrgsIdAdminCallbacksResponse: {
             showcase: {
@@ -13268,10 +13612,10 @@ export interface components {
             startDate: string;
             endDate: string;
             startTime: string;
+            endTime: string;
             attendees: number;
             saved: boolean;
             eventAttendees: number;
-            endTime: string;
         };
         EventsIdRequest: {
             type?: ("recruitment" | "audition" | "other" | "rehearsal" | "recital" | "showcase" | "competition" | "class" | "intensive" | "workshop" | "fundraiser" | "combine" | "convention" | "clinic" | "deadline" | "performance" | "camp") | null;

@@ -1,19 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { EventFaq } from "@/features/org/components/event-faq";
-import { dancerEventFaqSections } from "@/features/org/data/dancer-event-faq";
+import { DancerFaqPage } from "@/features/org/live/dancer/dancer-faq-page";
 
 export const Route = createFileRoute(
   "/_org/o/$orgSlug/_authenticated/dancer/faq",
 )({
-  component: DancerFaq,
+  component: DancerFaqPage,
 });
-
-function DancerFaq() {
-  return (
-    <EventFaq
-      sections={dancerEventFaqSections}
-      subtitle="Common questions about using S2S Live at your recruiting event."
-    />
-  );
-}
