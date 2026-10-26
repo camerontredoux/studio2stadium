@@ -1,11 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import type { AuditLogEntry } from "@/features/org/api/audit-queries";
-
 import {
   EMPTY_FILTERS,
-  isServerExact,
-  matchesFilters,
   multiChipLabel,
   presetHint,
   resolveDateRange,
@@ -18,29 +14,6 @@ const event = { startDate: "2026-10-22", endDate: "2026-10-24" };
 
 function filters(overrides: Partial<AuditFilters>): AuditFilters {
   return { ...EMPTY_FILTERS, ...overrides };
-}
-
-function entry(overrides: Partial<AuditLogEntry>): AuditLogEntry {
-  return {
-    id: "e1",
-    createdAt: now.toISOString(),
-    eventId: "ev1",
-    action: "update",
-    resource: "roster",
-    resourceId: "r1",
-    metadata: null,
-    parentId: null,
-    actor: {
-      id: "u1",
-      firstName: "A",
-      lastName: "B",
-      email: "a@b.co",
-      avatarUrl: null,
-    },
-    childCount: 0,
-    subject: null,
-    ...overrides,
-  };
 }
 
 describe("resolveDateRange", () => {
@@ -112,74 +85,28 @@ describe("resolveDateRange in the event's zone", () => {
 });
 
 describe("toListParams", () => {
-  it("passes a single action and resource to the API", () => {
+  it("passes every selected action and resource to the API", () => {
     expect(
       toListParams(
         filters({
-          actions: ["delete"],
-          resources: ["video"],
+          actions: ["check_in", "delete"],
+          resources: ["video", "event"],
           search: " mary ",
         }),
         now,
         null,
       ),
-    ).toMatchObject({ action: "delete", resource: "video", search: "mary" });
+    ).toMatchObject({
+      actions: ["check_in", "delete"],
+      resources: ["video", "event"],
+      search: "mary",
+    });
   });
 
-  it("sends check in as the API's update", () => {
-    expect(
-      toListParams(filters({ actions: ["check_in"] }), now, null).action,
-    ).toBe("update");
-  });
-
-  it("leaves multi-selections to the client", () => {
-    const params = toListParams(
-      filters({ actions: ["create", "delete"], resources: ["video", "event"] }),
-      now,
-      null,
-    );
-    expect(params.action).toBeUndefined();
-    expect(params.resource).toBeUndefined();
-    expect(isServerExact(filters({ actions: ["create", "delete"] }))).toBe(
-      false,
-    );
-    expect(isServerExact(filters({ actions: ["update", "check_in"] }))).toBe(
-      true,
-    );
-  });
-});
-
-describe("matchesFilters", () => {
-  const checkIn = entry({
-    metadata: { field: "checkedInAt", before: null, after: "x" },
-  });
-  const rename = entry({ metadata: { before: { a: 1 }, after: { a: 2 } } });
-
-  it("tells check-ins and other updates apart", () => {
-    expect(
-      matchesFilters(checkIn, { actions: ["update"], resources: [] }),
-    ).toBe(false);
-    expect(matchesFilters(rename, { actions: ["update"], resources: [] })).toBe(
-      true,
-    );
-    expect(
-      matchesFilters(checkIn, { actions: ["check_in"], resources: [] }),
-    ).toBe(true);
-  });
-
-  it("filters by any of several resources", () => {
-    expect(
-      matchesFilters(entry({ resource: "video" }), {
-        actions: [],
-        resources: ["event", "video"],
-      }),
-    ).toBe(true);
-    expect(
-      matchesFilters(entry({ resource: "invite" }), {
-        actions: [],
-        resources: ["event", "video"],
-      }),
-    ).toBe(false);
+  it("leaves out empty selections", () => {
+    const params = toListParams(filters({}), now, null);
+    expect(params.actions).toBeUndefined();
+    expect(params.resources).toBeUndefined();
   });
 });
 

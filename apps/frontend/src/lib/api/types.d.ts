@@ -3921,8 +3921,8 @@ export interface paths {
                 query?: {
                     search?: string | null;
                     actorId?: string | null;
-                    action?: ("upload" | "create" | "update" | "delete" | "activate" | "resend_invite") | null;
-                    resource?: ("video" | "roster" | "event" | "checklist" | "csv_upload" | "invite" | "video_category") | null;
+                    actions?: ("upload" | "create" | "update" | "delete" | "activate" | "resend_invite" | "check_in") | ("upload" | "create" | "update" | "delete" | "activate" | "resend_invite" | "check_in")[] | null;
+                    resources?: ("video" | "roster" | "event" | "checklist" | "csv_upload" | "invite" | "video_category") | ("video" | "roster" | "event" | "checklist" | "csv_upload" | "invite" | "video_category")[] | null;
                     from?: string | null;
                     to?: string | null;
                     limit?: (string | number) | null;

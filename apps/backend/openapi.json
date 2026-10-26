@@ -3760,7 +3760,7 @@
             }
           },
           {
-            "name": "action",
+            "name": "actions",
             "in": "query",
             "required": false,
             "schema": {
@@ -3773,8 +3773,24 @@
                     "update",
                     "delete",
                     "activate",
-                    "resend_invite"
+                    "resend_invite",
+                    "check_in"
                   ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "upload",
+                      "create",
+                      "update",
+                      "delete",
+                      "activate",
+                      "resend_invite",
+                      "check_in"
+                    ]
+                  }
                 },
                 {
                   "type": "null"
@@ -3783,7 +3799,7 @@
             }
           },
           {
-            "name": "resource",
+            "name": "resources",
             "in": "query",
             "required": false,
             "schema": {
@@ -3799,6 +3815,21 @@
                     "invite",
                     "video_category"
                   ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "video",
+                      "roster",
+                      "event",
+                      "checklist",
+                      "csv_upload",
+                      "invite",
+                      "video_category"
+                    ]
+                  }
                 },
                 {
                   "type": "null"
