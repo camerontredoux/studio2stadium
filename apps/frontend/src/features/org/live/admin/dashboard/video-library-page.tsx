@@ -26,6 +26,7 @@ import {
 } from "@/components/event/panel";
 import { Search } from "@/components/event/search";
 import { Select } from "@/components/event/select";
+import { Group, GroupSeparator } from "@/components/ui/group";
 import {
   type EventVideo,
   useDeleteVideo,
@@ -47,6 +48,10 @@ function thumbnailUrl(video: EventVideo) {
  * filter, "Categories" (the manage dialog) and "Add video". A card plays the video;
  * its pencil and trash edit or delete it.
  */
+/** Same joined-control look as the roster header actions. */
+const joined =
+  "hover:bg-surface-pressed data-pressed:bg-surface-pressed data-popup-open:bg-surface-pressed";
+
 export function VideoLibraryPage({ orgSlug }: { orgSlug: string }) {
   const { selectedEvent } = useAdminEvent();
   const eventId = selectedEvent?.id ?? "";
@@ -104,22 +109,28 @@ export function VideoLibraryPage({ orgSlug }: { orgSlug: string }) {
       showStatus
       actions={
         selectedEvent && (
-          <>
-            <Button onClick={() => setManageOpen(true)}>
-              <Icon icon={FolderSimpleIcon} />
-              Categories
-            </Button>
+          <Group className="shrink-0">
             <Button
-              variant="primary"
+              onClick={() => setManageOpen(true)}
+              className={`${joined} bp-small:w-(--control) bp-small:px-0`}
+              label="Categories"
+            >
+              <Icon icon={FolderSimpleIcon} />
+              <span className="bp-small:hidden">Categories</span>
+            </Button>
+            <GroupSeparator className="bg-line-control" />
+            <Button
+              className={`${joined} bp-small:w-(--control) bp-small:px-0`}
+              label="Add video"
               onClick={() => {
                 setEditing(null);
                 setEditorOpen(true);
               }}
             >
               <Icon icon={PlusIcon} />
-              Add video
+              <span className="bp-small:hidden">Add video</span>
             </Button>
-          </>
+          </Group>
         )
       }
     />
