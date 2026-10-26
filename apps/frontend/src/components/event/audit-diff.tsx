@@ -55,7 +55,7 @@ function AuditLogRow({
         {summary}
       </CollapsibleTrigger>
       <CollapsiblePanel className="col-span-full">
-        <div className="bg-surface-hover border-line-soft border-b pt-(--space-2) pr-(--space-14) pb-(--space-14) pl-[42px]">
+        <div className="bg-surface-hover border-line-soft bp-phone:px-(--space-12) border-b pt-(--space-2) pr-(--space-14) pb-(--space-14) pl-[42px]">
           {children}
         </div>
       </CollapsiblePanel>
@@ -89,12 +89,19 @@ type AuditDiffProps = Omit<React.ComponentProps<"div">, "children"> & {
   unchanged?: readonly AuditDiffUnchanged[];
 };
 
+// Under 480px of its own width (phones), the table stacks: the field name on
+// its own line, then the old value, then an arrow and the new value, so long
+// emails and ids get the full width instead of two narrow columns.
 const rowGrid =
-  "grid grid-cols-[minmax(110px,160px)_minmax(0,1fr)_16px_minmax(0,1fr)] items-center gap-x-(--space-12) border-b border-surface-chip px-(--space-12) py-[7px]";
-const headRow = "bg-surface min-h-7 py-0";
-const fieldCls = "type-data-sm text-fg-2";
+  "grid grid-cols-[minmax(110px,160px)_minmax(0,1fr)_16px_minmax(0,1fr)] items-center gap-x-(--space-12) border-b border-surface-chip px-(--space-12) py-[7px] " +
+  "@max-[480px]:grid-cols-[16px_minmax(0,1fr)] @max-[480px]:items-start @max-[480px]:gap-x-(--space-8) @max-[480px]:gap-y-(--space-2)";
+const headRow = "bg-surface min-h-7 py-0 @max-[480px]:hidden";
+const fieldCls = "type-data-sm text-fg-2 @max-[480px]:col-span-full";
 const valueCls =
   "font-mono text-[12.5px] leading-[1.4] [overflow-wrap:anywhere]";
+// Stacked: values sit in the second track; the arrow marks the new value.
+const stackedValue = "@max-[480px]:col-start-2";
+const stackedFull = "@max-[480px]:col-span-full";
 const oldCls = "text-fg-3 line-through decoration-line-focus";
 const nilCls = "text-fg-disabled";
 
@@ -113,7 +120,10 @@ function AuditDiff({
   ...props
 }: AuditDiffProps) {
   return (
-    <div className={cn("flex flex-col gap-(--space-10)", className)} {...props}>
+    <div
+      className={cn("@container flex flex-col gap-(--space-10)", className)}
+      {...props}
+    >
       {meta !== undefined && (
         <span className="type-meta text-fg-3">{meta}</span>
       )}
@@ -132,6 +142,7 @@ function AuditDiff({
                 <span
                   className={cn(
                     valueCls,
+                    stackedValue,
                     isEmpty(row.before) ? nilCls : oldCls,
                   )}
                 >
@@ -140,7 +151,7 @@ function AuditDiff({
                 <Icon
                   icon={ArrowRightIcon}
                   label="to"
-                  className="text-fg-disabled"
+                  className="text-fg-disabled @max-[480px]:mt-[2px]"
                 />
                 <span
                   className={cn(
@@ -168,6 +179,7 @@ function AuditDiff({
                   className={cn(
                     valueCls,
                     "col-[2/-1]",
+                    stackedFull,
                     isEmpty(row.after) ? oldCls : "text-fg",
                   )}
                 >
@@ -183,7 +195,13 @@ function AuditDiff({
               {unchanged.map((row, index) => (
                 <div key={index} className={rowGrid}>
                   <span className={fieldCls}>{row.field}</span>
-                  <span className={cn(valueCls, "text-fg-3 col-[2/-1]")}>
+                  <span
+                    className={cn(
+                      valueCls,
+                      "text-fg-3 col-[2/-1]",
+                      stackedFull,
+                    )}
+                  >
                     {row.value}
                   </span>
                 </div>

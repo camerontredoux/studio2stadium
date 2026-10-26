@@ -54,9 +54,11 @@ const PAGE_SIZE = 50;
 const auditCols =
   "[--audit-cols:16px_104px_minmax(120px,1fr)_112px_120px_minmax(130px,1fr)_minmax(220px,2fr)] " +
   "@max-[940px]:[--audit-cols:16px_104px_minmax(100px,1fr)_112px_minmax(200px,2fr)]";
-// Phones (≤800): timestamp and action fit their content; actor and summary
-// split the rest evenly.
-const phoneColumns = "16px max-content minmax(0,1fr) max-content minmax(0,1fr)";
+// Phones (≤800): each row is a card. Chevron, actor and time on the first
+// line; action, then the summary, wrap below under the actor.
+const phoneColumns = "16px minmax(0,1fr) max-content";
+const phoneRow = "bp-phone:gap-y-(--space-4) bp-phone:py-(--space-10)";
+const phoneBelow = "bp-phone:col-[2/-1]";
 const hideBelowBoard = "@max-[940px]:hidden";
 // Full-width rows inside the table cancel its side padding (see DataTable).
 const rowEdge = "-mx-(--dt-pad)";
@@ -101,12 +103,12 @@ function EntrySummary({
   return (
     <>
       <span
-        className="type-data-sm text-fg-2 whitespace-nowrap"
+        className="type-data-sm text-fg-2 bp-phone:col-start-3 bp-phone:row-start-1 bp-phone:justify-self-end whitespace-nowrap"
         title={absoluteTime(entry.createdAt, timeZone)}
       >
         {relativeTime(entry.createdAt, now)}
       </span>
-      <span className="flex min-w-0 items-center gap-(--space-8)">
+      <span className="bp-phone:col-start-2 bp-phone:row-start-1 flex min-w-0 items-center gap-(--space-8)">
         <PersonAvatar
           firstName={entry.actor.firstName}
           lastName={entry.actor.lastName}
@@ -119,6 +121,8 @@ function EntrySummary({
         className={cn(
           "type-label min-w-0 truncate",
           action === "delete" ? "text-danger" : "text-fg",
+          phoneBelow,
+          "bp-phone:row-start-2",
         )}
       >
         {ACTION_LABELS[action]}
@@ -143,7 +147,13 @@ function EntrySummary({
         )}
         <span className="min-w-0 truncate">{dancer ?? "—"}</span>
       </span>
-      <span className="text-fg-2 min-w-0 truncate">
+      <span
+        className={cn(
+          "text-fg-2 min-w-0 truncate",
+          phoneBelow,
+          "bp-phone:row-start-3 bp-phone:whitespace-normal bp-phone:[overflow-wrap:anywhere]",
+        )}
+      >
         {summarizeEntry(entry, timeZone)}
         {entry.childCount > 0 && (
           <span className="text-fg-3"> · {entry.childCount} entries</span>
@@ -380,7 +390,7 @@ export function AuditLogPage({ orgSlug }: AuditLogPageProps) {
             >
               <div
                 className={cn(
-                  "bg-surface-head border-line-soft sticky top-0 z-2 col-span-full grid min-h-8 grid-cols-subgrid items-center border-b",
+                  "bg-surface-head border-line-soft bp-phone:hidden sticky top-0 z-2 col-span-full grid min-h-8 grid-cols-subgrid items-center border-b",
                   rowEdge,
                   rowPad,
                 )}
@@ -401,7 +411,7 @@ export function AuditLogPage({ orgSlug }: AuditLogPageProps) {
                 <AuditLogRow
                   key={entry.id}
                   className={rowEdge}
-                  rowClassName={rowPad}
+                  rowClassName={cn(rowPad, phoneRow)}
                   summary={
                     <EntrySummary entry={entry} now={now} timeZone={timeZone} />
                   }
