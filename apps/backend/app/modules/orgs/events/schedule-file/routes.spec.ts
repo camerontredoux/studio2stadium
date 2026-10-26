@@ -61,6 +61,50 @@ test.group("GET /orgs/:slug/events/:id/schedule/file", (group) => {
     res.assertStatus(200);
     res.assertHeader("content-type", "application/pdf");
     assert.equal(Buffer.from(res.body()).toString(), BYTES);
+    res.assertHeader("cache-control", "private, no-cache");
+  });
+
+  test("the current key as ?v lets the browser keep the file", async ({
+    client,
+  }) => {
+    const { member, org, event } = await fixture();
+    const token = await login(client, member.email);
+    const res = await client
+      .get(`/orgs/${org.slug}/events/${event.id}/schedule/file`)
+      .qs({ v: KEY })
+      .bearerToken(token);
+    res.assertStatus(200);
+    res.assertHeader("cache-control", "private, max-age=604800, immutable");
+  });
+
+  test("a stale ?v is not cached", async ({ client }) => {
+    const { member, org, event } = await fixture();
+    const token = await login(client, member.email);
+    const res = await client
+      .get(`/orgs/${org.slug}/events/${event.id}/schedule/file`)
+      .qs({ v: "schedules/replaced.pdf" })
+      .bearerToken(token);
+    res.assertStatus(200);
+    res.assertHeader("cache-control", "private, no-cache");
+  });
+
+  test("a matching If-None-Match gets a 304 without the file", async ({
+    client,
+    assert,
+  }) => {
+    const { member, org, event } = await fixture();
+    const token = await login(client, member.email);
+    const url = `/orgs/${org.slug}/events/${event.id}/schedule/file`;
+    const first = await client.get(url).bearerToken(token);
+    const etag = first.header("etag");
+    assert.isString(etag);
+
+    const again = await client
+      .get(url)
+      .header("If-None-Match", etag!)
+      .bearerToken(token);
+    again.assertStatus(304);
+    assert.isEmpty(again.text());
   });
 
   test("404 when the event has no schedule", async ({ client }) => {
