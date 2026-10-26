@@ -257,7 +257,14 @@ export function DancerRosterTable({
                   ref={virtual.measure}
                   data-index={item.index}
                   role="none"
-                  className="col-span-full grid grid-cols-subgrid"
+                  className={cn(
+                    "col-span-full grid grid-cols-subgrid",
+                    // The container's own border closes the table, so the
+                    // last loaded row drops its divider.
+                    !hasMore &&
+                      item.index === rows.length - 1 &&
+                      "[&>[role=row]]:border-b-0",
+                  )}
                 >
                   <RosterRow
                     row={row}
