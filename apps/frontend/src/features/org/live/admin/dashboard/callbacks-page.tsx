@@ -19,8 +19,11 @@ export function CallbacksPage({ orgSlug }: { orgSlug: string }) {
   const activeEvent = events.find((e) => e.isActive) ?? null;
   const {
     current,
+    totals,
     showcase,
     bibs,
+    total,
+    more,
     isPublished,
     earlier,
     primaryAction,
@@ -29,7 +32,6 @@ export function CallbacksPage({ orgSlug }: { orgSlug: string }) {
     size: "md",
     primary: true,
   });
-  const totals = current.data;
 
   return (
     <ShellPage
@@ -69,8 +71,9 @@ export function CallbacksPage({ orgSlug }: { orgSlug: string }) {
             <ShowcaseGroup
               showcase={showcase}
               bibs={bibs}
+              more={more}
               note={
-                !isPublished && bibs.length > 0
+                !isPublished && total > 0
                   ? "Dancers can't see these until you publish."
                   : !isPublished
                     ? "Dancers appear here as coaches call them back."

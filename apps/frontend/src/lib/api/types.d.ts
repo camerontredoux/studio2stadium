@@ -6003,7 +6003,10 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    limit?: (string | number) | null;
+                    page?: (string | number) | null;
+                };
                 header?: never;
                 path: {
                     slug: string;
@@ -6019,6 +6022,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["OrgsIdAdminCallbacksResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -6247,7 +6259,10 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    limit?: (string | number) | null;
+                    page?: (string | number) | null;
+                };
                 header?: never;
                 path: {
                     slug: string;
@@ -6264,6 +6279,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["OrgsIdShowcasesIdCallbacksResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -13207,12 +13231,15 @@ export interface components {
             publishedAt: string | null;
         }[];
         OrgsIdShowcasesIdCallbacksResponse: {
-            dancerRosterId: string;
-            bibNumber: number | null;
-            firstName: string;
-            lastName: string;
-            coachCount: number;
-        }[];
+            data: {
+                dancerRosterId: string;
+                bibNumber: number | null;
+                firstName: string;
+                lastName: string;
+                coachCount: number;
+            }[];
+            total: number;
+        };
         OrgsIdShowcasesPublishpreviewResponse: {
             coaches: {
                 coachRosterId: string;

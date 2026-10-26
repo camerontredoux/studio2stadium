@@ -516,8 +516,8 @@ type OrgsIdCallbacksIdDelete = {
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/delete/controller.ts').default['handle'], false>
 }
 type OrgsIdAdminCallbacksGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/admin-board/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/callbacks/board-page-validator.ts')['boardPageSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/admin-board/controller.ts').default['handle'], true>
 }
 type OrgsIdAdminDancersIdCallbacksGetHead = {
   request: unknown
@@ -528,8 +528,8 @@ type OrgsIdShowcasesGetHead = {
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/list/controller.ts').default['handle'], false>
 }
 type OrgsIdShowcasesIdCallbacksGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/published-callbacks/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/callbacks/board-page-validator.ts')['boardPageSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/published-callbacks/controller.ts').default['handle'], true>
 }
 type OrgsIdShowcasesPublishpreviewGetHead = {
   request: unknown

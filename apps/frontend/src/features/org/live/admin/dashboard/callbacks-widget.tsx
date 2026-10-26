@@ -58,6 +58,8 @@ function ActiveCallbacksWidget({ orgSlug }: { orgSlug: string }) {
     current,
     showcase,
     bibs,
+    total,
+    more,
     isPublished,
     earlier,
     primaryAction,
@@ -75,7 +77,7 @@ function ActiveCallbacksWidget({ orgSlug }: { orgSlug: string }) {
         label="Callbacks"
         icon={MegaphoneIcon}
         labelAddon={<CallbacksStatusDot />}
-        count={showcase ? bibs.length : undefined}
+        count={showcase ? total : undefined}
         peek={
           showcase ? (
             <>
@@ -84,21 +86,21 @@ function ActiveCallbacksWidget({ orgSlug }: { orgSlug: string }) {
                   Showcase {showcase.number}
                 </span>
                 <span className="text-fg-3 truncate font-mono text-[11.5px] leading-[1.4]">
-                  {isPublished ? "Published" : "In progress"} · {bibs.length}{" "}
-                  called back
+                  {isPublished ? "Published" : "In progress"} · {total} called
+                  back
                 </span>
               </span>
               {/* No chip row without bibs, so the text sits at the bottom. */}
-              {bibs.length > 0 && (
+              {total > 0 && (
                 <span className="bp-phone:hidden flex flex-wrap gap-(--space-4)">
                   {bibs.slice(0, PEEK_CHIPS).map((bib) => (
                     <Chip key={bib.dancerRosterId} mono className="h-[22px]">
                       {bib.bibNumber ?? "—"}
                     </Chip>
                   ))}
-                  {bibs.length > PEEK_CHIPS && (
+                  {total > PEEK_CHIPS && (
                     <span className="text-fg-3 self-center font-mono text-[11.5px]">
-                      +{bibs.length - PEEK_CHIPS}
+                      +{total - PEEK_CHIPS}
                     </span>
                   )}
                 </span>
@@ -118,8 +120,9 @@ function ActiveCallbacksWidget({ orgSlug }: { orgSlug: string }) {
             <ShowcaseGroup
               showcase={showcase}
               bibs={bibs}
+              more={more}
               note={
-                !isPublished && bibs.length > 0
+                !isPublished && total > 0
                   ? "Dancers can't see these until you publish."
                   : undefined
               }

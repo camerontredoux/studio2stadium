@@ -6341,6 +6341,42 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
           }
         ],
         "responses": {
@@ -6350,6 +6386,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgsIdAdminCallbacksResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -6586,6 +6632,42 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
           }
         ],
         "responses": {
@@ -6595,6 +6677,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgsIdShowcasesIdCallbacksResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -19560,41 +19652,53 @@
         }
       },
       "OrgsIdShowcasesIdCallbacksResponse": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "dancerRosterId": {
-              "type": "string"
-            },
-            "bibNumber": {
-              "oneOf": [
-                {
-                  "type": "number"
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "dancerRosterId": {
+                  "type": "string"
                 },
-                {
-                  "type": "null"
+                "bibNumber": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "coachCount": {
+                  "type": "number"
                 }
+              },
+              "required": [
+                "dancerRosterId",
+                "bibNumber",
+                "firstName",
+                "lastName",
+                "coachCount"
               ]
-            },
-            "firstName": {
-              "type": "string"
-            },
-            "lastName": {
-              "type": "string"
-            },
-            "coachCount": {
-              "type": "number"
             }
           },
-          "required": [
-            "dancerRosterId",
-            "bibNumber",
-            "firstName",
-            "lastName",
-            "coachCount"
-          ]
-        }
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total"
+        ]
       },
       "OrgsIdShowcasesPublishpreviewResponse": {
         "type": "object",
