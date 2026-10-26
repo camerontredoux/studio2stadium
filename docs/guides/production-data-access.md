@@ -115,3 +115,22 @@ Only with Cameron's explicit yes for that one action. Before you ask him:
 
 `scripts/ro-psql.sh` cannot write. A write needs its own command that he approves, and that
 approval ends when the command finishes.
+
+## The anonymized local copy
+
+`scripts/prod-anon-template.sh` builds `s2s_prod_anon`, a local template database with
+production's records and no real email addresses. Each new worktree database and the shared before
+server copy it (`.agents/skills/run-dev-server/scripts/db.sh`). Run it from any checkout to refresh
+the copy.
+
+1. It dumps schemas `public` and `drizzle` with the credential `scripts/ro-psql.sh` uses, through
+   Supabase's session pooler, in pg_dump's read-only transaction. The credential stays in a `0600`
+   service file in a private temporary directory, never on a command line.
+2. It restores the dump into a scratch database on the local Postgres and deletes the dump.
+3. `scripts/prod-anon-template.sql` replaces every email address with an `@example.test` one and
+   clears passwords and invite tokens. Names and phone numbers stay.
+4. The leak check searches the anonymized data for every production email address. One match
+   stops the build, and the scratch database is dropped.
+
+The copy stays on this machine: the local Postgres listens on `127.0.0.1:5432` only. CI and the
+backend tests build their own databases from the migrations.

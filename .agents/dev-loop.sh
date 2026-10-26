@@ -48,8 +48,10 @@ dev_loop_build_template() {
 
 # The shared before server: <primary checkout>/.worktrees/before-server, state
 # in ~/.local/state/s2s-before-server, frontend on 5198 (backend 3358, Redis
-# 6408), databases s2s_before_server_main and its _test. There is no seed:
-# sign-in.sh creates the dancer and admin users on both servers.
+# 6408), databases s2s_before_server_main and its _test. db.sh copies
+# s2s_prod_anon (scripts/prod-anon-template.sh) into the first when it exists.
+# There is no seed: sign-in.sh creates the dancer and admin users on both
+# servers.
 DEV_LOOP_SHARED_PORT=5198
 DEV_LOOP_SETUP=(check-deps.sh env-copy.sh)
 DEV_LOOP_LOCKFILE=pnpm-lock.yaml
