@@ -153,7 +153,7 @@ function Viewfinder({
       aria-live="polite"
       data-state={state}
       className={cn(
-        "border-line relative isolate flex aspect-square w-full flex-col items-center justify-center overflow-hidden border text-center",
+        "border-line relative isolate flex aspect-square w-full shrink-0 flex-col items-center justify-center overflow-hidden border text-center",
         // The camera (live, hit) stays dark in the light theme too. Idle and
         // done have no camera behind them, so they follow the theme.
         !active
