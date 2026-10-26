@@ -89,7 +89,7 @@ export function DancersPanel({
       />
       <div className="border-line bp-phone:px-(--space-10) flex flex-wrap items-center gap-(--space-8) border-b px-(--space-14) py-(--space-10)">
         <Search
-          placeholder="Search name or bib"
+          placeholder="Search"
           aria-label="Search dancers by name or bib"
           autoComplete="off"
           value={query}

@@ -107,8 +107,7 @@ export interface RosterKindConfig {
   /** Lowercase plural for copy ("dancers"). */
   plural: string;
   singular: string;
-  searchPlaceholder: string;
-  /** The search's accessible name; phones show only "Search" as the placeholder. */
+  /** The search's accessible name; the placeholder is just "Search". */
   searchLabel: string;
   /** Min width of the table before it scrolls sideways (desktop, phone). */
   minWidth: string;
@@ -120,7 +119,6 @@ export const ROSTER_KINDS: Record<RosterType, RosterKindConfig> = {
     title: "Dancers",
     plural: "dancers",
     singular: "dancer",
-    searchPlaceholder: "Search bib, name, email",
     searchLabel: "Search dancers by bib, name or email",
     minWidth: "min-w-[680px] bp-phone:min-w-[356px]",
   },
@@ -129,7 +127,6 @@ export const ROSTER_KINDS: Record<RosterType, RosterKindConfig> = {
     title: "Coaches",
     plural: "coaches",
     singular: "coach",
-    searchPlaceholder: "Search name, email, school",
     searchLabel: "Search coaches by name, email or school",
     minWidth: "min-w-[680px] bp-phone:min-w-[320px]",
   },

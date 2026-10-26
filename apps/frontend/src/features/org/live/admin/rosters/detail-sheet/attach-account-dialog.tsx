@@ -224,7 +224,7 @@ export function AttachAccountDialog({
           >
             <ComboboxField
               aria-label="Search accounts by name or email"
-              placeholder="Search by name or email"
+              placeholder="Search"
               loading={debouncedQuery.length >= 2 && searchQuery.isFetching}
             />
             <ComboboxPopup aria-label="Matching accounts">

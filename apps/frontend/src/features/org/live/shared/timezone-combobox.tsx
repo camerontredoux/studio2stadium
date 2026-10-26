@@ -31,7 +31,7 @@ function TimezoneCombobox({
       optionLabel={timezoneLabel}
       startIcon={GlobeSimpleIcon}
       placeholder={placeholder}
-      searchPlaceholder="Search time zones"
+      searchPlaceholder="Search"
       listLabel="Time zones"
       emptyText="No time zones match"
       {...props}

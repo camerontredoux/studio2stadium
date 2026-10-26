@@ -78,7 +78,6 @@ import {
   type RosterStatusFilter,
 } from "./roster-config";
 import { RosterShowMore, RosterTable } from "./roster-table";
-import { useIsPhone } from "./use-is-phone";
 
 const PAGE_SIZE = 50;
 
@@ -220,7 +219,6 @@ function RosterPageContent({
 
   // Search: type freely, write to the URL after a pause.
   const [draft, setDraft] = useState(q ?? "");
-  const isPhone = useIsPhone();
   const [syncedQ, setSyncedQ] = useState(q);
   if (syncedQ !== q) {
     setSyncedQ(q);
@@ -475,7 +473,7 @@ function RosterPageContent({
               />
             )}
             <Search
-              placeholder={isPhone ? "Search" : config.searchPlaceholder}
+              placeholder="Search"
               aria-label={config.searchLabel}
               value={draft}
               onChange={(event) => {

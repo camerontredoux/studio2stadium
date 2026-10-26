@@ -163,7 +163,8 @@ export function VideoLibraryPage({ orgSlug }: { orgSlug: string }) {
             />
           )}
           <Search
-            placeholder="Search videos"
+            placeholder="Search"
+            aria-label="Search videos"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
