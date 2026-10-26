@@ -105,6 +105,11 @@ export {
   type DigestDancer,
 } from "./templates/ProspectSubmissionsDigestEmail.js";
 
+export {
+  ApplicationSubmittedEmail,
+  type ApplicationSubmittedEmailProps,
+} from "./templates/ApplicationSubmittedEmail.js";
+
 // Render utilities
 export { renderEmail, renderEmailText } from "./render.js";
 
