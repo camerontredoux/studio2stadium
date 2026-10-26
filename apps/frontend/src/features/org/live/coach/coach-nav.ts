@@ -14,7 +14,8 @@ import type { EventNavItem } from "@/features/org/live/shared/sidebar-nav";
 export function useCoachNav(): EventNavItem[] {
   const { org } = useOrg();
   const pathname = useLocation({ select: (location) => location.pathname });
-  const dancers = useQuery(scoutingQueries.dancers(org.slug));
+  // One row is enough: the count comes back with every page.
+  const dancers = useQuery(scoutingQueries.dancers(org.slug, { limit: 1 }));
   const base = `/o/${org.slug}/coach`;
   const path = pathname.replace(/\/$/, "");
 
@@ -31,7 +32,7 @@ export function useCoachNav(): EventNavItem[] {
       label: "Dancers",
       icon: UsersIcon,
       to: "/o/$orgSlug/coach/dancers",
-      count: dancers.data?.length,
+      count: dancers.data?.counts.all,
       current: path.startsWith(`${base}/dancers`),
     },
     {

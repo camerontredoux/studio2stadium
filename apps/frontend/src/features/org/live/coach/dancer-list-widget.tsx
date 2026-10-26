@@ -123,20 +123,7 @@ function DancerListWidget({
   );
 }
 
-type CallbackSummary = Omit<ListDancer, "rating" | "eventId">;
-
-function withRatings(
-  rows: CallbackSummary[],
-  dancers: ScoutedDancer[],
-  eventId: string,
-): ListDancer[] {
-  const byId = new Map(dancers.map((dancer) => [dancer.rosterId, dancer]));
-  return rows.map((row) => ({
-    ...row,
-    eventId,
-    rating: byId.get(row.rosterId)?.rating ?? null,
-  }));
-}
+type CallbackSummary = Omit<ListDancer, "eventId">;
 
 /**
  * The coach's callbacks for the current showcase, with the live connection mark.
@@ -145,18 +132,16 @@ function withRatings(
  */
 export function CallbacksWidget({
   callbacks,
-  dancers,
   eventId,
   scouting,
 }: {
   callbacks: CallbackSummary[];
-  dancers: ScoutedDancer[];
   eventId: string;
   scouting: Scouting;
 }) {
   const { settings } = useOrg();
   const max = resolveMaxCallbacks(settings);
-  const rows = withRatings(callbacks, dancers, eventId);
+  const rows = callbacks.map((row) => ({ ...row, eventId }));
 
   return (
     <DancerListWidget
@@ -190,13 +175,12 @@ export function CallbacksWidget({
 
 /** With callbacks off, the board's third widget lists the coach's favourites instead. */
 export function FavoritesWidget({
-  dancers,
+  favorites: rows,
   scouting,
 }: {
-  dancers: ScoutedDancer[];
+  favorites: ScoutedDancer[];
   scouting: Scouting;
 }) {
-  const rows = dancers.filter((dancer) => dancer.isFavorited);
   return (
     <DancerListWidget
       id="fav"

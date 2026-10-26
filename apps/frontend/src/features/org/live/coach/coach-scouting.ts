@@ -13,7 +13,7 @@ import {
 import { useOrg } from "@/features/org/context/use-org";
 import { $api, type ApiSchemas } from "@/lib/api/client";
 
-export type ScoutedDancer = ApiSchemas["OrgsIdDancersResponse"][number];
+export type ScoutedDancer = ApiSchemas["OrgsIdDancersResponse"]["data"][number];
 type DancerDetail = ApiSchemas["OrgsIdDancersIdResponse"];
 
 /**

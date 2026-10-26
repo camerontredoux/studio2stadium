@@ -1,5 +1,10 @@
 import { ArrowRightIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
@@ -173,13 +178,28 @@ function CoachBoard({ event }: { event: OrgEvent }) {
   const scouting = useCoachScouting();
   const { slug, callbacksEnabled } = scouting;
 
-  const { data: dancers = [] } = useQuery(
-    scoutingQueries.dancers(slug, { eventId: event.id }),
+  // Each widget asks for its own slice instead of the whole roster: the
+  // ranked dancers a page at a time, and favorites only when they're shown.
+  const ranked = useInfiniteQuery(
+    scoutingQueries.dancerPages(slug, {
+      eventId: event.id,
+      filter: "rated",
+      sortBy: "rank",
+    }),
   );
+  const favorites = useQuery({
+    ...scoutingQueries.dancers(slug, {
+      eventId: event.id,
+      filter: "favorites",
+      limit: 200,
+    }),
+    enabled: !callbacksEnabled,
+  });
   const { data: callbacks = [] } = useQuery({
     ...scoutingQueries.callbacks(slug),
     enabled: callbacksEnabled,
   });
+  const rankedPages = ranked.data?.pages;
 
   const order = ["schedule", "top", callbacksEnabled ? "cb" : "fav"];
 
@@ -187,16 +207,26 @@ function CoachBoard({ event }: { event: OrgEvent }) {
     <DashboardFrame event={event}>
       <WidgetBoard order={order}>
         <ScheduleWidget event={event} mode="viewer" />
-        <TopRankedWidget dancers={dancers} scouting={scouting} />
+        <TopRankedWidget
+          ranked={rankedPages?.flatMap((page) => page.data) ?? []}
+          rosterSize={rankedPages?.[0]?.counts.all ?? 0}
+          ratedCount={rankedPages?.[0]?.total ?? 0}
+          hasMore={ranked.hasNextPage}
+          loadingMore={ranked.isFetchingNextPage}
+          onLoadMore={() => void ranked.fetchNextPage()}
+          scouting={scouting}
+        />
         {callbacksEnabled ? (
           <CallbacksWidget
             callbacks={callbacks}
-            dancers={dancers}
             eventId={event.id}
             scouting={scouting}
           />
         ) : (
-          <FavoritesWidget dancers={dancers} scouting={scouting} />
+          <FavoritesWidget
+            favorites={favorites.data?.data ?? []}
+            scouting={scouting}
+          />
         )}
       </WidgetBoard>
     </DashboardFrame>

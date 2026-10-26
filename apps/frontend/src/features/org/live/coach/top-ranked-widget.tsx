@@ -14,7 +14,6 @@ import {
   type ScoutedDancer,
   type useCoachScouting,
 } from "./coach-scouting";
-import { rankDancers } from "./roster-order";
 import { CallToggle, FavoriteToggle } from "./scouting-controls";
 
 type Scouting = ReturnType<typeof useCoachScouting>;
@@ -41,14 +40,24 @@ export function OpenRosterButton() {
  * are still unrated.
  */
 export function TopRankedWidget({
-  dancers,
+  ranked,
+  rosterSize,
+  ratedCount,
+  hasMore,
+  loadingMore,
+  onLoadMore,
   scouting,
 }: {
-  dancers: ScoutedDancer[];
+  /** Rated dancers, best first, as many pages as have loaded. */
+  ranked: ScoutedDancer[];
+  rosterSize: number;
+  ratedCount: number;
+  hasMore: boolean;
+  loadingMore: boolean;
+  onLoadMore: () => void;
   scouting: Scouting;
 }) {
-  const ranked = rankDancers(dancers);
-  const unrated = dancers.length - ranked.length;
+  const unrated = rosterSize - ratedCount;
   const [top, ...rest] = ranked;
   const showCall = scouting.callbacksEnabled;
 
@@ -57,7 +66,7 @@ export function TopRankedWidget({
       id="top"
       label="Top ranked"
       icon={TrophyIcon}
-      count={ranked.length}
+      count={ratedCount}
       peek={
         top ? (
           <>
@@ -153,6 +162,15 @@ export function TopRankedWidget({
           </div>
         );
       })}
+      {hasMore && (
+        <div className="border-line-soft flex min-h-11 items-center justify-center border-b px-(--space-14)">
+          <Button size="sm" onClick={onLoadMore} disabled={loadingMore}>
+            {loadingMore
+              ? "Loading…"
+              : `Show more (${ratedCount - ranked.length} left)`}
+          </Button>
+        </div>
+      )}
       {ranked.length === 0 ? (
         <div className="text-fg-3 flex min-h-[120px] flex-col items-center justify-center gap-(--space-10) p-(--space-16) text-center">
           <span>No ratings yet</span>

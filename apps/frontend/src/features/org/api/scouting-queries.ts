@@ -1,21 +1,55 @@
-import { $api } from "@/lib/api/client";
+import { infiniteQueryOptions } from "@tanstack/react-query";
+
+import { $api, client } from "@/lib/api/client";
+import type { paths } from "@/lib/api/types";
+
+export type DancerListParams = NonNullable<
+  paths["/orgs/{slug}/dancers"]["get"]["parameters"]["query"]
+>;
+
+/** Rows per page of the coach's dancer list. */
+export const DANCER_PAGE_SIZE = 50;
 
 export const scoutingQueries = {
-  dancers: (
-    slug: string,
-    params: {
-      search?: string;
-      bib?: number;
-      interested?: boolean;
-      eventId?: string;
-    } = {},
-  ) =>
+  /** One page of the coach's dancers (the first, unless `page` is set). */
+  dancers: (slug: string, params: DancerListParams = {}) =>
     $api.queryOptions("get", "/orgs/{slug}/dancers", {
       params: {
         path: { slug },
         query: params,
       },
     }),
+  /**
+   * The coach's dancers a page at a time. The key extends `dancers`' key, so
+   * every patch and invalidation aimed at the dancer lists reaches it too.
+   */
+  dancerPages: (
+    slug: string,
+    params: Omit<DancerListParams, "page" | "limit"> = {},
+  ) => {
+    const query = { ...params, limit: DANCER_PAGE_SIZE };
+    return infiniteQueryOptions({
+      queryKey: [
+        "get",
+        "/orgs/{slug}/dancers",
+        { params: { path: { slug }, query } },
+        "pages",
+      ] as const,
+      queryFn: async ({ pageParam, signal }) => {
+        const { data, error } = await client.GET("/orgs/{slug}/dancers", {
+          params: { path: { slug }, query: { ...query, page: pageParam } },
+          signal,
+        });
+        if (error) throw error;
+        return data;
+      },
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, pages) =>
+        pages.length * DANCER_PAGE_SIZE < lastPage.total
+          ? pages.length
+          : undefined,
+    });
+  },
   dancer: (slug: string, rosterId: string, eventId?: string) =>
     $api.queryOptions("get", "/orgs/{slug}/dancers/{rosterId}", {
       params: { path: { slug, rosterId }, query: { eventId } },

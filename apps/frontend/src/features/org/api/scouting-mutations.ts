@@ -73,7 +73,8 @@ export function useMoveSchoolSelection() {
 /*  Coach scouting marks with optimistic updates                       */
 /* ------------------------------------------------------------------ */
 
-type DancerRow = ApiSchemas["OrgsIdDancersResponse"][number];
+type DancerPage = ApiSchemas["OrgsIdDancersResponse"];
+type DancerRow = DancerPage["data"][number];
 type DancerDetail = ApiSchemas["OrgsIdDancersIdResponse"];
 type CallbackRow = ApiSchemas["OrgsIdCallbacksResponse"][number];
 type RankingRow = ApiSchemas["OrgsIdRankingsResponse"][number];
@@ -89,10 +90,81 @@ const scoutingKeys = {
 
 type CacheSnapshot = Array<[QueryKey, unknown]>;
 
+type DancerPages = { pages: DancerPage[]; pageParams: unknown[] };
+type DancerListData = DancerPage | DancerPages;
+
+function isDancerPage(data: unknown): data is DancerPage {
+  return !!data && Array.isArray((data as DancerPage).data);
+}
+
+function isDancerPages(data: unknown): data is DancerPages {
+  return !!data && Array.isArray((data as DancerPages).pages);
+}
+
+/** The filter tab a cached dancer list was fetched with, read from its key. */
+function listFilter(queryKey: QueryKey) {
+  const init = queryKey[2] as
+    | { params?: { query?: { filter?: string | null } } }
+    | undefined;
+  return init?.params?.query?.filter ?? "all";
+}
+
+function belongs(row: DancerRow, filter: string) {
+  if (filter === "favorites") return row.isFavorited;
+  if (filter === "calledBack") return row.isCalledBack;
+  if (filter === "rated") return (row.rating ?? 0) > 0;
+  return true;
+}
+
 /**
- * Patches one dancer in every cached dancer list, dancer detail and ranking
- * list, and returns what was there so `restoreScoutingCaches` can undo it.
- * Cancels in-flight reads first so they can't overwrite the patch.
+ * Rewrites the rows of every cached dancer list, whether a single page or the
+ * paged list. A row the change takes out of a filtered list (unfavoriting on
+ * the Favorites tab) leaves it now; one it would add arrives with the refetch,
+ * since only the server knows where it sorts.
+ */
+export function updateDancerLists(
+  qc: QueryClient,
+  update: (row: DancerRow) => DancerRow,
+) {
+  for (const [queryKey, data] of qc.getQueriesData<DancerListData>({
+    queryKey: scoutingKeys.dancers,
+  })) {
+    const filter = listFilter(queryKey);
+    const updatePage = (page: DancerPage): DancerPage => {
+      let removed = 0;
+      const rows = page.data.flatMap((row) => {
+        const next = update(row);
+        if (belongs(row, filter) && !belongs(next, filter)) {
+          removed += 1;
+          return [];
+        }
+        return [next];
+      });
+      return { ...page, data: rows, total: page.total - removed };
+    };
+    if (isDancerPage(data)) qc.setQueryData(queryKey, updatePage(data));
+    else if (isDancerPages(data))
+      qc.setQueryData(queryKey, { ...data, pages: data.pages.map(updatePage) });
+  }
+}
+
+/** Every dancer row the cached lists hold. */
+function cachedDancerRows(qc: QueryClient) {
+  return qc
+    .getQueriesData<DancerListData>({ queryKey: scoutingKeys.dancers })
+    .flatMap(([, data]) =>
+      isDancerPage(data)
+        ? data.data
+        : isDancerPages(data)
+          ? data.pages.flatMap((page) => page.data)
+          : [],
+    );
+}
+
+/**
+ * Patches one dancer in every cached dancer list, dancer detail, ranking list
+ * and callback list, and returns what was there so `restoreScoutingCaches`
+ * can undo it. Cancels in-flight reads first so they can't overwrite the patch.
  */
 export async function patchScoutedDancer(
   qc: QueryClient,
@@ -105,6 +177,7 @@ export async function patchScoutedDancer(
     scoutingKeys.dancers,
     scoutingKeys.dancer,
     scoutingKeys.rankings,
+    scoutingKeys.callbacks,
   ];
   await Promise.all(prefixes.map((queryKey) => qc.cancelQueries({ queryKey })));
   const snapshot = prefixes.flatMap((queryKey) =>
@@ -114,9 +187,7 @@ export async function patchScoutedDancer(
   const patchRow = <T extends { rosterId: string }>(row: T): T =>
     row.rosterId === rosterId ? { ...row, ...patch } : row;
 
-  qc.setQueriesData<DancerRow[]>({ queryKey: scoutingKeys.dancers }, (old) =>
-    Array.isArray(old) ? old.map(patchRow) : old,
-  );
+  updateDancerLists(qc, patchRow);
   qc.setQueriesData<DancerDetail>({ queryKey: scoutingKeys.dancer }, (old) =>
     old && !Array.isArray(old) ? patchRow(old) : old,
   );
@@ -132,6 +203,19 @@ export async function patchScoutedDancer(
         )
       : old,
   );
+  if ("rating" in patch) {
+    qc.setQueriesData<CallbackRow[]>(
+      { queryKey: scoutingKeys.callbacks },
+      (old) =>
+        Array.isArray(old)
+          ? old.map((row) =>
+              row.rosterId === rosterId
+                ? { ...row, rating: patch.rating ?? null }
+                : row,
+            )
+          : old,
+    );
+  }
   return snapshot;
 }
 
@@ -146,14 +230,8 @@ export function restoreScoutingCaches(
 
 /** The cached summary of a dancer (from any dancer list or detail), for optimistic list inserts. */
 function cachedDancer(qc: QueryClient, rosterId: string) {
-  for (const [, data] of qc.getQueriesData<DancerRow[]>({
-    queryKey: scoutingKeys.dancers,
-  })) {
-    const row = Array.isArray(data)
-      ? data.find((d) => d.rosterId === rosterId)
-      : undefined;
-    if (row) return row;
-  }
+  const row = cachedDancerRows(qc).find((d) => d.rosterId === rosterId);
+  if (row) return row;
   for (const [, data] of qc.getQueriesData<DancerDetail>({
     queryKey: scoutingKeys.dancer,
   })) {
@@ -173,6 +251,7 @@ function summaryOf(dancer: DancerRow | DancerDetail): CallbackRow {
     studio: dancer.studio,
     state: dancer.state,
     gpa: dancer.gpa,
+    rating: dancer.rating,
   };
 }
 

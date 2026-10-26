@@ -13,14 +13,54 @@ import {
 } from "#database/schema/event-features";
 import { dancerProfiles } from "#database/schema/dancers";
 import { users } from "#database/schema/users";
-import { and, eq, ilike, isNotNull, or, sql } from "drizzle-orm";
+import { and, eq, isNotNull, sql, type SQL } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
 import type { ScoutingViewScope } from "../../view-scope.ts";
+
+export const DEFAULT_PAGE_SIZE = 50;
+
+type Row = {
+  rosterId: string;
+  bibNumber: number | null;
+  firstName: string;
+  lastName: string;
+  isRegistered: boolean;
+  profilePhotoUrl: string | null;
+  gpa: number | null;
+  gradYear: number | null;
+  studio: string | null;
+  state: string | null;
+  interestedInMySchool: boolean;
+  isFavorited: boolean;
+  rating: number | null;
+  hasNote: boolean;
+  isCalledBack: boolean;
+  username: string | null;
+  eventId: string;
+};
+
+type Counts = {
+  all: number;
+  favorites: number;
+  calledBack: number;
+  rated: number;
+  total: number;
+};
+
+/** Escapes LIKE wildcards so a search for "50%" matches the text, not a pattern. */
+function likePattern(search: string) {
+  return `%${search.replace(/[\\%_]/g, "\\$&")}%`;
+}
 
 @inject()
 export class ListDancersService {
   constructor(private db: DatabaseService = new DatabaseService()) {}
 
+  /**
+   * One page of the coach's dancers, plus the counts the filter tabs and
+   * dashboard widgets show. Search, filter, sort and the "All events" dedupe
+   * all run in SQL, so a page is the same slice the full list would show.
+   */
   async execute(
     orgId: string,
     activeEventId: string | null,
@@ -29,240 +69,268 @@ export class ListDancersService {
     filterCheckedInOnly: boolean = false,
     selectedEventId?: string
   ) {
-    const rows = await this.db.use((db) => {
-      const filters = [
-        selectedEventId
-          ? eq(eventRosters.eventId, selectedEventId)
-          : sql`${eventRosters.eventId} IN (
-              SELECT ${orgEvents.id} FROM ${orgEvents}
-              WHERE ${orgEvents.orgId} = ${orgId}
-            )`,
-        eq(eventRosters.type, "dancer"),
-        eq(eventRosters.isStaff, false),
-      ];
+    const limit = q.limit ?? DEFAULT_PAGE_SIZE;
+    const page = q.page ?? 0;
+    const shown = this.shownDancers(
+      orgId,
+      activeEventId,
+      view,
+      q,
+      filterCheckedInOnly,
+      selectedEventId
+    );
+    const matches = this.matches(q);
 
-      if (q.bib !== undefined) {
-        filters.push(eq(eventRosters.bibNumber, q.bib));
-      } else if (q.search) {
-        const pattern = `%${q.search}%`;
-        filters.push(
-          or(
-            ilike(eventRosters.firstName, pattern),
-            ilike(eventRosters.lastName, pattern)
-          )!
-        );
-      }
+    const [rows, [counts]] = await this.db.use((db) =>
+      Promise.all([
+        db.execute<Row>(sql`
+          ${shown}
+          SELECT
+            roster_id AS "rosterId",
+            shown_bib AS "bibNumber",
+            first_name AS "firstName",
+            last_name AS "lastName",
+            is_registered AS "isRegistered",
+            profile_photo_url AS "profilePhotoUrl",
+            gpa,
+            grad_year AS "gradYear",
+            studio,
+            state,
+            interested AS "interestedInMySchool",
+            is_favorited AS "isFavorited",
+            rating,
+            has_note AS "hasNote",
+            is_called_back AS "isCalledBack",
+            username,
+            event_id AS "eventId"
+          FROM shown
+          WHERE ${matches}
+          ORDER BY ${this.orderBy(q)}
+          LIMIT ${limit} OFFSET ${page * limit}
+        `),
+        db.execute<Counts>(sql`
+          ${shown}
+          SELECT
+            count(*)::int AS "all",
+            (count(*) FILTER (WHERE is_favorited))::int AS favorites,
+            (count(*) FILTER (WHERE is_called_back))::int AS "calledBack",
+            (count(*) FILTER (WHERE COALESCE(rating, 0) > 0))::int AS rated,
+            (count(*) FILTER (WHERE ${matches}))::int AS total
+          FROM shown
+        `),
+      ])
+    );
 
-      // The coach's own marks live on the event being viewed, not on whichever
-      // event the org happens to have active. Browsing back to a past event
-      // re-scopes both halves of the (eventId, coachRosterId) key; a coach who
-      // never attended that event has no roster row there and sees nothing.
-      const viewEventId = view?.eventId ?? null;
-      const viewCoachRosterId = view?.coachRosterId ?? null;
-      const viewShowcaseId = view?.showcaseId ?? null;
+    const { total, ...tabs } = counts ?? {
+      all: 0,
+      favorites: 0,
+      calledBack: 0,
+      rated: 0,
+      total: 0,
+    };
+    return { data: [...rows], total, counts: tabs };
+  }
 
-      const interestedSubquery = viewCoachRosterId
-        ? sql<boolean>`EXISTS (
-            SELECT 1 FROM event_school_selections ess
-            WHERE ess.dancer_roster_id = ${eventRosters.id}
-              AND ess.coach_roster_id = ${viewCoachRosterId}
-              AND ess.event_id = ${viewEventId}
-          )`
-        : sql<boolean>`false`;
+  /**
+   * `WITH ... shown`: the coach's dancers with their marks, one row per dancer.
+   * Across all of the org's events the same dancer can hold a roster row per
+   * event, so "All events" collapses them (see `deduped`).
+   */
+  private shownDancers(
+    orgId: string,
+    activeEventId: string | null,
+    view: ScoutingViewScope | null,
+    q: Validator,
+    filterCheckedInOnly: boolean,
+    selectedEventId?: string
+  ) {
+    const filters: SQL[] = [
+      selectedEventId
+        ? eq(eventRosters.eventId, selectedEventId)
+        : sql`${eventRosters.eventId} IN (
+            SELECT ${orgEvents.id} FROM ${orgEvents}
+            WHERE ${orgEvents.orgId} = ${orgId}
+          )`,
+      eq(eventRosters.type, "dancer"),
+      eq(eventRosters.isStaff, false),
+    ];
+    if (q.bib !== undefined) filters.push(eq(eventRosters.bibNumber, q.bib));
+    if (filterCheckedInOnly) {
+      filters.push(isNotNull(eventRosters.checkedInAt));
+      filters.push(isNotNull(eventRosters.userId));
+    }
 
-      const isFavoritedSubquery = viewCoachRosterId
-        ? sql<boolean>`EXISTS (
-            SELECT 1 FROM ${eventFavorites}
-            WHERE ${eventFavorites.dancerRosterId} = ${eventRosters.id}
-              AND ${eventFavorites.coachRosterId} = ${viewCoachRosterId}
-              AND ${eventFavorites.eventId} = ${viewEventId}
-          )`
-        : sql<boolean>`false`;
+    // The coach's own marks live on the event being viewed, not on whichever
+    // event the org happens to have active. Browsing back to a past event
+    // re-scopes both halves of the (eventId, coachRosterId) key; a coach who
+    // never attended that event has no roster row there and sees nothing.
+    const viewEventId = view?.eventId ?? null;
+    const coachRosterId = view?.coachRosterId ?? null;
+    const showcaseId = view?.showcaseId ?? null;
 
-      const ratingSubquery = viewCoachRosterId
-        ? sql<number | null>`(
-            SELECT ${eventRatings.rating} FROM ${eventRatings}
-            WHERE ${eventRatings.dancerRosterId} = ${eventRosters.id}
-              AND ${eventRatings.coachRosterId} = ${viewCoachRosterId}
-              AND ${eventRatings.eventId} = ${viewEventId}
-            LIMIT 1
-          )`
-        : sql<number | null>`NULL`;
+    const interested = coachRosterId
+      ? sql`EXISTS (
+          SELECT 1 FROM event_school_selections ess
+          WHERE ess.dancer_roster_id = ${eventRosters.id}
+            AND ess.coach_roster_id = ${coachRosterId}
+            AND ess.event_id = ${viewEventId}
+        )`
+      : sql`false`;
+    if (q.interested && coachRosterId) filters.push(interested);
 
-      const hasNoteSubquery = viewCoachRosterId
-        ? sql<boolean>`EXISTS (
-            SELECT 1 FROM ${eventNotes}
-            WHERE ${eventNotes.dancerRosterId} = ${eventRosters.id}
-              AND ${eventNotes.coachRosterId} = ${viewCoachRosterId}
-              AND ${eventNotes.eventId} = ${viewEventId}
-          )`
-        : sql<boolean>`false`;
-
-      // Callbacks belong to the showcase running at the time and are not
-      // retained across events, so a finished event reports none.
-      const isCalledBackSubquery =
-        viewCoachRosterId && viewShowcaseId
-          ? sql<boolean>`EXISTS (
+    const isFavorited = coachRosterId
+      ? sql`EXISTS (
+          SELECT 1 FROM ${eventFavorites}
+          WHERE ${eventFavorites.dancerRosterId} = ${eventRosters.id}
+            AND ${eventFavorites.coachRosterId} = ${coachRosterId}
+            AND ${eventFavorites.eventId} = ${viewEventId}
+        )`
+      : sql`false`;
+    const rating = coachRosterId
+      ? sql`(
+          SELECT ${eventRatings.rating} FROM ${eventRatings}
+          WHERE ${eventRatings.dancerRosterId} = ${eventRosters.id}
+            AND ${eventRatings.coachRosterId} = ${coachRosterId}
+            AND ${eventRatings.eventId} = ${viewEventId}
+          LIMIT 1
+        )`
+      : sql`NULL::smallint`;
+    const hasNote = coachRosterId
+      ? sql`EXISTS (
+          SELECT 1 FROM ${eventNotes}
+          WHERE ${eventNotes.dancerRosterId} = ${eventRosters.id}
+            AND ${eventNotes.coachRosterId} = ${coachRosterId}
+            AND ${eventNotes.eventId} = ${viewEventId}
+        )`
+      : sql`false`;
+    // Callbacks belong to the showcase running at the time and are not
+    // retained across events, so a finished event reports none.
+    const isCalledBack =
+      coachRosterId && showcaseId
+        ? sql`EXISTS (
             SELECT 1 FROM ${eventCallbacks}
             WHERE ${eventCallbacks.dancerRosterId} = ${eventRosters.id}
-              AND ${eventCallbacks.coachRosterId} = ${viewCoachRosterId}
-              AND ${eventCallbacks.showcaseId} = ${viewShowcaseId}
+              AND ${eventCallbacks.coachRosterId} = ${coachRosterId}
+              AND ${eventCallbacks.showcaseId} = ${showcaseId}
           )`
-          : sql<boolean>`false`;
+        : sql`false`;
+    const onActiveEvent = activeEventId
+      ? sql`(${eventRosters.eventId} = ${activeEventId})`
+      : sql`false`;
 
-      if (filterCheckedInOnly) {
-        filters.push(isNotNull(eventRosters.checkedInAt));
-        filters.push(isNotNull(eventRosters.userId));
-      }
+    // A bib only identifies a dancer at the event that issued it. When the
+    // coach browses the org's history, a dancer who is not on the active
+    // event's roster is shown without one rather than under a stale number.
+    const shownBib = selectedEventId
+      ? sql`bib_number`
+      : sql`CASE WHEN on_active_event THEN bib_number END`;
 
-      if (q.interested && viewCoachRosterId) {
-        filters.push(
-          sql`EXISTS (
-            SELECT 1 FROM event_school_selections ess
-            WHERE ess.dancer_roster_id = ${eventRosters.id}
-              AND ess.coach_roster_id = ${viewCoachRosterId}
-              AND ess.event_id = ${viewEventId}
-          )`
-        );
-      }
-
-      return db
-        .select({
-          rosterId: eventRosters.id,
-          bibNumber: eventRosters.bibNumber,
-          firstName: eventRosters.firstName,
-          lastName: eventRosters.lastName,
-          isRegistered: sql<boolean>`${eventRosters.userId} IS NOT NULL`,
-          profilePhotoUrl: eventDancerProfiles.profilePhotoUrl,
-          gpa: sql<
-            number | null
-          >`COALESCE(${eventDancerProfiles.gpa}, ${dancerProfiles.gpa})`,
-          gradYear: sql<
-            number | null
-          >`COALESCE(${eventDancerProfiles.gradYear}, ${dancerProfiles.gradYear})`,
-          studio: sql<
-            string | null
-          >`COALESCE(${eventDancerProfiles.studio}, ${dancerProfiles.studio})`,
-          state: sql<
-            string | null
-          >`COALESCE(${eventDancerProfiles.state}, ${dancerProfiles.location})`,
-          interestedInMySchool: interestedSubquery,
-          isFavorited: isFavoritedSubquery,
-          rating: ratingSubquery,
-          hasNote: hasNoteSubquery,
-          isCalledBack: isCalledBackSubquery,
-          username: users.username,
-          userId: eventRosters.userId,
-          email: eventRosters.email,
-          eventId: eventRosters.eventId,
-          createdAt: eventRosters.createdAt,
-        })
-        .from(eventRosters)
-        .leftJoin(
-          eventDancerProfiles,
-          eq(eventDancerProfiles.rosterId, eventRosters.id)
-        )
-        .leftJoin(
-          dancerProfiles,
-          eq(dancerProfiles.userId, eventRosters.userId)
-        )
-        .leftJoin(users, eq(users.id, eventRosters.userId))
-        .where(and(...filters))
-        .orderBy(eventRosters.bibNumber);
-    });
-
-    // Across all of the org's events the same dancer can hold a roster row per
-    // event. Collapse to one row per dancer — keyed by their account, falling
-    // back to email for rows no one has claimed — preferring the active event's
-    // row so the coach's favorites/ratings/callbacks stay wired to it.
+    // Collapse to one row per dancer, keyed by their account, falling back to
+    // email for rows no one has claimed. An older event's row is often still
+    // unclaimed, so it carries no account to match on: email is the only
+    // identity it shares with the claimed row (rosters are unique by email per
+    // event). Prefer the active event's row so the coach's marks stay wired to
+    // it, then the newest.
     const deduped = selectedEventId
-      ? rows
-      : this.dedupeByDancer(rows, activeEventId);
+      ? sql`deduped AS (SELECT * FROM scoped)`
+      : sql`accounts AS (
+          SELECT DISTINCT ON (email_key) email_key, user_id
+          FROM scoped
+          WHERE user_id IS NOT NULL AND email_key IS NOT NULL
+          ORDER BY email_key, bib_number NULLS LAST, roster_id
+        ),
+        deduped AS (
+          SELECT DISTINCT ON (dancer_key) *
+          FROM (
+            SELECT scoped.*, COALESCE(
+              'user:' || scoped.user_id,
+              'user:' || accounts.user_id,
+              'email:' || scoped.email_key,
+              'roster:' || scoped.roster_id
+            ) AS dancer_key
+            FROM scoped
+            LEFT JOIN accounts ON accounts.email_key = scoped.email_key
+          ) keyed
+          ORDER BY dancer_key, on_active_event DESC, created_at DESC NULLS LAST,
+            bib_number NULLS LAST, roster_id
+        )`;
 
-    return deduped.map((row) => ({
-      rosterId: row.rosterId,
-      // A bib only identifies a dancer at the event that issued it. When the
-      // coach browses the org's history, a dancer who is not on the active
-      // event's roster is shown without one rather than under a stale number.
-      bibNumber:
-        selectedEventId || row.eventId === activeEventId ? row.bibNumber : null,
-      firstName: row.firstName,
-      lastName: row.lastName,
-      isRegistered: row.isRegistered,
-      profilePhotoUrl: row.profilePhotoUrl,
-      gpa: row.gpa,
-      gradYear: row.gradYear,
-      studio: row.studio,
-      state: row.state,
-      interestedInMySchool: row.interestedInMySchool,
-      isFavorited: row.isFavorited,
-      rating: row.rating,
-      hasNote: row.hasNote,
-      isCalledBack: row.isCalledBack,
-      username: row.username,
-      eventId: row.eventId,
-    }));
+    return sql`
+      WITH scoped AS (
+        SELECT
+          ${eventRosters.id} AS roster_id,
+          ${eventRosters.bibNumber} AS bib_number,
+          ${eventRosters.firstName} AS first_name,
+          ${eventRosters.lastName} AS last_name,
+          ${eventRosters.userId} IS NOT NULL AS is_registered,
+          ${eventDancerProfiles.profilePhotoUrl} AS profile_photo_url,
+          COALESCE(${eventDancerProfiles.gpa}, ${dancerProfiles.gpa}) AS gpa,
+          COALESCE(${eventDancerProfiles.gradYear}, ${dancerProfiles.gradYear}) AS grad_year,
+          COALESCE(${eventDancerProfiles.studio}, ${dancerProfiles.studio}) AS studio,
+          COALESCE(${eventDancerProfiles.state}, ${dancerProfiles.location}) AS state,
+          ${interested} AS interested,
+          ${isFavorited} AS is_favorited,
+          ${rating} AS rating,
+          ${hasNote} AS has_note,
+          ${isCalledBack} AS is_called_back,
+          ${users.username} AS username,
+          ${eventRosters.userId} AS user_id,
+          NULLIF(LOWER(TRIM(${eventRosters.email})), '') AS email_key,
+          ${eventRosters.eventId} AS event_id,
+          ${eventRosters.createdAt} AS created_at,
+          ${onActiveEvent} AS on_active_event
+        FROM ${eventRosters}
+        LEFT JOIN ${eventDancerProfiles}
+          ON ${eventDancerProfiles.rosterId} = ${eventRosters.id}
+        LEFT JOIN ${dancerProfiles}
+          ON ${dancerProfiles.userId} = ${eventRosters.userId}
+        LEFT JOIN ${users} ON ${users.id} = ${eventRosters.userId}
+        WHERE ${and(...filters)}
+      ),
+      ${deduped},
+      shown AS (
+        SELECT deduped.*,
+          ${shownBib} AS shown_bib,
+          TRIM(COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')) AS full_name
+        FROM deduped
+      )
+    `;
   }
 
-  private dedupeByDancer<
-    T extends {
-      rosterId: string;
-      bibNumber: number | null;
-      userId: string | null;
-      email: string | null;
-      eventId: string;
-      createdAt: Date | null;
-    },
-  >(rows: T[], activeEventId: string | null): T[] {
-    // An older event's row for the same person is often still unclaimed, so it
-    // carries no account to match on. Email is the only identity those rows
-    // share with the claimed row, and rosters are unique by email per event.
-    const accountByEmail = new Map<string, string>();
-    for (const row of rows) {
-      const email = this.normalizeEmail(row.email);
-      if (!email || !row.userId || accountByEmail.has(email)) continue;
-      accountByEmail.set(email, row.userId);
+  /** The search box and filter tab, over what the coach sees on each row. */
+  private matches(q: Validator) {
+    const conditions: SQL[] = [sql`true`];
+    if (q.search) {
+      const pattern = likePattern(q.search);
+      conditions.push(sql`(
+        shown_bib::text LIKE ${pattern}
+        OR full_name ILIKE ${pattern}
+        OR studio ILIKE ${pattern}
+      )`);
     }
+    if (q.filter === "favorites") conditions.push(sql`is_favorited`);
+    else if (q.filter === "calledBack") conditions.push(sql`is_called_back`);
+    else if (q.filter === "rated")
+      conditions.push(sql`COALESCE(rating, 0) > 0`);
+    return sql.join(conditions, sql` AND `);
+  }
 
-    const byDancer = new Map<string, T>();
-    for (const row of rows) {
-      const key = this.dancerKey(row, accountByEmail);
-      const current = byDancer.get(key);
-      if (!current || this.isBetterRow(row, current, activeEventId)) {
-        byDancer.set(key, row);
-      }
+  /** Blanks sort last in both directions; ties fall back to bib, then name. */
+  private orderBy(q: Validator) {
+    const tiebreak = sql`shown_bib ASC NULLS LAST, LOWER(full_name), roster_id`;
+    if (q.sortBy === "rank") {
+      // Rated dancers, best first: rating, then favourites, then bib.
+      return sql`rating DESC NULLS LAST, is_favorited DESC, ${tiebreak}`;
     }
-    return [...byDancer.values()].sort(
-      (a, b) => (a.bibNumber ?? Infinity) - (b.bibNumber ?? Infinity)
-    );
-  }
-
-  private dancerKey(
-    row: { rosterId: string; userId: string | null; email: string | null },
-    accountByEmail: Map<string, string>
-  ) {
-    if (row.userId) return `user:${row.userId}`;
-    const email = this.normalizeEmail(row.email);
-    if (!email) return `roster:${row.rosterId}`;
-    const account = accountByEmail.get(email);
-    return account ? `user:${account}` : `email:${email}`;
-  }
-
-  private normalizeEmail(email: string | null) {
-    return email?.trim().toLowerCase() || null;
-  }
-
-  private isBetterRow(
-    candidate: { eventId: string; createdAt: Date | null },
-    current: { eventId: string; createdAt: Date | null },
-    activeEventId: string | null
-  ) {
-    const candidateActive = candidate.eventId === activeEventId;
-    const currentActive = current.eventId === activeEventId;
-    if (candidateActive !== currentActive) return candidateActive;
-    return (
-      (candidate.createdAt?.getTime() ?? 0) >
-      (current.createdAt?.getTime() ?? 0)
-    );
+    const key = {
+      bib: sql`shown_bib`,
+      name: sql`LOWER(full_name)`,
+      year: sql`grad_year`,
+      studio: sql`LOWER(studio)`,
+      gpa: sql`gpa`,
+      rating: sql`rating`,
+    }[q.sortBy ?? "bib"];
+    const dir = q.sortDir === "desc" ? sql`DESC` : sql`ASC`;
+    return sql`(${key}) IS NULL, ${key} ${dir}, ${tiebreak}`;
   }
 }
