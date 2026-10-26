@@ -51,6 +51,8 @@ export interface RosterTableProps {
    * the page itself scrolls, so the rows follow the window instead.
    */
   scrollRef: RefObject<HTMLElement | null>;
+  /** A change starts the list again from the top. */
+  resetKey?: unknown;
   /** More rows wait on the server; `onLoadMore` fetches the next page. */
   hasMore?: boolean;
   loadingMore?: boolean;
@@ -73,6 +75,7 @@ export function RosterTable({
   empty,
   stale = false,
   scrollRef,
+  resetKey,
   hasMore = false,
   loadingMore = false,
   onLoadMore,
@@ -85,6 +88,7 @@ export function RosterTable({
     hasMore,
     loadingMore,
     onLoadMore,
+    resetKey,
   });
   const templates = gridTemplates(columns);
   const timeZone = useEventTimeZone();

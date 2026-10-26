@@ -21,6 +21,7 @@ export function useVirtualRows({
   hasMore,
   loadingMore,
   onLoadMore,
+  resetKey,
 }: {
   count: number;
   scrollRef: RefObject<HTMLElement | null>;
@@ -30,6 +31,8 @@ export function useVirtualRows({
   hasMore: boolean;
   loadingMore: boolean;
   onLoadMore?: () => void;
+  /** A change (new tab, search, filter or sort) starts the list again from the top. */
+  resetKey?: unknown;
 }) {
   const phone = useIsPhone();
   const [listTop, setListTop] = useState(0);
@@ -53,6 +56,18 @@ export function useVirtualRows({
     scrollMargin: listTop,
   });
   const virtualizer = phone ? inWindow : inBox;
+
+  // Through the virtualizer, not the element: it drops the old rows' measured
+  // heights and its own scroll offset, which would otherwise shift the new
+  // rows' positions and scroll the box back down as they're measured.
+  // Compared by value: callers pass a fresh array or object each render.
+  const reset = JSON.stringify(resetKey ?? null);
+  useLayoutEffect(() => {
+    if (phone) return;
+    inBox.measure();
+    inBox.scrollToOffset(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run only on a reset
+  }, [reset]);
   const items = virtualizer.getVirtualItems();
   const margin = phone ? listTop : 0;
   const first = items[0];

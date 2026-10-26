@@ -258,11 +258,9 @@ export function AuditLogPage({ orgSlug }: AuditLogPageProps) {
     hasMore: entriesQuery.hasNextPage && !entriesQuery.isFetchNextPageError,
     loadingMore: entriesQuery.isFetchingNextPage,
     onLoadMore: () => void fetchNextPage(),
+    // A new tab, search or filter starts again from the top.
+    resetKey: params,
   });
-  // New filters start again from the top.
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: 0 });
-  }, [params]);
 
   // The stats count top-level entries per API action. Check-ins are API
   // updates, so neither "Update" nor "Check in" gets a count.

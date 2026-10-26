@@ -11,7 +11,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/event/button";
 import { Icon } from "@/components/event/icon";
@@ -129,11 +129,9 @@ export function ReconciliationPage({ orgSlug }: { orgSlug: string }) {
     hasMore: list.hasNextPage && !list.isFetchNextPageError,
     loadingMore: list.isFetchingNextPage,
     onLoadMore: () => void fetchNextPage(),
+    // A new tab, search or filter starts again from the top.
+    resetKey: [view, search],
   });
-  // A new tab or search starts again from the top.
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: 0 });
-  }, [view, search]);
 
   const resend = useMutation({
     mutationFn: async (inviteId: string) => {

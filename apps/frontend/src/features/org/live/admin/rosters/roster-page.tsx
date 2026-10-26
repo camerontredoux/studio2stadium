@@ -19,7 +19,7 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useRef, useState } from "react";
 
 import { Button } from "@/components/event/button";
 import { DataTableEmpty } from "@/components/event/data-table";
@@ -176,11 +176,7 @@ function RosterPageContent({
   const { fetchNextPage } = rosterQuery;
   const rows = mergePages(rosterQuery.data?.pages.map((p) => p.data) ?? []);
 
-  // A new filter, search or sort starts again from the top.
   const scrollRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: 0 });
-  }, [viewKey]);
 
   const statsQuery = useQuery(rosterQueries.stats(orgSlug, eventId, type));
   const stats = statsQuery.data;
@@ -550,6 +546,8 @@ function RosterPageContent({
             stale={rosterQuery.isPlaceholderData}
             empty={empty}
             scrollRef={scrollRef}
+            // A new search, filter, sort or event starts again from the top.
+            resetKey={viewKey}
             hasMore={
               rosterQuery.hasNextPage && !rosterQuery.isFetchNextPageError
             }

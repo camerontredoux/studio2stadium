@@ -154,12 +154,9 @@ export function DancersPanel({
     hasMore: !!more?.hasNextPage && !more.isFetchNextPageError,
     loadingMore: !!more?.isFetchingNextPage,
     onLoadMore: () => void more?.fetchNextPage(),
+    // A new tab, search or filter starts again from the top.
+    resetKey: [filter, search],
   });
-
-  // A new search or filter starts again from the top.
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: 0 });
-  }, [filter, search]);
 
   return (
     <Panel aria-label="Dancers" className="desk:max-h-[calc(100vh-64px)]">
