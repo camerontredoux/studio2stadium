@@ -3,11 +3,11 @@ import { useTernaryDarkMode, type TernaryDarkMode } from "usehooks-ts";
 export const ORG_THEME_STORAGE_KEY = "org-theme";
 
 /**
- * Used until the person picks a theme. Dark: the S2S dashboard was designed
- * dark-first, and before the light palette existed every org page rendered
- * dark whatever was stored, so people who never chose see no change.
+ * Used until the person picks a theme. The hook only writes `org-theme` when
+ * someone picks, so an empty key means "never chose" and stored choices (dark
+ * included) win. Keep the inline script in `index.html` in step with this.
  */
-export const ORG_THEME_DEFAULT: TernaryDarkMode = "dark";
+export const ORG_THEME_DEFAULT: TernaryDarkMode = "light";
 
 export type OrgTheme = TernaryDarkMode;
 
