@@ -93,6 +93,16 @@ export const coachEventFaqSections: EventFaqSection[] = [
           </>
         ),
       },
+      {
+        value: "event-schedule",
+        question: "Where can I find the event schedule?",
+        answer: (
+          <p>
+            The Schedule widget on your dashboard shows the schedule the event
+            organizer has shared.
+          </p>
+        ),
+      },
     ],
   },
   {
@@ -105,9 +115,9 @@ export const coachEventFaqSections: EventFaqSection[] = [
         answer: (
           <>
             <p>
-              Select Dancers from the dropdown menu. Use the search bar and
-              filters to find participants by bib number, name, event, graduation
-              year, or state.
+              Select Dancers from the menu. Use the search bar to find
+              participants by bib number, name, or studio. Use the filters to
+              narrow the list by event, GPA, or state.
             </p>
             <p>
               You can also filter for dancers who selected your program, dancers
@@ -115,8 +125,8 @@ export const coachEventFaqSections: EventFaqSection[] = [
               your program.
             </p>
             <p>
-              Hover over an icon to see what it means. Select Clear at the top to
-              reset your search and filters.
+              Hover over a filter icon to see what it means. If no dancers match,
+              select Clear filters to reset them.
             </p>
           </>
         ),
@@ -145,8 +155,8 @@ export const coachEventFaqSections: EventFaqSection[] = [
         answer: (
           <>
             <p>
-              On the Dancers page, use the interest filter to see participants who
-              selected your program.
+              On the Dancers page, use the Picked your school filter to see
+              participants who selected your program.
             </p>
             <p>
               Dancers have a limited number of program choices, set by the event
@@ -164,8 +174,8 @@ export const coachEventFaqSections: EventFaqSection[] = [
         answer: (
           <>
             <p>
-              Select the plus icon next to a dancer&apos;s name, enter your notes
-              in the box, and select Save at the bottom.
+              Select the plus icon in a dancer&apos;s row, enter your notes in
+              the box, and select Done.
             </p>
             <p>
               You can return to these notes during and after the event through the
@@ -199,8 +209,8 @@ export const coachEventFaqSections: EventFaqSection[] = [
         answer: (
           <>
             <p>
-              After entering your notes, select Save. The plus icon next to the
-              dancer&apos;s name will change to a pencil icon, indicating that
+              After entering your notes, select Done. The plus icon in the
+              dancer&apos;s row will change to a pencil icon, indicating that
               notes have been recorded.
             </p>
             <p>
@@ -208,6 +218,16 @@ export const coachEventFaqSections: EventFaqSection[] = [
               dancers with notes during and after the event.
             </p>
           </>
+        ),
+      },
+      {
+        value: "top-ranked",
+        question: "What does the Top ranked widget show?",
+        answer: (
+          <p>
+            Top ranked on your dashboard lists the dancers you rated, highest
+            first. Select Open roster to rate more dancers.
+          </p>
         ),
       },
     ],
@@ -222,14 +242,18 @@ export const coachEventFaqSections: EventFaqSection[] = [
         answer: (
           <>
             <p>
-              Select the Callback button next to each dancer you want to see
-              again. The callback count at the top of your dashboard will increase
-              as you make selections.
+              Select the Call back button next to each dancer you want to see
+              again. The count on your dashboard&apos;s Callbacks widget will
+              increase as you make selections.
             </p>
             <p>
               Your selections appear in the event organizer&apos;s admin
               dashboard. The organizer controls when callbacks are published to
               dancers.
+            </p>
+            <p>
+              When callbacks are published, only your top selections by rating
+              are sent. The Callbacks widget shows how many.
             </p>
             <p>
               Callback selections reset when results are published or a new round
@@ -272,8 +296,9 @@ export const coachEventFaqSections: EventFaqSection[] = [
         answer: (
           <>
             <p>
-              Yes. Once the organizer publishes results, dancers can see which
-              programs called them back for each round.
+              Dancers are not sent a message. Once the organizer publishes
+              results, they can see in S2S Live which programs called them back
+              for each round.
             </p>
             <p>
               This communicates your interest clearly without requiring individual

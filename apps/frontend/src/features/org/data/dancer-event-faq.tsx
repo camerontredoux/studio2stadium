@@ -106,6 +106,27 @@ export const dancerEventFaqSections: EventFaqSection[] = [
           </>
         ),
       },
+      {
+        value: "event-schedule",
+        question: "Where can I find the event schedule?",
+        answer: (
+          <p>
+            The Schedule widget on your dashboard shows the schedule the event
+            organizer has shared.
+          </p>
+        ),
+      },
+      {
+        value: "check-in",
+        question: "How do I check in?",
+        answer: (
+          <p>
+            Open the Check-in widget on your dashboard and show your code at the
+            check-in desk. If the event lets you check in yourself, select Check
+            in instead. Check-in opens one hour before the event starts.
+          </p>
+        ),
+      },
     ],
   },
   {
@@ -152,10 +173,10 @@ export const dancerEventFaqSections: EventFaqSection[] = [
         question: "Can I change my program choices?",
         answer: (
           <p>
-            Yes. You can change your choices at any time. You must stay within
-            the selection limit set by the event organizer. If you&apos;ve
-            reached that limit, remove a selection before choosing another
-            program.
+            Yes. You can change your choices at any time while the event is
+            live. You must stay within the selection limit set by the event
+            organizer. If you&apos;ve reached that limit, remove a selection
+            before choosing another program.
           </p>
         ),
       },
