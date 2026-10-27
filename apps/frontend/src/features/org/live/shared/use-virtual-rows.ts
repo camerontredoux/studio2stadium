@@ -3,6 +3,8 @@ import { useEffect, useLayoutEffect, useState, type RefObject } from "react";
 
 import { useIsPhone } from "@/features/org/live/admin/rosters/use-is-phone";
 
+import { observeBoxRect } from "./observe-box-rect";
+
 /**
  * Only the rows near the viewport are in the DOM. An org's lists run to the
  * thousands, and rendering every row made each search, sort and mark take
@@ -63,6 +65,7 @@ export function useVirtualRows({
     count,
     enabled: !phone,
     getScrollElement: () => scrollRef.current,
+    observeElementRect: observeBoxRect,
     estimateSize: () => estimate,
     overscan: 10,
     scrollMargin: boxTop,
