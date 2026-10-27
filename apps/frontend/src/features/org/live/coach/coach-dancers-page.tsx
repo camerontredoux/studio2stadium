@@ -87,7 +87,7 @@ const MARKS: {
   { value: "hasNote", label: "Has notes", icon: PencilSimpleIcon },
 ];
 
-/** The "any" choice that clears the GPA or State filter. */
+/** The "any" choice that clears the State filter. */
 const ANY = "any";
 
 /**
@@ -98,7 +98,6 @@ const GPA_RANGES: Record<
   string,
   { label: string; gpaMin?: number; gpaBelow?: number }
 > = {
-  [ANY]: { label: "Any GPA" },
   "under-2.5": { label: "Under 2.5", gpaBelow: 2.5 },
   "2.5-3.0": { label: "2.5-3.0", gpaMin: 2.5, gpaBelow: 3 },
   "3.0-3.5": { label: "3.0-3.5", gpaMin: 3, gpaBelow: 3.5 },
@@ -341,7 +340,7 @@ export function CoachDancersPage() {
         options={Object.keys(GPA_RANGES)}
         optionLabel={(value) => GPA_RANGES[value]?.label ?? value}
         value={gpa}
-        onChange={(value) => setGpa(value === ANY ? null : value)}
+        onChange={(value) => setGpa(value)}
         className="w-[104px] shrink-0"
       />
       <Combobox
