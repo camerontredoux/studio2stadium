@@ -806,6 +806,27 @@ html:not(.dark) .theme-s2s {
         calc((100cqw - 24px) / 4) calc((100cqw - 24px) / 4);
       height: calc((100cqw - 24px) / 4);
     }
+    /* One or two widgets (the dashboards leave out the ones an org lacks): keep a three-wide
+       tile size and leave the rest of the row empty. */
+    .s2s-board[data-n="1"]:not([data-open]),
+    .s2s-board[data-n="2"]:not([data-open]) {
+      height: calc((100cqw - 16px) / 3);
+    }
+    .s2s-board[data-n="1"]:not([data-open]) {
+      grid-template-columns: calc((100cqw - 16px) / 3);
+    }
+    .s2s-board[data-n="2"]:not([data-open]) {
+      grid-template-columns: calc((100cqw - 16px) / 3) calc((100cqw - 16px) / 3);
+    }
+    .s2s-board[data-n="1"][data-open="0"] {
+      grid-template-columns: 100cqw;
+    }
+    .s2s-board[data-n="2"][data-open="0"] {
+      grid-template-columns: calc(100cqw - 52px) 44px;
+    }
+    .s2s-board[data-n="2"][data-open="1"] {
+      grid-template-columns: 44px calc(100cqw - 52px);
+    }
     .s2s-board[data-n="3"][data-open="0"] {
       grid-template-columns: calc(100cqw - 104px) 44px 44px;
     }
@@ -978,6 +999,25 @@ html:not(.dark) .theme-s2s {
   @media (max-width: 800px) {
     .s2s-board {
       --peek-h: var(--tile-peek-m);
+    }
+    .s2s-board[data-n="1"] {
+      grid-template-columns: 100%;
+      grid-template-rows: var(--peek-h);
+      height: var(--peek-h);
+    }
+    .s2s-board[data-n="1"][data-open="0"] {
+      grid-template-rows: 640px;
+    }
+    .s2s-board[data-n="2"] {
+      grid-template-columns: 100%;
+      grid-template-rows: var(--peek-h) var(--peek-h);
+      height: calc(2 * var(--peek-h) + 8px);
+    }
+    .s2s-board[data-n="2"][data-open="0"] {
+      grid-template-rows: 588px 44px;
+    }
+    .s2s-board[data-n="2"][data-open="1"] {
+      grid-template-rows: 44px 588px;
     }
     .s2s-board[data-n="3"] {
       grid-template-columns: 100%;
