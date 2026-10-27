@@ -1,20 +1,20 @@
-import { TrophyIcon } from "@phosphor-icons/react";
+import { MegaphoneSimpleIcon, TrophyIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 
 import { Button } from "@/components/event/button";
+import { Icon } from "@/components/event/icon";
 import { Label } from "@/components/event/label";
 import { RatingMeter } from "@/components/event/rating";
 import { Widget } from "@/components/event/shell";
-import { cn } from "@/components/utils/cn";
+import { Tag } from "@/components/event/tag";
 import { useOrg } from "@/features/org/context/use-org";
-import { DancerBib } from "@/features/org/live/shared/dancer-bib";
 
 import {
   dancerName,
   type ScoutedDancer,
   type useCoachScouting,
 } from "./coach-scouting";
-import { CallToggle, FavoriteToggle } from "./scouting-controls";
+import { HeartFillIcon } from "./scouting-controls";
 
 type Scouting = ReturnType<typeof useCoachScouting>;
 
@@ -34,10 +34,30 @@ export function OpenRosterButton() {
   );
 }
 
+/** The small grey mono "Bib 230" over a widget row's name. */
+export function BibLabel({ bib }: { bib: number | null | undefined }) {
+  return (
+    <span className="text-fg-3 flex-none font-mono text-[11.5px] tabular-nums">
+      Bib {bib ?? "–"}
+    </span>
+  );
+}
+
+/** The "Called" mark on a called-back dancer's row, as the dancer view shows it. */
+function CalledTag() {
+  return (
+    <Tag>
+      <Icon icon={MegaphoneSimpleIcon} />
+      Called
+    </Tag>
+  );
+}
+
 /**
  * The coach's top-ranked dancers. Peek: number one large, then two and three;
- * open: every rated dancer with favourite and callback toggles, and how many
- * are still unrated.
+ * open: every rated dancer, read-only, with their stars, a heart for a
+ * favorite and a "Called" tag, then how many are still unrated. "Open roster"
+ * in the head leads to the roster, where the coach marks dancers.
  */
 export function TopRankedWidget({
   ranked,
@@ -59,7 +79,6 @@ export function TopRankedWidget({
 }) {
   const unrated = rosterSize - ratedCount;
   const [top, ...rest] = ranked;
-  const showCall = scouting.callbacksEnabled;
 
   return (
     <Widget
@@ -67,6 +86,7 @@ export function TopRankedWidget({
       label="Top ranked"
       icon={TrophyIcon}
       count={ratedCount}
+      actions={<OpenRosterButton />}
       peek={
         top ? (
           <>
@@ -113,55 +133,35 @@ export function TopRankedWidget({
         )
       }
     >
-      {ranked.map((dancer, index) => {
-        const name = dancerName(dancer);
-        const editable = scouting.canScoutDancer(dancer);
-        return (
-          <div
-            key={dancer.rosterId}
-            className={cn(
-              "border-line-soft grid min-h-12 items-center gap-x-(--space-12) border-b ps-(--space-14) pe-(--space-8)",
-              showCall
-                ? "grid-cols-[32px_40px_minmax(0,1.2fr)_minmax(0,1fr)_86px_28px_96px]"
-                : "grid-cols-[32px_40px_minmax(0,1.2fr)_minmax(0,1fr)_86px_28px]",
-              "bp-phone:gap-x-(--space-8) bp-phone:ps-(--space-12)",
-              showCall
-                ? "bp-phone:grid-cols-[28px_36px_minmax(0,1fr)_72px_28px_32px]"
-                : "bp-phone:grid-cols-[28px_36px_minmax(0,1fr)_72px_28px]",
-            )}
-          >
-            <span className="text-fg font-mono text-[15px] font-medium">
-              {rank(index)}
+      {/* Read-only: the coach rates, favorites and calls back on the roster. */}
+      {ranked.map((dancer, index) => (
+        <div
+          key={dancer.rosterId}
+          className="border-line-soft bp-phone:ps-(--space-12) grid min-h-14 grid-cols-[32px_minmax(0,1fr)_auto] items-center gap-x-(--space-12) border-b py-(--space-8) ps-(--space-14) pe-(--space-14)"
+        >
+          <span className="text-fg font-mono text-[15px] font-medium">
+            {rank(index)}
+          </span>
+          <span className="flex min-w-0 flex-col gap-(--space-2)">
+            <span className="flex min-w-0 items-center gap-(--space-8)">
+              <BibLabel bib={dancer.bibNumber} />
+              <RatingMeter value={dancer.rating ?? 0} max={scouting.ratingMax} />
+              {dancer.isFavorited && (
+                <Icon
+                  icon={HeartFillIcon}
+                  size={11}
+                  label="Favorite"
+                  className="text-danger"
+                />
+              )}
             </span>
-            <span>
-              <DancerBib dancer={dancer} className="text-fg-2 text-[12.5px]" />
+            <span className="text-fg min-w-0 truncate font-medium">
+              {dancerName(dancer)}
             </span>
-            <span className="min-w-0 truncate font-medium">{name}</span>
-            <span className="text-fg-2 bp-phone:hidden min-w-0 truncate">
-              {dancer.studio ?? "–"}
-            </span>
-            <RatingMeter
-              value={dancer.rating ?? 0}
-              max={scouting.ratingMax}
-              size="row"
-            />
-            <FavoriteToggle
-              name={name}
-              pressed={dancer.isFavorited}
-              disabled={!editable}
-              onChange={() => void scouting.toggleFavorite(dancer)}
-            />
-            {showCall && (
-              <CallToggle
-                name={name}
-                pressed={dancer.isCalledBack}
-                disabled={!editable}
-                onChange={() => void scouting.toggleCallback(dancer)}
-              />
-            )}
-          </div>
-        );
-      })}
+          </span>
+          {dancer.isCalledBack ? <CalledTag /> : <span />}
+        </div>
+      ))}
       {hasMore && (
         <div className="border-line-soft flex min-h-11 items-center justify-center border-b px-(--space-14)">
           <Button size="sm" onClick={onLoadMore} disabled={loadingMore}>
@@ -172,17 +172,14 @@ export function TopRankedWidget({
         </div>
       )}
       {ranked.length === 0 ? (
-        <div className="text-fg-3 flex min-h-[120px] flex-col items-center justify-center gap-(--space-10) p-(--space-16) text-center">
-          <span>No ratings yet</span>
-          <OpenRosterButton />
+        <div className="text-fg-3 flex min-h-[120px] items-center justify-center p-(--space-16) text-center">
+          No ratings yet
         </div>
       ) : (
         unrated > 0 && (
           <div className="text-fg-3 flex min-h-11 items-center gap-(--space-10) px-(--space-14)">
             <Label>Unrated</Label>
             <span className="text-fg-2 font-mono text-[12px]">{unrated}</span>
-            <span className="flex-1" />
-            <OpenRosterButton />
           </div>
         )
       )}

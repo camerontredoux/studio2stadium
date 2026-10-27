@@ -122,6 +122,11 @@ export const scoutingQueries = {
     $api.queryOptions("get", "/orgs/{slug}/callbacks", {
       params: { path: { slug } },
     }),
+  /** The coach's callbacks by showcase on the active event, newest showcase first. */
+  callbackHistory: (slug: string) =>
+    $api.queryOptions("get", "/orgs/{slug}/callbacks/history", {
+      params: { path: { slug } },
+    }),
   /** The current showcase's called-back dancers a page at a time, in bib order. */
   adminCallbackPages: (slug: string) =>
     infiniteQueryOptions({

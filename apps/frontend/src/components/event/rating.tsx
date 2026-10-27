@@ -32,6 +32,8 @@ type RatingProps = Omit<
   max?: number;
   /** Hide the mono score after the stars. Phones always hide it. */
   hideValue?: boolean;
+  /** `md` (default) 14px stars, 12px on phones; `lg` 22px stars, each in a 40px tap area, for touch. */
+  size?: "md" | "lg";
 };
 
 /**
@@ -45,6 +47,7 @@ function Rating({
   label,
   max = 5,
   hideValue = false,
+  size = "md",
   readOnly,
   disabled,
   onHover,
@@ -86,7 +89,9 @@ function Rating({
             "focus-visible:outline-solid",
             // components/ui/rating clears an empty item's svg fill; a Phosphor outline star is a filled path.
             "data-[state=empty]:[&_svg]:fill-current",
-            "bp-phone:px-[1.5px] bp-phone:py-[8px]",
+            size === "lg"
+              ? "flex size-10 items-center justify-center p-0"
+              : "bp-phone:px-[1.5px] bp-phone:py-[8px]",
             readOnly ? "cursor-default" : "cursor-pointer",
           )}
         >
@@ -95,7 +100,10 @@ function Rating({
               aria-hidden="true"
               weight={dataState === "empty" ? "regular" : "fill"}
               className={cn(
-                "bp-phone:size-[12px] block size-[14px] transition-[color] duration-100 ease-[ease]",
+                "block transition-[color] duration-100 ease-[ease]",
+                size === "lg"
+                  ? "size-[22px]"
+                  : "bp-phone:size-[12px] size-[14px]",
                 dataState === "empty"
                   ? emptyStar
                   : previewing

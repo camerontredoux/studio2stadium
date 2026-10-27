@@ -6008,6 +6008,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/callbacks/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the coach's callbacks by showcase
+         * @description The coach's own callbacks on the active event, newest showcase first: the current showcase's marks, then what each published showcase sent for the coach.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdCallbacksHistoryResponse"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/callbacks/{dancerRosterId}": {
         parameters: {
             query?: never;
@@ -13237,6 +13287,23 @@ export interface components {
             gpa: number | null;
             rating: number | null;
         }[];
+        OrgsIdCallbacksHistoryResponse: {
+            showcases: {
+                number: number;
+                id: string;
+                status: string;
+                publishedAt: string | null;
+                isCurrent: boolean;
+                callbacks: {
+                    rosterId: string;
+                    bibNumber: number | null;
+                    firstName: string;
+                    lastName: string;
+                    studio: string | null;
+                    rating: number | null;
+                }[];
+            }[];
+        };
         OrgsIdCallbacksRequest: {
             dancerRosterId: string;
         };

@@ -6400,6 +6400,47 @@
         ]
       }
     },
+    "/orgs/{slug}/callbacks/history": {
+      "get": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdCallbacksHistoryResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Org Callbacks"
+        ],
+        "summary": "List the coach's callbacks by showcase",
+        "description": "The coach's own callbacks on the active event, newest showcase first: the current showcase's marks, then what each published showcase sent for the coach."
+      }
+    },
     "/orgs/{slug}/callbacks/{dancerRosterId}": {
       "delete": {
         "parameters": [
@@ -19499,6 +19540,107 @@
             "rating"
           ]
         }
+      },
+      "OrgsIdCallbacksHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "showcases": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "number": {
+                  "type": "number"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "publishedAt": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "isCurrent": {
+                  "type": "boolean"
+                },
+                "callbacks": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "rosterId": {
+                        "type": "string"
+                      },
+                      "bibNumber": {
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "firstName": {
+                        "type": "string"
+                      },
+                      "lastName": {
+                        "type": "string"
+                      },
+                      "studio": {
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "rating": {
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "rosterId",
+                      "bibNumber",
+                      "firstName",
+                      "lastName",
+                      "studio",
+                      "rating"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "number",
+                "id",
+                "status",
+                "publishedAt",
+                "isCurrent",
+                "callbacks"
+              ]
+            }
+          }
+        },
+        "required": [
+          "showcases"
+        ]
       },
       "OrgsIdCallbacksRequest": {
         "type": "object",
