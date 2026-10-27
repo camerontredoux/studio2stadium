@@ -741,7 +741,7 @@ test.group("ListDancersService", (group) => {
       { ...mark(eve), rank: 2 },
     ]);
     await db.insert(eventDancerProfiles).values([
-      { rosterId: eve!.id, gpa: 3.9, state: "TX" },
+      { rosterId: eve!.id, gpa: 4.0, state: "TX" },
       { rosterId: dee!.id, gpa: 3.5, state: "CA" },
       { rosterId: cal!.id, gpa: 3.2, state: "TX" },
       { rosterId: bea!.id, state: "TX" },
@@ -766,6 +766,9 @@ test.group("ListDancersService", (group) => {
     // At least the low end, under the high end; a blank GPA matches no range.
     assert.deepEqual(await names({ gpaMin: 3.5 }), ["Eve", "Dee"]);
     assert.deepEqual(await names({ gpaMin: 3, gpaBelow: 3.5 }), ["Cal"]);
+    assert.deepEqual(await names({ gpaMin: 3.5, gpaBelow: 4 }), ["Dee"]);
+    assert.deepEqual(await names({ gpaMin: 4 }), ["Eve"]);
+    assert.deepEqual(await names({ gpaBelow: 2.5 }), []);
     assert.deepEqual(await names({ state: "TX" }), ["Eve", "Cal", "Bea"]);
 
     const filtered = await svc.execute(summit.id, event.id, view, {
