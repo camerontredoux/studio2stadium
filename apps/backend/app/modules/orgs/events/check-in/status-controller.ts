@@ -18,6 +18,7 @@ export default class CheckInStatusController {
         startTime: orgEvents.startTime,
         endTime: orgEvents.endTime,
         timezone: orgEvents.timezone,
+        selfCheckIn: orgEvents.selfCheckIn,
       })
       .from(orgEvents)
       .where(eq(orgEvents.id, eventId));
@@ -54,6 +55,8 @@ export default class CheckInStatusController {
       eventStartTime: event?.startTime ?? null,
       timezone: event?.timezone ?? null,
       canCheckIn: started && !roster?.checkedInAt,
+      // Dancers check themselves in instead of showing the pass QR.
+      selfCheckIn: event?.selfCheckIn ?? false,
       checkInCode,
       // The requester's own bib, shown on their pass. Never another dancer's.
       bibNumber: roster?.bibNumber ?? null,

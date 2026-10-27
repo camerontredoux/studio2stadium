@@ -1,5 +1,6 @@
 import type { HttpContext } from "@adonisjs/core/http";
 import { inject } from "@adonisjs/core";
+import transmit from "@adonisjs/transmit/services/main";
 import { UpdateEventService } from "./service.ts";
 import { schema } from "./validator.ts";
 import { orgDefaultTimezone, withEventInstants } from "#utils/event-time";
@@ -14,6 +15,10 @@ export default class UpdateEventController {
         eventId: ctx.params.id,
         actorId: ctx.auth.getUserOrFail().id,
       });
+      // Open check-in desks swap between the scanner and the self check-in note.
+      if (ev && payload.selfCheckIn !== undefined) {
+        transmit.broadcast(`orgs/${ctx.org!.slug}/check-in`, {});
+      }
       return ev
         ? ctx.response.ok(
             withEventInstants(ev, orgDefaultTimezone(ctx.org!.settings))

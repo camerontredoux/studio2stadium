@@ -17,6 +17,7 @@ export const schema = vine.compile(
     endTime: timeField().optional().nullable(),
     timezone: timezoneField().optional().nullable(),
     isActive: vine.boolean().optional(),
+    selfCheckIn: vine.boolean().optional(),
   })
 );
 export type Validator = Infer<typeof schema>;

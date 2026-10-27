@@ -388,7 +388,12 @@ router
         middleware.org(),
         middleware.orgEvent(),
         middleware.orgMember(),
-      ]);
+      ])
+      .openapi({
+        summary: "Check yourself in",
+        description:
+          "Sets the requesting Dancer's check-in time on an event with self check-in turned on, through the same path as a scanned pass. 403 when self check-in is off or the requester is not a Dancer on the roster; 422 before check-in opens.",
+      });
     router
       .post(":slug/events/:id/rosters/check-in/reset", [ResetCheckInController])
       .use([

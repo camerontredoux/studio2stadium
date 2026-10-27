@@ -24,12 +24,13 @@ export const DESK_PAGE_SIZE = 50;
 const LIVE_REFRESH_MS = 500;
 
 /**
- * Refetches the roster lists and stats when a check-in changes anywhere: at
- * another desk, by scan, or on a dancer's own pass. Only the pages already
+ * Refetches the roster lists, stats and check-in status when a check-in
+ * changes anywhere (at another desk, by scan, or on a dancer's own pass) or
+ * an admin flips the event's Self check-in setting. Only the pages already
  * loaded refetch. A dropped connection misses broadcasts, so the desk also
  * refetches once it reconnects.
  */
-function useLiveCheckIns(slug: string) {
+function useLiveCheckIns(slug: string, eventId: string) {
   const qc = useQueryClient();
   const timer = useRef<number | undefined>(undefined);
   const refresh = useCallback(() => {
@@ -38,8 +39,12 @@ function useLiveCheckIns(slug: string) {
       timer.current = undefined;
       void qc.invalidateQueries({ queryKey: [...ROSTER_LIST_KEY_PREFIX] });
       void qc.invalidateQueries({ queryKey: [...ROSTER_STATS_KEY_PREFIX] });
+      // The Self check-in setting rides the same channel.
+      void qc.invalidateQueries({
+        queryKey: checkInQueries.status(slug, eventId).queryKey,
+      });
     }, LIVE_REFRESH_MS);
-  }, [qc]);
+  }, [qc, slug, eventId]);
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
   useTransmitSubscription(`orgs/${slug}/check-in`, refresh);
@@ -61,7 +66,7 @@ function useLiveCheckIns(slug: string) {
  * check-in status, kept live by `useLiveCheckIns`.
  */
 export function useDeskData(slug: string, eventId: string) {
-  useLiveCheckIns(slug);
+  useLiveCheckIns(slug, eventId);
   const stats = useQuery(rosterQueries.stats(slug, eventId, "dancer"));
   const status = useQuery(checkInQueries.status(slug, eventId));
 

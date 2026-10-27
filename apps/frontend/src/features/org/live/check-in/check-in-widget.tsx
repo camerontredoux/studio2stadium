@@ -10,6 +10,7 @@ import { ProgressBar } from "@/components/event/progress-bar";
 import { useWidgetBoardSlot } from "@/components/event/shell/widget-board-context";
 import { Tile } from "@/components/event/tile";
 import { Viewfinder } from "@/components/event/viewfinder";
+import { checkInQueries } from "@/features/org/api/check-in-queries";
 import { rosterQueries } from "@/features/org/api/roster-queries";
 import { useOrg } from "@/features/org/context/use-org";
 import { formatCheckInTime } from "@/features/org/live/check-in/check-in-code";
@@ -19,16 +20,19 @@ import {
   type ScannedDancer,
   type ScanOutcome,
 } from "@/features/org/live/check-in/inline-scanner";
+import { SelfCheckInToggle } from "@/features/org/live/check-in/self-check-in-toggle";
+import { SelfCheckInNotice } from "@/features/org/live/check-in/self-check-in-notice";
 
 type CheckInWidgetPartProps = { slug: string; eventId: string };
 
 /** Check-in has no realtime broadcast, so the counts poll. */
 const POLL_MS = 10_000;
 
-function useCheckInStats(slug: string, eventId: string) {
+function useCheckInStats(slug: string, eventId: string, enabled = true) {
   const { data } = useQuery({
     ...rosterQueries.stats(slug, eventId, "dancer"),
     refetchInterval: POLL_MS,
+    enabled,
   });
   const total = data?.total ?? 0;
   const checkedIn = data?.checkedIn ?? 0;
@@ -38,6 +42,15 @@ function useCheckInStats(slug: string, eventId: string) {
     checkedIn,
     pct: total > 0 ? Math.round((checkedIn / total) * 100) : 0,
   };
+}
+
+function useSelfCheckIn(slug: string, eventId: string, enabled = true) {
+  const { data } = useQuery({
+    ...checkInQueries.status(slug, eventId),
+    refetchInterval: POLL_MS,
+    enabled,
+  });
+  return data?.selfCheckIn;
 }
 
 /**
@@ -69,11 +82,25 @@ function useLastCheckedIn(slug: string, eventId: string) {
     : undefined;
 }
 
-/** Peek: a progress bar of dancers checked in. Never touches the camera. */
+/** Peek: the checked-in tally over a progress bar. Never touches the camera. */
 export function CheckInWidgetPeek({ slug, eventId }: CheckInWidgetPartProps) {
-  const { pct } = useCheckInStats(slug, eventId);
+  const { loaded, total, checkedIn, pct } = useCheckInStats(slug, eventId);
   return (
     <>
+      {loaded && (
+        <span
+          data-testid="check-in-tally"
+          className="flex items-baseline gap-(--space-6) whitespace-nowrap"
+        >
+          <span className="text-fg text-[32px] leading-none font-semibold tracking-[-0.03em] tabular-nums">
+            {checkedIn}
+          </span>
+          <span className="text-fg-3 font-mono text-[14px] tabular-nums">
+            /{total}
+          </span>
+          <span className="text-fg-3 text-[12.5px]">checked in</span>
+        </span>
+      )}
       <ProgressBar
         value={pct}
         label="Dancers checked in"
@@ -98,6 +125,7 @@ export function CheckInWidgetOpen({
   const { loaded, checkedIn, total } = useCheckInStats(slug, eventId);
   const timeZone = useEventTimeZone();
   const serverLast = useLastCheckedIn(slug, eventId);
+  const selfCheckIn = useSelfCheckIn(slug, eventId);
   const [scanned, setScanned] = React.useState<ScannedDancer>();
   const [scanAnyway, setScanAnyway] = React.useState(false);
   // Keep the scanner up while its result shows, so the last check-in's
@@ -124,7 +152,9 @@ export function CheckInWidgetOpen({
     // the three sit with even gaps instead of the camera taking spare space.
     <div className="@container-[size] flex h-full justify-center">
       <div className="bp-phone:gap-(--space-8) bp-phone:p-(--space-12) box-border flex min-h-0 w-full flex-col items-center justify-center gap-(--space-12) p-(--space-16)">
-        {done ? (
+        {selfCheckIn ? (
+          <SelfCheckInNotice />
+        ) : selfCheckIn === undefined ? null : done ? (
           <>
             <Viewfinder state="done" />
             <Button onClick={() => setScanAnyway(true)}>
@@ -187,6 +217,12 @@ export function CheckInWidget({
   const { hasFeature } = useOrg();
   const slot = useWidgetBoardSlot(id);
   const enabled = hasFeature("check_in");
+  const { loaded, total, checkedIn } = useCheckInStats(
+    slug,
+    eventId,
+    enabled,
+  );
+  const selfCheckIn = useSelfCheckIn(slug, eventId, enabled);
 
   return (
     <Tile
@@ -195,10 +231,20 @@ export function CheckInWidget({
       icon={ScanIcon}
       disabled={!enabled}
       disabledText="Not included in this event"
+      count={enabled && loaded ? `${checkedIn}/${total}` : undefined}
       peek={
         enabled ? (
           <CheckInWidgetPeek slug={slug} eventId={eventId} />
         ) : undefined
+      }
+      actions={
+        enabled && (
+          <SelfCheckInToggle
+            slug={slug}
+            eventId={eventId}
+            selfCheckIn={selfCheckIn}
+          />
+        )
       }
       fullPage={
         <Link to="/o/$orgSlug/admin/check-in" params={{ orgSlug: slug }} />
