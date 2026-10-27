@@ -9,17 +9,23 @@ import {
   useInfiniteQuery,
   useQuery,
 } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 import { Button } from "@/components/event/button";
 import { useDebouncedCallback } from "@/components/hooks/use-debounced-callback";
-import { DataTableEmpty } from "@/components/event/data-table";
 import { Icon } from "@/components/event/icon";
 import { Panel, PanelSeparator, PanelToolbar } from "@/components/event/panel";
 import { Search } from "@/components/event/search";
 import { Segmented, type SegmentedOption } from "@/components/event/segmented";
 import { Select } from "@/components/event/select";
 import { toastManager } from "@/components/ui/toast-manager";
+import { cn } from "@/components/utils/cn";
 import { adminQueries } from "@/features/org/api/admin-queries";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { DancerSheet } from "@/features/org/components/dancer-sheet";
@@ -28,7 +34,12 @@ import { ShellPage } from "@/features/org/live/shared/shell-slots";
 import { useActiveOrgEvent } from "@/features/org/live/shared/use-active-org-event";
 
 import { useCoachScouting, type ScoutedDancer } from "./coach-scouting";
-import { DancerRosterTable } from "./dancer-roster-table";
+import {
+  DancerRosterCards,
+  DancerRosterTable,
+  type RosterEmpty,
+} from "./dancer-roster-table";
+import { useRosterLayout } from "./roster-layout";
 import { nextSort, type RosterSort } from "./roster-order";
 
 type Filter = "all" | "fav" | "called";
@@ -109,6 +120,8 @@ export function CoachDancersPage() {
   const counts = pages?.[0]?.counts;
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [rosterBox, setRosterBox] = useState<HTMLDivElement | null>(null);
+  const layout = useRosterLayout(rosterBox);
 
   useEffect(() => {
     setSelectedIds(new Set());
@@ -206,27 +219,25 @@ export function CoachDancersPage() {
     setSearch("");
   };
 
-  const empty = dancersQuery.isPending ? (
-    <DataTableEmpty>Loading dancers…</DataTableEmpty>
-  ) : dancersQuery.isError ? (
-    <DataTableEmpty
-      action={<Button onClick={() => dancersQuery.refetch()}>Try again</Button>}
-    >
-      Couldn’t load dancers
-    </DataTableEmpty>
-  ) : counts?.all === 0 ? (
-    <DataTableEmpty>No dancers yet</DataTableEmpty>
-  ) : (
-    <DataTableEmpty
-      action={<Button onClick={clearFilters}>Clear filters</Button>}
-    >
-      {q
-        ? `No matches for “${q}”`
-        : effectiveFilter === "fav"
-          ? "No favorites yet"
-          : "No callbacks yet"}
-    </DataTableEmpty>
-  );
+  const empty: RosterEmpty = dancersQuery.isPending
+    ? { text: "Loading dancers…" }
+    : dancersQuery.isError
+      ? {
+          text: "Couldn’t load dancers",
+          action: (
+            <Button onClick={() => dancersQuery.refetch()}>Try again</Button>
+          ),
+        }
+      : counts?.all === 0
+        ? { text: "No dancers yet" }
+        : {
+            text: q
+              ? `No matches for “${q}”`
+              : effectiveFilter === "fav"
+                ? "No favorites yet"
+                : "No callbacks yet",
+            action: <Button onClick={clearFilters}>Clear filters</Button>,
+          };
 
   const sheetDancer = rows.find((d) => d.rosterId === sheetFor);
 
@@ -253,76 +264,109 @@ export function CoachDancersPage() {
     />
   );
 
+  // Over cards, the toolbar sits in its own panel with no divider under it.
+  const toolbarClass = cn(layout.cards && "border-b-0");
+  const toolbar =
+    selected.length === 0 ? (
+      <PanelToolbar className={toolbarClass}>
+        <Segmented
+          label="Filter dancers"
+          value={effectiveFilter}
+          onChange={setFilter}
+          options={options}
+          iconOnly={!layout.cards && !layout.filterLabels}
+        />
+        <Search
+          ref={searchRef}
+          placeholder="Search…"
+          aria-label="Search dancers"
+          value={query}
+          // Beside icon-only filters the field takes the rest of the bar, as on phones.
+          className={cn(
+            !layout.cards && !layout.filterLabels && "ms-0 flex-auto",
+          )}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            commitSearch(event.target.value);
+          }}
+        />
+      </PanelToolbar>
+    ) : (
+      <PanelToolbar aria-label="Selection" className={toolbarClass}>
+        <Button
+          variant="ghost"
+          iconOnly
+          label="Clear selection"
+          onClick={() => setSelectedIds(new Set())}
+        >
+          <Icon icon={XIcon} />
+        </Button>
+        <span className="type-data-sm text-fg whitespace-nowrap">
+          {selected.length} selected
+        </span>
+        <PanelSeparator />
+        {callbacksEnabled && (
+          <Button onClick={() => void bulkCall()} disabled={bulkBusy}>
+            <Icon icon={MegaphoneSimpleIcon} />
+            {allCalled ? "Undo callback" : "Call back"}
+          </Button>
+        )}
+        <Button onClick={() => void bulkFavorite()} disabled={bulkBusy}>
+          <Icon icon={HeartIcon} />
+          {allFavorited ? "Unfavorite" : "Favorite"}
+        </Button>
+      </PanelToolbar>
+    );
+
+  const list = {
+    rows,
+    scrollRef,
+    // A new search, filter, sort or event starts again from the top.
+    resetKey: [eventChoice, effectiveFilter, q, sort],
+    hasMore: dancersQuery.hasNextPage && !dancersQuery.isFetchNextPageError,
+    loadingMore: dancersQuery.isFetchingNextPage,
+    onLoadMore: () => void fetchNextPage(),
+    scouting,
+    onOpenDancer: setSheetFor,
+    empty,
+  };
+  const scroller = (children: ReactNode) => (
+    <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto">
+      {children}
+    </div>
+  );
+
   return (
     <ShellPage header={header}>
-      <Panel aria-label="Dancers" className="desk:max-h-[calc(100vh-64px)]">
-        {selected.length === 0 ? (
-          <PanelToolbar>
-            <Segmented
-              label="Filter dancers"
-              value={effectiveFilter}
-              onChange={setFilter}
-              options={options}
-            />
-            <Search
-              ref={searchRef}
-              placeholder="Search"
-              aria-label="Search dancers"
-              value={query}
-              onChange={(event) => {
-                setQuery(event.target.value);
-                commitSearch(event.target.value);
-              }}
-            />
-          </PanelToolbar>
+      {/* The roster's own width, not the window's, picks table or cards. */}
+      <div
+        ref={setRosterBox}
+        className="desk:max-h-[calc(100vh-64px)] flex min-h-0 min-w-0 flex-col gap-(--space-8)"
+      >
+        {layout.cards ? (
+          <>
+            <Panel aria-label="Filter dancers">{toolbar}</Panel>
+            <Panel aria-label="Dancers" className="min-h-0">
+              {scroller(<DancerRosterCards {...list} />)}
+            </Panel>
+          </>
         ) : (
-          <PanelToolbar aria-label="Selection">
-            <Button
-              variant="ghost"
-              iconOnly
-              label="Clear selection"
-              onClick={() => setSelectedIds(new Set())}
-            >
-              <Icon icon={XIcon} />
-            </Button>
-            <span className="type-data-sm text-fg whitespace-nowrap">
-              {selected.length} selected
-            </span>
-            <PanelSeparator />
-            {callbacksEnabled && (
-              <Button onClick={() => void bulkCall()} disabled={bulkBusy}>
-                <Icon icon={MegaphoneSimpleIcon} />
-                {allCalled ? "Undo callback" : "Call back"}
-              </Button>
+          <Panel aria-label="Dancers" className="min-h-0">
+            {toolbar}
+            {scroller(
+              <DancerRosterTable
+                {...list}
+                layout={layout}
+                sort={sort}
+                onSort={(key) => setSort((current) => nextSort(current, key))}
+                selectedIds={selectedIds}
+                onSelectedChange={setSelectedIds}
+                eventId={eventId}
+              />,
             )}
-            <Button onClick={() => void bulkFavorite()} disabled={bulkBusy}>
-              <Icon icon={HeartIcon} />
-              {allFavorited ? "Unfavorite" : "Favorite"}
-            </Button>
-          </PanelToolbar>
+          </Panel>
         )}
-        <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto">
-          <DancerRosterTable
-            rows={rows}
-            scrollRef={scrollRef}
-            // A new search, filter, sort or event starts again from the top.
-            resetKey={[eventChoice, effectiveFilter, q, sort]}
-            hasMore={
-              dancersQuery.hasNextPage && !dancersQuery.isFetchNextPageError
-            }
-            loadingMore={dancersQuery.isFetchingNextPage}
-            onLoadMore={() => void fetchNextPage()}
-            scouting={scouting}
-            sort={sort}
-            onSort={(key) => setSort((current) => nextSort(current, key))}
-            selectedIds={selectedIds}
-            onSelectedChange={setSelectedIds}
-            onOpenDancer={setSheetFor}
-            eventId={eventId}
-            empty={empty}
-          />
-        </div>
-      </Panel>
+      </div>
 
       <DancerSheet
         rosterId={sheetFor}

@@ -74,6 +74,8 @@ type IconToggleProps = ToggleBaseProps & {
   pressedIcon?: PhosphorIcon;
   /** The control holds content (e.g. a saved note): shown in `fg` even when not pressed. */
   has?: boolean;
+  /** `md` (default) a 28px box with a 14px icon; `lg` a 40px tap area with a 22px icon, for touch. */
+  size?: "md" | "lg";
 };
 
 /** A 28px icon-only toggle (favourite, note). Rests at `fg-disabled`; `fg` when pressed or holding content. */
@@ -84,6 +86,7 @@ function IconToggle({
   icon,
   pressedIcon,
   has = false,
+  size = "md",
   className,
   ...props
 }: IconToggleProps) {
@@ -97,13 +100,17 @@ function IconToggle({
         "text-fg-disabled size-(--control) min-w-0 rounded-(--radius-6) border-0 bg-transparent p-0 shadow-none before:hidden sm:size-(--control) sm:min-w-0",
         "hover:bg-surface-active dark:hover:bg-surface-active hover:text-fg data-pressed:hover:bg-surface-active dark:data-pressed:hover:bg-surface-active data-pressed:text-fg data-has:text-fg data-pressed:bg-transparent dark:data-pressed:bg-transparent",
         "s2s-focus focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-35",
+        size === "lg" && "size-10 sm:size-10",
         className,
       )}
       {...props}
     >
       <Icon
         icon={pressed && pressedIcon ? pressedIcon : icon}
-        className="size-3.5 opacity-100"
+        className={cn(
+          "opacity-100",
+          size === "lg" ? "size-[22px]" : "size-3.5",
+        )}
       />
     </Toggle>
   );

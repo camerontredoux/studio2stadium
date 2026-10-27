@@ -41,16 +41,19 @@ export function FavoriteToggle({
   pressed,
   onChange,
   disabled,
+  size,
   className,
 }: {
   name: string;
   pressed: boolean;
   onChange: () => void;
   disabled?: boolean;
+  size?: "md" | "lg";
   className?: string;
 }) {
   return (
     <IconToggle
+      size={size}
       label={`${pressed ? "Unfavorite" : "Favorite"} ${name}`}
       icon={HeartIcon}
       pressedIcon={HeartFillIcon}
@@ -71,6 +74,8 @@ export function CallToggle({
   title,
   variant,
   compact = true,
+  idleLabel = "Call",
+  iconOnly = false,
   className,
 }: {
   name: string;
@@ -81,6 +86,10 @@ export function CallToggle({
   variant?: PillToggleVariant;
   /** Icon-only on phones (table rows). Default true. */
   compact?: boolean;
+  /** The label before the dancer is called back. Default "Call". */
+  idleLabel?: string;
+  /** A round icon-only button at every width. */
+  iconOnly?: boolean;
   className?: string;
 }) {
   return (
@@ -94,11 +103,16 @@ export function CallToggle({
       title={title}
       className={cn(
         compact && "bp-phone:w-8 bp-phone:justify-center bp-phone:px-0",
+        iconOnly && "w-8 justify-center px-0",
         className,
       )}
     >
-      <span className={cn(compact && "bp-phone:hidden")}>
-        {pressed ? "Called" : "Call"}
+      <span
+        className={cn(
+          iconOnly ? "sr-only" : compact && "bp-phone:hidden",
+        )}
+      >
+        {pressed ? "Called" : idleLabel}
       </span>
     </PillToggle>
   );

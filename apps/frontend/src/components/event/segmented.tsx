@@ -35,6 +35,8 @@ type SegmentedProps<V extends string = string> = Omit<
   onChange: (value: V) => void;
   /** Accessible name of the group ("Filter by status"). */
   label: string;
+  /** Show each option's icon instead of its label at every width, not only on phones. */
+  iconOnly?: boolean;
 };
 
 /** A filter of two to four mutually exclusive views, each with a mono count. Single-select and controlled. */
@@ -43,6 +45,7 @@ function Segmented<V extends string = string>({
   value,
   onChange,
   label,
+  iconOnly = false,
   className,
   ...props
 }: SegmentedProps<V>) {
@@ -67,10 +70,17 @@ function Segmented<V extends string = string>({
           {option.icon ? (
             <Icon
               icon={option.icon}
-              className="bp-phone:block hidden size-3.5 opacity-100"
+              className={cn(
+                "size-3.5 opacity-100",
+                !iconOnly && "bp-phone:block hidden",
+              )}
             />
           ) : null}
-          <span className={cn(option.icon && "bp-phone:sr-only")}>
+          <span
+            className={cn(
+              option.icon && (iconOnly ? "sr-only" : "bp-phone:sr-only"),
+            )}
+          >
             {option.label}
           </span>
           {option.count !== undefined ? (

@@ -20,6 +20,7 @@ const DeleteSelection = () => import("./selections/delete/controller.ts");
 const MoveSelection = () => import("./selections/move/controller.ts");
 
 const ListCallbacks = () => import("./callbacks/list/controller.ts");
+const CallbackHistory = () => import("./callbacks/history/controller.ts");
 const CreateCallback = () => import("./callbacks/create/controller.ts");
 const DeleteCallback = () => import("./callbacks/delete/controller.ts");
 const AdminCallbackBoard = () =>
@@ -144,6 +145,11 @@ router
 router
   .group(() => {
     router.get(":slug/callbacks", [ListCallbacks]);
+    router.get(":slug/callbacks/history", [CallbackHistory]).openapi({
+      summary: "List the coach's callbacks by showcase",
+      description:
+        "The coach's own callbacks on the active event, newest showcase first: the current showcase's marks, then what each published showcase sent for the coach.",
+    });
     // A coach's own-program view of a dancer's callbacks (scoped server-side).
     router.get(":slug/dancers/:dancerRosterId/callbacks", [
       CoachDancerCallbackDetail,

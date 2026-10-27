@@ -507,6 +507,10 @@ type OrgsIdCallbacksGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/list/controller.ts').default['handle'], false>
 }
+type OrgsIdCallbacksHistoryGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/history/controller.ts').default['handle'], false>
+}
 type OrgsIdDancersIdCallbacksGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/event-query-validator.ts')['eventQuerySchema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/coach-dancer-detail/controller.ts').default['handle'], true>
@@ -1680,6 +1684,12 @@ export interface ApiDefinition {
         };
         '$get': OrgsIdCallbacksGetHead;
         '$head': OrgsIdCallbacksGetHead;
+        'history': {
+          '$url': {
+          };
+          '$get': OrgsIdCallbacksHistoryGetHead;
+          '$head': OrgsIdCallbacksHistoryGetHead;
+        };
         '$post': OrgsIdCallbacksPost;
         ':dancerRosterId': {
           '$url': {

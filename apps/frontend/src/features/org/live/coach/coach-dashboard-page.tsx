@@ -199,6 +199,10 @@ function CoachBoard({ event }: { event: OrgEvent }) {
     ...scoutingQueries.callbacks(slug),
     enabled: callbacksEnabled,
   });
+  const history = useQuery({
+    ...scoutingQueries.callbackHistory(slug),
+    enabled: callbacksEnabled,
+  });
   const rankedPages = ranked.data?.pages;
 
   const order = ["schedule", "top", callbacksEnabled ? "cb" : "fav"];
@@ -219,6 +223,7 @@ function CoachBoard({ event }: { event: OrgEvent }) {
         {callbacksEnabled ? (
           <CallbacksWidget
             callbacks={callbacks}
+            history={history.data?.showcases}
             eventId={event.id}
             scouting={scouting}
           />
