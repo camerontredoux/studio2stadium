@@ -21,9 +21,9 @@ export const pickerListClass =
 export const pickerRowClass =
   "flex h-7 w-full min-w-0 shrink-0 cursor-pointer items-center justify-between gap-(--space-8) rounded-(--radius-5) border-0 bg-transparent px-(--space-8) text-left font-normal text-fg-2 outline-none before:hidden " +
   "transition-[background-color,color] duration-150 ease-(--ease) motion-reduce:transition-none " +
-  "hover:bg-surface-active hover:text-fg dark:hover:bg-surface-active data-highlighted:bg-surface-active data-highlighted:text-fg data-[suggested=true]:bg-surface-active data-[suggested=true]:text-fg " +
+  "hover:bg-surface-active hover:text-fg data-highlighted:bg-surface-active data-highlighted:text-fg data-[suggested=true]:bg-surface-active data-[suggested=true]:text-fg " +
   "pointer-coarse:after:min-h-auto pointer-coarse:after:min-w-auto focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-offset-[-2px] s2s-focus " +
-  "data-pressed:bg-fg data-pressed:font-semibold data-pressed:text-on-fg dark:data-pressed:bg-fg data-pressed:hover:bg-fg data-pressed:hover:text-on-fg " +
+  "data-pressed:bg-fg data-pressed:font-semibold data-pressed:text-on-fg data-pressed:hover:bg-fg data-pressed:hover:text-on-fg " +
   "data-selected:bg-fg data-selected:font-semibold data-selected:text-on-fg data-selected:data-highlighted:bg-fg data-selected:data-highlighted:text-on-fg data-selected:hover:bg-fg data-selected:hover:text-on-fg " +
   "disabled:cursor-default disabled:text-fg-disabled disabled:opacity-100 data-disabled:pointer-events-none data-disabled:text-fg-disabled";
 
