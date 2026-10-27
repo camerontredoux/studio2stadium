@@ -4,7 +4,11 @@ import {
   DownloadSimpleIcon,
   TrashIcon,
 } from "@phosphor-icons/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  type QueryClient,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   type ComponentType,
   lazy,
@@ -73,20 +77,18 @@ const SHEET_GROUPS = [
 
 function ScheduleSheet() {
   return (
-    <span className="s2s-doc-bg" aria-hidden="true">
-      <span className="s2s-doc-sheet">
-        {SHEET_GROUPS.map((group) => (
-          <span key={group.head} className="contents">
-            <span className={`s2s-doc-line ${group.head}`} />
-            {group.rows.map((row) => (
-              <span key={row} className="s2s-doc-row">
-                <span className="w-[18%]" />
-                <span className={row} />
-              </span>
-            ))}
-          </span>
-        ))}
-      </span>
+    <span className="s2s-doc-sheet">
+      {SHEET_GROUPS.map((group) => (
+        <span key={group.head} className="contents">
+          <span className={`s2s-doc-line ${group.head}`} />
+          {group.rows.map((row) => (
+            <span key={row} className="s2s-doc-row">
+              <span className="w-[18%]" />
+              <span className={row} />
+            </span>
+          ))}
+        </span>
+      ))}
     </span>
   );
 }
@@ -98,6 +100,15 @@ const SchedulePdfPages = lazy<ComponentType<SchedulePdfPagesProps>>(() =>
   import("@/features/org/live/shared/schedule-pdf-pages").catch(() => ({
     default: PdfPagesUnavailable,
   })),
+);
+
+const SchedulePdfFirstPage = lazy<
+  ComponentType<SchedulePdfPagesProps & { className?: string }>
+>(() =>
+  import("@/features/org/live/shared/schedule-pdf-pages").then(
+    (m) => ({ default: m.SchedulePdfFirstPage }),
+    () => ({ default: PdfPagesUnavailable }),
+  ),
 );
 
 function PdfPagesUnavailable({ onError }: SchedulePdfPagesProps) {
@@ -136,6 +147,67 @@ async function fetchSchedulePdf(
   return new Uint8Array(await res.arrayBuffer());
 }
 
+/**
+ * The schedule PDF's bytes, fetched once and shared by the peek and the open
+ * view. pdf.js takes ownership of the buffer it is given, so each caller gets
+ * its own copy.
+ */
+async function loadSchedulePdf(
+  qc: QueryClient,
+  orgSlug: string,
+  eventId: string,
+  scheduleKey: string,
+): Promise<Uint8Array> {
+  const bytes = await qc.fetchQuery({
+    queryKey: ["org-schedule-pdf", orgSlug, eventId, scheduleKey],
+    queryFn: ({ signal }) =>
+      fetchSchedulePdf(orgSlug, eventId, scheduleKey, signal),
+    staleTime: Infinity,
+  });
+  return bytes.slice();
+}
+
+/**
+ * The collapsed widget's background: the schedule's first page, dimmed and
+ * blurred behind the label. The placeholder sheet shows until the page is
+ * drawn, and stays if the file isn't a PDF or can't be drawn.
+ */
+function SchedulePeekBackground({
+  orgSlug,
+  eventId,
+  scheduleKey,
+}: {
+  orgSlug: string;
+  eventId: string;
+  scheduleKey: string;
+}) {
+  const qc = useQueryClient();
+  const [drawn, setDrawn] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const isPdf = scheduleKey.toLowerCase().endsWith(".pdf");
+
+  const loadPdf = useCallback(
+    () => loadSchedulePdf(qc, orgSlug, eventId, scheduleKey),
+    [qc, orgSlug, eventId, scheduleKey],
+  );
+
+  return (
+    <span className="s2s-doc-bg" aria-hidden="true">
+      {!drawn && <ScheduleSheet />}
+      {isPdf && !failed && (
+        <Suspense fallback={null}>
+          <SchedulePdfFirstPage
+            load={loadPdf}
+            onReady={() => setDrawn(true)}
+            onError={() => setFailed(true)}
+            className="s2s-doc-page"
+          />
+        </Suspense>
+      )}
+    </span>
+  );
+}
+
 function SchedulePreview({
   orgSlug,
   eventId,
@@ -150,14 +222,14 @@ function SchedulePreview({
   /** False until the widget first settles open; the file loads from then on. */
   mounted: boolean;
 }) {
+  const qc = useQueryClient();
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   const isPdf = scheduleKey.toLowerCase().endsWith(".pdf");
 
   const loadPdf = useCallback(
-    (signal: AbortSignal) =>
-      fetchSchedulePdf(orgSlug, eventId, scheduleKey, signal),
-    [orgSlug, eventId, scheduleKey],
+    () => loadSchedulePdf(qc, orgSlug, eventId, scheduleKey),
+    [qc, orgSlug, eventId, scheduleKey],
   );
 
   return (
@@ -292,11 +364,8 @@ function ScheduleWidget({ event, mode, id = "schedule" }: ScheduleWidgetProps) {
     uploadMutation.mutate(file);
   }
 
-  const peek = fileName ? (
-    <span className="text-fg truncate font-mono text-[12px] leading-[1.4]">
-      {fileName}
-    </span>
-  ) : (
+  // With a file, the page preview behind the peek says it all.
+  const peek = fileName ? null : (
     <span className="text-fg-3 text-[12.5px] leading-[1.4]">
       No schedule yet
     </span>
@@ -421,7 +490,17 @@ function ScheduleWidget({ event, mode, id = "schedule" }: ScheduleWidgetProps) {
         label="Schedule"
         icon={CalendarBlankIcon}
         peek={peek}
-        peekBackground={fileName ? <ScheduleSheet /> : undefined}
+        peekBackground={
+          scheduleKey ? (
+            <SchedulePeekBackground
+              // A replaced schedule draws its own first page.
+              key={scheduleKey}
+              orgSlug={orgSlug}
+              eventId={event.id}
+              scheduleKey={scheduleKey}
+            />
+          ) : undefined
+        }
         actions={actions}
       >
         {body}

@@ -12,6 +12,7 @@ import { Button } from "@/components/event/button";
 import { Icon } from "@/components/event/icon";
 import { Panel } from "@/components/event/panel";
 import { ShellHeader, WidgetBoard } from "@/components/event/shell";
+import { matches, SHELL_MEDIA } from "@/components/event/shell/breakpoints";
 import { toastManager } from "@/components/ui/toast-manager";
 import type { OrgEvent } from "@/features/org/api/admin-queries";
 import { orgQueries } from "@/features/org/api/queries";
@@ -209,7 +210,10 @@ function CoachBoard({ event }: { event: OrgEvent }) {
 
   return (
     <DashboardFrame event={event}>
-      <WidgetBoard order={order}>
+      <WidgetBoard
+        order={order}
+        defaultOpen={matches(SHELL_MEDIA.phone) ? null : "schedule"}
+      >
         <ScheduleWidget event={event} mode="viewer" />
         <TopRankedWidget
           ranked={rankedPages?.flatMap((page) => page.data) ?? []}

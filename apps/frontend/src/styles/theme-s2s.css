@@ -1334,8 +1334,18 @@ html:not(.dark) .theme-s2s {
     position: absolute;
     inset: 0;
     overflow: hidden;
+    /* The widget's rounded overflow doesn't clip filtered children; this does. */
+    clip-path: inset(0 round calc(var(--radius-10) - 1px));
     pointer-events: none;
     background: var(--surface);
+  }
+  /* Fades the page out under the head row, so the label stays readable. */
+  .s2s-doc-bg::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: var(--row);
+    background: linear-gradient(var(--surface), transparent);
   }
   .s2s-doc-sheet {
     position: absolute;
@@ -1359,6 +1369,30 @@ html:not(.dark) .theme-s2s {
   }
   html:not(.dark) .theme-s2s .s2s-widget-peek:hover .s2s-doc-sheet {
     filter: blur(3px) contrast(0.5) brightness(1.35);
+  }
+  /* The schedule's real first page: lighter blur and tint than the sheet. */
+  .s2s-doc-page {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    width: calc(100% + 16px);
+    opacity: 0;
+    filter: blur(1.5px) contrast(0.65) brightness(0.35);
+    transition:
+      opacity 0.3s ease,
+      filter 0.3s ease;
+  }
+  .s2s-doc-page[data-drawn] {
+    opacity: 1;
+  }
+  .s2s-widget-peek:hover .s2s-doc-page {
+    filter: blur(1px) contrast(0.65) brightness(0.42);
+  }
+  html:not(.dark) .theme-s2s .s2s-doc-page {
+    filter: blur(1.5px) contrast(0.4) brightness(1.45);
+  }
+  html:not(.dark) .theme-s2s .s2s-widget-peek:hover .s2s-doc-page {
+    filter: blur(1px) contrast(0.5) brightness(1.35);
   }
   .s2s-doc-line {
     display: block;
