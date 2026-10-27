@@ -104,6 +104,18 @@ export const rosterQueries = {
     }),
 };
 
+export function useCreateRoster() {
+  return $api.useMutation("post", "/orgs/{slug}/events/{id}/rosters", {
+    meta: {
+      invalidateQueries: [
+        ROSTER_LIST_KEY_PREFIX,
+        ROSTER_FILTERS_KEY_PREFIX,
+        ROSTER_STATS_KEY_PREFIX,
+      ],
+    },
+  });
+}
+
 export function useUpdateRoster() {
   return $api.useMutation(
     "patch",
@@ -172,6 +184,18 @@ export const rosterSearchQueries = {
     $api.queryOptions(
       "get",
       "/orgs/{slug}/events/{id}/rosters/search-dancers",
+      {
+        params: {
+          path: { slug, id: eventId },
+          query: { q },
+        },
+      },
+    ),
+  /** School accounts, for linking a coach's entry. */
+  schoolUsers: (slug: string, eventId: string, q: string) =>
+    $api.queryOptions(
+      "get",
+      "/orgs/{slug}/events/{id}/reconciliation/school-users",
       {
         params: {
           path: { slug, id: eventId },

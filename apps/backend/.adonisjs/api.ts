@@ -283,6 +283,10 @@ type OrgsIdEventsIdRostersGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/list/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/list/controller.ts').default['handle'], true>
 }
+type OrgsIdEventsIdRostersPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/create/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/create/controller.ts').default['handle'], true>
+}
 type OrgsIdEventsIdRostersIdPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/update/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/update/controller.ts').default['handle'], true>
@@ -360,8 +364,8 @@ type OrgsIdEventsIdReconciliationRostersIdMergePost = {
   response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/merge-controller.ts').default['handle'], true>
 }
 type OrgsIdEventsIdReconciliationSchoolusersGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/search-users-controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/attach/search-validator.ts')['searchSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/search-users-controller.ts').default['handle'], true>
 }
 type OrgsIdEventsTestemailsPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/test-emails/validator.ts')['schema']>>
@@ -1398,6 +1402,7 @@ export interface ApiDefinition {
             };
             '$get': OrgsIdEventsIdRostersGetHead;
             '$head': OrgsIdEventsIdRostersGetHead;
+            '$post': OrgsIdEventsIdRostersPost;
             ':rosterId': {
               '$url': {
               };

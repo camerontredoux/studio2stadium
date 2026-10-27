@@ -14,6 +14,7 @@ const UploadDancersController = () => import("./upload-dancers/controller.ts");
 const UploadPreviewController = () => import("./upload-preview/controller.ts");
 const EventStatsController = () => import("./stats/controller.ts");
 const ListRosterController = () => import("./rosters/list/controller.ts");
+const CreateRosterController = () => import("./rosters/create/controller.ts");
 const UpdateRosterController = () => import("./rosters/update/controller.ts");
 const SetRosterPaidController = () =>
   import("./rosters/set-paid/controller.ts");
@@ -170,6 +171,19 @@ router
         middleware.orgMember(),
         middleware.orgAdmin(),
       ]);
+    router
+      .post(":slug/events/:id/rosters", [CreateRosterController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ])
+      .openapi({
+        summary: "Add one Roster Entry",
+        description:
+          "Adds a dancer or coach to an Org Event's roster by hand, writing the same rows a one-line CSV upload writes: the entry, then the account's org membership or a pending invite, and the matching email. Send userId to link an existing account; its email replaces the one sent. 409 when the email, account or bib number is already on this event's roster; 422 when a field the upload requires for the type is missing.",
+      });
     router
       .patch(":slug/events/:id/rosters/:rosterId", [UpdateRosterController])
       .use([

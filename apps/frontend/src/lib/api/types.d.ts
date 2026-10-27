@@ -3138,7 +3138,55 @@ export interface paths {
             };
         };
         put?: never;
-        post?: never;
+        /**
+         * Add one Roster Entry
+         * @description Adds a dancer or coach to an Org Event's roster by hand, writing the same rows a one-line CSV upload writes: the entry, then the account's org membership or a pending invite, and the matching email. Send userId to link an existing account; its email replaces the one sent. 409 when the email, account or bib number is already on this event's roster; 422 when a field the upload requires for the type is missing.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsIdRostersRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdRostersPostResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         delete: {
             parameters: {
                 query?: never;
@@ -4359,7 +4407,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    q?: string | null;
+                };
                 header?: never;
                 path: {
                     slug: string;
@@ -4376,6 +4426,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["OrgsIdEventsIdReconciliationSchoolusersResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -12687,6 +12746,28 @@ export interface components {
                 } | null;
             }[];
             total: number;
+        };
+        OrgsIdEventsIdRostersRequest: {
+            userId?: string | null;
+            organization?: string | null;
+            bibNumber?: (string | number) | null;
+            paid?: (string | number | boolean) | null;
+            email: string;
+            type: components["schemas"]["UploadKind"];
+            firstName: string;
+            lastName: string;
+        };
+        OrgsIdEventsIdRostersPostResponse: {
+            id: string;
+            email: string;
+            createdAt: string;
+            type: components["schemas"]["UploadKind"];
+            firstName: string;
+            lastName: string;
+            organization: string | null;
+            eventId: string;
+            bibNumber: number | null;
+            isRegistered: boolean;
         };
         OrgsIdEventsIdRostersDeleteResponse: {
             deletedCount: number;

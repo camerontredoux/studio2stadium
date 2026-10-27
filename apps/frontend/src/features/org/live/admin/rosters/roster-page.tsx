@@ -65,6 +65,7 @@ import { reconciliationQueries } from "@/features/org/api/reconciliation-queries
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import { useOrg } from "@/features/org/context/use-org";
 import { RosterDetailSheet } from "@/features/org/live/admin/rosters/detail-sheet/roster-detail-sheet";
+import { AddRosterSheet } from "@/features/org/live/admin/rosters/add-sheet/add-roster-sheet";
 import { SubpageHeader } from "@/features/org/live/shared/event-header";
 import { ShellPage } from "@/features/org/live/shared/shell-slots";
 
@@ -198,6 +199,9 @@ function RosterPageContent({
   };
 
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  // A new key per open, so the add sheet starts empty every time.
+  const [addKey, setAddKey] = useState(0);
   const [resetOpen, setResetOpen] = useState(false);
   const [removeOpen, setRemoveOpen] = useState(false);
 
@@ -348,6 +352,10 @@ function RosterPageContent({
         <RosterHeaderActions
           config={config}
           onUpload={() => setUploadOpen(true)}
+          onAdd={() => {
+            setAddKey((key) => key + 1);
+            setAddOpen(true);
+          }}
           onExport={handleExport}
           onResetCheckIn={
             isDancers && checkInEnabled ? () => setResetOpen(true) : undefined
@@ -542,6 +550,16 @@ function RosterPageContent({
         freeTierEnabled={isDancers ? freeTierEnabled : undefined}
       />
 
+      <AddRosterSheet
+        key={addKey}
+        type={type}
+        orgSlug={orgSlug}
+        eventId={eventId}
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        freeTierEnabled={isDancers && freeTierEnabled}
+      />
+
       <CsvUploadDialog
         orgSlug={orgSlug}
         eventId={eventId}
@@ -606,6 +624,7 @@ function emptyText(
 function RosterHeaderActions({
   config,
   onUpload,
+  onAdd,
   onExport,
   onResetCheckIn,
   checkedInCount,
@@ -613,6 +632,7 @@ function RosterHeaderActions({
 }: {
   config: RosterKindConfig;
   onUpload: () => void;
+  onAdd: () => void;
   onExport: () => void;
   onResetCheckIn?: () => void;
   checkedInCount: number;
@@ -634,16 +654,7 @@ function RosterHeaderActions({
           <span className="bp-small:hidden">Upload</span>
         </Button>
         <GroupSeparator className="bg-line-control" />
-        <Button
-          className={joined}
-          onClick={() =>
-            // No endpoint adds a single Roster Entry yet.
-            toastManager.add({
-              title: `Adding one ${config.singular} is coming soon`,
-              type: "info",
-            })
-          }
-        >
+        <Button className={joined} onClick={onAdd}>
           <Icon icon={PlusIcon} />
           Add
         </Button>

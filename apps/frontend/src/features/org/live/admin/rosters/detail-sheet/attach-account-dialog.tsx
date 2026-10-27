@@ -1,6 +1,5 @@
 import { WarningIcon } from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { Button } from "@/components/event/button";
 import {
@@ -13,23 +12,13 @@ import {
   DialogPopup,
   DialogTitle,
 } from "@/components/event/dialog";
-import {
-  ComboboxEmpty,
-  ComboboxField,
-  ComboboxItem,
-  ComboboxList,
-  ComboboxPopup,
-  ComboboxRoot,
-} from "@/components/event/combobox";
 import { Icon } from "@/components/event/icon";
 import { BusyLabel } from "@/features/org/live/shared/busy-label";
 import { PersonAvatar } from "@/features/org/live/shared/person-avatar";
 import { toastManager } from "@/components/ui/toast-manager";
-import {
-  rosterSearchQueries,
-  useAttachAccount,
-} from "@/features/org/api/roster-queries";
-import type { ApiSchemas } from "@/lib/api/client";
+import { useAttachAccount } from "@/features/org/api/roster-queries";
+
+import { type AccountResult, AccountSearch } from "../account-search";
 
 /** The account a roster entry currently belongs to, if any. */
 export interface LinkedAccount {
@@ -39,9 +28,6 @@ export interface LinkedAccount {
   lastName: string | null;
   avatarUrl: string | null;
 }
-
-type SearchResult =
-  ApiSchemas["OrgsIdEventsIdRostersSearchdancersResponse"][number];
 
 interface AttachAccountDialogProps {
   open: boolean;
@@ -81,49 +67,17 @@ export function AttachAccountDialog({
   linkedUser,
   onSuccess,
 }: AttachAccountDialogProps) {
-  const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [pendingUser, setPendingUser] = useState<SearchResult | null>(null);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedQuery(query), 300);
-    return () => clearTimeout(timer);
-  }, [query]);
-
-  // Cleared on the way out rather than on the way in, so the next open starts
-  // fresh without a render pass that resets state under the open dialog.
-  const resetSearch = useCallback(() => {
-    setQuery("");
-    setDebouncedQuery("");
-    setPendingUser(null);
-  }, []);
+  const [pendingUser, setPendingUser] = useState<AccountResult | null>(null);
 
   const handleOpenChange = useCallback(
     (next: boolean) => {
-      if (!next) resetSearch();
+      if (!next) setPendingUser(null);
       onOpenChange(next);
     },
-    [onOpenChange, resetSearch],
+    [onOpenChange],
   );
-
-  const searchQuery = useQuery({
-    ...rosterSearchQueries.dancerUsers(orgSlug, eventId, debouncedQuery),
-    enabled: open && debouncedQuery.length >= 2,
-  });
 
   const attachMutation = useAttachAccount();
-
-  // Base UI reads `items` in a layout effect, so an unstable reference here
-  // loops until it blows the update-depth limit.
-  const results = useMemo<SearchResult[]>(
-    () => searchQuery.data ?? [],
-    [searchQuery.data],
-  );
-
-  const itemToStringLabel = useCallback(
-    (user: SearchResult) => `${fullName(user)} ${user.email}`.trim(),
-    [],
-  );
 
   // Reassigning away from a *different* account is the destructive case.
   // Re-attaching the account that already holds the entry changes nothing.
@@ -131,13 +85,6 @@ export function AttachAccountDialog({
     pendingUser !== null &&
     linkedUser !== null &&
     linkedUser.id !== pendingUser.id;
-
-  const emptyMessage =
-    debouncedQuery.trim().length < 2
-      ? "Type at least 2 characters to search."
-      : searchQuery.isLoading
-        ? "Searching…"
-        : "No accounts found.";
 
   const handleConfirm = async () => {
     if (!pendingUser) return;
@@ -150,7 +97,7 @@ export function AttachAccountDialog({
         title: isRelink ? "Account changed" : "Account linked",
         type: "success",
       });
-      resetSearch();
+      setPendingUser(null);
       onOpenChange(false);
       onSuccess();
     } catch (err) {
@@ -196,45 +143,13 @@ export function AttachAccountDialog({
             </div>
           )}
 
-          <ComboboxRoot
-            items={results}
-            filter={null}
-            value={null}
-            itemToStringLabel={itemToStringLabel}
-            onInputValueChange={setQuery}
-            onValueChange={(user: SearchResult | null) => {
-              if (user) setPendingUser(user);
-            }}
-            autoHighlight
-          >
-            <ComboboxField
-              aria-label="Search accounts by name or email"
-              placeholder="Search"
-              loading={debouncedQuery.length >= 2 && searchQuery.isFetching}
-            />
-            <ComboboxPopup aria-label="Matching accounts">
-              <ComboboxEmpty>{emptyMessage}</ComboboxEmpty>
-              <ComboboxList>
-                {(user: SearchResult) => (
-                  <ComboboxItem key={user.id} value={user}>
-                    <PersonAvatar
-                      firstName={user.firstName}
-                      lastName={user.lastName}
-                      src={user.avatar}
-                    />
-                    <span className="flex min-w-0 flex-1 flex-col">
-                      <span className="type-body-strong text-fg truncate">
-                        {fullName(user) || user.email}
-                      </span>
-                      <span className="type-caption text-fg-2 truncate">
-                        {user.email}
-                      </span>
-                    </span>
-                  </ComboboxItem>
-                )}
-              </ComboboxList>
-            </ComboboxPopup>
-          </ComboboxRoot>
+          <AccountSearch
+            orgSlug={orgSlug}
+            eventId={eventId}
+            type="dancer"
+            enabled={open}
+            onPick={setPendingUser}
+          />
         </DialogBody>
         <DialogFooter>
           <DialogClose render={<Button variant="ghost" size="lg" />}>
