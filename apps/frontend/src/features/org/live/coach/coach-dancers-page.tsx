@@ -1,8 +1,13 @@
+import { Toggle } from "@base-ui/react/toggle";
 import {
   HeartIcon,
+  HouseIcon,
   ListBulletsIcon,
   MegaphoneSimpleIcon,
+  PencilSimpleIcon,
+  StarIcon,
   XIcon,
+  type Icon as PhosphorIcon,
 } from "@phosphor-icons/react";
 import {
   keepPreviousData,
@@ -10,6 +15,7 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 import {
+  Fragment,
   useEffect,
   useMemo,
   useRef,
@@ -18,12 +24,14 @@ import {
 } from "react";
 
 import { Button } from "@/components/event/button";
+import { Combobox } from "@/components/event/combobox";
 import { useDebouncedCallback } from "@/components/hooks/use-debounced-callback";
 import { Icon } from "@/components/event/icon";
 import { Panel, PanelSeparator, PanelToolbar } from "@/components/event/panel";
 import { Search } from "@/components/event/search";
 import { Segmented, type SegmentedOption } from "@/components/event/segmented";
 import { Select } from "@/components/event/select";
+import { Group, GroupSeparator } from "@/components/ui/group";
 import { toastManager } from "@/components/ui/toast-manager";
 import { cn } from "@/components/utils/cn";
 import { adminQueries } from "@/features/org/api/admin-queries";
@@ -32,6 +40,7 @@ import { DancerSheet } from "@/features/org/components/dancer-sheet";
 import { SubpageHeader } from "@/features/org/live/shared/event-header";
 import { ShellPage } from "@/features/org/live/shared/shell-slots";
 import { useActiveOrgEvent } from "@/features/org/live/shared/use-active-org-event";
+import { REGIONS } from "@/utils/constants/states";
 
 import { useCoachScouting, type ScoutedDancer } from "./coach-scouting";
 import {
@@ -42,20 +51,49 @@ import {
 import { useRosterLayout } from "./roster-layout";
 import { nextSort, type RosterSort } from "./roster-order";
 
-type Filter = "all" | "fav" | "called";
+type Filter = "all" | "called";
 
 const ALL_EVENTS = "all";
 
 /** The server's name for each filter tab. */
 const SERVER_FILTER = {
   all: "all",
-  fav: "favorites",
   called: "calledBack",
 } as const;
 
+type Mark = "interested" | "favorited" | "rated" | "hasNote";
+
+/** The toggles that narrow the roster to the coach's own marks, as the old page had. */
+const MARKS: { value: Mark; label: string; icon: PhosphorIcon }[] = [
+  { value: "interested", label: "Picked your school", icon: HouseIcon },
+  { value: "favorited", label: "Favorites", icon: HeartIcon },
+  { value: "rated", label: "Rated", icon: StarIcon },
+  { value: "hasNote", label: "Has notes", icon: PencilSimpleIcon },
+];
+
+/** The "any" choice that clears the GPA or State filter. */
+const ANY = "any";
+
+/** The old page's GPA ranges: at least `gpaMin`, under `gpaBelow`. */
+const GPA_RANGES: Record<
+  string,
+  { label: string; gpaMin?: number; gpaBelow?: number }
+> = {
+  [ANY]: { label: "Any GPA" },
+  "3.5": { label: "3.5+", gpaMin: 3.5 },
+  "3.0": { label: "3.0–3.5", gpaMin: 3, gpaBelow: 3.5 },
+  "2.5": { label: "2.5–3.0", gpaMin: 2.5, gpaBelow: 3 },
+  "0": { label: "Under 2.5", gpaBelow: 2.5 },
+};
+
+const STATE_OPTIONS = [ANY, ...Object.keys(REGIONS)];
+const stateLabel = (code: string) =>
+  code === ANY ? "Any state" : REGIONS[code as keyof typeof REGIONS];
+
 /**
- * The coach's Dancers page: filter (all / favorites / called), search, a
- * sortable roster with their marks on every row, and bulk call back / favorite.
+ * The coach's Dancers page: filter (all / called), toggles for their own marks,
+ * GPA and state, search, a sortable roster with their marks on every row, and
+ * bulk call back / favorite.
  * It opens on their event; "All events" browses every Org Event's dancers
  * read-only, as the old page allowed before the event started. The server
  * filters, searches, sorts and pages the roster, so a page holds the rows the
@@ -80,6 +118,9 @@ export function CoachDancersPage() {
   const shownEvent = events?.find((e) => e.id === eventId) ?? null;
 
   const [filter, setFilter] = useState<Filter>("all");
+  const [marks, setMarks] = useState<Mark[]>([]);
+  const [gpa, setGpa] = useState<string | null>(null);
+  const [state, setState] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   // The search the server sees trails the box by a beat, so typing a name
   // sends one request rather than one per letter.
@@ -103,6 +144,10 @@ export function CoachDancersPage() {
       eventId,
       filter: SERVER_FILTER[effectiveFilter],
       search: q || undefined,
+      ...Object.fromEntries(marks.map((mark) => [mark, true])),
+      gpaMin: gpa ? GPA_RANGES[gpa]?.gpaMin : undefined,
+      gpaBelow: gpa ? GPA_RANGES[gpa]?.gpaBelow : undefined,
+      state: state ?? undefined,
       sortBy: sort.key,
       sortDir: sort.dir,
     }),
@@ -125,7 +170,7 @@ export function CoachDancersPage() {
 
   useEffect(() => {
     setSelectedIds(new Set());
-  }, [eventChoice, effectiveFilter, q]);
+  }, [eventChoice, effectiveFilter, q, marks, gpa, state]);
   useEffect(() => {
     setSheetFor(null);
   }, [eventChoice]);
@@ -152,7 +197,6 @@ export function CoachDancersPage() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  const favCount = counts?.favorites;
   const calledCount = counts?.calledBack;
   const options: SegmentedOption<Filter>[] = [
     {
@@ -161,7 +205,6 @@ export function CoachDancersPage() {
       icon: ListBulletsIcon,
       count: counts?.all,
     },
-    { value: "fav", label: "Favorites", icon: HeartIcon, count: favCount },
     ...(callbacksEnabled
       ? [
           {
@@ -213,8 +256,12 @@ export function CoachDancersPage() {
       "favorites",
     );
 
+  const narrowed = marks.length > 0 || gpa !== null || state !== null;
   const clearFilters = () => {
     setFilter("all");
+    setMarks([]);
+    setGpa(null);
+    setState(null);
     setQuery("");
     setSearch("");
   };
@@ -233,8 +280,8 @@ export function CoachDancersPage() {
         : {
             text: q
               ? `No matches for “${q}”`
-              : effectiveFilter === "fav"
-                ? "No favorites yet"
+              : narrowed
+                ? "No dancers match these filters"
                 : "No callbacks yet",
             action: <Button onClick={clearFilters}>Clear filters</Button>,
           };
@@ -264,33 +311,70 @@ export function CoachDancersPage() {
     />
   );
 
+  const filters = (
+    <>
+      <MarkToggles value={marks} onChange={setMarks} />
+      <Combobox
+        aria-label="GPA"
+        placeholder="GPA"
+        listLabel="GPA"
+        options={Object.keys(GPA_RANGES)}
+        optionLabel={(value) => GPA_RANGES[value]?.label ?? value}
+        value={gpa}
+        onChange={(value) => setGpa(value === ANY ? null : value)}
+        className="w-[104px] shrink-0"
+      />
+      <Combobox
+        aria-label="State"
+        placeholder="State"
+        listLabel="States"
+        searchPlaceholder="Search states"
+        emptyText="No states match"
+        options={STATE_OPTIONS}
+        optionLabel={stateLabel}
+        value={state}
+        onChange={(value) => setState(value === ANY ? null : value)}
+        className="bp-phone:w-auto bp-phone:flex-1 w-[136px] shrink-0"
+      />
+    </>
+  );
+
   // Over cards, the toolbar sits in its own panel with no divider under it.
   const toolbarClass = cn(layout.cards && "border-b-0");
   const toolbar =
     selected.length === 0 ? (
-      <PanelToolbar className={toolbarClass}>
-        <Segmented
-          label="Filter dancers"
-          value={effectiveFilter}
-          onChange={setFilter}
-          options={options}
-          iconOnly={!layout.cards && !layout.filterLabels}
-        />
-        <Search
-          ref={searchRef}
-          placeholder="Search…"
-          aria-label="Search dancers"
-          value={query}
-          // Beside icon-only filters the field takes the rest of the bar, as on phones.
-          className={cn(
-            !layout.cards && !layout.filterLabels && "ms-0 flex-auto",
-          )}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            commitSearch(event.target.value);
-          }}
-        />
-      </PanelToolbar>
+      <>
+        <PanelToolbar className={toolbarClass}>
+          <Segmented
+            label="Filter dancers"
+            value={effectiveFilter}
+            onChange={setFilter}
+            options={options}
+            iconOnly={!layout.cards && !layout.filterLabels}
+          />
+          {layout.filterLabels && !layout.cards && filters}
+          <Search
+            ref={searchRef}
+            placeholder="Search…"
+            aria-label="Search dancers"
+            value={query}
+            // Beside icon-only filters the field takes the rest of the bar, as on phones.
+            className={cn(
+              !layout.cards && !layout.filterLabels && "ms-0 flex-auto",
+            )}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              commitSearch(event.target.value);
+            }}
+          />
+        </PanelToolbar>
+        {/* Narrower rosters and phones put the filters on a row of their own. */}
+        {(layout.cards || !layout.filterLabels) && (
+          <PanelToolbar aria-label="Filters" className={toolbarClass}>
+            {filters}
+          </PanelToolbar>
+        )}
+      </>
     ) : (
       <PanelToolbar aria-label="Selection" className={toolbarClass}>
         <Button
@@ -322,7 +406,7 @@ export function CoachDancersPage() {
     rows,
     scrollRef,
     // A new search, filter, sort or event starts again from the top.
-    resetKey: [eventChoice, effectiveFilter, q, sort],
+    resetKey: [eventChoice, effectiveFilter, q, marks, gpa, state, sort],
     hasMore: dancersQuery.hasNextPage && !dancersQuery.isFetchNextPageError,
     loadingMore: dancersQuery.isFetchingNextPage,
     onLoadMore: () => void fetchNextPage(),
@@ -381,5 +465,47 @@ export function CoachDancersPage() {
         readOnly={!sheetDancer || !scouting.canScoutDancer(sheetDancer)}
       />
     </ShellPage>
+  );
+}
+
+/** Joined toggles, like the roster's Upload | Add, for the coach's own marks. Each one set must hold. */
+function MarkToggles({
+  value,
+  onChange,
+}: {
+  value: Mark[];
+  onChange: (value: Mark[]) => void;
+}) {
+  return (
+    <Group aria-label="Your marks" className="shrink-0">
+      {MARKS.map((mark, index) => {
+        const pressed = value.includes(mark.value);
+        return (
+          <Fragment key={mark.value}>
+            {index > 0 && <GroupSeparator className="bg-line-control" />}
+            <Button
+              iconOnly
+              label={mark.label}
+              title={mark.label}
+              className="hover:bg-surface-pressed data-pressed:bg-surface-pressed data-pressed:text-fg-strong text-fg-2"
+              render={
+                <Toggle
+                  pressed={pressed}
+                  onPressedChange={(next) =>
+                    onChange(
+                      next
+                        ? [...value, mark.value]
+                        : value.filter((v) => v !== mark.value),
+                    )
+                  }
+                />
+              }
+            >
+              <Icon icon={mark.icon} weight={pressed ? "fill" : "regular"} />
+            </Button>
+          </Fragment>
+        );
+      })}
+    </Group>
   );
 }

@@ -2674,25 +2674,6 @@
             }
           },
           {
-            "name": "checkedIn",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": [
-                    "string",
-                    "number",
-                    "boolean"
-                  ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          {
             "name": "limit",
             "in": "query",
             "required": false,
@@ -2745,6 +2726,25 @@
                     "bibNumber",
                     "checkedInAt",
                     "isRegistered"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "checkedIn",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
                   ]
                 },
                 {
@@ -3760,84 +3760,6 @@
             }
           },
           {
-            "name": "actions",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "upload",
-                    "create",
-                    "update",
-                    "delete",
-                    "activate",
-                    "resend_invite",
-                    "check_in"
-                  ]
-                },
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "enum": [
-                      "upload",
-                      "create",
-                      "update",
-                      "delete",
-                      "activate",
-                      "resend_invite",
-                      "check_in"
-                    ]
-                  }
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          {
-            "name": "resources",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "video",
-                    "roster",
-                    "event",
-                    "checklist",
-                    "csv_upload",
-                    "invite",
-                    "video_category"
-                  ]
-                },
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "enum": [
-                      "video",
-                      "roster",
-                      "event",
-                      "checklist",
-                      "csv_upload",
-                      "invite",
-                      "video_category"
-                    ]
-                  }
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          {
             "name": "from",
             "in": "query",
             "required": false,
@@ -3904,6 +3826,54 @@
             }
           },
           {
+            "name": "resources",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "video",
+                      "roster",
+                      "event",
+                      "checklist",
+                      "csv_upload",
+                      "invite",
+                      "video_category"
+                    ]
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
             "name": "sortDir",
             "in": "query",
             "required": false,
@@ -3915,6 +3885,54 @@
                     "asc",
                     "desc"
                   ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "actions",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "upload",
+                      "create",
+                      "update",
+                      "delete",
+                      "activate",
+                      "resend_invite",
+                      "check_in"
+                    ]
+                  }
                 },
                 {
                   "type": "null"
@@ -4137,6 +4155,120 @@
         }
       }
     },
+    "/orgs/{slug}/events/{id}/reconciliation/invites/{inviteId}": {
+      "delete": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "inviteId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdReconciliationInvitesIdResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/{slug}/events/{id}/reconciliation/invites/{inviteId}/resend": {
+      "post": {
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "inviteId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgsIdEventsIdReconciliationInvitesIdResendResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Unknown Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/orgs/{slug}/events/{id}/reconciliation/orphans": {
       "get": {
         "parameters": [
@@ -4259,120 +4391,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgsIdEventsIdReconciliationCountsResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/orgs/{slug}/events/{id}/reconciliation/invites/{inviteId}": {
-      "delete": {
-        "parameters": [
-          {
-            "name": "slug",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "inviteId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrgsIdEventsIdReconciliationInvitesIdResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/orgs/{slug}/events/{id}/reconciliation/invites/{inviteId}/resend": {
-      "post": {
-        "parameters": [
-          {
-            "name": "slug",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "inviteId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrgsIdEventsIdReconciliationInvitesIdResendResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Unknown Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -5259,6 +5277,21 @@
             }
           },
           {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
             "name": "interested",
             "in": "query",
             "required": false,
@@ -5358,6 +5391,99 @@
           },
           {
             "name": "bib",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "rated",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "favorited",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "hasNote",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "gpaMin",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "name": "gpaBelow",
             "in": "query",
             "required": false,
             "schema": {
@@ -11491,9 +11617,9 @@
         "enum": [
           "video",
           "profile",
+          "favorite",
           "program_views",
-          "tracker",
-          "favorite"
+          "tracker"
         ]
       },
       "SubscriptionSource": {
@@ -17427,6 +17553,66 @@
           "data"
         ]
       },
+      "OrgsIdEventsIdReconciliationInvitesResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "organization": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "expiresAt": {
+                  "type": "string"
+                },
+                "consumedAt": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "email",
+                "createdAt",
+                "organization",
+                "expiresAt",
+                "consumedAt"
+              ]
+            }
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total"
+        ]
+      },
       "OrgsIdEventsIdReconciliationInvitesIdResponse": {
         "type": "object",
         "properties": {
@@ -17447,6 +17633,74 @@
         },
         "required": [
           "resent"
+        ]
+      },
+      "OrgsIdEventsIdReconciliationOrphansResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "organization": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "email",
+                "firstName",
+                "lastName",
+                "organization"
+              ]
+            }
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total"
+        ]
+      },
+      "OrgsIdEventsIdReconciliationCountsResponse": {
+        "type": "object",
+        "properties": {
+          "unclaimed": {
+            "type": "number"
+          },
+          "claimed": {
+            "type": "number"
+          },
+          "orphans": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "unclaimed",
+          "claimed",
+          "orphans"
         ]
       },
       "OrgsIdEventsIdReconciliationRostersIdMergeRequest": {
@@ -17690,6 +17944,17 @@
         "required": [
           "roster",
           "result"
+        ]
+      },
+      "OrgsIdEventsIdScheduleUrlResponse": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
         ]
       },
       "OrgsIdEventsIdVideocategoriesResponse": {
@@ -19541,6 +19806,52 @@
           ]
         }
       },
+      "OrgsIdCallbacksRequest": {
+        "type": "object",
+        "properties": {
+          "dancerRosterId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dancerRosterId"
+        ]
+      },
+      "OrgsIdCallbacksPostResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "coachRosterId": {
+            "type": "string"
+          },
+          "dancerRosterId": {
+            "type": "string"
+          },
+          "showcaseId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "eventId",
+          "coachRosterId",
+          "dancerRosterId",
+          "showcaseId"
+        ]
+      },
       "OrgsIdCallbacksHistoryResponse": {
         "type": "object",
         "properties": {
@@ -19651,52 +19962,6 @@
         },
         "required": [
           "showcases"
-        ]
-      },
-      "OrgsIdCallbacksRequest": {
-        "type": "object",
-        "properties": {
-          "dancerRosterId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "dancerRosterId"
-        ]
-      },
-      "OrgsIdCallbacksPostResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "type": "string"
-          },
-          "eventId": {
-            "type": "string"
-          },
-          "coachRosterId": {
-            "type": "string"
-          },
-          "dancerRosterId": {
-            "type": "string"
-          },
-          "showcaseId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "createdAt",
-          "updatedAt",
-          "eventId",
-          "coachRosterId",
-          "dancerRosterId",
-          "showcaseId"
         ]
       },
       "OrgsIdAdminCallbacksResponse": {
@@ -20266,9 +20531,6 @@
       "OrgsIdDancerCallbacksResponse": {
         "type": "object",
         "properties": {
-          "publishedShowcaseCount": {
-            "type": "number"
-          },
           "callbacks": {
             "type": "array",
             "items": {
@@ -20334,11 +20596,14 @@
                 "firstShowcaseNumber"
               ]
             }
+          },
+          "publishedShowcaseCount": {
+            "type": "number"
           }
         },
         "required": [
-          "publishedShowcaseCount",
-          "callbacks"
+          "callbacks",
+          "publishedShowcaseCount"
         ]
       },
       "OrgsIdSettingsRequest": {
@@ -26423,145 +26688,6 @@
           "mediaId",
           "status",
           "errorMessage"
-        ]
-      },
-      "OrgsIdEventsIdScheduleUrlResponse": {
-        "type": "object",
-        "properties": {
-          "url": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "url"
-        ]
-      },
-      "OrgsIdEventsIdReconciliationInvitesResponse": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "email": {
-                  "type": "string"
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "organization": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "expiresAt": {
-                  "type": "string"
-                },
-                "consumedAt": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                }
-              },
-              "required": [
-                "id",
-                "email",
-                "createdAt",
-                "organization",
-                "expiresAt",
-                "consumedAt"
-              ]
-            }
-          },
-          "total": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "data",
-          "total"
-        ]
-      },
-      "OrgsIdEventsIdReconciliationOrphansResponse": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "email": {
-                  "type": "string"
-                },
-                "firstName": {
-                  "type": "string"
-                },
-                "lastName": {
-                  "type": "string"
-                },
-                "organization": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                }
-              },
-              "required": [
-                "id",
-                "email",
-                "firstName",
-                "lastName",
-                "organization"
-              ]
-            }
-          },
-          "total": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "data",
-          "total"
-        ]
-      },
-      "OrgsIdEventsIdReconciliationCountsResponse": {
-        "type": "object",
-        "properties": {
-          "unclaimed": {
-            "type": "number"
-          },
-          "claimed": {
-            "type": "number"
-          },
-          "orphans": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "unclaimed",
-          "claimed",
-          "orphans"
         ]
       }
     }

@@ -184,7 +184,6 @@ export class ListDancersService {
             AND ess.event_id = ${viewEventId}
         )`
       : sql`false`;
-    if (q.interested && coachRosterId) filters.push(interested);
 
     const isFavorited = coachRosterId
       ? sql`EXISTS (
@@ -306,7 +305,10 @@ export class ListDancersService {
     `;
   }
 
-  /** The search box and filter tab, over what the coach sees on each row. */
+  /**
+   * The search box, filter tab and filters, over what the coach sees on each
+   * row. They narrow the page, not the tab counts.
+   */
   private matches(q: Validator) {
     const conditions: SQL[] = [sql`true`];
     if (q.search) {
@@ -321,6 +323,13 @@ export class ListDancersService {
     else if (q.filter === "calledBack") conditions.push(sql`is_called_back`);
     else if (q.filter === "rated")
       conditions.push(sql`COALESCE(rating, 0) > 0`);
+    if (q.interested) conditions.push(sql`interested`);
+    if (q.favorited) conditions.push(sql`is_favorited`);
+    if (q.rated) conditions.push(sql`COALESCE(rating, 0) > 0`);
+    if (q.hasNote) conditions.push(sql`has_note`);
+    if (q.gpaMin !== undefined) conditions.push(sql`gpa >= ${q.gpaMin}`);
+    if (q.gpaBelow !== undefined) conditions.push(sql`gpa < ${q.gpaBelow}`);
+    if (q.state) conditions.push(sql`UPPER(TRIM(state)) = ${q.state}`);
     return sql.join(conditions, sql` AND `);
   }
 

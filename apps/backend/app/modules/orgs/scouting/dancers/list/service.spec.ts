@@ -7,7 +7,12 @@ import {
   eventRosters,
   eventDancerProfiles,
 } from "#database/schema/org-events";
-import { eventFavorites, eventRatings } from "#database/schema/event-features";
+import {
+  eventFavorites,
+  eventNotes,
+  eventRatings,
+  eventSchoolSelections,
+} from "#database/schema/event-features";
 import { seedOrganizations } from "#commands/backfill-organizations";
 import { imageUrl } from "#utils/image-url";
 import { eq } from "drizzle-orm";
@@ -19,6 +24,8 @@ test.group("ListDancersService", (group) => {
 
   group.each.setup(async () => {
     await db.delete(eventFavorites).execute();
+    await db.delete(eventNotes).execute();
+    await db.delete(eventSchoolSelections).execute();
     await db.delete(eventRatings).execute();
     await db.delete(eventDancerProfiles).execute();
     await db.delete(eventRosters).execute();
@@ -709,5 +716,63 @@ test.group("ListDancersService", (group) => {
       calledBack: 0,
       rated: 3,
     });
+  });
+  test("narrows to every filter set, leaving the tab counts whole", async ({
+    assert,
+  }) => {
+    const { dancers, view } = await seedRoster();
+    const [eve, dee, cal, bea] = dancers;
+    const mark = (dancer: typeof eve) => ({
+      eventId: event.id,
+      coachRosterId: view.coachRosterId,
+      dancerRosterId: dancer!.id,
+    });
+    await db.insert(eventFavorites).values([mark(dee), mark(cal)]);
+    await db.insert(eventRatings).values([
+      { ...mark(eve), rating: 4 },
+      { ...mark(cal), rating: 5 },
+    ]);
+    await db.insert(eventNotes).values([
+      { ...mark(cal), content: "Clean turns" },
+      { ...mark(dee), content: "Ask about summer" },
+    ]);
+    await db.insert(eventSchoolSelections).values([
+      { ...mark(cal), rank: 1 },
+      { ...mark(eve), rank: 2 },
+    ]);
+    await db.insert(eventDancerProfiles).values([
+      { rosterId: eve!.id, gpa: 3.9, state: "TX" },
+      { rosterId: dee!.id, gpa: 3.5, state: "CA" },
+      { rosterId: cal!.id, gpa: 3.2, state: "TX" },
+      { rosterId: bea!.id, state: "TX" },
+    ]);
+    const svc = new ListDancersService();
+    const names = async (q: Parameters<ListDancersService["execute"]>[3]) => {
+      const { data } = await svc.execute(summit.id, event.id, view, q);
+      return data.map((r) => r.firstName);
+    };
+
+    assert.deepEqual(
+      await names({
+        interested: true,
+        favorited: true,
+        rated: true,
+        hasNote: true,
+      }),
+      ["Cal"]
+    );
+    assert.deepEqual(await names({ interested: true }), ["Eve", "Cal"]);
+    assert.deepEqual(await names({ hasNote: true }), ["Dee", "Cal"]);
+    // At least the low end, under the high end; a blank GPA matches no range.
+    assert.deepEqual(await names({ gpaMin: 3.5 }), ["Eve", "Dee"]);
+    assert.deepEqual(await names({ gpaMin: 3, gpaBelow: 3.5 }), ["Cal"]);
+    assert.deepEqual(await names({ state: "TX" }), ["Eve", "Cal", "Bea"]);
+
+    const filtered = await svc.execute(summit.id, event.id, view, {
+      state: "TX",
+      favorited: true,
+    });
+    assert.equal(filtered.total, 1);
+    assert.equal(filtered.counts.all, 5);
   });
 });
