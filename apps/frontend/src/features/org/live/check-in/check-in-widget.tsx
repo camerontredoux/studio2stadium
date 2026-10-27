@@ -12,7 +12,6 @@ import { Tile } from "@/components/event/tile";
 import { Viewfinder } from "@/components/event/viewfinder";
 import { checkInQueries } from "@/features/org/api/check-in-queries";
 import { rosterQueries } from "@/features/org/api/roster-queries";
-import { useOrg } from "@/features/org/context/use-org";
 import { formatCheckInTime } from "@/features/org/live/check-in/check-in-code";
 import { useEventTimeZone } from "@/features/org/live/shared/use-event-time-zone";
 import {
@@ -206,57 +205,41 @@ type CheckInWidgetProps = CheckInWidgetPartProps & {
 
 /**
  * The whole Check-in widget for a `WidgetBoard`: peek, strip and open layers,
- * with the camera running only while it is open. Without the `check_in`
- * feature it shows as a locked tile.
+ * with the camera running only while it is open. The dashboards leave it out
+ * without the `check_in` feature.
  */
 export function CheckInWidget({
   slug,
   eventId,
   id = "check-in",
 }: CheckInWidgetProps) {
-  const { hasFeature } = useOrg();
   const slot = useWidgetBoardSlot(id);
-  const enabled = hasFeature("check_in");
-  const { loaded, total, checkedIn } = useCheckInStats(
-    slug,
-    eventId,
-    enabled,
-  );
-  const selfCheckIn = useSelfCheckIn(slug, eventId, enabled);
+  const { loaded, total, checkedIn } = useCheckInStats(slug, eventId, true);
+  const selfCheckIn = useSelfCheckIn(slug, eventId, true);
 
   return (
     <Tile
       id={id}
       label="Check-in"
       icon={ScanIcon}
-      disabled={!enabled}
-      disabledText="Not included in this event"
-      count={enabled && loaded ? `${checkedIn}/${total}` : undefined}
-      peek={
-        enabled ? (
-          <CheckInWidgetPeek slug={slug} eventId={eventId} />
-        ) : undefined
-      }
+      count={loaded ? `${checkedIn}/${total}` : undefined}
+      peek={<CheckInWidgetPeek slug={slug} eventId={eventId} />}
       actions={
-        enabled && (
-          <SelfCheckInToggle
-            slug={slug}
-            eventId={eventId}
-            selfCheckIn={selfCheckIn}
-          />
-        )
+        <SelfCheckInToggle
+          slug={slug}
+          eventId={eventId}
+          selfCheckIn={selfCheckIn}
+        />
       }
       fullPage={
         <Link to="/o/$orgSlug/admin/check-in" params={{ orgSlug: slug }} />
       }
     >
-      {enabled && (
-        <CheckInWidgetOpen
-          slug={slug}
-          eventId={eventId}
-          active={slot?.state === "open"}
-        />
-      )}
+      <CheckInWidgetOpen
+        slug={slug}
+        eventId={eventId}
+        active={slot?.state === "open"}
+      />
     </Tile>
   );
 }

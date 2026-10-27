@@ -16,7 +16,7 @@ const SCROLL_GAP = 8;
 
 type WidgetBoardProps = Omit<React.ComponentProps<"div">, "children"> & {
   /**
-   * Widget ids in display order. Its length is the board's widget count (3–6) and each
+   * Widget ids in display order. Its length is the board's widget count (1–6) and each
    * `Widget`'s `id` must appear in it; children can be in any DOM order.
    */
   order: readonly string[];
