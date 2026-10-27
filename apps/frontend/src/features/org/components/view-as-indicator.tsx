@@ -7,8 +7,8 @@ import { useOrg } from "@/features/org/context/use-org";
 import { cn } from "@/components/utils/cn";
 
 /**
- * Shown to admins while they "view as" a coach/dancer, at the end of the app
- * header. Their favorites, ratings, and callbacks here live in a staff sandbox
+ * Shown to admins while they "view as" a coach/dancer, just before the page's
+ * header buttons, in a small chip. Their favorites, ratings, and callbacks here live in a staff sandbox
  * (a hidden `is_staff` roster) and never surface in participant tables or
  * results. Renders nothing for real participants.
  *
@@ -33,26 +33,24 @@ export function ViewAsIndicator({
     <div
       role="status"
       className={cn(
-        "type-caption text-fg flex flex-none items-center gap-(--space-4) font-medium whitespace-nowrap",
+        "text-fg bg-surface-chip border-line flex h-7 flex-none items-center gap-(--space-4) rounded-(--radius-5) border ps-(--space-8) pe-1 text-[12.5px] leading-none font-medium whitespace-nowrap",
         placement === "header"
           ? "max-[800px]:hidden"
-          : "ms-auto min-[801px]:hidden",
+          : "mx-2 self-center min-[801px]:hidden",
       )}
     >
-      <Icon icon={EyeIcon} className="text-amber" />
-      <span>Viewing as {role}</span>
+      <Icon icon={EyeIcon} className="text-amber size-3.5" />
+      <span>{placement === "phone" ? `As ${role}` : `Viewing as ${role}`}</span>
       <Button
         variant="ghost"
         size="sm"
         aria-label="Exit view as"
+        className="size-5 min-w-0 px-0 sm:size-5 sm:h-5"
         onClick={() =>
           void navigate({ to: "/o/$orgSlug/admin", params: { orgSlug } })
         }
       >
-        <Icon icon={XIcon} />
-        <span className={placement === "phone" ? "sr-only" : undefined}>
-          Exit
-        </span>
+        <Icon icon={XIcon} className="size-3" />
       </Button>
     </div>
   );

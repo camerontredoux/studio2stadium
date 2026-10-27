@@ -3,7 +3,7 @@ import * as React from "react";
 
 import { cn } from "@/components/utils/cn";
 
-/** Content every `PageHeader` shows after its actions, set by the area shell. */
+/** Content every `PageHeader` shows just before its actions, set by the area shell. */
 const PageHeaderEndContext = React.createContext<React.ReactNode>(null);
 
 type PageHeaderCrumb = {
@@ -70,10 +70,10 @@ function PageHeader({
         </div>
       )}
       <span className="s2s-header-spacer" />
+      {end}
       {actions !== undefined && (
         <div className="s2s-header-actions">{actions}</div>
       )}
-      {end}
     </header>
   );
 }
