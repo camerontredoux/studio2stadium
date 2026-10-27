@@ -276,7 +276,7 @@ function DancerDialogContent({
       </div>
 
       <DialogBody className="gap-0 p-0">
-        <Section title="Dancer">
+        <Section>
           {facts.length > 0 ? (
             <dl className="m-0 grid grid-cols-[96px_minmax(0,1fr)] gap-x-(--space-12) gap-y-(--space-8)">
               {facts.map((fact) => (
@@ -395,20 +395,29 @@ function Section({
   count,
   children,
 }: {
-  title: string;
+  title?: string;
   count?: number;
   children: ReactNode;
 }) {
   return (
-    <section className="border-line flex flex-col gap-(--space-10) border-b p-(--space-16) last:border-b-0">
-      <div className="flex items-center gap-(--space-8)">
-        <Label render={<h3 />} className="m-0">
-          {title}
-        </Label>
-        {count != null && count > 0 && (
-          <span className="type-data-sm text-fg-3">{count}</span>
-        )}
-      </div>
+    <section
+      className={cn(
+        "border-line flex flex-col gap-(--space-10) border-b last:border-b-0",
+        title === undefined
+          ? "px-(--space-16) py-(--space-12)"
+          : "p-(--space-16)",
+      )}
+    >
+      {title !== undefined && (
+        <div className="flex items-center gap-(--space-8)">
+          <Label render={<h3 />} className="m-0">
+            {title}
+          </Label>
+          {count != null && count > 0 && (
+            <span className="type-data-sm text-fg-3">{count}</span>
+          )}
+        </div>
+      )}
       {children}
     </section>
   );
