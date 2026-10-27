@@ -7,6 +7,7 @@ import { Label } from "@/components/event/label";
 import { RatingMeter } from "@/components/event/rating";
 import { Widget } from "@/components/event/shell";
 import { Tag } from "@/components/event/tag";
+import { PersonAvatar } from "@/features/org/live/shared/person-avatar";
 import { useOrg } from "@/features/org/context/use-org";
 
 import {
@@ -145,7 +146,10 @@ export function TopRankedWidget({
           <span className="flex min-w-0 flex-col gap-(--space-2)">
             <span className="flex min-w-0 items-center gap-(--space-8)">
               <BibLabel bib={dancer.bibNumber} />
-              <RatingMeter value={dancer.rating ?? 0} max={scouting.ratingMax} />
+              <RatingMeter
+                value={dancer.rating ?? 0}
+                max={scouting.ratingMax}
+              />
               {dancer.isFavorited && (
                 <Icon
                   icon={HeartFillIcon}
@@ -155,8 +159,16 @@ export function TopRankedWidget({
                 />
               )}
             </span>
-            <span className="text-fg min-w-0 truncate font-medium">
-              {dancerName(dancer)}
+            <span className="flex min-w-0 items-center gap-(--space-8)">
+              <PersonAvatar
+                firstName={dancer.firstName}
+                lastName={dancer.lastName}
+                src={dancer.profilePhotoUrl}
+                className="size-6"
+              />
+              <span className="text-fg min-w-0 truncate font-medium">
+                {dancerName(dancer)}
+              </span>
             </span>
           </span>
           {dancer.isCalledBack ? <CalledTag /> : <span />}

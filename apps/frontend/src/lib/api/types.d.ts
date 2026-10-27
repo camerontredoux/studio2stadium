@@ -13299,6 +13299,7 @@ export interface components {
                     bibNumber: number | null;
                     firstName: string;
                     lastName: string;
+                    profilePhotoUrl: string | null;
                     studio: string | null;
                     rating: number | null;
                 }[];

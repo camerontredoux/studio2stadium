@@ -15,6 +15,7 @@ const dancerColumns = {
   bibNumber: eventRosters.bibNumber,
   firstName: eventRosters.firstName,
   lastName: eventRosters.lastName,
+  profilePhotoUrl: eventDancerProfiles.profilePhotoUrl,
   studio: sql<
     string | null
   >`COALESCE(${eventDancerProfiles.studio}, ${dancerProfiles.studio})`,
