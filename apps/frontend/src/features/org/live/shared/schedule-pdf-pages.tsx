@@ -36,6 +36,47 @@ type LoadedPdf = {
   aspects: number[];
 };
 
+/**
+ * Draws one page into the canvas at `width` CSS pixels and marks it
+ * `data-drawn`. Returns a cleanup that cancels a draw still in progress.
+ */
+function drawPage(
+  doc: PDFDocumentProxy,
+  pageNumber: number,
+  canvas: HTMLCanvasElement,
+  width: number,
+  onRendered?: () => void,
+) {
+  let cancelled = false;
+  let task: RenderTask | null = null;
+
+  void doc.getPage(pageNumber).then((page) => {
+    if (cancelled) return;
+    const base = page.getViewport({ scale: 1 });
+    const ratio = Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO);
+    const viewport = page.getViewport({
+      scale: (width / base.width) * ratio,
+    });
+    canvas.width = Math.floor(viewport.width);
+    canvas.height = Math.floor(viewport.height);
+    task = page.render({ canvas, viewport });
+    task.promise.then(
+      () => {
+        if (cancelled) return;
+        canvas.dataset.drawn = "";
+        onRendered?.();
+      },
+      // A re-render on resize or scroll cancels the previous one.
+      () => {},
+    );
+  });
+
+  return () => {
+    cancelled = true;
+    task?.cancel();
+  };
+}
+
 function PdfPage({
   doc,
   pageNumber,
@@ -75,34 +116,7 @@ function PdfPage({
       delete canvas.dataset.drawn;
       return;
     }
-    let cancelled = false;
-    let task: RenderTask | null = null;
-
-    void doc.getPage(pageNumber).then((page) => {
-      if (cancelled) return;
-      const base = page.getViewport({ scale: 1 });
-      const ratio = Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO);
-      const viewport = page.getViewport({
-        scale: (width / base.width) * ratio,
-      });
-      canvas.width = Math.floor(viewport.width);
-      canvas.height = Math.floor(viewport.height);
-      task = page.render({ canvas, viewport });
-      task.promise.then(
-        () => {
-          if (cancelled) return;
-          canvas.dataset.drawn = "";
-          onRendered?.();
-        },
-        // A re-render on resize or scroll cancels the previous one.
-        () => {},
-      );
-    });
-
-    return () => {
-      cancelled = true;
-      task?.cancel();
-    };
+    return drawPage(doc, pageNumber, canvas, width, onRendered);
   }, [doc, pageNumber, width, near, onRendered]);
 
   return (
@@ -203,5 +217,67 @@ function SchedulePdfPages({ load, onReady, onError }: SchedulePdfPagesProps) {
   );
 }
 
+/**
+ * Draws only the PDF's first page into a canvas the width of its parent, for
+ * the collapsed widget's preview. The canvas takes `className`, and stays
+ * blank until the page is drawn.
+ */
+function SchedulePdfFirstPage({
+  load,
+  onReady,
+  onError,
+  className,
+}: SchedulePdfPagesProps & { className?: string }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
+  const [width, setWidth] = useState(0);
+
+  const callbacks = useRef({ load, onReady, onError });
+  useEffect(() => {
+    callbacks.current = { load, onReady, onError };
+  });
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let task: PDFDocumentLoadingTask | null = null;
+
+    (async () => {
+      const data = await callbacks.current.load(controller.signal);
+      if (controller.signal.aborted) return;
+      task = getDocument({ data });
+      const loaded = await task.promise;
+      if (!controller.signal.aborted) setDoc(loaded);
+    })().catch(() => {
+      if (!controller.signal.aborted) callbacks.current.onError();
+    });
+
+    return () => {
+      controller.abort();
+      void task?.destroy();
+    };
+  }, []);
+
+  useEffect(() => {
+    const parent = canvasRef.current?.parentElement;
+    if (!parent) return;
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) setWidth(Math.floor(entry.contentRect.width));
+    });
+    observer.observe(parent);
+    return () => observer.disconnect();
+  }, []);
+
+  const handleRendered = useCallback(() => callbacks.current.onReady(), []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!doc || !canvas || width <= 0) return;
+    return drawPage(doc, 1, canvas, width, handleRendered);
+  }, [doc, width, handleRendered]);
+
+  return <canvas ref={canvasRef} aria-hidden="true" className={className} />;
+}
+
 export default SchedulePdfPages;
+export { SchedulePdfFirstPage };
 export type { SchedulePdfPagesProps };
