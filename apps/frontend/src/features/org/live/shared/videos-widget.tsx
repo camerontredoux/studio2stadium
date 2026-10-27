@@ -185,10 +185,14 @@ function VideosWidget({
           <div className="p-(--space-14)">
             <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(min(200px,100%),1fr))] gap-(--space-14) p-0">
               {sorted.map((video) => (
-                <li key={video.id}>
+                <li
+                  key={video.id}
+                  className="flex min-w-0 flex-col gap-(--space-8)"
+                >
                   <button
                     type="button"
-                    className="group text-fg s2s-focus flex w-full cursor-pointer flex-col gap-(--space-8) rounded-(--radius-8) border-0 bg-transparent p-0 text-left"
+                    aria-label={`Play ${video.title}`}
+                    className="group s2s-focus w-full cursor-pointer rounded-(--radius-8) border-0 bg-transparent p-0"
                     onClick={() => setPlaying(video)}
                   >
                     <Thumbnail
@@ -196,16 +200,24 @@ function VideosWidget({
                       iconSize={22}
                       className="border-line group-hover:border-line-hover aspect-video w-full rounded-(--radius-8) border transition-[border-color] duration-150"
                     />
-                    <span className="flex min-w-0 flex-col gap-0.5">
-                      <span className="truncate text-[13px] leading-[1.4] font-medium">
-                        {video.title}
-                      </span>
-                      <span className="text-fg-3 truncate font-mono text-[11.5px] leading-[1.4]">
-                        {categoryName.get(video.categoryId) ?? "[Category]"}
-                        {video.audioUrl ? " · Music" : ""}
-                      </span>
-                    </span>
                   </button>
+                  {video.audioUrl && (
+                    <audio
+                      controls
+                      src={video.audioUrl}
+                      preload="none"
+                      className="h-8 w-full"
+                    />
+                  )}
+                  <span className="text-fg flex min-w-0 flex-col gap-0.5">
+                    <span className="truncate text-[13px] leading-[1.4] font-medium">
+                      {video.title}
+                    </span>
+                    <span className="text-fg-3 truncate font-mono text-[11.5px] leading-[1.4]">
+                      {categoryName.get(video.categoryId) ?? "[Category]"}
+                      {video.audioUrl ? " · Music" : ""}
+                    </span>
+                  </span>
                 </li>
               ))}
             </ul>

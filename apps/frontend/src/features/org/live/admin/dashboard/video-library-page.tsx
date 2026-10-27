@@ -303,6 +303,14 @@ function VideoCard({
           className="text-fg-media relative drop-shadow"
         />
       </button>
+      {video.audioUrl && (
+        <audio
+          controls
+          src={video.audioUrl}
+          preload="none"
+          className="h-8 w-full"
+        />
+      )}
       <div className="flex min-w-0 items-start gap-(--space-4)">
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="text-fg line-clamp-2 text-[13px] leading-[1.4] font-medium">
