@@ -117,7 +117,7 @@ const variantIcon: Record<
 };
 
 const overlayBase =
-  "absolute inset-0 z-3 flex flex-col items-center justify-center bg-veil text-center backdrop-blur-[8px] " +
+  "absolute inset-0 z-3 flex rounded-[inherit] flex-col items-center justify-center bg-veil text-center backdrop-blur-[8px] " +
   "animate-in fade-in zoom-in-98 duration-250 ease-[ease]";
 
 /**
@@ -170,7 +170,7 @@ function Viewfinder({
         <div
           aria-hidden="true"
           className={cn(
-            "absolute inset-0 opacity-0 transition-opacity duration-300 ease-[ease]",
+            "absolute inset-0 rounded-[inherit] overflow-hidden opacity-0 transition-opacity duration-300 ease-[ease]",
             showFeed && "opacity-100",
           )}
         >
