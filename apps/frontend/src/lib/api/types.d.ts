@@ -3101,10 +3101,10 @@ export interface paths {
                     search?: string | null;
                     status?: ("pending" | "active" | "all") | null;
                     org?: string | null;
-                    checkedIn?: (string | number | boolean) | null;
                     limit?: (string | number) | null;
                     page?: (string | number) | null;
                     sortBy?: ("email" | "createdAt" | "firstName" | "lastName" | "organization" | "bibNumber" | "checkedInAt" | "isRegistered") | null;
+                    checkedIn?: (string | number | boolean) | null;
                     sortDir?: ("asc" | "desc") | null;
                     type: components["schemas"]["UploadKind"];
                 };
@@ -3138,7 +3138,55 @@ export interface paths {
             };
         };
         put?: never;
-        post?: never;
+        /**
+         * Add one Roster Entry
+         * @description Adds a dancer or coach to an Org Event's roster by hand, writing the same rows a one-line CSV upload writes: the entry, then the account's org membership or a pending invite, and the matching email. Send userId to link an existing account; its email replaces the one sent. 409 when the email, account or bib number is already on this event's roster; 422 when a field the upload requires for the type is missing.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["OrgsIdEventsIdRostersRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdRostersPostResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Unknown Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         delete: {
             parameters: {
                 query?: never;
@@ -3921,13 +3969,13 @@ export interface paths {
                 query?: {
                     search?: string | null;
                     actorId?: string | null;
-                    actions?: ("upload" | "create" | "update" | "delete" | "activate" | "resend_invite" | "check_in") | ("upload" | "create" | "update" | "delete" | "activate" | "resend_invite" | "check_in")[] | null;
-                    resources?: ("video" | "roster" | "event" | "checklist" | "csv_upload" | "invite" | "video_category") | ("video" | "roster" | "event" | "checklist" | "csv_upload" | "invite" | "video_category")[] | null;
                     from?: string | null;
                     to?: string | null;
                     limit?: (string | number) | null;
                     page?: (string | number) | null;
+                    resources?: string | ("video" | "roster" | "event" | "checklist" | "csv_upload" | "invite" | "video_category")[] | null;
                     sortDir?: ("asc" | "desc") | null;
+                    actions?: string | ("upload" | "create" | "update" | "delete" | "activate" | "resend_invite" | "check_in")[] | null;
                 };
                 header?: never;
                 path: {
@@ -4095,95 +4143,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/orgs/{slug}/events/{id}/reconciliation/orphans": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: {
-                    search?: string | null;
-                    limit?: (string | number) | null;
-                    page?: (string | number) | null;
-                };
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdReconciliationOrphansResponse"];
-                    };
-                };
-                /** @description Unprocessable Entity */
-                422: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Error"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/orgs/{slug}/events/{id}/reconciliation/counts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    slug: string;
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["OrgsIdEventsIdReconciliationCountsResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/orgs/{slug}/events/{id}/reconciliation/invites/{inviteId}": {
         parameters: {
             query?: never;
@@ -4289,6 +4248,95 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orgs/{slug}/events/{id}/reconciliation/orphans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    search?: string | null;
+                    limit?: (string | number) | null;
+                    page?: (string | number) | null;
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdReconciliationOrphansResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/events/{id}/reconciliation/counts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdEventsIdReconciliationCountsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orgs/{slug}/events/{id}/reconciliation/rosters/{rosterId}/merge": {
         parameters: {
             query?: never;
@@ -4359,7 +4407,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    q?: string | null;
+                };
                 header?: never;
                 path: {
                     slug: string;
@@ -4376,6 +4426,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["OrgsIdEventsIdReconciliationSchoolusersResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };
@@ -12682,6 +12741,28 @@ export interface components {
             }[];
             total: number;
         };
+        OrgsIdEventsIdRostersRequest: {
+            userId?: string | null;
+            organization?: string | null;
+            bibNumber?: (string | number) | null;
+            paid?: (string | number | boolean) | null;
+            email: string;
+            type: components["schemas"]["UploadKind"];
+            firstName: string;
+            lastName: string;
+        };
+        OrgsIdEventsIdRostersPostResponse: {
+            id: string;
+            email: string;
+            createdAt: string;
+            type: components["schemas"]["UploadKind"];
+            firstName: string;
+            lastName: string;
+            organization: string | null;
+            eventId: string;
+            bibNumber: number | null;
+            isRegistered: boolean;
+        };
         OrgsIdEventsIdRostersDeleteResponse: {
             deletedCount: number;
         };
@@ -12911,11 +12992,37 @@ export interface components {
                 };
             }[];
         };
+        OrgsIdEventsIdReconciliationInvitesResponse: {
+            data: {
+                id: string;
+                email: string;
+                createdAt: string;
+                organization: string | null;
+                expiresAt: string;
+                consumedAt: string | null;
+            }[];
+            total: number;
+        };
         OrgsIdEventsIdReconciliationInvitesIdResponse: {
             revoked: boolean;
         };
         OrgsIdEventsIdReconciliationInvitesIdResendResponse: {
             resent: boolean;
+        };
+        OrgsIdEventsIdReconciliationOrphansResponse: {
+            data: {
+                id: string;
+                email: string;
+                firstName: string;
+                lastName: string;
+                organization: string | null;
+            }[];
+            total: number;
+        };
+        OrgsIdEventsIdReconciliationCountsResponse: {
+            unclaimed: number;
+            claimed: number;
+            orphans: number;
         };
         OrgsIdEventsIdReconciliationRostersIdMergeRequest: {
             targetUserId: string;
@@ -12962,6 +13069,9 @@ export interface components {
             };
             /** @enum {string} */
             result: "checked_in" | "already_checked_in";
+        };
+        OrgsIdEventsIdScheduleUrlResponse: {
+            url: string;
         };
         OrgsIdEventsIdVideocategoriesResponse: {
             id: string;
@@ -13287,6 +13397,18 @@ export interface components {
             gpa: number | null;
             rating: number | null;
         }[];
+        OrgsIdCallbacksRequest: {
+            dancerRosterId: string;
+        };
+        OrgsIdCallbacksPostResponse: {
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            eventId: string;
+            coachRosterId: string;
+            dancerRosterId: string;
+            showcaseId: string;
+        };
         OrgsIdCallbacksHistoryResponse: {
             showcases: {
                 number: number;
@@ -13304,18 +13426,6 @@ export interface components {
                     rating: number | null;
                 }[];
             }[];
-        };
-        OrgsIdCallbacksRequest: {
-            dancerRosterId: string;
-        };
-        OrgsIdCallbacksPostResponse: {
-            id: string;
-            createdAt: string;
-            updatedAt: string;
-            eventId: string;
-            coachRosterId: string;
-            dancerRosterId: string;
-            showcaseId: string;
         };
         OrgsIdAdminCallbacksResponse: {
             showcase: {
@@ -13428,7 +13538,6 @@ export interface components {
             publishedAt: string | null;
         };
         OrgsIdDancerCallbacksResponse: {
-            publishedShowcaseCount: number;
             callbacks: {
                 username: string | null;
                 firstName: string;
@@ -13439,6 +13548,7 @@ export interface components {
                 showcaseNumbers: number[];
                 firstShowcaseNumber: number;
             }[];
+            publishedShowcaseCount: number;
         };
         OrgsIdSettingsRequest: {
             defaultTimezone?: string | null;
@@ -14495,35 +14605,6 @@ export interface components {
             /** @enum {string} */
             status: "processing" | "pending" | "ready" | "failed";
             errorMessage: string | null;
-        };
-        OrgsIdEventsIdScheduleUrlResponse: {
-            url: string;
-        };
-        OrgsIdEventsIdReconciliationInvitesResponse: {
-            data: {
-                id: string;
-                email: string;
-                createdAt: string;
-                organization: string | null;
-                expiresAt: string;
-                consumedAt: string | null;
-            }[];
-            total: number;
-        };
-        OrgsIdEventsIdReconciliationOrphansResponse: {
-            data: {
-                id: string;
-                email: string;
-                firstName: string;
-                lastName: string;
-                organization: string | null;
-            }[];
-            total: number;
-        };
-        OrgsIdEventsIdReconciliationCountsResponse: {
-            unclaimed: number;
-            claimed: number;
-            orphans: number;
         };
     };
     responses: never;

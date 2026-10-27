@@ -144,6 +144,7 @@ function RosterSheet({
   const [removeOpen, setRemoveOpen] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
   const [attachOpen, setAttachOpen] = useState(false);
+  const [resendOpen, setResendOpen] = useState(false);
 
   // Optimistic paid state until the refetched entry agrees.
   const [paidOverride, setPaidOverride] = useState<boolean | null>(null);
@@ -244,6 +245,7 @@ function RosterSheet({
       } else {
         toastManager.add({ title: "Invite was skipped", type: "warning" });
       }
+      setResendOpen(false);
     } catch {
       toastManager.add({ title: "Couldn't resend the invite", type: "error" });
     }
@@ -381,7 +383,7 @@ function RosterSheet({
             <SplitButton
               label="Resend invite"
               icon={PaperPlaneTiltIcon}
-              onClick={handleResendInvite}
+              onClick={() => setResendOpen(true)}
               disabled={resendMutation.isPending}
               menuLabel="More account actions"
             >
@@ -394,7 +396,7 @@ function RosterSheet({
             </SplitButton>
           ) : (
             <Button
-              onClick={handleResendInvite}
+              onClick={() => setResendOpen(true)}
               disabled={resendMutation.isPending}
             >
               <Icon icon={PaperPlaneTiltIcon} />
@@ -475,7 +477,12 @@ function RosterSheet({
               {showPaid && (
                 <DetailSheetRow label="Access">
                   <span className="flex min-w-0 flex-col">
-                    <span className={cn("type-body", paid ? "text-count" : "text-fg")}>
+                    <span
+                      className={cn(
+                        "type-body",
+                        paid ? "text-count" : "text-fg",
+                      )}
+                    >
                       {paid ? "Paid" : "Unpaid"}
                     </span>
                     <span className="type-caption text-fg-3">
@@ -653,6 +660,21 @@ function RosterSheet({
         confirmLabel="Remove"
         onConfirm={handleRemove}
         pending={deleteMutation.isPending}
+      />
+      <ConfirmDialog
+        open={resendOpen}
+        onOpenChange={setResendOpen}
+        title="Resend invite?"
+        description={
+          <>
+            We&rsquo;ll send the invite to{" "}
+            <span className="text-fg font-medium">{entry.email}</span> again.
+          </>
+        }
+        confirmLabel={resendMutation.isPending ? "Sending…" : "Resend invite"}
+        variant="primary"
+        onConfirm={handleResendInvite}
+        pending={resendMutation.isPending}
       />
       <ConfirmDialog
         open={discardOpen}
