@@ -1,4 +1,5 @@
 import transmit from "@adonisjs/transmit/services/main";
+import logger from "@adonisjs/core/services/logger";
 import router from "@adonisjs/core/services/router";
 import type { HttpContext } from "@adonisjs/core/http";
 import { db } from "#database/connection";
@@ -9,15 +10,49 @@ import {
   loadOrgMemberships,
   resolveEffectiveMembership,
 } from "#shared/org/membership";
+import {
+  claimStream,
+  releaseStream,
+  replayTarget,
+} from "#shared/realtime/stream-owner";
+import env from "#start/env";
 import { eq } from "drizzle-orm";
+
+const machineId = env.get("FLY_MACHINE_ID");
+
+/**
+ * Sends a subscribe or unsubscribe that landed on the wrong Fly machine to the
+ * machine holding the uid's stream, and reports whether it did. A request Fly
+ * already replayed is answered here, so a stale owner cannot bounce it again.
+ */
+async function replayToStreamOwner(ctx: HttpContext, uid: string) {
+  if (ctx.request.header("fly-replay-src")) return false;
+  const owner = await replayTarget(uid, machineId);
+  if (!owner) return false;
+  // Fly's proxy swallows this response and replays the request on `owner`.
+  ctx.response.header("fly-replay", `instance=${owner}`);
+  ctx.response.conflict();
+  return true;
+}
 
 // Register transmit routes inline to work around a @poppinss/utils
 // version mismatch that breaks the built-in controllers.
-router.get("__transmit/events", (ctx) => {
+router.get("__transmit/events", async (ctx) => {
   const uid = ctx.request.input("uid");
-  if (!uid) {
+  if (!uid || typeof uid !== "string") {
     return ctx.response.badRequest({ message: 'Missing "uid"' });
   }
+
+  // Without the owner record a stray subscribe still fails, but the stream
+  // itself works, so a Redis error must not take it down.
+  await claimStream(uid, machineId).catch((error) =>
+    logger.warn({ err: error, uid }, "could not record transmit stream owner")
+  );
+  ctx.response.response.on("close", () => {
+    releaseStream(uid, machineId).catch((error) =>
+      logger.warn({ err: error, uid }, "could not clear transmit stream owner")
+    );
+  });
 
   const stream = transmit.createStream({
     uid,
@@ -33,6 +68,7 @@ router.get("__transmit/events", (ctx) => {
 router.post("__transmit/subscribe", async (ctx) => {
   const uid = ctx.request.input("uid");
   const channel = ctx.request.input("channel");
+  if (typeof uid === "string" && (await replayToStreamOwner(ctx, uid))) return;
 
   const success = await transmit.subscribe({ uid, channel, context: ctx });
   if (!success) return ctx.response.badRequest();
@@ -42,6 +78,7 @@ router.post("__transmit/subscribe", async (ctx) => {
 router.post("__transmit/unsubscribe", async (ctx) => {
   const uid = ctx.request.input("uid");
   const channel = ctx.request.input("channel");
+  if (typeof uid === "string" && (await replayToStreamOwner(ctx, uid))) return;
 
   const success = await transmit.unsubscribe({ uid, channel, context: ctx });
   if (!success) return ctx.response.badRequest();

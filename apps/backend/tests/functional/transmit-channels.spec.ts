@@ -1,9 +1,11 @@
 import { randomUUID } from "node:crypto";
 import { db } from "#database/connection";
+import { streamOwnerKey } from "#shared/realtime/stream-owner";
 import { organizations, orgMemberships } from "#database/schema/organizations";
 import { users } from "#database/schema/users";
 import env from "#start/env";
 import { createDancer, login } from "#tests/helpers/premium";
+import redis from "@adonisjs/redis/services/main";
 import type { ApiClient } from "@japa/api-client";
 import { test } from "@japa/runner";
 import { eq } from "drizzle-orm";
@@ -110,3 +112,42 @@ test.group("POST /__transmit/subscribe", (group) => {
     callbacks.assertStatus(400);
   });
 });
+
+// Fly runs two or more machines, and each holds its own SSE streams in memory.
+test.group(
+  "POST /__transmit/subscribe on a machine without the stream",
+  (group) => {
+    let uid: string;
+    group.each.setup(async () => {
+      uid = randomUUID();
+      await redis.connection("cache").set(streamOwnerKey(uid), "machine-a");
+      return async () => {
+        await redis.connection("cache").del(streamOwnerKey(uid));
+      };
+    });
+
+    for (const route of ["subscribe", "unsubscribe"]) {
+      test(`a ${route} is replayed on the machine holding the stream`, async ({
+        client,
+      }) => {
+        const res = await client
+          .post(`/__transmit/${route}`)
+          .json({ uid, channel: "orgs/live-org/showcases" });
+        res.assertStatus(409);
+        res.assertHeader("fly-replay", "instance=machine-a");
+      });
+    }
+
+    test("a request Fly already replayed is not sent on again", async ({
+      client,
+      assert,
+    }) => {
+      const res = await client
+        .post("/__transmit/subscribe")
+        .header("fly-replay-src", "instance=machine-b")
+        .json({ uid, channel: "orgs/live-org/showcases" });
+      res.assertStatus(400);
+      assert.isUndefined(res.header("fly-replay"));
+    });
+  }
+);

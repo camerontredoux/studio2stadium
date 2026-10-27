@@ -86,6 +86,14 @@ export default await Env.create(new URL("../", import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Set by Fly on each machine; routes Transmit requests to
+  | the machine holding the SSE stream (unset outside Fly)
+  |----------------------------------------------------------
+  */
+  FLY_MACHINE_ID: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
   | Variables for configuring database connection
   |----------------------------------------------------------
   */
