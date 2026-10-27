@@ -19,6 +19,7 @@ import {
   UNLIMITED_CALLBACKS,
 } from "@/features/org/lib/max-callbacks";
 import { CallbacksStatusDot } from "@/features/org/live/shared/callbacks-status-dot";
+import { PersonAvatar } from "@/features/org/live/shared/person-avatar";
 import { DancerBib } from "@/features/org/live/shared/dancer-bib";
 import type { ApiSchemas } from "@/lib/api/client";
 
@@ -33,7 +34,13 @@ type Scouting = ReturnType<typeof useCoachScouting>;
 
 type ListDancer = Pick<
   ScoutedDancer,
-  "rosterId" | "bibNumber" | "firstName" | "lastName" | "studio" | "eventId"
+  | "rosterId"
+  | "bibNumber"
+  | "firstName"
+  | "lastName"
+  | "studio"
+  | "eventId"
+  | "profilePhotoUrl"
 > & { rating: number | null };
 
 type DancerListWidgetProps = {
@@ -99,7 +106,15 @@ function DancerListWidget({
             <span>
               <DancerBib dancer={row} />
             </span>
-            <span className="min-w-0 truncate font-medium">{name}</span>
+            <span className="flex min-w-0 items-center gap-(--space-8)">
+              <PersonAvatar
+                firstName={row.firstName}
+                lastName={row.lastName}
+                src={row.profilePhotoUrl}
+                className="size-6"
+              />
+              <span className="min-w-0 truncate font-medium">{name}</span>
+            </span>
             <span className="text-fg-2 bp-phone:hidden min-w-0 truncate">
               {row.studio ?? "–"}
             </span>
@@ -144,7 +159,12 @@ function CallbackRow({
 }: {
   dancer: Pick<
     ListDancer,
-    "rosterId" | "bibNumber" | "firstName" | "lastName" | "rating"
+    | "rosterId"
+    | "bibNumber"
+    | "firstName"
+    | "lastName"
+    | "rating"
+    | "profilePhotoUrl"
   >;
   ratingMax: number;
   onRemove?: { label: string; disabled: boolean; run: () => void };
@@ -152,8 +172,16 @@ function CallbackRow({
   return (
     <div className="border-line-soft bp-phone:ps-(--space-12) grid min-h-11 grid-cols-[64px_minmax(0,1fr)_auto_28px] items-center gap-x-(--space-12) border-b ps-(--space-14) pe-(--space-8)">
       <BibLabel bib={dancer.bibNumber} />
-      <span className="text-fg min-w-0 truncate font-medium">
-        {dancerName(dancer)}
+      <span className="flex min-w-0 items-center gap-(--space-8)">
+        <PersonAvatar
+          firstName={dancer.firstName}
+          lastName={dancer.lastName}
+          src={dancer.profilePhotoUrl}
+          className="size-6"
+        />
+        <span className="text-fg min-w-0 truncate font-medium">
+          {dancerName(dancer)}
+        </span>
       </span>
       <RatingMeter value={dancer.rating ?? 0} max={ratingMax} size="row" />
       {onRemove ? (

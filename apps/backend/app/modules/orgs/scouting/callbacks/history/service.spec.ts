@@ -199,6 +199,7 @@ test.group("CallbackHistoryService", (group) => {
         bibNumber: 230,
         firstName: "Juna",
         lastName: "Dancer",
+        profilePhotoUrl: null,
         studio: null,
         rating: null,
       },

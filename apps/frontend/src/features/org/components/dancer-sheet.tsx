@@ -135,16 +135,14 @@ function DancerSheetContent({
         }
         title={name}
         wrapMeta
-        meta={
-          <>
-            {!dancer.isRegistered
-              ? "Not registered"
-              : meta || "No profile details"}
-            {dancer.bibNumber != null && (
-              <span className="block">Bib {dancer.bibNumber}</span>
-            )}
-          </>
-        }
+        meta={[
+          dancer.bibNumber != null ? `Bib ${dancer.bibNumber}` : null,
+          !dancer.isRegistered
+            ? "Not registered"
+            : meta || "No profile details",
+        ]
+          .filter(Boolean)
+          .join(" · ")}
         onClose={close}
       />
 

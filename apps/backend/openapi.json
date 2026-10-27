@@ -19595,6 +19595,16 @@
                       "lastName": {
                         "type": "string"
                       },
+                      "profilePhotoUrl": {
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
                       "studio": {
                         "oneOf": [
                           {
@@ -19621,6 +19631,7 @@
                       "bibNumber",
                       "firstName",
                       "lastName",
+                      "profilePhotoUrl",
                       "studio",
                       "rating"
                     ]
