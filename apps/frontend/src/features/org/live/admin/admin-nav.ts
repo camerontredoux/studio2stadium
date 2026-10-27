@@ -2,6 +2,7 @@ import {
   ChalkboardTeacherIcon,
   ClipboardTextIcon,
   GearIcon,
+  MegaphoneSimpleIcon,
   QrCodeIcon,
   SquaresFourIcon,
   UsersIcon,
@@ -16,6 +17,7 @@ import { useOrg } from "@/features/org/context/use-org";
 
 export type AdminNavPath =
   | "/o/$orgSlug/admin"
+  | "/o/$orgSlug/admin/callbacks"
   | "/o/$orgSlug/admin/dancers"
   | "/o/$orgSlug/admin/coaches"
   | "/o/$orgSlug/admin/check-in"
@@ -36,9 +38,10 @@ export interface AdminNavItem {
 
 /**
  * The admin area's destinations, shared by the sidebar and the phone dock.
- * Requests, Callbacks and the Video library are dashboard widgets now; their
- * pages still exist but leave the nav. Check-in shows only with the
- * `check_in` feature, and stays out of the five-item phone dock.
+ * Requests and the Video library are dashboard widgets now; their pages still
+ * exist but leave the nav. Callbacks shows only with the `callbacks` feature,
+ * and takes Audit log's place in the five-item phone dock. Check-in shows only
+ * with the `check_in` feature, and stays out of the dock.
  */
 export function useAdminNav(): AdminNavItem[] {
   const { org, hasFeature } = useOrg();
@@ -68,6 +71,17 @@ export function useAdminNav(): AdminNavItem[] {
       to: "/o/$orgSlug/admin",
       current: at(""),
     },
+    ...(hasFeature("callbacks")
+      ? [
+          {
+            id: "callbacks",
+            label: "Callbacks",
+            icon: MegaphoneSimpleIcon,
+            to: "/o/$orgSlug/admin/callbacks" as const,
+            current: at("/callbacks"),
+          },
+        ]
+      : []),
     {
       id: "dancers",
       label: "Dancers",
@@ -107,6 +121,7 @@ export function useAdminNav(): AdminNavItem[] {
       to: "/o/$orgSlug/admin/uploads",
       section: "Admin",
       current: at("/uploads"),
+      ...(hasFeature("callbacks") && { dock: false as const }),
     },
     {
       id: "settings",
