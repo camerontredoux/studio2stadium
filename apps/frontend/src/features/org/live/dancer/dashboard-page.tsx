@@ -1,5 +1,6 @@
 import { Panel } from "@/components/event/panel";
 import { ShellHeader, WidgetBoard } from "@/components/event/shell";
+import { matches, SHELL_MEDIA } from "@/components/event/shell/breakpoints";
 import type { OrgEvent } from "@/features/org/api/admin-queries";
 import type { MyRoster } from "@/features/org/context/org-context";
 import { useOrg } from "@/features/org/context/use-org";
@@ -79,7 +80,11 @@ function Dashboard({
       rail={<EventRail event={event} />}
     >
       <EventDetailsBar event={event} />
-      <WidgetBoard order={order} firstRow={4}>
+      <WidgetBoard
+        order={order}
+        firstRow={4}
+        defaultOpen={matches(SHELL_MEDIA.phone) ? null : "schedule"}
+      >
         <ScheduleWidget event={event} mode="viewer" />
         <TopChoicesWidget scouting={scouting} />
         <CallbacksWidget scouting={scouting} />
