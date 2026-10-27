@@ -12727,7 +12727,6 @@ export interface components {
                     gradYear: number | null;
                     profilePhotoUrl: string | null;
                     state: string | null;
-                    height: string | null;
                     danceStyles: string[] | null;
                     bio: string | null;
                 } | null;
@@ -12805,7 +12804,6 @@ export interface components {
                 gradYear: number | null;
                 profilePhotoUrl: string | null;
                 state: string | null;
-                height: string | null;
                 danceStyles: string[] | null;
                 bio: string | null;
             } | null;
@@ -13244,7 +13242,6 @@ export interface components {
             rosterId: string;
             profilePhotoUrl: string | null;
             state: string | null;
-            height: string | null;
             danceStyles: string[] | null;
             bio: string | null;
             extra: Record<string, never>;

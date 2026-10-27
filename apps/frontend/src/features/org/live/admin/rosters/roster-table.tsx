@@ -247,7 +247,6 @@ function RosterCell({
               gradYear: row.profile?.gradYear,
               gpa: row.profile?.gpa,
               state: row.profile?.state,
-              height: row.profile?.height,
               danceStyles: row.profile?.danceStyles,
               profilePhotoUrl: row.profile?.profilePhotoUrl,
             }}

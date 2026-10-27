@@ -355,7 +355,6 @@ function DeskRow({
             gradYear: entry.profile?.gradYear ?? null,
             gpa: entry.profile?.gpa ?? null,
             state: entry.profile?.state ?? null,
-            height: entry.profile?.height ?? null,
             danceStyles: entry.profile?.danceStyles ?? null,
             profilePhotoUrl: entry.profile?.profilePhotoUrl ?? null,
             checkedInAt,

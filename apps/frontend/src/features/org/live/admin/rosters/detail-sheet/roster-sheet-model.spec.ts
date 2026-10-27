@@ -28,7 +28,6 @@ const dancer = {
     gradYear: 2027,
     profilePhotoUrl: null,
     state: null,
-    height: null,
     danceStyles: null,
     bio: null,
   },
