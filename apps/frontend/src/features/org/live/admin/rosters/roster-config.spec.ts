@@ -62,7 +62,7 @@ describe("rosterColumns", () => {
     expect(dancers.columns).toBe(
       "64px minmax(120px,1fr) minmax(180px,1.5fr) 96px 96px",
     );
-    expect(dancers.phoneColumns).toBe("56px minmax(72px,1fr) 64px 84px");
+    expect(dancers.phoneColumns).toBe("56px minmax(72px,1fr) 32px 32px");
   });
 });
 

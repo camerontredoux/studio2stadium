@@ -70,7 +70,12 @@ const auditCols =
 // Phones (≤800): each row is a card. Chevron, actor and time on the first
 // line; action, then the summary, wrap below under the actor.
 const phoneColumns = "16px minmax(0,1fr) max-content";
-const phoneRow = "bp-phone:gap-y-(--space-4) bp-phone:py-(--space-10)";
+// On phones each entry lays out its own grid instead of a nested subgrid:
+// Safari keeps a subgrid inside the rows' negative margins, which left a band
+// down the right and dropped the column gap after the chevron.
+const phoneEntry = "bp-phone:block";
+const phoneRow =
+  "bp-phone:grid-cols-[16px_minmax(0,1fr)_max-content] bp-phone:gap-x-(--space-10) bp-phone:gap-y-(--space-4) bp-phone:py-(--space-10)";
 const phoneBelow = "bp-phone:col-[2/-1]";
 const hideBelowBoard = "@max-[940px]:hidden";
 // Full-width rows inside the table cancel its side padding (see DataTable).
@@ -433,7 +438,7 @@ export function AuditLogPage({ orgSlug }: AuditLogPageProps) {
                     )}
                   >
                     <AuditLogRow
-                      className={rowEdge}
+                      className={cn(rowEdge, phoneEntry)}
                       rowClassName={cn(rowPad, phoneRow)}
                       summary={
                         <EntrySummary

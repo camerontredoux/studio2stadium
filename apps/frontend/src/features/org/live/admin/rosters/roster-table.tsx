@@ -1,4 +1,4 @@
-import { CheckIcon } from "@phosphor-icons/react";
+import { CheckCircleIcon, CheckIcon, ClockIcon } from "@phosphor-icons/react";
 import { type RefObject, useState } from "react";
 import type * as React from "react";
 
@@ -60,6 +60,7 @@ export interface RosterTableProps {
 }
 
 const hideOnPhone = "bp-phone:hidden";
+const hideOnDesk = "desk:hidden";
 
 /** The roster's DataTable: sortable headers, selection, and the name button that opens the sheet. */
 export function RosterTable({
@@ -142,7 +143,14 @@ export function RosterTable({
                 : undefined
             }
           >
-            {column.label}
+            {column.phoneIcon ? (
+              <>
+                <Icon icon={column.phoneIcon} className={hideOnDesk} />
+                <span className="bp-phone:sr-only">{column.label}</span>
+              </>
+            ) : (
+              column.label
+            )}
           </DataTableHeaderCell>
         ))}
       </DataTableHead>
@@ -293,10 +301,28 @@ function RosterCell({
       );
     case "status":
       return (
-        <DataTableCell kind="status" className={phone}>
-          <Tag tone={row.isRegistered ? "live" : "muted"}>
+        <DataTableCell kind="status" className={cn("flex items-center", phone)}>
+          <Tag
+            tone={row.isRegistered ? "live" : "muted"}
+            className={hideOnPhone}
+          >
             {row.isRegistered ? "Active" : "Pending"}
           </Tag>
+          {/* Phones show an icon so the name keeps the width. */}
+          <span
+            title={row.isRegistered ? "Active" : "Pending"}
+            className={cn(
+              hideOnDesk,
+              "flex",
+              row.isRegistered ? "text-event-accent" : "text-fg-3",
+            )}
+          >
+            <Icon
+              icon={row.isRegistered ? CheckCircleIcon : ClockIcon}
+              size="md"
+              label={row.isRegistered ? "Active" : "Pending"}
+            />
+          </span>
         </DataTableCell>
       );
     case "paid":
@@ -320,11 +346,18 @@ function RosterCell({
         >
           {row.checkedInAt ? (
             <>
-              <Icon icon={CheckIcon} />
-              <span>Yes</span>
+              <Icon icon={CheckIcon} className="bp-phone:size-4" />
+              <span className={hideOnPhone}>Yes</span>
+              <span className="desk:hidden sr-only">Checked in</span>
             </>
           ) : (
-            <span className="text-fg-3">No</span>
+            <span className="text-fg-3">
+              <span className={hideOnPhone}>No</span>
+              <span className={hideOnDesk} aria-hidden>
+                –
+              </span>
+              <span className="desk:hidden sr-only">Not checked in</span>
+            </span>
           )}
         </DataTableCell>
       );

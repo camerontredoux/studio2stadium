@@ -1,3 +1,8 @@
+import {
+  CheckCircleIcon,
+  SignInIcon,
+  type Icon as PhosphorIcon,
+} from "@phosphor-icons/react";
 import { z } from "zod";
 
 import type {
@@ -53,6 +58,8 @@ export interface RosterColumn {
   width: string;
   /** Phone (≤800px) grid track, from the mockup's `.rl-d` / `.rl-c`; `null` drops the column on phones. */
   phoneWidth: string | null;
+  /** Shown instead of the label on phones, where the column shrinks to an icon. */
+  phoneIcon?: PhosphorIcon;
 }
 
 const COLUMNS: Record<RosterColumnId, RosterColumn> = {
@@ -89,7 +96,8 @@ const COLUMNS: Record<RosterColumnId, RosterColumn> = {
     label: "Status",
     sortKey: "isRegistered",
     width: "96px",
-    phoneWidth: "64px",
+    phoneWidth: "32px",
+    phoneIcon: CheckCircleIcon,
   },
   paid: { id: "paid", label: "Paid", width: "80px", phoneWidth: null },
   checkedIn: {
@@ -97,7 +105,8 @@ const COLUMNS: Record<RosterColumnId, RosterColumn> = {
     label: "Checked in",
     sortKey: "checkedInAt",
     width: "96px",
-    phoneWidth: "84px",
+    phoneWidth: "32px",
+    phoneIcon: SignInIcon,
   },
 };
 

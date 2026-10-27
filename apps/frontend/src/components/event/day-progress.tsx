@@ -57,52 +57,71 @@ function DayProgress({
           of {days}
         </span>
       </div>
-      <Progress
-        value={clamped}
-        min={0}
-        max={100}
-        aria-label="Event progress"
-        getAriaValueText={() =>
-          `Day ${day} of ${days}, ${clamped}% through today`
-        }
-        className="flex flex-row gap-(--space-4)"
-      >
-        {Array.from({ length: days }, (_, index) => {
-          const n = index + 1;
-          return (
-            <div
-              key={n}
-              className="flex min-w-0 flex-1 flex-col gap-(--space-8)"
-            >
-              <span
-                className={cn(
-                  "block h-[10px] rounded-(--radius-3)",
-                  n < day && "bg-fill-done",
-                  n === day &&
-                    "bg-[linear-gradient(to_right,var(--event-accent)_var(--dp-pct),var(--track-upcoming)_var(--dp-pct))]",
-                  n > day && "bg-track-upcoming",
-                )}
-                style={
-                  n === day
-                    ? ({ "--dp-pct": `${clamped}%` } as React.CSSProperties)
-                    : undefined
-                }
-              />
-              <span
-                className={cn(
-                  "type-meta truncate",
-                  n === day ? "text-fg" : "text-fg-3",
-                )}
-              >
-                {labels[index]}
-              </span>
-            </div>
-          );
-        })}
-      </Progress>
+      <DaySegments
+        day={day}
+        days={days}
+        pct={clamped}
+        labels={labels}
+        valueText={`Day ${day} of ${days}, ${clamped}% through today`}
+      />
     </div>
   );
 }
 
-export { DayProgress };
-export type { DayProgressProps };
+type DaySegmentsProps = {
+  /** Current event day, 1-based; past the last day draws every day done. */
+  day: number;
+  days: number;
+  /** How far through the current day, 0 to 100. */
+  pct: number;
+  labels: readonly string[];
+  /** The progress bar's spoken value. */
+  valueText: string;
+};
+
+/** One segment per day: done days filled, the current day filled to `pct`, later days on the track. */
+function DaySegments({ day, days, pct, labels, valueText }: DaySegmentsProps) {
+  return (
+    <Progress
+      value={day > days ? 100 : pct}
+      min={0}
+      max={100}
+      aria-label="Event progress"
+      getAriaValueText={() => valueText}
+      className="flex flex-row gap-(--space-4)"
+    >
+      {Array.from({ length: days }, (_, index) => {
+        const n = index + 1;
+        return (
+          <div key={n} className="flex min-w-0 flex-1 flex-col gap-(--space-8)">
+            <span
+              className={cn(
+                "block h-[10px] rounded-(--radius-3)",
+                n < day && "bg-fill-done",
+                n === day &&
+                  "bg-[linear-gradient(to_right,var(--event-accent)_var(--dp-pct),var(--track-upcoming)_var(--dp-pct))]",
+                n > day && "bg-track-upcoming",
+              )}
+              style={
+                n === day
+                  ? ({ "--dp-pct": `${pct}%` } as React.CSSProperties)
+                  : undefined
+              }
+            />
+            <span
+              className={cn(
+                "type-meta truncate",
+                n === day ? "text-fg" : "text-fg-3",
+              )}
+            >
+              {labels[index]}
+            </span>
+          </div>
+        );
+      })}
+    </Progress>
+  );
+}
+
+export { DayProgress, DaySegments };
+export type { DayProgressProps, DaySegmentsProps };
