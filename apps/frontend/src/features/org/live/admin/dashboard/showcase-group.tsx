@@ -139,65 +139,75 @@ export function ShowcaseGroup({
       </div>
       {note && <p className="text-fg-3 m-0 text-[12px]">{note}</p>}
       {bibs && bibs.length > 0 ? (
-        <div className="flex flex-col gap-(--space-14)">
-          {groupsOfFive(bibs).map((group) => (
+        <div className="divide-line flex flex-col divide-y">
+          {groupsOfFive(bibs).map((group, index) => (
             <div
               key={group[0].dancerRosterId}
               data-testid="callback-group"
-              className="flex flex-wrap gap-(--space-6)"
+              className="flex items-start gap-(--space-8) py-1 first:pt-0 last:pb-0"
             >
-              {group.map((bib) => {
-                const name = `${bib.firstName} ${bib.lastName}`.trim();
-                const isSent = sent.has(bib.dancerRosterId);
-                // The wrapper stays in place when the mark changes, so the chip keeps focus.
-                return (
-                  <span
-                    key={bib.dancerRosterId}
-                    data-sent={isSent ? "" : undefined}
-                    className="inline-flex"
-                  >
-                    <DancerBib
-                      variant="chip"
-                      dancer={{
-                        rosterId: bib.dancerRosterId,
-                        bibNumber: bib.bibNumber,
-                        firstName: bib.firstName,
-                        lastName: bib.lastName,
-                      }}
-                      onOpen={() => setSent(sentKey, bib.dancerRosterId, true)}
-                      className={
-                        isSent
-                          ? "border-live/40 bg-live/10 text-live hover:bg-live/15 hover:text-live [&>span]:text-live rounded-r-none"
-                          : undefined
-                      }
+              <span
+                aria-label={`Group ${index + 1}`}
+                className="text-fg-3 w-[2ch] shrink-0 pt-[5px] font-mono text-[11px] tabular-nums"
+              >
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <div className="flex flex-1 flex-wrap gap-(--space-6)">
+                {group.map((bib) => {
+                  const name = `${bib.firstName} ${bib.lastName}`.trim();
+                  const isSent = sent.has(bib.dancerRosterId);
+                  // The wrapper stays in place when the mark changes, so the chip keeps focus.
+                  return (
+                    <span
+                      key={bib.dancerRosterId}
+                      data-sent={isSent ? "" : undefined}
+                      className="inline-flex"
                     >
-                      {name}
-                      {bib.coachCount > 1 && (
-                        <span className="text-count font-mono text-[11px]">
-                          ×{bib.coachCount}
-                        </span>
-                      )}
-                    </DancerBib>
-                    {isSent && (
-                      <Button
-                        size="sm"
-                        iconOnly
-                        label={`Unmark ${name || "dancer"} as sent`}
-                        onClick={(event) => {
-                          // The button goes away, so hand focus back to its chip.
-                          const chip =
-                            event.currentTarget.previousElementSibling;
-                          if (chip instanceof HTMLElement) chip.focus();
-                          setSent(sentKey, bib.dancerRosterId, false);
+                      <DancerBib
+                        variant="chip"
+                        dancer={{
+                          rosterId: bib.dancerRosterId,
+                          bibNumber: bib.bibNumber,
+                          firstName: bib.firstName,
+                          lastName: bib.lastName,
                         }}
-                        className="border-live/40 bg-live/10 text-live hover:bg-live/20 hover:text-live rounded-l-none border-l-0"
+                        onOpen={() =>
+                          setSent(sentKey, bib.dancerRosterId, true)
+                        }
+                        className={
+                          isSent
+                            ? "border-live/40 bg-live/10 text-live hover:bg-live/15 hover:text-live [&>span]:text-live rounded-r-none"
+                            : undefined
+                        }
                       >
-                        <Icon icon={ArrowCounterClockwiseIcon} />
-                      </Button>
-                    )}
-                  </span>
-                );
-              })}
+                        {name}
+                        {bib.coachCount > 1 && (
+                          <span className="text-count font-mono text-[11px]">
+                            ×{bib.coachCount}
+                          </span>
+                        )}
+                      </DancerBib>
+                      {isSent && (
+                        <Button
+                          size="sm"
+                          iconOnly
+                          label={`Unmark ${name || "dancer"} as sent`}
+                          onClick={(event) => {
+                            // The button goes away, so hand focus back to its chip.
+                            const chip =
+                              event.currentTarget.previousElementSibling;
+                            if (chip instanceof HTMLElement) chip.focus();
+                            setSent(sentKey, bib.dancerRosterId, false);
+                          }}
+                          className="border-live/40 bg-live/10 text-live hover:bg-live/20 hover:text-live rounded-l-none border-l-0"
+                        >
+                          <Icon icon={ArrowCounterClockwiseIcon} />
+                        </Button>
+                      )}
+                    </span>
+                  );
+                })}
+              </div>
             </div>
           ))}
         </div>
