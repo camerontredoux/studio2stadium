@@ -21,7 +21,7 @@ import { useDancerScouting } from "./use-dancer-scouting";
 /**
  * Schedule first; Check-in last, so it sits alone on row 2 while every widget
  * is a peek and joins the strips at the end when one opens (the mockup's board).
- * A widget the org's features leave out shows disabled and moves to the end.
+ * A widget the org's features leave out is not shown.
  */
 const WIDGETS = [
   { id: "schedule" },
@@ -66,12 +66,10 @@ function Dashboard({
 }) {
   const { hasFeature } = useOrg();
   const scouting = useDancerScouting(event, roster, { allSchools: false });
-  const enabled = (widget: (typeof WIDGETS)[number]) =>
-    !("feature" in widget) || hasFeature(widget.feature);
-  const order = [
-    ...WIDGETS.filter(enabled),
-    ...WIDGETS.filter((widget) => !enabled(widget)),
-  ].map((widget) => widget.id);
+  const order = WIDGETS.filter(
+    (widget) => !("feature" in widget) || hasFeature(widget.feature),
+  ).map((widget) => widget.id);
+  const shows = (id: (typeof WIDGETS)[number]["id"]) => order.includes(id);
 
   return (
     <ShellPage
@@ -81,10 +79,10 @@ function Dashboard({
       <EventDetailsBar event={event} />
       <WidgetBoard order={order} firstRow={4}>
         <ScheduleWidget event={event} mode="viewer" />
-        <TopChoicesWidget scouting={scouting} />
-        <CallbacksWidget scouting={scouting} />
-        <VideosWidget event={event} />
-        <CheckInPassWidget event={event} />
+        {shows("top-choices") && <TopChoicesWidget scouting={scouting} />}
+        {shows("callbacks") && <CallbacksWidget scouting={scouting} />}
+        {shows("videos") && <VideosWidget event={event} />}
+        {shows("check-in") && <CheckInPassWidget event={event} />}
       </WidgetBoard>
     </ShellPage>
   );

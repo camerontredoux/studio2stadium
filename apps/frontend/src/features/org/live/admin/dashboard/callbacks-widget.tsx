@@ -4,8 +4,6 @@ import { Link } from "@tanstack/react-router";
 import { Chip } from "@/components/event/chip";
 import { Widget } from "@/components/event/shell";
 import { useWidgetBoardSlot } from "@/components/event/shell/widget-board-context";
-import { useOrg } from "@/features/org/context/use-org";
-import type { OrgEvent } from "@/features/org/api/admin-queries";
 import { CallbacksStatusDot } from "@/features/org/live/shared/callbacks-status-dot";
 
 import { PublishedShowcase, ShowcaseGroup } from "./showcase-group";
@@ -22,36 +20,10 @@ const PEEK_CHIPS = 6;
  * flow from the old callbacks page: Publish (with its confirm) and Next showcase.
  *
  * Callbacks always belong to the org's active event (the API has no event param),
- * so on any other event the widget is disabled, as it is without the `callbacks`
- * feature.
+ * so the dashboard leaves the widget out on any other event, and when the org
+ * lacks the `callbacks` feature.
  */
-export function CallbacksWidget({
-  orgSlug,
-  event,
-}: {
-  orgSlug: string;
-  event: OrgEvent;
-}) {
-  const { hasFeature } = useOrg();
-  if (!hasFeature("callbacks") || !event.isActive) {
-    return (
-      <Widget
-        id="callbacks"
-        label="Callbacks"
-        icon={MegaphoneIcon}
-        disabled
-        disabledText={
-          hasFeature("callbacks")
-            ? "Callbacks run on the active event"
-            : "Not included in this event"
-        }
-      />
-    );
-  }
-  return <ActiveCallbacksWidget orgSlug={orgSlug} />;
-}
-
-function ActiveCallbacksWidget({ orgSlug }: { orgSlug: string }) {
+export function CallbacksWidget({ orgSlug }: { orgSlug: string }) {
   const slot = useWidgetBoardSlot("callbacks");
   const isOpen = slot?.state === "open";
   const {

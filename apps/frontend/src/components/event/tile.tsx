@@ -3,7 +3,6 @@ import {
   ArrowsInSimpleIcon,
   ArrowsOutSimpleIcon,
   type Icon as PhosphorIcon,
-  LockIcon,
 } from "@phosphor-icons/react";
 import * as React from "react";
 
@@ -44,10 +43,6 @@ type TileProps = Omit<React.ComponentProps<"section">, "children"> & {
   fullPage?: React.ReactElement;
   /** The open body; it scrolls. */
   children?: React.ReactNode;
-  /** Not available yet: dashed, no shadow, can't open. */
-  disabled?: boolean;
-  /** Text on a disabled peek. Default "Coming soon". */
-  disabledText?: React.ReactNode;
   /** Outside a `WidgetBoard` only: the state and handlers. */
   state?: WidgetState;
   onOpen?: () => void;
@@ -69,8 +64,6 @@ function Tile({
   actions,
   fullPage,
   children,
-  disabled = false,
-  disabledText = "Coming soon",
   state: stateProp,
   onOpen,
   onCollapse,
@@ -118,17 +111,14 @@ function Tile({
   }
 
   const lower = label.toLowerCase();
-  const fold = disabled ? LockIcon : ArrowsOutSimpleIcon;
 
   return (
     <section
       ref={rootRef}
       aria-label={label}
-      aria-disabled={disabled || undefined}
       className={cn("s2s-widget", className)}
       data-state={state}
       data-index={slot?.index}
-      data-disabled={disabled ? "" : undefined}
       style={slot ? { order: slot.index, ...style } : style}
       {...props}
     >
@@ -136,8 +126,7 @@ function Tile({
         ref={peekRef}
         type="button"
         className="s2s-widget-layer s2s-widget-peek"
-        disabled={disabled}
-        aria-label={disabled ? `${label}, coming soon` : `Expand ${lower}`}
+        aria-label={`Expand ${lower}`}
         onClick={openFrom}
       >
         {peekBackground}
@@ -145,79 +134,68 @@ function Tile({
           <span className="s2s-widget-label type-label">{label}</span>
           {labelAddon}
           <span className="s2s-widget-exp">
-            <Icon icon={fold} />
+            <Icon icon={ArrowsOutSimpleIcon} />
           </span>
         </span>
-        <span className="s2s-widget-pbody">
-          {disabled ? (
-            <span className="text-fg-disabled text-[12.5px]">
-              {disabledText}
-            </span>
-          ) : (
-            peek
-          )}
-        </span>
+        <span className="s2s-widget-pbody">{peek}</span>
       </button>
       <button
         type="button"
         className="s2s-widget-layer s2s-widget-strip"
-        disabled={disabled}
-        aria-label={disabled ? `${label}, coming soon` : `Open ${lower}`}
+        aria-label={`Open ${lower}`}
         onClick={openFrom}
       >
-        <Icon icon={disabled ? LockIcon : icon} size="md" />
-        {!disabled && count !== undefined && (
+        <Icon icon={icon} size="md" />
+        {count !== undefined && (
           <span className="s2s-widget-strip-count">{count}</span>
         )}
         <span className="s2s-widget-strip-label">{label}</span>
       </button>
-      {!disabled && (
-        <div className="s2s-widget-layer s2s-widget-full">
-          {/* The whole head collapses on click, like the mockup; the button is the keyboard path. */}
+      <div className="s2s-widget-layer s2s-widget-full">
+        {/* The whole head collapses on click, like the mockup; the button is the keyboard path. */}
+        <div
+          className="s2s-widget-fhead"
+          title="Collapse"
+          onClick={collapseFrom}
+        >
+          <h2 className="s2s-widget-label type-label m-0">{label}</h2>
+          {labelAddon}
+          {count !== undefined && (
+            <span className="s2s-widget-fcount">{count}</span>
+          )}
           <div
-            className="s2s-widget-fhead"
-            title="Collapse"
-            onClick={collapseFrom}
+            className="s2s-widget-factions"
+            onClick={(event) => event.stopPropagation()}
           >
-            <h2 className="s2s-widget-label type-label m-0">{label}</h2>
-            {labelAddon}
-            {count !== undefined && (
-              <span className="s2s-widget-fcount">{count}</span>
-            )}
-            <div
-              className="s2s-widget-factions"
-              onClick={(event) => event.stopPropagation()}
-            >
-              {actions}
-              {fullPage && (
-                // A square icon button on phones, so the head keeps room for the title.
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  render={fullPage}
-                  title="Full page"
-                  className="bp-phone:w-(--control-sm) bp-phone:px-0"
-                >
-                  <Icon icon={ArrowSquareOutIcon} />
-                  <span className="bp-phone:sr-only">Full page</span>
-                </Button>
-              )}
+            {actions}
+            {fullPage && (
+              // A square icon button on phones, so the head keeps room for the title.
               <Button
-                ref={collapseRef}
                 size="sm"
-                iconOnly
                 variant="ghost"
-                label={`Collapse ${lower}`}
-                title="Collapse"
-                onClick={collapseFrom}
+                render={fullPage}
+                title="Full page"
+                className="bp-phone:w-(--control-sm) bp-phone:px-0"
               >
-                <Icon icon={ArrowsInSimpleIcon} />
+                <Icon icon={ArrowSquareOutIcon} />
+                <span className="bp-phone:sr-only">Full page</span>
               </Button>
-            </div>
+            )}
+            <Button
+              ref={collapseRef}
+              size="sm"
+              iconOnly
+              variant="ghost"
+              label={`Collapse ${lower}`}
+              title="Collapse"
+              onClick={collapseFrom}
+            >
+              <Icon icon={ArrowsInSimpleIcon} />
+            </Button>
           </div>
-          <div className="s2s-widget-fbody">{children}</div>
         </div>
-      )}
+        <div className="s2s-widget-fbody">{children}</div>
+      </div>
     </section>
   );
 }

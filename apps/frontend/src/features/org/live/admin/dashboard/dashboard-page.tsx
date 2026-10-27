@@ -53,23 +53,18 @@ function Dashboard({ orgSlug, event }: { orgSlug: string; event: OrgEvent }) {
     (claim) => claim.status === "pending",
   );
   const hasRequests = requests.length > 0;
-  // A widget the org's features leave out shows disabled instead of hiding,
-  // and disabled widgets go last. Schedule leads; Requests (only while there
-  // are open requests) is the last of the working ones.
-  const widgets = [
-    { id: "schedule", enabled: true },
-    {
-      id: "callbacks",
-      enabled: hasFeature("callbacks") && event.isActive,
-    },
-    { id: "videos", enabled: hasFeature("video_library") },
-    { id: "check-in", enabled: hasFeature("check_in") },
-    ...(hasRequests ? [{ id: "requests", enabled: true }] : []),
-  ];
+  // A widget the org's features leave out is not shown at all. Schedule
+  // leads; Requests (only while there are open requests) comes last.
+  const showCallbacks = hasFeature("callbacks") && event.isActive;
+  const showVideos = hasFeature("video_library");
+  const showCheckIn = hasFeature("check_in");
   const order = [
-    ...widgets.filter((widget) => widget.enabled),
-    ...widgets.filter((widget) => !widget.enabled),
-  ].map((widget) => widget.id);
+    "schedule",
+    ...(showCallbacks ? ["callbacks"] : []),
+    ...(showVideos ? ["videos"] : []),
+    ...(showCheckIn ? ["check-in"] : []),
+    ...(hasRequests ? ["requests"] : []),
+  ];
 
   return (
     <ShellPage
@@ -92,9 +87,9 @@ function Dashboard({ orgSlug, event }: { orgSlug: string; event: OrgEvent }) {
             claims={requests}
           />
         )}
-        <CallbacksWidget orgSlug={orgSlug} event={event} />
-        <VideosWidget event={event} canUpload />
-        <CheckInWidget slug={orgSlug} eventId={event.id} />
+        {showCallbacks && <CallbacksWidget orgSlug={orgSlug} />}
+        {showVideos && <VideosWidget event={event} canUpload />}
+        {showCheckIn && <CheckInWidget slug={orgSlug} eventId={event.id} />}
       </WidgetBoard>
       {/* Not in the mockup: the old dashboard's checklist, only until the event starts. */}
       {beforeStart && (

@@ -56,8 +56,8 @@ const PEEK_SLOTS = 3;
 /**
  * The dancer's Top choices widget (school selections): the ranked slots on the
  * peek; open, the filled slots with remove, open slots, and every other school
- * with "Add", a page at a time and searchable on the server. Locked without the
- * `school_selections` feature.
+ * with "Add", a page at a time and searchable on the server. The dashboard leaves
+ * it out without the `school_selections` feature.
  */
 export function TopChoicesWidget({
   scouting,
@@ -66,7 +66,7 @@ export function TopChoicesWidget({
   scouting: DancerScouting;
   id?: string;
 }) {
-  const { selectionsOn, selections, max } = scouting;
+  const { selections, max } = scouting;
   const slots = choiceSlots(selections, max);
   const count =
     max === UNLIMITED_SELECTIONS
@@ -78,12 +78,10 @@ export function TopChoicesWidget({
       id={id}
       label="Top choices"
       icon={StarIcon}
-      disabled={!selectionsOn}
-      disabledText="Not included in this event"
-      count={selectionsOn ? count : undefined}
+      count={count}
       peek={<TopChoicesPeek slots={slots} />}
     >
-      {selectionsOn && <TopChoicesBody scouting={scouting} slots={slots} />}
+      <TopChoicesBody scouting={scouting} slots={slots} />
     </Widget>
   );
 }

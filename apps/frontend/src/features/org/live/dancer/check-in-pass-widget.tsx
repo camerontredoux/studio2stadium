@@ -46,7 +46,7 @@ function statusText(
  * The dancer's Check-in widget: the bib and status on the peek; open, the
  * check-in pass (bib, name, the signed pass code as a QR). On an event with
  * self check-in, a Check in button replaces the QR while check-in is open.
- * Locked without the `check_in` feature.
+ * The dashboard leaves it out without the `check_in` feature.
  */
 export function CheckInPassWidget({
   event,
@@ -55,9 +55,8 @@ export function CheckInPassWidget({
   event: OrgEvent;
   id?: string;
 }) {
-  const { org, hasFeature } = useOrg();
-  const enabled = hasFeature("check_in");
-  const { status } = useCheckInStatus(org.slug, event.id, enabled);
+  const { org } = useOrg();
+  const { status } = useCheckInStatus(org.slug, event.id, true);
   // The dancer's own bib; null until the organizer assigns one.
   const bib = status?.bibNumber ?? null;
   const checkedIn = !!status?.checkedInAt;
@@ -67,8 +66,6 @@ export function CheckInPassWidget({
       id={id}
       label="Check-in"
       icon={QrCodeIcon}
-      disabled={!enabled}
-      disabledText="Not included in this event"
       count={bib ?? undefined}
       peek={
         <>
@@ -92,7 +89,7 @@ export function CheckInPassWidget({
         </>
       }
     >
-      {enabled && <PassBody event={event} status={status} bib={bib} />}
+      <PassBody event={event} status={status} bib={bib} />
     </Widget>
   );
 }

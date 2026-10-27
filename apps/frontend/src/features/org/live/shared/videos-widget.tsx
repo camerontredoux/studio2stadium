@@ -75,24 +75,23 @@ function Thumbnail({
 
 /**
  * The event's video library: a 2×2 thumbnail peek, then a grid of 16:9 cards that
- * play the video in a dialog. Hidden when the org doesn't have the video library.
+ * play the video in a dialog. The dashboards leave it out when the org doesn't have the video library.
  */
 function VideosWidget({
   event,
   canUpload = false,
   id = "videos",
 }: VideosWidgetProps) {
-  const { org, hasFeature } = useOrg();
-  const enabled = hasFeature("video_library");
+  const { org } = useOrg();
   const slug = org.slug;
 
   const { data: videos = [] } = useQuery({
     ...videoQueries.videos(slug, event.id),
-    enabled: enabled && !!event.id,
+    enabled: !!event.id,
   });
   const { data: categories = [] } = useQuery({
     ...videoQueries.categories(slug, event.id),
-    enabled: enabled && !!event.id,
+    enabled: !!event.id,
   });
 
   const [playing, setPlaying] = useState<EventVideo | null>(null);
@@ -121,18 +120,6 @@ function VideosWidget({
     () => new Map(categories.map((category) => [category.id, category.name])),
     [categories],
   );
-
-  if (!enabled) {
-    return (
-      <Widget
-        id={id}
-        label="Videos"
-        icon={PlayCircleIcon}
-        disabled
-        disabledText="Not included in this event"
-      />
-    );
-  }
 
   const count = videos.length;
   const peekVideos = [0, 1, 2, 3].map((index) => sorted[index]);

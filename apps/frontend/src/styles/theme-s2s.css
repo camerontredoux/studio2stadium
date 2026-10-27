@@ -1288,30 +1288,6 @@ html:not(.dark) .theme-s2s {
   .s2s-widget[data-state="open"] .s2s-widget-fhead:hover {
     background: var(--surface-hover);
   }
-  .s2s-widget[data-disabled] {
-    background: var(--bg-300);
-    border-style: dashed;
-    box-shadow: none;
-  }
-  .s2s-widget[data-disabled]:hover {
-    border-color: var(--line);
-  }
-  .s2s-widget[data-disabled] button.s2s-widget-layer {
-    cursor: not-allowed;
-  }
-  .s2s-widget[data-disabled] .s2s-widget-label,
-  .s2s-widget[data-disabled] .s2s-widget-strip-label {
-    color: var(--fg-disabled);
-  }
-  .s2s-widget[data-disabled] .s2s-widget-exp,
-  .s2s-widget[data-disabled] .s2s-widget-peek:hover .s2s-widget-exp {
-    background: transparent;
-    color: var(--fg-disabled);
-  }
-  .s2s-widget[data-disabled] button.s2s-widget-strip,
-  .s2s-widget[data-disabled] button.s2s-widget-strip:hover {
-    color: var(--fg-disabled);
-  }
 
   /* The schedule's blurred page behind a peek (same in every view). */
   .s2s-doc-bg {
