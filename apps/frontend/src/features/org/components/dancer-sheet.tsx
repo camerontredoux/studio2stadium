@@ -8,7 +8,6 @@ import { Chip, ChipRow } from "@/components/event/chip";
 import { Icon } from "@/components/event/icon";
 import { Rating } from "@/components/event/rating";
 import { Textarea } from "@/components/event/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BusyLabel } from "@/features/org/live/shared/busy-label";
 import { cn } from "@/components/utils/cn";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
@@ -18,6 +17,7 @@ import {
 } from "@/features/org/components/school-identity";
 import { useOrg } from "@/features/org/context/use-org";
 import { useCoachScouting } from "@/features/org/live/coach/coach-scouting";
+import { PersonAvatar } from "@/features/org/live/shared/person-avatar";
 import {
   DetailSheet,
   DetailSheetBody,
@@ -25,7 +25,6 @@ import {
   DetailSheetRow,
   DetailSheetRows,
   DetailSheetSection,
-  DetailSheetTile,
   DetailSheetValue,
 } from "@/features/org/live/shared/detail-sheet";
 import {
@@ -115,9 +114,6 @@ function DancerSheetContent({
 
   const name = `${dancer.firstName} ${dancer.lastName}`.trim();
   const meta = [
-    dancer.profilePhotoUrl && dancer.bibNumber != null
-      ? `Bib ${dancer.bibNumber}`
-      : null,
     dancer.gradYear ? `Class of ${dancer.gradYear}` : null,
     dancer.studio,
     dancer.location ?? dancer.state,
@@ -125,48 +121,29 @@ function DancerSheetContent({
     .filter(Boolean)
     .join(" · ");
 
-  const bibTile =
-    dancer.bibNumber != null ? (
-      <>
-        <span className="sr-only">Bib </span>
-        {String(dancer.bibNumber)}
-      </>
-    ) : (
-      <span aria-hidden="true">–</span>
-    );
-
   return (
     <>
-      {/* Header: bib tile, name, class/studio/state, close. */}
+      {/* Header: avatar, name, status and bib line, close. */}
       <DetailSheetHeader
         tile={
-          dancer.profilePhotoUrl ? (
-            <Avatar className="bg-surface-chip size-14 shrink-0 rounded-(--radius-10) after:rounded-(--radius-10)">
-              <AvatarImage
-                src={dancer.profilePhotoUrl}
-                alt=""
-                className="rounded-(--radius-10)"
-              />
-              <AvatarFallback className="bg-fg text-on-fg rounded-(--radius-10) font-mono text-[24px] font-medium">
-                {bibTile}
-              </AvatarFallback>
-            </Avatar>
-          ) : (
-            <DetailSheetTile
-              className={
-                String(dancer.bibNumber ?? "").length > 3
-                  ? "text-[18px]"
-                  : "text-[24px]"
-              }
-            >
-              {bibTile}
-            </DetailSheetTile>
-          )
+          <PersonAvatar
+            firstName={dancer.firstName}
+            lastName={dancer.lastName}
+            src={dancer.profilePhotoUrl}
+            className="size-14"
+          />
         }
         title={name}
         wrapMeta
         meta={
-          !dancer.isRegistered ? "Not registered" : meta || "No profile details"
+          <>
+            {!dancer.isRegistered
+              ? "Not registered"
+              : meta || "No profile details"}
+            {dancer.bibNumber != null && (
+              <span className="block">Bib {dancer.bibNumber}</span>
+            )}
+          </>
         }
         onClose={close}
       />
