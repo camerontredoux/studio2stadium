@@ -43,7 +43,6 @@ import {
 import { Panel, PanelSeparator, PanelToolbar } from "@/components/event/panel";
 import { Search } from "@/components/event/search";
 import { Segmented } from "@/components/event/segmented";
-import { Select } from "@/components/event/select";
 import { useDebouncedCallback } from "@/components/hooks/use-debounced-callback";
 import { Group, GroupSeparator } from "@/components/ui/group";
 import { toastManager } from "@/components/ui/toast-manager";
@@ -140,12 +139,10 @@ function RosterPageContent({
   const { status, q } = search;
   const sort = search.sort;
   const dir = search.dir ?? "asc";
-  // The coach school filter stays local, as on the old page.
-  const [school, setSchool] = useState<string | null>(null);
 
   // Selection belongs to one view of the list; a new filter, search or sort
   // starts it over.
-  const viewKey = JSON.stringify([status, q, sort, dir, school]);
+  const viewKey = JSON.stringify([status, q, sort, dir]);
   const [selection, setSelection] = useState({
     key: viewKey,
     ids: new Set<string>() as ReadonlySet<string>,
@@ -163,7 +160,6 @@ function RosterPageContent({
         type,
         search: q || undefined,
         status: status === "all" ? undefined : status,
-        org: school ?? undefined,
         sortBy: sort,
         sortDir: sort ? dir : undefined,
       },
@@ -180,11 +176,6 @@ function RosterPageContent({
 
   const statsQuery = useQuery(rosterQueries.stats(orgSlug, eventId, type));
   const stats = statsQuery.data;
-  const filtersQuery = useQuery({
-    ...rosterQueries.filters(orgSlug, eventId, "coach"),
-    enabled: type === "coach",
-  });
-  const schools = filtersQuery.data?.organizations ?? [];
   // Coaches link to Reconciliation; the count is what still needs an admin.
   const reconciliation = useQuery({
     ...reconciliationQueries.counts(orgSlug, eventId),
@@ -231,9 +222,8 @@ function RosterPageContent({
     onSearchChange({ status: next === "all" ? undefined : next });
   const handleSort = (key: RosterSortKey) =>
     onSearchChange(nextSort({ sort, dir }, key));
-  const filtered = status !== "all" || !!q || school !== null;
+  const filtered = status !== "all" || !!q;
   const clearFilters = () => {
-    setSchool(null);
     setDraft("");
     onSearchChange({ status: undefined, q: undefined });
   };
@@ -244,7 +234,6 @@ function RosterPageContent({
         type,
         search: q || undefined,
         status: status === "all" ? undefined : status,
-        org: school ?? undefined,
       });
     } catch {
       toastManager.add({ title: "Export failed", type: "error" });
@@ -459,20 +448,6 @@ function RosterPageContent({
                 },
               ]}
             />
-            {type === "coach" && schools.length > 0 && (
-              <Select
-                label="Filter by school"
-                className="bp-small:hidden max-w-[180px] min-w-0"
-                value={school ?? "all"}
-                onChange={(value) =>
-                  setSchool(!value || value === "all" ? null : value)
-                }
-                options={[
-                  { value: "all", label: "All schools" },
-                  ...schools.map((s) => ({ value: s, label: s })),
-                ]}
-              />
-            )}
             <Search
               placeholder="Search"
               aria-label={config.searchLabel}
