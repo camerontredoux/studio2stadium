@@ -25,6 +25,7 @@ import {
   videoQueries,
 } from "@/features/org/api/video-queries";
 import { AddEditVideoDialog } from "@/features/org/components/event-video/add-edit-video-dialog";
+import { VideoCardMusic } from "@/features/org/components/event-video/video-card-music";
 import { useOrg } from "@/features/org/context/use-org";
 
 type VideosWidgetProps = {
@@ -95,7 +96,14 @@ function VideosWidget({
   });
 
   const [playing, setPlaying] = useState<EventVideo | null>(null);
-  const [addOpen, setAddOpen] = useState(false);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editing, setEditing] = useState<EventVideo | null>(null);
+
+  // Upload opens the editor empty; "Add music" opens it on that video.
+  function openEditor(video: EventVideo | null) {
+    setEditing(video);
+    setEditorOpen(true);
+  }
 
   // Same order as the video library page: by category, then by each video's position.
   const sorted = useMemo(() => {
@@ -160,7 +168,7 @@ function VideosWidget({
         }
         actions={
           canUpload && (
-            <Button size="sm" onClick={() => setAddOpen(true)}>
+            <Button size="sm" onClick={() => openEditor(null)}>
               <Icon icon={UploadSimpleIcon} />
               Upload
             </Button>
@@ -201,14 +209,10 @@ function VideosWidget({
                       className="border-line group-hover:border-line-hover aspect-video w-full rounded-(--radius-8) border transition-[border-color] duration-150"
                     />
                   </button>
-                  {video.audioUrl && (
-                    <audio
-                      controls
-                      src={video.audioUrl}
-                      preload="none"
-                      className="h-8 w-full"
-                    />
-                  )}
+                  <VideoCardMusic
+                    video={video}
+                    onAddMusic={canUpload ? () => openEditor(video) : undefined}
+                  />
                   <span className="text-fg flex min-w-0 flex-col gap-0.5">
                     <span className="truncate text-[13px] leading-[1.4] font-medium">
                       {video.title}
@@ -286,12 +290,12 @@ function VideosWidget({
 
       {canUpload && (
         <AddEditVideoDialog
-          open={addOpen}
-          onOpenChange={setAddOpen}
+          open={editorOpen}
+          onOpenChange={setEditorOpen}
           categories={categories}
           slug={slug}
           eventId={event.id}
-          editingVideo={null}
+          editingVideo={editing}
         />
       )}
     </>
