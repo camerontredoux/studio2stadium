@@ -1370,12 +1370,17 @@ html:not(.dark) .theme-s2s {
   html:not(.dark) .theme-s2s .s2s-widget-peek:hover .s2s-doc-sheet {
     filter: blur(3px) contrast(0.5) brightness(1.35);
   }
-  /* The schedule's real first page: lighter blur and tint than the sheet. */
+  /* The schedule's real first page: lighter blur and tint than the sheet.
+     It covers the whole card at any page shape, anchored to the top left,
+     where a schedule's title sits. */
   .s2s-doc-page {
     position: absolute;
     top: -8px;
     left: -8px;
     width: calc(100% + 16px);
+    height: calc(100% + 16px);
+    object-fit: cover;
+    object-position: left top;
     opacity: 0;
     filter: blur(1.5px) contrast(0.65) brightness(0.35);
     transition:

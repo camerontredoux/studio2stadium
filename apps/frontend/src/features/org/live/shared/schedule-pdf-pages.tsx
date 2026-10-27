@@ -218,9 +218,10 @@ function SchedulePdfPages({ load, onReady, onError }: SchedulePdfPagesProps) {
 }
 
 /**
- * Draws only the PDF's first page into a canvas the width of its parent, for
- * the collapsed widget's preview. The canvas takes `className`, and stays
- * blank until the page is drawn.
+ * Draws only the PDF's first page into a canvas big enough to cover its
+ * parent, for the collapsed widget's preview: a wide page is drawn at the
+ * parent's height, a tall one at its width. The canvas takes `className`,
+ * which crops it to the parent, and stays blank until the page is drawn.
  */
 function SchedulePdfFirstPage({
   load,
@@ -229,8 +230,11 @@ function SchedulePdfFirstPage({
   className,
 }: SchedulePdfPagesProps & { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
-  const [width, setWidth] = useState(0);
+  const [first, setFirst] = useState<{
+    doc: PDFDocumentProxy;
+    aspect: number;
+  } | null>(null);
+  const [box, setBox] = useState({ width: 0, height: 0 });
 
   const callbacks = useRef({ load, onReady, onError });
   useEffect(() => {
@@ -245,8 +249,11 @@ function SchedulePdfFirstPage({
       const data = await callbacks.current.load(controller.signal);
       if (controller.signal.aborted) return;
       task = getDocument({ data });
-      const loaded = await task.promise;
-      if (!controller.signal.aborted) setDoc(loaded);
+      const doc = await task.promise;
+      const { width: w, height: h } = (await doc.getPage(1)).getViewport({
+        scale: 1,
+      });
+      if (!controller.signal.aborted) setFirst({ doc, aspect: w / h });
     })().catch(() => {
       if (!controller.signal.aborted) callbacks.current.onError();
     });
@@ -261,7 +268,11 @@ function SchedulePdfFirstPage({
     const parent = canvasRef.current?.parentElement;
     if (!parent) return;
     const observer = new ResizeObserver(([entry]) => {
-      if (entry) setWidth(Math.floor(entry.contentRect.width));
+      if (!entry) return;
+      setBox({
+        width: Math.floor(entry.contentRect.width),
+        height: Math.floor(entry.contentRect.height),
+      });
     });
     observer.observe(parent);
     return () => observer.disconnect();
@@ -269,11 +280,15 @@ function SchedulePdfFirstPage({
 
   const handleRendered = useCallback(() => callbacks.current.onReady(), []);
 
+  // Wide enough that the page, at its own shape, also fills the height.
+  const aspect = first?.aspect || LETTER_ASPECT;
+  const width = Math.max(box.width, Math.ceil(box.height * aspect));
+
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!doc || !canvas || width <= 0) return;
-    return drawPage(doc, 1, canvas, width, handleRendered);
-  }, [doc, width, handleRendered]);
+    if (!first || !canvas || width <= 0) return;
+    return drawPage(first.doc, 1, canvas, width, handleRendered);
+  }, [first, width, handleRendered]);
 
   return <canvas ref={canvasRef} aria-hidden="true" className={className} />;
 }
