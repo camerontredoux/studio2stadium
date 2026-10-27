@@ -25,6 +25,7 @@ import {
   videoQueries,
 } from "@/features/org/api/video-queries";
 import { AddEditVideoDialog } from "@/features/org/components/event-video/add-edit-video-dialog";
+import { VideoCardMusic } from "@/features/org/components/event-video/video-card-music";
 import { useOrg } from "@/features/org/context/use-org";
 
 type VideosWidgetProps = {
@@ -95,7 +96,14 @@ function VideosWidget({
   });
 
   const [playing, setPlaying] = useState<EventVideo | null>(null);
-  const [addOpen, setAddOpen] = useState(false);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editing, setEditing] = useState<EventVideo | null>(null);
+
+  // Upload opens the editor empty; "Add music" opens it on that video.
+  function openEditor(video: EventVideo | null) {
+    setEditing(video);
+    setEditorOpen(true);
+  }
 
   // Same order as the video library page: by category, then by each video's position.
   const sorted = useMemo(() => {
@@ -160,7 +168,7 @@ function VideosWidget({
         }
         actions={
           canUpload && (
-            <Button size="sm" onClick={() => setAddOpen(true)}>
+            <Button size="sm" onClick={() => openEditor(null)}>
               <Icon icon={UploadSimpleIcon} />
               Upload
             </Button>
@@ -185,10 +193,14 @@ function VideosWidget({
           <div className="p-(--space-14)">
             <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(min(200px,100%),1fr))] gap-(--space-14) p-0">
               {sorted.map((video) => (
-                <li key={video.id}>
+                <li
+                  key={video.id}
+                  className="flex min-w-0 flex-col gap-(--space-8)"
+                >
                   <button
                     type="button"
-                    className="group text-fg s2s-focus flex w-full cursor-pointer flex-col gap-(--space-8) rounded-(--radius-8) border-0 bg-transparent p-0 text-left"
+                    aria-label={`Play ${video.title}`}
+                    className="group s2s-focus w-full cursor-pointer rounded-(--radius-8) border-0 bg-transparent p-0"
                     onClick={() => setPlaying(video)}
                   >
                     <Thumbnail
@@ -196,16 +208,20 @@ function VideosWidget({
                       iconSize={22}
                       className="border-line group-hover:border-line-hover aspect-video w-full rounded-(--radius-8) border transition-[border-color] duration-150"
                     />
-                    <span className="flex min-w-0 flex-col gap-0.5">
-                      <span className="truncate text-[13px] leading-[1.4] font-medium">
-                        {video.title}
-                      </span>
-                      <span className="text-fg-3 truncate font-mono text-[11.5px] leading-[1.4]">
-                        {categoryName.get(video.categoryId) ?? "[Category]"}
-                        {video.audioUrl ? " · Music" : ""}
-                      </span>
-                    </span>
                   </button>
+                  <VideoCardMusic
+                    video={video}
+                    onAddMusic={canUpload ? () => openEditor(video) : undefined}
+                  />
+                  <span className="text-fg flex min-w-0 flex-col gap-0.5">
+                    <span className="truncate text-[13px] leading-[1.4] font-medium">
+                      {video.title}
+                    </span>
+                    <span className="text-fg-3 truncate font-mono text-[11.5px] leading-[1.4]">
+                      {categoryName.get(video.categoryId) ?? "[Category]"}
+                      {video.audioUrl ? " · Music" : ""}
+                    </span>
+                  </span>
                 </li>
               ))}
             </ul>
@@ -274,12 +290,12 @@ function VideosWidget({
 
       {canUpload && (
         <AddEditVideoDialog
-          open={addOpen}
-          onOpenChange={setAddOpen}
+          open={editorOpen}
+          onOpenChange={setEditorOpen}
           categories={categories}
           slug={slug}
           eventId={event.id}
-          editingVideo={null}
+          editingVideo={editing}
         />
       )}
     </>
