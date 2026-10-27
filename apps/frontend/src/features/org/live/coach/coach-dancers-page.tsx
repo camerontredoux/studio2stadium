@@ -68,21 +68,21 @@ const MARKS: {
   value: Mark;
   label: string;
   icon: PhosphorIcon;
-  /** Pressed colour, as the roster shows it: gold stars, red hearts. */
-  pressedTone?: string;
+  /** Colour on and off, as the roster shows it: gold stars, red hearts. */
+  tone?: string;
 }[] = [
   { value: "interested", label: "Picked your school", icon: HouseIcon },
   {
     value: "favorited",
     label: "Favorites",
     icon: HeartIcon,
-    pressedTone: "data-pressed:text-danger",
+    tone: "text-danger data-pressed:text-danger",
   },
   {
     value: "rated",
     label: "Rated",
     icon: StarIcon,
-    pressedTone: "data-pressed:text-star",
+    tone: "text-star data-pressed:text-star",
   },
   { value: "hasNote", label: "Has notes", icon: PencilSimpleIcon },
 ];
@@ -508,7 +508,7 @@ function MarkToggles({
               title={mark.label}
               className={cn(
                 "hover:bg-surface-pressed data-pressed:bg-surface-pressed data-pressed:text-fg-strong text-fg-2",
-                mark.pressedTone,
+                mark.tone,
               )}
               render={
                 <Toggle
