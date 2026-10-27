@@ -105,7 +105,8 @@ function RosterSheet({
   const isDancer = entry.type === "dancer";
   const isActive = entry.isRegistered;
   const checkedInAt = entry.checkedInAt ?? null;
-  const showCheckIn = checkInEnabled && hasFeature("check_in");
+  // Coaches (schools) don't check in; only dancers do.
+  const showCheckIn = isDancer && checkInEnabled && hasFeature("check_in");
   const showCallbacks = isDancer && hasFeature("callbacks");
   const showVideos = isDancer && hasFeature("video_library");
   const showPaid = isDancer && freeTierEnabled;

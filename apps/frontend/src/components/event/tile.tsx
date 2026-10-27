@@ -190,9 +190,16 @@ function Tile({
             >
               {actions}
               {fullPage && (
-                <Button size="sm" variant="ghost" render={fullPage}>
+                // A square icon button on phones, so the head keeps room for the title.
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  render={fullPage}
+                  title="Full page"
+                  className="bp-phone:w-(--control-sm) bp-phone:px-0"
+                >
                   <Icon icon={ArrowSquareOutIcon} />
-                  Full page
+                  <span className="bp-phone:sr-only">Full page</span>
                 </Button>
               )}
               <Button

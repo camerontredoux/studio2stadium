@@ -273,7 +273,7 @@ export function ReconciliationPage({ orgSlug }: { orgSlug: string }) {
           ]}
           tag={expired && <Tag tone="danger">Expired</Tag>}
         />
-        <span className="flex shrink-0 items-center gap-(--space-4)">
+        <span className="bp-phone:ms-auto flex shrink-0 items-center gap-(--space-4)">
           <Button size="sm" variant="ghost" onClick={() => setRevoking(invite)}>
             Revoke
           </Button>
@@ -495,7 +495,9 @@ function MergeForm({
 
 /**
  * An invite's email and its details. The details wrap a part at a time instead
- * of truncating, so phones still show when it expires.
+ * of truncating, so phones still show when it expires. On phones the email
+ * truncates on one line (full address in the tooltip) and the row's actions
+ * wrap below it.
  */
 function InviteText({
   email,
@@ -507,12 +509,15 @@ function InviteText({
   tag?: React.ReactNode;
 }) {
   return (
-    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+    <span className="bp-phone:basis-full flex min-w-0 flex-1 flex-col gap-0.5">
       <span className="flex min-w-0 items-center gap-(--space-6)">
-        <span className="text-fg min-w-0 font-mono text-[12.5px] leading-[1.4] break-all">
+        <span
+          title={email}
+          className="text-fg bp-phone:truncate min-w-0 font-mono text-[12.5px] leading-[1.4] break-all"
+        >
           {email}
         </span>
-        {tag}
+        {tag && <span className="flex shrink-0">{tag}</span>}
       </span>
       <span className="text-fg-3 flex flex-wrap gap-x-(--space-4) text-[12px] leading-[1.4]">
         {meta
@@ -530,7 +535,7 @@ function InviteText({
 
 function RowBody({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-12 items-center gap-(--space-10) px-(--space-14) py-(--space-8)">
+    <div className="bp-phone:flex-wrap bp-phone:gap-y-(--space-6) flex min-h-12 items-center gap-(--space-10) px-(--space-14) py-(--space-8)">
       {children}
     </div>
   );

@@ -6,7 +6,7 @@ import {
   DateRangePicker,
   type DateRange,
 } from "@/components/event/date-range-picker";
-import { DayProgress } from "@/components/event/day-progress";
+import { DayProgress, DaySegments } from "@/components/event/day-progress";
 import { DetailList, DetailListItem } from "@/components/event/detail-list";
 import { Panel, PanelHead } from "@/components/event/panel";
 import { RailSection, ShellRail } from "@/components/event/shell";
@@ -202,6 +202,18 @@ function EventStatus({ info }: { info: EventDayInfo }) {
           {rest.join(" ")}
         </span>
       </p>
+      {!upcoming && info.days > 0 && (
+        // An ended event keeps its days below the date, every one done.
+        <DaySegments
+          day={info.days + 1}
+          days={info.days}
+          pct={100}
+          labels={info.dayLabels}
+          valueText={
+            info.days === 1 ? "The day is done" : `All ${info.days} days done`
+          }
+        />
+      )}
     </div>
   );
 }
