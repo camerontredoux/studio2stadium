@@ -64,10 +64,26 @@ const SERVER_FILTER = {
 type Mark = "interested" | "favorited" | "rated" | "hasNote";
 
 /** The toggles that narrow the roster to the coach's own marks, as the old page had. */
-const MARKS: { value: Mark; label: string; icon: PhosphorIcon }[] = [
+const MARKS: {
+  value: Mark;
+  label: string;
+  icon: PhosphorIcon;
+  /** Pressed colour, as the roster shows it: gold stars, red hearts. */
+  pressedTone?: string;
+}[] = [
   { value: "interested", label: "Picked your school", icon: HouseIcon },
-  { value: "favorited", label: "Favorites", icon: HeartIcon },
-  { value: "rated", label: "Rated", icon: StarIcon },
+  {
+    value: "favorited",
+    label: "Favorites",
+    icon: HeartIcon,
+    pressedTone: "data-pressed:text-danger",
+  },
+  {
+    value: "rated",
+    label: "Rated",
+    icon: StarIcon,
+    pressedTone: "data-pressed:text-star",
+  },
   { value: "hasNote", label: "Has notes", icon: PencilSimpleIcon },
 ];
 
@@ -487,7 +503,10 @@ function MarkToggles({
               iconOnly
               label={mark.label}
               title={mark.label}
-              className="hover:bg-surface-pressed data-pressed:bg-surface-pressed data-pressed:text-fg-strong text-fg-2"
+              className={cn(
+                "hover:bg-surface-pressed data-pressed:bg-surface-pressed data-pressed:text-fg-strong text-fg-2",
+                mark.pressedTone,
+              )}
               render={
                 <Toggle
                   pressed={pressed}
