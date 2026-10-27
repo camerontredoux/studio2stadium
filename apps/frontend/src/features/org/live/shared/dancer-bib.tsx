@@ -25,6 +25,8 @@ export interface DancerBibProps extends DancerDialogOpenOptions {
   children?: ReactNode;
   /** Only used outside a `DancerDialogProvider`; defaults from the URL (`/coach/` → coach). */
   viewer?: DancerDialogViewer;
+  /** Runs on each click, after the dialog opens. */
+  onOpen?: () => void;
   className?: string;
 }
 
@@ -42,6 +44,7 @@ export function DancerBib({
   children,
   viewer,
   onViewProfile,
+  onOpen,
   className,
 }: DancerBibProps) {
   const shared = useDancerDialog();
@@ -60,6 +63,7 @@ export function DancerBib({
     event.stopPropagation();
     if (shared) shared.open(dancer, { onViewProfile });
     else setOpen(true);
+    onOpen?.();
   };
 
   const trigger =

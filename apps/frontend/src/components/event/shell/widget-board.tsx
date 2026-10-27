@@ -150,8 +150,14 @@ function WidgetBoard({
     );
     if (!widget) return;
     const ro = new ResizeObserver(() => {
-      board.style.setProperty("--open-panel-w", `${widget.clientWidth}px`);
-      board.style.setProperty("--open-panel-h", `${widget.clientHeight}px`);
+      // On each panel rather than the board: the properties don't inherit (theme-s2s.css),
+      // so writing them on the board would leave the panels without them.
+      for (const panel of board.querySelectorAll<HTMLElement>(
+        ".s2s-widget-full",
+      )) {
+        panel.style.setProperty("--open-panel-w", `${widget.clientWidth}px`);
+        panel.style.setProperty("--open-panel-h", `${widget.clientHeight}px`);
+      }
       board.dataset.openSize = "";
     });
     ro.observe(widget);
