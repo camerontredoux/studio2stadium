@@ -21,6 +21,7 @@ import { SplitButton } from "@/components/event/split-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BusyLabel } from "@/features/org/live/shared/busy-label";
 import { toastManager } from "@/components/ui/toast-manager";
+import { cn } from "@/components/utils/cn";
 import { useAdminCheckInToggle } from "@/features/org/api/check-in-queries";
 import {
   type RosterEntry,
