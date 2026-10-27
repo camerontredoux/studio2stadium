@@ -33,13 +33,13 @@ export function ViewAsIndicator({
     <div
       role="status"
       className={cn(
-        "text-fg bg-surface-chip border-line flex h-6 flex-none items-center gap-(--space-4) rounded-(--radius-4) border ps-(--space-6) pe-0.5 text-[11px] leading-none font-medium whitespace-nowrap",
+        "text-fg bg-surface-chip border-line flex h-7 flex-none items-center gap-(--space-4) rounded-(--radius-5) border ps-(--space-8) pe-1 text-[12px] leading-none font-medium whitespace-nowrap",
         placement === "header"
           ? "max-[800px]:hidden"
           : "mx-2 self-center min-[801px]:hidden",
       )}
     >
-      <Icon icon={EyeIcon} className="text-amber size-3" />
+      <Icon icon={EyeIcon} className="text-amber size-3.5" />
       <span>{placement === "phone" ? `As ${role}` : `Viewing as ${role}`}</span>
       <Button
         variant="ghost"
