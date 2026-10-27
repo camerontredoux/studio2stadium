@@ -15,7 +15,6 @@ export interface RosterListParams {
   limit?: number;
   search?: string;
   status?: RosterStatus;
-  org?: string;
   checkedIn?: boolean;
   sortBy?:
     | "lastName"
@@ -96,13 +95,6 @@ export const rosterQueries = {
         pages.length * pageSize < lastPage.total ? pages.length : undefined,
     });
   },
-  filters: (slug: string, eventId: string, type: RosterType) =>
-    $api.queryOptions("get", "/orgs/{slug}/events/{id}/rosters/filters", {
-      params: {
-        path: { slug, id: eventId },
-        query: { type },
-      },
-    }),
   stats: (slug: string, eventId: string, type: RosterType) =>
     $api.queryOptions("get", "/orgs/{slug}/events/{id}/rosters/stats", {
       params: {
@@ -201,7 +193,6 @@ export async function downloadRosterCsv(
     type: RosterType;
     search?: string;
     status?: RosterStatus;
-    org?: string;
   },
 ): Promise<void> {
   const res = await client.GET("/orgs/{slug}/events/{id}/rosters/export", {
