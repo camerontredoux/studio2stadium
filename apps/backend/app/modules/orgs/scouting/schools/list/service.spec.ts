@@ -13,7 +13,6 @@ import { ListSchoolsService } from "./service.ts";
 const service = new ListSchoolsService();
 
 async function coachRow(
-  fx: SelectionFixture,
   eventId: string,
   values: {
     organization: string;
@@ -61,13 +60,13 @@ test.group("ListSchoolsService", (group) => {
       .returning();
     // A claimed coach on both events: the active event's row wins even though
     // the past event's is newer.
-    const active = await coachRow(fx, fx.event.id, {
+    const active = await coachRow(fx.event.id, {
       organization: "Echo University",
       firstName: "Echo",
       userId: user!.id,
       createdAt: new Date("2025-01-01"),
     });
-    await coachRow(fx, fx.otherEvent.id, {
+    await coachRow(fx.otherEvent.id, {
       organization: "Echo University",
       firstName: "Echo",
       userId: user!.id,
@@ -75,12 +74,12 @@ test.group("ListSchoolsService", (group) => {
     });
     // An unclaimed school only on the past event, its name cased differently:
     // the newest row wins.
-    await coachRow(fx, fx.otherEvent.id, {
+    await coachRow(fx.otherEvent.id, {
       organization: "Foxtrot College",
       firstName: "Old",
       createdAt: new Date("2024-01-01"),
     });
-    const newest = await coachRow(fx, fx.otherEvent.id, {
+    const newest = await coachRow(fx.otherEvent.id, {
       organization: "FOXTROT college",
       firstName: "New",
       createdAt: new Date("2025-01-01"),
@@ -113,7 +112,7 @@ test.group("ListSchoolsService", (group) => {
   test("pages through the schools by name without repeats", async ({
     assert,
   }) => {
-    await coachRow(fx, fx.otherEvent.id, {
+    await coachRow(fx.otherEvent.id, {
       organization: "Alpha University",
       firstName: "Alpha",
     });
@@ -142,7 +141,7 @@ test.group("ListSchoolsService", (group) => {
   });
 
   test("searches every school by school or coach name", async ({ assert }) => {
-    await coachRow(fx, fx.otherEvent.id, {
+    await coachRow(fx.otherEvent.id, {
       organization: "Zulu State",
       firstName: "Charlene",
     });
