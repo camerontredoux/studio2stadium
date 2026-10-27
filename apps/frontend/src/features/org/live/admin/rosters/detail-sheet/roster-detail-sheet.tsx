@@ -707,7 +707,6 @@ function RosterSheet({
             gradYear: entry.profile?.gradYear,
             gpa: entry.profile?.gpa,
             state: entry.profile?.state,
-            height: entry.profile?.height,
             danceStyles: entry.profile?.danceStyles,
             profilePhotoUrl: entry.profile?.profilePhotoUrl,
             checkedInAt,

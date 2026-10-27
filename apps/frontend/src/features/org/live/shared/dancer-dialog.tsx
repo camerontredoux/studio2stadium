@@ -205,7 +205,6 @@ function DancerDialogContent({
       summary.gradYear ?? row?.profile?.gradYear ?? detail?.gradYear ?? null,
     gpa: summary.gpa ?? row?.profile?.gpa ?? detail?.gpa ?? null,
     state: summary.state ?? row?.profile?.state ?? detail?.state ?? null,
-    height: summary.height ?? row?.profile?.height ?? detail?.height ?? null,
     danceStyles:
       summary.danceStyles ??
       row?.profile?.danceStyles ??
@@ -231,8 +230,6 @@ function DancerDialogContent({
   if (dancer.gpa != null)
     facts.push({ label: "GPA", value: dancer.gpa.toFixed(1), mono: true });
   if (dancer.state) facts.push({ label: "State", value: dancer.state });
-  if (dancer.height)
-    facts.push({ label: "Height", value: dancer.height, mono: true });
   if (dancer.danceStyles && dancer.danceStyles.length > 0)
     facts.push({ label: "Styles", value: dancer.danceStyles.join(", ") });
   if (isAdmin && dancer.email)

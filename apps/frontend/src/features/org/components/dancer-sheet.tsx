@@ -299,9 +299,6 @@ function ProfileSection({ dancer }: { dancer: DancerDetail }) {
         <DetailSheetRow label="Location">
           <DetailSheetValue value={dancer.location ?? dancer.state} />
         </DetailSheetRow>
-        <DetailSheetRow label="Height">
-          <DetailSheetValue value={dancer.height} mono />
-        </DetailSheetRow>
         {dancer.danceStyles && dancer.danceStyles.length > 0 && (
           <DetailSheetRow label="Styles">
             <ChipRow className="py-(--space-4)">

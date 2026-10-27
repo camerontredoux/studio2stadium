@@ -51,7 +51,6 @@ export class GetDancerByIdService {
             string | null
           >`COALESCE(${eventDancerProfiles.studio}, ${dancerProfiles.studio})`,
           state: eventDancerProfiles.state,
-          height: eventDancerProfiles.height,
           danceStyles: eventDancerProfiles.danceStyles,
           bio: eventDancerProfiles.bio,
           extra: eventDancerProfiles.extra,

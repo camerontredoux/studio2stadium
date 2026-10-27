@@ -109,7 +109,6 @@ export class ListRosterService {
             gpa: eventDancerProfiles.gpa,
             studio: eventDancerProfiles.studio,
             state: eventDancerProfiles.state,
-            height: eventDancerProfiles.height,
             danceStyles: eventDancerProfiles.danceStyles,
             bio: eventDancerProfiles.bio,
             checkedInAt: eventRosters.checkedInAt,
@@ -173,7 +172,6 @@ export class ListRosterService {
                   gpa: r.gpa,
                   studio: r.studio,
                   state: r.state,
-                  height: r.height,
                   danceStyles: r.danceStyles,
                   bio: r.bio,
                 }

@@ -16151,16 +16151,6 @@
                             }
                           ]
                         },
-                        "height": {
-                          "oneOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
                         "danceStyles": {
                           "oneOf": [
                             {
@@ -16191,7 +16181,6 @@
                         "gradYear",
                         "profilePhotoUrl",
                         "state",
-                        "height",
                         "danceStyles",
                         "bio"
                       ]
@@ -16681,16 +16670,6 @@
                       }
                     ]
                   },
-                  "height": {
-                    "oneOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
                   "danceStyles": {
                     "oneOf": [
                       {
@@ -16721,7 +16700,6 @@
                   "gradYear",
                   "profilePhotoUrl",
                   "state",
-                  "height",
                   "danceStyles",
                   "bio"
                 ]
@@ -19099,16 +19077,6 @@
               }
             ]
           },
-          "height": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "danceStyles": {
             "oneOf": [
               {
@@ -19168,7 +19136,6 @@
           "rosterId",
           "profilePhotoUrl",
           "state",
-          "height",
           "danceStyles",
           "bio",
           "extra",

@@ -205,7 +205,6 @@ export class UpdateRosterService {
           gpa: eventDancerProfiles.gpa,
           studio: eventDancerProfiles.studio,
           state: eventDancerProfiles.state,
-          height: eventDancerProfiles.height,
           danceStyles: eventDancerProfiles.danceStyles,
           bio: eventDancerProfiles.bio,
         })
@@ -238,7 +237,6 @@ export class UpdateRosterService {
                 gpa: updated!.gpa,
                 studio: updated!.studio,
                 state: updated!.state,
-                height: updated!.height,
                 danceStyles: updated!.danceStyles,
                 bio: updated!.bio,
               }
