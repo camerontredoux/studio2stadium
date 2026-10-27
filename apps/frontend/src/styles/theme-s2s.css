@@ -1346,11 +1346,14 @@ html:not(.dark) .theme-s2s {
   html:not(.dark) .theme-s2s .s2s-widget-peek:hover .s2s-doc-sheet {
     filter: blur(3px) contrast(0.5) brightness(1.35);
   }
-  /* The schedule's real first page: lighter blur and tint than the sheet. */
+  /* The schedule's real first page: lighter blur and tint than the sheet. It
+     starts below the head row, so the label sits on plain surface. */
   .s2s-doc-page {
     position: absolute;
-    top: -8px;
+    top: var(--row);
     left: -8px;
+    -webkit-mask-image: linear-gradient(transparent, #000 24px);
+    mask-image: linear-gradient(transparent, #000 24px);
     width: calc(100% + 16px);
     opacity: 0;
     filter: blur(1.5px) contrast(0.65) brightness(0.35);

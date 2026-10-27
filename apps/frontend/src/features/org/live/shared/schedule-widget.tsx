@@ -364,11 +364,8 @@ function ScheduleWidget({ event, mode, id = "schedule" }: ScheduleWidgetProps) {
     uploadMutation.mutate(file);
   }
 
-  const peek = fileName ? (
-    <span className="text-fg truncate font-mono text-[12px] leading-[1.4]">
-      {fileName}
-    </span>
-  ) : (
+  // With a file, the page preview behind the peek says it all.
+  const peek = fileName ? null : (
     <span className="text-fg-3 text-[12.5px] leading-[1.4]">
       No schedule yet
     </span>
