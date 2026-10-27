@@ -205,18 +205,19 @@ function DancerVideos({ username, name }: { username: string; name: string }) {
   const [currentId, setCurrentId] = useState<string | null>(null);
   const current = videos.find((v) => v.id === currentId) ?? videos[0];
 
-  if (isPending) {
+  // One 16:9 panel for loading and empty, so the sheet doesn't shift when the
+  // request settles.
+  if (isPending || !current) {
     return (
-      <div className="bg-bg-000 grid aspect-video place-items-center">
-        <BusyLabel label="Loading video…" />
-      </div>
-    );
-  }
-  if (!current) {
-    return (
-      <div className="bg-bg-000 text-fg-3 type-body flex aspect-[16/6] items-center justify-center gap-(--space-6)">
-        <Icon icon={PlayIcon} />
-        No videos yet
+      <div className="bg-bg-000 text-fg-3 type-body flex aspect-video items-center justify-center gap-(--space-6)">
+        {isPending ? (
+          <BusyLabel label="Loading video…" />
+        ) : (
+          <>
+            <Icon icon={PlayIcon} />
+            No videos yet
+          </>
+        )}
       </div>
     );
   }
