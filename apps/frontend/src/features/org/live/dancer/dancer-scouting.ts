@@ -165,8 +165,6 @@ export function sortCoachRows(
 export interface ChoiceSlot {
   rank: number;
   selection: SchoolSelection | null;
-  /** The schools-list row for the selection, for the coach name. */
-  school: School | null;
 }
 
 /**
@@ -175,20 +173,16 @@ export interface ChoiceSlot {
  */
 export function choiceSlots(
   selections: readonly SchoolSelection[],
-  schools: readonly School[],
   max: number,
 ): ChoiceSlot[] {
   const filled: ChoiceSlot[] = selections.map((selection, index) => ({
     rank: index + 1,
     selection,
-    school:
-      schools.find((school) => school.rosterId === selection.coachRosterId) ??
-      null,
   }));
   if (max === UNLIMITED_SELECTIONS) return filled;
   const open: ChoiceSlot[] = [];
   for (let rank = filled.length + 1; rank <= max; rank++) {
-    open.push({ rank, selection: null, school: null });
+    open.push({ rank, selection: null });
   }
   return [...filled, ...open];
 }

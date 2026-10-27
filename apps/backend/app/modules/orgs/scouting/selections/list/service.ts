@@ -15,6 +15,8 @@ export class ListSelectionsService {
           id: eventSchoolSelections.id,
           coachRosterId: eventSchoolSelections.coachRosterId,
           organization: eventRosters.organization,
+          firstName: eventRosters.firstName,
+          lastName: eventRosters.lastName,
           rank: eventSchoolSelections.rank,
           createdAt: eventSchoolSelections.createdAt,
         })

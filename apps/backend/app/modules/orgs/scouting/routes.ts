@@ -13,6 +13,7 @@ const DeleteRating = () => import("./ratings/delete/controller.ts");
 const ListRankings = () => import("./rankings/controller.ts");
 
 const ListSchools = () => import("./schools/list/controller.ts");
+const SchoolPage = () => import("./schools/page/controller.ts");
 const ListSelections = () => import("./selections/list/controller.ts");
 const CreateSelection = () => import("./selections/create/controller.ts");
 const DeleteSelection = () => import("./selections/delete/controller.ts");
@@ -95,6 +96,11 @@ router
 router
   .group(() => {
     router.get(":slug/schools", [ListSchools]);
+    router.get(":slug/schools/page", [SchoolPage]).openapi({
+      summary: "List a page of schools",
+      description:
+        "A page of the org's schools, one per school, by name. `search` matches the school or coach name.",
+    });
     router.get(":slug/my-selections", [ListSelections]);
   })
   .prefix("orgs")

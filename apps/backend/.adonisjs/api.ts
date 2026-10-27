@@ -483,6 +483,10 @@ type OrgsIdSchoolsGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/event-query-validator.ts')['eventQuerySchema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/schools/list/controller.ts').default['handle'], true>
 }
+type OrgsIdSchoolsPageGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/schools/page/validator.ts')['schoolPageSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/schools/page/controller.ts').default['handle'], true>
+}
 type OrgsIdMyselectionsGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/event-query-validator.ts')['eventQuerySchema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/selections/list/controller.ts').default['handle'], true>
@@ -1647,6 +1651,12 @@ export interface ApiDefinition {
         };
         '$get': OrgsIdSchoolsGetHead;
         '$head': OrgsIdSchoolsGetHead;
+        'page': {
+          '$url': {
+          };
+          '$get': OrgsIdSchoolsPageGetHead;
+          '$head': OrgsIdSchoolsPageGetHead;
+        };
       };
       'my-selections': {
         '$url': {

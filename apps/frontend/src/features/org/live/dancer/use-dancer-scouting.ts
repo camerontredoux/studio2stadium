@@ -1,4 +1,8 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useQueryClient,
+  type InfiniteData,
+} from "@tanstack/react-query";
 import { useRef } from "react";
 
 import { toastManager } from "@/components/ui/toast-manager";
@@ -8,7 +12,10 @@ import {
   useMoveSchoolSelection,
   useRemoveSchoolSelection,
 } from "@/features/org/api/scouting-mutations";
-import { scoutingQueries } from "@/features/org/api/scouting-queries";
+import {
+  SCHOOL_PAGES_KEY_PREFIX,
+  scoutingQueries,
+} from "@/features/org/api/scouting-queries";
 import type { MyRoster } from "@/features/org/context/org-context";
 import { useOrg } from "@/features/org/context/use-org";
 
@@ -24,6 +31,8 @@ import {
 const TEMP_PREFIX = "temp-";
 
 export type MoveDirection = "up" | "down";
+
+type SchoolPages = InfiniteData<{ data: School[]; total: number }, number>;
 
 /** Ranks follow list order, 1 first, as the API keeps them. */
 function reRank(list: SchoolSelection[]): SchoolSelection[] {
@@ -52,10 +61,14 @@ export function isPendingSelection(selection: SchoolSelection): boolean {
  * The dancer's schools, top-choice selections and callbacks for one Org Event,
  * with optimistic add and remove. Shared by the dashboard widgets and the
  * Coaches page so both read the same cache.
+ *
+ * `allSchools: false` skips the full schools list: the dashboard's Top choices
+ * widget reads its schools a page at a time (`scoutingQueries.schoolPages`).
  */
 export function useDancerScouting(
   event: OrgEvent | null,
   roster: MyRoster | null,
+  { allSchools = true }: { allSchools?: boolean } = {},
 ) {
   const { org, settings, hasFeature } = useOrg();
   const slug = org.slug;
@@ -66,11 +79,12 @@ export function useDancerScouting(
   const qc = useQueryClient();
 
   const schoolsOptions = scoutingQueries.schools(slug, eventId);
+  const schoolPagesKey = [...SCHOOL_PAGES_KEY_PREFIX];
   const selectionsOptions = scoutingQueries.mySelections(slug, eventId);
 
   const schoolsQuery = useQuery({
     ...schoolsOptions,
-    enabled: !!event,
+    enabled: !!event && allSchools,
     retry: false,
   });
   const selectionsQuery = useQuery({
@@ -119,19 +133,44 @@ export function useDancerScouting(
 
   const snapshot = () => ({
     schools: qc.getQueryData<School[]>(schoolsOptions.queryKey),
+    schoolPages: qc.getQueriesData<SchoolPages>({ queryKey: schoolPagesKey }),
     selections: qc.getQueryData<SchoolSelection[]>(selectionsOptions.queryKey),
   });
   const restore = (prev: ReturnType<typeof snapshot>) => {
     if (prev.schools) qc.setQueryData(schoolsOptions.queryKey, prev.schools);
+    for (const [key, pages] of prev.schoolPages) qc.setQueryData(key, pages);
     if (prev.selections)
       qc.setQueryData(selectionsOptions.queryKey, prev.selections);
   };
-  const markTop = (rosterId: string, isTopSchool: boolean) =>
+  const mark = (school: School, rosterId: string, isTopSchool: boolean) =>
+    school.rosterId === rosterId ? { ...school, isTopSchool } : school;
+  const markTop = (rosterId: string, isTopSchool: boolean) => {
     qc.setQueryData<School[]>(schoolsOptions.queryKey, (old) =>
-      old?.map((school) =>
-        school.rosterId === rosterId ? { ...school, isTopSchool } : school,
-      ),
+      old?.map((school) => mark(school, rosterId, isTopSchool)),
     );
+    qc.setQueriesData<SchoolPages>({ queryKey: schoolPagesKey }, (old) =>
+      old
+        ? {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              data: page.data.map((school) =>
+                mark(school, rosterId, isTopSchool),
+              ),
+            })),
+          }
+        : old,
+    );
+  };
+  // The full list refetches; the pages keep the patch above until they next
+  // load, rather than refetching every page loaded so far.
+  const refreshSchools = () => {
+    void qc.invalidateQueries({ queryKey: schoolsOptions.queryKey });
+    void qc.invalidateQueries({
+      queryKey: schoolPagesKey,
+      refetchType: "none",
+    });
+  };
 
   const add = (school: School) => {
     if (!canEdit) return;
@@ -154,6 +193,8 @@ export function useDancerScouting(
               id: tempId,
               coachRosterId: school.rosterId,
               organization: school.organization,
+              firstName: school.firstName,
+              lastName: school.lastName,
               rank: old.length + 1,
               createdAt: new Date().toISOString(),
             },
@@ -184,7 +225,7 @@ export function useDancerScouting(
               ),
           ),
         onSettled: () => {
-          void qc.invalidateQueries({ queryKey: schoolsOptions.queryKey });
+          refreshSchools();
           if (queued.current === 0) {
             void qc.invalidateQueries({
               queryKey: selectionsOptions.queryKey,
@@ -215,7 +256,7 @@ export function useDancerScouting(
           type: "error",
         });
       } finally {
-        void qc.invalidateQueries({ queryKey: schoolsOptions.queryKey });
+        refreshSchools();
       }
     });
   };
@@ -248,6 +289,8 @@ export function useDancerScouting(
   };
 
   return {
+    slug,
+    eventId,
     schools,
     selections,
     callbacks,

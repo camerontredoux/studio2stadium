@@ -10,6 +10,15 @@ export type DancerListParams = NonNullable<
 /** Bib chips per page of a showcase's callbacks. */
 const CALLBACK_PAGE_SIZE = 100;
 
+/** Schools per page of the dancer's Top choices list. */
+export const SCHOOL_PAGE_SIZE = 50;
+
+/** Every paged schools query's key starts with this. */
+export const SCHOOL_PAGES_KEY_PREFIX = [
+  "get",
+  "/orgs/{slug}/schools/page",
+] as const;
+
 /** Every admin callback-board query's key starts with this. */
 export const ADMIN_CALLBACKS_KEY_PREFIX = [
   "get",
@@ -74,6 +83,36 @@ export const scoutingQueries = {
   schools: (slug: string, eventId?: string) =>
     $api.queryOptions("get", "/orgs/{slug}/schools", {
       params: { path: { slug }, query: { eventId } },
+    }),
+  /** The org's schools a page at a time, by name, narrowed by `search`. */
+  schoolPages: (slug: string, eventId?: string, search = "") =>
+    infiniteQueryOptions({
+      queryKey: [
+        ...SCHOOL_PAGES_KEY_PREFIX,
+        { params: { path: { slug }, query: { eventId, search } } },
+        "pages",
+      ] as const,
+      queryFn: async ({ pageParam, signal }) => {
+        const { data, error } = await client.GET("/orgs/{slug}/schools/page", {
+          params: {
+            path: { slug },
+            query: {
+              eventId,
+              search: search || undefined,
+              page: pageParam,
+              limit: SCHOOL_PAGE_SIZE,
+            },
+          },
+          signal,
+        });
+        if (error) throw error;
+        return data;
+      },
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, pages) =>
+        pages.length * SCHOOL_PAGE_SIZE < lastPage.total
+          ? pages.length
+          : undefined,
     }),
   mySelections: (slug: string, eventId?: string) =>
     $api.queryOptions("get", "/orgs/{slug}/my-selections", {
