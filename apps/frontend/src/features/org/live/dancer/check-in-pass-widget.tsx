@@ -72,13 +72,14 @@ export function CheckInPassWidget({
       count={bib ?? undefined}
       peek={
         <>
-          {bib !== null ? (
-            <span className="type-display-stat text-fg font-mono font-medium tabular-nums">
-              {bib}
-            </span>
-          ) : (
+          <span className="flex items-center gap-(--space-12)">
             <Icon icon={QrCodeIcon} size="xl" className="text-fg-2" />
-          )}
+            {bib !== null && (
+              <span className="type-display-stat text-fg font-mono font-medium tabular-nums">
+                {bib}
+              </span>
+            )}
+          </span>
           <span
             className={cn(
               "flex min-w-0 items-center gap-(--space-8) text-[12.5px]",
