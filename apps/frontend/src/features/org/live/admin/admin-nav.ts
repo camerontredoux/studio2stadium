@@ -40,8 +40,8 @@ export interface AdminNavItem {
  * The admin area's destinations, shared by the sidebar and the phone dock.
  * Requests and the Video library are dashboard widgets now; their pages still
  * exist but leave the nav. Callbacks shows only with the `callbacks` feature,
- * and takes Audit log's place in the five-item phone dock. Check-in shows only
- * with the `check_in` feature, and stays out of the dock.
+ * and takes Audit log's place in the five-item phone dock (Audit log moves to "More"). Check-in shows only
+ * with the `check_in` feature, and sits in "More".
  */
 export function useAdminNav(): AdminNavItem[] {
   const { org, hasFeature } = useOrg();
@@ -100,7 +100,7 @@ export function useAdminNav(): AdminNavItem[] {
       count: coachStats.data?.total,
       current: at("/coaches"),
     },
-    // The dock already holds five items, so Check-in is sidebar-only.
+    // The dock already holds five items, so Check-in goes in the "More" menu.
     ...(hasFeature("check_in")
       ? [
           {

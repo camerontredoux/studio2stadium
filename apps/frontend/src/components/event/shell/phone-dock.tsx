@@ -1,8 +1,17 @@
 import { useRender } from "@base-ui/react/use-render";
-import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
+import {
+  DotsThreeIcon,
+  type Icon as PhosphorIcon,
+} from "@phosphor-icons/react";
 import type * as React from "react";
 
 import { Icon } from "@/components/event/icon";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/menu";
 import { cn } from "@/components/utils/cn";
 
 type PhoneDockItem = {
@@ -21,19 +30,60 @@ type PhoneDockItem = {
 type PhoneDockProps = Omit<React.ComponentProps<"nav">, "children"> & {
   /** Five at most: the same destinations as the sidebar. */
   items: PhoneDockItem[];
+  /** Destinations that do not fit in the dock. A last "More" item opens them in a menu. */
+  more?: PhoneDockItem[];
 };
 
 /**
  * The phone navigation (≤800px): a floating glass dock 12px from the edges. The current
  * item grows to 2.6× and reveals its label. The shell leaves 84px of bottom padding for it.
  */
-function PhoneDock({ items, className, ...props }: PhoneDockProps) {
+function PhoneDock({ items, more, className, ...props }: PhoneDockProps) {
   return (
     <nav aria-label="Event" className={cn("s2s-dock", className)} {...props}>
       {items.map((item) => (
         <DockItem key={item.id} item={item} />
       ))}
+      {more && more.length > 0 && <DockMore items={more} />}
     </nav>
+  );
+}
+
+function DockMore({ items }: { items: PhoneDockItem[] }) {
+  const current = items.some((item) => item.current);
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        className="s2s-dock-item s2s-focus"
+        aria-label="More pages"
+        data-current={current ? "" : undefined}
+      >
+        <span className="s2s-dock-icon">
+          <Icon icon={DotsThreeIcon} size="lg" />
+        </span>
+        <span className="s2s-dock-label" aria-hidden="true">
+          <span>More</span>
+        </span>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        side="top"
+        sideOffset={12}
+        className="min-w-48"
+      >
+        {items.map((item) => (
+          <DropdownMenuItem
+            key={item.id}
+            render={item.render ?? <a href={item.href} />}
+            aria-current={item.current ? "page" : undefined}
+            onClick={item.onClick}
+          >
+            <Icon icon={item.icon} size="md" />
+            {item.label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
