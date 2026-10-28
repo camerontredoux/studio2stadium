@@ -363,7 +363,7 @@ export function CoachDancersPage() {
           optionLabel={(value) => GPA_RANGES[value]?.label ?? value}
           value={gpa}
           onChange={(value) => setGpa(value)}
-          className={grow("min-w-[104px]")}
+          className={grow("min-w-[140px]")}
         />
         <Combobox
           aria-label="State"
@@ -375,7 +375,7 @@ export function CoachDancersPage() {
           optionLabel={stateLabel}
           value={state}
           onChange={(value) => setState(value === ANY ? null : value)}
-          className={grow("min-w-[120px]")}
+          className={grow("min-w-[140px]")}
         />
         <Combobox
           aria-label="Year"
@@ -387,7 +387,7 @@ export function CoachDancersPage() {
           optionLabel={yearLabel}
           value={year}
           onChange={(value) => setYear(value === ANY ? null : value)}
-          className={grow("min-w-[104px]")}
+          className={grow("min-w-[140px]")}
         />
       </>
     );
@@ -395,10 +395,16 @@ export function CoachDancersPage() {
 
   // Over cards, the toolbar sits in its own panel with no divider under it.
   const toolbarClass = cn(layout.cards && "border-b-0");
+  const stackedFilters = layout.cards || !layout.filterLabels;
   const toolbar =
     selected.length === 0 ? (
       <>
-        <PanelToolbar className={toolbarClass}>
+        <PanelToolbar
+          className={cn(
+            toolbarClass,
+            stackedFilters && "h-auto py-(--space-8)",
+          )}
+        >
           <Segmented
             label="Filter dancers"
             value={effectiveFilter}
@@ -421,10 +427,10 @@ export function CoachDancersPage() {
           />
         </PanelToolbar>
         {/* Narrower rosters and phones put the filters on a row of their own. */}
-        {(layout.cards || !layout.filterLabels) && (
+        {stackedFilters && (
           <PanelToolbar
             aria-label="Filters"
-            className={cn(toolbarClass, "h-auto flex-wrap py-(--space-8)")}
+            className={cn(toolbarClass, "h-auto flex-wrap pt-0 pb-(--space-8)")}
           >
             {filters(true)}
           </PanelToolbar>
