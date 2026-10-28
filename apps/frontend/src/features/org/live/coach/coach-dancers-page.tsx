@@ -347,11 +347,14 @@ export function CoachDancersPage() {
     />
   );
 
-  const filters = (
-    <>
-      <MarkToggles value={marks} onChange={setMarks} />
-      {/* On small phones the dropdowns share a row of their own. */}
-      <div className="bp-small:basis-full flex min-w-0 gap-(--space-8)">
+  // The dropdowns sit straight in the toolbar's row, so one gap spaces every control. On a row of
+  // their own they grow to share what is left (and wrap, toggles first), so no row ends in blank space.
+  const filters = (stacked: boolean) => {
+    const grow = (min: string) =>
+      stacked ? `${min} flex-[1_1_0]` : "w-[120px] shrink-0";
+    return (
+      <>
+        <MarkToggles value={marks} onChange={setMarks} />
         <Combobox
           aria-label="GPA"
           placeholder="GPA"
@@ -360,7 +363,7 @@ export function CoachDancersPage() {
           optionLabel={(value) => GPA_RANGES[value]?.label ?? value}
           value={gpa}
           onChange={(value) => setGpa(value)}
-          className="bp-small:w-auto bp-small:flex-1 w-[104px] shrink-0"
+          className={grow("min-w-[104px]")}
         />
         <Combobox
           aria-label="State"
@@ -372,7 +375,7 @@ export function CoachDancersPage() {
           optionLabel={stateLabel}
           value={state}
           onChange={(value) => setState(value === ANY ? null : value)}
-          className="bp-phone:w-auto bp-phone:flex-1 w-[136px] shrink-0"
+          className={grow("min-w-[120px]")}
         />
         <Combobox
           aria-label="Year"
@@ -384,11 +387,11 @@ export function CoachDancersPage() {
           optionLabel={yearLabel}
           value={year}
           onChange={(value) => setYear(value === ANY ? null : value)}
-          className="bp-phone:w-auto bp-phone:flex-1 w-[112px] shrink-0"
+          className={grow("min-w-[104px]")}
         />
-      </div>
-    </>
-  );
+      </>
+    );
+  };
 
   // Over cards, the toolbar sits in its own panel with no divider under it.
   const toolbarClass = cn(layout.cards && "border-b-0");
@@ -403,16 +406,14 @@ export function CoachDancersPage() {
             options={options}
             iconOnly={!layout.cards && !layout.filterLabels}
           />
-          {layout.filterLabels && !layout.cards && filters}
+          {layout.filterLabels && !layout.cards && filters(false)}
           <Search
             ref={searchRef}
             placeholder="Search…"
             aria-label="Search dancers"
             value={query}
-            // Beside icon-only filters the field takes the rest of the bar, as on phones.
-            className={cn(
-              !layout.cards && !layout.filterLabels && "ms-0 flex-auto",
-            )}
+            // The field takes the rest of the bar, so the gap to its neighbour is the usual one.
+            className="ms-0 flex-auto"
             onChange={(event) => {
               setQuery(event.target.value);
               commitSearch(event.target.value);
@@ -423,12 +424,9 @@ export function CoachDancersPage() {
         {(layout.cards || !layout.filterLabels) && (
           <PanelToolbar
             aria-label="Filters"
-            className={cn(
-              toolbarClass,
-              "bp-small:h-auto bp-small:flex-wrap bp-small:py-(--space-8)",
-            )}
+            className={cn(toolbarClass, "h-auto flex-wrap py-(--space-8)")}
           >
-            {filters}
+            {filters(true)}
           </PanelToolbar>
         )}
       </>
