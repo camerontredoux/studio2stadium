@@ -1344,8 +1344,15 @@ html:not(.dark) .theme-s2s {
     content: "";
     position: absolute;
     inset: 0 0 auto;
-    height: var(--row);
-    background: linear-gradient(var(--surface), transparent);
+    height: calc(var(--row) * 2.4);
+    /* Starts a little see-through and eases out, so no edge shows where it ends. */
+    background: linear-gradient(
+      color-mix(in srgb, var(--surface) 88%, transparent),
+      color-mix(in srgb, var(--surface) 70%, transparent) 25%,
+      color-mix(in srgb, var(--surface) 42%, transparent) 50%,
+      color-mix(in srgb, var(--surface) 18%, transparent) 75%,
+      transparent
+    );
   }
   .s2s-doc-sheet {
     position: absolute;
