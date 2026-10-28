@@ -29,7 +29,7 @@ describe("dancerOptionLabel", () => {
 
   it("adds the email so search finds it, and marks claimed rows", () => {
     expect(dancerOptionLabel({ ...roster[1], email: "mary@example.com" })).toBe(
-      "126 · Mary Miller · mary@example.com · already claimed",
+      "126 · Mary Miller · already claimed · mary@example.com",
     );
     expect(dancerOptionLabel({ ...roster[0], email: "jane@example.com" })).toBe(
       "122 · Jane Doe · jane@example.com",

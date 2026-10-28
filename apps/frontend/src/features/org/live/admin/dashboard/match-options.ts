@@ -25,8 +25,8 @@ function normalize(name: string) {
 }
 
 /**
- * "125 · Jason Jones · jason@example.com · already claimed". The bib, email and
- * claimed marker are left out when the dancer has none. The picker searches this
+ * "125 · Jason Jones · already claimed · jason@example.com". The bib, claimed
+ * marker and email are left out when the dancer has none. The picker searches this
  * text, so a name or an email finds the row.
  */
 export function dancerOptionLabel(dancer: MatchDancer) {
@@ -34,8 +34,8 @@ export function dancerOptionLabel(dancer: MatchDancer) {
   return [
     dancer.bibNumber == null ? null : String(dancer.bibNumber),
     name,
-    dancer.email || null,
     dancer.isRegistered ? "already claimed" : null,
+    dancer.email || null,
   ]
     .filter(Boolean)
     .join(" · ");
