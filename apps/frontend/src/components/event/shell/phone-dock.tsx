@@ -74,7 +74,7 @@ function DockMore({ items }: { items: PhoneDockItem[] }) {
         {items.map((item) => (
           <DropdownMenuItem
             key={item.id}
-            render={item.render ?? <a href={item.href} />}
+            render={menuItemRender(item)}
             aria-current={item.current ? "page" : undefined}
             onClick={item.onClick}
           >
@@ -85,6 +85,14 @@ function DockMore({ items }: { items: PhoneDockItem[] }) {
       </DropdownMenuContent>
     </DropdownMenu>
   );
+}
+
+function menuItemRender(item: PhoneDockItem) {
+  const { render } = item;
+  if (typeof render === "function") {
+    return (props: React.HTMLAttributes<HTMLElement>) => render(props, {});
+  }
+  return render ?? <a href={item.href} />;
 }
 
 function DockItem({ item }: { item: PhoneDockItem }) {
