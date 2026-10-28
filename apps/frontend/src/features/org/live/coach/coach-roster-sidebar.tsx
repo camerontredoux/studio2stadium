@@ -253,7 +253,7 @@ function coachRosterSidebar({
     `${count(counts?.toReview, isPending)} to review`,
     `${count(counts?.favorites, isPending)} favorited`,
     ...(callbacksEnabled
-      ? [`${count(counts?.calledBack, isPending)} called back`]
+      ? [`${count(counts?.calledBack, isPending)} callbacks`]
       : []),
   ].join(" · ");
 
@@ -262,7 +262,7 @@ function coachRosterSidebar({
     sections,
     summary: summaryLine,
     aside: counts && counts.all > 0 && (
-      <span className="type-data-sm text-fg-2 shrink-0">
+      <span className="type-data-sm text-fg-2 bp-small:hidden shrink-0">
         {Math.round((counts.reviewed / counts.all) * 100)}% reviewed
       </span>
     ),

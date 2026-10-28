@@ -350,40 +350,43 @@ export function CoachDancersPage() {
   const filters = (
     <>
       <MarkToggles value={marks} onChange={setMarks} />
-      <Combobox
-        aria-label="GPA"
-        placeholder="GPA"
-        listLabel="GPA"
-        options={Object.keys(GPA_RANGES)}
-        optionLabel={(value) => GPA_RANGES[value]?.label ?? value}
-        value={gpa}
-        onChange={(value) => setGpa(value)}
-        className="w-[104px] shrink-0"
-      />
-      <Combobox
-        aria-label="State"
-        placeholder="State"
-        listLabel="States"
-        searchPlaceholder="Search states"
-        emptyText="No states match"
-        options={STATE_OPTIONS}
-        optionLabel={stateLabel}
-        value={state}
-        onChange={(value) => setState(value === ANY ? null : value)}
-        className="bp-phone:w-auto bp-phone:flex-1 w-[136px] shrink-0"
-      />
-      <Combobox
-        aria-label="Year"
-        placeholder="Year"
-        listLabel="Graduation years"
-        searchPlaceholder="Search years"
-        emptyText="No years match"
-        options={yearOptions}
-        optionLabel={yearLabel}
-        value={year}
-        onChange={(value) => setYear(value === ANY ? null : value)}
-        className="bp-phone:w-auto bp-phone:flex-1 w-[112px] shrink-0"
-      />
+      {/* On small phones the dropdowns share a row of their own. */}
+      <div className="bp-small:basis-full flex min-w-0 gap-(--space-8)">
+        <Combobox
+          aria-label="GPA"
+          placeholder="GPA"
+          listLabel="GPA"
+          options={Object.keys(GPA_RANGES)}
+          optionLabel={(value) => GPA_RANGES[value]?.label ?? value}
+          value={gpa}
+          onChange={(value) => setGpa(value)}
+          className="bp-small:w-auto bp-small:flex-1 w-[104px] shrink-0"
+        />
+        <Combobox
+          aria-label="State"
+          placeholder="State"
+          listLabel="States"
+          searchPlaceholder="Search states"
+          emptyText="No states match"
+          options={STATE_OPTIONS}
+          optionLabel={stateLabel}
+          value={state}
+          onChange={(value) => setState(value === ANY ? null : value)}
+          className="bp-phone:w-auto bp-phone:flex-1 w-[136px] shrink-0"
+        />
+        <Combobox
+          aria-label="Year"
+          placeholder="Year"
+          listLabel="Graduation years"
+          searchPlaceholder="Search years"
+          emptyText="No years match"
+          options={yearOptions}
+          optionLabel={yearLabel}
+          value={year}
+          onChange={(value) => setYear(value === ANY ? null : value)}
+          className="bp-phone:w-auto bp-phone:flex-1 w-[112px] shrink-0"
+        />
+      </div>
     </>
   );
 
@@ -418,7 +421,13 @@ export function CoachDancersPage() {
         </PanelToolbar>
         {/* Narrower rosters and phones put the filters on a row of their own. */}
         {(layout.cards || !layout.filterLabels) && (
-          <PanelToolbar aria-label="Filters" className={toolbarClass}>
+          <PanelToolbar
+            aria-label="Filters"
+            className={cn(
+              toolbarClass,
+              "bp-small:h-auto bp-small:flex-wrap bp-small:py-(--space-8)",
+            )}
+          >
             {filters}
           </PanelToolbar>
         )}
