@@ -430,7 +430,12 @@ export function CoachDancersPage() {
         {stackedFilters && (
           <PanelToolbar
             aria-label="Filters"
-            className={cn(toolbarClass, "h-auto flex-wrap pt-0 pb-(--space-8)")}
+            // Under the first row's divider the row needs its own top padding; over cards it shares the first row's.
+            className={cn(
+              toolbarClass,
+              "h-auto flex-wrap pb-(--space-8)",
+              layout.cards ? "pt-0" : "pt-(--space-8)",
+            )}
           >
             {filters(true)}
           </PanelToolbar>
