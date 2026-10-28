@@ -161,7 +161,7 @@ type DialogReadoutProps = Omit<React.ComponentProps<"div">, "children"> & {
   icon?: PhosphorIcon;
   /** The fixed value, shown in mono and truncated. */
   children: React.ReactNode;
-  /** A short mono note after the value, e.g. a time. */
+  /** A short mono note after the value, e.g. a time or an email. Truncated when long. */
   note?: React.ReactNode;
 };
 
@@ -187,7 +187,7 @@ function DialogReadout({
         {children}
       </span>
       {note != null && (
-        <span className="text-fg-3 shrink-0 font-mono text-[11px] leading-[1.4] tabular-nums">
+        <span className="text-fg-3 max-w-[60%] min-w-0 shrink truncate font-mono text-[11px] leading-[1.4] tabular-nums">
           {note}
         </span>
       )}

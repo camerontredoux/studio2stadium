@@ -24,7 +24,7 @@ export function useEventDancers(
     enabled,
     queryFn: async ({ signal }) => {
       const rows: RosterEntry[] = [];
-      for (let page = 1; ; page++) {
+      for (let page = 0; ; page++) {
         const { data, error } = await client.GET(
           "/orgs/{slug}/events/{id}/rosters",
           {
