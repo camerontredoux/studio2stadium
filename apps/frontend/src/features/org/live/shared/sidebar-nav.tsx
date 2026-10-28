@@ -25,7 +25,7 @@ export interface EventNavItem {
   /** Roster size shown at the right. */
   count?: number;
   current: boolean;
-  /** Leave this item out of the phone dock (it holds at most five). */
+  /** Leave this item out of the phone dock (it holds at most five); it moves to the "More" menu. */
   dock?: false;
 }
 
@@ -80,21 +80,22 @@ export function SidebarNavList({ items }: { items: EventNavItem[] }) {
   );
 }
 
-/** The phone dock (≤800px) built from the same items as the sidebar. */
+/**
+ * The phone dock (≤800px) built from the same items as the sidebar. Items the dock
+ * leaves out (`dock: false`, or past the fifth) go in a last "More" menu.
+ */
 export function EventPhoneDock({ items }: { items: EventNavItem[] }) {
   const { org } = useOrg();
+  const toDockItem = (item: EventNavItem) => ({
+    id: item.id,
+    label: item.label,
+    icon: item.icon,
+    current: item.current,
+    render: <Link to={item.to} params={{ orgSlug: org.slug }} />,
+  });
+  const docked = items.filter((item) => item.dock !== false).slice(0, 5);
+  const more = items.filter((item) => !docked.includes(item));
   return (
-    <PhoneDock
-      items={items
-        .filter((item) => item.dock !== false)
-        .slice(0, 5)
-        .map((item) => ({
-          id: item.id,
-          label: item.label,
-          icon: item.icon,
-          current: item.current,
-          render: <Link to={item.to} params={{ orgSlug: org.slug }} />,
-        }))}
-    />
+    <PhoneDock items={docked.map(toDockItem)} more={more.map(toDockItem)} />
   );
 }
