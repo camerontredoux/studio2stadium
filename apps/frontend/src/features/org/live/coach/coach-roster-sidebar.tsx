@@ -249,12 +249,10 @@ function coachRosterSidebar({
     },
   ];
 
+  // The roster's Callbacks tab already shows its count, so a phone's bar skips it.
   const summaryLine = [
     `${count(counts?.toReview, isPending)} to review`,
     `${count(counts?.favorites, isPending)} favorited`,
-    ...(callbacksEnabled
-      ? [`${count(counts?.calledBack, isPending)} callbacks`]
-      : []),
   ].join(" · ");
 
   return {
