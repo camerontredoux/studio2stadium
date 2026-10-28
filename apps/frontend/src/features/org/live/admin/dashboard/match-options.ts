@@ -3,6 +3,7 @@ type MatchDancer = {
   firstName: string;
   lastName: string;
   bibNumber: number | null;
+  email?: string | null;
   isRegistered: boolean;
 };
 
@@ -11,14 +12,33 @@ type MatchOptionGroup = {
   options: { value: string; label: string }[];
 };
 
+/** The groups in the shape the `Combobox` takes: option ids per group. */
+export function comboboxGroups(groups: readonly MatchOptionGroup[]) {
+  return groups.map(({ group, options }) => ({
+    group,
+    options: options.map((option) => option.value),
+  }));
+}
+
 function normalize(name: string) {
   return name.trim().toLowerCase();
 }
 
-/** "125 · Jason Jones", or just the name when the dancer has no bib. */
+/**
+ * "125 · Jason Jones · jason@example.com · already claimed". The bib, email and
+ * claimed marker are left out when the dancer has none. The picker searches this
+ * text, so a name or an email finds the row.
+ */
 export function dancerOptionLabel(dancer: MatchDancer) {
   const name = `${dancer.firstName} ${dancer.lastName}`.trim();
-  return dancer.bibNumber == null ? name : `${dancer.bibNumber} · ${name}`;
+  return [
+    dancer.bibNumber == null ? null : String(dancer.bibNumber),
+    name,
+    dancer.email || null,
+    dancer.isRegistered ? "already claimed" : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 }
 
 /**

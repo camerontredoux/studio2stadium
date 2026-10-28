@@ -24,7 +24,16 @@ const roster = [
 describe("dancerOptionLabel", () => {
   it("prefixes the bib when there is one", () => {
     expect(dancerOptionLabel(roster[0])).toBe("122 · Jane Doe");
-    expect(dancerOptionLabel(roster[3])).toBe("Juna Park");
+    expect(dancerOptionLabel(roster[3])).toBe("Juna Park · already claimed");
+  });
+
+  it("adds the email so search finds it, and marks claimed rows", () => {
+    expect(dancerOptionLabel({ ...roster[1], email: "mary@example.com" })).toBe(
+      "126 · Mary Miller · mary@example.com · already claimed",
+    );
+    expect(dancerOptionLabel({ ...roster[0], email: "jane@example.com" })).toBe(
+      "122 · Jane Doe · jane@example.com",
+    );
   });
 });
 
@@ -39,7 +48,9 @@ describe("matchOptionGroups", () => {
       "Not activated",
       "Active",
     ]);
-    expect(groups[0].options).toEqual([{ value: "a", label: "122 · Jane Doe" }]);
+    expect(groups[0].options).toEqual([
+      { value: "a", label: "122 · Jane Doe" },
+    ]);
     expect(groups[1].options.map((o) => o.value)).toEqual(["c"]);
     expect(groups[2].options.map((o) => o.value)).toEqual(["b", "d"]);
   });
@@ -70,10 +81,14 @@ describe("soleNameMatch", () => {
   it("returns null for none or several", () => {
     const twins = [...roster, dancer("e", "Jane", "Doe", 300, false)];
     expect(
-      soleNameMatch(matchOptionGroups(twins, { firstName: "Jane", lastName: "Doe" })),
+      soleNameMatch(
+        matchOptionGroups(twins, { firstName: "Jane", lastName: "Doe" }),
+      ),
     ).toBeNull();
     expect(
-      soleNameMatch(matchOptionGroups(roster, { firstName: "X", lastName: "Y" })),
+      soleNameMatch(
+        matchOptionGroups(roster, { firstName: "X", lastName: "Y" }),
+      ),
     ).toBeNull();
   });
 });
