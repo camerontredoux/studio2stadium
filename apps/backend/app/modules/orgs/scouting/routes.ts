@@ -3,6 +3,7 @@ import router from "@adonisjs/core/services/router";
 
 const ListDancersController = () => import("./dancers/list/controller.ts");
 const GetDancerById = () => import("./dancers/get-by-id/controller.ts");
+const SummarizeDancers = () => import("./dancers/summary/controller.ts");
 const CreateFavorite = () => import("./favorites/create/controller.ts");
 const DeleteFavorite = () => import("./favorites/delete/controller.ts");
 const ListFavorites = () => import("./favorites/list/controller.ts");
@@ -45,6 +46,11 @@ router
     router.get(":slug/dancers", [ListDancersController]).openapi({
       summary: "List dancers across organization events",
       description: "Coach-scoped dancer search by name, bib number, or event.",
+    });
+    router.get(":slug/dancer-summary", [SummarizeDancers]).openapi({
+      summary: "Summarize the coach's dancers",
+      description:
+        "Review progress, talent pool and recent activity for the coach's Dancers sidebar. Takes the dancer list's filters.",
     });
     router.get(":slug/dancers/:rosterId", [GetDancerById]);
     // Reading a past event's favorites has to survive the coach not being on

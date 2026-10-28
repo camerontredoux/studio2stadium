@@ -142,9 +142,10 @@ export class ListDancersService {
   /**
    * `WITH ... shown`: the coach's dancers with their marks, one row per dancer.
    * Across all of the org's events the same dancer can hold a roster row per
-   * event, so "All events" collapses them (see `deduped`).
+   * event, so "All events" collapses them (see `deduped`). The roster summary
+   * counts over the same rows.
    */
-  private shownDancers(
+  shownDancers(
     orgId: string,
     activeEventId: string | null,
     view: ScoutingViewScope | null,
@@ -309,7 +310,7 @@ export class ListDancersService {
    * The search box, filter tab and filters, over what the coach sees on each
    * row. They narrow the page, not the tab counts.
    */
-  private matches(q: Validator) {
+  matches(q: Validator) {
     const conditions: SQL[] = [sql`true`];
     if (q.search) {
       const pattern = likePattern(q.search);
@@ -330,6 +331,7 @@ export class ListDancersService {
     if (q.gpaMin !== undefined) conditions.push(sql`gpa >= ${q.gpaMin}`);
     if (q.gpaBelow !== undefined) conditions.push(sql`gpa < ${q.gpaBelow}`);
     if (q.state) conditions.push(sql`UPPER(TRIM(state)) = ${q.state}`);
+    if (q.year !== undefined) conditions.push(sql`grad_year = ${q.year}`);
     return sql.join(conditions, sql` AND `);
   }
 

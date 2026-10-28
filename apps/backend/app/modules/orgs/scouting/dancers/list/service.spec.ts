@@ -778,4 +778,26 @@ test.group("ListDancersService", (group) => {
     assert.equal(filtered.total, 1);
     assert.equal(filtered.counts.all, 5);
   });
+
+  test("filters by graduation year", async ({ assert }) => {
+    const { dancers, view } = await seedRoster();
+    const [eve, dee, cal] = dancers;
+    await db.insert(eventDancerProfiles).values([
+      { rosterId: eve!.id, gradYear: 2027 },
+      { rosterId: dee!.id, gradYear: 2028 },
+      { rosterId: cal!.id, gradYear: 2027 },
+    ]);
+    const svc = new ListDancersService();
+
+    const result = await svc.execute(summit.id, event.id, view, {
+      year: 2027,
+    });
+
+    assert.deepEqual(
+      result.data.map((r) => r.firstName),
+      ["Eve", "Cal"]
+    );
+    assert.equal(result.total, 2);
+    assert.equal(result.counts.all, 5);
+  });
 });

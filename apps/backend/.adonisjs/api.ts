@@ -447,6 +447,10 @@ type OrgsIdDancersGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/dancers/list/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/dancers/list/controller.ts').default['handle'], true>
 }
+type OrgsIdDancersummaryGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/dancers/list/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/dancers/summary/controller.ts').default['handle'], true>
+}
 type OrgsIdDancersIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/event-query-validator.ts')['eventQuerySchema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/dancers/get-by-id/controller.ts').default['handle'], true>
@@ -1636,6 +1640,12 @@ export interface ApiDefinition {
             '$head': OrgsIdDancersIdCallbacksGetHead;
           };
         };
+      };
+      'dancer-summary': {
+        '$url': {
+        };
+        '$get': OrgsIdDancersummaryGetHead;
+        '$head': OrgsIdDancersummaryGetHead;
       };
       'favorites': {
         '$url': {

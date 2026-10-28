@@ -1,4 +1,4 @@
-import { infiniteQueryOptions } from "@tanstack/react-query";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 
 import { $api, client } from "@/lib/api/client";
 import type { paths } from "@/lib/api/types";
@@ -68,6 +68,31 @@ export const scoutingQueries = {
           : undefined,
     });
   },
+  /**
+   * The coach's roster sidebar: review progress, talent pool and recent marks,
+   * for the same filters as `dancerPages`. The key extends the dancer lists'
+   * key too, so every invalidation aimed at them refreshes it.
+   */
+  dancerSummary: (
+    slug: string,
+    params: Omit<DancerListParams, "page" | "limit"> = {},
+  ) =>
+    queryOptions({
+      queryKey: [
+        "get",
+        "/orgs/{slug}/dancers",
+        { params: { path: { slug }, query: params } },
+        "summary",
+      ] as const,
+      queryFn: async ({ signal }) => {
+        const { data, error } = await client.GET(
+          "/orgs/{slug}/dancer-summary",
+          { params: { path: { slug }, query: params }, signal },
+        );
+        if (error) throw error;
+        return data;
+      },
+    }),
   dancer: (slug: string, rosterId: string, eventId?: string) =>
     $api.queryOptions("get", "/orgs/{slug}/dancers/{rosterId}", {
       params: { path: { slug, rosterId }, query: { eventId } },
