@@ -5172,6 +5172,7 @@ export interface paths {
                 query?: {
                     search?: string | null;
                     filter?: ("all" | "favorites" | "calledBack" | "rated") | null;
+                    year?: (string | number) | null;
                     eventId?: string | null;
                     state?: string | null;
                     interested?: (string | number | boolean) | null;
@@ -5459,6 +5460,64 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["OrgsIdDancersIdCallbacksResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orgs/{slug}/dancer-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Summarize the coach's dancers
+         * @description Review progress, talent pool and recent activity for the coach's Dancers sidebar. Takes the dancer list's filters.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    search?: string | null;
+                    filter?: ("all" | "favorites" | "calledBack" | "rated") | null;
+                    year?: (string | number) | null;
+                    eventId?: string | null;
+                    state?: string | null;
+                    interested?: (string | number | boolean) | null;
+                    limit?: (string | number) | null;
+                    page?: (string | number) | null;
+                    sortBy?: ("name" | "gpa" | "year" | "studio" | "rating" | "rank" | "bib") | null;
+                    sortDir?: ("asc" | "desc") | null;
+                    bib?: (string | number) | null;
+                    rated?: (string | number | boolean) | null;
+                    favorited?: (string | number | boolean) | null;
+                    hasNote?: (string | number | boolean) | null;
+                    gpaMin?: (string | number) | null;
+                    gpaBelow?: (string | number) | null;
+                };
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrgsIdDancersummaryResponse"];
                     };
                 };
             };
@@ -13287,6 +13346,44 @@ export interface components {
             callbackCount: number;
             releasedCount: number;
         }[];
+        OrgsIdDancersummaryResponse: {
+            activity: {
+                eventId: string;
+                at: string;
+                /** @enum {string} */
+                type: "favorite" | "note" | "rate";
+                rosterId: string;
+                firstName: string;
+                lastName: string;
+                bibNumber: number | null;
+                rating: number | null;
+            }[];
+            counts: {
+                all: number;
+                reviewed: number;
+                toReview: number;
+                matching: number;
+                matchingToReview: number;
+                favorites: number;
+                calledBack: number;
+            };
+            talentPool: {
+                gpa: {
+                    /** @enum {string} */
+                    key: "under-2.5" | "2.5-3.0" | "3.0-3.5" | "3.5-4.0" | "4.0+";
+                    count: number;
+                }[];
+                years: {
+                    year: number;
+                    count: number;
+                }[];
+                states: {
+                    state: string;
+                    count: number;
+                }[];
+                otherStates: number;
+            };
+        };
         OrgsIdFavoritesResponse: {
             rosterId: string;
             bibNumber: number | null;

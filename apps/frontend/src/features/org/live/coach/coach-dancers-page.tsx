@@ -42,12 +42,18 @@ import { ShellPage } from "@/features/org/live/shared/shell-slots";
 import { useActiveOrgEvent } from "@/features/org/live/shared/use-active-org-event";
 import { REGIONS } from "@/utils/constants/states";
 
+import {
+  CoachRosterPanel,
+  CoachRosterRail,
+  type CoachRosterSidebarInput,
+} from "./coach-roster-sidebar";
 import { useCoachScouting, type ScoutedDancer } from "./coach-scouting";
 import {
   DancerRosterCards,
   DancerRosterTable,
   type RosterEmpty,
 } from "./dancer-roster-table";
+import { GPA_RANGES } from "./roster-filters";
 import { useRosterLayout } from "./roster-layout";
 import { nextSort, type RosterSort } from "./roster-order";
 
@@ -87,31 +93,17 @@ const MARKS: {
   { value: "hasNote", label: "Has notes", icon: PencilSimpleIcon },
 ];
 
-/** The "any" choice that clears the State filter. */
+/** The "any" choice that clears the State or Year filter. */
 const ANY = "any";
-
-/**
- * GPA buckets, lowest first: at least `gpaMin`, under `gpaBelow`. The keys are
- * not whole numbers so the object keeps this order.
- */
-const GPA_RANGES: Record<
-  string,
-  { label: string; gpaMin?: number; gpaBelow?: number }
-> = {
-  "under-2.5": { label: "Under 2.5", gpaBelow: 2.5 },
-  "2.5-3.0": { label: "2.5-3.0", gpaMin: 2.5, gpaBelow: 3 },
-  "3.0-3.5": { label: "3.0-3.5", gpaMin: 3, gpaBelow: 3.5 },
-  "3.5-4.0": { label: "3.5-4.0", gpaMin: 3.5, gpaBelow: 4 },
-  "4.0+": { label: "4.0+", gpaMin: 4 },
-};
 
 const STATE_OPTIONS = [ANY, ...Object.keys(REGIONS)];
 const stateLabel = (code: string) =>
   code === ANY ? "Any state" : REGIONS[code as keyof typeof REGIONS];
+const yearLabel = (year: string) => (year === ANY ? "Any year" : year);
 
 /**
  * The coach's Dancers page: filter (all / called), toggles for their own marks,
- * GPA and state, search, a sortable roster with their marks on every row, and
+ * GPA, state and year, search, a sortable roster with their marks on every row, and
  * bulk call back / favorite.
  * It opens on their event; "All events" browses every Org Event's dancers
  * read-only, as the old page allowed before the event started. The server
@@ -140,6 +132,7 @@ export function CoachDancersPage() {
   const [marks, setMarks] = useState<Mark[]>([]);
   const [gpa, setGpa] = useState<string | null>(null);
   const [state, setState] = useState<string | null>(null);
+  const [year, setYear] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   // The search the server sees trails the box by a beat, so typing a name
   // sends one request rather than one per letter.
@@ -158,15 +151,19 @@ export function CoachDancersPage() {
     !callbacksEnabled && filter === "called" ? "all" : filter;
   const q = search;
 
+  const listParams = {
+    eventId,
+    filter: SERVER_FILTER[effectiveFilter],
+    search: q || undefined,
+    ...Object.fromEntries(marks.map((mark) => [mark, true])),
+    gpaMin: gpa ? GPA_RANGES[gpa]?.gpaMin : undefined,
+    gpaBelow: gpa ? GPA_RANGES[gpa]?.gpaBelow : undefined,
+    state: state ?? undefined,
+    year: year ? Number(year) : undefined,
+  };
   const dancersQuery = useInfiniteQuery({
     ...scoutingQueries.dancerPages(slug, {
-      eventId,
-      filter: SERVER_FILTER[effectiveFilter],
-      search: q || undefined,
-      ...Object.fromEntries(marks.map((mark) => [mark, true])),
-      gpaMin: gpa ? GPA_RANGES[gpa]?.gpaMin : undefined,
-      gpaBelow: gpa ? GPA_RANGES[gpa]?.gpaBelow : undefined,
-      state: state ?? undefined,
+      ...listParams,
       sortBy: sort.key,
       sortDir: sort.dir,
     }),
@@ -182,6 +179,21 @@ export function CoachDancersPage() {
     [pages],
   );
   const counts = pages?.[0]?.counts;
+  // The sidebar counts the whole roster for the same filters, so it doesn't
+  // refetch when only the sort changes.
+  const summaryQuery = useQuery({
+    ...scoutingQueries.dancerSummary(slug, listParams),
+    enabled: eventChoice !== undefined,
+    placeholderData: keepPreviousData,
+  });
+  const summary = summaryQuery.data;
+  const yearOptions = useMemo(
+    () => [
+      ANY,
+      ...(summary?.talentPool.years ?? []).map((row) => String(row.year)),
+    ],
+    [summary?.talentPool.years],
+  );
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [rosterBox, setRosterBox] = useState<HTMLDivElement | null>(null);
@@ -189,7 +201,7 @@ export function CoachDancersPage() {
 
   useEffect(() => {
     setSelectedIds(new Set());
-  }, [eventChoice, effectiveFilter, q, marks, gpa, state]);
+  }, [eventChoice, effectiveFilter, q, marks, gpa, state, year]);
   useEffect(() => {
     setSheetFor(null);
   }, [eventChoice]);
@@ -275,12 +287,14 @@ export function CoachDancersPage() {
       "favorites",
     );
 
-  const narrowed = marks.length > 0 || gpa !== null || state !== null;
+  const narrowed =
+    marks.length > 0 || gpa !== null || state !== null || year !== null;
   const clearFilters = () => {
     setFilter("all");
     setMarks([]);
     setGpa(null);
     setState(null);
+    setYear(null);
     setQuery("");
     setSearch("");
   };
@@ -305,7 +319,10 @@ export function CoachDancersPage() {
             action: <Button onClick={clearFilters}>Clear filters</Button>,
           };
 
-  const sheetDancer = rows.find((d) => d.rosterId === sheetFor);
+  // A dancer opened from the sidebar's activity may not be on a loaded page.
+  const sheetDancer =
+    rows.find((d) => d.rosterId === sheetFor) ??
+    summary?.activity.find((item) => item.rosterId === sheetFor);
 
   const header = (
     <SubpageHeader
@@ -354,6 +371,18 @@ export function CoachDancersPage() {
         value={state}
         onChange={(value) => setState(value === ANY ? null : value)}
         className="bp-phone:w-auto bp-phone:flex-1 w-[136px] shrink-0"
+      />
+      <Combobox
+        aria-label="Year"
+        placeholder="Year"
+        listLabel="Graduation years"
+        searchPlaceholder="Search years"
+        emptyText="No years match"
+        options={yearOptions}
+        optionLabel={yearLabel}
+        value={year}
+        onChange={(value) => setYear(value === ANY ? null : value)}
+        className="bp-phone:w-auto bp-phone:flex-1 w-[112px] shrink-0"
       />
     </>
   );
@@ -425,7 +454,7 @@ export function CoachDancersPage() {
     rows,
     scrollRef,
     // A new search, filter, sort or event starts again from the top.
-    resetKey: [eventChoice, effectiveFilter, q, marks, gpa, state, sort],
+    resetKey: [eventChoice, effectiveFilter, q, marks, gpa, state, year, sort],
     hasMore: dancersQuery.hasNextPage && !dancersQuery.isFetchNextPageError,
     loadingMore: dancersQuery.isFetchingNextPage,
     onLoadMore: () => void fetchNextPage(),
@@ -439,13 +468,24 @@ export function CoachDancersPage() {
     </div>
   );
 
+  const sidebar: CoachRosterSidebarInput = {
+    summary,
+    isPending: summaryQuery.isPending,
+    isError: summaryQuery.isError,
+    onRetry: () => void summaryQuery.refetch(),
+    callbacksEnabled,
+    narrowed: narrowed || q !== "" || effectiveFilter !== "all",
+    onOpenDancer: setSheetFor,
+  };
+
   return (
-    <ShellPage header={header}>
+    <ShellPage header={header} rail={<CoachRosterRail {...sidebar} />}>
       {/* The roster's own width, not the window's, picks table or cards. */}
       <div
         ref={setRosterBox}
         className="desk:max-h-[calc(100vh-64px)] flex min-h-0 min-w-0 flex-col gap-(--space-8)"
       >
+        <CoachRosterPanel {...sidebar} />
         {layout.cards ? (
           <>
             <Panel aria-label="Filter dancers">{toolbar}</Panel>

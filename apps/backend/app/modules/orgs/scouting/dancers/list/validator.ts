@@ -21,6 +21,8 @@ export const schema = vine.compile(
     gpaBelow: vine.number().min(0).max(5).optional(),
     /** Two-letter state or province code, as a row shows it. */
     state: vine.string().trim().toUpperCase().fixedLength(2).optional(),
+    /** Graduation year, as the Year column shows it. */
+    year: vine.number().withoutDecimals().min(1900).max(2100).optional(),
     sortBy: vine
       .enum(["bib", "name", "year", "studio", "gpa", "rating", "rank"] as const)
       .optional(),

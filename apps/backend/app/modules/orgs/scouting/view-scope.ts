@@ -2,6 +2,8 @@ import { db } from "#database/connection";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { eventShowcases } from "#database/schema/event-features";
 import { and, desc, eq } from "drizzle-orm";
+import type { HttpContext } from "@adonisjs/core/http";
+import type { EnsureActiveShowcaseService } from "./showcases/ensure-active/service.ts";
 
 export interface ScoutingViewScope {
   /** The event the coach's own scouting data is read against. */
@@ -71,4 +73,35 @@ export async function findActiveShowcaseId(eventId: string) {
     .orderBy(desc(eventShowcases.number))
     .limit(1);
   return showcase?.id ?? null;
+}
+
+/**
+ * The scope the coach's Dancers list and its summary read their marks from:
+ * the chosen event's, else the active event's ("All events" keeps the marks
+ * on the active event). Null when there is neither. `false` when the chosen
+ * event does not belong to the org.
+ */
+export async function resolveDancerListView(
+  ctx: HttpContext,
+  eventId: string | undefined,
+  ensureShowcase: EnsureActiveShowcaseService
+): Promise<ScoutingViewScope | null | false> {
+  if (eventId) {
+    const view = await resolveScoutingViewScope(
+      ctx.org!.id,
+      ctx.auth.user!.id,
+      eventId
+    );
+    return view ?? false;
+  }
+  const event = ctx.orgEvent;
+  if (event && ctx.orgRoster) {
+    const showcase = await ensureShowcase.execute(event.id);
+    return {
+      eventId: event.id,
+      coachRosterId: ctx.orgRoster.id,
+      showcaseId: showcase?.id ?? null,
+    };
+  }
+  return null;
 }

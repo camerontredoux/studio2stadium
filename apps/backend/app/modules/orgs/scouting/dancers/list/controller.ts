@@ -3,10 +3,7 @@ import type { HttpContext } from "@adonisjs/core/http";
 import { ListDancersService } from "./service.ts";
 import { EnsureActiveShowcaseService } from "../../showcases/ensure-active/service.ts";
 import { schema } from "./validator.ts";
-import {
-  resolveScoutingViewScope,
-  type ScoutingViewScope,
-} from "../../view-scope.ts";
+import { resolveDancerListView } from "../../view-scope.ts";
 
 export default class ListDancersController {
   @inject()
@@ -23,27 +20,15 @@ export default class ListDancersController {
     // organization's complete dancer history.
     const filterCheckedInOnly = false;
 
-    let view: ScoutingViewScope | null = null;
-    if (payload.eventId) {
-      view = await resolveScoutingViewScope(
-        ctx.org!.id,
-        ctx.auth.user!.id,
-        payload.eventId
-      );
-      if (!view) {
-        return ctx.response.unprocessableEntity({
-          message: "Selected event does not belong to this organization.",
-        });
-      }
-    } else if (event && ctx.orgRoster) {
-      // "All events" collapses each dancer to one row, preferring the active
-      // event's, so the marks stay scoped to the active event there.
-      const showcase = await ensureShowcase.execute(event.id);
-      view = {
-        eventId: event.id,
-        coachRosterId: ctx.orgRoster.id,
-        showcaseId: showcase?.id ?? null,
-      };
+    const view = await resolveDancerListView(
+      ctx,
+      payload.eventId,
+      ensureShowcase
+    );
+    if (view === false) {
+      return ctx.response.unprocessableEntity({
+        message: "Selected event does not belong to this organization.",
+      });
     }
 
     const rows = await service.execute(

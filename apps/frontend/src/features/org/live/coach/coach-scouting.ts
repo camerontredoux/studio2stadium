@@ -215,6 +215,11 @@ export function useCoachScouting() {
           : old,
       );
       void qc.invalidateQueries({ queryKey: ["get", "/orgs/{slug}/rankings"] });
+      // The roster sidebar counts notes as reviews and lists them as activity.
+      void qc.invalidateQueries({
+        queryKey: ["get", "/orgs/{slug}/dancers"],
+        predicate: (query) => query.queryKey[3] === "summary",
+      });
       return true;
     },
     [slug, qc, upsertNote, deleteNote],
